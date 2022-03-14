@@ -685,7 +685,20 @@ bool Transient::doRun()
   }
   else
   {
-    bsuccess   = doInit() && doTranOP () && doLoopProcess() && doFinish();
+    bsuccess = doInit() && doTranOP();
+    if( bsuccess && analysisManager_.getStepErrorControl().isPauseTime() )
+    {
+      // DC op calculation was successful but there was a pause time set 
+      // at time=0.0.  This can occur if a controlling program is having 
+      // Xyce setup a transient run (i.e. do the DC OP) but not take an
+      // initial time step.  So return from the doRun() method here and
+      // when called to resume, the analysisManager_.getResumingSimulation()
+      // branch will be called above.
+      analysisManager_.getStepErrorControl().simulationPaused(tiaParams_.initialTime);
+      isPaused = true;
+      return bsuccess;
+    }
+    bsuccess = bsuccess && doLoopProcess() && doFinish();
   }
 
   if (condTestFlag)

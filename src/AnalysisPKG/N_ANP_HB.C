@@ -141,6 +141,8 @@ HB::HB(
     loadTimeB_(1),
     method_("APFT"),
     intmodMaxGiven_(false),
+    selectHarm_("BOX"),
+    selectHarmGiven_(false),
     solverFactory_(0),
     precFactory_(0),
     resetForStepCalledBefore_(false)
@@ -874,7 +876,6 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
       stringVal.toUpper();
       method_ = stringVal;
     }
-
     else if ( tag == "NUMTPTS") 
     {
       numTimePts_ = iterPL->getImmutableValue<int>();
@@ -882,6 +883,15 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
     else if ( tag == "HBOSC") 
     {
       hbOsc_ = static_cast<bool> (iterPL->getImmutableValue<int>());
+    }
+    else if ( tag == "SELECTHARMS" )
+    {
+      ExtendedString stringVal ( iterPL->stringValue() );
+      stringVal.toUpper();
+      selectHarm_ = stringVal;
+
+      if ( selectHarm_ != "" )
+        selectHarmGiven_ = true;
     }
     else if ( tag == "REFNODE") 
     {
@@ -1099,7 +1109,7 @@ void HB::prepareHBOutput(
     std::vector<std::pair<double, double>> realList, imagList;
     int sizePos = (size_ - 1)/2;
 
-    if ( (( method_ == "AFM") || (method_ == "HYBRID") ) && ( lid >= 0 ) )
+    if ( ( selectHarm_ == "BOX") && ( lid >= 0 ) )
     { 
 
 //      std::vector<std::pair<double, double>> realList, imagList;
@@ -1156,7 +1166,7 @@ void HB::prepareHBOutput(
       if (lid >= 0)
       {
 
-        if ((method_ == "AFM" ) || (method_ == "HYBRID"))
+        if ( selectHarm_ ==  "BOX" )
         {
         realVecRef_neg[lid] = realList[ sizePos - i].second;
         imagVecRef_neg[lid] = imagList[ sizePos - i].second;
@@ -1550,18 +1560,45 @@ bool HB::setFreqPointsAPFT_()
 //-----------------------------------------------------------------------------
 bool HB::setFreqPoints_()
 {
-  if ( method_ == "APFT" )
+
+  if (  !selectHarmGiven_ )
+  {
+    if ( method_ == "APFT" )
+    {
+
+      selectHarm_ =  "HYBRID";
+    }
+    else if ( method_ == "AFM" )
+    {
+      selectHarm_ = "BOX";
+    }
+    else
+    {
+      Report::UserError() << "Unsupported method for HB";
+      return false;
+    }
+  }
+
+
+  if (  selectHarm_ == "HYBRID" )
   {
 
     setFreqPointsAPFT_();
+
+    if ( method_ == "AFM" )
+    {
+      Report::UserError() << "Unsupported frequency truncation method for FM based HB";
+      return false;
+    }
+
   }
-  else if ( ( method_ == "AFM"   ) || (method_ == "HYBRID") )
+  else if (  selectHarm_  == "BOX" )
   {
     setFreqPointsFM_();
   }
   else
   {
-    Report::UserError() << "Unsupported method for HB";
+    Report::UserError() << "Unsupported frequency truncation method for HB";
     return false;
   }
 
@@ -2864,6 +2901,7 @@ populateMetadata(
 
     parameters.insert(Util::ParamMap::value_type("HBOSC", Util::Param("HBOSC", false)));
     parameters.insert(Util::ParamMap::value_type("LOADTIMESOURCES", Util::Param("LOADTIMESOURCES", 1)));
+    parameters.insert(Util::ParamMap::value_type("SELECTHARMS", Util::Param("SELECTHARMS", "BOX")));
     parameters.insert(Util::ParamMap::value_type("REFNODE", Util::Param("REFNODE",  "")));
   }
 }

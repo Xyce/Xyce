@@ -830,10 +830,9 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
 {
   Depend dependentParam;
-  setDependentParameter(par, dependentParam, depend);
-
   dependentParam.resultU.result = res;
   dependentParam.vectorIndex = -1;
+  setDependentParameter(par, dependentParam, depend);
   dependentParams_.push_back(dependentParam);
 
   // needed for new expression
@@ -907,10 +906,9 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
 {
   Depend dependentParam;
-  setDependentParameter(par,dependentParam, depend);
-
   dependentParam.resultU.resVec = res;
   dependentParam.vectorIndex = ind;
+  setDependentParameter(par,dependentParam, depend);
   dependentParams_.push_back(dependentParam);
 
   // needed for new expressionn
@@ -945,10 +943,9 @@ int DeviceEntity::setDependentParameter (Util::Param & par,
                                             ParameterType::ExprAccess depend)
 {
   Depend dependentParam;
-  setDependentParameter(par, dependentParam, depend);
-
   dependentParam.resultU.iresult = res;
   dependentParam.vectorIndex = -2;
+  setDependentParameter(par, dependentParam, depend);
   dependentParams_.push_back(dependentParam);
 
   // needed for new expression
@@ -1111,6 +1108,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   if (isVarDep)
   {
     const std::vector<std::string> & variables = dependentParam.expr->getVariables(); 
+
     std::vector<std::string>::const_iterator iterVariable;
     for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
@@ -1122,7 +1120,22 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
       else 
       {
-       dependentParam.n_global++;
+        dependentParam.n_global++; 
+
+        // add this entity and params to the temporary map 
+        std::unordered_map <std::string, std::vector <Depend> >::iterator tmpGlobalIter = 
+          tmpGlobalParams_.find(*iterVariable);
+
+        if (tmpGlobalIter != tmpGlobalParams_.end())
+        {
+          tmpGlobalIter->second.push_back(dependentParam);
+        }
+        else
+        {
+          std::vector<Depend> tmpVec(0); 
+          tmpGlobalParams_[*iterVariable] = tmpVec;
+          tmpGlobalParams_[*iterVariable].push_back(dependentParam);
+        }
       }
     }
   }
@@ -1240,6 +1253,112 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
            dpIter->expr->isSolutionDependent()  // can't easily know at this point if solution has changed. fix later?
         ) 
     { 
+      if (dpIter->expr->evaluateFunction (rval)) 
+      {
+        changed = true; 
+
+        if (devOptions_.lengthScaleGiven)
+        {
+          ParameterMap::const_iterator p_i = getParameterMap().find(dpIter->name);
+          if (p_i != getParameterMap().end())
+          {
+            double scalar = devOptions_.lengthScale;
+            const Descriptor &param = *(*p_i).second;
+            if (param.getLengthScaling())  { rval *= scalar; }
+            else if (param.getAreaScaling()) { rval *= scalar*scalar; }
+          }
+        }
+
+        // apply the expression result to parameters, if it has changed.
+        if (dpIter->vectorIndex==-2)
+        {
+          *(dpIter->resultU.iresult) = static_cast<int>(rval);
+        }
+        else if (dpIter->vectorIndex==-1)
+        {
+          *(dpIter->resultU.result) = rval;
+        }
+        else
+        {
+          (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+        }
+
+        if (dpIter->storeOriginal)
+          Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
+      }
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        const std::string & expr = dpIter->expr->get_expression();
+
+        if (expr.size() <= 100)
+        {
+          std::cout << "just evaluated " << dpIter->expr->get_expression() << " val = " << rval;
+        }
+        else
+        {
+          std::string shortExpr (expr,0,100);
+          std::cout << "just evaluated " << shortExpr << " ... " << " val = " << rval;
+        }
+
+        if (changed==true) { std::cout << " changed=true"; }
+        else { std::cout << " changed=false"; }
+
+        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        else { std::cout << " globalParDep=false"; }
+
+        if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
+        else { std::cout << " timeDep=false"; }
+
+        if ( (dpIter->expr->isFreqDependent() && freqChanged) ) { std::cout << " freqDep=true"; }
+        else { std::cout << " freqDep=false"; }
+
+        if ( (dpIter->expr->isSolutionDependent() ) ) { std::cout << " solutionDep=true"; }
+        else { std::cout << " solutionDep=false"; }
+
+        std::cout << std::endl;
+      }
+    }
+  }
+
+  return changed;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool DeviceEntity::updateGlobalAndDependentParameters(
+    bool globalParameterChanged,
+    bool timeChanged,
+    bool freqChanged,
+    std::vector<Depend> & parameter_vec)
+{
+  std::vector<Depend>::iterator dpIter = parameter_vec.begin();
+  std::vector<Depend>::iterator end = parameter_vec.end();
+  double rval;
+  int i, hi;
+  bool changed = false;
+
+  for ( ; dpIter != end ; ++dpIter)
+  {
+    // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
+    if ( !(dependentParamExcludeMap_.empty()) ) 
+    {
+      // check for a setParam call
+      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
+    {
+      // check for a scaleParam call
+      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( ((dpIter->n_global > 0) && globalParameterChanged) || 
+           (dpIter->expr->isTimeDependent() && timeChanged) ||
+           (dpIter->expr->isFreqDependent() && freqChanged) ||
+           dpIter->expr->isSolutionDependent()  
+        ) 
+    {
       if (dpIter->expr->evaluateFunction (rval)) 
       {
         changed = true; 
@@ -1510,6 +1629,8 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
   std::vector<Param>::const_iterator begin=params.begin();
   std::vector<Param>::const_iterator end=params.end();
   
+  tmpGlobalParams_.clear();
+
   std::vector<std::string> composite_name_list;
   unordered_map<std::string, std::vector<CompositeParam *>, HashNoCase, EqualNoCase> composite_parameter_map;
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
@@ -1881,6 +2002,35 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
         (*it)->processParams();
       }
     }
+  }
+
+  if ( !(tmpGlobalParams_.empty()) )
+  {
+    std::unordered_map <std::string, std::vector <Depend> >::iterator it = tmpGlobalParams_.begin(); 
+    std::unordered_map <std::string, std::vector <Depend> >::iterator end = tmpGlobalParams_.end(); 
+
+    for ( ; it!=end; it++)
+    {
+      std::vector<std::string> & global_exp_names = globals_.expNameVec;
+      std::vector< std::vector<entityDepend> > & device_entity_depend_vec = globals_.deviceEntityDependVec; 
+      std::vector<std::string>::iterator name_it = 
+        std::find(global_exp_names.begin(), global_exp_names.end(), it->first);
+      if (name_it == global_exp_names.end())
+      {
+        Report::UserError() << "Xyce::Device::DeviceEntity::setDependentParameter.  Unable to find parameter " << it->first;
+      }
+      else
+      {
+        int globalIndex = std::distance (global_exp_names.begin(), name_it );
+
+        entityDepend ed;
+        ed.entityPtr = this;
+        ed.parameterVec = it->second;
+        device_entity_depend_vec[globalIndex].push_back(ed);
+      }
+    }
+
+    //tmpGlobalParams_.clear(); // we don't need this anymore
   }
 }
 

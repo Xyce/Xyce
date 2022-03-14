@@ -524,7 +524,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
     if (useExpressionSamples_)
     {
-      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
+      reset = Xyce::Analysis::UQ::updateExpressionSamplingTerms2(loader_, i, samplingVector_, Y_, numQuadPoints_, false);
     }
     else
     {

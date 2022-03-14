@@ -152,6 +152,7 @@ install(FILES
     CircuitPKG/N_CIR_GenCouplingSimulator.h
     DeviceModelPKG/Core/N_DEV_Configuration.h
     DeviceModelPKG/Core/N_DEV_Const.h
+    DeviceModelPKG/Core/N_DEV_Depend.h
     DeviceModelPKG/Core/N_DEV_Device.h
     DeviceModelPKG/Core/N_DEV_DeviceBlock.h
     DeviceModelPKG/Core/N_DEV_DeviceEntity.h
@@ -228,4 +229,47 @@ install(FILES
     UtilityPKG/N_UTL_TypeIndex.h
     UtilityPKG/N_UTL_Xyce.h
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
+DESTINATION include)
+
+# When Charon uses a specific part Xyce as a TPL, it links to code deep in
+# Xyce.  Therefore, it requires a lot more headers to be installed for proper
+# linking.  We're installing the headers for all Charon builds, because it is
+# not worth dealing with yet another special use case.
+if(${TriBITS_prefix} STREQUAL "tcad-charon")
+  install(FILES 
+    AnalysisPKG/N_ANP_AnalysisBase.h
+    AnalysisPKG/N_ANP_AnalysisEvent.h
+    AnalysisPKG/N_ANP_AnalysisManager.h
+    AnalysisPKG/N_ANP_RegisterAnalysis.h
+    AnalysisPKG/N_ANP_SecondLevelManager.h
+    AnalysisPKG/N_ANP_StepEvent.h
+    AnalysisPKG/N_ANP_SweepParam.h
+    CircuitPKG/N_CIR_SecondLevelSimulator.h
+    DeviceModelPKG/Core/N_DEV_CompositeParam.h
+    DeviceModelPKG/Core/N_DEV_ScalingVars.h
+    DeviceModelPKG/Core/N_DEV_SpecieSource.h
+    DeviceModelPKG/Core/N_DEV_TransportHelper.h
+    DeviceModelPKG/SandiaModels/N_DEV_1D_QASPR.h
+    DeviceModelPKG/TCADModels/N_DEV_BernouliSupport.h
+    DeviceModelPKG/TCADModels/N_DEV_DevicePDEInstance.h
+    DeviceModelPKG/TCADModels/N_DEV_DevicePDEModel.h
+    DeviceModelPKG/TCADModels/N_DEV_DiodePDE.h
+    DeviceModelPKG/TCADModels/N_DEV_DopeInfo.h
+    DeviceModelPKG/TCADModels/N_DEV_FermiIntegrals.h
+    DeviceModelPKG/TCADModels/N_DEV_MaterialLayer.h
+    DeviceModelPKG/TCADModels/N_DEV_MaterialSupport.h
+    DeviceModelPKG/TCADModels/N_DEV_PDE_Electrode.h
+    DeviceModelPKG/TCADModels/N_DEV_bcData.h
+    ErrorHandlingPKG/N_ERH_ErrorMgr.h
+    TimeIntegrationPKG/N_TIA_TIAParams.h
+    UtilityPKG/ExpressionSrc/astRandEnum.h
+    UtilityPKG/ExpressionSrc/expressionParamTypes.h
+    UtilityPKG/N_UTL_Dump.h
+    UtilityPKG/N_UTL_ExtendedString.h
+    UtilityPKG/N_UTL_Factory.h
+    UtilityPKG/N_UTL_Interpolators.h
+    UtilityPKG/N_UTL_Listener.h
+    UtilityPKG/N_UTL_Timer.h
+    UtilityPKG/N_UTL_WallTime.h
   DESTINATION include)
+endif()

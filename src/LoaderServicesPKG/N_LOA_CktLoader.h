@@ -191,10 +191,9 @@ public:
   // Function for setting a single parameter value.
   bool setParam(std::string & name, double val, bool overrideOriginal=false);
 
-  virtual bool setParamRandomExpressionTerms(
-      std::string & name, std::string & opName, int opIndex,
-      int astType,
-      double val, bool overrideOriginal = false);
+  virtual bool setParamRandomExpressionTerms2(
+      const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
+      bool overrideOriginal = false);
 
   // Function for getting a single parameter value.
   virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const;

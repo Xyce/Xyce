@@ -92,7 +92,6 @@ public:
   int getMeasDgt() const { return measDgt_; }
   bool isMeasDgtGiven() const { return measDgtGiven_; }
   bool getMeasFail() const { return measFail_; }
-  bool isMeasFailGiven() const { return measFailGiven_; }
   bool getUseLTTM() const { return useLTTM_; }
   double getMeasGlobalDefaultVal() const { return measGlobalDefaultVal_; }
   bool isMeasGlobalDefaultValGiven() const { return measGlobalDefaultValGiven_; }
@@ -205,7 +204,6 @@ private:
   bool measDgtGiven_;
   // used for .OPTIONS MEASURE MEASFAIL
   bool measFail_;
-  bool measFailGiven_;
   // used for .OPTIONS MEASURE MEASOUT
   bool measOut_;
   bool measOutGiven_;

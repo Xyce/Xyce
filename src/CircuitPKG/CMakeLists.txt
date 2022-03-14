@@ -11,5 +11,6 @@ target_sources(XyceLib PRIVATE
 # add header files to project
 target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_subdirectory(test)
 # -- build requested libraries -----------------------------------------------
 # libxyce is created at top level.  See ${Xyce_SOURCE_DIR}/src/CMakeLists.txt

@@ -117,6 +117,7 @@
 #include <N_ANP_OpBuilders.h>
 #include <N_ANP_RegisterAnalysis.h>
 
+#include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 
@@ -131,6 +132,8 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
+#include <N_UTL_Op.h>
+#include <N_UTL_Param.h>
 #include <N_UTL_PrintStats.h>
 #include <N_UTL_Platform.h>
 #include <N_UTL_JSON.h>
@@ -138,6 +141,7 @@
 
 #include <N_UTL_Version.h>
 #include <N_UTL_BreakPoint.h>
+#include <N_UTL_DeleteList.h>
 
 #include <N_DEV_DeviceSupport.h>
 #include <mainXyceExpressionGroup.h>
@@ -312,6 +316,7 @@ Simulator::Simulator(Parallel::Machine comm)
     auditJSON_(),
     XyceTimerPtr_(0),
     ElapsedTimerPtr_(0),
+    opListPtr_(0),
     commandLine_(),
     hangingResistor_(),
     externalNetlistParams_(),
@@ -360,6 +365,12 @@ Simulator::~Simulator()
   delete topology_;
   delete restartManager_;
   delete optionsManager_;
+  // delete any operators that were created in getCircuitValue()
+  if( opListPtr_ != 0)
+  {
+    deleteList(opListPtr_->begin(), opListPtr_->end());
+    delete opListPtr_;
+  }
 
   set_report_handler(previousReportHandler_);
 
@@ -1803,7 +1814,8 @@ bool Simulator::simulateUntil(
   double finalTime = analysisManager_->getFinalTime();
   double initialTime = analysisManager_->getInitialTime();
 
-  if (requestedUntilTime <= currentTimeBeforeSim)
+  // calling with requestedUntilTime = 0 should just have Xyce calculate the DC Op.
+  if ((requestedUntilTime != 0.0) && (requestedUntilTime <= currentTimeBeforeSim))
     Report::UserError0() << "requestedUntilTime <= current simulation time in simulateUntil() call.  Simulation will abort.";
 
   // Silence the "Percent Complete" noise, we don't want it when using this
@@ -2006,6 +2018,148 @@ bool Simulator::obtainResponse(
 
   return measureManager_->getMeasureValue(variable_name, result);
 }
+
+
+//
+// sets the given parameter through the device manager.
+// returns false if the parameter did not exist (and thus was not set)
+//
+bool Simulator::checkCircuitParameterExists(std::string paramName)
+{
+  bool returnValue = false;
+  // check through the device manager
+  returnValue = deviceManager_->parameterExists(comm_, paramName);
+  
+  return returnValue;
+}
+
+//
+// sets the given parameter through the device manager.
+// returns false if the parameter did not exist (and thus was not set)
+//
+bool Simulator::setCircuitParameter(std::string paramName, double paramValue)
+{
+  bool returnValue = false;
+  // try to set the parameter through the device manager.
+  // May need to set it via the main expression group too, mainExprGroup_
+  //
+  // Need to check that the parameter exists first.  Trying to set a nonexistent 
+  // parameter with setParam() causes Xyce to exit.
+  returnValue = deviceManager_->parameterExists(comm_, paramName);
+  if(returnValue)
+  {
+    returnValue = deviceManager_->setParam( paramName, paramValue, true);
+  }
+  
+  return returnValue;
+}
+
+//
+// gets a value from the current simulation based on the name passed it
+// The name can be parameter name, voltage node or current (ie. solution variable)
+// or a measure name.  return false if the value was not found.
+//
+bool Simulator::getCircuitValue(std::string paramName, double& paramValue)
+{
+  bool returnValue = false;
+  
+  // if the param exist in the device params then query the device manager.
+  if (deviceManager_->parameterExists(comm_, paramName))
+  {
+    returnValue = Xyce::Device::getParamAndReduce(comm_, *deviceManager_, paramName, paramValue);
+  }
+  // if the paramName hasn't been found yet, check if it's a measure
+  if( measureManager_ &&  (!returnValue ))
+  {
+    returnValue = measureManager_->getMeasureValue(paramName, paramValue);
+  }
+  
+  if( !returnValue )
+  {
+    // haven't found it yet.  Try the Op builder manager 
+    // first search the opListPtr_ for this paramName 
+    if( opListPtr_ == 0 )
+    {
+      opListPtr_ = new Util::Op::OpList();
+    }
+    auto opListItr = opListPtr_->begin();
+    bool found = false;
+    Xyce::Util::Op::Operator * anOp = 0;
+    while( !found && (opListItr!=opListPtr_->end()))
+    {
+      if( (*opListItr)->getName().compare(paramName) == 0)
+      {
+        found = true;
+        returnValue = true;
+        anOp = *opListItr;
+      }
+      else
+      {
+        opListItr++;
+      }
+    }
+    if( !found )
+    {
+      // problem: createOp(string) only works with simple, one word 
+      // values like TEMP.  Things like v(nodea) which turn into a parameter list 
+      // like: tag V, value 1, tag nodea value 0 can't be made from the createOp(string)
+      // 
+      // Note this assumes there is only one argument as in v(node1) or ib(aDevice)
+      // it won't work for V(node1,node2)
+      // 
+      
+      auto openParenPos = paramName.find_first_of('(');
+      auto closeParenPos = paramName.find_last_of(')');
+      if( (openParenPos != std::string::npos) && (closeParenPos != std::string::npos))
+      {
+        std::string firstPart = paramName.substr(0, openParenPos);
+        std::string secondPart = paramName.substr((openParenPos+1), closeParenPos - (openParenPos+1));
+        Xyce::Util::Param * paramPtr = new Xyce::Util::Param( firstPart, 1 );
+        Xyce::Util::ParamList paramList;
+        paramList.push_back( *paramPtr );
+        Xyce::Util::Param * paramPtr2 = new Xyce::Util::Param( secondPart, 0 );
+        paramList.push_back( *paramPtr2 );
+        Xyce::Util::ParamList::const_iterator pListIt = paramList.begin();
+        anOp = opBuilderManager_->createOp(pListIt);
+        if( anOp != NULL )
+        {
+          // the operator found a value in the various symbol tables.  
+          found = true;
+          returnValue = true;
+          opListPtr_->push_back(anOp);
+        }
+        //delete anOp;
+        delete paramPtr;
+        delete paramPtr2;
+      }
+    }
+    if( found )
+    {
+      Util::Op::OpData opDataTmp(0, analysisManager_->getDataStore()->currSolutionPtr, 0,
+                                  analysisManager_->getDataStore()->currStatePtr,
+                                  analysisManager_->getDataStore()->currStorePtr, 0);
+      paramValue = (*anOp)(comm_,opDataTmp).real();
+    }
+  }
+  return returnValue;
+}
+
+//
+// accessor to AnalysisManger funciton
+//
+double Simulator::getTime()
+{
+  return analysisManager_->getTime();
+}
+
+//
+// accessor to AnalysisManger funciton
+//
+double Simulator::getFinalTime()
+{
+  return analysisManager_->getFinalTime();
+}
+  
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getDACInstancePtr_

@@ -233,11 +233,10 @@ bool updateSamplingParams(
     int numSamples,
     bool overrideOriginal);
 
-bool updateExpressionSamplingTerms(
+bool updateExpressionSamplingTerms2(
     Loader::Loader &loader, 
     int sample, 
-    std::vector<SweepParam>::iterator begin, 
-    std::vector<SweepParam>::iterator end, 
+    std::vector<SweepParam> & samplingVec,
     const std::vector<double> & Y,
     int numSamples,
     bool overrideOriginal);

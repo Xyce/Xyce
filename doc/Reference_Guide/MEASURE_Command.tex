@@ -421,7 +421,7 @@ The supported measure types and their definitions are:
     {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt
     MINVAL}.  If the conditions specified for finding a given value
     were not found during the simulation then the measure will return
-    the default value of {\tt -1}.  The user may change this default
+    the default value of {\tt 0}.  The user may change this default
     value with the {\tt DEFAULT\_VAL} qualifier described below.
     Note: The use of {\tt FIND} and {\tt WHEN} in one measure
     statement is also supported.
@@ -556,26 +556,24 @@ default value of 0.
 
 \argument{DEFAULT\_VAL=value}
 
-If the conditions specified for finding a given value are not found
-during the simulation then the measure will return the default value
-of {\tt -1} in the \texttt{circuitFileName.mt\#}
-(or \texttt{circuitFileName.ms\#} or \texttt{circuitFileName.ma\#})
-files.  The measure value in the standard output or log file will be
-FAILED.  The default return value for
-the \texttt{circuitFileName.mt\#} (or \texttt{circuitFileName.ms\#}
-or \texttt{circuitFileName.ma\#}) files is settable by the user for
-each measure by adding the qualifier {\tt DEFAULT\_VAL=<retval>} on
-that measure line.  As examples, a measure will fail if the condition
-specified by a {\tt WHEN} or {\tt AT} qualifier is not found.  It will
-also fail if the user specifies a set of {\tt FROM}, {\tt TO} and {\tt
-TD} values for a given measure that yields an empty measurement
-interval.  If either \texttt{.OPTIONS MEASURE MEASFAIL=<val>}
-or \texttt{.OPTIONS MEASURE DEFAULT\_VAL=<val>} are given in the
-netlist then those values override the \texttt{DEFAULT\_VAL}
-parameters given on individual \texttt{.MEASURE} lines.  See Section
-\ref{Options_Reference} for more details.  As a final note, the \texttt{FOUR}
-measure is a special case since it produces multiline output.  Failed
-\texttt{FOUR} measures will be reported as FAILED in the
+If the conditions specified for finding a given measure's value are not found
+during the simulation then the measure will return a default value of {\tt 0}.
+As examples, a measure will fail if the condition specified by a {\tt WHEN} or
+{\tt AT} qualifier is not found.  It will also fail if the user specifies a
+set of {\tt FROM}, {\tt TO} and {\tt TD} values for a given measure that 
+yields an empty measurement interval. The default value for a given measure
+is settable by the user by adding the qualifier {\tt DEFAULT\_VAL=<retval>}
+on that measure line.  The \texttt{.OPTIONS MEASURE DEFAULT\_VAL=<value>}
+setting can be used to set the default value of all of the measures in the
+netlist. The measure value in the standard output or log file will always
+be FAILED. The measure value in the \texttt{circuitFileName.mt\#}
+(or \texttt{circuitFileName.ms\#} or \texttt{circuitFileName.ma\#}) files will
+also be FAILED by default (\texttt{.OPTIONS MEASURE MEASFAIL=1}).  If 
+\texttt{.OPTIONS MEASURE MEASFAIL=0} is used in the netlist then the
+measure value in the output file will be the default value. See Section
+\ref{Options_Reference} for more details on the \texttt{.OPTIONS} settings.
+ As a final note, the \texttt{FOUR} measure is a special case since it produces
+multiline output.  Failed \texttt{FOUR} measures will be reported as FAILED in the
 \texttt{circuitFileName.mt\#} ( or \texttt{circuitFileName.ms\#} or
 \texttt{circuitFileName.ma\#}) files, irrespective of the various
 \texttt{MEASFAIL} and \texttt{DEFAULT\_VAL} settings.

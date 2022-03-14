@@ -503,12 +503,11 @@ The default value for the \texttt{MEASDGT} option is different from in HSPICE.
 
 The \Xyce{} behavior for failed measures can be controlled via the \texttt{MEASFAIL}
 and \texttt{DEFAULT\_VAL} options, as well as with the \texttt{DEFAULT\_VAL} 
-qualifiers on individual \texttt{.MEASURE} lines.  The order of precedence (from 
-high-to-low) is the \texttt{MEASFAIL} option, the \texttt{DEFAULT\_VAL} option, 
-and the \texttt{DEFAULT\_VAL} qualifier on individual \texttt{.MEASURE} lines.  
-If the \texttt{MEASFAIL} option is given and set equal to 0 then \Xyce{} outputs 
-``0'' in the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) files for a failed measure.  
-If the \texttt{MEASFAIL} option is given and set equal to 1 (or any other non-zero 
+qualifiers on individual \texttt{.MEASURE} lines.  The order of precedence is
+the \texttt{DEFAULT\_VAL} option and then the \texttt{DEFAULT\_VAL} qualifier on
+individual \texttt{.MEASURE} lines.  If \texttt{MEASFAIL=0} then \Xyce{} outputs
+the default value in the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#})
+files for a failed measure.  If \texttt{MEASFAIL=1} (or any other non-zero 
 value) then \Xyce{} outputs ``FAILED'' in the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) 
 files for a failed measure.  If given in the netlist, the setting for the 
 \texttt{DEFAULT\_VAL} option overrides the \texttt{DEFAULT\_VAL} qualifiers given 

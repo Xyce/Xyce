@@ -44,18 +44,18 @@
 // ---------- ROL Includes ------------//
 
 #include "ROL_StdVector.hpp"
-#include "ROL_CVaRVector.hpp"
-#include "ROL_Vector_SimOpt.hpp"
-#include "ROL_EqualityConstraint_SimOpt.hpp"
-#include "ROL_ParametrizedEqualityConstraint_SimOpt.hpp"
-#include "ROL_Objective_SimOpt.hpp"
-#include "ROL_ParametrizedObjective_SimOpt.hpp"
+#include "ROL_Vector.hpp"
 #include "ROL_XyceVector.hpp"
+#include "ROL_Ptr.hpp"
+#include "ROL_Objective.hpp"
+#include "ROL_Objective_SimOpt.hpp"
+#include "ROL_Constraint_SimOpt.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cmath>
+#include <map>
 
 // ------------ Xyce Includes -----------//
 
@@ -64,13 +64,7 @@
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_OutputMgrAdapter.h>
 
-// TT: perhaps not all of the following are needed
 #include <N_ERH_ErrorMgr.h>
-#include <N_IO_CircuitBlock.h>
-#include <N_IO_OptionBlock.h>
-#include <N_IO_PkgOptionsMgr.h>
-#include <N_IO_SpiceSeparatedFieldTool.h>
-#include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
@@ -81,18 +75,13 @@
 #include <N_NLS_fwd.h>
 #include <N_NLS_NonLinearSolver.h>
 #include <N_PDS_Comm.h>
-#include <N_PDS_MPI.h>
 #include <N_PDS_Manager.h>
-#include <N_PDS_Serial.h>
 #include <N_TIA_DataStore.h>
-#include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
-#include <N_UTL_OptionBlock.h>
-
 
 namespace Xyce {
 namespace Analysis {
@@ -107,159 +96,177 @@ enum sensDiffMode
 
 // **************** EqualityConstraint class *************************************//
 
+
+
 template<class Real>
-class EqualityConstraint_ROL_DC : virtual public ::ROL::ParametrizedEqualityConstraint_SimOpt<Real> 
+class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real> 
 {
-private:
-  Real                              nu_, nc_, nz_;
-  Nonlinear::NonLinearSolver &      nls_;
-  Linear::System &                  linearSystem_;
-  Loader::NonlinearEquationLoader & nEqLoader_;
 
-  bool                              forceFD_;
-  Linear::Vector *                  origFVectorPtr_;
-  Linear::Vector *                  pertFVectorPtr_;
-  Linear::Vector *                  origQVectorPtr_;
-  Linear::Vector *                  pertQVectorPtr_;
-  Linear::Vector *                  origBVectorPtr_;
-  Linear::Vector *                  pertBVectorPtr_;
-  
-  void setControlParams(const ::ROL::Vector<Real> &z)
+ private:
+  Real                                  nu_, nc_, nz_;
+  Nonlinear::NonLinearSolver &          nls_;
+  Linear::System &                      linearSystem_;
+  Loader::NonlinearEquationLoader &     nEqLoader_;
+  bool                                  forceFD_;
+  std::vector<std::string>              paramNameVec_;
+  Linear::Vector *                      origFVectorPtr_;
+  Linear::Vector *                      pertFVectorPtr_;
+  Linear::Vector *                      origQVectorPtr_;
+  Linear::Vector *                      pertQVectorPtr_;
+  Linear::Vector *                      origBVectorPtr_;
+  Linear::Vector *                      pertBVectorPtr_;
+  std::vector<Real>                     paramValue_;
+  // TODO (asjavee): areParamsChanged saves us from unnecessary solves. It 
+  //   should be obsolete once we remove "false" from the initialization of our
+  //   reduced objective (currently line 396 of N_ANP_ROL.C).
+  bool                                  areParamsChanged_;
+
+  // HKT: Limit the parameter changes to when the parameters are actually changing.
+  void update_2( const ::ROL::Vector<Real> &z, ::ROL::UpdateType type, int iter = -1 ) 
   {
-    Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(z))).getVector();
-    // Set parameters to values given by vector z
-    std::string paramName;
-    Real paramValue;
-    for (int i=0;i<rolSweep_.numParams_;i++)
+    Teuchos::RCP<const std::vector<Real>> zp = (Teuchos::dyn_cast<::ROL::StdVector<Real>>(const_cast<::ROL::Vector<Real>&>(z))).getVector();
+
+    std::string parameterName; 
+    for (int i = 0; i < nz_; i++)
     {
-      paramName = rolSweep_.paramNameVec_[i];
-      paramValue = (*zp)[i];
-      //std::cout << "Setting " << paramName << " to " << paramValue << std::endl;
-      nEqLoader_.setParam(paramName,paramValue);
+      if ( paramValue_[i] != (*zp)[i] )
+      {
+        parameterName = paramNameVec_[i];
+        paramValue_[i] = (*zp)[i];
+        nEqLoader_.setParam(parameterName, paramValue_[i]);
+        //std::cout << "setControlParams: " << parameterName << " " << paramValue_[i] << std::endl;
+        areParamsChanged_ = true;
+      }
     }
   }
 
-  void setUncertainParams()
+  bool rhs_()
   {
-    //Loader::NonlinearEquationLoader & nEqLoader = analysisManager_.getNonlinearEquationLoader();
-    // Set uncertain parameters
-    const std::vector<Real> uparam = ::ROL::ParametrizedEqualityConstraint_SimOpt<Real>::getParameter();
-    std::string paramName;
-    Real paramValue;
-    for (int i=0;i<rolSweep_.uncertainParams_.size();i++)
-    {
-      paramName = rolSweep_.uncertainParams_[i];
-      paramValue = uparam[i];
-      //std::cout << "Setting " << paramName << " to " << paramValue << std::endl;
-      nEqLoader_.setParam(paramName,paramValue);
-    }
+    Stats::StatTop _residualStat("Residual");
+    Stats::TimeBlock _residualTimer(_residualStat);
+
+    nEqLoader_.loadRHS();
+    ++numResidualLoads_;
+    totalResidualLoadTime_ += nEqLoader_.getResidualTime();
+
+    return true;
   }
-  
-protected:
-  ROL &                           rolSweep_;
-  AnalysisManager &               analysisManager_;
+
+  bool jacobian_()
+  {
+    Stats::StatTop _jacobianStat("Jacobian");
+    Stats::TimeBlock _jacobianTimer(_jacobianStat);
+
+    nEqLoader_.loadJacobian();
+    ++numJacobianLoads_;
+    totalJacobianLoadTime_ += nEqLoader_.getJacobianTime();
+ 
+    return true;
+  }
+
+ protected:
+  ROL_DC &                              rolSweep_;
+  AnalysisManager &                     analysisManager_;
       
-public:
+ public:
+  int numResidualLoads_, numJacobianLoads_;
+  double totalResidualLoadTime_, totalJacobianLoadTime_;
+
   EqualityConstraint_ROL_DC(
-     Real                              nu, // # of solution variables
-     Real                              nc, // # of constraint equations
-     Real                              nz, // # of optimization variables
-     AnalysisManager &                 analysisManager,
-     Loader::NonlinearEquationLoader & loader,
-     Nonlinear::NonLinearSolver &      nls,
-     Linear::System &                  linearSystem,
-     ROL &                             rolSweep)
+    Real                                nu, // # of solution variables
+    Real                                nc, // # of constraint equations
+    Real                                nz, // # of optimization variables
+    AnalysisManager &                   analysisManager,
+    Nonlinear::NonLinearSolver &        nls,
+    Linear::System &                    linearSystem,
+    std::vector<std::string>            paramNameVec,
+    ROL_DC &                            rolSweep)
     : nu_(nu),
       nc_(nc),
       nz_(nz),
       forceFD_(false),
       analysisManager_(analysisManager),
-      nEqLoader_(loader),
+      nEqLoader_(analysisManager.getNonlinearEquationLoader()),
       rolSweep_(rolSweep),
       nls_(nls),
       linearSystem_(linearSystem),
+      paramNameVec_(paramNameVec),
       origFVectorPtr_(0),
       pertFVectorPtr_(0),
       origQVectorPtr_(0),
       pertQVectorPtr_(0),
       origBVectorPtr_(0),
-      pertBVectorPtr_(0)
+      pertBVectorPtr_(0),
+      paramValue_(nz, 0.0),
+      numResidualLoads_(0),
+      numJacobianLoads_(0),
+      totalResidualLoadTime_(0.0),
+      totalJacobianLoadTime_(0.0),
+      areParamsChanged_(true)
   {}
 
-  void value(::ROL::Vector<Real> &c, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+  ~EqualityConstraint_ROL_DC() {}
+
+  void value(::ROL::Vector<Real> &c, 
+             const ::ROL::Vector<Real> &u,
+             const ::ROL::Vector<Real> &z, 
+             Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > cp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(c)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     
-    setControlParams(z);
-    setUncertainParams();
-    
-    bool success;
-    
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
-    nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
-    
-    for (int i=0;i<nc_;i++)
-    {
-      //std::string par = "V2";
-      //std::cout << (*(*up)[i])[0][1] << std::endl;
-      //nEqLoader_.setParam(par,(*(*up)[i])[0][0]);
-      rolSweep_.setSweepValue(i); // update source term; note: more direct approach would be to use setParam
-      
-      //analysisManager_.getDataStore()->setZeroHistory(); // not necessary
-      
-      // Set next solution vector pointer to the values given in vector u[i] 
-      // Linear::Vector * temp = (*up)[i].getRawPtr();
-      // success = analysisManager_.getDataStore()->setNextSolVectorPtr(temp); // this causes segfault
-
-      // Using newly added function in DataStore class
-      success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[i]);
-      
-      // Load rhs
-      nEqLoader_.loadRHS();
-      
-      // Get rhs
-      *((*cp)[i]) = *(linearSystem_.getRHSVector());
-      //(*cp)[i]->print(Xyce::dout());
-    }
-    nEqLoader_.setVoltageLimiterStatus(vstatus);
-
-    
-  }
-
-  void solve(::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
-  {
-    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(u)).getVector());
+    nEqLoader_.setVoltageLimiterStatus(false);  // Turns off voltage limiting
     
     bool success;
-    setControlParams(z);
-    setUncertainParams();
-    
-    // Perform the sweep to obtain vector of solutions
-    success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
-    
-    for (int i=0;i<nc_;i++)
+    for (int i = 0; i < nc_; i++) 
     {
-      *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
-      //(*up)[i]->print(Xyce::dout());
+      rolSweep_.setSweepValue(i);  // TT: Updates source term. Note: A more direct approach is to use setParam.
+      success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[i]);
+      rhs_();
+      *((*cp)[i]) = *(linearSystem_.getRHSVector());
+      // (*cp)[i]->print(Xyce::dout());
     }
-      
   }
-  
-  void applyJacobian_1(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+
+  void solve(::ROL::Vector<Real> &c, 
+             ::ROL::Vector<Real> &u, 
+             const ::ROL::Vector<Real> &z, 
+             Real &tol)
+  { 
+    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(u)).getVector();
+
+    if (areParamsChanged_)
+    {
+      // Sweep to obtain the vector of solutions.
+      bool success = rolSweep_.doInit() && rolSweep_.doLoopProcess() && rolSweep_.doFinish(); 
+   
+      // Write the vector of solutions into u.
+      for (int i = 0; i < nc_ ; i++) {
+        *((*up)[i]) = *(rolSweep_.solutionPtrVector_[i]);
+        // (*up)[i]->print(Xyce::dout());
+      }
+    }
+    areParamsChanged_ = false;
+    
+    value(c, u, z, tol);
+  }
+
+  void applyJacobian_1(::ROL::Vector<Real> &jv,
+                      const ::ROL::Vector<Real> &v,
+                      const ::ROL::Vector<Real> &u,
+                      const ::ROL::Vector<Real> &z, 
+                      Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
-
-    bool success;    
-    setControlParams(z);
-    setUncertainParams();
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
-    for (int i=0;i<nc_;i++)
+    bool success;  
+    for (int i = 0; i < nc_; i++)
     {
       // Set next solution vector pointer to the values given in vector u[i] 
       // Linear::Vector * temp = (*up)[i].getRawPtr();
@@ -270,40 +277,37 @@ public:
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
-      
-      // Apply Jacobian: not working (HB analysis?)
-      // success = nls_.applyJacobian( dynamic_cast< const Linear::Vector& > (const_cast< const Linear::MultiVector& >( *((*vp)[i]) ) ), dynamic_cast< Linear::Vector &>( *((*jvp)[i]) ) );
+      success = rhs_(); 
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
-      
+      success = jacobian_();
+     
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
-      Jac.scale(-1.0);
       
       // Apply Jacobian
       Jac.matvec(false, const_cast< const Linear::Vector& >( *((*vp)[i]) ), *((*jvp)[i]) );
-      
+      (*jvp)[i]->scale( -1.0 );
+     
       // // Test
       // std::cout << "Jac_1 Success = " << success << std::endl;
       // (*jvp)[i]->print(Xyce::dout());
-      
     }
     nEqLoader_.setVoltageLimiterStatus(vstatus);
-    
-
   }
 
-  void applyAdjointJacobian_1(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+  void applyAdjointJacobian_1(::ROL::Vector<Real> &jv,
+                              const ::ROL::Vector<Real> &v,
+                              const ::ROL::Vector<Real> &u,
+                              const ::ROL::Vector<Real> &z, 
+                              Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
 
-    bool success;    
-    setControlParams(z);
-    setUncertainParams();
+    bool success;
+
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
@@ -318,41 +322,40 @@ public:
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
+      success = rhs_(); 
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // Get Jacobian
       Linear::Matrix & Jac = *(linearSystem_.getJacobianMatrix());
-      Jac.scale(-1.0);
 
       // Apply Jacobian transpose
-      // Jac.setUseTranspose(true);
       Jac.matvec(true, const_cast< const Linear::Vector& >( *((*vp)[i]) ), *((*jvp)[i]) );
+      (*jvp)[i]->scale( -1.0 );
       
     }
     nEqLoader_.setVoltageLimiterStatus(vstatus);
-    
-
   }
 
-  void applyInverseJacobian_1(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+  void applyInverseJacobian_1(::ROL::Vector<Real> &jv,
+                              const ::ROL::Vector<Real> &v,
+                              const ::ROL::Vector<Real> &u,
+                              const ::ROL::Vector<Real> &z, 
+                              Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
 
-    bool success;    
-    setControlParams(z);
-    setUncertainParams();
+    bool success;
 
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
     // save rhs and Newton vectors
-    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
-    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedRHSVectorPtr_ = nls_.getRHSVector().cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.getNewtonVector().cloneCopyVector();
 
     for (int i=0;i<nc_;i++)
     {
@@ -365,10 +368,10 @@ public:
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
+      success = rhs_();
       
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // save rhs and Newton vectors
       // NOTE (HKT): this doesn't save a COPY of the vector, just copies the pointer.
@@ -381,9 +384,7 @@ public:
       //savedNewtonVectorPtr_->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
 
       // Linear::Vector * temp1 = (*vp)[i].getRawPtr();
-      // nls_.rhsVectorPtr_->update(-1.0, *temp1, 0.0);
-      *(nls_.rhsVectorPtr_) = *(*vp)[i];
-      nls_.rhsVectorPtr_->scale(-1.0); // solver expects negative rhs; consolidate two previous lines.
+      nls_.setRHSVector( *(*vp)[i], -1.0 );  // solver expects negative rhs
 
       int status = nls_.getLinearSolver()->solve(false);
       if (status!=0)
@@ -392,41 +393,41 @@ public:
         Report::DevelFatal() << msg;
       }
 
-      //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
-      *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
+      *((*jvp)[i]) = nls_.getNewtonVector();
 
     }
 
     // Restore the RHS and Newton vectors.
-    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
-    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+    nls_.setRHSVector( *savedRHSVectorPtr_ );
+    nls_.setNewtonVector( *savedNewtonVectorPtr_ );
    
     // Delete saved vectors.        
     delete savedRHSVectorPtr_;
     delete savedNewtonVectorPtr_;
  
     nEqLoader_.setVoltageLimiterStatus(vstatus);
-    
   }
 
-  void applyInverseAdjointJacobian_1(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+  void applyInverseAdjointJacobian_1(::ROL::Vector<Real> &jv, 
+                                   const ::ROL::Vector<Real> &v,
+                                   const ::ROL::Vector<Real> &u,
+                                   const ::ROL::Vector<Real> &z,
+                                   Real &tol)
   {
     Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(z))).getVector();
 
-    bool success;    
-    setControlParams(z);
-    setUncertainParams();
-
+    bool success;
+    
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
 
     // save rhs and Newton vectors
     // [see notes in applyInverseJacobian_1]    
-    Linear::Vector * savedRHSVectorPtr_ = nls_.rhsVectorPtr_->cloneCopyVector();
-    Linear::Vector * savedNewtonVectorPtr_ = nls_.NewtonVectorPtr_->cloneCopyVector();
+    Linear::Vector * savedRHSVectorPtr_ = nls_.getRHSVector().cloneCopyVector();
+    Linear::Vector * savedNewtonVectorPtr_ = nls_.getNewtonVector().cloneCopyVector();
 
     for (int i=0;i<nc_;i++)
     {
@@ -439,10 +440,10 @@ public:
 
       //rolSweep_.setSweepValue(i);// not needed here
       // Load rhs: appears to be necessary
-      nEqLoader_.loadRHS();
-      
+      success = rhs_();
+
       // Load Jacobian
-      success = nEqLoader_.loadJacobian();
+      success = jacobian_();
       
       // save rhs and Newton vectors
       // [see notes in applyInverseJacobian_1]    
@@ -453,8 +454,7 @@ public:
 
       // Linear::Vector * temp1 = (*vp)[i].getRawPtr();
       // nls_.rhsVectorPtr_->update(-1.0, *temp1, 0.0);
-      *(nls_.rhsVectorPtr_) = *(*vp)[i];
-      nls_.rhsVectorPtr_->scale(-1.0);
+      nls_.setRHSVector( *(*vp)[i], -1.0 );
 
       int status = nls_.getLinearSolver()->solveTranspose(false);// some reusefactors
       if (status!=0)
@@ -463,353 +463,355 @@ public:
         Report::DevelFatal() << msg;
       }
       
-      //(*jvp)[i]->update(1.0, *(nls_.NewtonVectorPtr_),0.0);
-      *((*jvp)[i]) = *(nls_.NewtonVectorPtr_);
+      *((*jvp)[i]) = nls_.getNewtonVector();
     }
 
     // Restore the RHS and Newton vectors.
-    (*nls_.rhsVectorPtr_) = (*savedRHSVectorPtr_);
-    (*nls_.NewtonVectorPtr_) = (*savedNewtonVectorPtr_);
+    nls_.setRHSVector( *savedRHSVectorPtr_ );
+    nls_.setNewtonVector( *savedNewtonVectorPtr_ );
    
     // Delete saved vectors.        
     delete savedRHSVectorPtr_;
     delete savedNewtonVectorPtr_;
  
     nEqLoader_.setVoltageLimiterStatus(true);
-    
   }
 
-
-  
-void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
-{
-  Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
-  Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
-  Teuchos::RCP<const std::vector<Real> > vp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(v))).getVector();
-  bool success;    
-  jv.zero();
-  setControlParams(z);
-  setUncertainParams();
-  
-  bool vstatus = nEqLoader_.getVoltageLimiterStatus();
-  nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
-  
-  // loop over constraint equations
-  for (int k=0;k<nc_;k++)
+  void applyJacobian_2(::ROL::Vector<Real> &jv,
+                       const ::ROL::Vector<Real> &v,
+                       const ::ROL::Vector<Real> &u,
+                       const ::ROL::Vector<Real> &z,
+                       Real &tol)
   {
-    rolSweep_.setSweepValue(k); // update source term; Important!
+    Teuchos::RCP<std::vector<Teuchos::RCP<Linear::Vector> > > jvp = Teuchos::rcp_const_cast<std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(jv)).getVector());
+    Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
+    Teuchos::RCP<const std::vector<Real> > vp = (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(v))).getVector();
     
-    // Note: perhaps all source terms need be updated
+    bool success;    
+    jv.zero();
     
-    // Set next solution vector pointer to the values given in vector u[i] 
-    // Linear::Vector * temp = (*up)[k].getRawPtr();
-    // success = analysisManager_.getDataStore()->setNextSolVectorPtr(temp); //segfault
+    bool vstatus = nEqLoader_.getVoltageLimiterStatus();
+    nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
     
-    // Using newly added function in DataStore class
-    success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[k]);
-    
-    // Load rhs
-    success = nEqLoader_.loadRHS();
-    
-    int iparam;
-    std::string msg;
-    
-    analysisManager_.getDataStore()->paramOrigVals_.clear();
-    
-    // it is necessary to load the Jacobian here to make sure we have the most
-    // up-to-date matrix.  The Jacobian is not loaded for the final 
-    // evaluation of the residual in the Newton solve.
-    success = nEqLoader_.loadJacobian ();
-    
-    // Loop over the vector of parameters.  For each parameter, find the
-    // device entity (a model or an instance) which corresponds to it, and
-    // perform the finite difference calculation.
-    std::vector<std::string>::iterator firstParam = rolSweep_.paramNameVec_.begin ();
-    std::vector<std::string>::iterator lastParam  = rolSweep_.paramNameVec_.end ();
-    std::vector<std::string>::iterator iterParam;
-    for ( iterParam=firstParam, iparam=0;
-          iterParam!=lastParam; ++iterParam, ++iparam )
+    // loop over constraint equations
+    for (int k=0;k<nc_;k++)
     {
-      std::string paramName(*iterParam);
-      //std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
-      // get the original value of this parameter, to be used for scaling and/or 
-      // numerical derivatives later.
-      double paramOrig = 0.0;
-      bool found = nEqLoader_.getParamAndReduce(analysisManager_.getPDSManager()->getPDSComm()->comm(),paramName, paramOrig);
+      rolSweep_.setSweepValue(k); // update source term; Important!
       
-      if (!found)
-      {
-        std::string msg("EqualityConstraint::applyJacobian_2: cannot find parameter ");
-        msg += paramName;
-        Report::DevelFatal() << msg;
-      }
+      // Note: perhaps all source terms need be updated
       
-      analysisManager_.getDataStore()->paramOrigVals_.push_back(paramOrig);
+      // Set next solution vector pointer to the values given in vector u[i] 
+      // Linear::Vector * temp = (*up)[k].getRawPtr();
+      // success = analysisManager_.getDataStore()->setNextSolVectorPtr(temp); //segfault
       
-      // check if derivative is available analytically.  If not, take FD.
-      bool analyticAvailable = false;
-      if (!forceFD_)
+      // Using newly added function in DataStore class
+      success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[k]);
+      
+      // Load rhs
+      rhs_();
+      
+      int iparam;
+      std::string msg;
+      
+      analysisManager_.getDataStore()->paramOrigVals_.clear();
+      
+      // it is necessary to load the Jacobian here to make sure we have the most
+      // up-to-date matrix.  The Jacobian is not loaded for the final 
+      // evaluation of the residual in the Newton solve.
+      success = jacobian_();
+      
+      // Loop over the vector of parameters.  For each parameter, find the
+      // device entity (a model or an instance) which corresponds to it, and
+      // perform the finite difference calculation.
+      std::vector<std::string>::iterator firstParam = paramNameVec_.begin ();
+      std::vector<std::string>::iterator lastParam  = paramNameVec_.end ();
+      std::vector<std::string>::iterator iterParam;
+      for ( iterParam=firstParam, iparam=0;
+            iterParam!=lastParam; ++iterParam, ++iparam )
       {
-        analyticAvailable = nEqLoader_.analyticSensitivitiesAvailable (paramName);
-      }
-      if (analyticAvailable)
-      {
-        //std::cout << "Analytic derivs available" << std::endl;
-        std::vector<double> dfdpVec;
-        std::vector<double> dqdpVec;
-        std::vector<double> dbdpVec;
+        std::string paramName(*iterParam);
+        //std::cout << "Computing derivative wrt " << paramNameVec_[iparam] << std::endl;  
+        // get the original value of this parameter, to be used for scaling and/or 
+        // numerical derivatives later.
+        double paramOrig = 0.0;
+        bool found = nEqLoader_.getParamAndReduce(analysisManager_.getPDSManager()->getPDSComm()->comm(),paramName, paramOrig);
         
-        std::vector<int> FindicesVec;
-        std::vector<int> QindicesVec;
-        std::vector<int> BindicesVec;
-        
-        nEqLoader_.getAnalyticSensitivities(paramName,dfdpVec,dqdpVec,dbdpVec,FindicesVec, QindicesVec, BindicesVec);
-        
-        rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
-        
-        int Fsize=FindicesVec.size();
-        for (int i=0;i<Fsize;++i)
+        if (!found)
         {
-          Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
-          dfdpRef[FindicesVec[i]]  += dfdpVec[i];
+          std::string msg("EqualityConstraint::applyJacobian_2: cannot find parameter ");
+          msg += paramName;
+          Report::DevelFatal() << msg;
         }
         
-        int Qsize=QindicesVec.size();
-        for (int i=0;i<Qsize;++i)
+        analysisManager_.getDataStore()->paramOrigVals_.push_back(paramOrig);
+        
+        // check if derivative is available analytically.  If not, take FD.
+        bool analyticAvailable = false;
+        if (!forceFD_)
         {
-          Linear::Vector & dqdpRef = *(rolSweep_.mydqdpPtrVector_[iparam]);
-          dqdpRef[QindicesVec[i]]  += dqdpVec[i];
+          analyticAvailable = nEqLoader_.analyticSensitivitiesAvailable (paramName);
         }
-        
-        int Bsize=BindicesVec.size();
-        for (int i=0;i<Bsize;++i)
+        if (analyticAvailable)
         {
-          Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
-          dbdpRef[BindicesVec[i]]  += dbdpVec[i];
-        }
-        
-        rolSweep_.mydfdpPtrVector_[iparam]->fillComplete();
-        rolSweep_.mydqdpPtrVector_[iparam]->fillComplete();
-        rolSweep_.mydbdpPtrVector_[iparam]->fillComplete();
-        
-        if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-        {
-          Xyce::dout() << *iterParam << ": ";
-          Xyce::dout().setf(std::ios::scientific);
-          Xyce::dout() << std::endl;
+          //std::cout << "Analytic derivs available" << std::endl;
+          std::vector<double> dfdpVec;
+          std::vector<double> dqdpVec;
+          std::vector<double> dbdpVec;
           
-          for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
+          std::vector<int> FindicesVec;
+          std::vector<int> QindicesVec;
+          std::vector<int> BindicesVec;
+          
+          nEqLoader_.getAnalyticSensitivities(paramName,dfdpVec,dqdpVec,dbdpVec,FindicesVec, QindicesVec, BindicesVec);
+          
+          rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
+          rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
+          rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
+          
+          int Fsize=FindicesVec.size();
+          for (int i=0;i<Fsize;++i)
           {
-            Xyce::dout() 
-              <<"dfdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydfdpPtrVector_[iparam]))[k1]
-              <<" dqdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydqdpPtrVector_[iparam]))[k1]
-              <<" dbdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydbdpPtrVector_[iparam]))[k1]
-              <<std::endl;
+            Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
+            dfdpRef[FindicesVec[i]]  += dfdpVec[i];
           }
-        }
-      }
-      else
-      {
-        //Xyce::dout() << "Analytical derivatives NOT available" << std::endl;
-        
-        if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-        {
-          Xyce::dout() << std::endl << "  Calculating numerical df/dp, dq/dp and db/dp for: ";
-          Xyce::dout() << *iterParam << std::endl;
-        }
-
-        // save a copy of the DAE vectors
-        delete origFVectorPtr_;
-        origFVectorPtr_ = analysisManager_.getDataStore()->daeFVectorPtr->cloneCopyVector();
-        pertFVectorPtr_ = linearSystem_.builder().createVector();
-
-        delete origQVectorPtr_;
-        origQVectorPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector();
-        pertQVectorPtr_ = linearSystem_.builder().createVector();
-
-        delete origBVectorPtr_;
-        origBVectorPtr_ = analysisManager_.getDataStore()->daeBVectorPtr->cloneCopyVector();
-        pertBVectorPtr_ = linearSystem_.builder().createVector();
-        
-        // now perturb the value of this parameter.
-        double sqrtEta_ = pow(10,int(log10(fabs(paramOrig))));; // TT: this should be parameter specific (see Sensitivity class)
-        double dp = sqrtEta_ * 1.e-5 * (1.0 + fabs(paramOrig));
-        double paramPerturbed = paramOrig;
-        
-        int difference=SENS_FWD; // TT: this should be optional
-        if (difference==SENS_FWD)
-        {
-          paramPerturbed += dp;
-        }
-        else if (difference==SENS_REV)
-        {
-          paramPerturbed -= dp;
-        }
-        else if (difference==SENS_CNT)
-        {
-          static std::string tmp = "difference=central not supported.\n";
-          Report::DevelFatal() << tmp;
+          
+          int Qsize=QindicesVec.size();
+          for (int i=0;i<Qsize;++i)
+          {
+            Linear::Vector & dqdpRef = *(rolSweep_.mydqdpPtrVector_[iparam]);
+            dqdpRef[QindicesVec[i]]  += dqdpVec[i];
+          }
+          
+          int Bsize=BindicesVec.size();
+          for (int i=0;i<Bsize;++i)
+          {
+            Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
+            dbdpRef[BindicesVec[i]]  += dbdpVec[i];
+          }
+          
+          rolSweep_.mydfdpPtrVector_[iparam]->fillComplete();
+          rolSweep_.mydqdpPtrVector_[iparam]->fillComplete();
+          rolSweep_.mydbdpPtrVector_[iparam]->fillComplete();
+          
+          if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+          {
+            Xyce::dout() << *iterParam << ": ";
+            Xyce::dout().setf(std::ios::scientific);
+            Xyce::dout() << std::endl;
+            
+            for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
+            {
+              Xyce::dout() 
+                <<"dfdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydfdpPtrVector_[iparam]))[k1]
+                <<" dqdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydqdpPtrVector_[iparam]))[k1]
+                <<" dbdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydbdpPtrVector_[iparam]))[k1]
+                <<std::endl;
+            }
+          }
         }
         else
         {
-          static std::string tmp = "difference not recognized!\n";
-          Report::UserFatal0() << tmp;
+          //Xyce::dout() << "Analytical derivatives NOT available" << std::endl;
+          
+          if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+          {
+            Xyce::dout() << std::endl << "  Calculating numerical df/dp, dq/dp and db/dp for: ";
+            Xyce::dout() << *iterParam << std::endl;
+          }
+
+          // save a copy of the DAE vectors
+          delete origFVectorPtr_;
+          origFVectorPtr_ = analysisManager_.getDataStore()->daeFVectorPtr->cloneCopyVector();
+          pertFVectorPtr_ = linearSystem_.builder().createVector();
+
+          delete origQVectorPtr_;
+          origQVectorPtr_ = analysisManager_.getDataStore()->daeQVectorPtr->cloneCopyVector();
+          pertQVectorPtr_ = linearSystem_.builder().createVector();
+
+          delete origBVectorPtr_;
+          origBVectorPtr_ = analysisManager_.getDataStore()->daeBVectorPtr->cloneCopyVector();
+          pertBVectorPtr_ = linearSystem_.builder().createVector();
+          
+          // now perturb the value of this parameter.
+          double sqrtEta_ = pow(10,int(log10(fabs(paramOrig))));; // TT: this should be parameter specific (see Sensitivity class)
+          double dp = sqrtEta_ * 1.e-5 * (1.0 + fabs(paramOrig));
+          double paramPerturbed = paramOrig;
+          
+          int difference=SENS_FWD; // TT: this should be optional
+          if (difference==SENS_FWD)
+          {
+            paramPerturbed += dp;
+          }
+          else if (difference==SENS_REV)
+          {
+            paramPerturbed -= dp;
+          }
+          else if (difference==SENS_CNT)
+          {
+            static std::string tmp = "difference=central not supported.\n";
+            Report::DevelFatal() << tmp;
+          }
+          else
+          {
+            static std::string tmp = "difference not recognized!\n";
+            Report::UserFatal0() << tmp;
+          }
+          
+          if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+          {
+            int maxParamStringSize_ = 16; // TT: not sure what this should be
+            Xyce::dout() << std::setw(maxParamStringSize_)<< *iterParam
+                        << " dp = " << std::setw(11)<< std::scientific<< std::setprecision(4) << dp 
+                        << " original value = " << std::setw(16)<< std::scientific<< std::setprecision(9) << paramOrig 
+                        << " modified value = " << std::setw(16)<< std::scientific<< std::setprecision(9) << paramPerturbed 
+                        <<std::endl;
+          }
+          
+          nEqLoader_.setParam (paramName, paramPerturbed);
+
+          // Now that the parameter has been perturbed,
+          // calculate the numerical derivative.
+
+          rolSweep_.setSweepValue(k);// needed?
+          // Load F,Q and B.
+          rhs_();
+
+          // save the perturbed DAE vectors
+          (*pertFVectorPtr_) = *(analysisManager_.getDataStore()->daeFVectorPtr);
+          (*pertQVectorPtr_) = *(analysisManager_.getDataStore()->daeQVectorPtr);
+          (*pertBVectorPtr_) = *(analysisManager_.getDataStore()->daeBVectorPtr);
+
+          // calculate the df/dp vector.  
+          double rdp=1/dp;
+          rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
+          rolSweep_.mydfdpPtrVector_[iparam]->update (+1.0, *(pertFVectorPtr_)); //+Fperturb
+          rolSweep_.mydfdpPtrVector_[iparam]->update (-1.0, *(origFVectorPtr_)); //-Forig
+          rolSweep_.mydfdpPtrVector_[iparam]->scale(rdp);
+
+          // calculate the dq/dp vector.  
+          rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
+          rolSweep_.mydqdpPtrVector_[iparam]->update (+1.0, *(pertQVectorPtr_)); //+Fperturb
+          rolSweep_.mydqdpPtrVector_[iparam]->update (-1.0, *(origQVectorPtr_)); //-Forig
+          rolSweep_.mydqdpPtrVector_[iparam]->scale(rdp);
+
+          // calculate the db/dp vector.  
+          rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
+          rolSweep_.mydbdpPtrVector_[iparam]->update (+1.0, *(pertBVectorPtr_)); //+Fperturb
+          rolSweep_.mydbdpPtrVector_[iparam]->update (-1.0, *(origBVectorPtr_)); //-Forig
+          rolSweep_.mydbdpPtrVector_[iparam]->scale(rdp);
+
+          if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+          {
+            Xyce::dout() << *iterParam << ": ";
+            Xyce::dout().width(15); Xyce::dout().precision(7); Xyce::dout().setf(std::ios::scientific);
+            Xyce::dout() << "deviceSens_dp = " << dp << std::endl;
+
+            for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
+            {
+
+              Xyce::dout() 
+                <<"fpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertFVectorPtr_))[k1]
+                <<" forig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origFVectorPtr_))[k1]
+                <<" dfdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydfdpPtrVector_[iparam]))[k1]
+                <<std::endl;
+            }
+
+            Xyce::dout() << std::endl;
+            for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
+            {
+              Xyce::dout() 
+                <<"qpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertQVectorPtr_))[k1]
+                <<" qorig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origQVectorPtr_))[k1]
+                <<" dqdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydqdpPtrVector_[iparam]))[k1]
+                <<std::endl;
+            }
+
+            Xyce::dout() << std::endl ;
+            for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
+            {
+              Xyce::dout() 
+                <<"bpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertBVectorPtr_))[k1]
+                <<" borig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origBVectorPtr_))[k1]
+                <<" dbdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydbdpPtrVector_[iparam]))[k1]
+                <<std::endl;
+
+            }
+
+            // std::ostringstream filename; 
+            // filename << netlistFilename_ << "_dfdp";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // dfdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
+
+            // filename.str("");
+            // filename << netlistFilename_ << "_fpert";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // pertFVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
+
+            // filename.str("");
+            // filename << netlistFilename_ << "_dqdp";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // dqdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
+
+            // filename.str("");
+            // filename << netlistFilename_ << "_qpert";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // pertQVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
+
+            // filename.str("");
+            // filename << netlistFilename_ << "_dbdp";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // dbdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
+  
+            // filename.str("");
+            // filename << netlistFilename_ << "_bpert";
+            // filename << std::setw(3) << std::setfill('0') << iparam;
+            // filename << ".txt";
+            // pertBVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
+          }
+
+          // now reset the parameter and rhs to previous values.
+          nEqLoader_.setParam (paramName, paramOrig);
+
+          analysisManager_.getDataStore()->daeFVectorPtr->update(1.0, *(origFVectorPtr_), 0.0);
+          analysisManager_.getDataStore()->daeQVectorPtr->update(1.0, *(origQVectorPtr_), 0.0);
+          analysisManager_.getDataStore()->daeBVectorPtr->update(1.0, *(origBVectorPtr_), 0.0);
         }
+
+        // Now collect dfdp, dqdp, dbdp into dFdp (as done in obtainSensitivityResiduals in NoTimeIntegration, that is we ignore dqdp)
+
+        Linear::Vector & sensRHS = *(rolSweep_.mysensRHSPtrVector_[iparam]);
+        Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
+        Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
+
+        //sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef); saving old code
+        sensRHS.update(+1.0,dfdpRef,0.0);
+        //sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef); saving old code
+        sensRHS.update(-1.0,dbdpRef);
+
+        sensRHS.scale(-1.0);
+
+        // multiply by v[iparam]
+        sensRHS.scale( (*vp)[iparam] );
+
+        // add to jvp[k]
+        (*jvp)[k]->update(1.0,sensRHS);
+
+      }// end of parameters loop
         
-        if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-        {
-          int maxParamStringSize_ = 16; // TT: not sure what this should be
-          Xyce::dout() << std::setw(maxParamStringSize_)<< *iterParam
-                       << " dp = " << std::setw(11)<< std::scientific<< std::setprecision(4) << dp 
-                       << " original value = " << std::setw(16)<< std::scientific<< std::setprecision(9) << paramOrig 
-                       << " modified value = " << std::setw(16)<< std::scientific<< std::setprecision(9) << paramPerturbed 
-                       <<std::endl;
-        }
-        
-        nEqLoader_.setParam (paramName, paramPerturbed);
+    }// end of constraints loop
+    nEqLoader_.setVoltageLimiterStatus(vstatus);
+  }
 
-        // Now that the parameter has been perturbed,
-        // calculate the numerical derivative.
-
-        rolSweep_.setSweepValue(k);// needed?
-        // Load F,Q and B.
-        nEqLoader_.loadRHS();
-
-        // save the perturbed DAE vectors
-        (*pertFVectorPtr_) = *(analysisManager_.getDataStore()->daeFVectorPtr);
-        (*pertQVectorPtr_) = *(analysisManager_.getDataStore()->daeQVectorPtr);
-        (*pertBVectorPtr_) = *(analysisManager_.getDataStore()->daeBVectorPtr);
-
-        // calculate the df/dp vector.  
-        double rdp=1/dp;
-        rolSweep_.mydfdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydfdpPtrVector_[iparam]->update (+1.0, *(pertFVectorPtr_)); //+Fperturb
-        rolSweep_.mydfdpPtrVector_[iparam]->update (-1.0, *(origFVectorPtr_)); //-Forig
-        rolSweep_.mydfdpPtrVector_[iparam]->scale(rdp);
-
-        // calculate the dq/dp vector.  
-        rolSweep_.mydqdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydqdpPtrVector_[iparam]->update (+1.0, *(pertQVectorPtr_)); //+Fperturb
-        rolSweep_.mydqdpPtrVector_[iparam]->update (-1.0, *(origQVectorPtr_)); //-Forig
-        rolSweep_.mydqdpPtrVector_[iparam]->scale(rdp);
-
-        // calculate the db/dp vector.  
-        rolSweep_.mydbdpPtrVector_[iparam]->putScalar(0.0);
-        rolSweep_.mydbdpPtrVector_[iparam]->update (+1.0, *(pertBVectorPtr_)); //+Fperturb
-        rolSweep_.mydbdpPtrVector_[iparam]->update (-1.0, *(origBVectorPtr_)); //-Forig
-        rolSweep_.mydbdpPtrVector_[iparam]->scale(rdp);
-
-        if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
-        {
-          Xyce::dout() << *iterParam << ": ";
-          Xyce::dout().width(15); Xyce::dout().precision(7); Xyce::dout().setf(std::ios::scientific);
-          Xyce::dout() << "deviceSens_dp = " << dp << std::endl;
-
-          for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
-          {
-
-            Xyce::dout() 
-              <<"fpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertFVectorPtr_))[k1]
-              <<" forig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origFVectorPtr_))[k1]
-              <<" dfdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydfdpPtrVector_[iparam]))[k1]
-              <<std::endl;
-          }
-
-          Xyce::dout() << std::endl;
-          for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
-          {
-            Xyce::dout() 
-              <<"qpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertQVectorPtr_))[k1]
-              <<" qorig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origQVectorPtr_))[k1]
-              <<" dqdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydqdpPtrVector_[iparam]))[k1]
-              <<std::endl;
-          }
-
-          Xyce::dout() << std::endl ;
-          for (int k1 = 0; k1 < analysisManager_.getDataStore()->solutionSize; ++k1)
-          {
-            Xyce::dout() 
-              <<"bpert["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(pertBVectorPtr_))[k1]
-              <<" borig["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(origBVectorPtr_))[k1]
-              <<" dbdp ["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*(rolSweep_.mydbdpPtrVector_[iparam]))[k1]
-              <<std::endl;
-
-          }
-
-          // std::ostringstream filename; 
-          // filename << netlistFilename_ << "_dfdp";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // dfdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
-
-          // filename.str("");
-          // filename << netlistFilename_ << "_fpert";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // pertFVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
-
-          // filename.str("");
-          // filename << netlistFilename_ << "_dqdp";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // dqdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
-
-          // filename.str("");
-          // filename << netlistFilename_ << "_qpert";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // pertQVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
-
-          // filename.str("");
-          // filename << netlistFilename_ << "_dbdp";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // dbdpPtrVector_[iparam]->writeToFile(const_cast<char *>(filename.str().c_str()));
- 
-          // filename.str("");
-          // filename << netlistFilename_ << "_bpert";
-          // filename << std::setw(3) << std::setfill('0') << iparam;
-          // filename << ".txt";
-          // pertBVectorPtr_->writeToFile(const_cast<char *>(filename.str().c_str()));
-        }
-
-        // now reset the parameter and rhs to previous values.
-        nEqLoader_.setParam (paramName, paramOrig);
-
-        analysisManager_.getDataStore()->daeFVectorPtr->update(1.0, *(origFVectorPtr_), 0.0);
-        analysisManager_.getDataStore()->daeQVectorPtr->update(1.0, *(origQVectorPtr_), 0.0);
-        analysisManager_.getDataStore()->daeBVectorPtr->update(1.0, *(origBVectorPtr_), 0.0);
-      }
-
-      // Now collect dfdp, dqdp, dbdp into dFdp (as done in obtainSensitivityResiduals in NoTimeIntegration, that is we ignore dqdp)
-
-      Linear::Vector & sensRHS = *(rolSweep_.mysensRHSPtrVector_[iparam]);
-      Linear::Vector & dfdpRef = *(rolSweep_.mydfdpPtrVector_[iparam]);
-      Linear::Vector & dbdpRef = *(rolSweep_.mydbdpPtrVector_[iparam]);
-
-      //sensRHS.linearCombo(0.0,sensRHS,+1.0,dfdpRef); saving old code
-      sensRHS.update(+1.0,dfdpRef,0.0);
-      //sensRHS.linearCombo(1.0,sensRHS,-1.0,dbdpRef); saving old code
-      sensRHS.update(-1.0,dbdpRef);
-
-      sensRHS.scale(-1.0);
-
-      // multiply by v[iparam]
-      sensRHS.scale( (*vp)[iparam] );
-
-      // add to jvp[k]
-      (*jvp)[k]->update(1.0,sensRHS);
-
-    }// end of parameters loop
-       
-  }// end of constraints loop
-  nEqLoader_.setVoltageLimiterStatus(vstatus);
-    
-}
-
-  void applyAdjointJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol)
+  void applyAdjointJacobian_2(::ROL::Vector<Real> &jv,
+                              const ::ROL::Vector<Real> &v,
+                              const ::ROL::Vector<Real> &u,
+                              const ::ROL::Vector<Real> &z,
+                              Real &tol)
   {
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > vp = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v))).getVector();
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
@@ -817,8 +819,6 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
 
     bool success;    
     jv.zero();
-    setControlParams(z);
-    setUncertainParams();
     
     bool vstatus = nEqLoader_.getVoltageLimiterStatus();
     nEqLoader_.setVoltageLimiterStatus(false);// turns off voltage limiting
@@ -836,7 +836,7 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
       success = analysisManager_.getDataStore()->setNextSolVectorPtr(*(*up)[k]);
 
       // Load rhs
-      success = nEqLoader_.loadRHS();
+      success = rhs_();
       
       int iparam;
       std::string msg;
@@ -846,19 +846,19 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
       // it is necessary to load the Jacobian here to make sure we have the most
       // up-to-date matrix.  The Jacobian is not loaded for the final 
       // evaluation of the residual in the Newton solve.
-      nEqLoader_.loadJacobian ();
+      jacobian_();
 
       // Loop over the vector of parameters.  For each parameter, find the
       // device entity (a model or an instance) which corresponds to it, and
       // perform the finite difference calculation.
-      std::vector<std::string>::iterator firstParam = rolSweep_.paramNameVec_.begin ();
-      std::vector<std::string>::iterator lastParam  = rolSweep_.paramNameVec_.end ();
+      std::vector<std::string>::iterator firstParam = paramNameVec_.begin ();
+      std::vector<std::string>::iterator lastParam  = paramNameVec_.end ();
       std::vector<std::string>::iterator iterParam;
       for ( iterParam=firstParam, iparam=0;
             iterParam!=lastParam; ++iterParam, ++iparam )
       {
         std::string paramName(*iterParam);
-        // std::cout << "Computing derivative wrt " << rolSweep_.paramNameVec_[iparam] << std::endl;  
+        // std::cout << "Computing derivative wrt " << paramNameVec_[iparam] << std::endl;  
         // get the original value of this parameter, to be used for scaling and/or 
         // numerical derivatives later.
         double paramOrig = 0.0;
@@ -993,7 +993,7 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
 
           rolSweep_.setSweepValue(k);// needed?
           // Load F,Q and B.
-          nEqLoader_.loadRHS();
+          rhs_();
 
           // save the perturbed DAE vectors
           pertFVectorPtr_->update(1.0, *(analysisManager_.getDataStore()->daeFVectorPtr), 0.0);
@@ -1126,7 +1126,6 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
        
     }// end of constraints loop
     nEqLoader_.setVoltageLimiterStatus(vstatus);
-    
   }
 
 #if FD_HESSIAN==0  
@@ -1154,11 +1153,12 @@ void applyJacobian_2(::ROL::Vector<Real> &jv, const ::ROL::Vector<Real> &v, cons
     pv.set(v.dual());
   }
 #endif
-  
+
 };
 
+
 template<class Real>
-class Objective_DC_L2Norm : public ::ROL::ParametrizedObjective_SimOpt<Real>
+class Objective_DC_L2Norm : public ::ROL::Objective_SimOpt<Real>
 {
 private:
   Real alpha_; // Penalty Parameter
@@ -1196,7 +1196,9 @@ public:
     
   }
     
-  Real value( const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  Real value(const ::ROL::Vector<Real> &u, 
+             const ::ROL::Vector<Real> &z,
+             Real &tol)
   {
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast< ::ROL::StdVector<Real> >(const_cast< ::ROL::Vector<Real> &>(z))).getVector();
@@ -1212,7 +1214,10 @@ public:
     return 0.5*val;
   }
   
-  void gradient_1( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_1(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > gup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(g)).getVector());
@@ -1231,7 +1236,10 @@ public:
     
   }
 
-  void gradient_2( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_2(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP<std::vector<Real> > gzp = Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<const ::ROL::StdVector<Real> >(g)).getVector());
@@ -1245,8 +1253,11 @@ public:
     }
   }
 
-  void hessVec_11( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_11(::ROL::Vector<Real> &hv, 
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > hvup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(hv)).getVector());
     // Unwrap v
@@ -1260,20 +1271,29 @@ public:
     }
   }
 
-  void hessVec_12( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_12(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_21( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_21(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_22( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_22(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
@@ -1281,7 +1301,7 @@ public:
 };
 
 template<class Real>
-class Objective_DC_AMP : virtual public ::ROL::ParametrizedObjective_SimOpt<Real>
+class Objective_DC_AMP : virtual public ::ROL::Objective_SimOpt<Real>
 {
 private:
   int ns_,nz_,first_,middle_,last_;
@@ -1299,7 +1319,9 @@ public:
     solindex_ = 3; // V(3)
   }
     
-  Real value( const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  Real value(const ::ROL::Vector<Real> &u,
+             const ::ROL::Vector<Real> &z,
+             Real &tol)
   {
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast< ::ROL::StdVector<Real> >(const_cast< ::ROL::Vector<Real> &>(z))).getVector();
@@ -1319,7 +1341,10 @@ public:
     return 0.5*val;
   }
   
-  void gradient_1( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_1(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > gup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(g)).getVector());
@@ -1348,7 +1373,10 @@ public:
     }
   }
 
-  void gradient_2(::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_2(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP<std::vector<Real> > gzp = Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<const ::ROL::StdVector<Real> >(g)).getVector());
@@ -1362,8 +1390,11 @@ public:
     }
   }
 
-  void hessVec_11( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_11(::ROL::Vector<Real>& hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > hvup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(hv)).getVector());
     // Unwrap v
@@ -1397,20 +1428,29 @@ public:
     }
   }
 
-  void hessVec_12(::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                  const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_12(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_21( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_21(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_22( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_22(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
@@ -1418,7 +1458,7 @@ public:
 };
 
 template<class Real>
-class Penalty_DC_AMP : virtual public ::ROL::ParametrizedObjective_SimOpt<Real>
+class Penalty_DC_AMP : virtual public ::ROL::Objective_SimOpt<Real>
 {
 private:
   int ptype_; // penalty type
@@ -1449,7 +1489,9 @@ public:
     ptype_ = ptype;
   }
     
-  Real value( const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  Real value(const ::ROL::Vector<Real> &u,
+             const ::ROL::Vector<Real> &z,
+             Real &tol)
   {
     Teuchos::RCP<const std::vector<Teuchos::RCP<Linear::Vector> > > up = (Teuchos::dyn_cast< Linear::ROL_XyceVector<Real> >(const_cast< ::ROL::Vector<Real> &>(u))).getVector();
     Teuchos::RCP<const std::vector<Real> > zp = (Teuchos::dyn_cast< ::ROL::StdVector<Real> >(const_cast< ::ROL::Vector<Real> &>(z))).getVector();
@@ -1468,7 +1510,10 @@ public:
     return 0.5*val;
   }
   
-  void gradient_1( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_1(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > gup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(g)).getVector());
@@ -1510,7 +1555,10 @@ public:
     }
   }
 
-  void gradient_2( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void gradient_2(::ROL::Vector<Real> &g,
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     // Unwrap g
     Teuchos::RCP<std::vector<Real> > gzp = Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<const ::ROL::StdVector<Real> >(g)).getVector());
@@ -1524,8 +1572,11 @@ public:
     }
   }
 
-  void hessVec_11( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_11(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     Teuchos::RCP< std::vector<Teuchos::RCP<Linear::Vector> > > hvup = Teuchos::rcp_const_cast< std::vector<Teuchos::RCP<Linear::Vector> > >((Teuchos::dyn_cast<Linear::ROL_XyceVector<Real> >(hv)).getVector());
     // Unwrap v
@@ -1563,20 +1614,29 @@ public:
 
   }
 
-  void hessVec_12( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_12(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_21( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_21(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
   
-  void hessVec_22( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, 
-                   const ::ROL::Vector<Real> &u, const ::ROL::Vector<Real> &z, Real &tol )
+  void hessVec_22(::ROL::Vector<Real> &hv,
+                  const ::ROL::Vector<Real> &v, 
+                  const ::ROL::Vector<Real> &u,
+                  const ::ROL::Vector<Real> &z,
+                  Real &tol)
   {
     hv.zero();
   }
@@ -1604,8 +1664,8 @@ public:
     {
       if(types_[i]==0)
       {
-        ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
-        objVec_[i]->update(*(xc.getVector()),flag,iter); // CVaR vector
+        // ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
+        // objVec_[i]->update(*(xc.getVector()),flag,iter); // CVaR vector
       }
       else if(types_[i]==1)
       {
@@ -1614,25 +1674,29 @@ public:
     }
   }
 
-  virtual Real value( const ::ROL::Vector<Real> &x, Real &tol )
+  virtual Real value(const ::ROL::Vector<Real> &x, 
+                     Real &tol )
   {
     Real val = 0;
     for(int i=0;i<objVec_.size();i++)
     {
       if(types_[i]==0)
       {
-        ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
-        val += objVec_[i]->value(*xc.getVector(),tol); // CVaR vector
+        // ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
+        // val += objVec_[i]->value(*xc.getVector(),tol); // CVaR vector
       }
       else if(types_[i]==1)
       {
+        objVec_[i]->update(x,true,-1);
         val += objVec_[i]->value(x,tol);
       }
     }
     return val;
   }
 
-  virtual void gradient( ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real &tol )
+  virtual void gradient(::ROL::Vector<Real> &g,
+                        const ::ROL::Vector<Real> &x,
+                        Real &tol)
   {
     g.zero();
     Teuchos::RCP< ::ROL::Vector<Real> > temp = g.clone();    
@@ -1640,10 +1704,10 @@ public:
     {
       if(types_[i]==0)
       {
-        ::ROL::CVaRVector<Real> &tempc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(*temp);
-        ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
-        objVec_[i]->gradient(const_cast< ::ROL::Vector<Real> &>(*tempc.getVector()),*xc.getVector(),tol); // CVaR vector
-        g.plus(tempc);
+        // ::ROL::CVaRVector<Real> &tempc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(*temp);
+        // ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
+        // objVec_[i]->gradient(const_cast< ::ROL::Vector<Real> &>(*tempc.getVector()),*xc.getVector(),tol); // CVaR vector
+        // g.plus(tempc);
       }
       else if(types_[i]==1)
       {
@@ -1653,7 +1717,10 @@ public:
     }
   }
   
-  virtual void hessVec( ::ROL::Vector<Real> &hv, const ::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &x, Real &tol )
+  virtual void hessVec(::ROL::Vector<Real> &hv,
+                       const ::ROL::Vector<Real> &v,
+                       const ::ROL::Vector<Real> &x,
+                       Real &tol)
   {
     hv.zero();
     Teuchos::RCP< ::ROL::Vector<Real> > temp = hv.clone();    
@@ -1661,14 +1728,15 @@ public:
     {
       if(types_[i]==0)
       {
-        ::ROL::CVaRVector<Real> &tempc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(*temp);
-        ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
-        ::ROL::CVaRVector<Real> &vc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v));
-        objVec_[i]->hessVec(const_cast< ::ROL::Vector<Real> &>(*tempc.getVector()),*vc.getVector(),*xc.getVector(),tol); // CVaR vector
-        hv.plus(tempc);
+        // ::ROL::CVaRVector<Real> &tempc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(*temp);
+        // ::ROL::CVaRVector<Real> &xc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(x));
+        // ::ROL::CVaRVector<Real> &vc = Teuchos::dyn_cast< ::ROL::CVaRVector<Real> >(const_cast< ::ROL::Vector<Real> &>(v));
+        // objVec_[i]->hessVec(const_cast< ::ROL::Vector<Real> &>(*tempc.getVector()),*vc.getVector(),*xc.getVector(),tol); // CVaR vector
+        // hv.plus(tempc);
       }
       else if(types_[i]==1)
       {
+        objVec_[i]->update(x,true,-1);
         objVec_[i]->hessVec(*temp,v,x,tol);
         hv.plus(*temp);
       }
@@ -1786,7 +1854,7 @@ public:
     }
   }
 
-  void pruneLowerActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real eps)
+  void pruneLowerActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real xeps = Real(0), Real geps = Real(0))
   {
     Teuchos::RCP<const std::vector<Real> > ex =
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(x))).getVector();
@@ -1794,17 +1862,17 @@ public:
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(g))).getVector();
     Teuchos::RCP<std::vector<Real> > ev =
       Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<::ROL::StdVector<Real> >(v)).getVector());
-    Real epsn = std::min(this->scale_*eps,this->min_diff_);
+    Real epsn = std::min(this->scale_*xeps,this->min_diff_);
     for ( int i = 0; i < n; i++ )
     {
-      if ( ((*ex)[i] <= this->x_lo_[i]+epsn && (*eg)[i] > 0.0) )
+      if ( ((*ex)[i] <= this->x_lo_[i]+epsn && (*eg)[i] > geps) )
       {
         (*ev)[i] = 0.0;
       }
     }
   }
 
-  void pruneUpperActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real eps)
+  void pruneUpperActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real xeps = Real(0), Real geps = Real(0))
   {
     Teuchos::RCP<const std::vector<Real> > ex =
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(x))).getVector();
@@ -1812,17 +1880,17 @@ public:
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(g))).getVector();
     Teuchos::RCP<std::vector<Real> > ev =
       Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<::ROL::StdVector<Real> >(v)).getVector());
-    Real epsn = std::min(this->scale_*eps,this->min_diff_);
+    Real epsn = std::min(this->scale_*xeps,this->min_diff_);
     for ( int i = 0; i < n; i++ )
     {
-      if ( ((*ex)[i] >= this->x_up_[i]-epsn && (*eg)[i] < 0.0) )
+      if ( ((*ex)[i] >= this->x_up_[i]-epsn && (*eg)[i] < -geps) )
       {
         (*ev)[i] = 0.0;
       }
     }
   }
 
-  void pruneActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real eps)
+  void pruneActive(::ROL::Vector<Real> &v, const ::ROL::Vector<Real> &g, const ::ROL::Vector<Real> &x, Real xeps = Real(0), Real geps = Real(0))
   {
     Teuchos::RCP<const std::vector<Real> > ex =
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(x))).getVector();
@@ -1830,31 +1898,43 @@ public:
       (Teuchos::dyn_cast<::ROL::StdVector<Real> >(const_cast<::ROL::Vector<Real> &>(g))).getVector();
     Teuchos::RCP<std::vector<Real> > ev =
       Teuchos::rcp_const_cast<std::vector<Real> >((Teuchos::dyn_cast<::ROL::StdVector<Real> >(v)).getVector());
-    Real epsn = std::min(this->scale_*eps,this->min_diff_);
+    Real epsn = std::min(this->scale_*xeps,this->min_diff_);
     for ( int i = 0; i < n; i++ )
     {
-      if ( ((*ex)[i] <= this->x_lo_[i]+epsn && (*eg)[i] > 0.0) ||
-           ((*ex)[i] >= this->x_up_[i]-epsn && (*eg)[i] < 0.0) )
+      if ( ((*ex)[i] <= this->x_lo_[i]+epsn && (*eg)[i] >  geps) ||
+           ((*ex)[i] >= this->x_up_[i]-epsn && (*eg)[i] < -geps) )
       {
         (*ev)[i] = 0.0;
       }
     }
   }
 
-  void setVectorToUpperBound( ::ROL::Vector<Real> &u )
+  // void setVectorToUpperBound( ::ROL::Vector<Real> &u )
+  // {
+  //   Teuchos::RCP<std::vector<Real> > us = Teuchos::rcp( new std::vector<Real>(2,0.0) );
+  //   us->assign(this->x_up_.begin(),this->x_up_.end());
+  //   Teuchos::RCP<::ROL::Vector<Real> > up = Teuchos::rcp( new ::ROL::StdVector<Real>(us) );
+  //   u.set(*up);
+  // }
+
+  // void setVectorToLowerBound( ::ROL::Vector<Real> &l )
+  // {
+  //   Teuchos::RCP<std::vector<Real> > ls = Teuchos::rcp( new std::vector<Real>(2,0.0) );
+  //   ls->assign(this->x_lo_.begin(),this->x_lo_.end());
+  //   Teuchos::RCP<::ROL::Vector<Real> > lp = Teuchos::rcp( new ::ROL::StdVector<Real>(ls) );
+  //   l.set(*lp);
+  // }
+
+  const Teuchos::RCP<const ::ROL::Vector<Real>> getLowerBound(void) const
   {
-    Teuchos::RCP<std::vector<Real> > us = Teuchos::rcp( new std::vector<Real>(2,0.0) );
-    us->assign(this->x_up_.begin(),this->x_up_.end());
-    Teuchos::RCP<::ROL::Vector<Real> > up = Teuchos::rcp( new ::ROL::StdVector<Real>(us) );
-    u.set(*up);
+    Teuchos::RCP<std::vector<Real>> xp = Teuchos::rcp_const_cast<std::vector<Real>>(Teuchos::rcp(&x_lo_));
+    return ::ROL::makePtr<::ROL::StdVector<Real>>(xp);
   }
 
-  void setVectorToLowerBound( ::ROL::Vector<Real> &l )
+  const Teuchos::RCP<const ::ROL::Vector<Real>> getUpperBound(void) const
   {
-    Teuchos::RCP<std::vector<Real> > ls = Teuchos::rcp( new std::vector<Real>(2,0.0) );
-    ls->assign(this->x_lo_.begin(),this->x_lo_.end());
-    Teuchos::RCP<::ROL::Vector<Real> > lp = Teuchos::rcp( new ::ROL::StdVector<Real>(ls) );
-    l.set(*lp);
+    Teuchos::RCP<std::vector<Real>> xp = Teuchos::rcp_const_cast<std::vector<Real>>(Teuchos::rcp(&x_up_));
+    return ::ROL::makePtr<::ROL::StdVector<Real>>(xp);
   }
 
 };

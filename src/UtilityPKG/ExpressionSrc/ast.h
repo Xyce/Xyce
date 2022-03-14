@@ -1705,19 +1705,12 @@ class voltageOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
       result = voltageVal_;
-      if ( !(derivs.empty() ) ) 
+      if ( !(derivs.empty() ) )
       {
         std::fill(derivs.begin(),derivs.end(),0.0);
-#if 1
-        if (derivIndex_ >= derivs.size())
-        {
-          std::cout << "Ack!  voltageOp::dx2 error.  derivsIndex = " << derivIndex_ << "  derivs.size = " << derivs.size() << std::endl;
-          exit(0);
-        }
-#endif
         if(derivIndex_>-1) { derivs[derivIndex_] = 1.0; }
       }
     }
@@ -1726,10 +1719,10 @@ class voltageOp: public astNode<ScalarT>
     {
       os << std::setw(indent) << " ";
       os << "Voltage node:" << " id = " << this->id_ << std::endl;
-     
+
       os << std::setw(indent) << " ";
       os << "V(" << voltageNode_ << ") = " << voltageVal_ <<std::endl;
-    
+
       os << std::setw(indent) << " ";
       os << "value = " << val() << std::endl;
     }

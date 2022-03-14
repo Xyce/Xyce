@@ -469,6 +469,7 @@ AC::~AC()
 
   if (sensFlag_)
   {
+    delete origB_;
     delete dbdpVecRealPtr;
     delete dbdpVecImagPtr;
     delete dOdxVecRealPtr;
@@ -497,6 +498,7 @@ AC::~AC()
     } 
 
     for (int ii=0;ii<numSensParams_;++ii) { delete dJdpVector_[ii]; }
+    for (int ii=0;ii<numSensParams_;++ii) { delete dBdpVector_[ii]; }
   }
 }
 
@@ -786,13 +788,18 @@ bool AC::doInit()
   analysisManager_.getDataStore()->setConstantHistory();
   analysisManager_.getWorkingIntegrationMethod().obtainCorrectorDeriv();
 
-  // solving for DC op
-  doHandlePredictor();
-  loader_.updateSources();
-  analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
-  analysisManager_.getWorkingIntegrationMethod().stepLinearCombo ();
-  gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
-  analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
+  {
+    Stats::StatTop _nonlinearStat("DC Nonlinear Solve");
+    Stats::TimeBlock _nonlinearTimer(_nonlinearStat);
+
+    // solving for DC op
+    doHandlePredictor();
+    loader_.updateSources();
+    analysisManager_.getStepErrorControl().newtonConvergenceStatus = nonlinearManager_.solve();
+    analysisManager_.getWorkingIntegrationMethod().stepLinearCombo ();
+    gatherStepStatistics(stats_, nonlinearManager_.getNonlinearSolver(), analysisManager_.getStepErrorControl().newtonConvergenceStatus);
+    analysisManager_.getStepErrorControl().evaluateStepError(loader_, tiaParams_);
+  }
 
   if ( analysisManager_.getStepErrorControl().newtonConvergenceStatus <= 0)
   {
@@ -963,8 +970,8 @@ bool AC::doLoopProcess()
 
     bool stepAttemptStatus;
     {
-      Stats::StatTop _nonlinearStat("Nonlinear Solve");
-      Stats::TimeBlock _nonlinearTimer(_nonlinearStat);
+      Stats::StatTop _ACsolveStat("AC Linear Solve");
+      Stats::TimeBlock _AC_Timer(_ACsolveStat);
 
       stepAttemptStatus = solveLinearSystem_();
     }
@@ -1039,9 +1046,8 @@ bool AC::createLinearSystem_()
   // Copy the values loaded into the blocks into the global matrix for the solve.
   ACMatrix_->assembleGlobalMatrix();
 
-  B_->putScalar( 0.0 );
-  B_->block( 0 ).update( 1.0, *bVecRealPtr);
-  B_->block( 1 ).update( 1.0, *bVecImagPtr);
+  B_->block( 0 ).update( 1.0, *bVecRealPtr, 0.0 );
+  B_->block( 1 ).update( 1.0, *bVecImagPtr, 0.0 );
 
   delete X_;
   X_ = Xyce::Linear::createBlockVector (numBlocks, blockMap, baseMap);
@@ -1067,6 +1073,7 @@ bool AC::createLinearSystem_()
     origC_ = linearSystem_.builder().createMatrix ();
     origG_ = linearSystem_.builder().createMatrix ();
 
+    origB_    = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dBdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     dXdp_     = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
     sensRhs_  = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap);
@@ -1090,6 +1097,9 @@ bool AC::createLinearSystem_()
         objFuncDataVec_[iobj]->expPtr->setGroup( newGroup );
       }
     }
+
+    dBdpVector_.resize(numSensParams_);
+    for (int ii=0;ii<numSensParams_;++ii) { dBdpVector_[ii] = Xyce::Linear::createBlockVector(numBlocks, blockMap, baseMap); }
 
     dJdpVector_.resize(numSensParams_);
     for (int ii=0;ii<numSensParams_;++ii) { dJdpVector_[ii] = Xyce::Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph); }
@@ -1234,9 +1244,8 @@ bool AC::updateLinearSystemMagAndPhase_()
   // re-load the B-vectors
   loader_.loadBVectorsforAC (bVecRealPtr, bVecImagPtr);
 
-  B_->putScalar( 0.0 );
-  B_->block( 0 ).update( 1.0, *bVecRealPtr);
-  B_->block( 1 ).update( 1.0, *bVecImagPtr);
+  B_->block( 0 ).update( 1.0, *bVecRealPtr, 0.0 );
+  B_->block( 1 ).update( 1.0, *bVecImagPtr, 0.0 );
 
   return true;
 }
@@ -1359,6 +1368,9 @@ bool AC::solveLinearSystem_()
 //-----------------------------------------------------------------------------
 bool AC::precomputeDCsensitivities_ ()
 {
+  Stats::StatTop _ACsensStat("AC sensitivities pre-compute");
+  Stats::TimeBlock _ACsens_Timer(_ACsensStat);
+
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
 
   // do initial parameter setup
@@ -1412,8 +1424,8 @@ bool AC::precomputeDCsensitivities_ ()
 
     // check for B' sensitivities:
     std::vector< std::complex<double> > dbdp;
-    if (analyticBVecSensAvailable && !forceDeviceFD_) { numericalDiff_[ipar] = 0; }
-    else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_) { numericalDiff_[ipar] = 1; }
+    if (analyticBVecSensAvailable && !forceDeviceFD_) { numericalDiff_[ipar] = 0; dBdpVector_[ipar]->putScalar(0.0); }
+    else if (deviceLevelBVecSensNumericalAvailable && !forceAnalytic_) { numericalDiff_[ipar] = 1;  dBdpVector_[ipar]->putScalar(0.0); }
 
     if (!analyticBVecSensAvailable && !deviceLevelBVecSensNumericalAvailable)
     {
@@ -1488,6 +1500,9 @@ bool AC::precomputeDCsensitivities_ ()
     origG_->addOverlap(*G_);
     origG_->fillComplete();
 
+    // save original B vector:
+    *origB_ = *B_;
+
     // compute dxdp for each p, and scale by dP to get dx
     for (int ipar=0;ipar<numSensParams_;++ipar)
     {
@@ -1521,6 +1536,17 @@ bool AC::precomputeDCsensitivities_ ()
 
       // reload C and G, with updated x and p
       updateLinearSystem_C_and_G_();
+
+      // compute numerical B' = dBdp = (perturbB - origB)/dP
+      // reload B vector, sett up perturbed B
+      bVecRealPtr->putScalar(0.0);
+      bVecImagPtr->putScalar(0.0);
+      loader_.loadBVectorsforAC (bVecRealPtr, bVecImagPtr);
+      B_->block( 0 ).update( 1.0, *bVecRealPtr, 0.0 );
+      B_->block( 1 ).update( 1.0, *bVecImagPtr, 0.0 );
+
+      dBdpVector_[ipar]->update(1.0, *B_, -1.0, *origB_, 0.0 );
+      dBdpVector_[ipar]->scale(1.0/dP);
 
       // compute numerical dGdp 
       // dGdp = (perturbG - origG)/dP
@@ -1561,6 +1587,10 @@ bool AC::precomputeDCsensitivities_ ()
     G_->put(0.0);
     G_->addOverlap(*origG_);
     G_->fillComplete();
+
+    // restore original B vector:
+    *B_ = *origB_;
+
   }
 
   // at this point everything should be restored.   Not sure if this call is necessary.  check later
@@ -1626,11 +1656,17 @@ bool AC::solveSensitivity_()
 
   if(solveDirectSensitivityFlag_)
   {
+    Stats::StatTop _ACsensStat("AC Direct Sensitivity");
+    Stats::TimeBlock _ACsens_Timer(_ACsensStat);
+
     bool directSuccess = solveDirectSensitivity_();
   }
 
   if(solveAdjointSensitivityFlag_)
   {
+    Stats::StatTop _ACsensStat("AC Adjoint Sensitivity");
+    Stats::TimeBlock _ACsens_Timer(_ACsensStat);
+
     bool adjointSuccess = solveAdjointSensitivity_();
   }
 
@@ -1753,7 +1789,7 @@ std::ostream& sensStdOutput (
       if (!outputManagerAdapter.getPhaseOutputUsesRadians())
         xp *= 180.0/M_PI;
 
-      os << "\n"<<idString << " Sensitivities for {"<< objFuncDataVec[iobj]->objFuncString << "}" <<std::endl;
+      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
 
       os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
@@ -1868,16 +1904,14 @@ bool AC::solveDirectSensitivity_()
       {
         bool rhsSuccess = loadSensitivityRHS_(ipar);
 
-        savedX_->putScalar(0.0); 
-        savedX_->update( 1.0, *X_);
+        savedX_->update( 1.0, *X_, 0.0 );
 
-        B_->putScalar(0.0);      
-        B_->update( 1.0, *sensRhs_);
+        B_->update( 1.0, *sensRhs_, 0.0 );
 
         int linearStatus = blockSolver_->solve(reuseFactors_);
 
-        dXdp_->putScalar(0.0); dXdp_->update(1.0, *X_);
-        X_->putScalar(0.0); X_->update( 1.0, *savedX_); // restore X
+        dXdp_->update( 1.0, *X_, 0.0 );
+        X_->update( 1.0, *savedX_, 0.0 ); // restore X
 
         double dOdp_real = objFuncDataVec_[iobj]->dOdXVectorRealPtr->dotProduct ( dXdp_->block(0) );
         double dOdp_imag = objFuncDataVec_[iobj]->dOdXVectorImagPtr->dotProduct ( dXdp_->block(1) );
@@ -1938,27 +1972,24 @@ bool AC::solveAdjointSensitivity_()
     int numOutFuncs = objFuncDataVec_.size();
     for (int iobj=0;iobj<numOutFuncs;++iobj)
     {
-      dOdXreal_->putScalar( 0.0 );
-      dOdXreal_->block( 0 ).update( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorRealPtr));
+      dOdXreal_->block( 0 ).update( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorRealPtr), 0.0 );
+      dOdXreal_->block( 1 ).putScalar( 0.0 );
 
-      dOdXimag_->putScalar( 0.0 );
-      dOdXimag_->block( 1 ).update( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorImagPtr));
+      dOdXimag_->block( 0 ).putScalar( 0.0 );
+      dOdXimag_->block( 1 ).update( 1.0, *(objFuncDataVec_[iobj]->dOdXVectorImagPtr), 0.0 );
 
       double xr=std::real(objFuncDataVec_[iobj]->expVal);
       double xi=std::imag(objFuncDataVec_[iobj]->expVal);
 
-      savedX_->putScalar(0.0); 
-      savedX_->update( 1.0, *X_);
+      savedX_->update( 1.0, *X_, 0.0 );
 
-      B_->putScalar(0.0);      
-      B_->update( 1.0, *dOdXreal_);
+      B_->update( 1.0, *dOdXreal_, 0.0 );
 
       int linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
 
-      lambda_->putScalar(0.0); 
-      lambda_->update(1.0, *X_);
+      lambda_->update( 1.0, *X_, 0.0 );
 
-      X_->putScalar(0.0); X_->update( 1.0, *savedX_); // restore X
+      X_->update( 1.0, *savedX_, 0.0 ); // restore X
       
       std::vector<double> dOdpReal(numSensParams_,0.0);
       std::vector<double> dOdpImag(numSensParams_,0.0);
@@ -1972,18 +2003,15 @@ bool AC::solveAdjointSensitivity_()
         dOdpReal[ipar] = sensRhs_->dotProduct( *lambda_ );
       }
 
-      savedX_->putScalar(0.0); 
-      savedX_->update( 1.0, *X_);
+      savedX_->update( 1.0, *X_, 0.0 );
 
-      B_->putScalar(0.0);      
-      B_->update( 1.0, *dOdXimag_);
+      B_->update( 1.0, *dOdXimag_, 0.0 );
 
       linearStatus= blockSolver_->solveTranspose(reuseFactors_); 
 
-      lambda_->putScalar(0.0); 
-      lambda_->update(1.0, *X_);
+      lambda_->update( 1.0, *X_, 0.0 );
 
-      X_->putScalar(0.0); X_->update( 1.0, *savedX_); // restore X
+      X_->update( 1.0, *savedX_, 0.0 ); // restore X
       for (int ipar=0;ipar<numSensParams_;++ipar)
       {
         bool rhsSuccess = loadSensitivityRHS_(ipar);
@@ -2028,37 +2056,47 @@ bool AC::solveAdjointSensitivity_()
 //
 // Purpose       : scales the C-blocks by omega=2*pi*freq
 //
-// Special Notes :
+// Special Notes : applies matvec without matrix assembly
 // Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 2/15/2022
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 3/02/2022
 //-----------------------------------------------------------------------------
-bool AC::applyOmega_dJdp(int ipar)
+void AC::applyOmega_dJdp(bool transA, const Linear::BlockMatrix * A, 
+                         const Linear::BlockVector& x, Linear::BlockVector& y)
 {
   double omega =  2.0 * M_PI * currentFreq_;
-  dJdpVector_[ipar]->block(0, 1).scale(-omega);
-  dJdpVector_[ipar]->block(1, 0).scale(omega);
-  dJdpVector_[ipar]->assembleGlobalMatrix();
-  return true;
-}
+  Linear::Vector* tmpVec = y.block(0).cloneVector(); 
 
-//-----------------------------------------------------------------------------
-// Function      : AC::unapplyOmega_dJdp
-//
-// Purpose       : unscales the C-blocks by omega=2*pi*freq
-//
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 2/15/2022
-//-----------------------------------------------------------------------------
-bool AC::unapplyOmega_dJdp(int ipar)
-{
-  double omega =  2.0 * M_PI * currentFreq_;
-  dJdpVector_[ipar]->block(0, 1).scale(-1.0/omega);
-  dJdpVector_[ipar]->block(1, 0).scale(1.0/omega);
-  dJdpVector_[ipar]->assembleGlobalMatrix();
-  return true;
+  // A is scaled by omega in the off-diagonal blocks
+  // block(0, 1).scale(-omega);
+  // block(1, 0).scale(omega);
+
+  if (transA)
+  {
+    // y[0] = A[0,0]'*x[0] + omega*A[1,0]'*x[1];
+    (*A).block(0, 0).matvec( transA, x.block(0), *tmpVec );
+    (*A).block(1, 0).matvec( transA, x.block(1), y.block(0) );
+    y.block(0).update( 1.0, *tmpVec, omega );
+
+    // y[1] = A[1,1]'*x[1] - omega*A[0,1]'*x[0]
+    (*A).block(1, 1).matvec( transA, x.block(1), *tmpVec );
+    (*A).block(0, 1).matvec( transA, x.block(0), y.block(1) );
+    y.block(1).update( 1.0, *tmpVec, -omega );
+  }
+  else
+  {
+    // y[0] = A[0,0]*x[0] - omega*A[0,1]*x[1];
+    (*A).block(0, 0).matvec( transA, x.block(0), *tmpVec );
+    (*A).block(0, 1).matvec( transA, x.block(1), y.block(0) );
+    y.block(0).update( 1.0, *tmpVec, -omega );
+
+    // y[1] = A[1,1]*x[1] + omega*A[1,0]*x[0];
+    (*A).block(1, 1).matvec( transA, x.block(1), *tmpVec );
+    (*A).block(1, 0).matvec( transA, x.block(0), y.block(1));
+    y.block(1).update( 1.0, *tmpVec, omega );
+  }
+
+  delete tmpVec;
 }
 
 //-----------------------------------------------------------------------------
@@ -2085,8 +2123,6 @@ bool AC::loadSensitivityRHS_(int ipar)
 {
   const std::string name = paramNameVec_[ipar];
 
-  sensRhs_->putScalar(0.0);
-
   bool analyticBVecSensAvailable = loader_.analyticBVecSensAvailable (name);
   bool deviceLevelBVecSensNumericalAvailable = loader_.numericalBVecSensAvailable (name);
 
@@ -2104,8 +2140,6 @@ bool AC::loadSensitivityRHS_(int ipar)
     numericalDiff_[ipar] = 1;
   }
 
-  dBdp_->putScalar( 0.0 );
-
   if (analyticBVecSensAvailable || deviceLevelBVecSensNumericalAvailable)
   {
     dbdpVecRealPtr->putScalar(0.0);
@@ -2122,14 +2156,10 @@ bool AC::loadSensitivityRHS_(int ipar)
     dbdpVecImagPtr->importOverlap();
 #endif
 
-    dBdp_->block( 0 ).update( 1.0, *dbdpVecRealPtr);
-    dBdp_->block( 1 ).update( 1.0, *dbdpVecImagPtr);
+    dBdp_->block( 0 ).update( 1.0, *dbdpVecRealPtr, 0.0 );
+    dBdp_->block( 1 ).update( 1.0, *dbdpVecImagPtr, 0.0 );
 
-    sensRhs_->update( 1.0, *dBdp_ );  
-
-#ifdef Xyce_PARALLEL_MPI
-    sensRhs_->importOverlap();
-#endif
+    sensRhs_->update( 1.0, *dBdp_, 0.0 );  
   }
   else 
   // If couldn't obtain B', then try J'.   
@@ -2137,18 +2167,11 @@ bool AC::loadSensitivityRHS_(int ipar)
   // "AC::precomputeDCsensitivities_ ()" function. so not much work to be done here.
   // Just scale the C-block of the dJdp matrix by omega and then do a matvec.
   {
-    applyOmega_dJdp(ipar);
-
     // compute the matvec and then sum into the rhs vector.
     bool Transpose = false;
-    dJdpVector_[ipar]->matvec( Transpose , *X_, *sensRhs_ );
+    applyOmega_dJdp( Transpose, dJdpVector_[ipar], *X_, *sensRhs_ );
 
-    unapplyOmega_dJdp(ipar);
-
-    sensRhs_->scale(-1.0);
-#ifdef Xyce_PARALLEL_MPI
-    sensRhs_->importOverlap();
-#endif
+    sensRhs_->update( 1.0, *dBdpVector_[ipar], -1.0 );  
   }
 
   return true;

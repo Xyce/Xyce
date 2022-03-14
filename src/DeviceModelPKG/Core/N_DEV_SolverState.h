@@ -57,16 +57,27 @@
 #include <N_NLS_TwoLevelEnum.h>
 #include <N_NLS_fwd.h>
 
+#include <N_DEV_Depend.h>
+
 namespace Xyce {
 namespace Device {
 
 struct expressionGroupWrapper;
+
+struct entityDepend
+{
+  entityDepend(): entityPtr(0) {};
+
+  DeviceEntity * entityPtr;
+  std::vector<Depend> parameterVec;
+};
 
 struct UserDefinedParams
 {
   GlobalParameterMap paramMap;
   std::vector<Util::Expression> expressionVec;
   std::vector<std::string> expNameVec;
+  std::vector< std::vector<entityDepend> > deviceEntityDependVec;
 };
 
 //-----------------------------------------------------------------------------

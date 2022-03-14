@@ -327,8 +327,44 @@ class Simulator
 
   void reportTotalElapsedTime ();
 
+  //
+  // checkes if a given name, variable_name, exists in as the name of a measure 
+  // with the measure manager.
+  //
   bool checkResponseVar(const std::string &variable_name) const;
+  //
+  // if the varaible_name exists in the measure manager, then return its 
+  // value in result.
+  //
   bool obtainResponse(const std::string& variable_name, double &result) const;
+  
+  //
+  // checks that the given parameter exists. 
+  // return true if it does and false otherwise.
+  bool checkCircuitParameterExists(std::string paramName);
+  
+  //
+  // sets the given parameter through the device manager.
+  // returns false if the parameter did not exist (and thus was not set)
+  bool setCircuitParameter(std::string paramName, double paramValue);
+  
+  //
+  // gets a value from the current simulation based on the name passed it
+  // The name can be parameter name, voltage node or current (ie. solution variable)
+  // or a measure name.  return false if the value was not found.
+  bool getCircuitValue(std::string paramName, double& paramValue);
+  
+  //
+  // accessor to AnalysisManger function.
+  // for non-time based analysis it returns zero.
+  //
+  double getTime();
+  
+  //
+  // accessor to AnalysisManger function.
+  // for non-time based analysis it returns zero.
+  //
+  double getFinalTime();
 
   // // report on whether simulation is finished or not
   bool simulationComplete();
@@ -379,6 +415,7 @@ class Simulator
   Util::Timer *                         XyceTimerPtr_;                  ///< Xyce solver timing utility
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
   unordered_set<std::string> device_names_;
+  Util::Op::OpList *                    opListPtr_;                        ///List of operators created in getCircuitValue() if needed
 
   protected:
   IO::CmdParse                          commandLine_;

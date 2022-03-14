@@ -12081,7 +12081,7 @@ TEST ( Complex_Parser_Random, agauss1)
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
-  ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+  ASSERT_EQ( result1, result2); 
 
   OUTPUT_MACRO(Complex_Parser_Random, agauss1)
 }
@@ -12107,7 +12107,7 @@ TEST ( Complex_Parser_Random, agauss1_func)
   testExpression.evaluateFunction(result1);
   testExpression.evaluateFunction(result2);
 
-  ASSERT_EQ( result1, result2); // these should match b/c the seed and the value are only set 1x inside the operator
+  ASSERT_EQ( result1, result2); 
 
   OUTPUT_MACRO(Complex_Parser_Random, agauss_func)
 }
@@ -12148,6 +12148,29 @@ TEST ( Complex_Parser_Random, unif0)
   OUTPUT_MACRO(Complex_Parser_Random, unif0)
 }
 
+TEST ( Double_Parser_Random, rand0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("rand()"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 0.5);
+
+  OUTPUT_MACRO(Double_Parser_Random, rand0)
+}
+
+TEST ( Double_Parser_Random, limit0)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("limit(1.0,0.5)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Double_Parser_Random, limit0)
+}
 
 // .print operators for S-params, Y-params, and Z-params
 // from test Xyce_Regression/Netlists/Output/SPARAMS/sparams-ts2-dataFormat.cir

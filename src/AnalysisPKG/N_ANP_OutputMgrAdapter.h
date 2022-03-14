@@ -126,6 +126,11 @@ public:
     dcAnalysisStepNumber_ = num;
   }
 
+  int getDCAnalysisStepNumber()
+  {
+    return dcAnalysisStepNumber_;
+  }
+
   void setDCAnalysisMaxSteps( int num )
   {
     dcAnalysisMaxSteps_ = num;

@@ -64,6 +64,7 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
+# The following does not appear to be used anywhere. Assuming it's not, it should be removed.
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # MPI check
@@ -167,8 +168,7 @@ if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
 
 else()
      message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
-          "This build of Xyce might not be functional for any other purpose.\n")
-     set(Xyce_AS_SPECIAL_CHARON_TPL TRUE CACHE BOOL "Disable checks to enable a limited Xyce build for Charon")
+          "This build of Xyce is not functional for any other purpose.\n")
 endif()
 
 # When updating to a new version of Trilinos, the following message will need
@@ -576,3 +576,7 @@ else()
      message(STATUS "Usage tracking is not enabled")
 endif()
 
+#
+# Look for optional Matlab application to use the mex compiler for Simulink interface
+#
+find_package(Matlab)

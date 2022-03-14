@@ -41,10 +41,13 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_AnalysisManager.h> 
 #include <N_ANP_RegisterAnalysis.h>
-#include <N_ANP_SweepParam.h>
+#include <N_ANP_DCSweep.h>
 
 namespace Xyce {
 namespace Analysis {
+
+class ROL_DC;
+class ROL_Objective;
 
 typedef double RealT;
 //-------------------------------------------------------------------------
@@ -55,14 +58,10 @@ typedef double RealT;
 // Creation Date : 01/24/08
 //-------------------------------------------------------------------------
 // Revised: Timur Takhtaganov, 06/03/2015
+// Revised: Heidi Thornquist, 02/22/2022
 //
 class ROL : public AnalysisBase
 {
-  template <class RealT> 
-  friend class EqualityConstraint_ROL_DC;
-  template <class RealT> 
-  friend class EqualityConstraint_ROL_DC_UQ; 
-  
 public:
   ROL(
       AnalysisManager &analysis_manager, 
@@ -74,65 +73,50 @@ public:
    
   virtual ~ROL();
 
-  bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
-  bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
-
   void setTIAParams(const TimeIntg::TIAParams &tia_params)
   {
     tiaParams_ = tia_params;
   } 
-  const TimeIntg::TIAParams &getTIAParams() const; // override
-  TimeIntg::TIAParams &getTIAParams(); // override
 
-  bool getDCOPFlag() const // override
+  const TimeIntg::TIAParams &getTIAParams() const
   {
-    return true;
+    return tiaParams_;
   }
 
+  TimeIntg::TIAParams &getTIAParams()
+  {
+    return tiaParams_;
+  }
 
+  // Method to set ROL options
+  bool setROLOptions(const Util::OptionBlock & option_block);
+  bool setROLObjectives(const std::vector<Util::OptionBlock>& option_block);
+
+  // Method to set ROL DC description
+  bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
+
+  // Method to set non-HB linear solver / preconditioning options (needed for .STEP)
+  bool setLinSol(const Util::OptionBlock & option_block);
+
+  // Method to set time integrator options (needed for initial condition / startup periods)
+  bool setTimeInt(const Util::OptionBlock & option_block);
+
+  bool getDCOPFlag() const; 
 
 protected:
-  void finalExpressionBasedSetup() {};
+  void finalExpressionBasedSetup() {}
   bool doRun();
   bool doInit();
   bool doLoopProcess();
-  bool runROLAnalysis(); 
-  bool doProcessSuccessfulStep();
-  bool doProcessFailedStep();
-  bool doHandlePredictor();
-  bool doFinish();
-
-  // virtual bool doProcessSuccessfulDCOPStep() { // override
-  //   return true;
-  // }
-
-  // virtual bool doProcessFailedDCOPStep() { // override
-  //   return true;
-  // }
-
-  bool doAllocations(int nc, int nz);
-  bool doFree();
-  std::vector<Linear::Vector *> solutionPtrVector_;
-  std::vector<Linear::Vector *> statePtrVector_;
-  std::vector<Linear::Vector *> constraintPtrVector_;
-  std::vector<Linear::Vector *> jvecPtrVector_;
-  std::vector<Linear::Vector *> testPtrVector_;
-  std::vector<Linear::Vector *> mydfdpPtrVector_;
-  std::vector<Linear::Vector *> mydqdpPtrVector_;
-  std::vector<Linear::Vector *> mydbdpPtrVector_;
-  std::vector<Linear::Vector *> mysensRHSPtrVector_;
+  bool doProcessSuccessfulStep() { return false; }
+  bool doProcessFailedStep() { return false; }
+  bool doHandlePredictor() { return true; }
+  bool doFinish() { return true; }
 
 public:
   // Two Level specific
   bool twoLevelStep(); 
-  void setSweepValue(int step); 
 
-private:
-  void initializeSolution_();
-  void takeStep_();
-
-  std::vector<int>      rolSweepFailures_; // TT
-  
 private:
   AnalysisManager &                     analysisManager_;
   Nonlinear::Manager &                  nonlinearManager_; // TT
@@ -142,18 +126,123 @@ private:
   Linear::System &                      linearSystem_;
   OutputMgrAdapter &                    outputManagerAdapter_;
   TimeIntg::TIAParams                   tiaParams_;
-  SweepVector                           stepSweepVector_;
   int                                   stepLoopSize_;
-  bool                                  rolLoopInitialized_; // TT
+  bool                                  sensFlag_;
   std::vector<std::string>              paramNameVec_; // TT: vector of optimization parameters
   int                                   numParams_; // TT: number of optimization parameters
-  std::vector<std::string>              uncertainParams_; // TT: vector of parameters with uncertainty
   int                                   numSensParams_;  // number of sensitivity parameters returned from enableSensitivity function call
+  std::string                           paramFile_;  // Name of file with parameters and bounds
+  std::string                           rolParamFile_;  // Name of file with parameters and bounds
+  std::string                           outputFile_;  // Name of file containing ROL output
+  int                                   objType_;   // Objective type
 
+  AnalysisBase *                        currentAnalysisObject_;
+
+  std::vector<ROL_Objective>            rolDCObjVec_;
+
+  std::vector<double>                   objectiveVec_;
+  std::vector<double>                   dOdpVec_;
+  std::vector<double>                   dOdpAdjVec_;
+  std::vector<double>                   scaled_dOdpVec_;
+  std::vector<double>                   scaled_dOdpAdjVec_;
+
+  Util::OptionBlock                     saved_lsOB_;  // Linear solver options
+  Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
+  std::vector<Util::OptionBlock>        saved_sweepOB_;  // DCSweep options
+  std::vector<Util::OptionBlock>        saved_rolObjOB_;  // ROL objectives
 };
 
 
+//-------------------------------------------------------------------------
+// Class         : ROL_Objective
+// Purpose       : Describe ROL objective
+// Special Notes :
+// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creation Date : 01/24/08
+//-------------------------------------------------------------------------
+class ROL_Objective
+{
+  public:
+    int objType_;              // Internal objective type, not supported by SENS (ex. data fitting)
+    int sensTag_;              // Objective is tied to a .SENS statement, with same tag
+    int objTag_;               // ROL objective tag, useful for combining objectives
+
+  ROL_Objective()
+  : objType_(-1),
+    sensTag_(-1),
+    objTag_(-1)
+  {}
+
+  virtual ~ROL_Objective() {}
+};
+
 bool registerROLFactory(FactoryBlock &factory_block);
+
+class ROL_DC: public DCSweep
+{
+public:
+
+  ROL_DC(
+      AnalysisManager &analysis_manager, 
+      Nonlinear::Manager &nonlinear_manager,
+      Loader::Loader &loader, 
+      Linear::System & linear_system,
+      Topo::Topology & topology,
+      IO::InitialConditionsManager & initial_conditions_manager)
+  : DCSweep( analysis_manager, &linear_system, nonlinear_manager, loader, topology, initial_conditions_manager ),
+    analysisManager_( analysis_manager ),
+    nonlinearManager_( nonlinear_manager ),
+    loader_( loader ),
+    topology_( topology ),
+    initialConditionsManager_( initial_conditions_manager ),
+    linearSystem_( linear_system ),
+    outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
+    stepLoopSize_(0),
+    numParams_(0)
+  {} 
+   
+  virtual ~ROL_DC() { doFree(); }
+
+  void setSweepValue(int step);
+  bool doAllocations(int nc, int nz);
+  int  getLoopSize() { return dcLoopSize_; }
+
+  bool setAnalysisParams(const std::vector<Util::OptionBlock>& paramsBlock);
+
+  using DCSweep::setTimeIntegratorOptions;
+
+  using DCSweep::doFinish;
+  using DCSweep::doLoopProcess;
+  using DCSweep::doProcessFailedStep;
+  using DCSweep::doHandlePredictor;
+
+  bool doInit();
+  bool doProcessSuccessfulStep();
+
+  std::vector<Linear::Vector *>         solutionPtrVector_;
+  std::vector<Linear::Vector *>         statePtrVector_;
+  std::vector<Linear::Vector *>         constraintPtrVector_;
+  std::vector<Linear::Vector *>         mydfdpPtrVector_;
+  std::vector<Linear::Vector *>         mydqdpPtrVector_;
+  std::vector<Linear::Vector *>         mydbdpPtrVector_;
+  std::vector<Linear::Vector *>         mysensRHSPtrVector_;
+
+protected:
+  using DCSweep::doRun;
+
+private:
+  bool doFree();
+
+  AnalysisManager &                     analysisManager_;
+  Nonlinear::Manager &                  nonlinearManager_; // TT
+  Loader::Loader &                      loader_;
+  Topo::Topology &                      topology_;
+  IO::InitialConditionsManager &        initialConditionsManager_;
+  Linear::System &                      linearSystem_;
+  OutputMgrAdapter &                    outputManagerAdapter_;
+  int                                   stepLoopSize_;
+  int                                   numParams_;
+};
 
 } // namespace Analysis
 } // namespace Xyce

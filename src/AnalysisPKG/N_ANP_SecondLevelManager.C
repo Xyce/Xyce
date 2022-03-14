@@ -113,16 +113,18 @@ SecondLevelManager::startupSecondLevelSolvers(
   // upper level solver.
   getTIAParams().errorAnalysisOption = TimeIntg::NO_LOCAL_TRUNCATED_ESTIMATES;
 
-  if (!getCreatorVector().empty()) {
-    twoLevelAnalysisObject_ = (*getCreatorVector().front()).create();
-  }
-  else
+
+  // If running Xyce-to-Xyce coupling, there should already be a primary 
+  // analysis object allocated at this stage.  So grab that one.  
+  twoLevelAnalysisObject_ = 0;
+  twoLevelAnalysisObject_ = getAnalysisObjectPtr();
+
+  if (twoLevelAnalysisObject_==0)
   {
-    Report::UserError() << "Multi-Level Newton solves only supports DC and Transient analysis";
+    Report::UserError() << "Primary Analysis Object not allocated";
     return false;
   }
 
-  setPrimaryAnalysisObject(twoLevelAnalysisObject_);
   twoLevelAnalysisObject_->init();
 
   activeOutput_ = new IO::ActiveOutput(getOutputManagerAdapter().getOutputManager());

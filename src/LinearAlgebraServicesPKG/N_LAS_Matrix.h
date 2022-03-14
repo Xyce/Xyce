@@ -162,7 +162,7 @@ public:
 
   // Sparse-matrix vector multiply - multivector version.  If transA is true,
   // multiply by the transpose of matrix, otherwise just use matrix.
-  virtual void matvec(bool transA, const MultiVector & x, MultiVector & y) = 0;
+  virtual void matvec(bool transA, const MultiVector & x, MultiVector & y) const = 0;
 
   // Performs the operation this <- a*A + b*B
   virtual void linearCombo ( const double a, const Matrix & A, 

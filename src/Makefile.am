@@ -117,6 +117,7 @@ include_HEADERS = \
   $(srcdir)/CircuitPKG/N_CIR_GenCouplingSimulator.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Configuration.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Const.h \
+  $(srcdir)/DeviceModelPKG/Core/N_DEV_Depend.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_Device.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_DeviceBlock.h \
   $(srcdir)/DeviceModelPKG/Core/N_DEV_DeviceEntity.h \

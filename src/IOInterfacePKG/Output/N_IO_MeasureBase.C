@@ -141,9 +141,9 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     gridSize_(200),
     calculationDone_(false),
     resultFound_(false),
-    calculationResult_(-1.0),
+    calculationResult_(0.0),
     calculationInstant_(0.0),
-    calculationDefaultVal_(-1.0),
+    calculationDefaultVal_(0.0),
     binSize_(0),
     minFreq_(0.0),
     maxFreq_(0.0),
@@ -179,17 +179,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     precision_ = measureMgr_.getMeasDgt();
   }
 
-  if ( measureMgr_.isMeasFailGiven() ) 
-  { 
-    // .OPTIONS MEASURE MEASFAIL=<val> overrides the DEFAULT_VAL qualifier
-    // and .OPTIONS MEASURE DEFAULT_VAL=<val>, if it is given in the netlist.  
-    // Substitute 0 for the measure's default value.  The actual value output 
-    // to the .mt0 file will then be 0 if MEASFAIL=FALSE and "FAILED" if 
-    // MEASFAIL==TRUE. 
-    calculationDefaultVal_ = 0;  
-    calculationResult_ = calculationDefaultVal_;
-  }
-  else if ( measureMgr_.isMeasGlobalDefaultValGiven() ) 
+  if ( measureMgr_.isMeasGlobalDefaultValGiven() ) 
   {
     // .OPTIONS MEASURE DEFAULT_VAL=<val> overrides the DEFAULT_VAL qualifier,
     // if it is given in the netlist
@@ -508,9 +498,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     else if( tag == "DEFAULT_VAL" )
     {
       // use the value from the DEFAULT_VAL qualifier on the .MEASURE line,
-      // unless .OPTION MEASURE MEASFAIL=<val> or .OPTION MEASURE DEFAULT_VAL=<val>
-      // are in the netlist
-      if ( !(measureMgr_.isMeasFailGiven() || measureMgr_.isMeasGlobalDefaultValGiven()) )
+      // unless .OPTION MEASURE DEFAULT_VAL=<val> is in the netlist
+      if ( !measureMgr_.isMeasGlobalDefaultValGiven() )
       {
         calculationDefaultVal_ = (*it).getImmutableValue<double>();
         calculationResult_ = calculationDefaultVal_;

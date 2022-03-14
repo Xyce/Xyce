@@ -27,6 +27,7 @@
 #include <N_ANP_UQSupport.h>
 #include <N_LOA_CktLoader.h>
 #include <N_IO_CmdParse.h>
+#include <N_UTL_Stats.h>
 
 #include <N_PDS_Serial.h>
 #include <N_PDS_MPI.h>
@@ -747,6 +748,12 @@ void setupMonteCarloSampleValues(
           val = gammaDistribution(mt);
         }
       }
+      else if (sp.type == "LIMIT")
+      {
+        double prob = uniformDistribution(mt);
+        double tmp = setupUniform(prob, -1.0, +1.0);
+        val = (tmp>0.0)?sp.stopVal:sp.startVal;
+      }
 
       X[numSamples * ip + is] = val;
     }
@@ -809,6 +816,11 @@ void setupLHSSampleValues(
           prob = (bin-val)/numSamples;
           finalVal = setupNormal(prob,sp.mean,sp.stdDev);
         }
+      }
+      else if (sp.type == "LIMIT")
+      {
+        double tmp = setupUniform(prob, -1.0, +1.0);
+        finalVal = (tmp>0.0)?sp.stopVal:sp.startVal;
       }
       else
       {
@@ -1144,6 +1156,9 @@ bool updateSamplingParams(
     int numSamples,
     bool overrideOriginal)
 {
+  Stats::StatTop _samplingStat("Update Sampling Params");
+  Stats::TimeBlock _samplingTimer(_samplingStat);
+
   bool reset = false;
 
   // set parameter(s)
@@ -1176,19 +1191,27 @@ bool updateSamplingParams(
 //                 and the other is rand.  To handle this properly, each
 //                 operator will get a separate "set" call to the loader 
 //
+// This version of the function sets all params at once.  A previous version 
+// did it one at a time.
+//
 // Scope         : public
-// Creator       : Eric Keiter, SNL, 
-// Creation Date : 7/30/2020
+// Creator       : Eric Keiter, SNL
+// Creation Date : 3/3/2022
 //-----------------------------------------------------------------------------
-bool updateExpressionSamplingTerms(
+bool updateExpressionSamplingTerms2(
     Loader::Loader &loader, 
     int sample, 
-    std::vector<SweepParam>::iterator begin, 
-    std::vector<SweepParam>::iterator end, 
+    std::vector<SweepParam> & samplingVec,
     const std::vector<double> & Y,
     int numSamples,
     bool overrideOriginal)
 {
+  Stats::StatTop _samplingStat("Update Sampling Params");
+  Stats::TimeBlock _samplingTimer(_samplingStat);
+
+  std::vector<SweepParam>::iterator begin =  samplingVec.begin(); 
+  std::vector<SweepParam>::iterator end   = samplingVec.end();
+
   bool reset = false;
 
   // set parameter(s)
@@ -1196,19 +1219,10 @@ bool updateExpressionSamplingTerms(
   for (std::vector<SweepParam>::iterator it = begin; it != end; ++it,++ip)
   {
     (*it).currentVal = Y[numSamples * ip + sample];
-
-    std::string setParamName;
-    getSetParamName( (*it).name, setParamName); // strips off the curly braces
-
-    loader.setParamRandomExpressionTerms(
-        setParamName, 
-        (*it).opName,
-        (*it).astOpIndex,
-        (*it).astType,
-        (*it).currentVal, 
-        overrideOriginal);
-
+    getSetParamName( (*it).name, (*it).setParamName); // strips off the curly braces; refactor to do this once
   }
+
+  loader.setParamRandomExpressionTerms2(samplingVec, overrideOriginal);
 
   return reset;
 }

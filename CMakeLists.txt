@@ -15,20 +15,53 @@ endif()
 # the compilers and call project again.
 project(Xyce NONE)
 
-message(STATUS "Looking for Trilinos\n"
-  "   Required packages:\n"
-  "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
-  "        Triutils AztecOO Belos TrilinosCouplings\n"
-  "   Optional packages:\n"
-  "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
-find_package(Trilinos CONFIG
-  REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-       AztecOO Belos TrilinosCouplings
-  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
-message(STATUS "Looking for Trilinos - found")
-if(Trilinos_VERSION VERSION_LESS "12.12")
-  message(FATAL_ERROR
-    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+# A TriBITS project that performs a coupled build with Trilinos, like Charon,
+# changes the names of all the Trilinos variables.  Therefore, we have to jump
+# through a bunch of hoops to take that use case into account.  Here we set a
+# cache variable to handle that name "mangling."
+set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
+
+# Charon can use a specific part of Xyce as a TPL.  However, that use case
+# results in a build of Xyce that is unusable for any other purpose.
+# Therefore, we need to make a special build of Xyce that skips some checks.
+if(Xyce_AS_SPECIAL_CHARON_TPL)
+  find_package(${TriBITS_prefix} CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
+else()
+  message(STATUS "Looking for Trilinos\n"
+    "   Required packages:\n"
+    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
+    "        Triutils AztecOO Belos TrilinosCouplings\n"
+    "   Optional packages:\n"
+    "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
+  find_package(${TriBITS_prefix} CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings
+    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
+  message(STATUS "Looking for Trilinos - found")
+
+  # This is behind an if() statement due to the TriBITS name "mangling" issue.
+  # From what I tell, there is no way to probe the version of Trilinos when it
+  # is built as part of a different Tribits project.
+  if(${TriBITS_prefix} STREQUAL "Trilinos" )
+    if(Trilinos_VERSION VERSION_LESS "12.12")
+      message(FATAL_ERROR
+        "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+    endif()
+  else()
+    # This is where we mitigate the TriBITS name mangling.  We change the
+    # variable names to the "correct" names so we minimize pollution of the
+    # rest of the configure process.
+    set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
+    set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
+    set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
+    set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
+    set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
+    set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
+    set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
+  endif()
+
 endif()
 
 # If the user explicitly set the compilers, use those; otherwise use the same
@@ -36,15 +69,15 @@ endif()
 if( DEFINED CMAKE_C_COMPILER )
   message( "Using the user-defined C compiler: ${CMAKE_C_COMPILER}" )
 else()
-  message( STATUS "Using the Trilinos C compiler: ${Trilinos_C_COMPILER}" )
-  set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+  message( STATUS "Using the ${TriBITS_prefix} C compiler: ${${TriBITS_prefix}_C_COMPILER}" )
+  set( CMAKE_C_COMPILER ${${TriBITS_prefix}_C_COMPILER} )
 endif()
 
 if( DEFINED CMAKE_CXX_COMPILER )
   message( "Using the user-defined C++ compiler: ${CMAKE_CXX_COMPILER}" )
 else()
-  message( STATUS "Using the Trilinos C++ compiler: ${Trilinos_CXX_COMPILER}" )
-  set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
+  message( STATUS "Using the ${TriBITS_prefix} C++ compiler: ${${TriBITS_prefix}_CXX_COMPILER}" )
+  set( CMAKE_CXX_COMPILER ${${TriBITS_prefix}_CXX_COMPILER} )
 endif()
 
 enable_language(C)

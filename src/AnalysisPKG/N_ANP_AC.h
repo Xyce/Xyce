@@ -201,7 +201,6 @@ private:
   bool updateCurrentFreq_(int stepNumber);
   bool createLinearSystem_();
 
-
   bool updateLinearSystem_C_and_G_();
   bool updateLinearSystemFreq_();
   bool updateLinearSystemMagAndPhase_();
@@ -214,9 +213,14 @@ private:
   bool solveDirectSensitivity_();
   bool solveAdjointSensitivity_();
   bool loadSensitivityRHS_(int ipar);
-  bool applyOmega_dJdp(int ipar);
-  bool unapplyOmega_dJdp(int ipar);
   bool outputSensitivity_();
+
+  void applyOmega_dJdp(
+      bool transA, 
+      const Linear::BlockMatrix * A,
+      const Linear::BlockVector& x, 
+      Linear::BlockVector& y
+      );
 
   void solve_mag_phase_Sensitivities_(
       const double dxdpReal,
@@ -289,6 +293,7 @@ private:
   Linear::Matrix *                G_;
   Linear::BlockMatrix *           ACMatrix_;
   Linear::BlockVector *           B_;
+  Linear::BlockVector *           origB_;
   Linear::BlockVector *           X_;
 
   // sensitivity vectors
@@ -298,6 +303,7 @@ private:
   Linear::Vector *      dOdxVecImagPtr;
 
   std::vector<Linear::BlockMatrix *>  dJdpVector_;
+  std::vector<Linear::BlockVector *>  dBdpVector_;
 
   Linear::Matrix *                dCdp_;
   Linear::Matrix *                dGdp_;

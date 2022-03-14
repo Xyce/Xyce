@@ -126,19 +126,15 @@ bool CktLoader::setParam(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : CktLoader::setParamRandomExpressionTerms
+// Function      : CktLoader::setParamRandomExpressionTerms2
 // Purpose       : 
 // Special Notes : 
 // Scope         : public
-// Creator       : 
-// Creation Date : 
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/05/2022
 //-----------------------------------------------------------------------------
-bool CktLoader::setParamRandomExpressionTerms(
-  std::string &   name,
-  std::string &   opName,
-  int             opIndex,
-  int astType,
-  double                val,
+bool CktLoader::setParamRandomExpressionTerms2(
+  const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
   bool overrideOriginal) 
 {
   // Delete the current linear matrices, just in case the parameter affects
@@ -148,7 +144,7 @@ bool CktLoader::setParamRandomExpressionTerms(
   delete filtered_lindQdxMatrixPtr_; filtered_lindQdxMatrixPtr_=0;
   delete filtered_lindFdxMatrixPtr_; filtered_lindFdxMatrixPtr_=0;
 
-  return deviceManager_.setParamRandomExpressionTerms(name, opName, opIndex, astType, val, overrideOriginal);
+  return deviceManager_.setParamRandomExpressionTerms2(SamplingParams, overrideOriginal);
 }
 
 //-----------------------------------------------------------------------------
@@ -156,7 +152,7 @@ bool CktLoader::setParamRandomExpressionTerms(
 // Purpose       : 
 // Special Notes : 
 // Scope         : public
-// Creator       : 
+// Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
 bool CktLoader::analyticSensitivitiesAvailable(

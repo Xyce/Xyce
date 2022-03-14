@@ -52,7 +52,7 @@ using namespace py::literals;
 
 // pybind11 wrapper for DeviceOptions and SolverState
 PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
-    m.attr("__version__") = "7.3";
+    m.attr("__version__") = "7.4";
     py::class_<Xyce::Device::DeviceOptions>(m, "DeviceOptions")
     .def_readonly("voltageLimiterFlag", &Xyce::Device::DeviceOptions::voltageLimiterFlag);
     py::class_<Xyce::Device::SolverState>(m, "SolverState")
@@ -378,55 +378,47 @@ public:
                 "install_dirname"_a=
                     "@CMAKE_INSTALL_PREFIX@/include/pymi", 
                 "source_dirname"_a=
-                    "@CMAKE_SOURCE_DIR@/utils/PythonModelInterface", 
-                "system_string"_a="");
+                    "@CMAKE_SOURCE_DIR@/utils/PythonModelInterface");
         py::exec(R"(
             import os
             import sys
-            system_string = str(sys.path)
             cwd_dirname = os.getcwd()
 
-            ## priority for python files is 
-            # 1.) install directory
-            if install_dirname not in sys.path: sys.path.append(install_dirname)
+            # priority for python files are (in reverse order)
 
-            # 2.) directory of executable
+            # 5.) source directory
+            if source_dirname not in sys.path: sys.path.insert(0, source_dirname)
+
+            # 4.) install directory
+            if install_dirname not in sys.path: sys.path.insert(0, install_dirname)
+
+            # 3.) directory of executable
             if os.path.isabs(executable_dirname):
                 executable_dirname = os.path.dirname(executable_dirname)
             else:
-                executable_dirname = cwd_dirname + '/' + os.path.dirname(executable_dirname)
-            if executable_dirname not in sys.path: sys.path.append(executable_dirname)
+                executable_dirname = cwd_dirname + os.sep + os.path.dirname(executable_dirname)
+            if executable_dirname not in sys.path: sys.path.insert(0, executable_dirname)
 
-            # 3.) current working directory
-            if cwd_dirname not in sys.path: sys.path.append(cwd_dirname)
+            # 2.) current working directory
+            if cwd_dirname not in sys.path: sys.path.insert(0, cwd_dirname)
 
-            # 4.) directory of the module netlist is referencing
+            # 1.) directory of module file specified, relative to netlist directory if relative
             if os.path.isabs(netlist_dirname):
                 netlist_dirname = os.path.dirname(netlist_dirname)
             else:
-                netlist_dirname = cwd_dirname + '/' + os.path.dirname(netlist_dirname)
-            if netlist_dirname not in sys.path: sys.path.append(netlist_dirname)
+                netlist_dirname = cwd_dirname + os.sep + os.path.dirname(netlist_dirname)
 
             basename = os.path.splitext(os.path.basename(netlist_module_dirname))[0]
             if os.path.isabs(netlist_module_dirname):
                 netlist_module_dirname = os.path.dirname(netlist_module_dirname)
             else:
-                netlist_module_dirname = netlist_dirname + '/' + os.path.dirname(netlist_module_dirname)
-            if netlist_module_dirname not in sys.path: sys.path.append(netlist_module_dirname)
-
-            # 5.) source directory
-            if source_dirname not in sys.path: sys.path.append(source_dirname)
+                netlist_module_dirname = netlist_dirname + os.sep + os.path.dirname(netlist_module_dirname)
+            if netlist_module_dirname not in sys.path: sys.path.insert(0, netlist_module_dirname)
 
         )", py::globals(), locals);
         auto basename = locals["basename"].cast<std::string>();
-        //py::exec(R"(
-        //    import os
-        //    system_string = str(sys.path)
-        //    print(system_string)
-        //)", py::globals(), locals);
-
+        s_params["NETLIST_PATH"] = locals["netlist_dirname"];
         device = py::module::import(basename.c_str()).attr("Device")();
-        std::cout << "Loaded: " << pValues[i] << std::endl;
       } else {
         s_params[py::str(pNames[i])] = py::str(pValues[i]);
       }
@@ -683,7 +675,6 @@ int main(int argc, char **argv)
   // other special parameters
   for (int i =0; i<deviceNames.size(); i++)
   {
-    std::cout << "GenExt Device " << i << " name is " << deviceNames[i] << std::endl;
 
     // Retrieve any double precision parameters that may be on the instance line
     std::vector<std::string> pNames;

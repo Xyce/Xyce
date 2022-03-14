@@ -539,6 +539,12 @@ public:
     return expressionGroup_;
   }
 
+protected:
+  AnalysisBase * getAnalysisObjectPtr() 
+  {
+    return primaryAnalysisObject_;
+  }
+
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object
   const std::string                     netlistFilename_;               ///< Netlist file name
