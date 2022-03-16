@@ -23,7 +23,11 @@ set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS proje
 
 # Charon can use a specific part of Xyce as a TPL.  However, that use case
 # results in a build of Xyce that is unusable for any other purpose.
-# Therefore, we need to make a special build of Xyce that skips some checks.
+# "Xyce_AS_SPECIAL_CHARON_TPL" is a "hidden" variable that must be set at the
+# initial CMake invocation with the "-D" flag.  If set, CMake looks only for
+# the Trilinos packages supplied by Charon. The variable also forces CMake to
+# skip some checks in "tps.cmake" that are required for a fully-functional Xyce
+# build.
 if(Xyce_AS_SPECIAL_CHARON_TPL)
   find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
