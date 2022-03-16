@@ -22,12 +22,12 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : AC analysis class
+// Purpose        : 
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  : 
 //
-// Creator        : Ting Mei
+//
+// Creator        : Dave Baur
 //
 // Creation Date  : 01/11
 //

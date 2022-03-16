@@ -111,7 +111,7 @@ class Simulator
   }
 
   Loader::CktLoader &getCircuitLoader();
-  
+
   // These are all the API calls that we are suppose to be making available
   // for external programs and/or other objects
 
@@ -242,7 +242,7 @@ class Simulator
   // Purpose       : query the DAC devices in a circuit for the set
   //                 of time and voltage pairs
   // Special Notes : Calling this function clears the ADC devices time-voltage
-  //                 pair vector.  
+  //                 pair vector.
   // Scope         : public
   // Creator       : Tom Russo, SNL ComponentInformation and Models
   // Creation Date : 05/10/2004
@@ -250,13 +250,13 @@ class Simulator
   bool getTimeVoltagePairs(
         std::map< std::string, std::vector< std::pair<double,double> > > &
         timeVoltageUpdateMap);
-  
+
   //---------------------------------------------------------------------------
   // Function      : getTimeVoltagePairsSz
   // Purpose       : Returns the largest size of the TV Pairs data in the ADCs
   // Special Notes :
   // Scope         : public
-  // Creator       : 
+  // Creator       :
   // Creation Date : 11/11/2021
   //---------------------------------------------------------------------------
   bool getTimeVoltagePairsSz(int &maximumSize);
@@ -288,7 +288,7 @@ class Simulator
 
   //----------------------------------------------------------------------------
   // Function       : getADCWidth
-  // Purpose        : get the width of the specified ADC devices bitvector output 
+  // Purpose        : get the width of the specified ADC devices bitvector output
   //                  on the "digital side"
   // Special Notes  :
   // Scope          :
@@ -328,38 +328,38 @@ class Simulator
   void reportTotalElapsedTime ();
 
   //
-  // checkes if a given name, variable_name, exists in as the name of a measure 
+  // checkes if a given name, variable_name, exists in as the name of a measure
   // with the measure manager.
   //
   bool checkResponseVar(const std::string &variable_name) const;
   //
-  // if the varaible_name exists in the measure manager, then return its 
+  // if the varaible_name exists in the measure manager, then return its
   // value in result.
   //
   bool obtainResponse(const std::string& variable_name, double &result) const;
-  
+
   //
-  // checks that the given parameter exists. 
+  // checks that the given parameter exists.
   // return true if it does and false otherwise.
   bool checkCircuitParameterExists(std::string paramName);
-  
+
   //
   // sets the given parameter through the device manager.
   // returns false if the parameter did not exist (and thus was not set)
   bool setCircuitParameter(std::string paramName, double paramValue);
-  
+
   //
   // gets a value from the current simulation based on the name passed it
   // The name can be parameter name, voltage node or current (ie. solution variable)
   // or a measure name.  return false if the value was not found.
   bool getCircuitValue(std::string paramName, double& paramValue);
-  
+
   //
   // accessor to AnalysisManger function.
   // for non-time based analysis it returns zero.
   //
   double getTime();
-  
+
   //
   // accessor to AnalysisManger function.
   // for non-time based analysis it returns zero.
@@ -369,10 +369,18 @@ class Simulator
   // // report on whether simulation is finished or not
   bool simulationComplete();
 
+ protected:
+
+  IO::PkgOptionsMgr * getOptionsManager()
+  {
+    return optionsManager_;
+  };
+
+    virtual bool doRegistrations_();
+
  private:
     bool doAllocations_();
     bool doInitializations_();
-    bool doRegistrations_();
     RunStatus setupTopology( unordered_map< std::string, std::string >& aliasMap );
     bool setUpMatrixStructure_();
     bool runSolvers_();

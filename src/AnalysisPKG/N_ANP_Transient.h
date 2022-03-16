@@ -163,6 +163,8 @@ public:
 
   // Two Level specific
   bool twoLevelStep();
+  void outputDAEvectors();
+  void outputDAEmatrices();
 
   bool getDCOPFlag() const
   {

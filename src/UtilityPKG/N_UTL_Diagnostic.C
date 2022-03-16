@@ -382,5 +382,4 @@ setNonlinearDumpDebugLevel(
   }
 }
 
-
 } // namespace Xyce

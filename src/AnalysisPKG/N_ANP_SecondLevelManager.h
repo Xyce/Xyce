@@ -46,6 +46,8 @@ namespace Analysis {
 class SecondLevelManager : public AnalysisManager
 {
 public:
+  static void populateMetadata(IO::PkgOptionsMgr &options_manager);
+
   SecondLevelManager(
     const IO::CmdParse &        command_line,
     OutputMgrAdapter &          output_manager_adapter,
@@ -53,7 +55,9 @@ public:
     : AnalysisManager(command_line, output_manager_adapter, analysis_stat),
       twoLevelAnalysisObject_(0),
       activeOutput_(0),
-      breakPointsRequestedBefore_(false)
+      breakPointsRequestedBefore_(false),
+      outputDAEvectors_(false),
+      outputDAEmatrices_(false)
   {}
 
   virtual ~SecondLevelManager()
@@ -92,13 +96,19 @@ public:
     double                      nextTime,
     int                         currentOrder);
 
+  bool setTwoLevelParams (const Util::OptionBlock & paramsBlock);
+
 private:
   AnalysisBase *        twoLevelAnalysisObject_;
   IO::ActiveOutput *    activeOutput_;
 
-
   bool breakPointsRequestedBefore_;
+
+  bool outputDAEvectors_;
+  bool outputDAEmatrices_;
 };
+
+bool registerTwoLevelPkgOptionsMgr(SecondLevelManager &second_level_manager, IO::PkgOptionsMgr &options_manager);
 
 } // namespace Analysis
 } // namespace Xyce

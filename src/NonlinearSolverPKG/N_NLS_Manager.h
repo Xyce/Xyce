@@ -181,6 +181,10 @@ public:
     IO::OutputMgr &                     output_manager,
     Topo::Topology &                    topology);
 
+
+  void outputDAEvectors();
+  void outputDAEmatrices();
+
 private:
   bool allocateSolver(
     Analysis::AnalysisManager &         analysis_manager,

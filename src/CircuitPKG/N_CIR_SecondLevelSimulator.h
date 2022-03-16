@@ -68,6 +68,14 @@ class SecondLevelSimulator : public Simulator
     Analysis::OutputMgrAdapter &        output_manager_adapter,
     Stats::Stat                         analysis_stat);
 
+  //RunStatus initialize(int argc, char **argv);
+
+  /// First initialization call, intializes up to point where
+  /// topology needs to query devices for number variables and jacstamp.
+  /// This include reading netlist and instantiating devices.
+  //RunStatus initializeEarly(int argc, char **argv);
+
+
   bool simulateStep(
     bool                                        external_initJctFlag,
     const std::map<std::string,double> &        inputMap,
@@ -111,6 +119,9 @@ class SecondLevelSimulator : public Simulator
   bool setInternalParam (const std::string & name, double val);
 
   bool getInitialQnorm (TimeIntg::TwoLevelError & tle);
+
+protected:
+  bool doRegistrations_();
 
 private:
   Analysis::SecondLevelManager *        secondLevelManager_;

@@ -65,6 +65,22 @@ SecondLevelSimulator::newAnalysisManager(
 
 // ---------------------------------------------------------------------------
 // API METHODS NEEDED FOR Two-level Functions:
+// ---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Function      : SecondLevelSimulator::doRegistrations_
+// Purpose       : This is a derived function.
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/15/2022
+//---------------------------------------------------------------------------
+bool SecondLevelSimulator::doRegistrations_()
+{
+  bool success2 = Xyce::Analysis::registerTwoLevelPkgOptionsMgr(*secondLevelManager_, *(getOptionsManager()) );
+  bool success = Simulator::doRegistrations_();
+  return (success && success2);
+}
 
 //---------------------------------------------------------------------------
 // Function      : SecondLevelSimulator::simulateStep
@@ -142,7 +158,7 @@ bool SecondLevelSimulator::startupSolvers()
 }
 
 //---------------------------------------------------------------------------
-// Function      : SecondLevelSimulator::finishSolvers 
+// Function      : SecondLevelSimulator::finishSolvers
 // Purpose       :
 // Special Notes : Used for 2-level Newton solves.
 // Scope         : public
@@ -151,9 +167,7 @@ bool SecondLevelSimulator::startupSolvers()
 //---------------------------------------------------------------------------
 bool SecondLevelSimulator::finishSolvers ()
 {
-  bool bsuccess = true;
-  bsuccess = secondLevelManager_->finishSecondLevelSolvers();
-  return bsuccess;
+  return secondLevelManager_->finishSecondLevelSolvers();
 }
 
 //---------------------------------------------------------------------------
@@ -238,7 +252,7 @@ bool SecondLevelSimulator::getBreakPoints (
     std::vector<Util::BreakPoint> &breakPointTimes,
     std::vector<Util::BreakPoint> &pauseBreakPointTimes)
 {
-  return secondLevelManager_->getSecondLevelBreakPoints(getCircuitLoader(), 
+  return secondLevelManager_->getSecondLevelBreakPoints(getCircuitLoader(),
       breakPointTimes, pauseBreakPointTimes);
 }
 
@@ -252,8 +266,7 @@ bool SecondLevelSimulator::getBreakPoints (
 //---------------------------------------------------------------------------
 bool SecondLevelSimulator::updateStateArrays()
 {
-  bool bsuccess = true;
-  return bsuccess;
+  return true;
 }
 
 //---------------------------------------------------------------------------
@@ -300,17 +313,17 @@ SecondLevelSimulator::startTimeStep(
 // Special Notes : Used for 2-level Newton solves with Charon.
 //
 //                 ERK, 2018: adapted so it could be potentially used
-//                 with Xyce-to-Xyce coupling. The motivation is so 
-//                 that there only be a single set of API functions, 
+//                 with Xyce-to-Xyce coupling. The motivation is so
+//                 that there only be a single set of API functions,
 //                 instead of the confusing 2.
 //
 //                 This adaptation has to do with two bits of information:
 //
-//                 (1) "beginIntegrationFlag" which is true not just at the first 
+//                 (1) "beginIntegrationFlag" which is true not just at the first
 //                      time step, but also at any breakpoint step.
 //
-//                 (2) setting the integration order.  For the Xyce-to-Xyce case, 
-//                     all Xyce objects use the same synchronized integration 
+//                 (2) setting the integration order.  For the Xyce-to-Xyce case,
+//                     all Xyce objects use the same synchronized integration
 //                     order (and integration method)
 //
 //                 These two issues are invoked optionally.
@@ -340,8 +353,8 @@ bool SecondLevelSimulator::startTimeStep(const Device::ExternalSimulationData & 
     currentOrder = ext_data.imposedTimeIntegrationOrder;
   }
 
-  // the begin integration flag is "true" when at a breakpoint, or at the 
-  // firs time step out of the DCOP.  
+  // the begin integration flag is "true" when at a breakpoint, or at the
+  // first time step out of the DCOP.
   if (ext_data.forceBeginningIntegration)
   {
     beginIntegrationFlag = ext_data.imposedBeginningIntegration;

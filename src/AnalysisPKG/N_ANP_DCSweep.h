@@ -125,6 +125,8 @@ protected:
 public:
   // Two Level specific
   bool twoLevelStep();
+  void outputDAEvectors();
+  void outputDAEmatrices();
 
   void printStepHeader(std::ostream &os);
   bool printLoopInfo(int start, int finish);

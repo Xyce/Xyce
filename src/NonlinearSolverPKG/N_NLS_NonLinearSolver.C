@@ -695,6 +695,84 @@ void NonLinearSolver::debugOutputDAE()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::outputDAEvectors
+// Purpose       : Write DAE vectors to output files.
+//
+// Special Notes : Similar to debugOutputDAE but
+//                 doesn't check the debuglevel.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/15/2022
+//-----------------------------------------------------------------------------
+void NonLinearSolver::outputDAEvectors()
+{
+  int newtStep = getNumIterations();
+  int contStep = getContinuationStep();
+  int paramNumber = getParameterNumber ();
+
+  char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
+  char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
+  char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
+  char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
+  //char filename8[256]; for (int ich = 0; ich < 256; ++ich) filename8[ich] = 0;
+  //char filename9[256]; for (int ich = 0; ich < 256; ++ich) filename9[ich] = 0;
+
+  Linear::Vector *daeQ    = dsPtr_->daeQVectorPtr;
+  Linear::Vector *daeF    = dsPtr_->daeFVectorPtr;
+  Linear::Vector *daeB    = dsPtr_->daeBVectorPtr;
+
+  Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
+  Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
+
+  sprintf(filename4, "daeQ_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  sprintf(filename6, "daeF_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  sprintf(filename6b,"daeB_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+
+  //sprintf(filename8, "daeQlim_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  //sprintf(filename9, "daeFlim_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+
+  // write the vectors:
+  daeQ->writeToFile(filename4);
+  daeF->writeToFile(filename6);
+  daeB->writeToFile(filename6b);
+  //daeQlim->writeToFile(filename8);
+  //daeFlim->writeToFile(filename9);
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : NonLinearSolver::outputDAEmatrices
+// Purpose       : Write DAE matrices to output files.
+//
+// Special Notes : Similar to debugOutputDAE but
+//                 doesn't check the debuglevel.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/15/2022
+//-----------------------------------------------------------------------------
+void NonLinearSolver::outputDAEmatrices()
+{
+  int newtStep = getNumIterations();
+  int contStep = getContinuationStep();
+  int paramNumber = getParameterNumber ();
+
+  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
+  char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
+
+  Linear::Matrix *dQdx    = dsPtr_->dQdxMatrixPtr;
+  Linear::Matrix *dFdx    = dsPtr_->dFdxMatrixPtr;
+
+  sprintf(filename1, "dQdx_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  sprintf(filename2, "dFdx_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+
+  // write the matrices:
+  dQdx->writeToFile (filename1, false, getMMFormat () );
+  dFdx->writeToFile (filename2, false, getMMFormat () );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonLinearSolver::debugOutput3_
 // Purpose       : Write out the update vector and the new solution.
 //

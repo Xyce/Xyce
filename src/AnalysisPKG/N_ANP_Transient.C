@@ -3234,6 +3234,20 @@ bool Transient::twoLevelStep()
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Transient::outputDAEvectors()
+{
+  nonlinearManager_.outputDAEvectors();
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Transient::outputDAEmatrices()
+{
+  nonlinearManager_.outputDAEmatrices();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Transient::retakeAndAcceptTimeStep
 // Purpose       : Do a requested time step and accept it
 // Special Notes :
