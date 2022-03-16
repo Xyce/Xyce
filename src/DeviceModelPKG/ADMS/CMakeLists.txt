@@ -24,7 +24,8 @@ target_sources(XyceLib PRIVATE
       N_DEV_ADMSmvs_2_0_0_hemt.C
       N_DEV_ADMSmvsg_cmc.C
       N_DEV_ADMShicumL2va.C
-      N_DEV_ADMShic0_full.C)
+      N_DEV_ADMShic0_full.C
+      N_DEV_ADMSl_utsoi.C)
 
 # add header files to project
 target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

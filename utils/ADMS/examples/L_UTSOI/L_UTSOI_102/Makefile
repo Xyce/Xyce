@@ -1,6 +1,6 @@
 # NOTE:  This is stupidly assuming your git repos are all cloned
 # in the same way that mine are, and is not flexible.
-ADMSDIR = ../../../Xyce/utils/ADMS
+ADMSDIR = ../../..
 
 XyceADMSDeps = $(ADMSDIR)/adms.implicit.xml \
 	$(ADMSDIR)/xyceVersion_nosac.xml \
