@@ -229,9 +229,6 @@ public:
   // Accessor which returns the maximum time step size (in seconds).
   double getMaxTimeStepSize();
 
-  // Get block size from device options for block gainscale homotopy
-  int getHomotopyBlockSize() const;
-
   // Get convergence info from devices
   virtual bool allDevicesConverged(Xyce::Parallel::Machine comm);
 

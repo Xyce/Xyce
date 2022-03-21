@@ -172,8 +172,6 @@ public:
   void registerRemovedDevices( std::vector< std::string >& devices )
   { removedDevices_ = devices; }
 
-  int getHomotopyBlockSize() const;
-
   bool outputPlotFiles(bool force_final_output);
   bool finishOutput ();
 

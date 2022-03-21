@@ -116,7 +116,7 @@ SolverState::SolverState ()
     chargeHomotopy_(false),
     chargeAlpha_(1.0),
     artParameterFlag_(false),
-    gainScale_(1, 1.0),
+    gainScale_(1.0),
     nltermScale_(1.0),
     sizeParameterFlag_(false),
     sizeScale_(1.0),
@@ -129,19 +129,6 @@ SolverState::SolverState ()
 SolverState::~SolverState ()
 {
   delete groupWrapperPtr_;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : SolverState::InitializeHomotopyBlockSize
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 08/25/03
-//-----------------------------------------------------------------------------
-void SolverState::initializeHomotopyBlockSize(int numBlocks)
-{
-  gainScale_.resize(numBlocks, 1.0);
 }
 
 //-----------------------------------------------------------------------------

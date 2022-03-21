@@ -113,9 +113,6 @@ DeviceOptions::DeviceOptions()
     defaultMaxTimeStep (1.0e99),
     vdsScaleMin(0.3),
     vgstConst(4.5),
-    numGainScaleBlocks(1),
-    staggerGainScale(false),
-    randomizeVgstConst(false),
     length0(5.0e-6), // used in mosfet "size" homotopy
     width0(200.0e-6), // used in mosfet "size" homotopy
     tox0(6.0e-8), // used in mosfet "size" homotopy
@@ -249,12 +246,6 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
       vdsScaleMin = (*it).getImmutableValue<double>();
     else if (tag == "VGSTCONST" )
       vgstConst  = (*it).getImmutableValue<double>();
-    else if (tag == "NUMGAINSCALEBLOCKS" )
-      numGainScaleBlocks = static_cast<int>((*it).getImmutableValue<int>());
-    else if (tag == "STAGGERGAINSCALE")
-      staggerGainScale = static_cast<bool>((*it).getImmutableValue<int>());
-    else if (tag == "RANDOMIZEVGSTCONST")
-      randomizeVgstConst = static_cast<bool>((*it).getImmutableValue<int>());
     else if (tag == "LENGTH0" )
       length0 = (*it).getImmutableValue<double>();
     else if (tag == "WIDTH0" )
@@ -485,9 +476,6 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("MINRES", Util::Param("MINRES", 0.0)));
   parameters.insert(Util::ParamMap::value_type("MINCAP", Util::Param("MINCAP", 0.0)));
   parameters.insert(Util::ParamMap::value_type("SENSDEBUGLEVEL", Util::Param("SENSDEBUGLEVEL", 0)));
-  parameters.insert(Util::ParamMap::value_type("NUMGAINSCALEBLOCKS", Util::Param("NUMGAINSCALEBLOCKS", 1)));
-  parameters.insert(Util::ParamMap::value_type("STAGGERGAINSCALE", Util::Param("STAGGERGAINSCALE", 0)));
-  parameters.insert(Util::ParamMap::value_type("RANDOMIZEVGSTCONST", Util::Param("RANDOMIZEVGSTCONST", 0)));
   parameters.insert(Util::ParamMap::value_type("NEWEXCESSPHASE", Util::Param("NEWEXCESSPHASE", 1)));
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR1", Util::Param("EXCESSPHASESCALAR1", 1.0)));
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR2", Util::Param("EXCESSPHASESCALAR2", 1.0)));
@@ -554,9 +542,6 @@ std::ostream & operator<<(std::ostream & os, const DeviceOptions & devOp)
      << "\t\tdefaultMaxTimeStep    = " << devOp.defaultMaxTimeStep << "\n"
      << "\t\tvdsScaleMin           = " << devOp.vdsScaleMin << "\n"
      << "\t\tvgstConst             = " << devOp.vgstConst << "\n"
-     << "\t\tnumGainScaleBlocks    = " << devOp.numGainScaleBlocks << "\n"
-     << "\t\tstaggerGainScale      = " << devOp.staggerGainScale << "\n"
-     << "\t\trandomizeVgstConst    = " << devOp.randomizeVgstConst << "\n"
      << "\t\tlength0               = " << devOp.length0 << "\n"
      << "\t\twidth0                = " << devOp.width0 << "\n"
      << "\t\ttox0                  = " << devOp.tox0 << "\n"

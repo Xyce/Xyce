@@ -510,8 +510,6 @@ private:
   int li_state_qbd;
   int li_state_qbs;
 
-  int blockHomotopyID; // For homotopy
-  double randomPerturb; // For homotopy
 };
 
 

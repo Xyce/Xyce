@@ -4418,9 +4418,7 @@ Instance::Instance(
     q_icVPSEquIpsPtr(0),
 #endif
 
-    vlDebug                               (false),
-    blockHomotopyID                       (0),
-    randomPerturb                         (0.0)
+    vlDebug                               (false)
 
 {
   int i,j,k;
@@ -4751,12 +4749,6 @@ Instance::Instance(
   numStateVars = 6;
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 5;    // this is the space to allocate if lead current or power is needed.
-
-
-  blockHomotopyID =
-    devSupport.getGainScaleBlockID(getDeviceOptions().numGainScaleBlocks);
-  randomPerturb =
-    devSupport.getRandomPerturbation();
 
   setupJacStamp();
 
@@ -9381,27 +9373,15 @@ bool Instance::updateIntermediateVars ()
   // modify Vds and Vgs.
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
-    Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_[blockHomotopyID] << std::endl
+    Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_ << std::endl
                  << "HOMOTOPY INFO: before vds  = " << Vds << std::endl
                  << "HOMOTOPY INFO: before vgst = " << Vgs << std::endl
                  << "vgstConst= " << getDeviceOptions().vgstConst << std::endl;
   }
   if (getSolverState().artParameterFlag_)
   {
-    double alpha = getSolverState().gainScale_[blockHomotopyID];
-    if (getDeviceOptions().staggerGainScale)
-    {
-      alpha *= (0.3 * randomPerturb + 1.0);
-      if (alpha > 1.0)
-      {
-        alpha = 1.0;
-      }
-    }
+    double alpha = getSolverState().gainScale_;
     double vgstConst = getDeviceOptions().vgstConst;
-    if (getDeviceOptions().randomizeVgstConst)
-    {
-      vgstConst *= randomPerturb;
-    }
 
     Vds = devSupport.contVds (Vds, getSolverState().nltermScale_, getDeviceOptions().vdsScaleMin);
     Vgs = devSupport.contVgst(Vgs, alpha, vgstConst);
