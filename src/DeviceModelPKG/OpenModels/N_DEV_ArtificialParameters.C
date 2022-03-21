@@ -102,14 +102,14 @@ ArtificialParameter::getInstanceVector(const DeviceMgr &device_manager) const
 
 bool MOSFETGainScaleParam::setValue(DeviceMgr &device_manager, double value)
 {
-  getSolverState(device_manager).gainScale_[0] = value;
+  getSolverState(device_manager).gainScale_ = value;
   getSolverState(device_manager).artParameterFlag_ = true;
   return true;
 }
 
 double MOSFETGainScaleParam::getValue(const DeviceMgr &device_manager) const
 {
-  return getSolverState(device_manager).gainScale_[0];
+  return getSolverState(device_manager).gainScale_;
 }
 
 bool MOSFETNLTermScaleParam::setValue(DeviceMgr &device_manager, double value)

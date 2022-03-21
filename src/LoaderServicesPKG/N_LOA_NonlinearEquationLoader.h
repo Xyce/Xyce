@@ -116,9 +116,6 @@ public:
   // Gets the nonlinear Jacobian load time.
   double getJacobianTime() { return jacobianTime_; }
 
-  // Get block size from device options for block gainscale homotopy
-  int getHomotopyBlockSize() const;
-
   // Get convergence info from devices
   bool allDevicesConverged(Parallel::Machine comm);
 

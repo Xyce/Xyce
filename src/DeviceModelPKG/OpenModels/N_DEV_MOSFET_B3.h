@@ -1140,9 +1140,6 @@ private:
   static std::vector< std::vector<int> > jacMap2_SC;
   static std::vector< std::vector<int> > jacMap2;
 
-  int blockHomotopyID; // For homotopy
-  double randomPerturb; // For homotopy
-
   // Most versions of this device will use one of the four
   // jacobian's defined as static above.  However, if nqsMod is true
   // or or any of the three initial conditions are specified (icVBS,

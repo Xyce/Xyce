@@ -745,19 +745,6 @@ bool NonlinearEquationLoader::calcCouplingTerms
 }
 
 //-----------------------------------------------------------------------------
-// Function      : NonlinearEquationLoader::getHomotopyBlockSize
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Todd Coffey, SNL
-// Creation Date : 07/29/08
-//-----------------------------------------------------------------------------
-int NonlinearEquationLoader::getHomotopyBlockSize() const
-{
-  return deviceManager_.getHomotopyBlockSize();
-}
-
-//-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::homotopyStepSuccess
 // Purpose       :
 // Special Notes :

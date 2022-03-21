@@ -99,7 +99,6 @@ namespace N_NLS_NOX {
       int mosfetContinuationSolve4 ( ParameterSet* paramsPtr );
       int mosfetContinuationSolve5 ( ParameterSet* paramsPtr );
       int mosfetContinuationSolve6 ( ParameterSet* paramsPtr );
-      int blockGainscaleMosfetSolve ( ParameterSet* paramsPtr );
       int gminSteppingSolve ( ParameterSet* paramsPtr );
       int pseudoTransientSolve ( ParameterSet* paramsPtr );
       int artificialParameterHomotopy ( ParameterSet* paramsPtr );

@@ -95,8 +95,6 @@ public:
   SolverState();
   ~SolverState();
 
-  void initializeHomotopyBlockSize(int numBlocks);
-
   UserDefinedParams &getGlobals() const
   {
     return const_cast<UserDefinedParams &>(globals_);
@@ -198,7 +196,7 @@ public:
 
   // MOSFET homotopy variables
   bool                  artParameterFlag_;      ///< MOSFET Devices, ArtificialParameters
-  std::vector<double>   gainScale_;             ///< MOSFET Devices, ArtificialParameters
+  double                gainScale_;             ///< MOSFET Devices, ArtificialParameters
   double                nltermScale_;           ///< MOSFET Devices, ArtificialParameters
 
   bool                  sizeParameterFlag_;     ///< ArtificialParameters, not sure these are really used

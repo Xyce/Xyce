@@ -46,13 +46,9 @@
 #include <N_UTL_Math.h>
 #include <N_DEV_DeviceSupport.h>
 #include <N_DEV_Const.h>
-#include <N_UTL_RandomNumbers.h>
 
 namespace Xyce {
 namespace Device {
-
-// For block gainscale homotopy
-static Xyce::Util::RandomNumbers *theRandomGenerator=0;
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceSupport::lambertw
@@ -836,70 +832,6 @@ double DeviceSupport::contVgst
   return ((alpha)*vgst + (1.0-alpha)*vgstConst);
 }
 
-//-----------------------------------------------------------------------------
-// Function      : DeviceSupport::getGainScaleBlockID
-// Purpose       : determines which block to associate the mosfet device
-//                 This is used for a multi-block gainscale continuation.
-// Scope         : public
-// Creator       : Roger Pawlowski, SNL
-// Creation Date : 01/28/05
-//-----------------------------------------------------------------------------
-int DeviceSupport::getGainScaleBlockID(int numBlocks)
-{
-  if (theRandomGenerator==0)
-    theRandomGenerator = new Xyce::Util::RandomNumbers(0,false);
-
-  double val = theRandomGenerator->uniformRandom();
-
-  // get rid of negatives
-  val = val * val;
-  val = sqrt(val);
-
-  double interval = 1.0 / numBlocks;
-
-  for (int i = 0; i < numBlocks; ++i) {
-    double lowBound = ((double) i) * interval;
-    double highBound = ((double) (i+1)) * interval;
-    if ((val >= lowBound) && (val < highBound)) {
-      return i;
-    }
-  }
-
-  return (numBlocks-1);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DeviceSupport::getGainScaleBlockID
-// Purpose       : computes random perturbation for stretched homotopy.
-// Scope         : public
-// Creator       : Roger Pawlowski, SNL
-// Creation Date : 01/28/05
-//-----------------------------------------------------------------------------
-double DeviceSupport::getRandomPerturbation()
-{
-  if (theRandomGenerator==0)
-    theRandomGenerator = new Xyce::Util::RandomNumbers(0,false);
-
-  double val = theRandomGenerator->uniformRandom();
-  val = val * val;
-  val = sqrt(val);
-  return val;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DeviceSupport::getGainScaleBlockID
-// Purpose       : sets seed for random number generator used in getRandomPerturbation().
-// Scope         : public
-// Creator       : Richard Schie, Electrical Systems Modeling
-// Creation Date : 10/01/12
-//-----------------------------------------------------------------------------
-int DeviceSupport::SetSeed(long seedIn)
-{
-  if (theRandomGenerator==0)
-    theRandomGenerator = new Xyce::Util::RandomNumbers(seedIn,false);
-  theRandomGenerator->seedRandom( seedIn, false );
-  return 0;
-}
 
 } // namespace Device
 } // namespace Xyce

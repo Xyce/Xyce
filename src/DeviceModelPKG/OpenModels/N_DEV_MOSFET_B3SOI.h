@@ -1407,8 +1407,6 @@ private:
   // boolean for new voltlim debugging:
   bool vlDebug;
 
-  int blockHomotopyID; // For homotopy
-  double randomPerturb; // For homotopy
 };
 
 //-----------------------------------------------------------------------------

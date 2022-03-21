@@ -716,9 +716,7 @@ Instance::Instance(
     li_state_qgd(-1),
     li_state_qgb(-1),
     li_state_qbd(-1),
-    li_state_qbs(-1),
-    blockHomotopyID(0),
-    randomPerturb(0.0)
+    li_state_qbs(-1)
 {
   numIntVars   = 2;
   numExtVars   = 4;
@@ -733,11 +731,6 @@ Instance::Instance(
   devConMap[1] = 2;
   devConMap[2] = 1;
   devConMap[3] = 3;
-
-  blockHomotopyID =
-    devSupport.getGainScaleBlockID(getDeviceOptions().numGainScaleBlocks);
-  randomPerturb =
-    devSupport.getRandomPerturbation();
 
   if( jacStamp.empty() )
   {
@@ -1937,7 +1930,7 @@ bool Instance::updateIntermediateVars ()
     // Roychowdhury.
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_[blockHomotopyID] << std::endl
+      Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_ << std::endl
                    << "HOMOTOPY INFO: before vds  = " << vds << std::endl
                    << "HOMOTOPY INFO: before vgs  = " << vgs << std::endl;
     }
@@ -1952,20 +1945,8 @@ bool Instance::updateIntermediateVars ()
 
     if (getSolverState().artParameterFlag_)
     {
-      double alpha = getSolverState().gainScale_[blockHomotopyID];
-      if (getDeviceOptions().staggerGainScale)
-      {
-        alpha *= (0.3 * randomPerturb + 1.0);
-        if (alpha > 1.0)
-        {
-          alpha = 1.0;
-        }
-      }
+      double alpha = getSolverState().gainScale_;
       double vgstConst = getDeviceOptions().vgstConst;
-      if (getDeviceOptions().randomizeVgstConst)
-      {
-        vgstConst *= randomPerturb;
-      }
 
       vds = devSupport.contVds (vds, getSolverState().nltermScale_, getDeviceOptions().vdsScaleMin);
 

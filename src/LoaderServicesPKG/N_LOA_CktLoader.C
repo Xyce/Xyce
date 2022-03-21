@@ -1301,19 +1301,6 @@ bool CktLoader::calcCouplingTerms (int iSubProblem, int iCouple, const Linear::V
 }
 
 //-----------------------------------------------------------------------------
-// Function      : CktLoader::getHomotopyBlockSize
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Roger Pawlowski, SNL, Parallel Computational Sciences
-// Creation Date : 01/26/2005
-//-----------------------------------------------------------------------------
-int CktLoader::getHomotopyBlockSize() const
-{
-  return deviceManager_.getHomotopyBlockSize();
-}
-
-//-----------------------------------------------------------------------------
 // Function      : CktLoader::allDevsConverged
 // Purpose       : Check whether any device has taken an action that renders
 //                  normal convergence checks invalid (i.e. that the current

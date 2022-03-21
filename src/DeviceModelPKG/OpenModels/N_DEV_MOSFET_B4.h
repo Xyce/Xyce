@@ -1168,9 +1168,6 @@ private:
   std::vector<int> jacMap;
   std::vector< std::vector<int> > jacMap2;
 
-  int blockHomotopyID; // For homotopy
-  double randomPerturb; // For homotopy
-
   double ceqdrn_Jdxp, ceqbd_Jdxp, ceqbs_Jdxp;
   double Istoteq_Jdxp, Idtoteq_Jdxp;
   double Ibtoteq_Jdxp, Igtoteq_Jdxp;
