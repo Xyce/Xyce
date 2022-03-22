@@ -44,12 +44,13 @@
 #include <N_DEV_DeviceBlock.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
-#include <N_UTL_RandomNumbers.h>
 
 #include <N_DEV_Synapse.h>
 
 
 #include <Sacado_No_Kokkos.hpp>
+
+#include <random>
 
 namespace Xyce {
 namespace Device {
@@ -156,7 +157,7 @@ public:
   // make this static so that synapses share a random number generator and 
   // thus don't all seed the same generator with the same seed and then follow 
   // the same sequence.
-  static Xyce::Util::RandomNumbers  * randomNumberGenerator_;
+  static std::mt19937  * randomNumberGeneratorPtr_;
   
 private:
 

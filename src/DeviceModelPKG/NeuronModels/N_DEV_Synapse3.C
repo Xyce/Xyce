@@ -39,10 +39,6 @@
 #include <Xyce_config.h>
 //#define Xyce_FullSynapseJac 1
 
-// ---------- Standard Includes ----------
-// used to get time in seconds to seed random number generator.
-#include<time.h>
-
 // ----------   Xyce Includes   ----------
 //
 #include <N_DEV_Const.h>
@@ -66,7 +62,7 @@ namespace Device {
 
 namespace Synapse3 {
 
-Xyce::Util::RandomNumbers * Instance::randomNumberGenerator_=0;
+std::mt19937 * Instance::randomNumberGeneratorPtr_=0;
 
 void Traits::loadInstanceParameters(ParametricData<Synapse3::Instance> &p)
 {
@@ -449,17 +445,17 @@ bool Instance::updateIntermediateVars()
   // initialized random number generator if needed
   if( !randInitialized )
   {
-    if (randomNumberGenerator_ == 0)
-      randomNumberGenerator_=new Xyce::Util::RandomNumbers(0);
-    
-    if( getDeviceOptions().randomSeed != 0 )
+    if (randomNumberGeneratorPtr_ == 0)
     {
-      randomNumberGenerator_->seedRandom( getDeviceOptions().randomSeed );
-    }
-    else
-    {
-      unsigned int aSeed = static_cast<unsigned int>(time( NULL ) ) ;
-      randomNumberGenerator_->seedRandom( aSeed );
+      if( getDeviceOptions().randomSeed != 0 )
+      {
+        randomNumberGeneratorPtr_=new std::mt19937(getDeviceOptions().randomSeed);
+      }
+      else
+      {
+        std::random_device rd;
+        randomNumberGeneratorPtr_=new std::mt19937(rd());
+      }
     }
     randInitialized=true;
   }
@@ -496,7 +492,8 @@ bool Instance::updateIntermediateVars()
         transmissionFactor=1;
         if( transmissionProbability < 1.0 )
         {
-          double arand = randomNumberGenerator_->uniformRandom();
+          std::uniform_real_distribution<double> uniformRandom(0.0,1.0);
+          double arand = uniformRandom(*randomNumberGeneratorPtr_);
           if( arand > transmissionProbability )
           {
             transmissionFactor=0;
