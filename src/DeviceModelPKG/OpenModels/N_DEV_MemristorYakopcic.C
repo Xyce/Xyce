@@ -478,10 +478,10 @@ Instance::Instance(
   if( model_.randomResNoiseOn_ )
   {
     // get a poisson distributed number with mean lambda
-    //int aNum = model_.randomNumberGen_->poissonRandom(model_.randomResNoiseLambda_);
     // the actual update interval is the poisson distributed number times the base update time.
-    //resNoiseNextUpdateTime = aNum * model_.randomResUpdateTime_ + model_.randomResEpsilonUpdateTime_;
-    resNoiseNextUpdateTime = -log(model_.randomNumberGen_->uniformRandom() ) * model_.randomResNoiseLambda_*model_.randomResUpdateTime_;
+    std::mt19937 &mt = *(model_.randomNumberGenPtr_);
+    std::uniform_real_distribution<double> &uniformRandom = *(model_.uniformRandomPtr_);
+    resNoiseNextUpdateTime = -log(uniformRandom(mt) ) * model_.randomResNoiseLambda_*model_.randomResUpdateTime_;
     // don't allow a zero time for the next update.
     //if( aNum == 0 ) 
     //  resNoiseNextUpdateTime = model_.randomResEpsilonUpdateTime_;
@@ -838,7 +838,9 @@ bool Instance::updateIntermediateVars()
   {
     /*
     resNoiseLastUpdateStep = getSolverState().timeStepNumber_; 
-    rfactor = model_.randomNumberGen_->gaussianRandom(model_.randomResNoiseMean_, model_.randomResNoiseSD_);
+    std::mt19937 &mt = *(model_.randomNumberGenPtr_);
+    std::normal_distribution<double> &gaussianRandom = *(model_.gaussianRandomPtr_);
+    rfactor = gaussianRandom(mt);
     */
   }
 
@@ -1266,7 +1268,15 @@ Model::Model(
   // seed the random number generator
   if( randomResNoiseOn_ )
   {
-    randomNumberGen_ = new Xyce::Util::RandomNumbers( randomResNoiseSeed_ );
+    // NOTE:  The default seed is 0, which is just wrong.
+    //  Ideally, we should pass a "random_device" object to the
+    //  mt19937 constructor if no seed is given, to get a random seed.
+    //  But there are no tests, so how would we know?  When a true test
+    //  with random noise is actually created, one can fix this.
+    //  TVR 22 Mar 2022
+    randomNumberGenPtr_ = new std::mt19937( randomResNoiseSeed_ );
+    uniformRandomPtr_ = new std::uniform_real_distribution<double>(0.0,1.0);
+    gaussianRandomPtr_ = new std::normal_distribution<double>(randomResNoiseMean_,randomResNoiseSD_);
   }
 
 }
@@ -1297,7 +1307,9 @@ Model::~Model()
   // delete the random number generator
   if( randomResNoiseOn_ )
   {
-    delete randomNumberGen_;
+    delete randomNumberGenPtr_;
+    delete uniformRandomPtr_;
+    delete gaussianRandomPtr_;
   }
 }
 
@@ -1419,10 +1431,10 @@ bool Master::updateState(double * solVec, double * staVec, double * stoVec)
       ri.resNoiseLastUpdateStep = getSolverState().timeStepNumber_;
       ri.resNoiseLastUpdateTime = getSolverState().currTime_;
 
-      ri.resNoiseNextUpdateTime = -log(ri.model_.randomNumberGen_->uniformRandom() ) * ri.model_.randomResNoiseLambda_*ri.model_.randomResUpdateTime_;
+      std::mt19937 &mt = *(ri.model_.randomNumberGenPtr_);
+      std::uniform_real_distribution<double> &uniformRandom = *(ri.model_.uniformRandomPtr_);
+      ri.resNoiseNextUpdateTime = -log(uniformRandom(mt) ) * ri.model_.randomResNoiseLambda_*ri.model_.randomResUpdateTime_;
       
-      // the above is only valid if the mean is small (i.e. less than 1).  Check if this is better 
-      //int aNum = ri.model_.randomNumberGen_->poissonRandom(ri.model_.randomResNoiseLambda_);
       // the actual update interval is the poisson distributed number times the base update time.
       //ri.resNoiseNextUpdateTime = aNum * ri.model_.randomResUpdateTime_;
       
@@ -1454,16 +1466,16 @@ bool Master::updateState(double * solVec, double * staVec, double * stoVec)
       ri.xNoiseLastUpdateStep = getSolverState().timeStepNumber_;
       ri.xNoiseLastUpdateTime = getSolverState().currTime_;
 
-      ri.xNoiseNextUpdateTime = -log(ri.model_.randomNumberGen_->uniformRandom() ) * ri.model_.randomXNoiseLambda_*ri.model_.randomResUpdateTime_;
+      std::mt19937 &mt = *(ri.model_.randomNumberGenPtr_);
+      std::uniform_real_distribution<double> &uniformRandom = *(ri.model_.uniformRandomPtr_);
+      ri.xNoiseNextUpdateTime = -log(uniformRandom(mt) ) * ri.model_.randomXNoiseLambda_*ri.model_.randomResUpdateTime_;
       
-      // the above is only valid if the mean is small (i.e. less than 1).  Check if this is better 
-      //int aNum = ri.model_.randomNumberGen_->poissonRandom(ri.model_.randomXNoiseLambda_);
       // the actual update interval is the poisson distributed number times the base update time.
       //ri.XNoiseNextUpdateTime = aNum * ri.model_.randomResUpdateTime_;
       
       // unlike the resistance noise, this will be gaussian noise added to 
       // the growth rate
-      ri.xNoiseFactor = 1.0 - 2.0 * (ri.model_.randomNumberGen_->uniformRandom()-0.5) * ri.model_.randomXDelta_;
+      ri.xNoiseFactor = 1.0 - 2.0 * (uniformRandom(mt)-0.5) * ri.model_.randomXDelta_;
       /*
       // update the growth rate factor 
       if( ri.xNoiseHiLoState == 0 )
