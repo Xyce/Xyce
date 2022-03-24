@@ -126,7 +126,12 @@ if(Xyce_PLUGIN_SUPPORT)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(utils)
+
+# JCV: this needs to be cleaned up a bit, along with all the other interfaces,
+# which are kind of all over the place in the repo
+if (Xyce_SIMULINK)
+  add_subdirectory(utils)
+endif()
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)

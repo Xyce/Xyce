@@ -579,4 +579,6 @@ endif()
 #
 # Look for optional Matlab application to use the mex compiler for Simulink interface
 #
-find_package(Matlab)
+if (Xyce_SIMULINK)
+     find_package(Matlab)
+endif()
