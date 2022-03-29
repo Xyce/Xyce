@@ -5103,8 +5103,7 @@ other variables does not get propagated into a variable's
           <!-- now force scalar, because we're assigning to a double value -->
           <admst:variable name="saveForceScalar" select="$globalMustForceScalar"/>
           <admst:variable name="globalMustForceScalar" select="yes"/>
-          <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
-          <admst:variable name="skipFunctionPrecomp" select="y"/>
+          <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
           <admst:text format="  noiseContribsPower[%(#noiseContIndex)]="/>
           <!-- extract the power argument, the first one-->
           <admst:text format=" %(printTerm(rhs/tree/arguments[1]));\n"/>
@@ -5115,7 +5114,6 @@ other variables does not get propagated into a variable's
           </admst:if>
           <admst:text format="}\n"/>
           <admst:variable name="globalMustForceScalar" select="$saveForceScalar"/>
-          <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
         </admst:if>
 
       </admst:otherwise>
