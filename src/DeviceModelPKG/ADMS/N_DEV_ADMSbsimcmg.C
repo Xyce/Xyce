@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Tue, 29 Mar 2022 12:16:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -21642,12 +21642,14 @@ if ((sigvds>0))
 // I(g,si) <+ (white_noise(((2*1.60219e-19)*abs((igcs+igs))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[4]= ((2*1.60219e-19)*fabs((igcs+igs)));
+double value_fabs_0 = fabs((igcs+igs));
+  noiseContribsPower[4]= ((2*1.60219e-19)*value_fabs_0);
 }
 // I(g,di) <+ (white_noise(((2*1.60219e-19)*abs((igcd+igd))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[5]= ((2*1.60219e-19)*fabs((igcd+igd)));
+double value_fabs_0 = fabs((igcd+igd));
+  noiseContribsPower[5]= ((2*1.60219e-19)*value_fabs_0);
 }
 }
 else
@@ -21655,12 +21657,14 @@ else
 // I(g,di) <+ (white_noise(((2*1.60219e-19)*abs((igcs+igs))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[6]= ((2*1.60219e-19)*fabs((igcs+igs)));
+double value_fabs_0 = fabs((igcs+igs));
+  noiseContribsPower[6]= ((2*1.60219e-19)*value_fabs_0);
 }
 // I(g,si) <+ (white_noise(((2*1.60219e-19)*abs((igcd+igd))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[7]= ((2*1.60219e-19)*fabs((igcd+igd)));
+double value_fabs_0 = fabs((igcd+igd));
+  noiseContribsPower[7]= ((2*1.60219e-19)*value_fabs_0);
 }
 }
 }
@@ -21671,7 +21675,8 @@ if (((model_.BULKMOD)!=0))
 // I(g,e) <+ (white_noise(((2*1.60219e-19)*abs((igbinv+igbacc))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[8]= ((2*1.60219e-19)*fabs((igbinv+igbacc)));
+double value_fabs_0 = fabs((igbinv+igbacc));
+  noiseContribsPower[8]= ((2*1.60219e-19)*value_fabs_0);
 }
 }
 else
@@ -21679,12 +21684,14 @@ else
 // I(g,si) <+ (white_noise(((2*1.60219e-19)*abs(igbs)),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[9]= ((2*1.60219e-19)*fabs(igbs));
+double value_fabs_0 = fabs(igbs);
+  noiseContribsPower[9]= ((2*1.60219e-19)*value_fabs_0);
 }
 // I(g,di) <+ (white_noise(((2*1.60219e-19)*abs(igbd)),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[10]= ((2*1.60219e-19)*fabs(igbd));
+double value_fabs_0 = fabs(igbd);
+  noiseContribsPower[10]= ((2*1.60219e-19)*value_fabs_0);
 }
 }
 }

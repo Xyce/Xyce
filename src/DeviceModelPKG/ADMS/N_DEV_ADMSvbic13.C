@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:22
+// Creation Date  : Tue, 29 Mar 2022 12:17:00
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -7100,39 +7100,49 @@ if (sw_noise)
 // I(bi,ei) <+ (white_noise((((mMod*2)*1.602189e-19)*abs(Ibe)),"Ibei shot noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[0]= (((mMod*2)*1.602189e-19)*fabs(Ibe));
+double value_fabs_0 = fabs(Ibe);
+  noiseContribsPower[0]= (((mMod*2)*1.602189e-19)*value_fabs_0);
 }
 // I(bi,ei) <+ (flicker_noise(((mMod*kfn)*pow(abs((Ibe/mMod)),afn)),bfn,"Ibei flicker noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[1]= ((mMod*(model_.kfn))*pow(fabs((Ibe/mMod)),(model_.afn)));
+double value_fabs_0 = fabs((Ibe/mMod));
+double value_pow_1 = pow(value_fabs_0,(model_.afn));
+  noiseContribsPower[1]= ((mMod*(model_.kfn))*value_pow_1);
   noiseContribsExponent[1]= (model_.bfn);
 }
 // I(bx,ei) <+ (white_noise((((mMod*2)*1.602189e-19)*abs(Ibex)),"Ibex shot noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[2]= (((mMod*2)*1.602189e-19)*fabs(Ibex));
+double value_fabs_0 = fabs(Ibex);
+  noiseContribsPower[2]= (((mMod*2)*1.602189e-19)*value_fabs_0);
 }
 // I(bx,ei) <+ (flicker_noise(((mMod*kfn)*pow(abs((Ibex/mMod)),afn)),bfn,"Ibex flicker noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[3]= ((mMod*(model_.kfn))*pow(fabs((Ibex/mMod)),(model_.afn)));
+double value_fabs_0 = fabs((Ibex/mMod));
+double value_pow_1 = pow(value_fabs_0,(model_.afn));
+  noiseContribsPower[3]= ((mMod*(model_.kfn))*value_pow_1);
   noiseContribsExponent[3]= (model_.bfn);
 }
 // I(ci,ei) <+ (white_noise((((mMod*2)*1.602189e-19)*abs(Itzf)),"transport current shot noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[4]= (((mMod*2)*1.602189e-19)*fabs(Itzf));
+double value_fabs_0 = fabs(Itzf);
+  noiseContribsPower[4]= (((mMod*2)*1.602189e-19)*value_fabs_0);
 }
 // I(bx,bp) <+ (white_noise((((mMod*2)*1.602189e-19)*abs(Ibep)),"Ibep shot noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[5]= (((mMod*2)*1.602189e-19)*fabs(Ibep));
+double value_fabs_0 = fabs(Ibep);
+  noiseContribsPower[5]= (((mMod*2)*1.602189e-19)*value_fabs_0);
 }
 // I(bx,bp) <+ (flicker_noise((((mMod*mMod)*kfn)*pow(abs((Ibep/mMod)),afn)),bfn,"Ibep flicker noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[6]= (((mMod*mMod)*(model_.kfn))*pow(fabs((Ibep/mMod)),(model_.afn)));
+double value_fabs_0 = fabs((Ibep/mMod));
+double value_pow_1 = pow(value_fabs_0,(model_.afn));
+  noiseContribsPower[6]= (((mMod*mMod)*(model_.kfn))*value_pow_1);
   noiseContribsExponent[6]= (model_.bfn);
 }
 // I(c,cx) <+ (white_noise(((((mMod*4)*1.380662e-23)*tdevK)*Gcx),"rcx thermal noise"))
@@ -7143,7 +7153,9 @@ if (getSolverState().noiseFlag)
 // I(cx,ci) <+ (white_noise(((((mMod*4)*1.380662e-23)*tdevK)*((abs(Irci)+(1.0e-10*Gci))/(abs(Vrci)+1.0e-10))),"rci thermal noise"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[8]= ((((mMod*4)*1.380662e-23)*tdevK)*((fabs(Irci)+(1.0e-10*Gci))/(fabs(Vrci)+1.0e-10)));
+double value_fabs_0 = fabs(Irci);
+double value_fabs_1 = fabs(Vrci);
+  noiseContribsPower[8]= ((((mMod*4)*1.380662e-23)*tdevK)*((value_fabs_0+(1.0e-10*Gci))/(value_fabs_1+1.0e-10)));
 }
 // I(b,bx) <+ (white_noise(((((mMod*4)*1.380662e-23)*tdevK)*Gbx),"rbx thermal noise"))
 if (getSolverState().noiseFlag)
