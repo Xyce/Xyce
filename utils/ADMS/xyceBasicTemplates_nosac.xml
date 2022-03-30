@@ -6264,7 +6264,13 @@ other variables does not get propagated into a variable's
 	</admst:apply-templates>
       </admst:join>
       <admst:text format=")\n"/>
+      <admst:if test="[code/datatypename!='block']">
+        <admst:text format="{\n"/>
+      </admst:if>
       <admst:apply-templates select="code" match="%(datatypename)" required="yes"/>
+      <admst:if test="[code/datatypename!='block']">
+        <admst:text format="}\n"/>
+      </admst:if>
       <admst:text format="else\n"/>
     </admst:for-each>
     <admst:text select="[$havedefault='no']" format="{\n // no default\n}\n"/>
