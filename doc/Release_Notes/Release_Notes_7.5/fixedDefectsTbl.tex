@@ -250,5 +250,13 @@ as \texttt{rand()}.  Both problems have been corrected.  \\ \hline
 Xyce/ADMS was generating incorrect C++ code when a noise contribution
 referenced analog functions on its RHS.  \\ \hline
 
+\textbf{Gitlab-ex issue 398}: Incorrect code generated for single-line case items &
+Xyce/ADMS was generating incorrect C++ code when a case item consisted
+of a single probe-dependent assignment, and in analog functions when
+the case item was a single line assignment that depends on the
+function arguments.  There was no error if the item was enclosed in a
+begin/end pair.  \\ \hline
+
+
 \end{longtable}
 }
