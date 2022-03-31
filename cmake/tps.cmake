@@ -261,28 +261,6 @@ else()
      endif()
 endif()
 
-# Note added 16 Feb 2021:
-#    Xyce_SHYLU_BASKER is not used in Xyce.
-#    This was added in the anticipation that it will be needed soon.
-#    If it is needed, be sure to add
-#cmakedefine Xyce_SHYLU_BASKER
-#    to src/Xyce_config.h.cmake
-if (Xyce_SHYLU)
-     if (DEFINED Xyce_SHYLU_BASKER AND NOT Xyce_SHYLU_BASKER)
-          set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU")
-     else()
-          message(STATUS "Looking for multi-threaded Basker in ShyLU")
-          list(FIND Trilinos_PACKAGE_LIST ShyLU_NodeBasker ShyLU_Basker_IN_Trilinos)
-          if (ShyLU_Basker_IN_Trilinos GREATER -1)
-               message(STATUS "Looking for multi-threaded Basker in ShyLU - found")
-               set(Xyce_SHYLU_BASKER TRUE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU")
-          else()
-               message(STATUS "Looking for multi-threaded Basker in ShyLU - not found")
-               set(Xyce_SHYLU_BASKER FALSE CACHE BOOL "Enables the multi-threaded Basker linear solver in ShyLU" FORCE)
-          endif()
-     endif()
-endif()
-
 if (DEFINED Xyce_AMESOS2 AND NOT Xyce_AMESOS2)
      set(Xyce_AMESOS2 FALSE CACHE BOOL "Enables the Amesos2 linear solver")
 else()
@@ -300,6 +278,7 @@ endif()
 if (Xyce_AMESOS2)
      set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
 
+     # KLU2
      if (DEFINED Xyce_AMESOS2_KLU2 AND NOT Xyce_AMESOS2_KLU2)
           set(Xyce_AMESOS2_KLU2 FALSE CACHE BOOL "Enables the templated KLU2 linear solver in Amesos2")
      else()
@@ -311,6 +290,7 @@ if (Xyce_AMESOS2)
           endif()
      endif()
 
+     # Templated Basker
      if (DEFINED Xyce_AMESOS2_BASKER AND NOT Xyce_AMESOS2_BASKER)
           set(Xyce_AMESOS2_BASKER FALSE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")
      else()
@@ -338,6 +318,19 @@ if (Xyce_AMESOS2)
           set(Xyce_NEW_BASKER TRUE)
        endif()
      endif()
+
+     # ShyLU-Basker
+     if (DEFINED Xyce_AMESOS2_SHYLUBASKER AND NOT Xyce_AMESOS2_SHYLUBASKER)
+          set(Xyce_AMESOS2_SHYLUBASKER FALSE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2")
+     else()
+          check_cxx_symbol_exists(HAVE_AMESOS2_SHYLUBASKER Amesos2_config.h Amesos2_ShyLUBasker_IN_Trilinos)
+          if (Amesos2_ShyLUBasker_IN_Trilinos)
+               set(Xyce_AMESOS2_SHYLUBASKER TRUE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2")
+          else()
+               set(Xyce_AMESOS2_SHYLUBASKER FALSE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2" FORCE)
+          endif()
+     endif()
+
      unset(CMAKE_REQUIRED_FLAGS)
      unset(CMAKE_REQUIRED_LIBRARIES)
      unset(CMAKE_REQUIRED_INCLUDES)
