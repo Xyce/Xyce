@@ -358,8 +358,15 @@
            <admst:when test="[attribute[name='xyceModelGroup']/value='MOSFET']">
              <admst:text format="#include &lt;N_DEV_MOSFET1.h&gt;\n"/>
            </admst:when>
-           <admst:otherwise>
+           <admst:when test="[attribute[name='xyceModelGroup']/value='BJT' 
+                       or attribute[name='xyceModelGroup']/value='JFET'
+                       or attribute[name='xyceModelGroup']/value='Diode' 
+                       or attribute[name='xyceModelGroup']/value='Resistor' 
+                       or attribute[name='xyceModelGroup']/value='Capacitor']">
              <admst:text format="#include &lt;N_DEV_%(attribute[name='xyceModelGroup']/value).h&gt;\n"/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:fatal format="Xyce-specific module attribute xyceModelGroup given but has unknown value %(attribute[name='xyceModelGroup']/value).  Please remove this attribute.\n"/>
            </admst:otherwise>
          </admst:choose>
        </admst:when>
