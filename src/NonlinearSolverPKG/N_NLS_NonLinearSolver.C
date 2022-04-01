@@ -643,8 +643,6 @@ void NonLinearSolver::debugOutputDAE()
   Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
   Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
 
-  //Xyce::dout() << "In debugOutputDAE" << std::endl;
-
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
   {
     sprintf(filename1, "dQdx_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
@@ -711,12 +709,13 @@ void NonLinearSolver::outputDAEvectors()
   int contStep = getContinuationStep();
   int paramNumber = getParameterNumber ();
 
+  int outputStepNum = 0;
+  if (analysisManager_) outputStepNum = analysisManager_->getStepNumber() + 1;
+
   char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
   char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
   char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
   char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
-  //char filename8[256]; for (int ich = 0; ich < 256; ++ich) filename8[ich] = 0;
-  //char filename9[256]; for (int ich = 0; ich < 256; ++ich) filename9[ich] = 0;
 
   Linear::Vector *daeQ    = dsPtr_->daeQVectorPtr;
   Linear::Vector *daeF    = dsPtr_->daeFVectorPtr;
@@ -725,21 +724,15 @@ void NonLinearSolver::outputDAEvectors()
   Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
   Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
 
-  sprintf(filename4, "daeQ_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
-  sprintf(filename6, "daeF_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
-  sprintf(filename6b,"daeB_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
-
-  //sprintf(filename8, "daeQlim_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
-  //sprintf(filename9, "daeFlim_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  sprintf(filename4, "daeQ_%03d_%03d_%03d_%03d.txt", outputStepNum, paramNumber, contStep, newtStep);
+  sprintf(filename6, "daeF_%03d_%03d_%03d_%03d.txt", outputStepNum, paramNumber, contStep, newtStep);
+  sprintf(filename6b,"daeB_%03d_%03d_%03d_%03d.txt", outputStepNum, paramNumber, contStep, newtStep);
 
   // write the vectors:
   daeQ->writeToFile(filename4);
   daeF->writeToFile(filename6);
   daeB->writeToFile(filename6b);
-  //daeQlim->writeToFile(filename8);
-  //daeFlim->writeToFile(filename9);
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : NonLinearSolver::outputDAEmatrices
@@ -758,14 +751,17 @@ void NonLinearSolver::outputDAEmatrices()
   int contStep = getContinuationStep();
   int paramNumber = getParameterNumber ();
 
+  int outputStepNum = 0;
+  if (analysisManager_) outputStepNum = analysisManager_->getStepNumber() + 1;
+
   char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
   char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
 
   Linear::Matrix *dQdx    = dsPtr_->dQdxMatrixPtr;
   Linear::Matrix *dFdx    = dsPtr_->dFdxMatrixPtr;
 
-  sprintf(filename1, "dQdx_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
-  sprintf(filename2, "dFdx_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+  sprintf(filename1, "dQdx_%03d_%03d_%03d_%03d.txt", outputStepNum, paramNumber, contStep, newtStep);
+  sprintf(filename2, "dFdx_%03d_%03d_%03d_%03d.txt", outputStepNum, paramNumber, contStep, newtStep);
 
   // write the matrices:
   dQdx->writeToFile (filename1, false, getMMFormat () );
