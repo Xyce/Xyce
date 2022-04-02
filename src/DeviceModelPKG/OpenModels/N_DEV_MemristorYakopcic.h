@@ -39,14 +39,14 @@
 #ifndef Xyce_N_DEV_MemristorYakopcic_h
 #define Xyce_N_DEV_MemristorYakopcic_h
 
+#include <random>
+
 #include <N_DEV_fwd.h>
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 #include <N_DEV_DeviceMaster.h>
 #include <N_DEV_MemristorTEAM.h>
-
-#include <random>
 
 namespace Xyce {
 namespace Device {

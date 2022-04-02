@@ -40,6 +40,8 @@
 //----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
+#include <random>
+
 #include <N_DEV_MemristorTEAM.h>
 
 #include <N_DEV_DeviceOptions.h>
@@ -50,7 +52,6 @@
 #include <N_UTL_FeatureTest.h>
 #include <Sacado_No_Kokkos.hpp>
 
-#include <random>
 
 namespace Xyce {
 namespace Device {

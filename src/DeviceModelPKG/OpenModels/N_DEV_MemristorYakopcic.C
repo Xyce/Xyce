@@ -40,8 +40,9 @@
 //----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
-#include <N_DEV_MemristorYakopcic.h>
+#include <random>
 
+#include <N_DEV_MemristorYakopcic.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_SolverState.h>

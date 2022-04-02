@@ -42,12 +42,13 @@
 #ifndef Xyce_N_DEV_MemristorTEAM_h
 #define Xyce_N_DEV_MemristorTEAM_h
 
+#include <random>
+
 #include <N_DEV_fwd.h>
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 #include <N_DEV_DeviceMaster.h>
-#include <random>
 
 namespace Xyce {
 namespace Device {
