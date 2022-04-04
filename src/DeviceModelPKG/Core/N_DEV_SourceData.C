@@ -2167,6 +2167,11 @@ ACData::ACData(
 
   typeName_ = "AC";
   defaultParamName_ = "ACMAG";
+
+  if (ACMAG == 0.0)
+  {
+    UserWarning(device) << "AC magnitude is set to 0.0";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2259,6 +2264,11 @@ void ACData::setParams(double *params)
   {
     ACMAG = params[0];
     reset = true;
+
+    if (ACMAG == 0.0)
+    {
+      Report::UserWarning() << "AC magnitude is set to 0.0";
+    }
   }
   if ( ACPHASE != params[1])
   {
