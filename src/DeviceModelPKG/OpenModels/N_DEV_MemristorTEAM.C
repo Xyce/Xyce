@@ -40,6 +40,8 @@
 //----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
+#include <random>
+
 #include <N_DEV_MemristorTEAM.h>
 
 #include <N_DEV_DeviceOptions.h>
@@ -49,6 +51,7 @@
 #include <N_LAS_Matrix.h>
 #include <N_UTL_FeatureTest.h>
 #include <Sacado_No_Kokkos.hpp>
+
 
 namespace Xyce {
 namespace Device {
@@ -467,10 +470,10 @@ Instance::Instance(
   if( model_.randomResNoiseOn_ )
   {
     // get a poisson distributed number with mean lambda
-    //int aNum = model_.randomNumberGen_->poissonRandom(model_.randomResNoiseLambda_);
     // the actual update interval is the poisson distributed number times the base update time.
-    //resNoiseNextUpdateTime = aNum * model_.randomResUpdateTime_ + model_.randomResEpsilonUpdateTime_;
-    resNoiseNextUpdateTime = -log(model_.randomNumberGen_->uniformRandom() ) * model_.randomResNoiseLambda_*model_.randomResUpdateTime_;
+    std::mt19937 &mt = *(model_.randomNumberGenPtr_);
+    std::uniform_real_distribution<double> &uniformRandom = *(model_.uniformRandomPtr_);
+    resNoiseNextUpdateTime = -log(uniformRandom(mt) ) * model_.randomResNoiseLambda_*model_.randomResUpdateTime_;
     // don't allow a zero time for the next update.
     //if( aNum == 0 ) 
     //  resNoiseNextUpdateTime = model_.randomResEpsilonUpdateTime_;
@@ -823,7 +826,9 @@ bool Instance::updateIntermediateVars()
   if( model_.randomResNoiseOn_ && (getSolverState().timeStepNumber_ != resNoiseLastUpdateStep) )
   {
     resNoiseLastUpdateStep = getSolverState().timeStepNumber_; 
-    rfactor = model_.randomNumberGen_->gaussianRandom(model_.randomResNoiseMean_, model_.randomResNoiseSD_);
+    std::mt19937 &mt = *(model_.randomNumberGenPtr_);
+    std::normal_distribution<double> &gaussianRandom = *(model_.gaussianRandomPtr_);
+    rfactor = gaussianRandom(mt);
   }
 
   G=1.0/(rfactor*Reff);
@@ -1243,7 +1248,16 @@ Model::Model(
   // seed the random number generator
   if( randomResNoiseOn_ )
   {
-    randomNumberGen_ = new Xyce::Util::RandomNumbers( randomResNoiseSeed_ );
+    // NOTE:  The default seed is 0, which is just wrong.
+    //  Ideally, we should pass a "random_device" object to the
+    //  mt19937 constructor if no seed is given, to get a random seed.
+    //  But there are no tests, so how would we know?  When a true test
+    //  with random noise is actually created, one can fix this.
+    //  TVR 22 Mar 2022
+    randomNumberGenPtr_ = new std::mt19937( randomResNoiseSeed_ );
+    uniformRandomPtr_ = new std::uniform_real_distribution<double>(0.0,1.0);
+    gaussianRandomPtr_ = new std::normal_distribution<double>(randomResNoiseMean_,randomResNoiseSD_);
+
   }
 
 }
@@ -1274,7 +1288,9 @@ Model::~Model()
   // delete the random number generator
   if( randomResNoiseOn_ )
   {
-    delete randomNumberGen_;
+    delete randomNumberGenPtr_;
+    delete uniformRandomPtr_;
+    delete gaussianRandomPtr_;
   }
 }
 
@@ -1429,13 +1445,13 @@ bool Master::updateState(double * solVec, double * staVec, double * stoVec)
       ri.resNoiseLastUpdateStep = getSolverState().timeStepNumber_;
       ri.resNoiseLastUpdateTime = getSolverState().currTime_;
       // get a poisson distributed number with mean lambda
-      //int aNum = ri.model_.randomNumberGen_->poissonRandom(ri.model_.randomResNoiseLambda_);
       // the actual update interval is the poisson distributed number times the base update time.
-      //ri.resNoiseNextUpdateTime = aNum * ri.model_.randomResUpdateTime_;
       // don't allow a zero time for the next update.
       //if( aNum == 0 ) 
       //  ri.resNoiseNextUpdateTime = ri.model_.randomResEpsilonUpdateTime_;
-      ri.resNoiseNextUpdateTime = -log(ri.model_.randomNumberGen_->uniformRandom() ) * ri.model_.randomResNoiseLambda_*ri.model_.randomResUpdateTime_;
+      std::mt19937 &mt = *(ri.model_.randomNumberGenPtr_);
+      std::uniform_real_distribution<double> &uniformRandom = *(ri.model_.uniformRandomPtr_);
+      ri.resNoiseNextUpdateTime = -log(uniformRandom(mt) ) * ri.model_.randomResNoiseLambda_*ri.model_.randomResUpdateTime_;
 
       // update the resistance factor 
       if( ri.resNoiseHiLoState == 0 )
@@ -1451,10 +1467,6 @@ bool Master::updateState(double * solVec, double * staVec, double * stoVec)
         ri.resNoiseRfactor = 1 - (0.5 * ri.model_.randomResDelta_ * ri.model_.randomResDeltaGrad_);
       }
       
-      // ri.resNoiseRfactor = ri.model_.randomNumberGen_->gaussianRandom(ri.model_.randomResNoiseMean_, ri.model_.randomResNoiseSD_);
-      //  Xyce::dout() << " updating random component of R..." << ri.resNoiseRfactor  << " Reff was " << ri.Reff;
-      //Xyce::dout() << " updating random component of R: p( " << ri.model_.randomResNoiseLambda_<< " ) = " << 0 
-      //  << " and next update time interval is " << ri.resNoiseNextUpdateTime << std::endl;
       {
         // extra scope to limit variable extent.  Otherwise one will have lots of 
         // similar variables 

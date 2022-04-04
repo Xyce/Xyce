@@ -1069,7 +1069,13 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
     <admst:variable name="returnedString" select="$(returnedString)$(conditionString))\n"/>
     <admst:apply-templates select="code" match="xyceAnalogFunctions:%(datatypename)" required="yes">
+      <admst:if test="[datatypename!='block']">
+        <admst:variable name="returnedString" select="$(returnedString){\n"/>
+      </admst:if>
       <admst:variable name="returnedString" select="$(returnedString)%(returned('returnedString')/value)"/>
+      <admst:if test="[datatypename!='block']">
+        <admst:variable name="returnedString" select="$(returnedString)}\n"/>
+      </admst:if>
       <admst:variable name="returnedString" select="$(returnedString)else\n"/>
     </admst:apply-templates>
     <admst:if test="[$havedefault='no']">

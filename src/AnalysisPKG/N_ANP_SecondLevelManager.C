@@ -36,6 +36,7 @@
 #include <N_ANP_Transient.h>
 #include <N_ERH_Message.h>
 #include <N_IO_ActiveOutput.h>
+#include <N_IO_PkgOptionsMgr.h>
 #include <N_LOA_CktLoader.h>
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h>
@@ -60,8 +61,7 @@ namespace Analysis {
 // Creator       : Eric Keiter, SNL
 // Creation Date : 05/22/2014
 //-----------------------------------------------------------------------------
-void
-SecondLevelManager::setExternalSolverState(
+void SecondLevelManager::setExternalSolverState(
   Loader::CktLoader &           loader,
   bool                          external_initJctFlag)
 {
@@ -81,9 +81,7 @@ SecondLevelManager::setExternalSolverState(
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/06/2006
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::runSecondLevelStep(
-  TimeIntg::TwoLevelError &     tlError)
+bool SecondLevelManager::runSecondLevelStep(TimeIntg::TwoLevelError & tlError)
 {
   bool status = twoLevelAnalysisObject_->twoLevelStep();
 
@@ -100,8 +98,7 @@ SecondLevelManager::runSecondLevelStep(
 // Creator       : Eric R. Keiter
 // Creation Date : 3/10/2006
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::startupSecondLevelSolvers(
+bool SecondLevelManager::startupSecondLevelSolvers(
   Linear::System &              linear_system,
   Nonlinear::Manager &          nonlinear_manager)
 {
@@ -144,8 +141,7 @@ SecondLevelManager::startupSecondLevelSolvers(
 // Creator       : Eric Keiter
 // Creation Date : 3/10/2006
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::finishSecondLevelSolvers()
+bool SecondLevelManager::finishSecondLevelSolvers()
 {
   bool bsuccess = true;
 
@@ -157,7 +153,6 @@ SecondLevelManager::finishSecondLevelSolvers()
   return bsuccess;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::homotopyStepSuccess
 // Purpose       : Lower-level processing of a successful homotopy step,
@@ -167,8 +162,7 @@ SecondLevelManager::finishSecondLevelSolvers()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/20/06
 //-----------------------------------------------------------------------------
-void
-SecondLevelManager::homotopyStepSuccess(
+void SecondLevelManager::homotopyStepSuccess(
   const std::vector<std::string> &      paramNames,
   const std::vector<double> &           paramVals)
 {
@@ -197,8 +191,7 @@ SecondLevelManager::homotopyStepSuccess(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/30/06
 //-----------------------------------------------------------------------------
-void
-SecondLevelManager::homotopyStepFailure()
+void SecondLevelManager::homotopyStepFailure()
 {
   if (DEBUG_ANALYSIS)
     Xyce::dout() << "\n " << getNetlistFilename()
@@ -219,14 +212,21 @@ SecondLevelManager::homotopyStepFailure()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/12/06
 //-----------------------------------------------------------------------------
-void
-SecondLevelManager::stepSecondLevelSuccess(
-  TwoLevelMode   analysisUpper)
+void SecondLevelManager::stepSecondLevelSuccess(TwoLevelMode analysisUpper)
 {
-
   if (DEBUG_ANALYSIS)
     Xyce::dout() << "\n " << getNetlistFilename()
                  << " AnalysisManager::stepSuccess " << std::endl;
+
+  if(outputDAEvectors_)
+  {
+    twoLevelAnalysisObject_->outputDAEvectors ();
+  }
+
+  if(outputDAEmatrices_)
+  {
+    twoLevelAnalysisObject_->outputDAEmatrices ();
+  }
 
   setTwoLevelMode(analysisUpper);
   getStepErrorControl().stepAttemptStatus = true;
@@ -241,7 +241,8 @@ SecondLevelManager::stepSecondLevelSuccess(
         }
         else
         {
-          Report::DevelFatal().in("AnalysisManager::stepSuccess") << "Failed dynamic_cast of twoLevelAnalysisObject to Transient.";
+          Report::DevelFatal().in("AnalysisManager::stepSuccess") 
+            << "Failed dynamic_cast of twoLevelAnalysisObject to Transient.";
         }
       }
       break;
@@ -255,7 +256,8 @@ SecondLevelManager::stepSecondLevelSuccess(
       break;
 
     default:
-      Report::DevelFatal().in("AnalysisManager::stepSecondLevelSuccess") << "TwoLevelMode " << analysisUpper << " is not available";
+      Report::DevelFatal().in("AnalysisManager::stepSecondLevelSuccess") 
+        << "TwoLevelMode " << analysisUpper << " is not available";
   }
 }
 
@@ -267,9 +269,7 @@ SecondLevelManager::stepSecondLevelSuccess(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/12/06
 //-----------------------------------------------------------------------------
-void
-SecondLevelManager::stepSecondLevelFailure(
-  TwoLevelMode   analysisUpper)
+void SecondLevelManager::stepSecondLevelFailure(TwoLevelMode analysisUpper)
 {
   setTwoLevelMode(analysisUpper);
   getStepErrorControl().stepAttemptStatus = false;
@@ -307,9 +307,8 @@ SecondLevelManager::stepSecondLevelFailure(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/12/06
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::getSecondLevelInitialQnorm(
-  TimeIntg::TwoLevelError &     tle) const
+bool SecondLevelManager::getSecondLevelInitialQnorm
+  (TimeIntg::TwoLevelError & tle) const
 {
   getWorkingIntegrationMethod().getInitialQnorm(tle);
 
@@ -324,8 +323,7 @@ SecondLevelManager::getSecondLevelInitialQnorm(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 03/12/06
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::getSecondLevelBreakPoints(
+bool SecondLevelManager::getSecondLevelBreakPoints(
   Loader::CktLoader &                   loader,
   std::vector<Util::BreakPoint> &       breakPointTimes,
   std::vector<Util::BreakPoint> &       pauseBreakPointTimes
@@ -365,8 +363,7 @@ SecondLevelManager::getSecondLevelBreakPoints(
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/06/2006
 //-----------------------------------------------------------------------------
-bool
-SecondLevelManager::startSecondLevelTimeStep(
+bool SecondLevelManager::startSecondLevelTimeStep(
   const TimeIntg::TIAParams &   tia_params,
   Nonlinear::Manager &          nonlinear_manager,
   bool                          beginIntegrationFlag,
@@ -442,6 +439,70 @@ SecondLevelManager::startSecondLevelTimeStep(
   twoLevelAnalysisObject_->handlePredictor();
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SecondLevelManager::setTwoLevelParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 03/15/2022
+//-----------------------------------------------------------------------------
+bool SecondLevelManager::setTwoLevelParams(
+  const Util::OptionBlock &     option_block)
+{
+  for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
+  {
+    const Util::Param &param = (*it);
+
+    if (param.uTag() == "OUTPUT_DAE_VECTORS")
+    {
+      outputDAEvectors_ = param.getImmutableValue<bool>();
+    }
+    else if (param.uTag() == "OUTPUT_DAE_MATRICES")
+    {
+      outputDAEmatrices_ = param.getImmutableValue<bool>();
+    }
+    else
+    {
+      Report::UserError() << param.uTag() << " is not a recognized two-level analysis option";
+      return false;
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : registerTwoLevelPkgOptionsMgr
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/15/2022
+//-----------------------------------------------------------------------------
+bool registerTwoLevelPkgOptionsMgr(
+    SecondLevelManager &second_level_manager,
+    IO::PkgOptionsMgr &options_manager)
+{
+  Xyce::Analysis::SecondLevelManager::populateMetadata(options_manager);
+
+  options_manager.addCommandProcessor("TWOLEVEL", 
+    IO::createRegistrationOptions(second_level_manager, &SecondLevelManager::setTwoLevelParams));
+
+  return true;
+}
+
+void
+SecondLevelManager::populateMetadata(
+  IO::PkgOptionsMgr &options_manager)
+{
+  {
+    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("TWOLEVEL");
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_VECTORS", Util::Param("OUTPUT_DAE_VECTORS", 0)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_MATRICES", Util::Param("OUTPUT_DAE_MATRICES", 0)));
+  }
 }
 
 } // namespace Analysis

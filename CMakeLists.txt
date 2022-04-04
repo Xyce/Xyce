@@ -23,7 +23,11 @@ set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS proje
 
 # Charon can use a specific part of Xyce as a TPL.  However, that use case
 # results in a build of Xyce that is unusable for any other purpose.
-# Therefore, we need to make a special build of Xyce that skips some checks.
+# "Xyce_AS_SPECIAL_CHARON_TPL" is a "hidden" variable that must be set at the
+# initial CMake invocation with the "-D" flag.  If set, CMake looks only for
+# the Trilinos packages supplied by Charon. The variable also forces CMake to
+# skip some checks in "tps.cmake" that are required for a fully-functional Xyce
+# build.
 if(Xyce_AS_SPECIAL_CHARON_TPL)
   find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
@@ -34,34 +38,34 @@ else()
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
     "        Triutils AztecOO Belos TrilinosCouplings\n"
     "   Optional packages:\n"
-    "        Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL")
+    "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL")
   find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
          AztecOO Belos TrilinosCouplings
-    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore ShyLU_NodeBasker Amesos2 Stokhos ROL)
+    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore 
+         Amesos2 Stokhos ROL)
   message(STATUS "Looking for Trilinos - found")
+endif()
 
-  # This is behind an if() statement due to the TriBITS name "mangling" issue.
-  # From what I tell, there is no way to probe the version of Trilinos when it
-  # is built as part of a different Tribits project.
-  if(${TriBITS_prefix} STREQUAL "Trilinos" )
-    if(Trilinos_VERSION VERSION_LESS "12.12")
-      message(FATAL_ERROR
-        "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
-    endif()
-  else()
-    # This is where we mitigate the TriBITS name mangling.  We change the
-    # variable names to the "correct" names so we minimize pollution of the
-    # rest of the configure process.
-    set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
-    set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
-    set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
-    set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
-    set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
-    set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
-    set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
+# This is behind an if() statement due to the TriBITS name "mangling" issue.
+# From what I tell, there is no way to probe the version of Trilinos when it
+# is built as part of a different Tribits project.
+if(${TriBITS_prefix} STREQUAL "Trilinos" )
+  if(Trilinos_VERSION VERSION_LESS "12.12")
+    message(FATAL_ERROR
+      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
   endif()
-
+else()
+  # This is where we mitigate the TriBITS name mangling.  We change the
+  # variable names to the "correct" names so we minimize pollution of the
+  # rest of the configure process.
+  set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
+  set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
+  set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
+  set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
+  set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
+  set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
+  set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
 endif()
 
 # If the user explicitly set the compilers, use those; otherwise use the same
@@ -122,6 +126,12 @@ if(Xyce_PLUGIN_SUPPORT)
 endif()
 
 add_subdirectory(src)
+
+# JCV: this needs to be cleaned up a bit, along with all the other interfaces,
+# which are kind of all over the place in the repo
+if (Xyce_SIMULINK)
+  add_subdirectory(utils)
+endif()
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)

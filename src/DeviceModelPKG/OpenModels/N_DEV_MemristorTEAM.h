@@ -42,12 +42,13 @@
 #ifndef Xyce_N_DEV_MemristorTEAM_h
 #define Xyce_N_DEV_MemristorTEAM_h
 
+#include <random>
+
 #include <N_DEV_fwd.h>
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 #include <N_DEV_DeviceMaster.h>
-#include <N_UTL_RandomNumbers.h>
 
 namespace Xyce {
 namespace Device {
@@ -379,8 +380,9 @@ private:
   double      randomResEpsilonUpdateTime_;
   double      randomResDelta_;
   double      randomResDeltaGrad_;
-  Xyce::Util::RandomNumbers * randomNumberGen_;
-  
+  std::mt19937 * randomNumberGenPtr_;
+  std::uniform_real_distribution<double> * uniformRandomPtr_;
+  std::normal_distribution<double> * gaussianRandomPtr_;
 };
 
 
@@ -408,8 +410,8 @@ private:
 //
 class Master : public DeviceMaster<Traits>
 {
-  friend class Instance;                           
-  friend class Model;                             
+  friend class Instance;
+  friend class Model;
 
 public:
 

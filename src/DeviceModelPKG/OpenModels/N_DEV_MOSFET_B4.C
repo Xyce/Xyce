@@ -5466,10 +5466,6 @@ Instance::Instance(
     jacStamp(0, std::vector<int>(0)),
     jacMap(0),
     jacMap2(0, std::vector<int>(0)),
-
-    blockHomotopyID                      (0),
-    randomPerturb                        (0.0),
-
     ceqdrn_Jdxp(0.0),
     ceqbd_Jdxp(0.0),
     ceqbs_Jdxp(0.0),
@@ -5495,12 +5491,6 @@ Instance::Instance(
   devConMap[1] = 2;
   devConMap[2] = 1;
   devConMap[3] = 3;
-
-  blockHomotopyID =
-    devSupport.getGainScaleBlockID(getDeviceOptions().numGainScaleBlocks);
-  randomPerturb =
-    devSupport.getRandomPerturbation();
-
 
   // Set params to constant default values:
   setDefaultParams ();
@@ -9734,7 +9724,7 @@ bool Instance::updateIntermediateVars ()
   {
     if ( getSolverState().dcopFlag || getSolverState().tranopFlag )
     {
-      Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_[blockHomotopyID] << std::endl
+      Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_ << std::endl
                    << "HOMOTOPY INFO: before vds  = " << Vds << std::endl
                    << "HOMOTOPY INFO: before vgst = " << Vgs << std::endl;
     }
@@ -9742,20 +9732,8 @@ bool Instance::updateIntermediateVars ()
   if (getSolverState().artParameterFlag_)
   {
 
-    double alpha = getSolverState().gainScale_[blockHomotopyID];
-    if (getDeviceOptions().staggerGainScale)
-    {
-      alpha *= (0.3 * randomPerturb + 1.0);
-      if (alpha > 1.0)
-      {
-        alpha = 1.0;
-      }
-    }
+    double alpha = getSolverState().gainScale_;
     double vgstConst = getDeviceOptions().vgstConst;
-    if (getDeviceOptions().randomizeVgstConst)
-    {
-      vgstConst *= randomPerturb;
-    }
 
     Vds = devSupport.contVds (Vds,getSolverState().nltermScale_, getDeviceOptions().vdsScaleMin);
     Vgs = devSupport.contVgst(Vgs, alpha, vgstConst);

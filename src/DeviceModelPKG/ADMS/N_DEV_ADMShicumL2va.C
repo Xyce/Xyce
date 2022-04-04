@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Tue, 29 Mar 2022 12:16:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -11836,22 +11836,26 @@ if (getSolverState().noiseFlag)
 // I(bi,ci) <+ (white_noise((twoq*abs(ibci)),"ibci"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[9]= (twoq*fabs(ibci));
+double value_fabs_0 = fabs(ibci);
+  noiseContribsPower[9]= (twoq*value_fabs_0);
 }
 // I(bp,ei) <+ (white_noise((twoq*abs(ibep)),"ibep"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[10]= (twoq*fabs(ibep));
+double value_fabs_0 = fabs(ibep);
+  noiseContribsPower[10]= (twoq*value_fabs_0);
 }
 // I(bp,ci) <+ (white_noise((twoq*abs(ijbcx)),"ijbcx"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[11]= (twoq*fabs(ijbcx));
+double value_fabs_0 = fabs(ijbcx);
+  noiseContribsPower[11]= (twoq*value_fabs_0);
 }
 // I(si,ci) <+ (white_noise((twoq*abs(ijsc)),"ijsc"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[12]= (twoq*fabs(ijsc));
+double value_fabs_0 = fabs(ijsc);
+  noiseContribsPower[12]= (twoq*value_fabs_0);
 }
 if ((((model_.flcono)==1)&&(((model_.alit)>0)&&((model_.alqf)>0))))
 {
@@ -11887,7 +11891,8 @@ n_2 = 0;
 // I(n1,GND) <+ (white_noise(((2*1.6021766208e-19)*abs(ibei)),"ibei"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[13]= ((2*1.6021766208e-19)*fabs(ibei));
+double value_fabs_0 = fabs(ibei);
+  noiseContribsPower[13]= ((2*1.6021766208e-19)*value_fabs_0);
 }
 // I(n1,GND) <+ ((-V(n1,GND)))
 staticContributions[admsNodeID_n1] += (-(probeVars[admsProbeID_V_n1_GND]));
@@ -11922,7 +11927,8 @@ d_dynamicContributions[admsNodeID_ei][admsProbeID_V_bi_ei] -= ((n_1/n_w)*(0.0)+(
 // I(n2,GND) <+ (white_noise(((2*1.6021766208e-19)*abs(it)),"it"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[14]= ((2*1.6021766208e-19)*fabs(it));
+double value_fabs_0 = fabs(it);
+  noiseContribsPower[14]= ((2*1.6021766208e-19)*value_fabs_0);
 }
 // I(n2,GND) <+ ((-V(n2,GND)))
 staticContributions[admsNodeID_n2] += (-(probeVars[admsProbeID_V_n2_GND]));
@@ -11938,12 +11944,14 @@ else
 // I(ci,ei) <+ (white_noise((twoq*abs(it)),"it"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[15]= (twoq*fabs(it));
+double value_fabs_0 = fabs(it);
+  noiseContribsPower[15]= (twoq*value_fabs_0);
 }
 // I(bi,ei) <+ (white_noise((twoq*abs(ibei)),"ibei"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[16]= (twoq*fabs(ibei));
+double value_fabs_0 = fabs(ibei);
+  noiseContribsPower[16]= (twoq*value_fabs_0);
 }
 // I(n1,GND) <+ (V(n1,GND))
 staticContributions[admsNodeID_n1] += (probeVars[admsProbeID_V_n1_GND]);

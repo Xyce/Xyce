@@ -1231,104 +1231,6 @@ int Interface::mosfetContinuationSolve6 ( ParameterSet* paramsPtr )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Interface::blockGainscaleMosfetSolve 
-// Purpose       : 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=blockgain or 
-//                    .options nonlin continuation=7
-// Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date :
-//-----------------------------------------------------------------------------
-int Interface::blockGainscaleMosfetSolve ( ParameterSet* paramsPtr )
-{
-  // Get some initial objects
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
-  Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
-  LOCA::ParameterVector locaPVec;
-
-  // Create storage for continuation objects
-  int numGainBlocks = nonlinearEquationLoader_->getHomotopyBlockSize();
-  int numHomotopyContinuationRuns = 1 + numGainBlocks;
-  std::vector<std::string> names(numHomotopyContinuationRuns);
-  std::vector<double> initialVal(numHomotopyContinuationRuns);
-  std::vector<double> finalVal(numHomotopyContinuationRuns);
-  std::vector<double> minVal(numHomotopyContinuationRuns);
-  std::vector<double> maxVal(numHomotopyContinuationRuns);
-
-  // Set up continuation steps
-  // ***************************************************
-  // Changes vals below for continuation
-  // ***************************************************
-  for (int i = 0; i < numGainBlocks; ++i) {
-    std::stringstream s;
-    s << i;
-    names[i] = "mosfet:gainscale_block_" + s.str();
-    initialVal[i] = 0.0;
-    finalVal[i] = 1.0;
-  }
-  names[numHomotopyContinuationRuns - 1] = "mosfet:nltermscale";
-  initialVal[numHomotopyContinuationRuns - 1] = 0.0;
-  finalVal[numHomotopyContinuationRuns - 1] = 1.0;
-  // ***************************************************
-  // ***************************************************
-
-  // Ste up max/min bounds
-  for (int i = 0; i < names.size(); ++i) {
-    if (finalVal[i] > initialVal[i]) {
-      minVal[i] = initialVal[i];
-      maxVal[i] = finalVal[i];
-    }
-    else {
-      minVal[i] = finalVal[i];
-      maxVal[i] = initialVal[i];
-    }
-  }
-
-  // Initialize loca parameter vector
-  for (int i = 0; i < names.size(); ++i)
-    locaPVec.addParameter(names[i], initialVal[i]);
-
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus;
-
-  // Loop over the number of homotopy steps
-  for (int hs = 0; hs < names.size(); ++hs) {
-    for (int i = 0; i < names.size(); ++i) {
-      if (i >= hs)
-        locaPVec.setValue(names[i], initialVal[i]);
-      else
-        locaPVec.setValue(names[i], finalVal[i]);
-    }
-    groupPtr_->setParams(locaPVec);
-    stepperList.set("Continuation Parameter", names[hs]);
-    stepperList.set("Initial Value", initialVal[hs]);
-    stepperList.set("Min Value", minVal[hs]);
-    stepperList.set("Max Value", maxVal[hs]);
-
-    // Initialize parameters in xyce
-    groupPtr_->computeF();
-
-    // Do the continuation run
-    resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-    locaStatus = stepperPtr_->run();
-
-    // Kick out if continuation failed
-    if (locaStatus != LOCA::Abstract::Iterator::Finished)
-      return (-1);
-
-    // Increment Param Number Tracking
-    isFirstContinuationParam_ = false;
-    firstSolveComplete_ = true;
-
-    // Copy out the solution and use it in the next run
-    groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
-  }
-
-  // Return converged solver code
-  return (paramsPtr->getStatusTestReturnCode());
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Interface::gminSteppingSolve
 // Purpose       : 
 // Special Notes : This corresponds to 
@@ -1836,11 +1738,7 @@ int Interface::solve (Nonlinear::NonLinearSolver * nlsTmpPtr)
       else if (solverType == 6)
       {
         return mosfetContinuationSolve4 (paramsPtr);
-      }  // Block gainscale
-      else if (solverType == 7)
-      {
-        return blockGainscaleMosfetSolve ( paramsPtr );
-      }  // Test suite
+      }  // Block gainscale was solverType 7, but it has been rmoved
       else if (solverType == 8)
       {
         return mosfetContinuationSolve5 (paramsPtr);

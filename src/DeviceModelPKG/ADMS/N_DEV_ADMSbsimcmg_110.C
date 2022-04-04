@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Tue, 29 Mar 2022 12:16:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -24905,7 +24905,8 @@ else
 // I(di,si) <+ (white_noise(((m*sid)*abs((1.0-(ctnoi*ctnoi)))),"thermal"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[5]= ((m*sid)*fabs((1.0-(ctnoi*ctnoi))));
+double value_fabs_0 = fabs((1.0-(ctnoi*ctnoi)));
+  noiseContribsPower[5]= ((m*sid)*value_fabs_0);
 }
 // I(di,si) <+ (((((m*ctnoi)*V(N,GND))*sf)*SCALEN))
 staticContributions[admsNodeID_di] += ((((m*ctnoi)*(probeVars[admsProbeID_V_N_GND]))*sf)*(model_.SCALEN));
@@ -24998,12 +24999,14 @@ if ((sigvds>0))
 // I(ge,si) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcs+igs))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[7]= (((m*2.0)*1.60219e-19)*fabs((igcs+igs)));
+double value_fabs_0 = fabs((igcs+igs));
+  noiseContribsPower[7]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 // I(ge,di) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcd+igd))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[8]= (((m*2.0)*1.60219e-19)*fabs((igcd+igd)));
+double value_fabs_0 = fabs((igcd+igd));
+  noiseContribsPower[8]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 else
@@ -25011,12 +25014,14 @@ else
 // I(ge,di) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcs+igs))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[9]= (((m*2.0)*1.60219e-19)*fabs((igcs+igs)));
+double value_fabs_0 = fabs((igcs+igs));
+  noiseContribsPower[9]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 // I(ge,si) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcd+igd))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[10]= (((m*2.0)*1.60219e-19)*fabs((igcd+igd)));
+double value_fabs_0 = fabs((igcd+igd));
+  noiseContribsPower[10]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 }
@@ -25027,7 +25032,8 @@ if (((model_.BULKMOD)!=0))
 // I(ge,e) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igbinv+igbacc))),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[11]= (((m*2.0)*1.60219e-19)*fabs((igbinv+igbacc)));
+double value_fabs_0 = fabs((igbinv+igbacc));
+  noiseContribsPower[11]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 else
@@ -25035,12 +25041,14 @@ else
 // I(ge,si) <+ (white_noise((((m*2.0)*1.60219e-19)*abs(igbs)),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[12]= (((m*2.0)*1.60219e-19)*fabs(igbs));
+double value_fabs_0 = fabs(igbs);
+  noiseContribsPower[12]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 // I(ge,di) <+ (white_noise((((m*2.0)*1.60219e-19)*abs(igbd)),"shot"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[13]= (((m*2.0)*1.60219e-19)*fabs(igbd));
+double value_fabs_0 = fabs(igbd);
+  noiseContribsPower[13]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 }

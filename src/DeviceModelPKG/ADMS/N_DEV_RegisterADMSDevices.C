@@ -61,6 +61,7 @@
 #include <N_DEV_ADMSmvsg_cmc.h>
 #include <N_DEV_ADMShicumL2va.h>
 #include <N_DEV_ADMShic0_full.h>
+#include <N_DEV_ADMSl_utsoi.h>
 #include <N_DEV_MOSFET1.h>
 #include <N_DEV_BJT.h>
 
@@ -95,6 +96,7 @@ registerADMSDevices(const DeviceCountMap& deviceMap,
   ADMSmvsg_cmc::registerDevice(deviceMap, levelSet);
   ADMShicumL2va::registerDevice(deviceMap, levelSet);
   ADMShic0_full::registerDevice(deviceMap, levelSet);
+  ADMSl_utsoi::registerDevice(deviceMap,levelSet);
 }
 
 } // namespace Device

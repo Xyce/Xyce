@@ -109,12 +109,32 @@ output has been made the default.  The old behavior can be forced by
 using \texttt{.options measure MEASFAIL=0 DEFAULT\_VAL=-1} if
 desired. \\ \hline
 
+\textbf{Gitlab-ex issue 306}:  Using expression random operators with sampling is too slow for large numbers of parameters &
+For complicated netlists and PDKs, \Xyce{} was inefficient in
+processing large numbers of uncertain parameters, when specified using
+expression-based random operators such as \texttt{AGAUSS}.  There were
+several compounding issues that caused this to happen, and they have
+been corrected.  \\ \hline
+
+\textbf{Gitlab-ex issue 318}:  Fix .PREPROCESS REPLACEGROUND to avoid
+unnecessary replacement of ground synonyms & When using ``.PREPROCESS
+REPLACEGROUND TRUE'' to replace ground synonyms, character strings
+were being replaced on lines where it was not necessary, like
+subcircuit definition lines.  This has been corrected. \\ \hline
+
 \textbf{Gitlab-ex issue 319}:  Improve error checking for invalid
 .MEASURE lines & The error checking for invalid \texttt{DERIV-AT},
 \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
 \texttt{WHEN} measures has been improved.  Some invalid measure
 lines that would previously be reported as ``FAILED'' are now
 correctly reported as parsing errors. \\ \hline
+
+\textbf{Gitlab-ex issue 321}:  Fix Inf/NaN trap in DampedNewton nonlinear solver &
+The convergence check in the DampedNewton nonlinear solver was not
+correctly trapping NaNs in the residual vector.  Thus, the nonlinear
+solver failure logic would not be correct, allowing the nonlinear
+solver to continue when it should stop.  This has been
+corrected. \\ \hline
 
 \textbf{Gitlab-ex issue 328}:  Support C for temperature units &
   When specifying temperature, \Xyce{} would inappropriately exit with
@@ -158,6 +178,16 @@ details. \\ \hline
   The Python interface to Xyce in \texttt{xyce\_interface.py}
   has been updated to support Python 3.x.  See the Application note,
   Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 355}:  Make it possible to turn off initial junction voltages globally in device package w/o turning off voltlim &
+Most semiconductor device models apply a initial junction voltages
+during the initial iterations of a DCOP solve.  However, when applying
+source stepping to obtain the solution, it doesn't make sense to apply
+these initial junction voltages, as the intent of source stepping is
+to initially start with all sources set to zero.  This has been fixed,
+and is automatically applied when Xyce performs source stepping.  It
+is also possible to manually disable initial junction voltages from
+then netlist via \texttt{.options device all\_off=true}.  \\ \hline
 
 \textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
 analog function context & There were some use cases in which Xyce/ADMS
@@ -208,40 +238,25 @@ When performing AC sensitivities with respect to .param parameters,
 there was an arithmetic mistake in the setup of the right-hand-side
 vector.  This has been corrected.  \\ \hline
 
-\textbf{Gitlab-ex issue 318}:  Fix .PREPROCESS REPLACEGROUND to avoid 
-unnecessary replacement of ground synonyms &  When using ``.PREPROCESS REPLACEGROUND TRUE''
-to replace ground synonyms, character strings were being replaced
-on lines where it was not necessary, like subcircuit definition lines.
-This has been corrected. \\ \hline
-
-\textbf{Gitlab-ex issue 321}:  Fix Inf/NaN trap in DampedNewton nonlinear solver &
-The convergence check in the DampedNewton nonlinear solver was not correctly trapping
-NaNs in the residual vector.  Thus, the nonlinear solver failure logic would not
-be correct, allowing the nonlinear solver to continue when it should stop.
-This has been corrected. \\ \hline
-
 \textbf{Gitlab-ex issue 377}:  The limit random operator (2-argument version) is not correct in the expression library &
-\Xyce{} has supported two versions of limit, one with two arguments and one 
-with three.  The version with two arguments was not correct, in multiple ways. 
-When used without UQ (or sampling) it was supposed to return the mean, but 
-instead returned the sum of the two arguments.  When used with sampling, it 
-incorrectly behaved the same as \texttt{rand()}.
-Both problems have been corrected.  \\ \hline
+\Xyce{} has supported two versions of limit, one with two arguments and one
+with three.  The version with two arguments was not correct, in
+multiple ways.  When used without UQ (or sampling) it was supposed to
+return the mean, but instead returned the sum of the two arguments.
+When used with sampling, it incorrectly behaved the same
+as \texttt{rand()}.  Both problems have been corrected.  \\ \hline
 
+\textbf{Gitlab-ex issue 396}: Incorrect code generated for noise contributions that reference analog functions &
+Xyce/ADMS was generating incorrect C++ code when a noise contribution
+referenced analog functions on its RHS.  \\ \hline
 
-\textbf{Gitlab-ex issue 306}:  Using expression random operators with sampling is too slow for large numbers of parameters &
-For complicated netlists and PDKs, \Xyce{} was inefficient in processing large numbers of uncertain parameters, 
-when specified using expression-based random operators such as \texttt{AGAUSS}.  There were several compounding issues
-that caused this to happen, and they have been corrected.  \\ \hline
+\textbf{Gitlab-ex issue 398}: Incorrect code generated for single-line case items &
+Xyce/ADMS was generating incorrect C++ code when a case item consisted
+of a single probe-dependent assignment, and in analog functions when
+the case item was a single line assignment that depends on the
+function arguments.  There was no error if the item was enclosed in a
+begin/end pair.  \\ \hline
 
-\textbf{Gitlab-ex issue 355}:  Make it possible to turn off initial junction voltages globally in device package w/o turning off voltlim &
-Most semiconductor device models apply a initial junction voltages during the initial iterations of a DCOP solve.
-However, when applying source stepping to obtain the solution, it doesn't make 
-sense to apply these initial junction voltages, as the intent of source stepping 
-is to initially start with all sources set to zero.  This has been fixed, and 
-is automatically applied when Xyce performs source stepping.  It is also 
-possible to manually disable initial junction voltages from then netlist 
-via \texttt{.options device all\_off=true}.  \\ \hline
 
 \end{longtable}
 }

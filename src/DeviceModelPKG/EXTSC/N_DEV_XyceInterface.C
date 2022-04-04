@@ -89,7 +89,6 @@ XyceInterface::XyceInterface(
 // Creation Date : 04/15/05
 //-----------------------------------------------------------------------------
 XyceInterface::~XyceInterface()
-
 {
   if (simulator_ != NULL)
   {

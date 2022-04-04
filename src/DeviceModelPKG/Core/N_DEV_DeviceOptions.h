@@ -124,9 +124,6 @@ public:
   ///< mosfet homotopy:
   double        vdsScaleMin;
   double        vgstConst;
-  int           numGainScaleBlocks;
-  bool          staggerGainScale;
-  bool          randomizeVgstConst;
   double        length0;
   double        width0;
   double        tox0;

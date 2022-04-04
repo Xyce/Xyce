@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Tue, 29 Mar 2022 12:16:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -30124,7 +30124,8 @@ thermalNoiseContrib = ((B4SOIntnoi*B4SOIueff)*value_fabs_1);
 // I(di,si) <+ (white_noise((m*abs((fourkt*thermalNoiseContrib))),"id"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[0]= (m*fabs((fourkt*thermalNoiseContrib)));
+double value_fabs_0 = fabs((fourkt*thermalNoiseContrib));
+  noiseContribsPower[0]= (m*value_fabs_0);
 }
 }
 else
@@ -30225,7 +30226,8 @@ gdnoise = (gdnoise*(1.0+(((npart_theta*npart_theta)*gdnoise)/B4SOIidovVds)));
 // I(di,si) <+ (white_noise((m*abs((fourkt*thermalNoiseContrib))),"id"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[1]= (m*fabs((fourkt*thermalNoiseContrib)));
+double value_fabs_0 = fabs((fourkt*thermalNoiseContrib));
+  noiseContribsPower[1]= (m*value_fabs_0);
 }
 }
 else
@@ -30244,7 +30246,8 @@ thermalNoiseContrib = (((2.0/3.0)*B4SOIntnoi)*value_fabs_0);
 // I(di,si) <+ (white_noise((m*abs((fourkt*thermalNoiseContrib))),"id"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[2]= (m*fabs((fourkt*thermalNoiseContrib)));
+double value_fabs_0 = fabs((fourkt*thermalNoiseContrib));
+  noiseContribsPower[2]= (m*value_fabs_0);
 }
 }
 else
@@ -30442,7 +30445,8 @@ d_staticContributions[admsNodeID_di][admsProbeID_V_d_di] -= m*d_probeVars[admsPr
 // I(d,di) <+ (white_noise((m*abs((fourkt*gdnoise))),"rd"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[4]= (m*fabs((fourkt*gdnoise)));
+double value_fabs_0 = fabs((fourkt*gdnoise));
+  noiseContribsPower[4]= (m*value_fabs_0);
 }
 }
 else
@@ -30480,7 +30484,8 @@ d_staticContributions[admsNodeID_si][admsProbeID_V_s_si] -= m*d_probeVars[admsPr
 // I(s,si) <+ (white_noise((m*abs((fourkt*gsnoise))),"rs"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[5]= (m*fabs((fourkt*gsnoise)));
+double value_fabs_0 = fabs((fourkt*gsnoise));
+  noiseContribsPower[5]= (m*value_fabs_0);
 }
 }
 else
@@ -30929,33 +30934,40 @@ d_staticContributions[admsNodeID_p][admsProbeID_V_b_p] -= (m*B4SOItype)*d_Ibp_dV
 // I(b,p) <+ (white_noise((((m*fourkt)*abs(Ibp))/(abs(vbp)+1.0e-9))))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[6]= (((m*fourkt)*fabs(Ibp))/(fabs(vbp)+1.0e-9));
+double value_fabs_0 = fabs(Ibp);
+double value_fabs_1 = fabs(vbp);
+  noiseContribsPower[6]= (((m*fourkt)*value_fabs_0)/(value_fabs_1+1.0e-9));
 }
 }
 // I(db,di) <+ (white_noise(((((m*2)*1.60219e-19)*B4SOInoif)*abs(Ibd)),"ibd"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[7]= ((((m*2)*1.60219e-19)*B4SOInoif)*fabs(Ibd));
+double value_fabs_0 = fabs(Ibd);
+  noiseContribsPower[7]= ((((m*2)*1.60219e-19)*B4SOInoif)*value_fabs_0);
 }
 // I(sb,si) <+ (white_noise(((((m*2)*1.60219e-19)*B4SOInoif)*abs(Ibs)),"ibs"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[8]= ((((m*2)*1.60219e-19)*B4SOInoif)*fabs(Ibs));
+double value_fabs_0 = fabs(Ibs);
+  noiseContribsPower[8]= ((((m*2)*1.60219e-19)*B4SOInoif)*value_fabs_0);
 }
 // I(gi,di) <+ (white_noise((((m*2)*1.60219e-19)*abs((B4SOIIgd+B4SOIIgcd))),"igd"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[9]= (((m*2)*1.60219e-19)*fabs((B4SOIIgd+B4SOIIgcd)));
+double value_fabs_0 = fabs((B4SOIIgd+B4SOIIgcd));
+  noiseContribsPower[9]= (((m*2)*1.60219e-19)*value_fabs_0);
 }
 // I(gi,si) <+ (white_noise((((m*2)*1.60219e-19)*abs((B4SOIIgs+B4SOIIgcs))),"igs"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[10]= (((m*2)*1.60219e-19)*fabs((B4SOIIgs+B4SOIIgcs)));
+double value_fabs_0 = fabs((B4SOIIgs+B4SOIIgcs));
+  noiseContribsPower[10]= (((m*2)*1.60219e-19)*value_fabs_0);
 }
 // I(gi,b) <+ (white_noise((((m*2)*1.60219e-19)*abs(B4SOIig)),"igb"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[11]= (((m*2)*1.60219e-19)*fabs(B4SOIig));
+double value_fabs_0 = fabs(B4SOIig);
+  noiseContribsPower[11]= (((m*2)*1.60219e-19)*value_fabs_0);
 }
 // I(di,b) <+ ((m*ddt(B4SOIqdrn)))
 dynamicContributions[admsNodeID_di] += (m*(B4SOIqdrn));
@@ -31266,7 +31278,8 @@ d_staticContributions[admsNodeID_gm][admsProbeID_V_g_gm] -= m*d_probeVars[admsPr
 // I(g,gm) <+ (white_noise((m*abs((fourkt*B4SOIgrgeltd))),"rg"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[12]= (m*fabs((fourkt*B4SOIgrgeltd)));
+double value_fabs_0 = fabs((fourkt*B4SOIgrgeltd));
+  noiseContribsPower[12]= (m*value_fabs_0);
 }
 }
 if ((((model_.RGATEMOD)==0)||((model_.RGATEMOD)==1)))
@@ -31311,7 +31324,8 @@ T0 = (1.0+(B4SOIgrgeltd/B4SOIgcrg));
 // I(gm,gi) <+ (white_noise((m*abs(((fourkt*B4SOIgrgeltd)/(T0*T0)))),"rg"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[13]= (m*fabs(((fourkt*B4SOIgrgeltd)/(T0*T0))));
+double value_fabs_0 = fabs(((fourkt*B4SOIgrgeltd)/(T0*T0)));
+  noiseContribsPower[13]= (m*value_fabs_0);
 }
 }
 // End block rgate2
@@ -31331,12 +31345,14 @@ d_staticContributions[admsNodeID_sb][admsProbeID_V_b_sb] -= m*d_probeVars[admsPr
 // I(b,db) <+ (white_noise((m*abs((fourkt*B4SOIgrbdb))),"rbdb"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[14]= (m*fabs((fourkt*B4SOIgrbdb)));
+double value_fabs_0 = fabs((fourkt*B4SOIgrbdb));
+  noiseContribsPower[14]= (m*value_fabs_0);
 }
 // I(b,sb) <+ (white_noise((m*abs((fourkt*B4SOIgrbsb))),"rbsb"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[15]= (m*fabs((fourkt*B4SOIgrbsb)));
+double value_fabs_0 = fabs((fourkt*B4SOIgrbsb));
+  noiseContribsPower[15]= (m*value_fabs_0);
 }
 }
 else

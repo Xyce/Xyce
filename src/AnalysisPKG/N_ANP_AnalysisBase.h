@@ -143,6 +143,9 @@ public:
 
   virtual bool outputFailureStats(std::ostream &os) {return true;}
 
+  virtual void outputDAEvectors() {}
+  virtual void outputDAEmatrices() {}
+
   bool run();
   bool init();
   bool processSuccessfulStep();

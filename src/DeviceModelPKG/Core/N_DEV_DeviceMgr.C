@@ -904,9 +904,6 @@ bool DeviceMgr::initializeAll(Linear::System &linear_system)
 
   externData_.initializeAllFlag = true;
 
-  // For Homotopy on block gainscale
-  solState_.initializeHomotopyBlockSize(devOptions_.numGainScaleBlocks);
-
 #ifdef Xyce_SIZEOF
   int size = sizeof(*this);
   dout() << "Size of device package after initializeAll  = " << size << std::endl;
@@ -4261,20 +4258,6 @@ bool DeviceMgr::loadCouplingRHS (int iPDEDevice, int iElectrode, Linear::Vector 
 bool DeviceMgr::calcCouplingTerms (int iPDEDevice, int iElectrode, const Linear::Vector * dxdvPtr)
 {
   return pdeInstancePtrVec_[iPDEDevice]->calcConductance(iElectrode, dxdvPtr);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : DeviceMgr::getHomotopyBlockSize
-// Purpose       : Returns the number of mosfet gainscale blocks (a value
-//                 in the device options).
-// Special Notes : Needed for block homotopy on gainscale.
-// Scope         : public
-// Creator       : Roger P. Pawlowski, SNL, Computational Sciences
-// Creation Date : 01/26/2005
-//-----------------------------------------------------------------------------
-int DeviceMgr::getHomotopyBlockSize() const
-{
-  return devOptions_.numGainScaleBlocks;
 }
 
 //-----------------------------------------------------------------------------

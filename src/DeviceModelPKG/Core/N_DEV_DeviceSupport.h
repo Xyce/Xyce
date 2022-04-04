@@ -139,9 +139,6 @@ public:
 
   double contVgst (double vgst, double alpha, double vgstConst = 3.0);
 
-  int getGainScaleBlockID(int numBlocks); // For homotopy
-
-  double getRandomPerturbation();  // For homotopy
   int SetSeed(long seedIn); // to set the random seed for getRandomPerturbation().
 };
 

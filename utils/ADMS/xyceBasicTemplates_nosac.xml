@@ -358,8 +358,15 @@
            <admst:when test="[attribute[name='xyceModelGroup']/value='MOSFET']">
              <admst:text format="#include &lt;N_DEV_MOSFET1.h&gt;\n"/>
            </admst:when>
-           <admst:otherwise>
+           <admst:when test="[attribute[name='xyceModelGroup']/value='BJT' 
+                       or attribute[name='xyceModelGroup']/value='JFET'
+                       or attribute[name='xyceModelGroup']/value='Diode' 
+                       or attribute[name='xyceModelGroup']/value='Resistor' 
+                       or attribute[name='xyceModelGroup']/value='Capacitor']">
              <admst:text format="#include &lt;N_DEV_%(attribute[name='xyceModelGroup']/value).h&gt;\n"/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:fatal format="Xyce-specific module attribute xyceModelGroup given but has unknown value %(attribute[name='xyceModelGroup']/value).  Please remove this attribute.\n"/>
            </admst:otherwise>
          </admst:choose>
        </admst:when>
@@ -5103,8 +5110,7 @@ other variables does not get propagated into a variable's
           <!-- now force scalar, because we're assigning to a double value -->
           <admst:variable name="saveForceScalar" select="$globalMustForceScalar"/>
           <admst:variable name="globalMustForceScalar" select="yes"/>
-          <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
-          <admst:variable name="skipFunctionPrecomp" select="y"/>
+          <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
           <admst:text format="  noiseContribsPower[%(#noiseContIndex)]="/>
           <!-- extract the power argument, the first one-->
           <admst:text format=" %(printTerm(rhs/tree/arguments[1]));\n"/>
@@ -5115,7 +5121,6 @@ other variables does not get propagated into a variable's
           </admst:if>
           <admst:text format="}\n"/>
           <admst:variable name="globalMustForceScalar" select="$saveForceScalar"/>
-          <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
         </admst:if>
 
       </admst:otherwise>
@@ -6043,7 +6048,7 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='ceil']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
         <admst:apply-templates select="arguments[1]" match="processTerm">
-          <admst:variable name="expression" select="%(returned('returnedExpression')/value))"/>
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
           <admst:variable name="expression" select="ceil($expression)"/>
         </admst:apply-templates>
       </admst:when>
@@ -6266,7 +6271,13 @@ other variables does not get propagated into a variable's
 	</admst:apply-templates>
       </admst:join>
       <admst:text format=")\n"/>
+      <admst:if test="[code/datatypename!='block']">
+        <admst:text format="{\n"/>
+      </admst:if>
       <admst:apply-templates select="code" match="%(datatypename)" required="yes"/>
+      <admst:if test="[code/datatypename!='block']">
+        <admst:text format="}\n"/>
+      </admst:if>
       <admst:text format="else\n"/>
     </admst:for-each>
     <admst:text select="[$havedefault='no']" format="{\n // no default\n}\n"/>

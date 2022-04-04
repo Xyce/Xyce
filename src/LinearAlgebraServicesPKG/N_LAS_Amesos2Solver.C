@@ -218,12 +218,23 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
   if( Teuchos::is_null( solver_ ) )
   {
+    Teuchos::ParameterList amesos2_params("Amesos2");
+
+    // Set some parameters on the solver, which are not used at this time.
+    if (type_ == "SHYLU_BASKER") {
+      //amesos2_params.sublist("ShyLUBasker").set("pivot", true);
+      //amesos2_params.sublist("ShyLUBasker").set("realloc", true);
+      //amesos2_params.sublist("ShyLUBasker").set("verbose", false );
+    } 
+
+#ifdef Xyce_AMESOS2_SHYLUBASKER
     if (type_ == "SHYLU_BASKER") {
 
       solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>("ShyLUBasker", 
                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
 
     }
+#endif
 #ifdef Xyce_AMESOS2_BASKER
     else if (type_ == "BASKER") {
 
@@ -245,12 +256,13 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
  
     }
 
+    solver_->setParameters( rcpFromRef(amesos2_params) );
+
     double begSymTime = timer_->elapsedTime();
 
     try 
     {
       // Perform symbolic factorization and check return value for failure
-      //std::cout << "Performing symbolic factorization!" << std::endl;
       solver_->symbolicFactorization();
     }
     catch (std::runtime_error& e)
@@ -285,27 +297,19 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
     }
   }
 
-  Teuchos::ParameterList amesos2_params("Amesos2");
-
-  if (type_ == "BASKER") {
-    //amesos2_params.sublist("ShyLUBasker").set("pivot", true);
-    //amesos2_params.sublist("ShyLUBasker").set("realloc", true);
-    //amesos2_params.sublist("ShyLUBasker").set("verbose", false );
-  } 
-
   // Set transpose flag
   if (transpose) {
-    std::cout << "Solving transpose!" << std::endl;
+    Teuchos::ParameterList amesos2_params("Amesos2");
     amesos2_params.set("Transpose", true);
-    if (type_ == "BASKER") {
+    if (type_ == "SHYLU_BASKER") {
       amesos2_params.sublist("ShyLUBasker").set("transpose", transpose);
     }
     else if (type_ == "KLU2") {
       amesos2_params.sublist("KLU2").set("Trans","TRANS","Solve with transpose");
     }
+    solver_->setParameters( rcpFromRef(amesos2_params) );
   }
 
-  solver_->setParameters( rcpFromRef(amesos2_params) );
 
   if( !reuse_factors ) 
   {
@@ -313,7 +317,6 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
     try 
     {
-      //std::cout << "Performing numeric factorization!" << std::endl;
       solver_->numericFactorization();
       if (VERBOSE_LINEAR)
       {
@@ -348,8 +351,6 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
       return linearStatus;  // return the actual status (see bug 414 SON)
     }
   }
-  else
-    std::cout << "Reusing factorization!" << std::endl;
 
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
@@ -391,7 +392,7 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
   if (transpose) {
     Teuchos::ParameterList amesos2_params("Amesos2");
     amesos2_params.set("Transpose", false);
-    if (type_ == "BASKER") {
+    if (type_ == "SHYLU_BASKER") {
       amesos2_params.sublist("ShyLUBasker").set("transpose", false);
     }
     else if (type_ == "KLU2") {

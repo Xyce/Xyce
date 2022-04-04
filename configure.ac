@@ -1187,7 +1187,6 @@ AC_CONFIG_FILES([Makefile
  src/test/Makefile
  src/test/XyceAsLibrary/Makefile
  src/test/DeviceInterface/Makefile
- src/test/RandomTest/Makefile
  src/test/FFTInterface/Makefile
  src/test/LinearAlgebraTest/Makefile
  src/test/GenExtTestHarnesses/Makefile

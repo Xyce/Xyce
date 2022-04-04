@@ -199,6 +199,9 @@ public:
 
   void debugOutputDAE();
 
+  void outputDAEvectors();
+  void outputDAEmatrices();
+
   void  setDebugFlags(int output_step_number, double        time);
   
   //Apply methods

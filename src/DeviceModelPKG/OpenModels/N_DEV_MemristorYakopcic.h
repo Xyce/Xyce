@@ -39,12 +39,13 @@
 #ifndef Xyce_N_DEV_MemristorYakopcic_h
 #define Xyce_N_DEV_MemristorYakopcic_h
 
+#include <random>
+
 #include <N_DEV_fwd.h>
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 #include <N_DEV_DeviceMaster.h>
-#include <N_UTL_RandomNumbers.h>
 #include <N_DEV_MemristorTEAM.h>
 
 namespace Xyce {
@@ -392,7 +393,9 @@ private:
   double      randomXEpsilonUpdateTime_;
   double      randomXDelta_;
   double      randomXDeltaGrad_;
-  Xyce::Util::RandomNumbers * randomNumberGen_;
+  std::mt19937 * randomNumberGenPtr_;
+  std::uniform_real_distribution<double> * uniformRandomPtr_;
+  std::normal_distribution<double> * gaussianRandomPtr_;
   
 };
 

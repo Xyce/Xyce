@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 01 Feb 2022 13:10:17
+// Creation Date  : Tue, 29 Mar 2022 12:16:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -23369,12 +23369,14 @@ if (((model_.IGCMOD)!=0))
 // I(gi,si) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcs+igs))),"igs"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[5]= (((m*2.0)*1.60219e-19)*fabs((igcs+igs)));
+double value_fabs_0 = fabs((igcs+igs));
+  noiseContribsPower[5]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 // I(gi,di) <+ (white_noise((((m*2.0)*1.60219e-19)*abs((igcd+igd))),"igd"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[6]= (((m*2.0)*1.60219e-19)*fabs((igcd+igd)));
+double value_fabs_0 = fabs((igcd+igd));
+  noiseContribsPower[6]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 if (((model_.IGBMOD)!=0))
@@ -23382,7 +23384,8 @@ if (((model_.IGBMOD)!=0))
 // I(gi,bi) <+ (white_noise((((m*2.0)*1.60219e-19)*abs(igb)),"igb"))
 if (getSolverState().noiseFlag)
 {
-  noiseContribsPower[7]= (((m*2.0)*1.60219e-19)*fabs(igb));
+double value_fabs_0 = fabs(igb);
+  noiseContribsPower[7]= (((m*2.0)*1.60219e-19)*value_fabs_0);
 }
 }
 
