@@ -6063,6 +6063,7 @@ void bjtInstanceSensitivity::operator()(
   // instance params:
   fadType AREA = inst.AREA;
   fadType TEMP = inst.TEMP;
+  fadType multiplicityFactor= inst.multiplicityFactor;
 
   std::string paramName = ExtendedString( name ).toUpper();
   if      (paramName=="AREA")  { AREA.diff(0,1); }
@@ -6438,12 +6439,12 @@ void bjtInstanceSensitivity::operator()(
    fadType qBaseP = -inst.model_.TYPE * ( qBEdep + qBEdiff + qBCdep + qBCdiff );
    fadType qEmitP = inst.model_.TYPE*( qBEdep + qBEdiff );
 
-   dfdp[iColl]  -= fColl.dx(0);
-   dfdp[iBase]  -= fBase.dx(0);
-   dfdp[iEmit]  -= fEmit.dx(0);
-   dfdp[iCollP] -= fCollP.dx(0);
-   dfdp[iBaseP] -= fBaseP.dx(0);
-   dfdp[iEmitP] -= fEmitP.dx(0);
+   dfdp[iColl]  -= fColl.dx(0)*multiplicityFactor.val();
+   dfdp[iBase]  -= fBase.dx(0)*multiplicityFactor.val();
+   dfdp[iEmit]  -= fEmit.dx(0)*multiplicityFactor.val();
+   dfdp[iCollP] -= fCollP.dx(0)*multiplicityFactor.val();
+   dfdp[iBaseP] -= fBaseP.dx(0)*multiplicityFactor.val();
+   dfdp[iEmitP] -= fEmitP.dx(0)*multiplicityFactor.val();
 
    // excess phase ERK-dcop.
    fadType di_fx = 0.0;
@@ -6460,38 +6461,38 @@ void bjtInstanceSensitivity::operator()(
        {
          // omega0 = 1/td;
          fadType term = 3 * di_fx*td + 3*i_fx -3 * iBE / qB;
-         dfdp[i_Ifx] += - di_fx.dx(0);
-         dfdp[i_dIfx] += term.dx(0);
+         dfdp[i_Ifx] += - di_fx.dx(0)*multiplicityFactor.val();
+         dfdp[i_dIfx] += term.dx(0)*multiplicityFactor.val();
        }
        else
        {
          fadType term = i_fx -iBE/qB;
-         dfdp[i_Ifx] += term.dx(0);
+         dfdp[i_Ifx] += term.dx(0)*multiplicityFactor.val();
          dfdp[i_dIfx] = 0.0;
        }
      }
      else
      {
-       dfdp[i_Ifx] += i_fx.dx(0);
-       dfdp[i_dIfx] += di_fx.dx(0);
+       dfdp[i_Ifx] += i_fx.dx(0)*multiplicityFactor.val();
+       dfdp[i_dIfx] += di_fx.dx(0)*multiplicityFactor.val();
      }
    }
 
-   dqdp[iBase]  -= qBase.dx(0);
-   dqdp[iSubst] -= qSubst.dx(0);
-   dqdp[iCollP] -= qCollP.dx(0);
-   dqdp[iBaseP] -= qBaseP.dx(0);
-   dqdp[iEmitP] -= qEmitP.dx(0);
+   dqdp[iBase]  -= qBase.dx(0)*multiplicityFactor.val();
+   dqdp[iSubst] -= qSubst.dx(0)*multiplicityFactor.val();
+   dqdp[iCollP] -= qCollP.dx(0)*multiplicityFactor.val();
+   dqdp[iBaseP] -= qBaseP.dx(0)*multiplicityFactor.val();
+   dqdp[iEmitP] -= qEmitP.dx(0)*multiplicityFactor.val();
 
    // excess phase ERK-dcop
    if (td != 0 && inst.getDeviceOptions().newExcessPhase)
    {
-     dqdp[i_Ifx] += solVec[i_Ifx];
+     dqdp[i_Ifx] += solVec[i_Ifx]*multiplicityFactor.val();
 
      if (!(inst.getSolverState().dcopFlag) )
      {
-       fadType term = solVec[i_dIfx]*td*td;
-       dqdp[i_dIfx] += term.dx(0);
+       fadType term = solVec[i_dIfx]*td*td*multiplicityFactor.val();
+       dqdp[i_dIfx] += term.dx(0)*multiplicityFactor.val();
      }
      else
      {
@@ -6766,6 +6767,7 @@ void bjtModelSensitivity::operator()(
     // instance variables:
     fadType TEMP = inst.TEMP;
     fadType AREA = inst.AREA;
+    fadType multiplicityFactor = inst.multiplicityFactor;
 
     fadType vt = inst.vt;
     fadType tSatCur = inst.tSatCur;
@@ -7037,12 +7039,12 @@ void bjtModelSensitivity::operator()(
     fadType qBaseP = -inst.model_.TYPE * ( qBEdep + qBEdiff + qBCdep + qBCdiff );
     fadType qEmitP = inst.model_.TYPE*( qBEdep + qBEdiff );
 
-    dfdp[iColl]  -= fColl.dx(0);
-    dfdp[iBase]  -= fBase.dx(0);
-    dfdp[iEmit]  -= fEmit.dx(0);
-    dfdp[iCollP] -= fCollP.dx(0);
-    dfdp[iBaseP] -= fBaseP.dx(0);
-    dfdp[iEmitP] -= fEmitP.dx(0);
+    dfdp[iColl]  -= fColl.dx(0)*multiplicityFactor.val();
+    dfdp[iBase]  -= fBase.dx(0)*multiplicityFactor.val();
+    dfdp[iEmit]  -= fEmit.dx(0)*multiplicityFactor.val();
+    dfdp[iCollP] -= fCollP.dx(0)*multiplicityFactor.val();
+    dfdp[iBaseP] -= fBaseP.dx(0)*multiplicityFactor.val();
+    dfdp[iEmitP] -= fEmitP.dx(0)*multiplicityFactor.val();
 
     // excess phase ERK-dcop.
     fadType di_fx = 0.0;
@@ -7059,38 +7061,38 @@ void bjtModelSensitivity::operator()(
         {
           // omega0 = 1/td;
           fadType term = 3 * di_fx*td + 3*i_fx -3 * iBE / qB;
-          dfdp[i_Ifx] += - di_fx.dx(0);
-          dfdp[i_dIfx] += term.dx(0);
+          dfdp[i_Ifx] += - di_fx.dx(0)*multiplicityFactor.val();
+          dfdp[i_dIfx] += term.dx(0)*multiplicityFactor.val();
         }
         else
         {
           fadType term = i_fx -iBE/qB;
-          dfdp[i_Ifx] += term.dx(0);
+          dfdp[i_Ifx] += term.dx(0)*multiplicityFactor.val();
           dfdp[i_dIfx] = 0.0;
         }
       }
       else
       {
-        dfdp[i_Ifx] += i_fx.dx(0);
-        dfdp[i_dIfx] += di_fx.dx(0);
+        dfdp[i_Ifx] += i_fx.dx(0)*multiplicityFactor.val();
+        dfdp[i_dIfx] += di_fx.dx(0)*multiplicityFactor.val();
       }
     }
 
-    dqdp[iBase]  -= qBase.dx(0);
-    dqdp[iSubst] -= qSubst.dx(0);
-    dqdp[iCollP] -= qCollP.dx(0);
-    dqdp[iBaseP] -= qBaseP.dx(0);
-    dqdp[iEmitP] -= qEmitP.dx(0);
+    dqdp[iBase]  -= qBase.dx(0)*multiplicityFactor.val();
+    dqdp[iSubst] -= qSubst.dx(0)*multiplicityFactor.val();
+    dqdp[iCollP] -= qCollP.dx(0)*multiplicityFactor.val();
+    dqdp[iBaseP] -= qBaseP.dx(0)*multiplicityFactor.val();
+    dqdp[iEmitP] -= qEmitP.dx(0)*multiplicityFactor.val();
 
     // excess phase ERK-dcop
     if (td != 0 && inst.getDeviceOptions().newExcessPhase)
     {
-      dqdp[i_Ifx] += solVec[i_Ifx];
+      dqdp[i_Ifx] += solVec[i_Ifx]*multiplicityFactor.val();
 
       if (!(inst.getSolverState().dcopFlag) )
       {
-        fadType term = solVec[i_dIfx]*td*td;
-        dqdp[i_dIfx] += term.dx(0);
+        fadType term = solVec[i_dIfx]*td*td*multiplicityFactor.val();
+        dqdp[i_dIfx] += term.dx(0)*multiplicityFactor.val();
       }
       else
       {
