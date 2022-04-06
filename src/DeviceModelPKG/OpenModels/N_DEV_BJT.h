@@ -550,6 +550,7 @@ private:
   double icVBE; // the inital base-emitter voltage (ICVBE)
   double icVCE; // the inital collector-emitter voltage (ICVCE)
   double TEMP;  // instance temperature (TEMP)
+  double multiplicityFactor;
   bool   OFF;   // initial mode of operation (OFF)
   bool lambertWFlag;
   bool IC_GIVEN;

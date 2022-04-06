@@ -105,6 +105,11 @@ void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
    .setCategory(CAT_NONE)
    .setDescription("Flag for toggling the use of the lambert-W function instead of exponentials.");
 
+  // multiplicity
+  p.addPar ("M",  1.0, &BJT::Instance::multiplicityFactor)
+    .setCategory(CAT_GEOMETRY)
+    .setDescription("multiplicity factor");
+
   p.makeVector ("IC",2);
 }
 
@@ -825,6 +830,7 @@ Instance::Instance(
     icVBE(0.0),
     icVCE(0.0),
     TEMP(300.0),
+    multiplicityFactor(1.0),
     OFF(false),
     lambertWFlag(false),
     IC_GIVEN(false),
@@ -2075,20 +2081,20 @@ bool Instance::loadDAEQVector ()
   double * solVec = extData.nextSolVectorRawPtr;
   double * qVec = extData.daeQVectorRawPtr;
 
-  qVec[li_Base] -= - model_.TYPE * qBX;
-  qVec[li_Subst] -= -model_.TYPE * qCS;
-  qVec[li_CollP] -= model_.TYPE * ( qCS + qBX + qBCdep + qBCdiff );
-  qVec[li_BaseP] -= -model_.TYPE * ( qBEdep + qBEdiff + qBCdep + qBCdiff );
-  qVec[li_EmitP] -= model_.TYPE*( qBEdep + qBEdiff );
+  qVec[li_Base] -= - model_.TYPE * qBX * multiplicityFactor;
+  qVec[li_Subst] -= -model_.TYPE * qCS * multiplicityFactor;
+  qVec[li_CollP] -= model_.TYPE * ( qCS + qBX + qBCdep + qBCdiff ) * multiplicityFactor;
+  qVec[li_BaseP] -= -model_.TYPE * ( qBEdep + qBEdiff + qBCdep + qBCdiff ) * multiplicityFactor;
+  qVec[li_EmitP] -= model_.TYPE*( qBEdep + qBEdiff ) * multiplicityFactor;
 
   // excess phase ERK-dcop
   if (td != 0 && getDeviceOptions().newExcessPhase)
   {
-    qVec[li_Ifx] += solVec[li_Ifx];
+    qVec[li_Ifx] += solVec[li_Ifx] * multiplicityFactor;
 
     if (!(getSolverState().dcopFlag) )
     {
-      qVec[li_dIfx] += solVec[li_dIfx]*td*td;
+      qVec[li_dIfx] += solVec[li_dIfx]*td*td * multiplicityFactor;
     }
     else
     {
@@ -2117,18 +2123,18 @@ bool Instance::loadDAEQVector ()
     }
 
     double * dQdxdVp = extData.dQdxdVpVectorRawPtr;
-    dQdxdVp[li_CollP] += Cp_Jdxp_q;
-    dQdxdVp[li_BaseP] += Bp_Jdxp_q;
-    dQdxdVp[li_EmitP] += Ep_Jdxp_q;
+    dQdxdVp[li_CollP] += Cp_Jdxp_q * multiplicityFactor;
+    dQdxdVp[li_BaseP] += Bp_Jdxp_q * multiplicityFactor;
+    dQdxdVp[li_EmitP] += Ep_Jdxp_q * multiplicityFactor;
   }
 
   if( loadLeadCurrent )
   {
     double * leadQ = extData.nextLeadCurrQCompRawPtr;
-    leadQ[li_branch_dev_ic] = -model_.TYPE * ( qCS + qBX + qBCdep + qBCdiff );
-    leadQ[li_branch_dev_ib] = model_.TYPE * ( qBX + qBEdep + qBEdiff + qBCdep + qBCdiff );
-    leadQ[li_branch_dev_ie] = -model_.TYPE*( qBEdep + qBEdiff );
-    leadQ[li_branch_dev_is] = model_.TYPE * qCS;
+    leadQ[li_branch_dev_ic] = -model_.TYPE * ( qCS + qBX + qBCdep + qBCdiff ) * multiplicityFactor;
+    leadQ[li_branch_dev_ib] = model_.TYPE * ( qBX + qBEdep + qBEdiff + qBCdep + qBCdiff ) * multiplicityFactor;
+    leadQ[li_branch_dev_ie] = -model_.TYPE*( qBEdep + qBEdiff ) * multiplicityFactor;
+    leadQ[li_branch_dev_is] = model_.TYPE * qCS * multiplicityFactor;
     
   }
 
@@ -2223,12 +2229,12 @@ bool Instance::loadDAEFVector ()
   double vbc_diff = vBC - vBC_orig;
   double vce_diff = vbe_diff - vbc_diff;
 
-  fVec[li_Coll] -= -vCCp * gCpr;
-  fVec[li_Base] -= -vBBp * gX;
-  fVec[li_Emit] -= -vEEp * gEpr;
-  fVec[li_CollP] -= vCCp * gCpr + model_.TYPE * ( - iC );
-  fVec[li_BaseP] -= vBBp * gX - model_.TYPE * ( iB );
-  fVec[li_EmitP] -= vEEp * gEpr + model_.TYPE * ( - iE );
+  fVec[li_Coll] -= -vCCp * gCpr * multiplicityFactor;
+  fVec[li_Base] -= -vBBp * gX * multiplicityFactor;
+  fVec[li_Emit] -= -vEEp * gEpr * multiplicityFactor;
+  fVec[li_CollP] -= (vCCp * gCpr + model_.TYPE * ( - iC )) * multiplicityFactor ;
+  fVec[li_BaseP] -= (vBBp * gX - model_.TYPE * ( iB )) * multiplicityFactor;
+  fVec[li_EmitP] -= (vEEp * gEpr + model_.TYPE * ( - iE )) * multiplicityFactor;
 
   // excess phase ERK-dcop.
   double i_fx = 0.0;
@@ -2245,19 +2251,19 @@ bool Instance::loadDAEFVector ()
       if (!(getSolverState().dcopFlag) )
       {
         // omega0 = 1/td;
-        fVec[li_Ifx] += - di_fx;
-        fVec[li_dIfx] += 3 * di_fx*td + 3*i_fx -3 * iBE / qB;
+        fVec[li_Ifx] += - di_fx * multiplicityFactor;
+        fVec[li_dIfx] += (3 * di_fx*td + 3*i_fx -3 * iBE / qB) * multiplicityFactor;
       }
       else
       {
-        fVec[li_Ifx] += i_fx -iBE/qB;
+        fVec[li_Ifx] += (i_fx -iBE/qB) * multiplicityFactor;
         fVec[li_dIfx] = 0.0;
       }
     }
     else
     {
-      fVec[li_Ifx] += i_fx;
-      fVec[li_dIfx] += di_fx;
+      fVec[li_Ifx] += i_fx * multiplicityFactor;
+      fVec[li_dIfx] += di_fx * multiplicityFactor;
     }
   }
 
@@ -2301,20 +2307,20 @@ bool Instance::loadDAEFVector ()
     }
 
     double * dFdxdVp = extData.dFdxdVpVectorRawPtr;
-    dFdxdVp[li_CollP] += Cp_Jdxp_f;
-    dFdxdVp[li_BaseP] += Bp_Jdxp_f;
-    dFdxdVp[li_EmitP] += Ep_Jdxp_f;
+    dFdxdVp[li_CollP] += Cp_Jdxp_f * multiplicityFactor;
+    dFdxdVp[li_BaseP] += Bp_Jdxp_f * multiplicityFactor;
+    dFdxdVp[li_EmitP] += Ep_Jdxp_f * multiplicityFactor;
 
     // ERK-dcop.
     if ( td != 0 && getDeviceOptions().newExcessPhase )
     {
       if ( !(getSolverState().dcopFlag) )
       {
-        dFdxdVp[li_dIfx] += dIfx_Jdxp_f;
+        dFdxdVp[li_dIfx] += dIfx_Jdxp_f * multiplicityFactor;
       }
       else
       {
-        dFdxdVp[li_Ifx] += Ifx_Jdxp_f;
+        dFdxdVp[li_Ifx] += Ifx_Jdxp_f * multiplicityFactor;
       }
     }
   }
@@ -2323,10 +2329,10 @@ bool Instance::loadDAEFVector ()
   {
     double * leadF = extData.nextLeadCurrFCompRawPtr;
     double * junctionV = extData.nextJunctionVCompRawPtr;
-    leadF[li_branch_dev_ic] = model_.TYPE * ( iC );
+    leadF[li_branch_dev_ic] = model_.TYPE * ( iC ) * multiplicityFactor;
     leadF[li_branch_dev_is] = 0;
-    leadF[li_branch_dev_ie] = model_.TYPE * ( iE );
-    leadF[li_branch_dev_ib] = model_.TYPE * ( iB );
+    leadF[li_branch_dev_ie] = model_.TYPE * ( iE ) * multiplicityFactor;
+    leadF[li_branch_dev_ib] = model_.TYPE * ( iB ) * multiplicityFactor;
   
     junctionV[li_branch_dev_ic] = solVec[li_Coll] - solVec[li_Emit];
     junctionV[li_branch_dev_is] = 0.0; // solVec[li_Subst] - solVec[li_Subst];
@@ -2361,41 +2367,41 @@ bool Instance::loadDAEdQdx ()
 
   Linear::Matrix & dQdx = *(extData.dQdxMatrixPtr);
 
-  dQdx[li_Base][ABaseEquBaseNodeOffset] += capBX;
+  dQdx[li_Base][ABaseEquBaseNodeOffset] += capBX * multiplicityFactor;
 
-  dQdx[li_Base][ABaseEquCollPNodeOffset] += -capBX;
-  dQdx[li_Subst][ASubstEquSubstNodeOffset] += capCS;
-  dQdx[li_Subst][ASubstEquCollPNodeOffset] -= capCS;
+  dQdx[li_Base][ABaseEquCollPNodeOffset] += -capBX * multiplicityFactor;
+  dQdx[li_Subst][ASubstEquSubstNodeOffset] += capCS * multiplicityFactor;
+  dQdx[li_Subst][ASubstEquCollPNodeOffset] -= capCS * multiplicityFactor;
 
-  dQdx[li_CollP][ACollPEquBaseNodeOffset] -= capBX;
-  dQdx[li_CollP][ACollPEquSubstNodeOffset] -= capCS;
+  dQdx[li_CollP][ACollPEquBaseNodeOffset] -= capBX * multiplicityFactor;
+  dQdx[li_CollP][ACollPEquSubstNodeOffset] -= capCS * multiplicityFactor;
   dQdx[li_CollP][ACollPEquCollPNodeOffset]
-    +=  capCS + capBX + capBCdep + capBCdiff;
+    +=  (capCS + capBX + capBCdep + capBCdiff) * multiplicityFactor;
 
   dQdx[li_CollP][ACollPEquBasePNodeOffset]
-              += -capBCdep - capBCdiff;
+    += (-capBCdep - capBCdiff) * multiplicityFactor;
 
   dQdx[li_BaseP][ABasePEquCollPNodeOffset]
-    += -capBCdiff - capBCdep - capeqCB;
+    += (-capBCdiff - capBCdep - capeqCB) * multiplicityFactor;
 
   dQdx[li_BaseP][ABasePEquBasePNodeOffset]
-      += capBEdiff + capBEdep + capBCdiff + capBCdep + capeqCB;
+    += (capBEdiff + capBEdep + capBCdiff + capBCdep + capeqCB) * multiplicityFactor;
 
   dQdx[li_BaseP][ABasePEquEmitPNodeOffset]
-                += -capBEdiff - capBEdep;
-  dQdx[li_EmitP][AEmitPEquCollPNodeOffset] += capeqCB;
+    += (-capBEdiff - capBEdep) * multiplicityFactor;
+  dQdx[li_EmitP][AEmitPEquCollPNodeOffset] += capeqCB * multiplicityFactor;
   dQdx[li_EmitP][AEmitPEquBasePNodeOffset]
-      += -capBEdiff - capBEdep - capeqCB;
+    += (-capBEdiff - capBEdep - capeqCB) * multiplicityFactor;
   dQdx[li_EmitP][AEmitPEquEmitPNodeOffset]
-      += capBEdiff + capBEdep;
+    += (capBEdiff + capBEdep) * multiplicityFactor;
 
   // excess phase terms.  ERK-dcop
   if ( td != 0 && getDeviceOptions().newExcessPhase )
   {
     if (!(getSolverState().dcopFlag) )
     {
-      dQdx[li_Ifx][AIfxEquIfxNodeOffset] += 1;
-      dQdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1*td*td;
+      dQdx[li_Ifx][AIfxEquIfxNodeOffset] += 1 * multiplicityFactor;
+      dQdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1*td*td * multiplicityFactor;
     }
   }
 
@@ -2422,42 +2428,43 @@ bool Instance::loadDAEdFdx ()
 
   Linear::Matrix & dFdx = *(extData.dFdxMatrixPtr);
 
-  dFdx[li_Coll][ACollEquCollNodeOffset] += gCpr;
-  dFdx[li_Coll][ACollEquCollPNodeOffset] -= gCpr;
-  dFdx[li_Base][ABaseEquBaseNodeOffset] += diBrdvB;
-  dFdx[li_Base][ABaseEquCollPNodeOffset] += diBrdvCp;
-  dFdx[li_Base][ABaseEquBasePNodeOffset] += diBrdvBp;
-  dFdx[li_Base][ABaseEquEmitPNodeOffset] += diBrdvEp;
+  dFdx[li_Coll][ACollEquCollNodeOffset] += gCpr * multiplicityFactor;
+  dFdx[li_Coll][ACollEquCollPNodeOffset] -= gCpr * multiplicityFactor;
+  dFdx[li_Base][ABaseEquBaseNodeOffset] += diBrdvB * multiplicityFactor;
+  dFdx[li_Base][ABaseEquCollPNodeOffset] += diBrdvCp * multiplicityFactor;
+  dFdx[li_Base][ABaseEquBasePNodeOffset] += diBrdvBp * multiplicityFactor;
+  dFdx[li_Base][ABaseEquEmitPNodeOffset] += diBrdvEp * multiplicityFactor;
 
-  dFdx[li_Emit][AEmitEquEmitNodeOffset] += gEpr;
+  dFdx[li_Emit][AEmitEquEmitNodeOffset] += gEpr * multiplicityFactor;
 
-  dFdx[li_Emit][AEmitEquEmitPNodeOffset] -= gEpr;
+  dFdx[li_Emit][AEmitEquEmitPNodeOffset] -= gEpr * multiplicityFactor;
 
 
-  dFdx[li_CollP][ACollPEquCollNodeOffset] -= gCpr;
-  dFdx[li_CollP][ACollPEquCollPNodeOffset] +=diCEdvCp + gBCtot + gCpr;
+  dFdx[li_CollP][ACollPEquCollNodeOffset] -= gCpr * multiplicityFactor;
+  dFdx[li_CollP][ACollPEquCollPNodeOffset]
+    +=(diCEdvCp + gBCtot + gCpr) * multiplicityFactor;
   dFdx[li_CollP][ACollPEquBasePNodeOffset]
-                += diCEdvBp - gBCtot;
-  dFdx[li_CollP][ACollPEquEmitPNodeOffset] += diCEdvEp;
+    += (diCEdvBp - gBCtot) * multiplicityFactor;
+  dFdx[li_CollP][ACollPEquEmitPNodeOffset] += diCEdvEp * multiplicityFactor;
 
   // excess phase terms.  ERK-dcop
   if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
-    dFdx[li_CollP][ACollPEquIfxNodeOffset] += 1.0 * model_.TYPE;
+    dFdx[li_CollP][ACollPEquIfxNodeOffset] += 1.0 * model_.TYPE  * multiplicityFactor;
 
-  dFdx[li_BaseP][ABasePEquBaseNodeOffset] -= diBrdvB;
+  dFdx[li_BaseP][ABasePEquBaseNodeOffset] -= diBrdvB  * multiplicityFactor;
   dFdx[li_BaseP][ABasePEquCollPNodeOffset]
-    += -diBrdvCp - gBCtot;
+    += (-diBrdvCp - gBCtot) * multiplicityFactor;
 
   dFdx[li_BaseP][ABasePEquBasePNodeOffset]
-      += -diBrdvBp + gBEtot + gBCtot;
+    += (-diBrdvBp + gBEtot + gBCtot) * multiplicityFactor;
 
   dFdx[li_BaseP][ABasePEquEmitPNodeOffset]
-                += -diBrdvEp - gBEtot;
+    += (-diBrdvEp - gBEtot) * multiplicityFactor;
 
-  dFdx[li_EmitP][AEmitPEquEmitNodeOffset] -= gEpr;
-  dFdx[li_EmitP][AEmitPEquCollPNodeOffset] += -diCEdvCp;
+  dFdx[li_EmitP][AEmitPEquEmitNodeOffset] -= gEpr * multiplicityFactor;
+  dFdx[li_EmitP][AEmitPEquCollPNodeOffset] += -diCEdvCp * multiplicityFactor;
   dFdx[li_EmitP][AEmitPEquBasePNodeOffset]
-      += - diCEdvBp - gBEtot;
+    += (- diCEdvBp - gBEtot) * multiplicityFactor;
 
   // ERK Note:  -diCEdvEp should equal + diCEdvBp + diCEdvCp.  In the
   // original old-DAE form, + diCEdvBp + diCEdvCp is used.  In
@@ -2466,11 +2473,11 @@ bool Instance::loadDAEdFdx ()
   // This should matter, but .....
   dFdx[li_EmitP][AEmitPEquEmitPNodeOffset]
       //+= gBEtot + gEpr - diCEdvEp;
-      += gBEtot + gEpr + diCEdvBp + diCEdvCp; // this is a test.
+    += (gBEtot + gEpr + diCEdvBp + diCEdvCp) * multiplicityFactor; // this is a test.
 
   // excess phase terms.  ERK-dcop
   if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
-    dFdx[li_EmitP][AEmitPEquIfxNodeOffset] += -1.0 * model_.TYPE;
+    dFdx[li_EmitP][AEmitPEquIfxNodeOffset] += -1.0 * model_.TYPE * multiplicityFactor;
 
   // excess phase terms.  ERK-dcop
   if (getDeviceOptions().newExcessPhase)
@@ -2479,26 +2486,32 @@ bool Instance::loadDAEdFdx ()
     {
       if ( !(getSolverState().dcopFlag) )
       {
-        dFdx[li_Ifx][AIfxEqudIfxNodeOffset]+= -1;
-        dFdx[li_dIfx][AdIfxEquCollPNodeOffset] += -3*diBEdvCp * model_.TYPE;
-        dFdx[li_dIfx][AdIfxEquBasePNodeOffset] += -3*diBEdvBp * model_.TYPE;
-        dFdx[li_dIfx][AdIfxEquEmitPNodeOffset] += -3*diBEdvEp * model_.TYPE;
-        dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 3* td;
-        dFdx[li_dIfx][AdIfxEquIfxNodeOffset] += 3;
+        dFdx[li_Ifx][AIfxEqudIfxNodeOffset]+= -1 * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEquCollPNodeOffset]
+          += -3*diBEdvCp * model_.TYPE * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEquBasePNodeOffset]
+          += -3*diBEdvBp * model_.TYPE * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEquEmitPNodeOffset]
+          += -3*diBEdvEp * model_.TYPE * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 3* td * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEquIfxNodeOffset] += 3 * multiplicityFactor;
       }
       else
       {
-        dFdx[li_Ifx][AIfxEquCollPNodeOffset] += -diBEdvCp * model_.TYPE;
-        dFdx[li_Ifx][AIfxEquBasePNodeOffset] += -diBEdvBp * model_.TYPE;
-        dFdx[li_Ifx][AIfxEquEmitPNodeOffset] += -diBEdvEp * model_.TYPE;
-        dFdx[li_Ifx][AIfxEquIfxNodeOffset]+= 1;
-        dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1;
+        dFdx[li_Ifx][AIfxEquCollPNodeOffset]
+          += -diBEdvCp * model_.TYPE * multiplicityFactor;
+        dFdx[li_Ifx][AIfxEquBasePNodeOffset]
+          += -diBEdvBp * model_.TYPE * multiplicityFactor;
+        dFdx[li_Ifx][AIfxEquEmitPNodeOffset]
+          += -diBEdvEp * model_.TYPE * multiplicityFactor;
+        dFdx[li_Ifx][AIfxEquIfxNodeOffset]+= 1 * multiplicityFactor;
+        dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1 * multiplicityFactor;
       }
     }
     else
     {
-      dFdx[li_Ifx][AIfxEquIfxNodeOffset]+= 1;
-      dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1;
+      dFdx[li_Ifx][AIfxEquIfxNodeOffset]+= 1 * multiplicityFactor;
+      dFdx[li_dIfx][AdIfxEqudIfxNodeOffset] += 1 * multiplicityFactor;
     }
   }
 
@@ -4262,12 +4275,17 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double vce_diff = vbe_diff - vbc_diff;
 
     // F-vector:
-    fVec[bi.li_Coll] -= -bi.vCCp * bi.gCpr;
-    fVec[bi.li_Base] -= -bi.vBBp * bi.gX;
-    fVec[bi.li_Emit] -= -bi.vEEp * bi.gEpr;
-    fVec[bi.li_CollP] -= bi.vCCp * bi.gCpr + bi.model_.TYPE * ( - bi.iC );
-    fVec[bi.li_BaseP] -= bi.vBBp * bi.gX - bi.model_.TYPE * ( bi.iB );
-    fVec[bi.li_EmitP] -= bi.vEEp * bi.gEpr + bi.model_.TYPE * ( - bi.iE );
+    fVec[bi.li_Coll] -= -bi.vCCp * bi.gCpr * bi.multiplicityFactor;
+    fVec[bi.li_Base] -= -bi.vBBp * bi.gX * bi.multiplicityFactor;
+    fVec[bi.li_Emit] -= -bi.vEEp * bi.gEpr * bi.multiplicityFactor;
+    fVec[bi.li_CollP]
+      -= (bi.vCCp * bi.gCpr + bi.model_.TYPE * ( - bi.iC ))
+          * bi.multiplicityFactor;
+    fVec[bi.li_BaseP]
+      -= (bi.vBBp * bi.gX - bi.model_.TYPE * ( bi.iB )) * bi.multiplicityFactor;
+    fVec[bi.li_EmitP]
+      -= (bi.vEEp * bi.gEpr + bi.model_.TYPE * ( - bi.iE ))
+          * bi.multiplicityFactor;
 
     // excess phase ERK-dcop.
     double i_fx = 0.0;
@@ -4284,37 +4302,44 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
         if (!(getSolverState().dcopFlag) )
         {
           // omega0 = 1/td;
-          fVec[bi.li_Ifx] += - di_fx;
-          fVec[bi.li_dIfx] += 3 * di_fx*td + 3*i_fx -3 * bi.iBE / bi.qB;
+          fVec[bi.li_Ifx] += - di_fx * bi.multiplicityFactor;
+          fVec[bi.li_dIfx]
+            += (3 * di_fx*td + 3*i_fx -3 * bi.iBE / bi.qB)
+               * bi.multiplicityFactor;
         }
         else
         {
-          fVec[bi.li_Ifx] += i_fx -bi.iBE/bi.qB;
+          fVec[bi.li_Ifx] += (i_fx -bi.iBE/bi.qB) * bi.multiplicityFactor;
           fVec[bi.li_dIfx] = 0.0;
         }
       }
       else
       {
-        fVec[bi.li_Ifx] += i_fx;
-        fVec[bi.li_dIfx] += di_fx;
+        fVec[bi.li_Ifx] += i_fx * bi.multiplicityFactor;
+        fVec[bi.li_dIfx] += di_fx * bi.multiplicityFactor;
       }
     }
 
     // Q-vector:
-    qVec[bi.li_Base] -= - bi.model_.TYPE * bi.qBX;
-    qVec[bi.li_Subst] -= -bi.model_.TYPE * bi.qCS;
-    qVec[bi.li_CollP] -= bi.model_.TYPE * ( bi.qCS + bi.qBX + bi.qBCdep + bi.qBCdiff );
-    qVec[bi.li_BaseP] -= -bi.model_.TYPE * ( bi.qBEdep + bi.qBEdiff + bi.qBCdep + bi.qBCdiff );
-    qVec[bi.li_EmitP] -= bi.model_.TYPE*( bi.qBEdep + bi.qBEdiff );
+    qVec[bi.li_Base] -= - bi.model_.TYPE * bi.qBX * bi.multiplicityFactor;
+    qVec[bi.li_Subst] -= -bi.model_.TYPE * bi.qCS * bi.multiplicityFactor;
+    qVec[bi.li_CollP]
+      -= bi.model_.TYPE * ( bi.qCS + bi.qBX + bi.qBCdep + bi.qBCdiff )
+         * bi.multiplicityFactor;
+    qVec[bi.li_BaseP]
+      -= -bi.model_.TYPE * ( bi.qBEdep + bi.qBEdiff + bi.qBCdep + bi.qBCdiff )
+         * bi.multiplicityFactor;
+    qVec[bi.li_EmitP]
+      -= bi.model_.TYPE*( bi.qBEdep + bi.qBEdiff )  * bi.multiplicityFactor;
 
     // excess phase ERK-dcop
     if (td != 0 && getDeviceOptions().newExcessPhase)
     {
-      qVec[bi.li_Ifx] += solVec[bi.li_Ifx];
+      qVec[bi.li_Ifx] += solVec[bi.li_Ifx] * bi.multiplicityFactor;
 
       if (!(getSolverState().dcopFlag) )
       {
-        qVec[bi.li_dIfx] += solVec[bi.li_dIfx]*td*td;
+        qVec[bi.li_dIfx] += solVec[bi.li_dIfx]*td*td * bi.multiplicityFactor;
       }
       else
       {
@@ -4361,20 +4386,20 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       }
 
       double * dFdxdVp = bi.extData.dFdxdVpVectorRawPtr;
-      dFdxdVp[bi.li_CollP] += Cp_Jdxp_f;
-      dFdxdVp[bi.li_BaseP] += Bp_Jdxp_f;
-      dFdxdVp[bi.li_EmitP] += Ep_Jdxp_f;
+      dFdxdVp[bi.li_CollP] += Cp_Jdxp_f * bi.multiplicityFactor;
+      dFdxdVp[bi.li_BaseP] += Bp_Jdxp_f * bi.multiplicityFactor;
+      dFdxdVp[bi.li_EmitP] += Ep_Jdxp_f * bi.multiplicityFactor;
 
       // ERK-dcop.
       if ( td != 0 && getDeviceOptions().newExcessPhase )
       {
         if ( !(getSolverState().dcopFlag) )
         {
-          dFdxdVp[bi.li_dIfx] += dIfx_Jdxp_f;
+          dFdxdVp[bi.li_dIfx] += dIfx_Jdxp_f * bi.multiplicityFactor;
         }
         else
         {
-          dFdxdVp[bi.li_Ifx] += Ifx_Jdxp_f;
+          dFdxdVp[bi.li_Ifx] += Ifx_Jdxp_f * bi.multiplicityFactor;
         }
       }
 
@@ -4393,23 +4418,32 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       }
 
       double * dQdxdVp = bi.extData.dQdxdVpVectorRawPtr;
-      dQdxdVp[bi.li_CollP] += Cp_Jdxp_q;
-      dQdxdVp[bi.li_BaseP] += Bp_Jdxp_q;
-      dQdxdVp[bi.li_EmitP] += Ep_Jdxp_q;
+      dQdxdVp[bi.li_CollP] += Cp_Jdxp_q * bi.multiplicityFactor;
+      dQdxdVp[bi.li_BaseP] += Bp_Jdxp_q * bi.multiplicityFactor;
+      dQdxdVp[bi.li_EmitP] += Ep_Jdxp_q * bi.multiplicityFactor;
     }
 
     if( bi.loadLeadCurrent )
     {
-      leadQ[bi.li_branch_dev_ic] = -bi.model_.TYPE * ( bi.qCS + bi.qBX + bi.qBCdep + bi.qBCdiff );
-      leadQ[bi.li_branch_dev_ib] = bi.model_.TYPE * ( bi.qBX + bi.qBEdep + bi.qBEdiff + bi.qBCdep + bi.qBCdiff );
-      leadQ[bi.li_branch_dev_ie] = -bi.model_.TYPE*( bi.qBEdep + bi.qBEdiff );
-      leadQ[bi.li_branch_dev_is] = bi.model_.TYPE * bi.qCS;
+      leadQ[bi.li_branch_dev_ic]
+        = -bi.model_.TYPE * ( bi.qCS + bi.qBX + bi.qBCdep + bi.qBCdiff )
+                          * bi.multiplicityFactor;
+      leadQ[bi.li_branch_dev_ib]
+        = bi.model_.TYPE * ( bi.qBX + bi.qBEdep + bi.qBEdiff + bi.qBCdep + bi.qBCdiff )
+                         * bi.multiplicityFactor;
+      leadQ[bi.li_branch_dev_ie]
+        = -bi.model_.TYPE*( bi.qBEdep + bi.qBEdiff ) * bi.multiplicityFactor;
+      leadQ[bi.li_branch_dev_is]
+        = bi.model_.TYPE * bi.qCS * bi.multiplicityFactor;
 
-      leadF[bi.li_branch_dev_ic] = bi.model_.TYPE * ( bi.iC );
+      leadF[bi.li_branch_dev_ic]
+        = bi.model_.TYPE * ( bi.iC ) * bi.multiplicityFactor;
       leadF[bi.li_branch_dev_is] = 0;
-      leadF[bi.li_branch_dev_ie] = bi.model_.TYPE * ( bi.iE );
-      leadF[bi.li_branch_dev_ib] = bi.model_.TYPE * ( bi.iB );
-      
+      leadF[bi.li_branch_dev_ie]
+        = bi.model_.TYPE * ( bi.iE ) * bi.multiplicityFactor;
+      leadF[bi.li_branch_dev_ib]
+        = bi.model_.TYPE * ( bi.iB ) * bi.multiplicityFactor;
+
       junctionV[bi.li_branch_dev_ic] = solVec[bi.li_Coll] - solVec[bi.li_Emit];
       junctionV[bi.li_branch_dev_is] = 0.0 ; // solVec[bi.li_Subst] - solVec[bi.li_Base];
       junctionV[bi.li_branch_dev_ib] = solVec[bi.li_Base] - solVec[bi.li_Emit];
@@ -4441,44 +4475,52 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
    // F-matrix:
 
-   *bi.f_CollEquCollNodePtr += bi.gCpr;
-   *bi.f_CollEquCollPNodePtr -= bi.gCpr;
-   *bi.f_BaseEquBaseNodePtr += bi.diBrdvB;
-   *bi.f_BaseEquCollPNodePtr += bi.diBrdvCp;
-   *bi.f_BaseEquBasePNodePtr += bi.diBrdvBp;
-   *bi.f_BaseEquEmitPNodePtr += bi.diBrdvEp;
-   *bi.f_EmitEquEmitNodePtr += bi.gEpr;
-   *bi.f_EmitEquEmitPNodePtr -= bi.gEpr;
-   *bi.f_CollPEquCollNodePtr -= bi.gCpr;
-   *bi.f_CollPEquCollPNodePtr +=bi.diCEdvCp + bi.gBCtot + bi.gCpr;
-   *bi.f_CollPEquBasePNodePtr += bi.diCEdvBp - bi.gBCtot;
-   *bi.f_CollPEquEmitPNodePtr += bi.diCEdvEp;
+   *bi.f_CollEquCollNodePtr += bi.gCpr * bi.multiplicityFactor;
+   *bi.f_CollEquCollPNodePtr -= bi.gCpr * bi.multiplicityFactor;
+   *bi.f_BaseEquBaseNodePtr += bi.diBrdvB * bi.multiplicityFactor;
+   *bi.f_BaseEquCollPNodePtr += bi.diBrdvCp * bi.multiplicityFactor;
+   *bi.f_BaseEquBasePNodePtr += bi.diBrdvBp * bi.multiplicityFactor;
+   *bi.f_BaseEquEmitPNodePtr += bi.diBrdvEp * bi.multiplicityFactor;
+   *bi.f_EmitEquEmitNodePtr += bi.gEpr * bi.multiplicityFactor;
+   *bi.f_EmitEquEmitPNodePtr -= bi.gEpr * bi.multiplicityFactor;
+   *bi.f_CollPEquCollNodePtr -= bi.gCpr * bi.multiplicityFactor;
+   *bi.f_CollPEquCollPNodePtr
+     +=(bi.diCEdvCp + bi.gBCtot + bi.gCpr) * bi.multiplicityFactor;
+   *bi.f_CollPEquBasePNodePtr
+     += (bi.diCEdvBp - bi.gBCtot) * bi.multiplicityFactor;
+   *bi.f_CollPEquEmitPNodePtr += bi.diCEdvEp * bi.multiplicityFactor;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
    {
-     *bi.f_CollPEquIfxNodePtr += 1.0 * bi.model_.TYPE;
+     *bi.f_CollPEquIfxNodePtr += 1.0 * bi.model_.TYPE * bi.multiplicityFactor;
    }
-   *bi.f_BasePEquBaseNodePtr -= bi.diBrdvB;
-   *bi.f_BasePEquCollPNodePtr += -bi.diBrdvCp - bi.gBCtot;
-   *bi.f_BasePEquBasePNodePtr += -bi.diBrdvBp + bi.gBEtot + bi.gBCtot;
-   *bi.f_BasePEquEmitPNodePtr += -bi.diBrdvEp - bi.gBEtot;
-   *bi.f_EmitPEquEmitNodePtr -= bi.gEpr;
-   *bi.f_EmitPEquCollPNodePtr += -bi.diCEdvCp;
-   *bi.f_EmitPEquBasePNodePtr += - bi.diCEdvBp - bi.gBEtot;
+   *bi.f_BasePEquBaseNodePtr -= bi.diBrdvB * bi.multiplicityFactor;
+   *bi.f_BasePEquCollPNodePtr
+     += (-bi.diBrdvCp - bi.gBCtot) * bi.multiplicityFactor;
+   *bi.f_BasePEquBasePNodePtr
+     += (-bi.diBrdvBp + bi.gBEtot + bi.gBCtot) * bi.multiplicityFactor;
+   *bi.f_BasePEquEmitPNodePtr
+     += (-bi.diBrdvEp - bi.gBEtot) * bi.multiplicityFactor;
+   *bi.f_EmitPEquEmitNodePtr -= bi.gEpr * bi.multiplicityFactor;
+   *bi.f_EmitPEquCollPNodePtr += -bi.diCEdvCp * bi.multiplicityFactor;
+   *bi.f_EmitPEquBasePNodePtr
+     += (- bi.diCEdvBp - bi.gBEtot) * bi.multiplicityFactor;
 
    // ERK Note:  -bi.diCEdvEp should equal + bi.diCEdvBp + bi.diCEdvCp.  In the
    // original old-DAE form, + bi.diCEdvBp + bi.diCEdvCp is used.  In
    // the more recent new-DAE form, we've used bi.diCEdvEp, but it sometimes
    // results in subtle differences between old- and new-DAE jacobians.
    // This should matter, but .....
-   *bi.f_EmitPEquEmitPNodePtr += bi.gBEtot + bi.gEpr + bi.diCEdvBp + bi.diCEdvCp; // this is a test.
+   *bi.f_EmitPEquEmitPNodePtr
+     += (bi.gBEtot + bi.gEpr + bi.diCEdvBp + bi.diCEdvCp)
+        * bi.multiplicityFactor; // this is a test.
        //+= bi.gBEtot + bi.gEpr - bi.diCEdvEp;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
    {
-     *bi.f_EmitPEquIfxNodePtr += -1.0 * bi.model_.TYPE;
+     *bi.f_EmitPEquIfxNodePtr += -1.0 * bi.model_.TYPE * bi.multiplicityFactor;
    }
 
    // excess phase terms.  ERK-dcop
@@ -4488,87 +4530,124 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
      {
        if ( !(getSolverState().dcopFlag) )
        {
-         *bi.f_IfxEqudIfxNodePtr += -1;
+         *bi.f_IfxEqudIfxNodePtr += -1 * bi.multiplicityFactor;
 
-         *bi.f_dIfxEquCollPNodePtr  += -3*bi.diBEdvCp * bi.model_.TYPE;
-         *bi.f_dIfxEquBasePNodePtr  += -3*bi.diBEdvBp * bi.model_.TYPE;
-         *bi.f_dIfxEquEmitPNodePtr  += -3*bi.diBEdvEp * bi.model_.TYPE;
-         *bi.f_dIfxEqudIfxNodePtr  += 3* td;
-         *bi.f_dIfxEquIfxNodePtr  += 3;
+         *bi.f_dIfxEquCollPNodePtr
+           += -3*bi.diBEdvCp * bi.model_.TYPE * bi.multiplicityFactor;
+         *bi.f_dIfxEquBasePNodePtr
+           += -3*bi.diBEdvBp * bi.model_.TYPE * bi.multiplicityFactor;
+         *bi.f_dIfxEquEmitPNodePtr
+           += -3*bi.diBEdvEp * bi.model_.TYPE * bi.multiplicityFactor;
+         *bi.f_dIfxEqudIfxNodePtr  += 3* td * bi.multiplicityFactor;
+         *bi.f_dIfxEquIfxNodePtr  += 3 * bi.multiplicityFactor;
        }
        else
        {
-         *bi.f_IfxEquCollPNodePtr += -bi.diBEdvCp * bi.model_.TYPE;
-         *bi.f_IfxEquBasePNodePtr += -bi.diBEdvBp * bi.model_.TYPE;
-         *bi.f_IfxEquEmitPNodePtr += -bi.diBEdvEp * bi.model_.TYPE;
+         *bi.f_IfxEquCollPNodePtr
+           += -bi.diBEdvCp * bi.model_.TYPE * bi.multiplicityFactor;
+         *bi.f_IfxEquBasePNodePtr
+           += -bi.diBEdvBp * bi.model_.TYPE * bi.multiplicityFactor;
+         *bi.f_IfxEquEmitPNodePtr
+           += -bi.diBEdvEp * bi.model_.TYPE * bi.multiplicityFactor;
 
-         *bi.f_IfxEquIfxNodePtr+= 1;
-         *bi.f_dIfxEqudIfxNodePtr += 1;
+         *bi.f_IfxEquIfxNodePtr+= 1 * bi.multiplicityFactor;
+         *bi.f_dIfxEqudIfxNodePtr += 1 * bi.multiplicityFactor;
        }
      }
      else
      {
-       *bi.f_IfxEquIfxNodePtr += 1;
-       *bi.f_dIfxEqudIfxNodePtr += 1;
+       *bi.f_IfxEquIfxNodePtr += 1 * bi.multiplicityFactor;
+       *bi.f_dIfxEqudIfxNodePtr += 1 * bi.multiplicityFactor;
      }
    }
 
    // Q-matrix:
 
-   *bi.q_BaseEquBaseNodePtr += bi.capBX;
-   *bi.q_BaseEquCollPNodePtr += -bi.capBX;
-   *bi.q_SubstEquSubstNodePtr += bi.capCS;
-   *bi.q_SubstEquCollPNodePtr -= bi.capCS;
-   *bi.q_CollPEquBaseNodePtr -= bi.capBX;
-   *bi.q_CollPEquSubstNodePtr -= bi.capCS;
-   *bi.q_CollPEquCollPNodePtr +=  bi.capCS + bi.capBX + bi.capBCdep + bi.capBCdiff;
-   *bi.q_CollPEquBasePNodePtr += -bi.capBCdep - bi.capBCdiff;
-   *bi.q_BasePEquCollPNodePtr += -bi.capBCdiff - bi.capBCdep - bi.capeqCB;
-   *bi.q_BasePEquBasePNodePtr += bi.capBEdiff + bi.capBEdep + bi.capBCdiff + bi.capBCdep + bi.capeqCB;
-   *bi.q_BasePEquEmitPNodePtr += -bi.capBEdiff - bi.capBEdep;
-   *bi.q_EmitPEquCollPNodePtr += bi.capeqCB;
-   *bi.q_EmitPEquBasePNodePtr += -bi.capBEdiff - bi.capBEdep - bi.capeqCB;
-   *bi.q_EmitPEquEmitPNodePtr += bi.capBEdiff + bi.capBEdep;
+   *bi.q_BaseEquBaseNodePtr += bi.capBX * bi.multiplicityFactor;
+   *bi.q_BaseEquCollPNodePtr += -bi.capBX * bi.multiplicityFactor;
+   *bi.q_SubstEquSubstNodePtr += bi.capCS * bi.multiplicityFactor;
+   *bi.q_SubstEquCollPNodePtr -= bi.capCS * bi.multiplicityFactor;
+   *bi.q_CollPEquBaseNodePtr -= bi.capBX * bi.multiplicityFactor;
+   *bi.q_CollPEquSubstNodePtr -= bi.capCS * bi.multiplicityFactor;
+   *bi.q_CollPEquCollPNodePtr
+     +=  (bi.capCS + bi.capBX + bi.capBCdep + bi.capBCdiff)
+         * bi.multiplicityFactor;
+   *bi.q_CollPEquBasePNodePtr
+     += (-bi.capBCdep - bi.capBCdiff) * bi.multiplicityFactor;
+   *bi.q_BasePEquCollPNodePtr
+     += (-bi.capBCdiff - bi.capBCdep - bi.capeqCB)
+        * bi.multiplicityFactor;
+   *bi.q_BasePEquBasePNodePtr
+     += (bi.capBEdiff + bi.capBEdep + bi.capBCdiff + bi.capBCdep + bi.capeqCB)
+      * bi.multiplicityFactor;
+   *bi.q_BasePEquEmitPNodePtr
+     += (-bi.capBEdiff - bi.capBEdep) * bi.multiplicityFactor;
+   *bi.q_EmitPEquCollPNodePtr
+     += bi.capeqCB * bi.multiplicityFactor;
+   *bi.q_EmitPEquBasePNodePtr
+     += (-bi.capBEdiff - bi.capBEdep - bi.capeqCB) * bi.multiplicityFactor;
+   *bi.q_EmitPEquEmitPNodePtr
+     += (bi.capBEdiff + bi.capBEdep) * bi.multiplicityFactor;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase )
    {
      if (!(getSolverState().dcopFlag) )
      {
-       *bi.q_IfxEquIfxNodePtr += 1;
-       *bi.q_dIfxEqudIfxNodePtr += 1*td*td;
+       *bi.q_IfxEquIfxNodePtr += 1 * bi.multiplicityFactor;
+       *bi.q_dIfxEqudIfxNodePtr += 1*td*td * bi.multiplicityFactor;
      }
    }
 
 #else
    // F-matrix:
 
-   dFdx[bi.li_Coll][bi.ACollEquCollNodeOffset] += bi.gCpr;
-   dFdx[bi.li_Coll][bi.ACollEquCollPNodeOffset] -= bi.gCpr;
-   dFdx[bi.li_Base][bi.ABaseEquBaseNodeOffset] += bi.diBrdvB;
-   dFdx[bi.li_Base][bi.ABaseEquCollPNodeOffset] += bi.diBrdvCp;
-   dFdx[bi.li_Base][bi.ABaseEquBasePNodeOffset] += bi.diBrdvBp;
-   dFdx[bi.li_Base][bi.ABaseEquEmitPNodeOffset] += bi.diBrdvEp;
-   dFdx[bi.li_Emit][bi.AEmitEquEmitNodeOffset] += bi.gEpr;
-   dFdx[bi.li_Emit][bi.AEmitEquEmitPNodeOffset] -= bi.gEpr;
-   dFdx[bi.li_CollP][bi.ACollPEquCollNodeOffset] -= bi.gCpr;
-   dFdx[bi.li_CollP][bi.ACollPEquCollPNodeOffset] +=bi.diCEdvCp + bi.gBCtot + bi.gCpr;
-   dFdx[bi.li_CollP][bi.ACollPEquBasePNodeOffset] += bi.diCEdvBp - bi.gBCtot;
-   dFdx[bi.li_CollP][bi.ACollPEquEmitPNodeOffset] += bi.diCEdvEp;
+   dFdx[bi.li_Coll][bi.ACollEquCollNodeOffset]
+     += bi.gCpr * bi.multiplicityFactor;
+   dFdx[bi.li_Coll][bi.ACollEquCollPNodeOffset]
+     -= bi.gCpr * bi.multiplicityFactor;
+   dFdx[bi.li_Base][bi.ABaseEquBaseNodeOffset]
+     += bi.diBrdvB * bi.multiplicityFactor;
+   dFdx[bi.li_Base][bi.ABaseEquCollPNodeOffset]
+     += bi.diBrdvCp * bi.multiplicityFactor;
+   dFdx[bi.li_Base][bi.ABaseEquBasePNodeOffset]
+     += bi.diBrdvBp * bi.multiplicityFactor;
+   dFdx[bi.li_Base][bi.ABaseEquEmitPNodeOffset]
+     += bi.diBrdvEp * bi.multiplicityFactor;
+   dFdx[bi.li_Emit][bi.AEmitEquEmitNodeOffset]
+     += bi.gEpr * bi.multiplicityFactor;
+   dFdx[bi.li_Emit][bi.AEmitEquEmitPNodeOffset]
+     -= bi.gEpr * bi.multiplicityFactor;
+   dFdx[bi.li_CollP][bi.ACollPEquCollNodeOffset]
+     -= bi.gCpr * bi.multiplicityFactor;
+   dFdx[bi.li_CollP][bi.ACollPEquCollPNodeOffset]
+     +=(bi.diCEdvCp + bi.gBCtot + bi.gCpr) * bi.multiplicityFactor;
+   dFdx[bi.li_CollP][bi.ACollPEquBasePNodeOffset]
+     += (bi.diCEdvBp - bi.gBCtot) * bi.multiplicityFactor;
+   dFdx[bi.li_CollP][bi.ACollPEquEmitPNodeOffset]
+     += bi.diCEdvEp * bi.multiplicityFactor;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
    {
-     dFdx[bi.li_CollP][bi.ACollPEquIfxNodeOffset] += 1.0 * bi.model_.TYPE;
+     dFdx[bi.li_CollP][bi.ACollPEquIfxNodeOffset]
+       += 1.0 * bi.model_.TYPE * bi.multiplicityFactor;
    }
 
-   dFdx[bi.li_BaseP][bi.ABasePEquBaseNodeOffset] -= bi.diBrdvB;
-   dFdx[bi.li_BaseP][bi.ABasePEquCollPNodeOffset] += -bi.diBrdvCp - bi.gBCtot;
-   dFdx[bi.li_BaseP][bi.ABasePEquBasePNodeOffset] += -bi.diBrdvBp + bi.gBEtot + bi.gBCtot;
-   dFdx[bi.li_BaseP][bi.ABasePEquEmitPNodeOffset] += -bi.diBrdvEp - bi.gBEtot;
-   dFdx[bi.li_EmitP][bi.AEmitPEquEmitNodeOffset] -= bi.gEpr;
-   dFdx[bi.li_EmitP][bi.AEmitPEquCollPNodeOffset] += -bi.diCEdvCp;
-   dFdx[bi.li_EmitP][bi.AEmitPEquBasePNodeOffset] += - bi.diCEdvBp - bi.gBEtot;
+   dFdx[bi.li_BaseP][bi.ABasePEquBaseNodeOffset]
+     -= bi.diBrdvB * bi.multiplicityFactor;
+   dFdx[bi.li_BaseP][bi.ABasePEquCollPNodeOffset]
+     += (-bi.diBrdvCp - bi.gBCtot) * bi.multiplicityFactor;
+   dFdx[bi.li_BaseP][bi.ABasePEquBasePNodeOffset]
+     += (-bi.diBrdvBp + bi.gBEtot + bi.gBCtot) * bi.multiplicityFactor;
+   dFdx[bi.li_BaseP][bi.ABasePEquEmitPNodeOffset]
+     += (-bi.diBrdvEp - bi.gBEtot) * bi.multiplicityFactor;
+   dFdx[bi.li_EmitP][bi.AEmitPEquEmitNodeOffset]
+     -= bi.gEpr * bi.multiplicityFactor;
+   dFdx[bi.li_EmitP][bi.AEmitPEquCollPNodeOffset]
+     += -bi.diCEdvCp * bi.multiplicityFactor;
+   dFdx[bi.li_EmitP][bi.AEmitPEquBasePNodeOffset]
+     += (- bi.diCEdvBp - bi.gBEtot) * bi.multiplicityFactor;
 
    // ERK Note:  -bi.diCEdvEp should equal + bi.diCEdvBp + bi.diCEdvCp.  In the
    // original old-DAE form, + bi.diCEdvBp + bi.diCEdvCp is used.  In
@@ -4576,13 +4655,16 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
    // results in subtle differences between old- and new-DAE jacobians.
    // This should matter, but .....
 
-   dFdx[bi.li_EmitP][bi.AEmitPEquEmitPNodeOffset] += bi.gBEtot + bi.gEpr + bi.diCEdvBp + bi.diCEdvCp; // this is a test.
+   dFdx[bi.li_EmitP][bi.AEmitPEquEmitPNodeOffset]
+     += (bi.gBEtot + bi.gEpr + bi.diCEdvBp + bi.diCEdvCp)
+         * bi.multiplicityFactor; // this is a test.
        //+= bi.gBEtot + bi.gEpr - bi.diCEdvEp;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase && !(getSolverState().dcopFlag) )
    {
-     dFdx[bi.li_EmitP][bi.AEmitPEquIfxNodeOffset] += -1.0 * bi.model_.TYPE;
+     dFdx[bi.li_EmitP][bi.AEmitPEquIfxNodeOffset]
+       += -1.0 * bi.model_.TYPE * bi.multiplicityFactor;
    }
 
    // excess phase terms.  ERK-dcop
@@ -4592,53 +4674,77 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
      {
        if ( !(getSolverState().dcopFlag) )
        {
-         dFdx[bi.li_Ifx][bi.AIfxEqudIfxNodeOffset]+= -1;
-         dFdx[bi.li_dIfx][bi.AdIfxEquCollPNodeOffset] += -3*bi.diBEdvCp * bi.model_.TYPE;
-         dFdx[bi.li_dIfx][bi.AdIfxEquBasePNodeOffset] += -3*bi.diBEdvBp * bi.model_.TYPE;
-         dFdx[bi.li_dIfx][bi.AdIfxEquEmitPNodeOffset] += -3*bi.diBEdvEp * bi.model_.TYPE;
-         dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 3* td;
-         dFdx[bi.li_dIfx][bi.AdIfxEquIfxNodeOffset] += 3;
+         dFdx[bi.li_Ifx][bi.AIfxEqudIfxNodeOffset]+= -1 * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEquCollPNodeOffset]
+           += -3*bi.diBEdvCp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEquBasePNodeOffset]
+           += -3*bi.diBEdvBp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEquEmitPNodeOffset]
+           += -3*bi.diBEdvEp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset]
+           += 3* td * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEquIfxNodeOffset]
+           += 3 * bi.multiplicityFactor;
        }
        else
        {
-         dFdx[bi.li_Ifx][bi.AIfxEquCollPNodeOffset] += -bi.diBEdvCp * bi.model_.TYPE;
-         dFdx[bi.li_Ifx][bi.AIfxEquBasePNodeOffset] += -bi.diBEdvBp * bi.model_.TYPE;
-         dFdx[bi.li_Ifx][bi.AIfxEquEmitPNodeOffset] += -bi.diBEdvEp * bi.model_.TYPE;
-         dFdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset]+= 1;
-         dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1;
+         dFdx[bi.li_Ifx][bi.AIfxEquCollPNodeOffset]
+           += -bi.diBEdvCp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_Ifx][bi.AIfxEquBasePNodeOffset]
+           += -bi.diBEdvBp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_Ifx][bi.AIfxEquEmitPNodeOffset]
+           += -bi.diBEdvEp * bi.model_.TYPE * bi.multiplicityFactor;
+         dFdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset]+= 1 * bi.multiplicityFactor;
+         dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1 * bi.multiplicityFactor;
        }
      }
      else
      {
-       dFdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset]+= 1;
-       dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1;
+       dFdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset]+= 1 * bi.multiplicityFactor;
+       dFdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1 * bi.multiplicityFactor;
      }
    }
 
    // Q-matrix:
 
-   dQdx[bi.li_Base][bi.ABaseEquBaseNodeOffset] += bi.capBX;
-   dQdx[bi.li_Base][bi.ABaseEquCollPNodeOffset] += -bi.capBX;
-   dQdx[bi.li_Subst][bi.ASubstEquSubstNodeOffset] += bi.capCS;
-   dQdx[bi.li_Subst][bi.ASubstEquCollPNodeOffset] -= bi.capCS;
-   dQdx[bi.li_CollP][bi.ACollPEquBaseNodeOffset] -= bi.capBX;
-   dQdx[bi.li_CollP][bi.ACollPEquSubstNodeOffset] -= bi.capCS;
-   dQdx[bi.li_CollP][bi.ACollPEquCollPNodeOffset] +=  bi.capCS + bi.capBX + bi.capBCdep + bi.capBCdiff;
-   dQdx[bi.li_CollP][bi.ACollPEquBasePNodeOffset] += -bi.capBCdep - bi.capBCdiff;
-   dQdx[bi.li_BaseP][bi.ABasePEquCollPNodeOffset] += -bi.capBCdiff - bi.capBCdep - bi.capeqCB;
-   dQdx[bi.li_BaseP][bi.ABasePEquBasePNodeOffset] += bi.capBEdiff + bi.capBEdep + bi.capBCdiff + bi.capBCdep + bi.capeqCB;
-   dQdx[bi.li_BaseP][bi.ABasePEquEmitPNodeOffset] += -bi.capBEdiff - bi.capBEdep;
-   dQdx[bi.li_EmitP][bi.AEmitPEquCollPNodeOffset] += bi.capeqCB;
-   dQdx[bi.li_EmitP][bi.AEmitPEquBasePNodeOffset] += -bi.capBEdiff - bi.capBEdep - bi.capeqCB;
-   dQdx[bi.li_EmitP][bi.AEmitPEquEmitPNodeOffset] += bi.capBEdiff + bi.capBEdep;
+   dQdx[bi.li_Base][bi.ABaseEquBaseNodeOffset]
+     += bi.capBX * bi.multiplicityFactor;
+   dQdx[bi.li_Base][bi.ABaseEquCollPNodeOffset]
+     += -bi.capBX * bi.multiplicityFactor;
+   dQdx[bi.li_Subst][bi.ASubstEquSubstNodeOffset]
+     += bi.capCS * bi.multiplicityFactor;
+   dQdx[bi.li_Subst][bi.ASubstEquCollPNodeOffset]
+     -= bi.capCS * bi.multiplicityFactor;
+   dQdx[bi.li_CollP][bi.ACollPEquBaseNodeOffset]
+     -= bi.capBX * bi.multiplicityFactor;
+   dQdx[bi.li_CollP][bi.ACollPEquSubstNodeOffset]
+     -= bi.capCS * bi.multiplicityFactor;
+   dQdx[bi.li_CollP][bi.ACollPEquCollPNodeOffset]
+     +=  (bi.capCS + bi.capBX + bi.capBCdep + bi.capBCdiff)
+         * bi.multiplicityFactor;
+   dQdx[bi.li_CollP][bi.ACollPEquBasePNodeOffset]
+     += (-bi.capBCdep - bi.capBCdiff) * bi.multiplicityFactor;
+   dQdx[bi.li_BaseP][bi.ABasePEquCollPNodeOffset]
+     += (-bi.capBCdiff - bi.capBCdep - bi.capeqCB) * bi.multiplicityFactor;
+   dQdx[bi.li_BaseP][bi.ABasePEquBasePNodeOffset]
+     += (bi.capBEdiff + bi.capBEdep + bi.capBCdiff + bi.capBCdep + bi.capeqCB)
+        * bi.multiplicityFactor;
+   dQdx[bi.li_BaseP][bi.ABasePEquEmitPNodeOffset]
+     += (-bi.capBEdiff - bi.capBEdep) * bi.multiplicityFactor;
+   dQdx[bi.li_EmitP][bi.AEmitPEquCollPNodeOffset]
+     += bi.capeqCB * bi.multiplicityFactor;
+   dQdx[bi.li_EmitP][bi.AEmitPEquBasePNodeOffset]
+     += (-bi.capBEdiff - bi.capBEdep - bi.capeqCB) * bi.multiplicityFactor;
+   dQdx[bi.li_EmitP][bi.AEmitPEquEmitPNodeOffset]
+     += (bi.capBEdiff + bi.capBEdep) * bi.multiplicityFactor;
 
    // excess phase terms.  ERK-dcop
    if ( td != 0 && getDeviceOptions().newExcessPhase )
    {
      if (!(getSolverState().dcopFlag) )
      {
-       dQdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset] += 1;
-       dQdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1*td*td;
+       dQdx[bi.li_Ifx][bi.AIfxEquIfxNodeOffset] += 1 * bi.multiplicityFactor;
+       dQdx[bi.li_dIfx][bi.AdIfxEqudIfxNodeOffset] += 1*td*td * bi.multiplicityFactor;
      }
    }
 #endif
