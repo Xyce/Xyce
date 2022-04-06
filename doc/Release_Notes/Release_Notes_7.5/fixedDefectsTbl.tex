@@ -246,6 +246,11 @@ return the mean, but instead returned the sum of the two arguments.
 When used with sampling, it incorrectly behaved the same
 as \texttt{rand()}.  Both problems have been corrected.  \\ \hline
 
+\textbf{Gitlab-ex issue 390}:  Level 1 BJT lacks a multiplicity factor &
+Multiplicity is not supported in Xyce except at a low level inside
+each device model.  The level 1 BJT did not have the code needed to
+support this common option. \\ \hline
+
 \textbf{Gitlab-ex issue 396}: Incorrect code generated for noise contributions that reference analog functions &
 Xyce/ADMS was generating incorrect C++ code when a noise contribution
 referenced analog functions on its RHS.  \\ \hline
