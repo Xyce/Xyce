@@ -2682,26 +2682,27 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   // thermal noise, RB:
   devSupport.noiseSupport(
       noiseData.noiseDens[1], noiseData.lnNoiseDens[1], THERMNOISE, 
-     gX, TEMP);
+     gX*multiplicityFactor, TEMP);
 
   // thermal noise, RE:
   devSupport.noiseSupport(
       noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE, 
-      model_.emitterConduct * AREA, TEMP);
+      model_.emitterConduct * AREA*multiplicityFactor, TEMP);
 
   // shot noise, IC:
   devSupport.noiseSupport( 
       noiseData.noiseDens[3], noiseData.lnNoiseDens[3], SHOTNOISE, 
-      iC, TEMP );
+      iC*multiplicityFactor, TEMP );
 
   // shot noise, IB:
   devSupport.noiseSupport( 
       noiseData.noiseDens[4], noiseData.lnNoiseDens[4], SHOTNOISE, 
-      iB, TEMP );
+      iB*multiplicityFactor, TEMP );
 
   // flicker noise 
-  noiseData.noiseDens[5] = model_.fNCoeff * std::exp(model_.fNExp *
-   std::log(std::max(fabs( iB ),N_MINLOG))) / noiseData.freq;
+  noiseData.noiseDens[5] = (model_.fNCoeff * std::exp(model_.fNExp *
+                            std::log(std::max(fabs( iB ),N_MINLOG)))
+                            / noiseData.freq)*multiplicityFactor;
   noiseData.lnNoiseDens[5] = std::log(std::max(noiseData.noiseDens[5],N_MINLOG));
 }
 
