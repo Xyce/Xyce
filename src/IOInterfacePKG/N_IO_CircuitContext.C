@@ -948,7 +948,9 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     retryFunctions.clear();
 
     // Add subcircuitParameters_ to the set of resolved parameters.
-    // currentContextPtr_->resolvedParams_.addParameters( currentContextPtr_->subcircuitParameters_ );
+    // subcircuitParameters_ are the PARAMS: from the .subckt line (subcircuit definition)
+    // They have default values, which must be evaluated/setup.
+    // Also, once parameter is set up, it is added to the CircuitContext::resolvedParams_ object.  This object
     Util::Param parameter;
     Util::UParamList::iterator ustart, uend, uparamIter;
     Util::ParamList::iterator paramIter;
@@ -961,7 +963,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       parameter = *paramIter;
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve attempting to resolve" << parameter.uTag()<< std::endl;
+        Xyce::dout() << " CircuitContext::resolve attempting to resolve " << parameter.uTag()<< std::endl;
       }
 
       if (parameter.getType() == Xyce::Util::STR && !parameter.isNumeric())
@@ -988,7 +990,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         if (DEBUG_IO)
         {
-          Xyce::dout() << "resolveParameter returned true on parameter " << parameter.uTag() << " after resolution its type is " << parameter.getType() << "with value " ;
+          Xyce::dout() << "resolveParameter returned true on parameter " << parameter.uTag() << " after resolution its type is " << parameter.getType() << " with value " ;
           switch (parameter.getType()) {
             case Xyce::Util::STR:
               Xyce::dout() << parameter.stringValue();
@@ -1010,21 +1012,22 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       }
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve done attempting to resolve" << parameter.uTag()<< std::endl;
+        Xyce::dout() << " CircuitContext::resolve done attempting to resolve " << parameter.uTag()<< std::endl;
       }
     }
     asYetUnresolvedSubcircuitParameters=retryParams;
     retryParams.clear();
 
     // Reset the subcircuit parameter values with the instance parameter
-    // values as needed.
+    // values as needed.  The subcircuitInstanceParams come from the "X" subcircuit line
+    // These should override the default values that were set up, above.
     int i;
     int numInstanceParameters = subcircuitInstanceParams.size();
     for ( i = 0; i < numInstanceParameters; ++i )
     {
       if (DEBUG_IO)
       {
-        Xyce::dout() << " CircuitContext::resolve resetting subcircuit instance parameter" << subcircuitInstanceParams[i].uTag()<< " with value " << std::endl;
+        Xyce::dout() << " CircuitContext::resolve resetting subcircuit instance parameter " << subcircuitInstanceParams[i].uTag()<< " with value " << std::endl;
         switch (subcircuitInstanceParams[i].getType()) {
           case Xyce::Util::STR:
             Xyce::dout() << subcircuitInstanceParams[i].stringValue();
@@ -1044,11 +1047,12 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         Xyce::dout() << std::endl;
       }
 
-      // Look for the parameter in resolvedParams_, issue
-      // a warning and continue if not found. Otherwise, if found
-      // set the value.
-       
-      std::pair<Util::UParamList::iterator, bool> rP_iter = currentContextPtr_->resolvedParams_.insert(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
+      // Look for the subcircuitInstance parameter in resolvedParams_.
+      // If found, override the value with the instance value.
+      // The value before being over-ridden is the default value set by the subckt PARAMS: definition,
+      // or by a .param inside the subcircuit.
+      std::pair<Util::UParamList::iterator, bool> rP_iter =
+        currentContextPtr_->resolvedParams_.insert(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
       if ( rP_iter.second )
       {
         if (DEBUG_IO)
@@ -1204,7 +1208,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     uretryParams.clear();
 
     // Resolve functions in the current context.
-    // ERK.  new expression code to follow.
     int numFunctions = asYetUnresolvedFunctions.size();
     for ( i = 0; i < numFunctions; ++i )
     {
