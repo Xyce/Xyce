@@ -51,6 +51,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_IO_CircuitMetadata.h>
+#include <N_IO_CircuitContext.h>
 #include <N_IO_ParameterBlock.h>
 #include <N_IO_Report.h>
 #include <N_IO_fwd.h>

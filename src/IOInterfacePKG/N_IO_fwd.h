@@ -103,6 +103,8 @@ typedef std::vector<Interval> IntervalVector;
 typedef unordered_map<std::string, std::string, HashNoCase, EqualNoCase> AliasNodeMap;
 typedef std::pair<std::ifstream *, SpiceSeparatedFieldTool *> FileSSFPair;
 
+typedef std::map<std::string, ParameterBlock *, LessNoCase> ModelMap;
+
 namespace Measure {
 class Manager;
 }

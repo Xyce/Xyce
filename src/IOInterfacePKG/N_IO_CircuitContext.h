@@ -65,7 +65,6 @@
 namespace Xyce {
 namespace IO {
 
-typedef std::map<std::string, ParameterBlock *, LessNoCase> ModelMap;
 typedef Device::DeviceCountMap DeviceCountMap;
 
 //----------------------------------------------------------------------------
