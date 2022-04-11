@@ -915,6 +915,12 @@ bool AC::doInit()
       return false;
     }
 
+    if ( !(numSensParams_ > 0) )
+    {
+      Report::UserError() << "No objective function parameters specified for .SENS";
+      return false;
+    }
+
     if ( !objFuncGIDsetup_ )
     {
       IO::OutputMgr & output_manager = outputManagerAdapter_.getOutputManager();

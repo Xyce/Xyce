@@ -1185,6 +1185,11 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
     }
   }
   
+  if (!objFuncGiven_)
+  {
+    Report::UserFatal0() << "No objective functions found on .SENS line";
+  }
+
   if (numSensParams_ == 0)
   {
    Report::UserFatal0() << "No PARAM values found on .SENS line";
@@ -1405,7 +1410,7 @@ bool Sensitivity::setSensitivityOptions(const Util::OptionBlock &OB)
 //-----------------------------------------------------------------------------
 bool Sensitivity::doAllocations()
 {
-  if (numSensParams_)
+  if (numSensParams_ && numObjectives_)
     dsPtr_->allocateSensitivityArrays(numSensParams_, solveDirectFlag_, solveAdjointFlag_);
   return true;
 }
