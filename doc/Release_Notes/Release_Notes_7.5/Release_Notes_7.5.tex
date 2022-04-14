@@ -162,6 +162,14 @@ please visit the \XyceTM{} web page at
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
+\item \Xyce{} binary installers now contain all the files that would
+  be installed by ``make install'' instead of just the Xyce binary.
+  This includes Xyce headers and library files that would be used to
+  link external codes to Xyce.  Use of the \Xyce{} executable itself
+  is unchanged by this packaging update.  Use of these headers and
+  libraries in user code requires that the user have the same
+  compilers that the Xyce team used to build the binary, which may not
+  be the case for all users.
 \end{XyceItemize}
 
 \newpage
