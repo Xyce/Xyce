@@ -39,6 +39,10 @@
 #include <algorithm>
 #include <cstdlib>
 
+#if 1
+#include <iostream>
+#endif
+
 #include <N_UTL_NoCase.h>
 
 namespace Xyce {
@@ -146,15 +150,72 @@ inline bool Bval(const std::string & tmpStr)
 //-----------------------------------------------------------------------------
 inline bool isBool(const std::string & s)
 {
-  return isValue(s) || equal_nocase(s, "TRUE") || equal_nocase(s, "FALSE");
+  return  equal_nocase(s, "TRUE") || equal_nocase(s, "FALSE") || isValue(s);
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Ival
+// Purpose       :
+// Special Notes :
+// Creator       :
+// Creation Date :
+//-----------------------------------------------------------------------------
 inline int Ival(const std::string & tmpStr)
 {
   if (isInt(tmpStr))
     return atoi(tmpStr.c_str());
 
   return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : possibleParam
+// Purpose       : Tests if a string is a valid parameter name
+// Special Notes :
+//
+// Examples:
+//
+//   "RD" is a param
+//
+//   "{RD}" is NOT a param - anything that would otherwise be a param
+//                           becomes NOT a param with curly braces
+//
+//   "V(1)" is not a param
+//   "A+B" is not a param (basically any expression is not a parameter)
+//
+//   "" (empty string) is not a param (this function gets called with "" a lot)
+//   "true"  is not a param
+//   "false"  is not a param
+//   "12.3" is not a param (isValue() is tested inside of "isBool" and would return true)
+//
+// Scope         : public
+// Creator       : Dave Shirley, PSSI
+// Creation Date : 11/02/05
+// Rewritten     : 04/16/2022, Eric Keiter
+//-----------------------------------------------------------------------------
+inline bool possibleParam (const std::string &tmpStr)
+{
+  if (tmpStr.empty()) { return false; }
+
+  std::size_t found = tmpStr.find_first_of("(){}",0); // (redundant with the code below)
+  if (found != std::string::npos) { return false; }
+
+  // first character allows $, excludes numbers, excludes period.
+  std::string tmp = tmpStr.substr(0,1);
+  found = tmp.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$", 0); 
+  if (found != std::string::npos) { return false; }
+
+  // check rest of the characters in tmpStr
+  found = tmpStr.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789.", 1);
+  if (found != std::string::npos) { return false; }
+
+  //if (isBool(tmpStr)) { return false; } 
+  // equivalent of isBool, above.  We should almost never get as far as isValue.
+  if (equal_nocase(tmpStr, "TRUE")) { return false; }
+  if (equal_nocase(tmpStr, "FALSE")) { return false; }
+  if ( isValue(tmpStr) ) { return false; }
+
+  return true;
 }
 
 } // namespace Util
