@@ -1095,31 +1095,16 @@ CPACK_PACKAGING_INSTALL_PREFIX="/usr/local"
 case "$target" in
   *-freebsd*) 
     CPACK_SYSTEM_NAME="FreeBSD"
+    CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
     ;;
   *-linux*)
     CPACK_SYSTEM_NAME="Linux"
-    case "$CXX" in
-    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
-        CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
-        ;;
-    mpicxx*|mpic++*)
-        # Handle case where we're relying on PATH and OMPI_CXX to use intel
-        case "$OMPI_CXX" in
-        *icpc*)
-          CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
-          ;;
-        esac
-        ;;
-    esac
+    CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
     ;;
   *-apple-darwin*)
     CPACK_SYSTEM_NAME="Darwin"
     CPACK_PACKAGING_INSTALL_PREFIX="/"
-    case "$CXX" in
-    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
-        CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
-        ;;
-    esac
+    CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
     ;;
   *)
     CPACK_SYSTEM_NAME=$target
