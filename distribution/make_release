@@ -196,6 +196,7 @@ case $PLAT in
 
     cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $BUILDIR/lib/
     cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $BUILDIR/lib/
+    cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libintlc.dylib    $BUILDIR/lib/
     cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libsvml.dylib   $BUILDIR/lib/
     cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libirc.dylib    $BUILDIR/lib/
   ;;
