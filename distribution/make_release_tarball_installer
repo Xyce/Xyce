@@ -92,6 +92,7 @@ case $BUILDNAME in
 
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $LIBDIR
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $LIBDIR
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libintlc.dylib    $BUILDIR/lib/
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libsvml.dylib   $LIBDIR
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libirc.dylib    $LIBDIR
         ;;
