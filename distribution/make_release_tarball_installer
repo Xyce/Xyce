@@ -86,9 +86,9 @@ case $BUILDNAME in
         ;;
 
     Intel64_OSX*icc* )
-        cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib    $LIBDIR
-        cp -v $MKLROOT/lib/libmkl_intel_thread.dylib  $LIBDIR
-        cp -v $MKLROOT/lib/libmkl_core.dylib          $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_intel_lp64*.dylib    $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_intel_thread*.dylib  $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_core*.dylib          $LIBDIR
 
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $LIBDIR
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $LIBDIR
