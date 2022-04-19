@@ -50,7 +50,6 @@
 
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_ParameterBlock.h>
-#include <N_IO_CircuitContext.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_DeviceBlock.h>
 #include <N_UTL_OptionBlock.h>

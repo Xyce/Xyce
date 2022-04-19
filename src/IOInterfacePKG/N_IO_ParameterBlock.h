@@ -52,7 +52,6 @@
 // ----------   Xyce Includes   ----------
 
 #include <N_IO_fwd.h>
-#include <N_IO_CircuitContext.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 
 #include <N_DEV_Param.h>

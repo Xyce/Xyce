@@ -47,7 +47,6 @@
 #include <N_DEV_SolverState.h>
 #include <N_DEV_SourceData.h>
 #include <N_IO_DeviceBlock.h>
-#include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_ExtendedString.h>
