@@ -119,7 +119,6 @@
 
 // Troubleshooting
 #cmakedefine Xyce_DEBUG_TESTJAC
-#cmakedefine Xyce_TEST_SOLN_VAR_MAP
 
 // Set the Xyce version for the code
 #define VERSION "@Xyce_XyceVERSION@"

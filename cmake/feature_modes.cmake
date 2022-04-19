@@ -91,7 +91,6 @@ set(Xyce_GRAPH_DEBUG               FALSE CACHE BOOL "Enable debug output for the
 
 # Troubleshooting
 set(Xyce_DEBUG_TESTJAC             FALSE CACHE BOOL "Enable debug output for the ???")
-set(Xyce_TEST_SOLN_VAR_MAP         FALSE CACHE BOOL "Enable debug output for the ???")
 
 
 # Include the optional directories

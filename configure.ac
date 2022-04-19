@@ -304,7 +304,6 @@ else
   SUPERLUDIST=no
 fi
 
-XYCE_DEBUG_OPTION(test_soln_var_map,no,[mapping of internal variables to external for debugging])
 XYCE_DEBUG_OPTION(debug_device,no,[device package debugging output])
 XYCE_DEBUG_OPTION(debug_io,no,[I/O package debugging])
 XYCE_DEBUG_OPTION(debug_expression,no,[Expression package debugging output])
