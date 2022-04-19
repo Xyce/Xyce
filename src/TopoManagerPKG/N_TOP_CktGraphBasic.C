@@ -901,9 +901,12 @@ std::vector< Xyce::NodeID > CktGraphBasic::analyzeDeviceNodeGraph(std::ostream &
     (*dIdx).second.erase(std::unique((*dIdx).second.begin(), (*dIdx).second.end()), (*dIdx).second.end());
 
     // Write out the device id and its connected devices to the output stream
-    os << dIdx->first << " : ";
+    os << "[ " << dIdx->first << ", " << (cktgph_.getKey( dIdx->first )).first << " ] : ";
     for( size_t j = 0; j < (*dIdx).second.size(); ++j )
-      os << " " << ((*dIdx).second)[j]; 
+    {
+      if (((*dIdx).second)[j] != dIdx->first)
+        os << " " << ((*dIdx).second)[j]; 
+    }
     os << std::endl;
     if ((*dIdx).second.size() == 1)
       floatingDevs.push_back( cktgph_.getKey( dIdx->first ) );
@@ -912,6 +915,44 @@ std::vector< Xyce::NodeID > CktGraphBasic::analyzeDeviceNodeGraph(std::ostream &
   return floatingDevs;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : CktGraphBasic::streamCircuitGraph
+// Purpose       : Send the circuit graph to an output stream
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 7/21/2021
+//-----------------------------------------------------------------------------
+void CktGraphBasic::streamCircuitGraph(std::ostream & os)
+{
+  // The device node graph is the distance-2 graph
+  const CktGraph::Graph::Index1Map& indexMap = cktgph_.getIndex1Map();
+
+  CktGraph::Graph::Index1Map::const_iterator currentIndexItr = indexMap.begin();
+  CktGraph::Graph::Index1Map::const_iterator endIndexItr = indexMap.end();
+
+  os << "-------------------- Circuit Graph ----------------------------\n";
+  os << indexMap.size() << std::endl;
+
+  while( currentIndexItr != endIndexItr )
+  { 
+    // Get the voltage nodes adjacent to this device
+    const std::vector<int>& vAdj = cktgph_.getAdjacentRow( currentIndexItr->second );
+
+    // Loop over the voltage nodes and get their adjacencies, which are devices
+    std::vector<int>::const_iterator vIdx = vAdj.begin();
+
+    // Write out the device id and its connected devices to the output stream
+    os << "[ " << currentIndexItr->second <<  ", " << currentIndexItr->first << " ] : ";
+    for( ; vIdx != vAdj.end(); ++vIdx )
+    {
+        os << " " << *vIdx;
+    }
+    os << std::endl;
+
+    currentIndexItr++;
+  }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : CktGraphBasic::removeFloatingNodes

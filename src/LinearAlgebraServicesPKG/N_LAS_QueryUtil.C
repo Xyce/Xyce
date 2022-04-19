@@ -57,11 +57,8 @@ QueryUtil::QueryUtil()
     supernode_(false),
     floatingnode_(false),
     isClean_(false),
-#ifdef Xyce_TEST_SOLN_VAR_MAP
-    namesFile_(true)
-#else
-    namesFile_(false)
-#endif
+    namesFile_(false),
+    outputGraph_(0)
 {
 }
 
@@ -97,6 +94,11 @@ bool QueryUtil::registerOptions(const Util::OptionBlock & OB)
     {
       namesFile_ = static_cast<bool>(it_tpL->getImmutableValue<bool>());
     }
+    else if(it_tpL->uTag()=="OUTPUTGRAPH")
+    {
+      outputGraph_ = it_tpL->getImmutableValue<int>();
+      std::cout << "Setting outputGraph to " << outputGraph_ << std::endl;
+    }
   }
 
   return true;
@@ -112,6 +114,7 @@ QueryUtil::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("SUPERNODE", Util::Param("SUPERNODE", false)));
   parameters.insert(Util::ParamMap::value_type("FLOATING_NODE", Util::Param("FLOATING_NODE", false)));
   parameters.insert(Util::ParamMap::value_type("OUTPUTNAMESFILE", Util::Param("OUTPUTNAMESFILE", false)));
+  parameters.insert(Util::ParamMap::value_type("OUTPUTGRAPH", Util::Param("OUTPUTGRAPH", 0)));
 }
 
 //-----------------------------------------------------------------------------

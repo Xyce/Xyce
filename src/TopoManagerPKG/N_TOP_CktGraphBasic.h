@@ -140,6 +140,9 @@ public:
 
   // write out device node graph to the ostream, return floating nodes
   std::vector< Xyce::NodeID > analyzeDeviceNodeGraph(std::ostream & os);
+  
+  // write out the circuit graph to the ostream
+  void streamCircuitGraph(std::ostream & os);
 
 private:
   Graph                 cktgph_;                ///< Circuit graph pair = <id, node type>, CktNode = data

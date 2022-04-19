@@ -414,7 +414,7 @@ void Topology::generateOrderedNodeList() const
 //-----------------------------------------------------------------------------
 void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
 {
-  if( linearSolverUtility_->floatingnodeFlag() )
+  if( linearSolverUtility_->floatingnodeFlag() ) 
   {
     int numProcs = pdsManager_.getPDSComm()->numProc();
     int myProc = pdsManager_.getPDSComm()->procID();
@@ -423,16 +423,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
     // disconnected from the rest of the circuit.
     std::ostringstream oss;
     std::vector< Xyce::NodeID > floatingDevs = mainGraphPtr_->analyzeDeviceNodeGraph( oss );
-/* 
-    // Write out device graph
-    std::string filename = "device_graph.txt";
-    std::ofstream output_stream(filename.c_str(), std::ios_base::out);
 
-    if (output_stream.fail())
-      Report::UserWarning() << "Unable to open names file" <<std::endl;
-
-    output_stream << oss.str() << std::endl;
-*/
     std::vector< int > floatingDevNodes;
     floatingDevNodes.push_back(0); // For the start pointer
 
@@ -574,30 +565,27 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
     }
 
     // Now local floating devices and nodes can be removed.
-    if( linearSolverUtility_->floatingnodeFlag() )
-    {
-      if (tNumFloatingDevs)
-        Xyce::dout() << "Device verification found " << tNumFloatingDevs << " disconnected device(s) to remove" << std::endl;
+    if (tNumFloatingDevs)
+      Xyce::dout() << "Device verification found " << tNumFloatingDevs << " disconnected device(s) to remove" << std::endl;
 
-      if (tNumFloatingNodes)
-        Xyce::dout() << "Device verification found " << tNumFloatingNodes << " disconnected nodes(s) to remove" << std::endl;
+    if (tNumFloatingNodes)
+      Xyce::dout() << "Device verification found " << tNumFloatingNodes << " disconnected nodes(s) to remove" << std::endl;
 
-      // First remove floating devices for this processor
-      std::vector< CktNode * > removedDevices;
-      mainGraphPtr_->removeNodes( floatingDevs, removedDevices );
+    // First remove floating devices for this processor
+    std::vector< CktNode * > removedDevices;
+    mainGraphPtr_->removeNodes( floatingDevs, removedDevices );
 
-      // now it's safe to delete the device nodes
-      for (std::vector< CktNode * >::iterator it = removedDevices.begin(); it != removedDevices.end(); ++it)
-        delete *it;
+    // now it's safe to delete the device nodes
+    for (std::vector< CktNode * >::iterator it = removedDevices.begin(); it != removedDevices.end(); ++it)
+      delete *it;
 
-      // Now remove floating voltage nodes for this processor
-      std::vector< CktNode * > removedNodes;
-      mainGraphPtr_->removeNodes( floatingNodes, removedNodes );
+    // Now remove floating voltage nodes for this processor
+    std::vector< CktNode * > removedNodes;
+    mainGraphPtr_->removeNodes( floatingNodes, removedNodes );
 
-      // now it's safe to delete the voltage nodes
-      for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
-        delete *it;
-    }
+    // now it's safe to delete the voltage nodes
+    for (std::vector< CktNode * >::iterator it = removedNodes.begin(); it != removedNodes.end(); ++it)
+      delete *it;
   }
 }
 
@@ -1158,6 +1146,50 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Topology::finalOutput
+// Purpose       : Print output topology details by request
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 4/16/22
+//-----------------------------------------------------------------------------
+void Topology::finalOutput()
+{
+  if (linearSolverUtility_->outputGraphFlag() == 1)
+  {
+    // Stream the circuit graph 
+    std::ostringstream oss;
+    mainGraphPtr_->streamCircuitGraph( oss );
+
+    // Write out device graph
+    std::string filename(commandLine_.getArgumentValue("netlist"));
+    filename += "_circuitgraph";
+    std::ofstream output_stream(filename.c_str(), std::ios_base::out);
+
+    if (output_stream.fail())
+      Report::UserWarning() << "Unable to open names file" <<std::endl;
+
+    output_stream << oss.str() << std::endl;
+  }
+  if (linearSolverUtility_->outputGraphFlag() == 2)
+  {
+    // Compute the device graph (distance-2 graph of circuit graph)
+    std::ostringstream oss;
+    mainGraphPtr_->analyzeDeviceNodeGraph( oss );
+
+    // Write out device graph
+    std::string filename(commandLine_.getArgumentValue("netlist"));
+    filename += "_devicegraph";
+    std::ofstream output_stream(filename.c_str(), std::ios_base::out);
+
+    if (output_stream.fail())
+      Report::UserWarning() << "Unable to open names file" <<std::endl;
+
+    output_stream << oss.str() << std::endl;
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Topology::instantiateDevices
 // Purpose       : Delayed instantiation of devices
 // Special Notes :
@@ -1441,7 +1473,6 @@ bool Topology::outputNameFile(
   bool                  override_output)
 {
   loadNodeSymbols();
-
 
   if (linearSolverUtility_->namesFileFlag() || override_output)
   {

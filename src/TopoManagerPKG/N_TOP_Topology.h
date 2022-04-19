@@ -129,6 +129,9 @@ public:
   // removed, the device manager will be notified as it impacts the device count.
   unordered_map<std::string, std::string> removeTaggedNodesAndDevices(Device::DeviceMgr &device_manager);
 
+  // output any topology objects requested
+  void finalOutput();
+
   // Used for delayed instantiation of devices
   void instantiateDevices();
 

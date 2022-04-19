@@ -82,7 +82,10 @@ public:
   //
   // Get access to the names file flag
   virtual bool namesFileFlag() { return namesFile_; }
-  
+  // 
+  // Get access to the graph output flag
+  virtual int outputGraphFlag() { return outputGraph_; } 
+ 
   //------ accessor methods
   virtual int numGlobalRows() const = 0;
   virtual int numLocalRows() const { return numGlobalRows(); }
@@ -133,6 +136,7 @@ protected:
   bool floatingnode_;
   bool isClean_;
   bool namesFile_;
+  int  outputGraph_;
 };
 
 bool registerPkgOptionsMgr(QueryUtil &linear_solve_utility, IO::PkgOptionsMgr &options_manager);
