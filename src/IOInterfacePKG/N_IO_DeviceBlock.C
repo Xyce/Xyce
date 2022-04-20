@@ -173,7 +173,6 @@ void DeviceBlock::print()
       Xyce::dout() << "    " << getInstanceParameter(k).uTag();
       Xyce::dout() << "    " << getInstanceParameter(k).stringValue();
 
-#if 1
       switch (getInstanceParameter(k).getType()) 
       {
         case Xyce::Util::STR:
@@ -206,7 +205,6 @@ void DeviceBlock::print()
         default:
           Xyce::dout() << " " <<" is default (whatever that is): ";
       }
-#endif
 
       if ( getInstanceParameter(k).given() )
       {
