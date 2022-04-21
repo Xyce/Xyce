@@ -67,7 +67,9 @@ ParsingMgr::ParsingMgr(
     modelBinningFlag_(true),
     lengthScale_(1.0),
     redefinedParamsFlag_( command_line.argExists("-redefined_params") ),
-    redefinedParams_ (RedefinedParamsSetting::IGNORE)
+    redefinedParams_ (RedefinedParamsSetting::IGNORE),
+    implicitSubcktMultiplierFlag_(command_line.argExists("-subckt_multiplier")),
+    implicitSubcktMultiplier_(true)
 {
   if (hspiceExtFlag_)
   {
@@ -112,6 +114,7 @@ ParsingMgr::ParsingMgr(
     }
   }
 
+
   if (redefinedParamsFlag_)
   {
     std::string redefinedParamsArgStr = command_line.getArgumentValue("-redefined_params");
@@ -154,6 +157,40 @@ ParsingMgr::ParsingMgr(
       else if (stringVal == "USEFIRSTWARN")
       {
         redefinedParams_ = RedefinedParamsSetting::USEFIRSTWARN;
+      }
+    }
+  }
+
+  if (implicitSubcktMultiplierFlag_)
+  {
+    std::string subcktMultiplierStr = command_line.getArgumentValue("-subckt_multiplier");
+
+    Util::toLower(subcktMultiplierStr);
+    Util::Param parameter(std::string("MULTIPLIER"),subcktMultiplierStr);
+
+    if ( parameter.isInteger() )
+    {
+      implicitSubcktMultiplier_ = (parameter.getImmutableValue<int>()==1)?true:false;
+    }
+    else if ( parameter.isBool () )
+    {
+      implicitSubcktMultiplier_ = parameter.getImmutableValue<bool>();
+    }
+    else
+    {
+      ExtendedString stringVal ( parameter.stringValue() );
+      stringVal.toUpper();
+      if (stringVal == "TRUE")
+      {
+        implicitSubcktMultiplier_ = true;
+      }
+      else if (stringVal == "FALSE")
+      {
+        implicitSubcktMultiplier_ = false;
+      }
+      else
+      {
+        Report::UserFatal0() << "Invalid value " << stringVal << " for -subckt_multiplier command line option";
       }
     }
   }

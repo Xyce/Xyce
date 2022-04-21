@@ -2307,6 +2307,26 @@ bool DeviceBlock::setParameterValues()
     }
   }
 
+  if (circuitContext_.getContextMultiplierSet())
+  {
+    double value = circuitContext_.getContextMultiplierValue();
+
+    std::vector<Xyce::Device::Param> & params = deviceData_.getDevBlock().params;
+
+     std::vector<Xyce::Device::Param>::iterator paramIter = 
+       std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("M")));
+
+     if (paramIter != params.end())
+     {
+       paramIter->setVal(value);
+       paramIter->setGiven( true );
+     }
+     else
+     {
+       // error trap?
+     }
+  }
+
   return true;
 }
 
@@ -2526,6 +2546,37 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
       parameterErrorOutput(subckt_x_params[ii]);
     }
   }
+
+
+  if (circuitContext_.getMultiplierSet())
+  {
+    double value = circuitContext_.getMultiplierValue();
+
+     std::vector<Xyce::Device::Param>::iterator paramIter = 
+       std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam( std::string("M")));
+
+     if (paramIter != subckt_x_params.end())
+     {
+       if ( paramIter->given() ) 
+       {
+         if ( paramIter->getType() == Xyce::Util::DBLE )
+         {
+           double origValue = paramIter->getImmutableValue<double>() ;
+           paramIter->setVal(origValue*value);
+         }
+       }
+       else
+       {
+         paramIter->setVal(value);
+         paramIter->setGiven( true );
+       }
+     }
+     else
+     {
+       // error trap?
+     }
+  }
+
 
   return true; 
 }

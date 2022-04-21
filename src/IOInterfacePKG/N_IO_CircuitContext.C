@@ -123,7 +123,9 @@ CircuitContext::CircuitContext(
     subcircuitPrefix_(""),
     resolved_(false),
     resolvedParams_(),
-    resolvedGlobalParams_()
+    resolvedGlobalParams_(),
+    multiplierSet_(false),
+    multiplierValue_(1.0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  exprGroup =  Teuchos::rcp(new Xyce::Util::baseExpressionGroup ());
   expressionGroup_ = exprGroup;
@@ -1041,6 +1043,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     }
   }
 
+  currentContextPtr_->setMultiplierSet(false);
+
   {
     // Add subcircuitInstanceParameters (from the "X" instance line) to resolvedParams.  
     // If any of these parameters are already in the UNresolved container (meaning they were previously 
@@ -1059,6 +1063,12 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       // if this is in the unresolved container, remove
       Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
       if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
+
+      if(parsingMgr_.getImplicitSubcktMultiplier())
+      {
+        ExtendedString tmp = parameter.tag(); tmp.toUpper();
+        if (tmp == "M") { currentContextPtr_->setMultiplierSet(true); }
+      }
 
       switch (parsingMgr_.getRedefinedParams()) 
       {
@@ -1329,6 +1339,19 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           }
         }
       }
+    }
+  }
+
+  if (currentContextPtr_->getMultiplierSet())
+  {
+    Util::Param parameter(std::string("M"), "");
+    Util::UParamList::const_iterator rP_iter = currentContextPtr_->resolvedParams_.find( parameter );
+
+    if ( rP_iter != currentContextPtr_->resolvedParams_.end() )
+    {
+      //if (parameter.getType() == Xyce::Util::DBLE) // check expressions ....
+      double value = rP_iter->getImmutableValue<double>();
+      currentContextPtr_->setMultiplierValue(value);
     }
   }
 
