@@ -2371,7 +2371,14 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
     {
       for (int jj=0;jj<strings.size();jj++)
       {
-        if (strings[jj] == parameter.tag() ) continue; // can't refer to itself
+        if (strings[jj] == parameter.tag() ) 
+        {
+          Report::UserError().at(getNetlistFilename(), getLineNumber())
+            << "Parameter " << parameter.tag() << " for subcircuit " 
+            << getInstanceName() << " refers to itself and cannot be resolved" ;
+          return false;
+          //continue; // can't refer to itself
+        }
 
         std::vector<Xyce::Device::Param>::iterator paramIter = 
           std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam(strings[jj]));
