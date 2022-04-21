@@ -1067,7 +1067,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       if(parsingMgr_.getImplicitSubcktMultiplier())
       {
         ExtendedString tmp = parameter.tag(); tmp.toUpper();
-        if (tmp == "M") { currentContextPtr_->setMultiplierSet(true); }
+        if (tmp == "M") 
+        { 
+          currentContextPtr_->setMultiplierSet(true); 
+#if 0
+          std::cout << "TEST CircuitContext::resolve for " << currentContextPtr_->name_ 
+            << " multiplier (M) found with value " << parameter.getImmutableValue<double>() << std::endl;
+#endif
+        }
       }
 
       switch (parsingMgr_.getRedefinedParams()) 
@@ -1349,7 +1356,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
     if ( rP_iter != currentContextPtr_->resolvedParams_.end() )
     {
-      //if (parameter.getType() == Xyce::Util::DBLE) // check expressions ....
       double value = rP_iter->getImmutableValue<double>();
       currentContextPtr_->setMultiplierValue(value);
     }
