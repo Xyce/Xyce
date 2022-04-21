@@ -233,6 +233,13 @@ arguments containing differing numbers differentiable variables.  This
 was a use case that didn't come up very often, but when it did caused
 a memory error.\\ \hline
 
+\textbf{Gitlab-ex issue 371}: Missing parameter definitions on .SENS line can cause Xyce to crash &
+When processing a .SENS line in Xyce, some error cases were not being
+checked. As a result, certain incomplete .SENS lines would either cause
+Xyce to crash or silently fail to generate sensitivity output (with no
+error message generated). Additional error checks have been put into
+place to ensure a .SENS line is valid (or report an error if not).  \\ \hline
+
 \textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters &
 When performing AC sensitivities with respect to .param parameters,
 there was an arithmetic mistake in the setup of the right-hand-side
