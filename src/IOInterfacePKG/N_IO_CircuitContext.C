@@ -1060,22 +1060,22 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     {
       Util::Param parameter = (static_cast<const Util::Param &>(subcircuitInstanceParams[ii]));
 
-      // if this is in the unresolved container, remove
-      Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
-      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
-
-      if(parsingMgr_.getImplicitSubcktMultiplier())
+      // The "M" parameter is special.  Exclude from resolveParams, and set it aside.
+      if(parsingMgr_.getImplicitSubcktMultiplier()) 
       {
         ExtendedString tmp = parameter.tag(); tmp.toUpper();
         if (tmp == "M") 
         { 
           currentContextPtr_->setMultiplierSet(true); 
-#if 0
-          std::cout << "TEST CircuitContext::resolve for " << currentContextPtr_->name_ 
-            << " multiplier (M) found with value " << parameter.getImmutableValue<double>() << std::endl;
-#endif
+          double value = parameter.getImmutableValue<double>();
+          currentContextPtr_->setMultiplierValue(value);
+          continue;
         }
       }
+
+      // if this is in the unresolved container, remove
+      Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
+      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
 
       switch (parsingMgr_.getRedefinedParams()) 
       {
@@ -1346,18 +1346,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           }
         }
       }
-    }
-  }
-
-  if (currentContextPtr_->getMultiplierSet())
-  {
-    Util::Param parameter(std::string("M"), "");
-    Util::UParamList::const_iterator rP_iter = currentContextPtr_->resolvedParams_.find( parameter );
-
-    if ( rP_iter != currentContextPtr_->resolvedParams_.end() )
-    {
-      double value = rP_iter->getImmutableValue<double>();
-      currentContextPtr_->setMultiplierValue(value);
     }
   }
 

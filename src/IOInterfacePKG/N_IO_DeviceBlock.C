@@ -322,9 +322,6 @@ bool DeviceBlock::extractData( std::string const& fileName,
 
   if (resolveParams)
   {
-#if 0
-    std::cout << "TEST DeviceBlock::extractData.  resolveParams = true for " << getInstanceName() << std::endl;
-#endif
     // Now that the data has been extracted, given the circuit context,
     // the parameter values can be set.
     if (isSubcircuit)
@@ -336,12 +333,6 @@ bool DeviceBlock::extractData( std::string const& fileName,
       setParameterValues();
     }
   }
-#if 0
-  else
-  {
-    std::cout << "TEST DeviceBlock::extractData.  resolveParams = false for " << getInstanceName() << std::endl;
-  }
-#endif
 
   return true; // Only get here on success.
 }
@@ -2318,11 +2309,6 @@ bool DeviceBlock::setParameterValues()
 
   if (circuitContext_.getContextMultiplierSet())
   {
-#if 0
-    std::cout << "TEST DeviceBlock::setParameterValues:  multiplierSet = true for " 
-    << getInstanceName() << std::endl;
-#endif
-
     double value = circuitContext_.getContextMultiplierValue();
 
     std::vector<Xyce::Device::Param> & params = deviceData_.getDevBlock().params;
@@ -2337,29 +2323,14 @@ bool DeviceBlock::setParameterValues()
         double origValue = paramIter->getImmutableValue<double>() ;
         double newValue = origValue*value;
         paramIter->setVal(newValue);
-#if 0
-        std::cout << "TEST DeviceBlock::setParameterValues:  parameter was GIVEN.  origValue = " 
-        << origValue << " value = " << value << " newValue = " << newValue << " for " << getInstanceName() << std::endl;
-#endif
       }
       else
       {
         paramIter->setVal(value);
         paramIter->setGiven( true );
-#if 0
-        std::cout << "TEST DeviceBlock::setParameterValues:  parameter was not GIVEN.  value = " << value 
-        << " for " << getInstanceName() << std::endl;
-#endif
       }
     }
   }
-#if 0
-  else
-  {
-    std::cout << "TEST DeviceBlock::setParameterValues:  multiplierSet = false for " 
-        << getInstanceName() << std::endl;
-  }
-#endif
 
   return true;
 }
@@ -2590,11 +2561,6 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
 
   if (circuitContext_.getContextMultiplierSet())
   {
-#if 0
-    std::cout << "TEST DeviceBlock::setSubcircuitInstanceParameterValues:  multiplierSet = true for " 
-    << getInstanceName() << std::endl;
-#endif
-
     double value = circuitContext_.getContextMultiplierValue();
 
     std::vector<Xyce::Device::Param>::iterator paramIter = 
@@ -2605,28 +2571,13 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
       double origValue = paramIter->getImmutableValue<double>() ;
       double newValue = origValue*value;
       paramIter->setVal(newValue);
-#if 0
-      std::cout << "TEST DeviceBlock::setSubcircuitInstanceParameterValues: parameter was found.  origValue = " 
-      << origValue << " value = " << value << " newValue = " << newValue << " for " << getInstanceName() << std::endl;
-#endif
     }
     else
     {
       paramIter->setVal(value);
       paramIter->setGiven( true );
-#if 0
-      std::cout << "TEST DeviceBlock::setSubcircuitInstanceParameterValues:  parameter was not found.  value = " 
-      << value << " for " << getInstanceName() << std::endl;
-#endif
     }
   }
-#if 0
-  else
-  {
-    std::cout << "TEST DeviceBlock::setSubcircuitInstanceParameterValues:  multiplierSet = false for " 
-        << getInstanceName() << std::endl;
-  }
-#endif
 
   return true; 
 }
