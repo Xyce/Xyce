@@ -134,20 +134,23 @@ please visit the \XyceTM{} web page at
     backwards compatible with Python 2.7. The Mixed Signal Simulation
     with \Xyce{} 7.5 Application Note has examples of using Xyce from
     Python.
- \item When a parameter of a given name is defined multiple times in
-   the netlist, \Xyce{} now has several options for how this is
-   handled.  Before, \Xyce{} would silently allow multiply-defined
-   parameters, and use the last one encountered during parsing.  There
-   is now a command line option (\texttt{-redefined\_params}), which
-   can be used to make this a fatal error, or to use the first, rather
-   than last multiply-defined parameter.
- \item When any measure fails, Xyce now reports ``FAILED'' in both the
-   console output and ``.mt\#'' files by default.  This new behavior is
-   the same as what Xyce 7.4 would have done with the ``.options
-   MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
-   would have output ``-1'' for the failed measure in the ``.mt\#''
-   file by default.  The old behavior may be forced by specifying
-   ``.options MEASURE MEASFAIL=0 DEFAULT\_VAL=-1'' if desired.
+  \item Implicit multipliers on subcircuits (\texttt{M=}) are now supported.
+  \item When a parameter of a given name is defined multiple times in
+    the netlist, \Xyce{} now has several options for how this is
+    handled.  Before, \Xyce{} would silently allow multiply-defined
+    parameters, and use the last one encountered during parsing.  There
+    is now a command line option (\texttt{-redefined\_params}), which
+    can be used to make this a fatal error, or to use the first, rather
+    than last multiply-defined parameter.
+  \item Subcircuit instance parameters are now allowed to reference 
+    other subcircuit instance parameters on the same line.
+  \item When any measure fails, Xyce now reports ``FAILED'' in both the
+    console output and ``.mt\#'' files by default.  This new behavior is
+    the same as what Xyce 7.4 would have done with the ``.options
+    MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
+    would have output ``-1'' for the failed measure in the ``.mt\#''
+    file by default.  The old behavior may be forced by specifying
+    ``.options MEASURE MEASFAIL=0 DEFAULT\_VAL=-1'' if desired.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

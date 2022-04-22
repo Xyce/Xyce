@@ -38,9 +38,6 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{placeholder issue number}: placeholder description &
-     placeholder explanation \\ \hline
-
 \textbf{Gitlab-ex issue 220}:  .MEASURE trig/targ doesn't match ngspice
 when there is negative setup time. & Previous \Xyce{} versions would
 not return a negative value from a \texttt{TRIG-TARG} measure. The
@@ -269,6 +266,13 @@ the case item was a single line assignment that depends on the
 function arguments.  There was no error if the item was enclosed in a
 begin/end pair.  \\ \hline
 
+\textbf{Gitlab-ex issue 405}: 
+Xyce does not resolve subcircuit instance parameters referencing other subcircuit 
+instance parameters on the same line &
+Subcircuit instance parameters were handled in the same manner as device instance 
+parameters, and thus forbidden to directly reference each other.  However, this was 
+not the behavior of most simulators so this has been corrected.
+\\ \hline
 
 \end{longtable}
 }
