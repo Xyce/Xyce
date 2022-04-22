@@ -710,6 +710,7 @@ void NonLinearSolver::outputDAEvectors()
   int outputStepNum = 0;
   if (analysisManager_) outputStepNum = analysisManager_->getStepNumber() + 1;
 
+  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
   char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
   char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
   char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
@@ -717,15 +718,18 @@ void NonLinearSolver::outputDAEvectors()
   Linear::Vector *daeQ    = dsPtr_->daeQVectorPtr;
   Linear::Vector *daeF    = dsPtr_->daeFVectorPtr;
   Linear::Vector *daeB    = dsPtr_->daeBVectorPtr;
+  Linear::Vector *xVec    = dsPtr_->nextSolutionPtr;
 
   Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
   Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
 
+  sprintf(filename1, "soln_%03d.txt", outputStepNum);
   sprintf(filename4, "daeQ_%03d.txt", outputStepNum);
   sprintf(filename6, "daeF_%03d.txt", outputStepNum);
   sprintf(filename6b,"daeB_%03d.txt", outputStepNum);
 
   // write the vectors:
+  xVec->writeToFile(filename1);
   daeQ->writeToFile(filename4);
   daeF->writeToFile(filename6);
   daeB->writeToFile(filename6b);
