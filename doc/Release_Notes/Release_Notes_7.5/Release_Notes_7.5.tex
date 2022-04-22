@@ -108,7 +108,8 @@ please visit the \XyceTM{} web page at
   \item The scale parameter, which is used to automatically scale
     device sizing parameters is supported and can be specified using
     either \texttt{.option scale=number} or \texttt{.options device
-      scale=number}.
+      scale=number}.  The new syntax is
+   compatible with most other SPICE-style simulators.
   \item Added the mixed signal interface function
     \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun
     number of time, voltage or state values for an ADC in a subsequent
@@ -133,9 +134,6 @@ please visit the \XyceTM{} web page at
     backwards compatible with Python 2.7. The Mixed Signal Simulation
     with \Xyce{} 7.5 Application Note has examples of using Xyce from
     Python.
- \item The syntax for \texttt{.options parser scale} has been expanded
-   to also support \texttt{.option scale}.  The new syntax is
-   compatible with most other SPICE-style simulators.
  \item When a parameter of a given name is defined multiple times in
    the netlist, \Xyce{} now has several options for how this is
    handled.  Before, \Xyce{} would silently allow multiply-defined
