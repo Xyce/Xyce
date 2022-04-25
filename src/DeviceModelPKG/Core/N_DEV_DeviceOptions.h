@@ -154,6 +154,8 @@ public:
   double photocurrent_dx_reltol;
   double photocurrent_reltol;
   double photocurrent_abstol;
+  bool photocurrent_fixed_tau;
+  bool photocurrent_FE_predictor;
   bool maskPhotocurrentDelayVars;
 
   bool disableInitJctFlag;    ///< if this is true, then unconditionally ALWAYS make initJctFlag false.
