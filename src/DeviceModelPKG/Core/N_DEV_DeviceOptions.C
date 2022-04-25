@@ -138,7 +138,7 @@ DeviceOptions::DeviceOptions()
     photocurrent_reltol(1.0e-8),
     photocurrent_abstol(1.0e-8),
     photocurrent_fixed_tau(false),
-    photocurrent_FE_predictor(false),
+    photocurrent_FE_predictor(true),
     maskPhotocurrentDelayVars(false),
     disableInitJctFlag(false),
     randomSeed (0),
