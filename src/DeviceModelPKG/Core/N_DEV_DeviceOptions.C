@@ -494,6 +494,7 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_RELTOL", Util::Param("PHOTOCURRENT_RELTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_ABSTOL", Util::Param("PHOTOCURRENT_ABSTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FIXED_TAU", Util::Param("PHOTOCURRENT_FIXED_TAU", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FE_PREDICTOR", Util::Param("PHOTOCURRENT_FE_PREDICTOR", 1)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_MASKING", Util::Param("PHOTOCURRENT_MASKING", 0)));
   parameters.insert(Util::ParamMap::value_type("ALL_OFF", Util::Param("ALL_OFF", 0)));
   parameters.insert(Util::ParamMap::value_type("RANDOMSEED", Util::Param("RANDOMSEED", 0)));
