@@ -79,6 +79,7 @@ please visit the \XyceTM{} web page at
     under an open source license and the source code is now part of
     the main Xyce source code repository.  It had previously only been
     available in our ``non free'' binaries (``XyceNF'').
+  \item The level 1 BJT now supports a multiplicity factor \texttt{M=}.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
@@ -107,7 +108,8 @@ please visit the \XyceTM{} web page at
   \item The scale parameter, which is used to automatically scale
     device sizing parameters is supported and can be specified using
     either \texttt{.option scale=number} or \texttt{.options device
-      scale=number}.
+      scale=number}.  The new syntax is
+   compatible with most other SPICE-style simulators.
   \item Added the mixed signal interface function
     \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun
     number of time, voltage or state values for an ADC in a subsequent
@@ -132,23 +134,23 @@ please visit the \XyceTM{} web page at
     backwards compatible with Python 2.7. The Mixed Signal Simulation
     with \Xyce{} 7.5 Application Note has examples of using Xyce from
     Python.
- \item The syntax for \texttt{.options parser scale} has been expanded
-   to also support \texttt{.option scale}.  The new syntax is
-   compatible with most other SPICE-style simulators.
- \item When a parameter of a given name is defined multiple times in
-   the netlist, \Xyce{} now has several options for how this is
-   handled.  Before, \Xyce{} would silently allow multiply-defined
-   parameters, and use the last one encountered during parsing.  There
-   is now a command line option (\texttt{-redefined\_params}), which
-   can be used to make this a fatal error, or to use the first, rather
-   than last multiply-defined parameter.
- \item When any measure fails, Xyce now reports ``FAILED'' in both the
-   console output and ``.mt\#'' files by default.  This new behavior is
-   the same as what Xyce 7.4 would have done with the ``.options
-   MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
-   would have output ``-1'' for the failed measure in the ``.mt\#''
-   file by default.  The old behavior may be forced by specifying
-   ``.options MEASURE MEASFAIL=0 DEFAULT\_VAL=-1'' if desired.
+  \item Implicit multipliers on subcircuits (\texttt{M=}) are now supported.
+  \item When a parameter of a given name is defined multiple times in
+    the netlist, \Xyce{} now has several options for how this is
+    handled.  Before, \Xyce{} would silently allow multiply-defined
+    parameters, and use the last one encountered during parsing.  There
+    is now a command line option (\texttt{-redefined\_params}), which
+    can be used to make this a fatal error, or to use the first, rather
+    than last multiply-defined parameter.
+  \item Subcircuit instance parameters are now allowed to reference 
+    other subcircuit instance parameters on the same line.
+  \item When any measure fails, Xyce now reports ``FAILED'' in both the
+    console output and ``.mt\#'' files by default.  This new behavior is
+    the same as what Xyce 7.4 would have done with the ``.options
+    MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
+    would have output ``-1'' for the failed measure in the ``.mt\#''
+    file by default.  The old behavior may be forced by specifying
+    ``.options MEASURE MEASFAIL=0 DEFAULT\_VAL=-1'' if desired.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}
@@ -161,6 +163,14 @@ please visit the \XyceTM{} web page at
 \item The model interpolation technique described in the \Xyce{}
   Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
+\item \Xyce{} binary installers now contain all the files that would
+  be installed by ``make install'' instead of just the Xyce binary.
+  This includes Xyce headers and library files that would be used to
+  link external codes to Xyce.  Use of the \Xyce{} executable itself
+  is unchanged by this packaging update.  Use of these headers and
+  libraries in user code requires that the user have the same
+  compilers that the Xyce team used to build the binary, which may not
+  be the case for all users.
 \end{XyceItemize}
 
 \newpage

@@ -173,7 +173,6 @@ void DeviceBlock::print()
       Xyce::dout() << "    " << getInstanceParameter(k).uTag();
       Xyce::dout() << "    " << getInstanceParameter(k).stringValue();
 
-#if 1
       switch (getInstanceParameter(k).getType()) 
       {
         case Xyce::Util::STR:
@@ -206,7 +205,6 @@ void DeviceBlock::print()
         default:
           Xyce::dout() << " " <<" is default (whatever that is): ";
       }
-#endif
 
       if ( getInstanceParameter(k).given() )
       {
@@ -270,6 +268,8 @@ bool DeviceBlock::extractData( std::string const& fileName,
 
   bool result = false;
 
+  bool isSubcircuit=false;
+
   // Invoke appropriate method to handle the rest of the line. Independent
   // sources and mutual inductances need to be handled differently than
   // other devices.
@@ -296,6 +296,7 @@ bool DeviceBlock::extractData( std::string const& fileName,
   }
   else if ( getNetlistDeviceType() == "X" )
   {
+    isSubcircuit=true;
     result = extractSubcircuitInstanceData( parsedInputLine );
   }
   else if ( getNetlistDeviceType() == "Y" )
@@ -323,7 +324,14 @@ bool DeviceBlock::extractData( std::string const& fileName,
   {
     // Now that the data has been extracted, given the circuit context,
     // the parameter values can be set.
-    setParameterValues();
+    if (isSubcircuit)
+    {
+      setSubcircuitInstanceParameterValues();
+    }
+    else
+    {
+      setParameterValues();
+    }
   }
 
   return true; // Only get here on success.
@@ -2220,6 +2228,44 @@ void DeviceBlock::issueUnrecognizedParameterError(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceBlock::parameterErrorOutput
+// Purpose       : outputs an error message for unrecognized symbol in parameter
+// Special Notes : called from setParameterValues and 
+//                 setSubcircuitInstanceParameterValues.
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 04/13/2022
+//-----------------------------------------------------------------------------
+void DeviceBlock::parameterErrorOutput(Device::Param & parameter)
+{
+  std::ostringstream msg;
+  msg << "Parameter " << parameter.uTag() << " for device "
+      << getInstanceName().getEncodedName() << " contains unrecognized symbol";
+
+  if (parameter.getType() == Xyce::Util::EXPR)
+  {
+    Util::Expression &e = parameter.getValue<Util::Expression>();
+
+    const std::vector<std::string> & strings = e.getUnresolvedParams();
+    const std::vector<std::string> & funcs = e.getUnresolvedFunctions();
+    if (strings.size() + funcs.size() == 1)
+      msg << ":";
+    else if (strings.size() + funcs.size() > 1)
+      msg << "s:";
+    for (std::vector<std::string>::const_iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
+      msg << " " << *s;
+    for (std::vector<std::string>::const_iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
+      msg << " " << *s << "()";
+
+    if (strings.size() + funcs.size() > 0)
+    {
+      Report::UserError().at(getNetlistFilename(), getLineNumber())
+        << msg.str();
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceBlock::setParameterValues
 // Purpose       : Look for expression valued parameters in the parameter
 //                 list, evaluate expressions found and reset the parameter
@@ -2233,49 +2279,18 @@ bool DeviceBlock::setParameterValues()
 {
   Device::Param parameter( "", "" );
   int numParameters = getNumberOfInstanceParameters();
-  int i;
-
-  for ( i = 0; i < numParameters; ++i )
+  for (int ii = 0; ii < numParameters; ++ii )
   {
-    parameter = getInstanceParameter(i);
-    if ( parameter.hasExpressionValue() || parameter.isQuoted() || parameter.isTableFileTypeQuoted()  || parameter.isStringTypeQuoted()  )
+    parameter = getInstanceParameter(ii);
+
+    if ( parameter.hasExpressionValue() || 
+         parameter.isQuoted() || 
+         parameter.isTableFileTypeQuoted()  || 
+         parameter.isStringTypeQuoted()  )
     {
-      if (!circuitContext_.resolveParameter(parameter))
-      {
-        std::ostringstream msg;
-        msg << "Parameter " << parameter.uTag() << " for device "
-            << getInstanceName().getEncodedName() << " contains unrecognized symbol";
-
-        if (parameter.getType() == Xyce::Util::EXPR)
-        {
-          Util::Expression &e = parameter.getValue<Util::Expression>();
-
-          const std::vector<std::string> & strings = e.getUnresolvedParams();
-          const std::vector<std::string> & funcs = e.getUnresolvedFunctions();
-          if (strings.size() + funcs.size() == 1)
-            msg << ":";
-          else if (strings.size() + funcs.size() > 1)
-            msg << "s:";
-          for (std::vector<std::string>::const_iterator s = strings.begin(), s_end =strings.end(); s != s_end; ++s)
-            msg << " " << *s;
-          for (std::vector<std::string>::const_iterator s = funcs.begin(), s_end =funcs.end(); s != s_end; ++s)
-            msg << " " << *s << "()";
-
-          if (strings.size() + funcs.size() > 0)
-          {
-            Report::UserError().at(getNetlistFilename(), getLineNumber())
-              << msg.str();
-          }
-        }
-#if 0
-        // ERK. commenting this out b/c it makes no sense
-        else
-        {
-          msg << "(s): " + parameter.stringValue();
-        }
-#endif
-      }
-      setInstanceParameter( i, parameter );
+      if (!circuitContext_.resolveParameter(parameter)) 
+        parameterErrorOutput(parameter);
+      setInstanceParameter( ii, parameter ); 
     }
     else
     {
@@ -2284,7 +2299,6 @@ bool DeviceBlock::setParameterValues()
         if (Util::possibleParam(parameter.stringValue()))
         {
           ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
-
           parameter.setVal(std::string("{" + p_orig + "}"));
           if (!circuitContext_.resolveParameter(parameter))
             parameter.setVal(std::string(p_orig));
@@ -2293,7 +2307,279 @@ bool DeviceBlock::setParameterValues()
     }
   }
 
+  if (circuitContext_.getContextMultiplierSet())
+  {
+    double value = circuitContext_.getContextMultiplierValue();
+
+    std::vector<Xyce::Device::Param> & params = deviceData_.getDevBlock().params;
+
+    std::vector<Xyce::Device::Param>::iterator paramIter = 
+    std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("M")));
+
+    if (paramIter != params.end())
+    {
+      if ( paramIter->given() ) 
+      {
+        double origValue = paramIter->getImmutableValue<double>() ;
+        double newValue = origValue*value;
+        paramIter->setVal(newValue);
+      }
+      else
+      {
+        paramIter->setVal(value);
+        paramIter->setGiven( true );
+      }
+    }
+  }
+
   return true;
+}
+
+//----------------------------------------------------------------------------
+// Function       : resolveSubcircuitInstanceParamStrings
+//
+// Purpose        : Helper function for 
+//                    DeviceBlock::setSubcircuitInstanceParameterValues
+//
+// Special Notes  : checks the unresolved strings of a single parameter, to 
+//                  see if any of them match the parameters from a subcircuit 
+//                  instance ("X") line.  If they do match, then resolve 
+//                  them.
+//
+//                  This function might be more appropriate for the 
+//                  CircuitContext class, but there were reasons to have 
+//                  it here as well.
+//
+//                  Also, note this doesn't check for any other kind of 
+//                  resolution issue.  It only checks unresolved parameters.
+//                  So, if it successfully resolved all the parameters, but 
+//                  there was a different problem (such as unresolved functions) 
+//                  it would still return "true".  But I am hoping if it gets 
+//                  to this point, other resolution problems would have errored 
+//                  out.
+//
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 4/11/2020
+//----------------------------------------------------------------------------
+bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
+  Xyce::Device::Param & parameter,
+    std::vector<Xyce::Device::Param> & subckt_x_params
+    )
+{
+  bool success = true;
+  if (parameter.getType() == Xyce::Util::EXPR)
+  {
+    Util::Expression & expression = parameter.getValue<Util::Expression>();
+    const std::vector<std::string> strings = expression.getUnresolvedParams(); 
+    if (!(strings.empty()))
+    {
+      for (int jj=0;jj<strings.size();jj++)
+      {
+        if (strings[jj] == parameter.tag() ) 
+        {
+          Report::UserError().at(getNetlistFilename(), getLineNumber())
+            << "Parameter " << parameter.tag() << " for subcircuit " 
+            << getInstanceName() << " refers to itself and cannot be resolved" ;
+          return false;
+          //continue; // can't refer to itself
+        }
+
+        std::vector<Xyce::Device::Param>::iterator paramIter = 
+          std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam(strings[jj]));
+
+        if (paramIter != subckt_x_params.end())
+        {
+          if ( paramIter->getType() == Xyce::Util::STR ||
+               paramIter->getType() == Xyce::Util::DBLE )
+          {
+            enumParamType paramType=DOT_PARAM;
+            if (!expression.make_constant(strings[jj], paramIter->getImmutableValue<double>(),paramType))
+            {
+              Report::UserWarning0() << "Problem converting subcircuit " 
+                << getInstanceName() << " instance parameter " << parameter.tag() << " to its value.";
+            }
+          }
+          else if (paramIter->getType() == Xyce::Util::EXPR)
+          {
+            enumParamType paramType=DOT_PARAM;
+            Util::Expression & expToBeAttached = paramIter->getValue<Util::Expression>();
+            expression.attachParameterNode(strings[jj], expToBeAttached, paramType);
+          }
+        }
+        else
+        {
+          success = false;
+        }
+      }
+
+      // if all the strings were found, perform a "set" on the parameter.
+      if (success)
+      {
+        bool isVoltDep = expression.getVoltageNodeDependent();
+        bool isDevCurDep = expression.getDeviceCurrentDependent();
+        bool isVarDep = expression.getVariableDependent();
+        bool isLeadCurDep= expression.getLeadCurrentDependent();
+        bool isSpecialsDep = expression.getSpecialsDependent();
+        bool isRandom = expression.isRandomDependent();
+
+        if (isVoltDep || isDevCurDep || isLeadCurDep || isVarDep || isSpecialsDep || isRandom)
+        {
+          parameter.setVal(expression);
+
+          if (DEBUG_IO) 
+          { 
+             Xyce::dout() << "resolveSubcircuitInstanceParamStrings: After all expression handling, get_expression returns "
+                 << expression.get_expression() << std::endl;
+          }
+        }
+        else
+        {
+          // Reset the parameter value to the value of the expression.
+          double value(0.0);
+          expression.evaluateFunction ( value );
+          parameter.setVal( value );
+        }
+      }
+      else
+      {
+        // Reset the parameter value to the value of the expression with
+        // as much resolution as could be achieved.
+        parameter.setVal(expression);
+      }
+    }
+  }
+
+  return success;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void debugSubcircuitParamOutput(Xyce::Device::Param & parameter)
+{
+  Xyce::dout() << " DeviceBlock::setSubcircuitInstanceParameterValues subcircuit instance parameter " << parameter.uTag()<< " resolved to have value " << std::endl;
+  switch (parameter.getType()) {
+    case Xyce::Util::STR:
+      Xyce::dout() << parameter.stringValue();
+      break;
+    case Xyce::Util::DBLE:
+      Xyce::dout() << parameter.getImmutableValue<double>();
+      break;
+    case Xyce::Util::EXPR:
+    {
+      Util::Expression foo(parameter.getValue<Util::Expression>());
+      Xyce::dout() << "EXPR(" << foo.get_expression() << ")";
+      break;
+    }
+    default:
+      Xyce::dout() << parameter.stringValue();
+  }
+  Xyce::dout() << std::endl;
+
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceBlock::setSubcircuitInstanceParameterValues
+//
+// Purpose       : This is a special case of setParameterValues.  
+//
+// Special Notes : Parameters on the subcircuit instance line are allowed 
+//                 to refer to each other, so extra step(s) are needed 
+//                 to complete resolution.
+//
+//                 For example, this is allowed:
+//
+//   Xtest node1 node2 PARAMS: param1=1.0 param2='2*param1'
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 4/13/2022
+//-----------------------------------------------------------------------------
+bool DeviceBlock::setSubcircuitInstanceParameterValues()
+{
+  std::vector<Xyce::Device::Param> & subckt_x_params = deviceData_.getDevBlock().params;
+
+  std::vector<int> resolved(subckt_x_params.size(),0);
+
+  for (int ii=0; ii<subckt_x_params.size(); ii++)
+  {
+    Xyce::Device::Param parameter = subckt_x_params[ii]; // copy
+
+    bool success=false;
+    if ( parameter.hasExpressionValue() || 
+         parameter.isQuoted() || 
+         parameter.isTableFileTypeQuoted()  || 
+         parameter.isStringTypeQuoted()  )
+    { 
+
+      resolved[ii] = (circuitContext_.resolveParameter(parameter))?1:0;
+      subckt_x_params[ii] = parameter; 
+    }
+    else
+    {
+      if ( parameter.getType() == Xyce::Util::STR && !(parameter.isNumeric()) )
+      {
+        if (Util::possibleParam(parameter.stringValue()))
+        {
+          ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
+          parameter.setVal(std::string("{" + p_orig + "}"));
+          resolved[ii] = (circuitContext_.resolveParameter(parameter))?1:0;
+          if (!resolved[ii])
+          {
+            parameter.setVal(std::string(p_orig)); // this just restores the strings w/o curly braces
+          }
+        }
+      }
+    }
+  }
+
+  // now check the unresolved params to see if any of them can be resolved via 
+  // the other subcircuit parameters.  
+  for (int ii=0; ii<subckt_x_params.size(); ii++)
+  {
+    if(!resolved[ii])
+    {
+      Xyce::Device::Param parameter = subckt_x_params[ii]; // copy
+      if (resolveSubcircuitInstanceParamStrings(parameter, subckt_x_params))
+      {
+        resolved[ii] = 1;
+        subckt_x_params[ii] = parameter; 
+
+        if (DEBUG_IO) { debugSubcircuitParamOutput(parameter); }
+      }
+    }
+  }
+
+  // final error check
+  for (int ii=0; ii<subckt_x_params.size(); ii++)
+  {
+    if (!(resolved[ii]))
+    {
+      parameterErrorOutput(subckt_x_params[ii]);
+    }
+  }
+
+  if (circuitContext_.getContextMultiplierSet())
+  {
+    double value = circuitContext_.getContextMultiplierValue();
+
+    std::vector<Xyce::Device::Param>::iterator paramIter = 
+    std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam( std::string("M")));
+
+    if (paramIter != subckt_x_params.end())
+    {
+      double origValue = paramIter->getImmutableValue<double>() ;
+      double newValue = origValue*value;
+      paramIter->setVal(newValue);
+    }
+    else
+    {
+      paramIter->setVal(value);
+      paramIter->setGiven( true );
+    }
+  }
+
+  return true; 
 }
 
 //-----------------------------------------------------------------------------
@@ -2484,9 +2770,10 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
       p_orig.toUpper();
       if (p_orig.possibleParam())
       {
+        // ERK. not necessary to add the curly braces.
         param.setVal(std::string("{" + p_orig + "}"));
         if (!circuitContext_.resolveParameter(param))
-          param.setVal(std::string(p_orig));
+          param.setVal(std::string(p_orig)); // this just restores the strings w/o curly braces.  Not necessary either.
       }
     }
     if( !param.isNumeric() && !param.hasExpressionValue() )

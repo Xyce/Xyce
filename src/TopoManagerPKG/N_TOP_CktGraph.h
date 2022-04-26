@@ -132,6 +132,7 @@ public:
 
   virtual void removeUnattachedNodes() = 0;
   virtual std::vector< Xyce::NodeID > analyzeDeviceNodeGraph(std::ostream & os) = 0;
+  virtual void streamCircuitGraph(std::ostream & os) = 0;
 
   const std::string& get_id() const { return id_; }
 

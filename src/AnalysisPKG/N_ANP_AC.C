@@ -281,6 +281,19 @@ bool AC::setSensAnalysisParams(const Util::OptionBlock & OB)
          objFuncDataVec_, output_manager, linearSystem_, analysisManager_.getCommandLine() );
   }
 
+  // check that the .sens line exists and actually has all of the components it needs (objective functions and parameters)
+  if(sensFlag_ && !objFuncGiven_)
+  {
+    Report::UserError0() << "No objective functions specified for .SENS";
+    return false;
+  }
+
+  if(sensFlag_ && !(numSensParams_ > 0))
+  {
+    Report::UserError0() << "No objective function parameters specified for .SENS";
+    return false;    
+  }
+
   return true;
 }
 
@@ -906,24 +919,13 @@ bool AC::doInit()
     if (hParamsRequested_) { Hparams_.shape(numPorts_, numPorts_); }
   }
 
-
-  if (sensFlag_)
+  if (sensFlag_ && !objFuncGIDsetup_)
   {
-    if ( !objFuncGiven_)
-    {
-      Report::UserError() << "No objective functions specified for .SENS";
-      return false;
-    }
-
-    if ( !objFuncGIDsetup_ )
-    {
       IO::OutputMgr & output_manager = outputManagerAdapter_.getOutputManager();
       Parallel::Machine comm =  analysisManager_.getPDSManager()->getPDSComm()->comm();
       Xyce::Nonlinear::setupObjectiveFuncGIDs ( objFuncDataVec_, comm, topology_, output_manager );
 
       objFuncGIDsetup_ = true;
-    }
-
   }
 
   return bsuccess;

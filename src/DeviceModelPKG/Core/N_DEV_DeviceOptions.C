@@ -137,6 +137,8 @@ DeviceOptions::DeviceOptions()
     photocurrent_dx_reltol(1.0e-8),
     photocurrent_reltol(1.0e-8),
     photocurrent_abstol(1.0e-8),
+    photocurrent_fixed_tau(false),
+    photocurrent_FE_predictor(true),
     maskPhotocurrentDelayVars(false),
     disableInitJctFlag(false),
     randomSeed (0),
@@ -378,6 +380,14 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
     {
       photocurrent_abstol = ((*it).getImmutableValue<double>());
     }
+    else if (tag == "PHOTOCURRENT_FIXED_TAU")
+    {
+      photocurrent_fixed_tau = ((*it).getImmutableValue<bool>());
+    }
+    else if (tag == "PHOTOCURRENT_FE_PREDICTOR")
+    {
+      photocurrent_FE_predictor = ((*it).getImmutableValue<bool>());
+    }
     else if (tag == "PHOTOCURRENT_MASKING")
     {
       maskPhotocurrentDelayVars = ((*it).getImmutableValue<bool>());
@@ -483,6 +493,7 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_DX_RELTOL", Util::Param("PHOTOCURRENT_DX_RELTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_RELTOL", Util::Param("PHOTOCURRENT_RELTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_ABSTOL", Util::Param("PHOTOCURRENT_ABSTOL", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FIXED_TAU", Util::Param("PHOTOCURRENT_FIXED_TAU", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_MASKING", Util::Param("PHOTOCURRENT_MASKING", 0)));
   parameters.insert(Util::ParamMap::value_type("ALL_OFF", Util::Param("ALL_OFF", 0)));
   parameters.insert(Util::ParamMap::value_type("RANDOMSEED", Util::Param("RANDOMSEED", 0)));

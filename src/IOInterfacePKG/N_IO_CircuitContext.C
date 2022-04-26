@@ -58,6 +58,46 @@
 namespace Xyce {
 namespace IO {
 
+std::string returnType(const Util::Param & parameter)
+{
+  std::string type;
+
+  switch (parameter.getType()) 
+  {
+    case Xyce::Util::STR:
+      type = std::string("STR");
+      break;
+    case Xyce::Util::DBLE:
+      type = std::string("DBLE");
+      break;
+    case Xyce::Util::EXPR:
+      type = std::string("EXPR");
+      break;
+    case Xyce::Util::BOOL:
+      type = std::string("BOOL");
+      break;
+    case Xyce::Util::STR_VEC:
+      type = std::string("STR_VEC");
+      break;
+    case Xyce::Util::INT_VEC:
+      type = std::string("INT_VEC");
+      break;
+    case Xyce::Util::DBLE_VEC:
+      type = std::string("DBLE_VEC");
+      break;
+    case Xyce::Util::DBLE_VEC_IND:
+      type = std::string("DBLE_VEC_IND");
+      break;
+    case Xyce::Util::COMPOSITE:
+      type = std::string("COMPOSITE");
+      break;
+    default:
+      type = std::string("DEFAULT");
+  }
+
+  return type;
+}
+
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::CircuitContext
 // Purpose        : Constructor
@@ -83,7 +123,9 @@ CircuitContext::CircuitContext(
     subcircuitPrefix_(""),
     resolved_(false),
     resolvedParams_(),
-    resolvedGlobalParams_()
+    resolvedGlobalParams_(),
+    multiplierSet_(false),
+    multiplierValue_(1.0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  exprGroup =  Teuchos::rcp(new Xyce::Util::baseExpressionGroup ());
   expressionGroup_ = exprGroup;
@@ -895,10 +937,10 @@ void CircuitContext::addFunction(FunctionBlock const& function)
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolve
 // Purpose        : Resolve parameters in the current context.
-// Special Notes  :
+// Special Notes  : rewrite.
 // Scope          :
-// Creator        : Lon Waters
-// Creation Date  : 02/04/2003
+// Creator        : Lon Waters/ Eric Keiter
+// Creation Date  : 02/04/2003/ 4/xx/2022
 //----------------------------------------------------------------------------
 bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstanceParams )
 {
@@ -927,17 +969,167 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   currentContextPtr_->resolvedGlobalParams_.clear();
   currentContextPtr_->resolvedFunctions_.clear();
 
-  Util::ParamList asYetUnresolvedSubcircuitParameters=currentContextPtr_->subcircuitParameters_;
+
+// BEFORE this while loop starts, add the subcircuitParameters to unresolvedParams.  
+// and the subcircuitInstanceParameters to resolvedParams.
+//
+// Do this while respecting precedence rules, accounting for parsingMgr_.getRedefinedParams().
+//
+// Precedence rule 1:  .subckt PARAMS: and .param inside the subcircuit will follow parsingMgr_.getRedefinedParams().  
+// If PARAMS: and .param set the same parameter, the .param will be considered the "last" instance of this param, 
+// and the PARAMS: version is the "first" instance.
+//
+// Precedence rule 2:  If the "X" instance parameter matches a subckt PARAMS: or a subcircuit .param, 
+// it ALWAYS overrides, no matter what.
+//
+// Handle the .subckt PARAMS: first.  Don't bother to resolve, just put them in the unresolvedParams container, while checking for duplicates.
+// Handle the "X" PARAMS: second and put them in the resolvedParams container.  If they match something in the unresolvedParams container, remove it.
+// The "X" params have been resolved already, in the DeviceBlock function.  So, DO NOT re-resolve them here.  
+// So, if/when they are used, they do not go into the unresolvedParams container.  They go into resolved.  
+//
+// AFTER the subcircuit parameters (both kinds) have been appropriately added to the resolvedParams/unresolvedParams 
+// containers, then proceed with the while loop for resolving params.
+
+  Util::UParamList * paramContainerToUsePtr = &(currentContextPtr_->unresolvedParams_);
+
+  {
+    // Add subcircuitParameters_ to the set of unresolved parameters.
+    // subcircuitParameters_ are the PARAMS: from the .subckt line (subcircuit definition)
+    Util::ParamList asYetUnresolvedSubcircuitParameters = currentContextPtr_->subcircuitParameters_;
+    Util::ParamList::iterator start = asYetUnresolvedSubcircuitParameters.begin();
+    Util::ParamList::iterator end = asYetUnresolvedSubcircuitParameters.end();
+    Util::ParamList::iterator paramIter;
+    for (paramIter = start; paramIter != end; ++paramIter)
+    {
+      Util::Param parameter = *paramIter;
+
+      // this is similar to the function CircuitContext::addParams, but the logic is inverted.
+      // parameters on the .subckt PARAMS: line are "first" in the subcircuit, relative to .params.
+      // But they are being processed second.
+      switch (parsingMgr_.getRedefinedParams()) 
+      {
+        case RedefinedParamsSetting::IGNORE:  // this is also default, below
+          addParamUseLast(parameter, *paramContainerToUsePtr);
+          break;
+
+        case RedefinedParamsSetting::WARNING:
+          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          break;
+
+        case RedefinedParamsSetting::ERROR:
+          addParamUseError (parameter, *paramContainerToUsePtr);
+          break;
+
+        case RedefinedParamsSetting::USEFIRST:
+          addParamUseLast (parameter, *paramContainerToUsePtr);
+          break;
+
+        case  RedefinedParamsSetting::USEFIRSTWARN:
+          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          break;
+
+        case RedefinedParamsSetting::USELAST:
+          addParamUseFirst (parameter, *paramContainerToUsePtr);
+          break;
+
+        case  RedefinedParamsSetting::USELASTWARN:
+          addParamUseFirstWarn(parameter, *paramContainerToUsePtr);
+          break;
+
+        default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+          addParamUseLast(parameter, *paramContainerToUsePtr);
+          break;
+      }
+    }
+  }
+
+  currentContextPtr_->setMultiplierSet(false);
+
+  {
+    // Add subcircuitInstanceParameters (from the "X" instance line) to resolvedParams.  
+    // If any of these parameters are already in the UNresolved container (meaning they were previously 
+    // set via .param or .subckt PARAMS:), then ALWAYS override.  No exceptions.  If they are not 
+    // already in the unresolved container, then just insert in resolved.  
+    //
+    // Subcircuit instance parameters do not have to be prototyped on the .subckt line.
+
+   // Note that params from the "X" line were previously resolved in the parent context.  
+   // That is why they are "resolved".
+    int numInstanceParameters = subcircuitInstanceParams.size();
+    for (int ii = 0; ii < numInstanceParameters; ++ii )
+    {
+      Util::Param parameter = (static_cast<const Util::Param &>(subcircuitInstanceParams[ii]));
+
+      // The "M" parameter is special.  Exclude from resolveParams, and set it aside.
+      if(parsingMgr_.getImplicitSubcktMultiplier()) 
+      {
+        ExtendedString tmp = parameter.tag(); tmp.toUpper();
+        if (tmp == "M") 
+        { 
+          currentContextPtr_->setMultiplierSet(true); 
+          double value = parameter.getImmutableValue<double>();
+          currentContextPtr_->setMultiplierValue(value);
+          continue;
+        }
+      }
+
+      // if this is in the unresolved container, remove
+      Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
+      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
+
+      switch (parsingMgr_.getRedefinedParams()) 
+      {
+      // now add to resolved, using the user-specified precedence
+      case RedefinedParamsSetting::IGNORE:  // this is also default, below
+        addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::WARNING:
+        addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::ERROR:
+        addParamUseError (parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::USEFIRST:
+        addParamUseFirst (parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case  RedefinedParamsSetting::USEFIRSTWARN:
+        addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case RedefinedParamsSetting::USELAST:
+        addParamUseLast (parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      case  RedefinedParamsSetting::USELASTWARN:
+        addParamUseLastWarn(parameter, currentContextPtr_->resolvedParams_);
+        break;
+
+      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+        addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
+        break;
+      }
+    }
+  }
+
+  // At this point, all appropriate subcircuit parameters are in either unresolvedParams_, or resolvedParams_.
+  // so they have effectively been turned into local .params.
+  //
+  // Time to resolve the 3 main containers: unresolvedParams_(.param), 
+  // unresolvedGlobalParams_(.global_param), and unresolvedFunctions_(.func).
   Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
   Util::UParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
   std::vector<FunctionBlock> asYetUnresolvedFunctions=currentContextPtr_->unresolvedFunctions_;
 
   bool resolvedSomethingThisLoop=true;
-  bool somethingLeftToDo= (!(asYetUnresolvedSubcircuitParameters.empty()) ||
+  bool somethingLeftToDo= (
                            !(asYetUnresolvedParameters.empty()) ||
                            !(asYetUnresolvedGlobalParameters.empty()) ||
-                           !(asYetUnresolvedFunctions.empty())  ||
-                           !(subcircuitInstanceParams.empty()) );
+                           !(asYetUnresolvedFunctions.empty())  
+                           );
 
   while (resolvedSomethingThisLoop && somethingLeftToDo)
   {
@@ -947,134 +1139,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     uretryParams.clear();
     retryFunctions.clear();
 
-    // Add subcircuitParameters_ to the set of resolved parameters.
-    // currentContextPtr_->resolvedParams_.addParameters( currentContextPtr_->subcircuitParameters_ );
-    Util::Param parameter;
-    Util::UParamList::iterator ustart, uend, uparamIter;
-    Util::ParamList::iterator paramIter;
-    Util::ParamList::iterator start =
-      asYetUnresolvedSubcircuitParameters.begin();
-    Util::ParamList::iterator end =
-      asYetUnresolvedSubcircuitParameters.end();
-    for (paramIter = start; paramIter != end; ++paramIter)
-    {
-      parameter = *paramIter;
-      if (DEBUG_IO)
-      {
-        Xyce::dout() << " CircuitContext::resolve attempting to resolve" << parameter.uTag()<< std::endl;
-      }
-
-      if (parameter.getType() == Xyce::Util::STR && !parameter.isNumeric())
-      {
-        ExtendedString arg ( parameter.stringValue() );
-        arg.toUpper();
-        if (arg.possibleParam())
-        {
-          parameter.setVal(std::string("{" + arg + "}"));
-        }
-      }
-
-      if (!resolveParameter(parameter))
-      {
-        if (DEBUG_IO)
-        {
-          Xyce::dout() << "Unable to resolve subcircuit param " << parameter.uTag() << std::endl;
-        }
-
-        retryParams.push_back(parameter);
-        somethingLeftToDo=true;
-      }
-      else
-      {
-        if (DEBUG_IO)
-        {
-          Xyce::dout() << "resolveParameter returned true on parameter " << parameter.uTag() << " after resolution its type is " << parameter.getType() << "with value " ;
-          switch (parameter.getType()) {
-            case Xyce::Util::STR:
-              Xyce::dout() << parameter.stringValue();
-              break;
-            case Xyce::Util::DBLE:
-              Xyce::dout() << parameter.getImmutableValue<double>();
-              break;
-            case Xyce::Util::EXPR:
-              Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
-              break;
-            default:
-              Xyce::dout() << parameter.stringValue();
-          }
-          Xyce::dout() << std::endl;
-        }
-
-        currentContextPtr_->resolvedParams_.insert(parameter);
-        resolvedSomethingThisLoop=true;
-      }
-      if (DEBUG_IO)
-      {
-        Xyce::dout() << " CircuitContext::resolve done attempting to resolve" << parameter.uTag()<< std::endl;
-      }
-    }
-    asYetUnresolvedSubcircuitParameters=retryParams;
-    retryParams.clear();
-
-    // Reset the subcircuit parameter values with the instance parameter
-    // values as needed.
-    int i;
-    int numInstanceParameters = subcircuitInstanceParams.size();
-    for ( i = 0; i < numInstanceParameters; ++i )
-    {
-      if (DEBUG_IO)
-      {
-        Xyce::dout() << " CircuitContext::resolve resetting subcircuit instance parameter" << subcircuitInstanceParams[i].uTag()<< " with value " << std::endl;
-        switch (subcircuitInstanceParams[i].getType()) {
-          case Xyce::Util::STR:
-            Xyce::dout() << subcircuitInstanceParams[i].stringValue();
-            break;
-          case Xyce::Util::DBLE:
-            Xyce::dout() << subcircuitInstanceParams[i].getImmutableValue<double>();
-            break;
-          case Xyce::Util::EXPR:
-          {
-            Util::Expression foo(subcircuitInstanceParams[i].getValue<Util::Expression>());
-            Xyce::dout() << "EXPR(" << foo.get_expression() << ")";
-            break;
-          }
-          default:
-            Xyce::dout() << subcircuitInstanceParams[i].stringValue();
-        }
-        Xyce::dout() << std::endl;
-      }
-
-      // Look for the parameter in resolvedParams_, issue
-      // a warning and continue if not found. Otherwise, if found
-      // set the value.
-       
-      std::pair<Util::UParamList::iterator, bool> rP_iter = currentContextPtr_->resolvedParams_.insert(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
-      if ( rP_iter.second )
-      {
-        if (DEBUG_IO)
-        {
-          Xyce::dout() << " did not find in resolvedParams_, adding parameter " << subcircuitInstanceParams[i].uTag() << std::endl;
-        }
-      }
-      else
-      {
-        if (DEBUG_IO)
-        {
-          Xyce::dout() << " found in resolvedParams_, setting parameter " << subcircuitInstanceParams[i].uTag() << std::endl;
-        }
-       
-        Util::Param& par = const_cast<Util::Param&>(*rP_iter.first);     
-        par.setVal(static_cast<const Util::Param &>(subcircuitInstanceParams[i]));
-      }
-    }
-
     // Resolve any .PARAM parameters in the current context and add to
     // the resolvedParams_.
+    Util::UParamList::iterator ustart, uend, uparamIter;
     ustart = asYetUnresolvedParameters.begin();
     uend = asYetUnresolvedParameters.end();
     for (uparamIter = ustart; uparamIter != uend; ++uparamIter)
     {
-      parameter = *uparamIter;
+      Util::Param parameter = *uparamIter;
 
       if (!resolveParameter(parameter))
       {
@@ -1098,7 +1170,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     uend = asYetUnresolvedGlobalParameters.end();
     for (uparamIter = ustart; uparamIter != uend; ++uparamIter)
     {
-      parameter = *uparamIter;
+      Util::Param parameter = *uparamIter;
       if (DEBUG_IO)
       {
         Xyce::dout() << " CircuitContext::resolve Attempting to resolve global parameter " << parameter.uTag() <<std::endl;
@@ -1111,6 +1183,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       }
       else
       {
+        // most of this code block is error traps for unallowed attributes.
         if (parameter.getType() == Xyce::Util::EXPR)
         {
           bool isVoltDep = parameter.getValue<Util::Expression>().getVoltageNodeDependent();
@@ -1204,23 +1277,22 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     uretryParams.clear();
 
     // Resolve functions in the current context.
-    // ERK.  new expression code to follow.
     int numFunctions = asYetUnresolvedFunctions.size();
-    for ( i = 0; i < numFunctions; ++i )
+    for (int ii = 0; ii < numFunctions; ++ii )
     {
       // Define the Util::Param for the function prototype (the function name
       // and arguments) and function body. Pass to the circuit for resolution.
-      std::string functionName(asYetUnresolvedFunctions[i].functionName);
-      std::string functionNameAndArgs(asYetUnresolvedFunctions[i].functionNameAndArgs);
-      std::string functionBody(asYetUnresolvedFunctions[i].functionBody);
+      std::string functionName(asYetUnresolvedFunctions[ii].functionName);
+      std::string functionNameAndArgs(asYetUnresolvedFunctions[ii].functionNameAndArgs);
+      std::string functionBody(asYetUnresolvedFunctions[ii].functionBody);
 
       std::vector<std::string> functionArgs =
-        asYetUnresolvedFunctions[i].functionArgs;
+        asYetUnresolvedFunctions[ii].functionArgs;
       Util::Param functionParameter(functionNameAndArgs, functionBody);
       // this is only an error if we have no parameters left to resolve
       if (!resolveParameterThatIsAdotFunc(functionParameter, functionArgs))
       {
-        retryFunctions.push_back(asYetUnresolvedFunctions[i]);
+        retryFunctions.push_back(asYetUnresolvedFunctions[ii]);
         somethingLeftToDo=true;
       }
       else
@@ -1235,11 +1307,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
   if (somethingLeftToDo)    // we failed to resolve everything, and the last loop did nothing.
   {
-    for (Util::ParamList::iterator it = asYetUnresolvedSubcircuitParameters.begin(); it != asYetUnresolvedSubcircuitParameters.end(); ++it)
-    {
-      Report::UserError0() << "Unable to resolve .subckt parameter " << (*it).uTag() << " found in .PARAM statement";
-    }
-
     for (Util::UParamList::iterator it = asYetUnresolvedParameters.begin(); it != asYetUnresolvedParameters.end(); ++it)
     {
       Report::UserError0() << "Unable to resolve parameter " << (*it).uTag() << " found in .PARAM statement";
@@ -1614,7 +1681,7 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameter
-// Purpose        : Simpler version, excluding exception strings.
+// Purpose        : 
 // Special Notes  :
 // Scope          : public
 // Creator        : Lon Waters/Eric Keiter
@@ -1630,8 +1697,6 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
                    << " has expression value " << std::endl;
     }
 
-    // Extract the expression from the parameter value by stripping off
-    // the enclosing braces.  Only strip if it's there!
     std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
@@ -1716,7 +1781,6 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
   return true;
 }
 
-#if 1
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveGlobalParameter
 // Purpose        : Simpler version, excluding exception strings.
@@ -1735,8 +1799,6 @@ bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
                    << " has expression value " << std::endl;
     }
 
-    // Extract the expression from the parameter value by stripping off
-    // the enclosing braces.  Only strip if it's there!
     std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
@@ -1773,7 +1835,6 @@ bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
   
   return true;
 }
-#endif
 
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameterThatIsAdotFunc
@@ -1795,8 +1856,6 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
                    << " has expression value " << std::endl;
     }
 
-    // Extract the expression from the parameter value by stripping off
-    // the enclosing braces.  Only strip if it's there!
     std::string expressionString = parameter.stringValue();
 
     // Parse the expression:
@@ -1830,6 +1889,36 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
   resolveTableFileType(parameter);
   
   return true;
+}
+
+//----------------------------------------------------------------------------
+// Function       : debugResolveStringsOutput
+// Purpose        : 
+// Special Notes  :
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 04/17/2022
+//----------------------------------------------------------------------------
+void debugResolveStringsOutput(const Util::Param & expressionParameter, const std::string & string_i, bool global)
+{
+  Xyce::dout() <<" CircuitContext::resolveStrings string " << string_i 
+    << ((global)?(" is a resolved global parameter "):(" is a resolved parameter "))
+    << expressionParameter.uTag() << " with type " << returnType(expressionParameter) 
+               << " and value ";
+  switch (expressionParameter.getType()) {
+    case Xyce::Util::STR:
+      Xyce::dout() << expressionParameter.stringValue();
+      break;
+    case Xyce::Util::DBLE:
+      Xyce::dout() << expressionParameter.getImmutableValue<double>();
+      break;
+    case Xyce::Util::EXPR:
+      Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
+      break;
+    default:
+      Xyce::dout() << expressionParameter.stringValue();
+  }
+  Xyce::dout() << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1894,25 +1983,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
       bool parameterFound = getResolvedParameter(expressionParameter);
       if (parameterFound)
       {
-        if (DEBUG_IO)
-        {
-          Xyce::dout() <<" CircuitContext::resolveStrings string " << strings[i] << " is a resolved parameter " << expressionParameter.uTag() << " with type "
-                       << expressionParameter.getType() << " and value ";
-          switch (expressionParameter.getType()) {
-            case Xyce::Util::STR:
-              Xyce::dout() << expressionParameter.stringValue();
-              break;
-            case Xyce::Util::DBLE:
-              Xyce::dout() << expressionParameter.getImmutableValue<double>();
-              break;
-            case Xyce::Util::EXPR:
-              Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
-              break;
-            default:
-              Xyce::dout() << expressionParameter.stringValue();
-          }
-          Xyce::dout() << std::endl;
-        }
+        if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], false); }
 
         if ( expressionParameter.getType() == Xyce::Util::STR ||
              expressionParameter.getType() == Xyce::Util::DBLE )
@@ -1943,25 +2014,7 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         parameterFound = getResolvedGlobalParameter(expressionParameter);
         if (parameterFound)
         {
-          if (DEBUG_IO)
-          {
-            Xyce::dout() <<" CircuitContext::resolveStrings string " << strings[i] << " is a resolved global parameter " << expressionParameter.uTag() << " with type "
-                         << expressionParameter.getType() << " and value ";
-            switch (expressionParameter.getType()) {
-              case Xyce::Util::STR:
-                Xyce::dout() << expressionParameter.stringValue();
-                break;
-              case Xyce::Util::DBLE:
-                Xyce::dout() << expressionParameter.getImmutableValue<double>();
-                break;
-              case Xyce::Util::EXPR:
-                Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
-                break;
-              default:
-                Xyce::dout() << expressionParameter.stringValue();
-            }
-            Xyce::dout() << std::endl;
-          }
+          if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], true); }
 
           // the param to be attached is a global, which means it is always Util::EXPR type, 
           // which means it can always be attached.

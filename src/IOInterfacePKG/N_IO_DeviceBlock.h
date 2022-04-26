@@ -259,7 +259,13 @@ private:
   // Look for expression valued parameters in the parameter
   // list, evaluate expressions found and reset the parameter
   // value accordingly.
+  void parameterErrorOutput(Device::Param & parameter);
   bool setParameterValues();
+  bool setSubcircuitInstanceParameterValues();
+
+  bool resolveSubcircuitInstanceParamStrings(
+      Xyce::Device::Param & parameter,
+      std::vector<Xyce::Device::Param> & subckt_x_params);
 
   bool isValidDeviceType(const std::string & deviceType);
 

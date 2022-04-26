@@ -81,6 +81,9 @@
 // Support for Charon coupling
 #cmakedefine Xyce_CHARON
 
+// Support of Simulink interface
+#cmakedefine Xyce_SIMULINK
+
 // Verbose output
 #cmakedefine Xyce_VERBOSE_CONDUCTANCE
 #cmakedefine Xyce_VERBOSE_LINEAR
@@ -119,7 +122,6 @@
 
 // Troubleshooting
 #cmakedefine Xyce_DEBUG_TESTJAC
-#cmakedefine Xyce_TEST_SOLN_VAR_MAP
 
 // Set the Xyce version for the code
 #define VERSION "@Xyce_XyceVERSION@"

@@ -558,7 +558,10 @@ Simulator::setupTopology( unordered_map< std::string, std::string >& aliasMap )
 
   // combine nodes into supernodes and remove now redundant devices (i.e. those only connected to 1 node)
   aliasMap = topology_->removeTaggedNodesAndDevices(*deviceManager_);
-  
+
+  // output topology details by request (i.e. graphs) 
+  topology_->finalOutput();
+ 
   return SUCCESS;
 }
 

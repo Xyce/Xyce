@@ -65,7 +65,6 @@
 namespace Xyce {
 namespace IO {
 
-typedef std::map<std::string, ParameterBlock *, LessNoCase> ModelMap;
 typedef Device::DeviceCountMap DeviceCountMap;
 
 //----------------------------------------------------------------------------
@@ -374,6 +373,25 @@ public:
     return resolvedGlobalParams_;
   }
 
+  bool getContextMultiplierSet() 
+  {
+    bool retval=false;
+    if (currentContextPtr_) { retval = currentContextPtr_->getMultiplierSet(); }
+    return retval;
+  }
+
+  double getContextMultiplierValue() 
+  {
+    double retval=1.0;
+    if (currentContextPtr_) { retval = currentContextPtr_->getMultiplierValue(); }
+    return retval;
+  }
+
+  void setMultiplierSet(bool tmp)  { multiplierSet_ = tmp; }
+  bool getMultiplierSet() { return multiplierSet_; }
+  void setMultiplierValue(double val) { multiplierValue_ = val; }
+  double getMultiplierValue() { return multiplierValue_; }
+
   // Traverse the CircuitContext table and remove all subcircuit instances except for
   // the ones with the names provided.
   void pruneContexts( std::vector<std::string>& keepContexts );
@@ -450,6 +468,9 @@ private:
   Util::ParamMap  resolvedFunctions_;
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
+
+  bool multiplierSet_;
+  double multiplierValue_;
 };
 
 //----------------------------------------------------------------------------

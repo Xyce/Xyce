@@ -1,0 +1,124 @@
+#!/bin/sh
+
+# make_release_tarball_installer
+#
+# Builds a platform specific install tarball from a previously created
+# installation tree (made with "make install" with the DESTDIR option)
+#
+#
+# Usage:  make_release_tarball_installer  TREELOC BUILDNAME SRC
+#
+#
+# where TREELOC is the location of the installation (generally,
+# $DESTDIR/$prefix) and "BUILDNAME" is the standard Xyce build name,
+# usually of the form <CPU>_<OS>_<Serial|OPENMPI>-<compiler>[-variant]
+#
+# SRC is the location of the Xyce source tree (needed for copying certain
+# files out of the "distribution" directory)
+#
+# The build name is used to decide whether or not to bundle Intel compiler
+# shared libraries or not, and where to find them (RHEL7 and OS X have them
+# in different places.
+
+TREELOC=$1
+BUILDNAME=$2
+SRC=$3
+
+# Sanity check that we actually have Xyce in the install directory!
+if [ ! -d $TREELOC/bin -o ! -d $TREELOC/lib -o ! -d $TREELOC/include ]
+then
+  echo "ERROR: $TREELOC is not the location of an installed Xyce! Stopping."
+  exit 1;
+fi
+if [ ! -x $TREELOC/bin/Xyce ]
+then
+  echo "ERROR: $TREELOC/bin does not have a Xyce executable! Stopping."
+  exit 1;
+fi
+
+if [ ! -d $SRC -o ! -d $SRC/src ]
+then
+  echo "ERROR: $src is not the location of source tree! Stopping."
+  exit 1;
+fi
+
+BUNDLEDIR="Install_Xyce_$BUILDNAME"
+mkdir $BUNDLEDIR
+cp -r $TREELOC/* $BUNDLEDIR
+LIBDIR="$BUNDLEDIR/lib"
+INSTALLERNAME="Install_Xyce_$BUILDNAME"
+
+# Now copy the intel libraries if needed.  This presumes correct setting
+# of MKLROOT and INTEL_PATH, usually taken care of by the compilervars.sh script
+case $BUILDNAME in
+
+    Intel64_RHEL*icc* )
+        cp -v $MKLROOT/lib/intel64/libmkl_intel_lp64.so*   $LIBDIR
+        cp -v $MKLROOT/lib/intel64/libmkl_intel_thread.so* $LIBDIR
+        cp -v $MKLROOT/lib/intel64/libmkl_core.so*         $LIBDIR
+        cp -v $MKLROOT/lib/intel64/libmkl_def.so*         $LIBDIR
+        cp -v $MKLROOT/lib/intel64/libmkl_mc.so*         $LIBDIR
+        # CEE intel compiler module has no symlink to make lib/intel64
+        # right for us.  Let's special case it to see if it can be made
+        # to work as-is
+        if [ -e $INTEL_PATH/lib ]
+        then
+            cp -v $INTEL_PATH/lib/intel64/libiomp5.so*  $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libifport.so*    $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libifcoremt.so*  $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libimf.so*    $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libirc.so*    $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libintlc.so*  $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libsvml.so*  $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libirng.so*  $LIBDIR
+            cp -v $INTEL_PATH/lib/intel64/libcilkrts.so*  $LIBDIR
+        else
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libiomp5.so*  $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libifport.so*    $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libifcoremt.so*  $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libimf.so*    $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libirc.so*    $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libintlc.so*  $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libsvml.so*  $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libirng.so*  $LIBDIR
+            cp -v $INTEL_PATH/compiler/lib/intel64_lin/libcilkrts.so*  $LIBDIR
+        fi
+        ;;
+
+    Intel64_OSX*icc* )
+        cp -v $MKLROOT/lib/libmkl_intel_lp64*.dylib    $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_intel_thread*.dylib  $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_core*.dylib          $LIBDIR
+        cp -v $MKLROOT/lib/libmkl_avx*.dylib          $LIBDIR
+
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $LIBDIR
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $LIBDIR
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libintlc.dylib    $LIBDIR
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libsvml.dylib   $LIBDIR
+        cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libirc.dylib    $LIBDIR
+        ;;
+
+    *)
+        echo "skipping Intel redistributable libs"
+        ;;
+esac
+
+
+# Save our current working directory
+ORIG_PWD=`pwd`
+
+
+cd $BUNDLEDIR
+tar czf xtl.tar.gz *
+rm -rf bin
+rm -rf lib
+rm -rf libexec
+rm -rf share
+rm -rf include
+cp $SRC/distribution/install.sh install_$BUILDNAME.sh
+cp $SRC/distribution/README.TXT README
+cd $ORIG_PWD
+tar czf $INSTALLERNAME.tar.gz $BUNDLEDIR
+rm -rf $BUNDLEDIR
+
+echo "Xyce $BUILDNAME installer build completed.  Created ./$INSTALLERNAME.tar.gz"

@@ -436,7 +436,6 @@ bool newExpression::attachParameterNode(
           astArraysSetup_ = false;
           retval=true;
 
-#if 1
           std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
           if (it != unresolvedParamNameVec_.end())
           {
@@ -463,7 +462,7 @@ bool newExpression::attachParameterNode(
               isVariableDependent_ = !(globalParamNameVec_.empty());
             }
           }
-#endif
+
           isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
           isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
           isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();

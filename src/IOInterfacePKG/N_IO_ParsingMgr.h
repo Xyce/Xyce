@@ -92,6 +92,11 @@ public:
     return redefinedParams_;
   }
 
+  bool getImplicitSubcktMultiplier () const
+  {
+    return implicitSubcktMultiplier_;
+  }
+
 private:
   bool     hspiceExtFlag_;  // was the -hspice-ext command line option specified?
   bool     useHspiceUnits_; // was units or all specified for -hspice-ext ?
@@ -101,6 +106,8 @@ private:
   double   lengthScale_;
   bool     redefinedParamsFlag_;
   int      redefinedParams_;
+  bool     implicitSubcktMultiplierFlag_;
+  bool     implicitSubcktMultiplier_;
 };
 
 bool registerPkgOptionsMgr(ParsingMgr & parsing_manager, PkgOptionsMgr &options_manager);

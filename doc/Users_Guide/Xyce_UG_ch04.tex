@@ -27,6 +27,7 @@ Sections include:
 \item Section~\ref{General_Overview} \emph{General Overview}
 \item Section~\ref{Available_Devices} \emph{Devices Available for Simulation}
 \item Section~\ref{Parameters_Expressions} \emph{Parameters and Expressions}
+\item Section~\ref{device_multiplier} \emph{Device Multiplier \texttt{M}}
 \end{XyceItemize}
 }
 
@@ -379,6 +380,21 @@ VF 3 4 \{FACTORV*12\}
 \end{vquote}
 \Xyce{} will evaluate the expression to $12 * 1.5$ or $18\:\mbox{volts}$.
 
+\section{Device Multiplier \texttt{M}}
+\label{device_multiplier}
+\index{multiplier!device}
+\index{device!multiplier}
+
+Many device models support a special parameter, \texttt{M}, which is used to approximate 
+multiple identical devices placed in parallel.  It can also be thought of as a current multiplier, 
+and as such is not required to be an integer.
+
+The following devices support the multiplier \texttt{M}:
+
+\LTXtable{\textwidth}{multiliertbl}
+
+The handling of the multiplier parameter in subcircuits, represented by the letter \texttt{X}, 
+is a special case.  This is described in section~\ref{subcircuit_multiplier}.
 
 %%% Local Variables:
 %%% mode: latex

@@ -304,7 +304,6 @@ else
   SUPERLUDIST=no
 fi
 
-XYCE_DEBUG_OPTION(test_soln_var_map,no,[mapping of internal variables to external for debugging])
 XYCE_DEBUG_OPTION(debug_device,no,[device package debugging output])
 XYCE_DEBUG_OPTION(debug_io,no,[I/O package debugging])
 XYCE_DEBUG_OPTION(debug_expression,no,[Expression package debugging output])
@@ -1065,7 +1064,11 @@ AC_SUBST([Xyce_VERSION_MAJOR])
 AC_SUBST([Xyce_VERSION_MINOR])
 AC_SUBST([Xyce_VERSION_PATCH])
 
-CPACK_PACKAGE_NAME="Xyce-$DEVEL_OR_RELEASE-$Xyce_VERSION_LONG$DEVEL_PHASE"
+if test "x$CPACK_PACKAGE_NAME" = "x"
+then
+  CPACK_PACKAGE_NAME="Xyce-$DEVEL_OR_RELEASE-$Xyce_VERSION_LONG$DEVEL_PHASE"
+fi
+
 AC_SUBST([CPACK_PACKAGE_NAME])
 if test "x$CPACK_PACKAGE_FILE_NAME" = "x"
 then
@@ -1091,31 +1094,16 @@ CPACK_PACKAGING_INSTALL_PREFIX="/usr/local"
 case "$target" in
   *-freebsd*) 
     CPACK_SYSTEM_NAME="FreeBSD"
+    CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
     ;;
   *-linux*)
     CPACK_SYSTEM_NAME="Linux"
-    case "$CXX" in
-    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
-        CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
-        ;;
-    mpicxx*|mpic++*)
-        # Handle case where we're relying on PATH and OMPI_CXX to use intel
-        case "$OMPI_CXX" in
-        *icpc*)
-          CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
-          ;;
-        esac
-        ;;
-    esac
+    CXXFLAGS="'-Wl,-rpath,\$\$ORIGIN/../lib' $CXXFLAGS"
     ;;
   *-apple-darwin*)
     CPACK_SYSTEM_NAME="Darwin"
     CPACK_PACKAGING_INSTALL_PREFIX="/"
-    case "$CXX" in
-    *icpc*|*-icc-*mpic++*|*-icc-*mpicxx*)
-        CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
-        ;;
-    esac
+    CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
     ;;
   *)
     CPACK_SYSTEM_NAME=$target

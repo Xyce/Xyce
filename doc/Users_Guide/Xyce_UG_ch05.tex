@@ -28,6 +28,7 @@ modify models.  Sections include:
 \item Section~\ref{Subcircuit_Sect}, {\em Subcircuit Creation}
 \item Section~\ref{Model_Organization}, {\em Model Organization}
 \item Section~\ref{Model_Interpolation}, {\em Model Interpolation}
+\item Section~\ref{subcircuit_multiplier}, {\em Subcircuit Multiplier \texttt{M}}
 \end{XyceItemize}
 }
 
@@ -481,6 +482,126 @@ the netlist be the one that has the ``middle'' \textrmb{TNOM}, as in the example
 above.  This assures that no matter where in the range of temperature values
 the ambient temperature lies, it is a minimal distance from the base point of
 the interpolation.
+
+\section{Subcircuit Multiplier \texttt{M}}
+\label{subcircuit_multiplier}
+\index{multiplier!subcircuit}
+\index{subcircuits!multiplier}
+
+Similar to many device models, subcircuits support a scalar multiplier, \texttt{M} on the instance line.
+The usage syntax is similar to that of subcircuit parameters, except that it is 
+implicitly applied to all devices (see table~\ref{Devices_with_multipliers}) in 
+the subcircuit instance which support multipliers.
+If the devices in a subcircuit already have multiplier parameters specified, 
+the value is multiplied by the subcircuit instance value.  This is applied recursively 
+for nested subcircuits.
+
+Note that it is not necessary to specify it as a parameter on the \texttt{.subckt} line.  
+Also, the multiplier is \emph{not} considered to be a normal user-defined parameter that can be 
+used in expressions.
+
+A very simple example of a subcircuit instance multiplier usage is given in figure~\ref{Subcircuit_Multiplier_Example_1}.  In this example, a multiplier, \texttt{M=5}, is given on the subcircuit line, \texttt{Xtest}.   This multiplier is automatically applied to the resistor \texttt{R1} inside the \texttt{Xtest} instance, so the effective multiplier on \texttt{Xtest:R1} is \texttt{M=5}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest 2 3 testA \color{blue}M=5\color{black}
+.subckt testB A B
+R1 A B 0.5  
+.ends
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit using a multiplier.\label{Subcircuit_Multiplier_Example_1}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+An example of nested subcircuits using instance multipliers is given in 
+figure~\ref{Subcircuit_Multiplier_Example_2}.  In this example, multipliers are
+specified at each level of the hierarchy, including on the resistor, \texttt{R1}.  
+As each multiplier is applied multiplicatively, the effective multiplier on 
+\texttt{Xtest1:Xtest:R1} is \texttt{M=4*3*5=60}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+
+Xtest1 2 3 testA \color{blue}M=5\color{black}
+
+.subckt testA A B
+Xtest A B testB \color{blue}M=3\color{black}
+.ends
+
+.subckt testB A B
+R1 A B 0.5  \color{blue}M=4\color{black}
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example nested subcircuits using a multiplier.\label{Subcircuit_Multiplier_Example_2}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+A slightly more complicated example of nested subcircuits, which also makes use of expressions, 
+is given in figure~\ref{Subcircuit_Multiplier_Example_3}.  In this example the effective multiplier
+on \texttt{Xtest1:Xtest:R1} will be \texttt{M=4*0.5*2*15=60}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest1 2 3 testA  \color{blue}M=15\color{black}
+
+.subckt testA A B
+.param fred=2
+Xtest A B testB \color{blue}M='0.5*fred'\color{black}
+.ends
+
+.subckt testB A B
+R1 A B 0.5 \color{blue}M=4\color{black}
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example nested subcircuits using a multiplier, where a multiplier is set with an expression.\label{Subcircuit_Multiplier_Example_3}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+As noted above, the \texttt{M} subcircuit instance multiplier is not considered to be 
+a parameter available to expressions.  So, attempting to use it in an expression will
+not work, resulting in a fatal error.
+However, it is allowed to declare a parameter named \texttt{M}, and use it in combination with multlipliers.
+For example of such usage, see figure~\ref{Subcircuit_Multiplier_Example_4}.  
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest1 2 3 testA  M=15
+
+.subckt testA A B 
+Xtest A B testB M=2
+.ends
+
+.subckt testB A B M=3
+R1 A B 0.5 M='4*M'
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example of \texttt{M} being used as a subcircuit multiplier and a user-defined parameter.\label{Subcircuit_Multiplier_Example_4}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+In this case, \texttt{M} is being declared as a user-defined parameter of value \texttt{M=3} inside the subcircuit \texttt{testB}, and this parameter is used inside the right-hand-side expression of \texttt{M='4*M'}.   The expression \texttt{4*M} will evaluate to \texttt{12}.  The other \texttt{M} keywords in this netlist are multipliers on the subcircuit instance lines, and they are applied in the usual way.  As a result, the final multiplier on \texttt{Xtest1:Xtest:R1} is \texttt{M=12*2*15=360}.
 
 %%% Local Variables:
 %%% mode: latex

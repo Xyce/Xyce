@@ -162,7 +162,7 @@ bool isValue(const std::string & tmpStr)
     ++stringPos;
 
   if ( stringPos == stringSize )
-    return false; // string ended to soon to be a numeric value.
+    return false; // string ended too soon to be a numeric value.
 
   ch = tmpStr[stringPos];
   if ( (!isdigit(ch)) && ch != '.' )
@@ -311,52 +311,6 @@ bool isInt(const std::string & tmpStr)
   }
 
   return false;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : possibleParam
-// Purpose       : Test is string is a valid Value
-// Special Notes :
-// Scope         : public
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 11/02/05
-//-----------------------------------------------------------------------------
-bool possibleParam(const std::string &tmpStr)
-{
-  std::string first("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_$");
-  std::string legal("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_0123456789.");
-  std::string::iterator iterS, iterEnd;
-  int i;
-  bool ok = false;
-
-  for (i=0 ; i<(int)(tmpStr.size()) ; ++i)
-  {
-    if (i == 0)
-    {
-      iterS=first.begin();
-      iterEnd=first.end();
-    }
-    else
-    {
-      iterS=legal.begin();
-      iterEnd=legal.end();
-    }
-    ok = false;
-    while (iterS!=iterEnd)
-    {
-      if (*(iterS++) == tmpStr[i])
-      {
-        ok = true;
-        break;
-      }
-    }
-    if (!ok)
-      break;
-  }
-  if (ok && isBool(tmpStr))
-    ok = false;
-
-  return ok;
 }
 
 //-----------------------------------------------------------------------------

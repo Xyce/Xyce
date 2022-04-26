@@ -38,9 +38,6 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{placeholder issue number}: placeholder description &
-     placeholder explanation \\ \hline
-
 \textbf{Gitlab-ex issue 220}:  .MEASURE trig/targ doesn't match ngspice
 when there is negative setup time. & Previous \Xyce{} versions would
 not return a negative value from a \texttt{TRIG-TARG} measure. The
@@ -233,6 +230,13 @@ arguments containing differing numbers differentiable variables.  This
 was a use case that didn't come up very often, but when it did caused
 a memory error.\\ \hline
 
+\textbf{Gitlab-ex issue 371}: Missing parameter definitions on .SENS line can cause Xyce to crash &
+When processing a .SENS line in Xyce, some error cases were not being
+checked. As a result, certain incomplete .SENS lines would either cause
+Xyce to crash or silently fail to generate sensitivity output (with no
+error message generated). Additional error checks have been put into
+place to ensure a .SENS line is valid (or report an error if not).  \\ \hline
+
 \textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters &
 When performing AC sensitivities with respect to .param parameters,
 there was an arithmetic mistake in the setup of the right-hand-side
@@ -246,6 +250,11 @@ return the mean, but instead returned the sum of the two arguments.
 When used with sampling, it incorrectly behaved the same
 as \texttt{rand()}.  Both problems have been corrected.  \\ \hline
 
+\textbf{Gitlab-ex issue 390}:  Level 1 BJT lacks a multiplicity factor &
+Multiplicity is not supported in Xyce except at a low level inside
+each device model.  The level 1 BJT did not have the code needed to
+support this common option. \\ \hline
+
 \textbf{Gitlab-ex issue 396}: Incorrect code generated for noise contributions that reference analog functions &
 Xyce/ADMS was generating incorrect C++ code when a noise contribution
 referenced analog functions on its RHS.  \\ \hline
@@ -257,6 +266,13 @@ the case item was a single line assignment that depends on the
 function arguments.  There was no error if the item was enclosed in a
 begin/end pair.  \\ \hline
 
+\textbf{Gitlab-ex issue 405}: 
+Xyce does not resolve subcircuit instance parameters referencing other subcircuit 
+instance parameters on the same line &
+Subcircuit instance parameters were handled in the same manner as device instance 
+parameters, and thus forbidden to directly reference each other.  However, this was 
+not the behavior of most simulators so this has been corrected.
+\\ \hline
 
 \end{longtable}
 }

@@ -126,10 +126,16 @@ set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
 
 # Since Trilinos depends on OpenMP, we look for it first, so it is available
 # for some of the Trilinos feature probes.
-list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
-check_cxx_symbol_exists(EPETRA_HAVE_OMP Epetra_config.h OpenMP_IN_Epetra)
-if ((OpenMP_IN_Kokkos GREATER -1) OR (OpenMP_IN_Epetra GREATER -1))
+if(Trilinos_VERSION VERSION_GREATER "12.12.1")
+  list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
+  if (OpenMP_IN_Kokkos GREATER -1)
      find_package(OpenMP REQUIRED)
+  endif()
+else()
+  check_cxx_symbol_exists(EPETRA_HAVE_OMP Epetra_config.h OpenMP_IN_Epetra)
+  if (OpenMP_IN_Epetra GREATER -1)
+     find_package(OpenMP REQUIRED)
+  endif()
 endif()
 
 check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
