@@ -134,7 +134,7 @@ DeviceOptions::DeviceOptions()
     excessPhaseScalar2 (1.0),
     photocurrentFormulation(Xyce::Device::photoForm::ORIGINAL),
     //photocurrentFormulation(Xyce::Device::photoForm::REDUCED),
-    photocurrent_dx_reltol(1.0e-8),
+    photocurrent_dx_reltol(1.0e-4),
     photocurrent_reltol(1.0e-8),
     photocurrent_abstol(1.0e-8),
     photocurrent_fixed_tau(false),
@@ -490,10 +490,11 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR1", Util::Param("EXCESSPHASESCALAR1", 1.0)));
   parameters.insert(Util::ParamMap::value_type("EXCESSPHASESCALAR2", Util::Param("EXCESSPHASESCALAR2", 1.0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FORMULATION", Util::Param("PHOTOCURRENT_FORMULATION", 0)));
-  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_DX_RELTOL", Util::Param("PHOTOCURRENT_DX_RELTOL", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_DX_RELTOL", Util::Param("PHOTOCURRENT_DX_RELTOL", 1.0e-4)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_RELTOL", Util::Param("PHOTOCURRENT_RELTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_ABSTOL", Util::Param("PHOTOCURRENT_ABSTOL", 0)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FIXED_TAU", Util::Param("PHOTOCURRENT_FIXED_TAU", 0)));
+  parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_FE_PREDICTOR", Util::Param("PHOTOCURRENT_FE_PREDICTOR", 1)));
   parameters.insert(Util::ParamMap::value_type("PHOTOCURRENT_MASKING", Util::Param("PHOTOCURRENT_MASKING", 0)));
   parameters.insert(Util::ParamMap::value_type("ALL_OFF", Util::Param("ALL_OFF", 0)));
   parameters.insert(Util::ParamMap::value_type("RANDOMSEED", Util::Param("RANDOMSEED", 0)));

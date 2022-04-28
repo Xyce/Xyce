@@ -97,7 +97,6 @@ bool QueryUtil::registerOptions(const Util::OptionBlock & OB)
     else if(it_tpL->uTag()=="OUTPUTGRAPH")
     {
       outputGraph_ = it_tpL->getImmutableValue<int>();
-      std::cout << "Setting outputGraph to " << outputGraph_ << std::endl;
     }
   }
 

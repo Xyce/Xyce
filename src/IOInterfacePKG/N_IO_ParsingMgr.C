@@ -71,6 +71,8 @@ ParsingMgr::ParsingMgr(
     implicitSubcktMultiplierFlag_(command_line.argExists("-subckt_multiplier")),
     implicitSubcktMultiplier_(true)
 {
+  bool hspiceAllFlag = false;
+
   if (hspiceExtFlag_)
   {
     std::string hspiceExtArgStr = command_line.getArgumentValue("-hspice-ext");
@@ -102,6 +104,7 @@ ParsingMgr::ParsingMgr(
         useHspiceUnits_ = true;
         useHspiceMath_ = true;
         useHspiceSeparator_ = true;
+        hspiceAllFlag = true;
       }
       else if (*it == "units")
         useHspiceUnits_ = true;
@@ -158,6 +161,13 @@ ParsingMgr::ParsingMgr(
       {
         redefinedParams_ = RedefinedParamsSetting::USEFIRSTWARN;
       }
+    }
+  }
+  else
+  {
+    if(hspiceAllFlag)
+    {
+      redefinedParams_ = RedefinedParamsSetting::USELAST; // uselast is the behavior of most simulators
     }
   }
 

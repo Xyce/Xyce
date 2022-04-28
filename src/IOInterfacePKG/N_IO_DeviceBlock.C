@@ -2574,8 +2574,11 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
     }
     else
     {
-      paramIter->setVal(value);
-      paramIter->setGiven( true );
+      Device::Param param;
+      param.setTag(std::string("M"));
+      param.setVal(value);
+      param.setGiven( true );
+      subckt_x_params.push_back( param ); // should be equiv to addInstanceParameter
     }
   }
 
