@@ -70,7 +70,20 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+    \item Translations of netlists using binned models will no longer
+      have the \texttt{.OPTION PARSER MODEL\_BINNING=TRUE}
+      statement. This option is turned on by default in \Xyce{} now
+      and therefore no longer needs to be explicitly declared.
+    \item Duplicate output variables will now be removed from the
+      \texttt{.PRINT} line.
+    \item The expression and function pre-processing capabilities have
+      been removed from XDM.
+    \item [spectre] The \texttt{else} conditional block in
+      \texttt{if-else} statments will now be commented out by XDM,
+      since conditional statement support is not fully mature yet in
+      \Xyce{}.
+    \item [pspice] Fixed bug where instance parameters for temperature
+      coefficients for resistors were not translated.
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
