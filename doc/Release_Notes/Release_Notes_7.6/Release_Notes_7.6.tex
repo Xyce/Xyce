@@ -1,0 +1,188 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2022 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\documentclass[letterpaper]{scrartcl}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{7.6}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes}
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Approved April TBD 2021
+% SAND Number SAND2020-TBD
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{XDM}
+\begin{XyceItemize}
+    \item Placeholder
+\end{XyceItemize}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+  \item Placeholder
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+\item Placeholder
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+  \item Placeholder
+\end{XyceItemize}
+
+\subsubsection*{Xyce/ADMS Improvements}
+\begin{XyceItemize}
+  \item Placeholder
+\end{XyceItemize}
+
+\subsubsection*{Important Announcements}
+\begin{XyceItemize}
+\item The model interpolation technique described in the \Xyce{}
+  Reference Guide in section 2.1.18 has been marked as deprecated, and
+  will be removed in a future release of Xyce.
+\item Placeholder
+\end{XyceItemize}
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 7.6 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS 10.14 and 10.15, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
+    and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Note: Coupled Simulation with the \Xyce{} General
+    External Interface
+  \item Application Note: Mixed Signal Simulation with \Xyce{} 7.2
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Dept.\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and
+operated by National Technology and Engineering Solutions of Sandia,
+LLC, a wholly owned subsidiary of Honeywell International, Inc., for
+the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-NA0003525.
+
+SAND2022-5611 O
+\end{document}
+
