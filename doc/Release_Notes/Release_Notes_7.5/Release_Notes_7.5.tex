@@ -70,7 +70,20 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-  \item place holder
+    \item Translations of netlists using binned models will no longer
+      have the \texttt{.OPTION PARSER MODEL\_BINNING=TRUE}
+      statement. This option is turned on by default in \Xyce{} now
+      and therefore no longer needs to be explicitly declared.
+    \item Duplicate output variables will now be removed from the
+      \texttt{.PRINT} line.
+    \item The expression and function pre-processing capabilities have
+      been removed from XDM.
+    \item [spectre] The \texttt{else} conditional block in
+      \texttt{if-else} statments will now be commented out by XDM,
+      since conditional statement support is not fully mature yet in
+      \Xyce{}.
+    \item [pspice] Fixed bug where instance parameters for temperature
+      coefficients for resistors were not translated.
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
@@ -155,7 +168,7 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Xyce/ADMS Improvements}
 \begin{XyceItemize}
-  \item place holder
+  \item Several bugs were addressed and are listed in the fixed defects table.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
@@ -255,6 +268,6 @@ LLC, a wholly owned subsidiary of Honeywell International, Inc., for
 the U.S. Department of Energy's National Nuclear Security
 Administration under contract DE-NA0003525.
 
-SANDXXXX-XXXX O
+SAND2022-5611 O
 \end{document}
 
