@@ -139,7 +139,6 @@ public:
 
   double contVgst (double vgst, double alpha, double vgstConst = 3.0);
 
-  int SetSeed(long seedIn); // to set the random seed for getRandomPerturbation().
 };
 
 } // namespace Device
