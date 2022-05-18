@@ -206,7 +206,8 @@ bool ROL::doInit()
   }
 
   std::cout << "DC objectives: " << rolDCObjVec_.size() << std::endl;
-  objType_ = rolDCObjVec_[0].objType_; 
+  if (rolDCObjVec_.size())
+    objType_ = rolDCObjVec_[0].objType_; 
 
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
@@ -280,6 +281,10 @@ bool ROL::doLoopProcess()
 
     dc_sweep.setAnalysisParams(saved_sweepOB_);
     dc_sweep.setTimeIntegratorOptions(saved_timeIntOB_);
+    for (std::vector<Util::OptionBlock>::const_iterator it = saved_dataOB_.begin(), end = saved_dataOB_.end(); it != end; ++it)
+    {
+      dc_sweep.setDataStatements(*it);
+    }
     dc_sweep.doInit();
     stepLoopSize_ = dc_sweep.getLoopSize();
  
@@ -504,6 +509,21 @@ bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ROL::setROLDataOptionBlock
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setROLDataOptionBlock(const std::vector<Util::OptionBlock>& OB)
+{
+  saved_dataOB_ = OB;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ROL::setROLObjectives
 // Purpose       : this is needed for ROL
 // Special Notes :
@@ -514,6 +534,9 @@ bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 bool ROL::setROLObjectives(const std::vector<Util::OptionBlock>& OB)
 {
   saved_rolObjOB_ = OB;
+
+  if (OB.size() == 0)
+    Report::UserError0() << "No objectives have been defined for optimization, please include .ROL_OBJ lines to define.";
 
   std::vector<Util::OptionBlock>::const_iterator it_OB = OB.begin(), end_OB = OB.end();
 
@@ -671,6 +694,7 @@ public:
     rol->setROLOptions(rolOptionBlock_);
     rol->setROLDCSweep(rolDCSweepBlock_);
     rol->setROLObjectives(rolObjBlock_);
+    rol->setROLDataOptionBlock(dataOptionBlockVec_);
 
     return rol;
   }

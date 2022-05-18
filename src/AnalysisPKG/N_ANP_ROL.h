@@ -94,6 +94,7 @@ public:
 
   // Method to set ROL DC description
   bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
+  bool setROLDataOptionBlock(const std::vector<Util::OptionBlock>& option_block);
 
   // Method to set non-HB linear solver / preconditioning options (needed for .STEP)
   bool setLinSol(const Util::OptionBlock & option_block);
@@ -149,6 +150,7 @@ private:
   Util::OptionBlock                     saved_lsOB_;  // Linear solver options
   Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
   std::vector<Util::OptionBlock>        saved_sweepOB_;  // DCSweep options
+  std::vector<Util::OptionBlock>        saved_dataOB_;  // DCSweep data
   std::vector<Util::OptionBlock>        saved_rolObjOB_;  // ROL objectives
 };
 
