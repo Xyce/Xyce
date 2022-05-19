@@ -1255,6 +1255,7 @@ private:
   int    rgateMod;
   int    perMod;
   int    geoMod;
+  int    rgeoMod;
   int    mtrlMod;
   int    igcMod;
   int    igbMod;

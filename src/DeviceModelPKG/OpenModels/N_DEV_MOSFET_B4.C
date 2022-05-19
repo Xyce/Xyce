@@ -4373,6 +4373,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("Geometry dependent parasitics model selector");
 
+    p.addPar ("RGEOMOD",0,&MOSFET_B4::Model::rgeoMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setDescription("S/D resistance and contact model selector");
+
     p.addPar ("FNOIMOD",1,&MOSFET_B4::Model::fnoiMod)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
@@ -4488,7 +4493,7 @@ bool Instance::processParams ()
   else if ((rbodyMod != 0) && (rbodyMod != 1) && (rbodyMod != 2))
   {
     rbodyMod = model_.rbodyMod;
-    UserWarning(*this) << "rbodyMod has been set to its global value: ";
+    UserWarning(*this) << "rbodyMod has been set to its global value: " << model_.rbodyMod;
   }
 
   if (!RGATEMODgiven)
@@ -4498,17 +4503,24 @@ bool Instance::processParams ()
   else if ((rgateMod != 0) && (rgateMod != 1) && (rgateMod != 2) && (rgateMod != 3))
   {
     rgateMod = model_.rgateMod;
-    UserWarning(*this) << "rgateMod has been set to its global value: ";
+    UserWarning(*this) << "rgateMod has been set to its global value: " << model_.rgateMod;
   }
 
   if (!GEOMODgiven)
   {
     geoMod = model_.geoMod;
   }
+
   if (!RGEOMODgiven)
   {
-    rgeoMod = 0;
+    rgeoMod = model_.rgeoMod;
   }
+  else if ((rgeoMod != 0) && (rgeoMod != 1))
+  {   
+    rgeoMod = model_.rgeoMod;
+    UserWarning(*this) << "rgeoMod has been set to its global value: " << model_.rgeoMod;
+  }
+
   if (!TRNQSMODgiven)
   {
     trnqsMod = model_.trnqsMod;
@@ -15790,6 +15802,7 @@ Model::Model(
     rgateMod(0),
     perMod(0),
     geoMod(0),
+    rgeoMod(0),
     mtrlMod(0),
     igcMod(0),
     igbMod(0),
