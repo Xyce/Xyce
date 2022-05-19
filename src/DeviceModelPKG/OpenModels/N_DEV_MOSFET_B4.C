@@ -4549,11 +4549,7 @@ bool Instance::processParams ()
   // now set the temperature related stuff.
   updateTemperature(temp);
 
-  // Note:  Xyce does not support noise analysis, so the noiseAnalGive
-  // flag is always false.  However, I've left it in here to show consistency
-  // with the original spice3f5 code.
-
-  bool noiseAnalGiven=false;
+  bool noiseAnalGiven=getSolverState().noiseFlag;
 
   // process drain series resistance
   int createNode = 0;
@@ -13432,7 +13428,7 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   switch(model_.fnoiMod)
   {
     case 0:
-      noiseData.noiseDens[FLNOIZ] *= model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
+      noiseData.noiseDens[FLNOIZ] = model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
         / (pow(noiseData.freq, model_.ef) * paramPtr->leff * paramPtr->leff * model_.coxe);
 
       break;
@@ -13451,11 +13447,11 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
 
       if (T1 > 0.0)
       {
-        noiseData.noiseDens[FLNOIZ] *= (Ssi * Swi) / T1;
+        noiseData.noiseDens[FLNOIZ] = (Ssi * Swi) / T1;
       }
       else
       {
-        noiseData.noiseDens[FLNOIZ] *= 0.0;
+        noiseData.noiseDens[FLNOIZ] = 0.0;
       }
       break;
   }
