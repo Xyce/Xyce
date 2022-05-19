@@ -263,6 +263,11 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Zero bias threshold voltage variation");
 
+    p.addPar ("DELVT0",0.0,&MOSFET_B4::Instance::delvto)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_BASIC)
+     .setDescription("Zero bias threshold voltage variation");
+
     p.addPar ("XGW",0.0,&MOSFET_B4::Instance::xgw)
      .setGivenMember(&MOSFET_B4::Instance::XGWgiven)
      .setUnit(U_NONE)
