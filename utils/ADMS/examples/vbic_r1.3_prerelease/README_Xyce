@@ -42,4 +42,8 @@ The VBIC 1.3 model has been modified for inclusion in Xyce:
     @(initial_instance) or @(initial_model) and the main block as
     "global_instance" or "global_model" variables.  Declaring them
     inside the block makes them block-local, always.
-    
+
+  - An "OFF" parameter has been added that disables initialization of
+    junction voltages for the first DCOP point.
+
+
