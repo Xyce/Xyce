@@ -151,8 +151,12 @@ private:
   TimeIntg::TIAParams                   tiaParams_;
   bool                                  sensFlag_;
   bool                                  dcLoopInitialized_;
-  int                                   numSensParams_;
   std::vector<int>                      dcSweepFailures_;
+  bool                                  condTestFlag_;
+  std::vector<std::string>              condTestDeviceNames_;
+
+  // Sensitivity data.  
+  int                                   numSensParams_;
   std::vector<double>                   objectiveVec_;
   std::vector<double>                   dOdpVec_;
   std::vector<double>                   dOdpAdjVec_;

@@ -34,6 +34,8 @@
 //
 //
 //-------------------------------------------------------------------------
+//
+#include <iostream>
 
 #include <Xyce_config.h>
 
@@ -45,6 +47,7 @@
 #include <N_LOA_CktLoader.h>
 #include <N_NLS_Manager.h>
 #include <N_NLS_ConductanceExtractor.h>
+#include <N_NLS_TwoLevelPrintJac.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_UTL_FeatureTest.h>
@@ -115,6 +118,11 @@ bool SecondLevelSimulator::simulateStep(
 
   // calculate the conductance:
   getNonlinearManager().getConductanceExtractor().extract(inputMap, outputVector, jacobian);
+
+  // save a copy of these for use in outputs, etc.
+  inputMap_ = inputMap;
+  outputVector_ = outputVector;
+  jacobian_ = jacobian;
 
   return bsuccess;
 }
@@ -201,6 +209,61 @@ SecondLevelSimulator::homotopyStepFailure()
 }
 
 //---------------------------------------------------------------------------
+// Function      : SecondLevelSimulator::reducedOutputs
+// Purpose       :
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/01/2022
+//---------------------------------------------------------------------------
+void SecondLevelSimulator::reducedOutputs()
+{
+  // outputs
+  bool condOutput = secondLevelManager_->getCondOutputFlag();
+  bool currOutput = secondLevelManager_->getPortCurrentOutputFlag();
+
+  int outputStepNum(0);
+  std::ofstream out;
+  std::string netlistFile;
+  char tmp[8]; for (int ich = 0; ich < 8; ++ich) tmp[ich] = 0;
+
+  std::vector<std::string> names;
+  if (condOutput || currOutput)
+  {
+    outputStepNum = secondLevelManager_->getStepNumber();
+    netlistFile = commandLine_.getArgumentValue("netlist");
+    sprintf(tmp, "%03d", outputStepNum);
+
+    int numElectrodes = jacobian_.size();
+    std::map<std::string,double>::const_iterator iterM = inputMap_.begin();
+    std::map<std::string,double>::const_iterator  endM = inputMap_.end  ();
+    for (int iE1 = 0; iE1 < numElectrodes; ++iE1,++iterM) { names.push_back(iterM->first); }
+  }
+
+  if (condOutput)
+  {
+    std::string condFileName = netlistFile + "_conductance_" + std::string(tmp) + ".txt";
+    out.open(condFileName);
+    Xyce::Nonlinear::printJacobian(out,netlistFile,names,jacobian_);
+    out.close();  
+  }
+
+  if (currOutput)
+  {
+    int colw=20;
+    std::string currFileName = netlistFile + "_port_currents_" + std::string(tmp) + ".txt";
+    out.open(currFileName);
+    for (int ii=0;ii<outputVector_.size();++ii)
+    {
+      out << netlistFile << " port:"<< std::setw(15) << names[ii];
+      out << std::scientific << std::setw(colw) << std::setprecision(8) <<  outputVector_[ii];
+      out << std::endl;
+    }
+    out.close();  
+  }
+}
+
+//---------------------------------------------------------------------------
 // Function      : SecondLevelSimulator::stepSuccess
 // Purpose       :
 // Special Notes : Used for 2-level Newton solves.
@@ -211,6 +274,8 @@ SecondLevelSimulator::homotopyStepFailure()
 void SecondLevelSimulator::stepSuccess(Analysis::TwoLevelMode analysis)
 {
   secondLevelManager_->stepSecondLevelSuccess(analysis);
+
+  reducedOutputs();
 }
 
 //---------------------------------------------------------------------------

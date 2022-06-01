@@ -100,6 +100,7 @@ class SecondLevelSimulator : public Simulator
 
   void homotopyStepFailure();
 
+  void reducedOutputs();
   void stepSuccess(Analysis::TwoLevelMode analysis);
   void stepFailure(Analysis::TwoLevelMode analysis);
   bool getBreakPoints (
@@ -125,6 +126,11 @@ protected:
 
 private:
   Analysis::SecondLevelManager *        secondLevelManager_;
+
+  // save some information
+  std::map<std::string, double> inputMap_;
+  std::vector<double>                 outputVector_;
+  std::vector< std::vector<double> >  jacobian_;
 };
 
 } // namespace Circuit

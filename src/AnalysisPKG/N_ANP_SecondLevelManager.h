@@ -57,7 +57,9 @@ public:
       activeOutput_(0),
       breakPointsRequestedBefore_(false),
       outputDAEvectors_(false),
-      outputDAEmatrices_(false)
+      outputDAEmatrices_(false),
+      condOutputFlag_(false),
+      portCurrentOutputFlag_(false)
   {}
 
   virtual ~SecondLevelManager()
@@ -98,6 +100,9 @@ public:
 
   bool setTwoLevelParams (const Util::OptionBlock & paramsBlock);
 
+  bool getCondOutputFlag () { return condOutputFlag_; }
+  bool getPortCurrentOutputFlag () { return portCurrentOutputFlag_; }
+
 private:
   AnalysisBase *        twoLevelAnalysisObject_;
   IO::ActiveOutput *    activeOutput_;
@@ -106,6 +111,8 @@ private:
 
   bool outputDAEvectors_;
   bool outputDAEmatrices_;
+  bool condOutputFlag_;
+  bool portCurrentOutputFlag_;
 };
 
 bool registerTwoLevelPkgOptionsMgr(SecondLevelManager &second_level_manager, IO::PkgOptionsMgr &options_manager);

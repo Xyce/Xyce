@@ -48,6 +48,7 @@
 #include <N_TIA_fwd.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Diagnostic.h>
+#include <N_ANP_OutputConductanceFile.h>
 
 namespace Xyce {
 namespace Analysis {
@@ -464,6 +465,14 @@ bool SecondLevelManager::setTwoLevelParams(
     {
       outputDAEmatrices_ = param.getImmutableValue<bool>();
     }
+    else if (param.uTag() == "OUTPUT_REDUCED_CONDUCTANCES")
+    {
+      condOutputFlag_ = static_cast<bool> (param.getImmutableValue<int>());
+    }
+    else if (param.uTag() == "OUTPUT_PORT_CURRENTS")
+    {
+      portCurrentOutputFlag_ = static_cast<bool> (param.getImmutableValue<int>());
+    }
     else
     {
       Report::UserError() << param.uTag() << " is not a recognized two-level analysis option";
@@ -494,15 +503,21 @@ bool registerTwoLevelPkgOptionsMgr(
   return true;
 }
 
-void
-SecondLevelManager::populateMetadata(
-  IO::PkgOptionsMgr &options_manager)
+//-----------------------------------------------------------------------------
+// Function      : SecondLevelManager::populateMetadata
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/15/2022
+//-----------------------------------------------------------------------------
+void SecondLevelManager::populateMetadata(IO::PkgOptionsMgr &options_manager)
 {
-  {
-    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("TWOLEVEL");
-    parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_VECTORS", Util::Param("OUTPUT_DAE_VECTORS", 0)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_MATRICES", Util::Param("OUTPUT_DAE_MATRICES", 0)));
-  }
+  Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("TWOLEVEL");
+  parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_VECTORS", Util::Param("OUTPUT_DAE_VECTORS", 0)));
+  parameters.insert(Util::ParamMap::value_type("OUTPUT_DAE_MATRICES", Util::Param("OUTPUT_DAE_MATRICES", 0)));
+  parameters.insert(Util::ParamMap::value_type("OUTPUT_REDUCED_CONDUCTANCES", Util::Param("OUTPUT_REDUCED_CONDUCTANCES", 0)));
+  parameters.insert(Util::ParamMap::value_type("OUTPUT_PORT_CURRENTS", Util::Param("OUTPUT_PORT_CURRENTS", 0)));
 }
 
 } // namespace Analysis

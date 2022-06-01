@@ -74,18 +74,21 @@ public:
   
   bool setOptions(const Util::OptionBlock& OB);
   
+  void printJacobian (
+      std::ostream &os,
+     const std::map<std::string,double> & inputMap,
+     std::vector< std::vector<double> > & jacobian);
+  
+  void print(
+      std::ostream &os,
+      const std::string & varName);
+
 private:
   bool setupIDs_( const std::map<std::string, double> & inputMap);
   bool setup_dIdX_Vectors_();
   
   bool setupISO2_IDs_(const std::string & isoName);
-  
-  void printJacobian_ (
-     const std::map<std::string,double> & inputMap,
-     std::vector< std::vector<double> > & jacobian);
-  
-  void print_(const std::string & varName);
-  
+
 private:
   int solutionSize_;
 

@@ -723,10 +723,10 @@ void NonLinearSolver::outputDAEvectors()
   Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
   Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
 
-  sprintf(filename1, "soln_%03d.txt", outputStepNum);
-  sprintf(filename4, "daeQ_%03d.txt", outputStepNum);
-  sprintf(filename6, "daeF_%03d.txt", outputStepNum);
-  sprintf(filename6b,"daeB_%03d.txt", outputStepNum);
+  sprintf(filename1, "%s_soln_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  sprintf(filename4, "%s_daeQ_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  sprintf(filename6, "%s_daeF_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  sprintf(filename6b,"%s_daeB_%03d.txt", netlistFilename_.c_str(), outputStepNum);
 
   // write the vectors:
   xVec->writeToFile(filename1);
@@ -759,8 +759,8 @@ void NonLinearSolver::outputDAEmatrices()
   Linear::Matrix *dQdx    = dsPtr_->dQdxMatrixPtr;
   Linear::Matrix *dFdx    = dsPtr_->dFdxMatrixPtr;
 
-  sprintf(filename1, "dQdx_%03d.txt", outputStepNum);
-  sprintf(filename2, "dFdx_%03d.txt", outputStepNum);
+  sprintf(filename1, "%s_dQdx_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  sprintf(filename2, "%s_dFdx_%03d.txt", netlistFilename_.c_str(), outputStepNum);
 
   // write the matrices:
   dQdx->writeToFile (filename1, false, getMMFormat () );

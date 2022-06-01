@@ -270,8 +270,8 @@ private:
 
   bool          passNLStall;            ///< option to pass some non-linear solver failures
   bool          saveTimeStepsFlag;      ///< flag to save timestpes in data store for later use
-  bool          condTestFlag;           ///< flag for conductance test
-  std::vector<std::string> condTestDeviceNames; ///< names for conductance test
+  bool          condTestFlag_;           ///< flag for conductance test
+  std::vector<std::string> condTestDeviceNames_; ///< names for conductance test
 
   HB *                  hbAnalysis_;
   N_MPDE_Manager *      mpdeManager_;

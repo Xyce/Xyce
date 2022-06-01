@@ -49,6 +49,7 @@ libAnalysis_la_SOURCES = \
   N_ANP_Op.h \
   N_ANP_OpBuilders.h \
   N_ANP_OutputMgrAdapter.h \
+  N_ANP_OutputConductanceFile.h \
   N_ANP_ROL.h \
   N_ANP_ROL_DC_Optimization.h \
   N_ANP_RegisterAnalysis.h \

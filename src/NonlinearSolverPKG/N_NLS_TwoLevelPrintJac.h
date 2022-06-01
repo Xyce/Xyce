@@ -47,7 +47,7 @@ inline void printJacobian(
     std::ostream & os,
     const std::string idString,
     const std::vector<std::string> & names, 
-    const std::vector< std::vector<double> > & condVec)
+    const std::vector< std::vector<double> > & jacobian)
 {
   int colw=20;
   int idw=idString.size();
@@ -66,7 +66,7 @@ inline void printJacobian(
     os << idString << " ConArray:"<< std::setw(15) << names[iE1];
     for (int iE2 = 0; iE2 < numElectrodes; ++iE2)
     {
-      os << std::scientific << std::setw(colw) << std::setprecision(8) << condVec[iE1][iE2];
+      os << std::scientific << std::setw(colw) << std::setprecision(8) << jacobian[iE1][iE2];
     }
     os << std::endl;
   }

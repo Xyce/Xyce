@@ -409,7 +409,7 @@ TIAParams::populateMetadata(
     parameters.insert(Util::ParamMap::value_type("OUTPUTINTERPMPDE", Util::Param("OUTPUTINTERPMPDE", 1)));
     parameters.insert(Util::ParamMap::value_type("INTERPOUTPUT", Util::Param("INTERPOUTPUT", 1)));
     parameters.insert(Util::ParamMap::value_type("CONDTEST", Util::Param("CONDTEST", 0)));
-    parameters.insert(Util::ParamMap::value_type("CONDTESTDEVICENAME", Util::Param("CONDTESTDEVICENAME", "dev_name")));
+    parameters.insert(Util::ParamMap::value_type("CONDTESTDEVICENAME", Util::Param("CONDTESTDEVICENAME",  "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("ISOCONDTEST", Util::Param("ISOCONDTEST", 0)));
     parameters.insert(Util::ParamMap::value_type("ISOCONDTESTDEVICENAME", Util::Param("ISOCONDTESTDEVICENAME", "dev_name")));
     parameters.insert(Util::ParamMap::value_type("PASSNLSTALL", Util::Param("PASSNLSTALL", false)));
