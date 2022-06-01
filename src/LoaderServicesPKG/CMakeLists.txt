@@ -11,7 +11,7 @@ target_sources(XyceLib PRIVATE
       N_LOA_PCELoader.C )
 # add header files to project
 target_include_directories(XyceLib PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR})
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
 

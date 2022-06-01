@@ -28,11 +28,12 @@ target_sources(XyceLib PRIVATE
       N_ANP_Step.C
       N_ANP_SweepParam.C
       N_ANP_Transient.C
-      N_ANP_UQSupport.C)
+      N_ANP_UQSupport.C )
 
 # add header files to project
 target_include_directories (XyceLib PUBLIC
- ${CMAKE_CURRENT_SOURCE_DIR})
+ $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+ $<INSTALL_INTERFACE:include> )
 
 
 

@@ -32,7 +32,7 @@ target_sources(XyceLib PRIVATE
       N_NLS_SensitivityResiduals.C
       N_NLS_TwoLevelNewton.C )
 # add header files to project
-target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

@@ -144,13 +144,13 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Messenger.C
           )
 
-     target_include_directories(parserReqdComplex PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
-          ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/../
-          ${CMAKE_SOURCE_DIR}/../ExpressionSrc/
-          ${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/
-          ${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/
-          ${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/
-          ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS})
+     target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> 
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../> 
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../ExpressionSrc/ >
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/ >
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/ >
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/ >
+          ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
 
      target_link_libraries(parserReqdComplex PUBLIC
           ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} GTest::GTest)

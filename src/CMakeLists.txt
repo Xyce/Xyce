@@ -64,7 +64,7 @@ add_subdirectory(test)
 # message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
 
 
-target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
+target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES}
@@ -82,7 +82,8 @@ if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
 endif()
 
 add_executable(Xyce Xyce.C)
-target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
+#target_include_directories (Xyce PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> ${XYCE_INCLUDE_DIRECTORIES})
+target_include_directories (XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
 target_link_libraries(Xyce XyceLib)
 
 if(WIN32)
@@ -134,8 +135,8 @@ set_target_properties ( XyceLib PROPERTIES
 # using different logical target names the two targets will remove each other's
 # files. This can be prevented by setting the CLEAN_DIRECT_OUTPUT property to 1."
 
-install(TARGETS XyceLib DESTINATION lib)
-install(TARGETS Xyce DESTINATION bin)
+install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
+install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
 
 # Add header files needed by other codes to link against libxyce.*
 #
@@ -273,3 +274,52 @@ if(${TriBITS_prefix} STREQUAL "tcad-charon")
     UtilityPKG/N_UTL_WallTime.h
   DESTINATION include)
 endif()
+
+# valid Cmake config package & version names are:
+# Xyce-config.cmake
+# Xyce-config-version.cmake
+# or
+# XyceConfig.cmake
+# XyceConfigVersion.cmake
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfigVersion.cmake"
+  VERSION ${Xyce_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT XyceLibTarget
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfigTargets.cmake"
+  NAMESPACE Xyce::
+)
+
+#configure_file(cmake/XyceConfig.cmake.in
+#  ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake
+#  COPYONLY
+#)
+
+configure_package_config_file(
+  cmake/XyceConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake
+  INSTALL_DESTINATION lib/cmake
+)
+
+set(ConfigPackageLocation lib/cmake/Xyce)
+install(EXPORT XyceLibTarget
+  FILE
+    XyceTargets.cmake
+  NAMESPACE
+    Xyce::
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfigVersion.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+  COMPONENT
+    Devel
+)

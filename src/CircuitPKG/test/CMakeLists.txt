@@ -6,6 +6,7 @@ if(Xyce_TEST_SUITE)
      #test executables
      add_executable(XyceSimulatorUnitTests XyceSimulatorUnitTests.C)
      target_link_libraries(XyceSimulatorUnitTests PUBLIC XyceLib GTest::GTest)
+     #target_include_directories (Xyce PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
      # Some tests require a data file; put them in the right place
      file(COPY
