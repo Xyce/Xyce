@@ -67,8 +67,28 @@ add_subdirectory(test)
 target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
-target_link_libraries(XyceLib PUBLIC ${FFT} ${CURL_LIBRARIES}
+
+# 
+# if we are using FFTW we need to add it's components rather than it as a 
+# target so that tools that link to Xyce externally will have the right
+# dependencies
+#
+if( Xyce_USE_FFTW )
+  get_property(FFTWLibraries TARGET ${FFT} PROPERTY INTERFACE_LINK_LIBRARIES )
+  target_link_libraries(XyceLib PUBLIC ${FFTWLibraries} )
+  
+  get_property(FFTWIncludeDir TARGET ${FFT} PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
+  target_include_directories(XyceLib PUBLIC ${FFTWIncludeDir} )
+endif()
+
+target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES}
      ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
+
+#
+# Set the INTERFACE_LINK_DIRECTORIES to any extra directories that Trilinos found
+# for its files.
+set_property(TARGET XyceLib APPEND PROPERTY INTERFACE_LINK_DIRECTORIES "${Trilinos_LIBRARY_DIRS}")
+set_property(TARGET XyceLib APPEND PROPERTY INTERFACE_LINK_DIRECTORIES "${Trilinos_TPL_LIBRARY_DIRS}")
 
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
@@ -289,14 +309,9 @@ write_basic_package_version_file(
 )
 
 export(EXPORT XyceLibTarget
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfigTargets.cmake"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceTargets.cmake"
   NAMESPACE Xyce::
 )
-
-#configure_file(cmake/XyceConfig.cmake.in
-#  ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake
-#  COPYONLY
-#)
 
 configure_package_config_file(
   cmake/XyceConfig.cmake.in
