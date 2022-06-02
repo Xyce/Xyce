@@ -412,6 +412,12 @@ public:
   bool loadFreqBVectorsforSources(double frequency,
                                   std::vector<Util::FreqVecEntry>& BVecEntries);
 
+  bool loadTwoLevelVsrcs (
+       const std::vector<std::string> & names,
+       Xyce::Linear::Vector * fptr,
+       Xyce::Linear::Vector * bptr,
+       Xyce::Linear::Vector * sol);
+
   int getNumNoiseDevices ();
   int getNumNoiseSources ();
   void setupNoiseSources(std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec);

@@ -628,7 +628,7 @@ void NonLinearSolver::debugOutputDAE()
 
   char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
   char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
-  char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
+  char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6b[ich] = 0;
   char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
   char filename8[256]; for (int ich = 0; ich < 256; ++ich) filename8[ich] = 0;
   char filename9[256]; for (int ich = 0; ich < 256; ++ich) filename9[ich] = 0;

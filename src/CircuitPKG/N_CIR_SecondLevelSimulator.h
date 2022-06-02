@@ -100,6 +100,7 @@ class SecondLevelSimulator : public Simulator
 
   void homotopyStepFailure();
 
+  void daeOutputs();
   void reducedOutputs();
   void stepSuccess(Analysis::TwoLevelMode analysis);
   void stepFailure(Analysis::TwoLevelMode analysis);

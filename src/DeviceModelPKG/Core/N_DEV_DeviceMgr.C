@@ -3492,6 +3492,58 @@ bool DeviceMgr::loadFreqBVectorsforSources(double frequency,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::loadTwoLevelVsrcs
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/01/2022
+//-----------------------------------------------------------------------------
+bool DeviceMgr::loadTwoLevelVsrcs (
+       const std::vector<std::string> & names, 
+       Xyce::Linear::Vector * fptr,
+       Xyce::Linear::Vector * bptr,
+       Xyce::Linear::Vector * sol)
+{
+  bool bsuccess = true;
+  int loadType = Xyce::Device::ALL;
+
+  Xyce::Linear::Vector * saveF = externData_.daeFVectorPtr;
+  Xyce::Linear::Vector * saveB = externData_.daeBVectorPtr;
+  Xyce::Linear::Vector * saveSol = externData_.nextSolVectorPtr;
+
+  externData_.daeFVectorPtr    = fptr;
+  externData_.daeBVectorPtr    = bptr;
+  externData_.nextSolVectorPtr = sol;
+  externData_.daeFVectorRawPtr    = &((*externData_.daeFVectorPtr)[0]);
+  externData_.daeBVectorRawPtr    = &((*externData_.daeBVectorPtr)[0]);
+  externData_.nextSolVectorRawPtr = &((*externData_.nextSolVectorPtr)[0]);
+
+  for (int ii=0;ii<names.size();ii++)
+  {
+    DeviceEntity * device_entity = getDeviceEntity(names[ii]);
+    if (device_entity != 0)
+    {
+      Vsrc::Instance * vsrc = dynamic_cast<Vsrc::Instance *>(device_entity);
+      if (vsrc != 0)
+      {
+        vsrc->loadDAEFVector();
+        vsrc->loadDAEBVector();
+      }
+    }
+  }
+
+  externData_.daeFVectorPtr = saveF;
+  externData_.daeBVectorPtr = saveB;
+  externData_.nextSolVectorPtr = saveSol;
+  externData_.daeFVectorRawPtr    = &((*externData_.daeFVectorPtr)[0]);
+  externData_.daeBVectorRawPtr    = &((*externData_.daeBVectorPtr)[0]);
+  externData_.nextSolVectorRawPtr = &((*externData_.nextSolVectorPtr)[0]);
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getNumNoiseDevices
 // Purpose       :
 // Special Notes :
