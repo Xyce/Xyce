@@ -36,6 +36,7 @@
 //-------------------------------------------------------------------------
 //
 #include <iostream>
+#include <fstream>
 
 #include <Xyce_config.h>
 
