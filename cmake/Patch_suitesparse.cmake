@@ -24,6 +24,6 @@ target_include_directories(amd
     "${suitesparse_SOURCE_DIR}/SuiteSparse_config"
     )
 
-install(TARGETS amd DESTINATION ${CMAKE_PREFIX_PATH})
-install(FILES ${suitesparse_SOURCE_DIR}/AMD/Include/amd.h DESTINATION ${CMAKE_PREFIX_PATH})
-install(FILES ${suitesparse_SOURCE_DIR}/SuiteSparse_config/SuiteSparse_config.h DESTINATION ${CMAKE_PREFIX_PATH})
+install(TARGETS amd DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(FILES ${suitesparse_SOURCE_DIR}/AMD/Include/amd.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(FILES ${suitesparse_SOURCE_DIR}/SuiteSparse_config/SuiteSparse_config.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
