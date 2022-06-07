@@ -19,12 +19,10 @@ The tests executables can be run individually as well.
 ## Explanation
 
 The CMakeLists.txt file basically has two independent ways of building the
-Expression Library test suite. The first is in the `if(Xyce_TEST_SUITE)` block.
-That links into the `XyceLib` library, and `Xyce_TEST_SUITE` is a known option
-in the main build. In this mode, the "parserUnitTest" are not run,
-because it needs to be compiled with `-DUSE_TYPE_DOUBLE`. The `USE_TYPE_DOUBLE`
-flag sets the `usedType` typedef to `double`, whereas the `usedType` default is
-`std::complex<double>`.
+Expression Library test suite. The first method, defined in the 
+`if(GTest_FOUND)` block, is enabled if 'BUILD_TESTING' is defined in the main
+build and CMake is able to locate the GoogleTest framework. This method links
+into the `XyceLib` library.
 
 The AST tree uses templates, so it needs a type specified in order to use it;
 but, because of the inflexibility of flex/bison, the type needs to be specified

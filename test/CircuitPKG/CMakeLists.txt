@@ -1,12 +1,7 @@
-if(Xyce_TEST_SUITE)
-     include(GoogleTest)
-     find_package(GTest REQUIRED)
-     message(STATUS "Enabling test suite")
-
+if(GTest_FOUND)
      #test executables
      add_executable(XyceSimulatorUnitTests XyceSimulatorUnitTests.C)
-     target_link_libraries(XyceSimulatorUnitTests PUBLIC XyceLib GTest::GTest)
-     #target_include_directories (Xyce PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+     target_link_libraries(XyceSimulatorUnitTests PUBLIC XyceLib GTest::gtest)
 
      # Some tests require a data file; put them in the right place
      file(COPY
@@ -16,11 +11,5 @@ if(Xyce_TEST_SUITE)
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
-     enable_testing()
      gtest_discover_tests( XyceSimulatorUnitTests TEST_PREFIX XyceSimulatorUnit:)
-
-else()
-     message(STATUS "Test suite is not enabled")
 endif()
-
-

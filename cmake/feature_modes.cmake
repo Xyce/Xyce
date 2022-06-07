@@ -32,7 +32,7 @@ if ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""
 endif ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""))
 
 # Enable the Unit Tests
-option(Xyce_TEST_SUITE "Enables the unit tests" OFF)
+option(BUILD_TESTING "Enables the unit tests" OFF)
 
 # Enable the Plugin capability
 option(Xyce_PLUGIN_SUPPORT "Install Xyce with plugin compatibility" OFF)

@@ -1,7 +1,6 @@
 #
 # add sub directories
 add_subdirectory(ExpressionSrc)
-add_subdirectory(ExpressionTest)
 
 # generate a timestamp.h
 string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)

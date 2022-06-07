@@ -1,14 +1,12 @@
-if(Xyce_TEST_SUITE)
-     include(GoogleTest)
-     find_package(GTest REQUIRED)
-     message(STATUS "Enabling test suite")
+if(GTest_FOUND)
+     set(TARGET_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/UtilityPKG/ExpressionSrc")
 
      #test executables
      add_executable(astUnitTest astUnitTest.C)
-     target_link_libraries(astUnitTest PUBLIC XyceLib GTest::GTest)
+     target_link_libraries(astUnitTest PUBLIC XyceLib GTest::gtest)
 
      add_executable(astCopyConstUnitTest astCopyConstUnitTest.C)
-     target_link_libraries(astCopyConstUnitTest PUBLIC XyceLib GTest::GTest)
+     target_link_libraries(astCopyConstUnitTest PUBLIC XyceLib GTest::gtest)
 
      # The AST tree uses templates, so it needs a type specified in order to use it;
      # but, because of the inflexibility of flex/bison, the type needs to be specified
@@ -21,7 +19,7 @@ if(Xyce_TEST_SUITE)
      # The "complexParserUnitTest" program is written to test the expression
      # library using `std::complex<double>`.
      add_executable(complexParserUnitTest complexParserUnitTest.C)
-     target_link_libraries(complexParserUnitTest PUBLIC XyceLib GTest::GTest)
+     target_link_libraries(complexParserUnitTest PUBLIC XyceLib GTest::gtest)
 
      # The "parserUnitTest" program is written to test the expression library
      # using doubles.  Therefore, the tests will not pass when linking to
@@ -33,10 +31,10 @@ if(Xyce_TEST_SUITE)
      # below), but CMake seems to get confused by that.  That could be due to
      # the CMake2-style used in the Bison and flex modules.
      bison_target( ExpressionParserForDouble
-          "${CMAKE_CURRENT_SOURCE_DIR}/../ExpressionSrc/ExpressionParser.yxx"
+          "${TARGET_SOURCE_DIR}/ExpressionParser.yxx"
           "${CMAKE_CURRENT_BINARY_DIR}/ExpressionParser.cxx")
      flex_target( ExpressionLexerForDouble
-          "${CMAKE_CURRENT_SOURCE_DIR}/../ExpressionSrc/ExpressionLexer.l"
+          "${TARGET_SOURCE_DIR}/ExpressionLexer.l"
           "${CMAKE_CURRENT_BINARY_DIR}/ExpressionLexer.cxx"
           COMPILE_FLAGS "-i -+ --full --prefix=exp")
 
@@ -45,9 +43,10 @@ if(Xyce_TEST_SUITE)
      add_executable(parserUnitTest parserUnitTest.C
           ${BISON_ExpressionParserForDouble_OUTPUTS}
           ${FLEX_ExpressionLexerForDouble_OUTPUTS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/../ExpressionSrc/newExpression.C)
+          ${TARGET_SOURCE_DIR}/newExpression.C
+          ${TARGET_SOURCE_DIR}/expressionGroup.C)
      target_compile_definitions(parserUnitTest PUBLIC USE_TYPE_DOUBLE)
-     target_link_libraries(parserUnitTest PUBLIC XyceLib GTest::GTest)
+     target_link_libraries(parserUnitTest PUBLIC XyceLib GTest::gtest)
 
      # Some tests require a data file; put them in the right place
      file(COPY
@@ -57,14 +56,11 @@ if(Xyce_TEST_SUITE)
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
-     enable_testing()
      gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
      gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
      gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
      gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit:)
 
-else()
-     message(STATUS "Test suite is not enabled")
 endif()
 
 # The following should **NEVER** be enabled with a full Xyce build.
@@ -103,17 +99,20 @@ if(BUILD_ONLY_UNIT_TESTS)
      include(CheckIncludeFileCXX)
      include(GoogleTest)
      find_package(GTest REQUIRED)
+     enable_testing()
 
      # Find flex and Bison
      message(STATUS "Looking for flex and Bison")
      find_package(FLEX REQUIRED)
      find_package(BISON 3.0.4 REQUIRED)
 
+     set(TARGET_SOURCE_DIR "${CMAKE_SOURCE_DIR}/../../../src/UtilityPKG/ExpressionSrc")
+
      bison_target( XyceExpressionParser
-          "${CMAKE_SOURCE_DIR}/../ExpressionSrc/ExpressionParser.yxx"
+          "${TARGET_SOURCE_DIR}/ExpressionParser.yxx"
           "${CMAKE_CURRENT_BINARY_DIR}/ExpressionParser.cxx")
      flex_target( XyceExpressionLexer
-          "${CMAKE_SOURCE_DIR}/../ExpressionSrc/ExpressionLexer.l"
+          "${TARGET_SOURCE_DIR}/ExpressionLexer.l"
           "${CMAKE_CURRENT_BINARY_DIR}/ExpressionLexer.cxx"
           COMPILE_FLAGS "-i -+ --full --prefix=exp")
 
@@ -131,17 +130,18 @@ if(BUILD_ONLY_UNIT_TESTS)
      add_library(parserReqdComplex STATIC
           ${BISON_XyceExpressionParser_OUTPUTS}
           ${FLEX_XyceExpressionLexer_OUTPUTS}
-          ${CMAKE_SOURCE_DIR}/../ExpressionSrc/ast.C
-          ${CMAKE_SOURCE_DIR}/../ExpressionSrc/newExpression.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_CheckIfValidFile.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_LogStream.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_Marshal.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_NetlistLocation.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_ReportHandler.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_ExtendedString.C
-          ${CMAKE_SOURCE_DIR}/../N_UTL_NoCase.C
-          ${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Message.C
-          ${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Messenger.C
+          ${TARGET_SOURCE_DIR}/ast.C
+          ${TARGET_SOURCE_DIR}/newExpression.C
+          ${TARGET_SOURCE_DIR}/expressionGroup.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_CheckIfValidFile.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_LogStream.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_Marshal.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_NetlistLocation.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_ReportHandler.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_ExtendedString.C
+          ${TARGET_SOURCE_DIR}/../N_UTL_NoCase.C
+          ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Message.C
+          ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Messenger.C
           )
 
      target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> 
@@ -153,7 +153,7 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
 
      target_link_libraries(parserReqdComplex PUBLIC
-          ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} GTest::GTest)
+          ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} GTest::gtest)
 
      # Build the test executables.
      add_executable(astUnitTest astUnitTest.C)
@@ -167,11 +167,12 @@ if(BUILD_ONLY_UNIT_TESTS)
 
      # The parserUnitTest requires USE_TYPE_DOUBLE to be true, so recompile the
      # parser with USE_TYPE_DOUBLE defined.  See the explanation in the
-     # Xyce_TEST_SUITE section, above.
+     # BUILD_TESTING section, above.
      add_executable(parserUnitTest parserUnitTest.C
           ${BISON_XyceExpressionParser_OUTPUTS}
           ${FLEX_XyceExpressionLexer_OUTPUTS}
-          ${CMAKE_SOURCE_DIR}/../ExpressionSrc/newExpression.C
+          ${TARGET_SOURCE_DIR}/newExpression.C
+          ${TARGET_SOURCE_DIR}/expressionGroup.C
           )
      target_compile_definitions(parserUnitTest PUBLIC USE_TYPE_DOUBLE)
      target_link_libraries(parserUnitTest PUBLIC parserReqdComplex)
@@ -183,7 +184,6 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR}/SubDir1/test1.dat
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-     enable_testing()
      gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
      gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
      gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
