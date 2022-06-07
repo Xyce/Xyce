@@ -170,10 +170,10 @@ private:
   bool runDCOP();
   bool setInitialGuess();
 
-
   bool mapFreqs_();
   bool setFreqPointsAPFT_();
   bool setFreqPointsFM_();
+  bool setFreqPointsDia_();
 
   bool setTimePoints_();
 

@@ -1596,6 +1596,10 @@ bool HB::setFreqPoints_()
   {
     setFreqPointsFM_();
   }
+  else if (  selectHarm_  == "DIAMOND" )
+  {
+    setFreqPointsDia_();
+  }
   else
   {
     Report::UserError() << "Unsupported frequency truncation method for HB";
@@ -1683,7 +1687,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1694,6 +1698,137 @@ bool HB::setFreqPointsFM_()
   size_ = freqPoints_.size();
 
 //  Xyce::dout() << "size = " << size_ << std::endl;
+
+  return true;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : HB::setFreqPoints_
+// Purpose       : Set frequency spectrum for HB analysis.
+// Special Notes :
+// Scope         : private
+// Creator       : Ting Mei, SNL
+// Creation Date : 06/02/2022
+//-----------------------------------------------------------------------------
+bool HB::setFreqPointsDia_()
+{
+
+  std::vector<int> k;
+
+  int numAnalysisFreqs = freqs_.size();
+
+//  numPosFreqs.resize(numAnalysisFreqs);
+
+  k.resize(numAnalysisFreqs);
+
+  numFreqs_[0] = (intmodMax_*2 + 1);
+
+  k[0] = 1;
+
+  int numTotalFrequencies;
+
+  numTotalFrequencies = numFreqs_[0];
+
+  for (int i=1; i < numAnalysisFreqs; i++)
+  {
+    k[i] = k[i-1] * numFreqs_[i -1 ];
+
+    numFreqs_[i] = (intmodMax_*2 + 1);
+
+    numTotalFrequencies *= numFreqs_[i];
+  }
+
+  if (DEBUG_HB)
+  {
+    for (int i=0; i< numAnalysisFreqs; i++)
+    {
+      Xyce::dout() << "HB index " << i << std::endl;
+      Xyce::dout() << "HB k =" << k[i] << std::endl;
+    }
+    Xyce::dout() << "HB numTotalFrequencies =" << numTotalFrequencies<< std::endl;
+  }
+
+  int numIndex = numTotalFrequencies;
+
+  Teuchos::SerialDenseMatrix<int,double> indexMatrix(numAnalysisFreqs, numTotalFrequencies);
+//  if (DEBUG_HB)
+  {
+    Xyce::dout() << "HB intmodMax =" <<  intmodMax_ << std::endl;
+  }
+
+  int nextIndex;
+
+  int idxMod,  idxValues, sumIndex ;   
+
+  std::vector<int> goodIndex;
+
+  for (int i=0; i < numIndex; i++)      //  column
+  {
+    nextIndex = i;
+    sumIndex = 0;
+
+    for (int j= (numAnalysisFreqs - 1); j >= 0;  j-- )       // row
+    {
+      idxMod = nextIndex%k[j];
+      idxValues =  (nextIndex - idxMod)/k[j];
+
+      indexMatrix (j, i) = static_cast<double>(idxValues - (numFreqs_[j] - 1)/2 );
+      nextIndex = idxMod;
+
+      sumIndex += abs(idxValues - (numFreqs_[j] - 1)/2 );
+    }
+
+
+    if( sumIndex <= intmodMax_)
+      goodIndex.push_back(i);
+  }
+
+  int diaindexSize = goodIndex.size();
+
+  Teuchos::SerialDenseMatrix<int,double> diaindexMatrix( numAnalysisFreqs, diaindexSize );
+
+  diaindexMatrix.putScalar(0.0);
+
+  for (int i=0; i < diaindexSize; i++)
+  {
+    for (int j= (numAnalysisFreqs - 1); j >= 0;  j-- )
+      diaindexMatrix (j, i) = indexMatrix (j, goodIndex[i]);
+  }
+
+//  if (DEBUG_HB)
+  {
+    for (int i=0; i< diaindexSize; i++)
+    {
+      dout() << "good index i = " << i << goodIndex[i]  << std::endl;
+    }
+    dout() <<  " checking diamond indexMatrix" << std::endl;
+    diaindexMatrix.print(dout());
+
+    dout() <<  " checking indexMatrix" << std::endl;
+    indexMatrix.print(dout());
+  }
+
+  freqPoints_.resize( diaindexSize );
+
+  Teuchos::SerialDenseVector<int,double> currfreqPoints( Teuchos::View, &freqPoints_[0], diaindexSize );
+
+  Teuchos::SerialDenseVector<int,double> hbFreqs( Teuchos::View, &freqs_[0], numAnalysisFreqs);
+//    Teuchos::SerialDenseVector<int,double> currWeightVector( Teuchos::View, &weightVector[i], oversampleRate*size_-(i+1) );
+  currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, diaindexMatrix, hbFreqs, 0.0 );
+
+
+//  if (DEBUG_HB)
+  {
+    dout() << "checking frequencies" << std::endl;
+    diaindexMatrix.print(dout());
+    hbFreqs.print(dout());
+    currfreqPoints.print(dout());
+  }
+
+  size_ = freqPoints_.size();
+
+  Xyce::dout() << "size = " << size_ << std::endl;
 
   return true;
 }
