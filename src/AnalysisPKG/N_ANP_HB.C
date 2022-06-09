@@ -1687,7 +1687,7 @@ bool HB::setFreqPointsFM_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, indexMatrix, hbFreqs, 0.0 );
 
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     indexMatrix.print(dout());
@@ -1752,7 +1752,7 @@ bool HB::setFreqPointsDia_()
   int numIndex = numTotalFrequencies;
 
   Teuchos::SerialDenseMatrix<int,double> indexMatrix(numAnalysisFreqs, numTotalFrequencies);
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     Xyce::dout() << "HB intmodMax =" <<  intmodMax_ << std::endl;
   }
@@ -1796,7 +1796,7 @@ bool HB::setFreqPointsDia_()
       diaindexMatrix (j, i) = indexMatrix (j, goodIndex[i]);
   }
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     for (int i=0; i< diaindexSize; i++)
     {
@@ -1818,7 +1818,7 @@ bool HB::setFreqPointsDia_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, diaindexMatrix, hbFreqs, 0.0 );
 
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     diaindexMatrix.print(dout());
@@ -1828,7 +1828,7 @@ bool HB::setFreqPointsDia_()
 
   size_ = freqPoints_.size();
 
-  Xyce::dout() << "size = " << size_ << std::endl;
+//  Xyce::dout() << "size = " << size_ << std::endl;
 
   return true;
 }
