@@ -62,17 +62,6 @@
 // to the original spice3f5 code as possible.
 
 #define CONSTEPS0 8.85418e-12
-#if 0
-#define CONSTMAX_EXP 5.834617425e+14
-#define CONSTMIN_EXP 1.713908431e-15
-
-#define CONSTEXP_THRESHOLD 34.0
-
-#define CONSTDELTA_1 0.02
-#define CONSTDELTA_2 0.02
-#define CONSTDELTA_3 0.02
-#define CONSTDELTA_4 0.02
-#endif
 
 #define Charge_q     (1.60219e-19) // electron charge, used in the
                                    // updateTemperature function instead of
@@ -8648,16 +8637,6 @@ bool Instance::updateTemperature (const double & temp_tmp)
     model_.toxp = toxpf;
     model_.coxp = epsrox * CONSTEPS0 / model_.toxp;
   }
-
-#if 0
-    if (checkModel(model, here, ckt))
-    {   IFuid namarray[2];
-        namarray[0] = model_.name;
-        namarray[1] = name;
-        (*(SPfrontEnd->IFerror)) (ERR_FATAL, "Fatal error(s) detected during .5.0 parameter checking for %s in model %s", namarray);
-        return(E_BADPARM);
-    }
-#endif
 
   ///////////////////////////////////////////////////////////////////////////////
 
