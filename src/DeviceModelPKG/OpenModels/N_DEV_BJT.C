@@ -5367,19 +5367,6 @@ void auxDAECalculations (
   iB  = iBE / tBetaF + iBEleak + iBC / tBetaR + iBCleak;
   iE = -iC-iB;
 
-#if 0
-  std::cout << "auxDAECalculations:  tBetaR = " << tBetaR << std::endl;
-  std::cout << "auxDAECalculations:  tBetaF = " << tBetaF << std::endl;
-  std::cout << "auxDAECalculations:  iCE = " << iCE << std::endl;
-  std::cout << "auxDAECalculations:  iBC = " << iBC << std::endl;
-  std::cout << "auxDAECalculations:  iBE = " << iBE << std::endl;
-  std::cout << "auxDAECalculations:  iBEleak = " << iBEleak << std::endl;
-  std::cout << "auxDAECalculations:  iC = " << iC << std::endl;
-  std::cout << "auxDAECalculations:  iC = " << iC << std::endl;
-  std::cout << "auxDAECalculations:  iB = " << iB << std::endl;
-  std::cout << "auxDAECalculations:  iE = " << iE << std::endl;
-#endif
-
   if (td != 0)
   {
     if (!dcopFlag )
