@@ -9065,59 +9065,6 @@ bool Instance::updateIntermediateVars ()
 
   if (getDeviceOptions().voltageLimiterFlag && !(getSolverState().initFixFlag && OFF))
   {
-
-#if 0
-    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-    {
-      Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << "  CONSTvt0  = " << CONSTvt0 << std::endl;
-      Xyce::dout() << "  vcrit     = " << model_.vcrit << std::endl;
-#if 0
-      Xyce::dout().width(3);
-      Xyce::dout() << getSolverState().newtonIter;
-      Xyce::dout().width(5);Xyce::dout() << getName();
-      Xyce::dout() << " old :";
-      Xyce::dout()<<" vgs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgs_old;
-      Xyce::dout()<<" vds:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vds_old;
-      Xyce::dout()<<" vbs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbs_old;
-      Xyce::dout()<<" vbd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbd_old;
-      Xyce::dout()<<" vges:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vges_old;
-      Xyce::dout()<<" vgms:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgms_old;
-      Xyce::dout()<<" vged:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vged_old;
-      Xyce::dout()<<" vgmd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgmd_old << std::endl;
-#endif
-      Xyce::dout().width(3);
-      Xyce::dout() << getSolverState().newtonIter;
-      Xyce::dout().width(5);Xyce::dout() << getName();
-      Xyce::dout() << " Blim:";
-      Xyce::dout()<<" vgs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgs;
-      Xyce::dout()<<" vds:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vds;
-      Xyce::dout()<<" vbs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbs;
-      Xyce::dout()<<" vbd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbd;
-      Xyce::dout()<<" vges:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vges;
-      Xyce::dout()<<" vgms:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgms;
-      Xyce::dout()<<" vged:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vged;
-      Xyce::dout()<<" vgmd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgmd << std::endl;
-      Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
-    }
-#endif
-
     // only do this if we are beyond the first Newton iteration.  On the
     // first newton iteration, the "old" values are from a previous time
     // step.
@@ -9261,26 +9208,6 @@ bool Instance::updateIntermediateVars ()
       if (!origFlag)
       {
         double machprec = Util::MachineDependentParams::MachinePrecision();
-#if 0
-        double vbd_update = vbd_orig-vbd;
-        double vbs_update = vbs_orig-vbs;
-        double vgs_update = vgs_orig-vgs;
-        double vds_update = vds_orig-vds;
-        double vgd_update = vgd_orig-vgd;
-        double vges_update = vges_orig-vges;
-        double vgms_update = vgms_orig-vgms;
-        double vdes_update = vdes_orig-vdes;
-        double vses_update = vses_orig-vses;
-        double vdbs_update = vdbs_orig-vdbs;
-        double vsbs_update = vsbs_orig-vsbs;
-        double vdbd_update = vdbd_orig-vdbd;
-        double vbs_jct_update = vbs_jct_orig-vbs_jct;
-        double vbd_jct_update = vbd_jct_orig-vbd_jct;
-        double vgmb_update = vgmb_orig-vgmb;
-        double vgb_update = vgb_orig-vgb;
-        double vged_update = vged_orig-vged;
-        double vgmd_update = vgmd_orig-vgmd;
-#endif
 #define SET_UPDATE(VAR) double VAR ## _update = VAR ## _orig -  VAR;
 #define ORIG_OUTPUT(VAR) if ( fabs(VAR ## _update) > machprec ) Xyce::dout()<<" "#VAR ":"	  << ((VAR ## _orig>=0)?"+":"")  << VAR ## _orig;
 #define LIMIT_OUTPUT(VAR) if ( fabs(VAR ## _update) > machprec ) Xyce::dout()<<" "#VAR ":"	  << ((VAR >=0)?"+":"")  << VAR;
@@ -12527,21 +12454,6 @@ bool Instance::updateIntermediateVars ()
       taunet = 1.0 / T1;
     }
 
-#if 0
-    *(ckt->CKTstate0 + qcheq) = qcheq;
-    if (ckt->CKTmode & MODEINITTRAN)
-    {
-      *(ckt->CKTstate1 + qcheq) = *(ckt->CKTstate0 + qcheq);
-    }
-    if (trnqsMod)
-    {
-      error = NIintegrate(ckt, &geq, &ceq, 0.0, qcheq);
-      if (error)
-      {
-        return(error);
-      }
-    }
-#endif
   }
 
   // Calculate junction C-V
@@ -13755,25 +13667,6 @@ bool Instance::auxChargeCalculations ()
           - CAPcqsb * (vbs-vbs_orig)) + T0;
     }
 
-#if 0
-    if (ckt->CKTmode & MODEINITTRAN)
-    {
-      *(ckt->CKTstate1 + cqb) = *(ckt->CKTstate0 + cqb);
-      *(ckt->CKTstate1 + cqg) = *(ckt->CKTstate0 + cqg);
-      *(ckt->CKTstate1 + cqd) = *(ckt->CKTstate0 + cqd);
-
-      if (rgateMod == 3)
-      {
-          *(ckt->CKTstate1 + cqgmid) = *(ckt->CKTstate0 + cqgmid);
-      }
-
-      if (rbodyMod)
-      {
-        *(ckt->CKTstate1 + cqbs) = *(ckt->CKTstate0 + cqbs);
-        *(ckt->CKTstate1 + cqbd) = *(ckt->CKTstate0 + cqbd);
-      }
-    }
-#endif
 
   } // !ChargeComputationNeeded
 
