@@ -1265,40 +1265,6 @@ bool Instance::updatePrimaryState()
   }
   // udate dependent parameters
   updateIntermediateVars ();
-  
-  
-  /*
-  Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
-  stoVector[li_MagVarStore] = latestMag; 
-  stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
-  stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
-
-  
-  stoVector[li_RVarStore] = 0.0;
-  */
-
-
-#if 0
-  // don't need to do this as we're not using the state vector
-  Linear::Vector & solVector = *(extData.nextSolVectorPtr);
-  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
-
-  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
-  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
-  int i = 0;
-  while( currentInductor != endInductor )
-  {
-    double current = solVector[ ( (*currentInductor)->li_Branch) ];
-    if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
-    {
-      current = (*currentInductor)->IC;
-    }
-    // place this value for the charge in the state vector.
-    staVector[((*currentInductor)->li_currentState)] = current;
-    currentInductor++;
-    i++;
-  }
-#endif
 
   return bsuccess;
 }
