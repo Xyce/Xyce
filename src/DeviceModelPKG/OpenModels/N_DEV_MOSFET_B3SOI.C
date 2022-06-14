@@ -9013,15 +9013,9 @@ bool Instance::updateIntermediateVars ()
       vgd  = vgs - vds;
       ved  = ves - vds;
       origFlag = 0;
-#if 0
-      Xyce::dout() << "A: origFlag set to 0" << std::endl;
-#endif
     }
     else
     {
-#if 0
-      Xyce::dout() << "A: origFlag set to 1" << std::endl;
-#endif
     }
 
   } // getDeviceOptions().voltageLimiterFlag
