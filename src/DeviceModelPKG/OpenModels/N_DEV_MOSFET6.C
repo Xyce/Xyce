@@ -2837,65 +2837,6 @@ bool Model::processParams ()
     Xyce::dout() << " pbfact1 = " << pbfact1 << std::endl;
   }
 
-#if 0
-  if(oxideThickness == 0)
-  {
-    UserError(*this) << name << " has TOX=0";
-  }
-  else
-  {
-    oxideCapFactor = 3.9 * 8.854214871e-12/oxideThickness;
-  }
-  if(!given("U0") && !given("UO")) surfaceMobility=600;
-  if(!given("KP"))
-    transconductance = surfaceMobility * oxideCapFactor * 1e-4;
-  if(given("NSUB"))
-  {
-    if(substrateDoping*1e6 >1.45e16)
-    {
-      if(!given("PHI"))
-      {
-        phi = 2*vtnom*
-          log(substrateDoping*1e6/1.45e16);
-        phi = std::max(0.1,phi);
-      }
-      fermis = dtype * .5 * phi;
-      wkfng = 3.2;
-      if(!given("TPG")) gateType=1;
-      if(gateType != 0)
-      {
-        fermig = dtype *gateType*.5*egfet1;
-        wkfng = 3.25 + .5 * egfet1 - fermig;
-      }
-      wkfngs = wkfng - (3.25 + .5 * egfet1 +fermis);
-      if(!given("GAMMA"))
-      {
-        gamma = sqrt(2 * 11.70 * CONSTperm0 *
-                     CONSTQ * substrateDoping*1e6)/
-          oxideCapFactor;
-      }
-      if(!given("VTO"))
-      {
-        if(!given("NSS"))
-          surfaceStateDensity=0;
-        vfb = wkfngs - surfaceStateDensity*1e4*CONSTQ/oxideCapFactor;
-        vt0 = vfb + dtype * (gamma * sqrt(phi)+ phi);
-      }
-      else
-      {
-        vfb = vt0 - dtype * (gamma*sqrt(phi)+phi);
-      }
-      alpha = ((11.7*CONSTperm0)+(11.7*CONSTperm0))/
-        (CONSTQ*substrateDoping*1e6); //(cm**3/m**3)
-      coeffDepLayWidth = sqrt(alpha);
-    }
-    else
-    {
-      UserError(*this) << "Nsub < Ni";
-    }
-  }
-#else
-
   if(!given("TOX") || oxideThickness == 0)
   {
     oxideCapFactor = 0;
@@ -2966,7 +2907,6 @@ bool Model::processParams ()
     }
   }
 
-#endif
 
   return true;
 }

@@ -16048,36 +16048,7 @@ finished:
        qbulk,
        qdrn,
        qsrc,
-#if 0
-       ggtg,
-       ggtd,
-       ggtb,
-       ggts,
-       sxpart,
-       dxpart,
-       ddxpart_dVd,
-       ddxpart_dVg,
-       ddxpart_dVb,
-       ddxpart_dVs,
-       dsxpart_dVd,
-       dsxpart_dVg,
-       dsxpart_dVb,
-       dsxpart_dVs,
-       gcqgb,
-       gcqdb,
-       gcqsb,
-       gcqbb,
-#endif
        CoxWL
-#if 0
-         ,
-       Cdd,
-       Csd,
-       Cdg,
-       Csg,
-       Cds,
-       Css
-#endif
   );
 
     setupCapacitors_newDAE (
@@ -17541,14 +17512,6 @@ void bsim3InstanceSensitivity::operator()(
   dfdp[local_Bulk] += (ceqbs.dx(0) + ceqbd.dx(0))*inst.numberParallel;
   dfdp[local_DrainPrime] += (-(ceqbd.dx(0) - cdreq.dx(0))-instance_Idrain.dx(0))*inst.numberParallel;
   dfdp[local_SourcePrime] += (-(cdreq.dx(0) + ceqbs.dx(0))-instance_Isource.dx(0))*inst.numberParallel;
-
-#if 0
-  std::cout << "sensitivityOperator: instance_Idrain = " << instance_Idrain << std::endl;
-  std::cout << "sensitivityOperator: instance_Isource = " << instance_Isource << std::endl;
-  std::cout << "sensitivityOperator: ceqbs  = " << ceqbs  << std::endl;
-  std::cout << "sensitivityOperator: ceqbd = " << ceqbd << std::endl;
-  std::cout << "sensitivityOperator: cdreq = " << cdreq << std::endl;
-#endif
 
 // don't bother with the IC stuff
 
@@ -20168,14 +20131,6 @@ void bsim3ModelSensitivity::operator()(
     dfdp[local_Bulk] += (ceqbs.dx(0) + ceqbd.dx(0))*in.numberParallel;
     dfdp[local_DrainPrime] += (-(ceqbd.dx(0) - cdreq.dx(0))-instance_Idrain.dx(0))*in.numberParallel;
     dfdp[local_SourcePrime] += (-(cdreq.dx(0) + ceqbs.dx(0))-instance_Isource.dx(0))*in.numberParallel;
-
-#if 0
-    std::cout << "sensitivityOperator: instance_Idrain = " << instance_Idrain << std::endl;
-    std::cout << "sensitivityOperator: instance_Isource = " << instance_Isource << std::endl;
-    std::cout << "sensitivityOperator: ceqbs  = " << ceqbs  << std::endl;
-    std::cout << "sensitivityOperator: ceqbd = " << ceqbd << std::endl;
-    std::cout << "sensitivityOperator: cdreq = " << cdreq << std::endl;
-#endif
 
   // don't bother with the IC stuff
 
