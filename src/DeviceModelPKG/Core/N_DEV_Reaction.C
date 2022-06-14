@@ -1656,13 +1656,6 @@ void Reaction::output
   os.precision(8); os.setf(std::ios::scientific);
   os << theRateConstant;
 
-#if 0
-  os << "\n       Dependencies:\n";
-  for (int j=0;j<concDependency.size();++j)
-  {
-    os << " " << species[j].getName() << " = " << concDependency[j] << std::endl;
-  }
-#endif
   os << std::endl;
 
 }

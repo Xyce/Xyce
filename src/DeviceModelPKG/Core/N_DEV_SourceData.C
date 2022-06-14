@@ -1385,9 +1385,7 @@ bool PWLinData::getBreakPoints
 
   time -= TD;
 
-#if 1
   if (devOptions_.pwl_BP_off) { return true; }
-#endif
 
   // if it's a repeating signal, figure out what period we are in
   if (REPEAT && time >= TVVEC[NUM - 1].first)
