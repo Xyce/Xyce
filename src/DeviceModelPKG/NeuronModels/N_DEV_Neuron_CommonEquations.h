@@ -364,15 +364,6 @@ static ScalarT HH_Vseg_F( const ScalarT& Vseg,const ScalarT& n, const ScalarT& m
   return r;
 }
 
-#if 0
-template <typename ScalarT>
-static ScalarT HH_Vseg_Q( const ScalarT& Vseg, const ScalarT& memC )
-{
-  ScalarT r = memC * Vn1;
-  return r;
-}
-#endif
-
 // n conservation equation
 template <typename ScalarT>
 static ScalarT nEquF( const ScalarT& Vn, const ScalarT& n)
