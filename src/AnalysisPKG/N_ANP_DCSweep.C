@@ -423,13 +423,7 @@ bool DCSweep::doLoopProcess()
 
     // Perform the step:
     static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::DC, 0.0, currentStep));
-   
-#if 0 
-    Xyce::dout() << "Current Solution\n";
-    analysisManager_.getDataStore()->currSolutionPtr->print(Xyce::dout());
-    Xyce::dout() << "Next    Solution\n";
-    analysisManager_.getDataStore()->nextSolutionPtr->print(Xyce::dout());
-#endif
+
     takeStep_();
 
     // Set things up for the next time step, based on if this one was
