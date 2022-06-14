@@ -865,74 +865,41 @@ bool Instance::updateIntermediateVars ()
         << "dkcl2F_dn = " << dkcl2F_dn << std::endl
         << "dkcl2F_dm = " << dkcl2F_dm << std::endl
         << "dkcl2F_dh = " << dkcl2F_dh << std::endl
-#if 0
-        << "alphaN = " << alphaN<double>( v1Now ) << std::endl
-        << "betaN = " << betaN<double>( v1Now ) << std::endl
-#endif
         << "nEquFvalue = " << nEquFvalue << std::endl
         << "dnF_dV1 = " << dnF_dV1 << std::endl
         << "dnF_dn = " << dnF_dn << std::endl
         << "nEquQvalue = " << nEquQvalue << std::endl
         << "dnQ_dn = " << dnQ_dn << std::endl
-#if 0
-        << "alphaM = " << alphaM<double>( v1Now )  << std::endl
-        << "betaM = " << betaM<double>( v1Now ) << std::endl
-#endif
         << "mEquFvalue = " << mEquFvalue << std::endl
         << "dmF_dV1 = " << dmF_dV1 << std::endl
         << "dmF_dm = " << dmF_dm << std::endl
         << "mEquQvalue = " << mEquQvalue << std::endl
         << "dmQ_dm = " << dmQ_dm << std::endl
-#if 0
-        << "alphaH = " << alphaH<double>( v1Now ) << std::endl
-        << "betaH = " << betaH<double>( v1Now ) << std::endl
-#endif
         << "hEquFvalue = " << hEquFvalue << std::endl
         << "dhF_dV1 = " << dhF_dV1 << std::endl
         << "dhF_dh = " << dhF_dh << std::endl
         << "hEquQvalue = " << hEquQvalue << std::endl
         << "dhQ_dh = " << dhQ_dh << std::endl
-
-#if 0
-        << "aInf = " << aInf<double>( v1Now ) << std::endl
-        << "aTau = " << aTau<double>( v1Now ) << std::endl
-#endif
         << "aEquFvalue = " << aEquFvalue << std::endl
         << "daF_dV1 = " << daF_dV1 << std::endl
         << "daF_da = " << daF_da << std::endl
         << "aEquQvalue = " << aEquQvalue << std::endl
         << "daQ_da = " << daQ_da << std::endl
-
-#if 0
-        << "bInf = " << bInf<double>( v1Now ) << std::endl
-        << "bTau = " << bTau<double>( v1Now ) << std::endl
-#endif
         << "bEquFvalue = " << bEquFvalue << std::endl
         << "dbF_dV1 = " << dbF_dV1 << std::endl
         << "dbF_db = " << dbF_db << std::endl
         << "bEquQvalue = " << bEquQvalue << std::endl
         << "dbQ_db = " << dbQ_db << std::endl
-
-#if 0
-        << "M_Inf = " << M_Inf<double>( v1Now ) << std::endl
-        << "M_Tau = " << M_Tau<double>( v1Now ) << std::endl
-#endif
         << "M_EquFvalue = " << M_EquFvalue << std::endl
         << "dMF_dV1 = " << dMF_dV1 << std::endl
         << "dMF_dM = " << dMF_dM << std::endl
         << "M_EquQvalue = " << M_EquQvalue << std::endl
         << "dMQ_dM = " << dMQ_dM << std::endl
-
-#if 0
-        << "H_Inf = " << H_Inf<double>( v1Now ) << std::endl
-        << "H_Tau = " << H_Tau<double>( v1Now ) << std::endl
-#endif
         << "H_EquFvalue = " << H_EquFvalue << std::endl
         << "dHF_dV1 = " << dHF_dV1 << std::endl
         << "dHF_dH = " << dHF_dH << std::endl
         << "H_EquQvalue = " << H_EquQvalue << std::endl
         << "dHQ_dH = " << dHQ_dH << std::endl
-
         << "cEquFvalue = " << cEquFvalue << std::endl
         << "dcF_dV1 = " << dcF_dV1 << std::endl
         << "dcF_dc = " << dcF_dc << std::endl
