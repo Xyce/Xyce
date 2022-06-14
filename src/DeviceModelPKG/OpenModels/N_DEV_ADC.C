@@ -541,9 +541,7 @@ int Instance::deltaVToStateVal(double deltaV)
 {
   int stateVal;
   double vFrac = deltaVTovFrac(deltaV); 
- 
-#if 1
-  // I believe this is how it SHOULD be done
+
   if (vFrac < (1.0)/(nQuantLevels_) )
   {
     stateVal = 0;
@@ -556,10 +554,6 @@ int Instance::deltaVToStateVal(double deltaV)
   {
     stateVal =  int(vFrac*nQuantLevels_);
   }
-#else
-  // but this is how simbus is doing it:
-  stateVal = int(vFrac*(nQuantLevels_-1));
-#endif
 
   return stateVal;
 }
