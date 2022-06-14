@@ -1011,15 +1011,6 @@ void PCE::setupStokhosObjects ()
 
   numBlockRows_ = pceGraph->numLocalEntities();
 
-#if 0
-  std::cout << "Cijk:" <<std::endl;
-  Cijk->print(std::cout);
-
-  // this is the matrix that gets output to A.mm
-  Epetra_CrsMatrix mat(Copy, *pceGraph->epetraObj());
-  pceGraph->epetraObj()->PrintGraphData(std::cout);
-  mat.Print(std::cout);
-#endif
 #endif
 }
 
