@@ -151,22 +151,7 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
 
   if (DEBUG_TIME)
   {
-#if 0
-    Xyce::dout() << std::endl
-                 << Xyce::subsection_divider << std::endl
-                 << "updateCurrentVal" << std::endl
-                 << "  name             = " << name << std::endl
-                 << "  stepNumberArg    = " << stepNumberArg<< std::endl
-                 << "  interval         = " << interval  << std::endl
-                 << "  outerStepNumber  = " << outerStepNumber << std::endl
-                 << "  localStepNumber  = " << localStepNumber << std::endl
-                 << "  inum             = " << inum      << std::endl
-                 << "  sweepResetFlag   = " << sweepResetFlag_ << std::endl
-                 << "  currentVal       = " << currentVal << std::endl
-                 << Xyce::subsection_divider << std::endl;
-#else
     Xyce::dout() << "  " << name << "  "<< outerStepNumber << "  "<< localStepNumber << "  "<< lastLocalStepNumber_ << std::endl;
-#endif
   }
 
   lastLocalStepNumber_=localStepNumber;
@@ -857,87 +842,6 @@ Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, 
 {
   int length;
   std::string tmp;
-#if 0
-  //pack tag
-  length = param.tag_.length();
-  comm->pack( &length, 1, buf, bsize, pos );
-  comm->pack( param.tag_.c_str(), length, buf, bsize, pos );
-
-  //pack type
-  int enum_type = param.data_->enumType();
-
-  comm->pack( &enum_type, 1, buf, bsize, pos );
-
-  //pack value
-  switch( param.data_->enumType() )
-  {
-    case -1:
-      break;
-
-    case Util::STR:
-      length = param.getValue<std::string>().length();
-      comm->pack( &length, 1, buf, bsize, pos );
-      comm->pack( param.getValue<std::string>().c_str(), length, buf, bsize, pos );
-      break;
-
-    case Util::DBLE:
-      comm->pack( &(param.getValue<double>()), 1, buf, bsize, pos );
-      break;
-
-    case Util::INT:
-      comm->pack( &(param.getValue<int>()), 1, buf, bsize, pos );
-      break;
-
-    case Util::BOOL:
-    {
-      int i;
-      if (param.getValue<bool>())
-        i = 1;
-      else
-        i = 0;
-      comm->pack( &i, 1, buf, bsize, pos );
-    }
-      break;
-
-    case Util::LNG:
-      comm->pack( &(param.getValue<long>()), 1, buf, bsize, pos );
-      break;
-
-    case Util::EXPR:
-      tmp = param.getValue<Util::Expression>().get_expression();
-      length = tmp.length();
-      comm->pack( &length, 1, buf, bsize, pos );
-      comm->pack( tmp.c_str(), length, buf, bsize, pos );
-      break;
-
-    case Util::STR_VEC:
-    {
-      const std::vector<std::string> &string_vector = param.getValue<std::vector<std::string> >();
-      length = (int) string_vector.size();
-      comm->pack( &length, 1, buf, bsize, pos );
-      for (int i=0; i < (int) string_vector.size(); i++)
-      {
-        length = string_vector[i].length();
-        comm->pack( &length, 1, buf, bsize, pos );
-        comm->pack( string_vector[i].c_str(), length, buf, bsize, pos );
-      }
-    }
-
-      break;
-
-    case Util::DBLE_VEC:
-    {
-      const std::vector<double> &double_vector = param.getValue<std::vector<double> >();
-      length = (int) double_vector.size();
-      comm->pack( &length, 1, buf, bsize, pos );
-      comm->pack( &double_vector[0], length, buf, bsize, pos );
-    }
-
-      break;
-
-    default:   Report::DevelFatal() << "SweepParam::pack: unknown type " << param.data_->enumType();
-  }
-#else
   //pack name
   length = param.name.length();
   comm->pack( &length, 1, buf, bsize, pos );
@@ -1041,7 +945,6 @@ Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, 
 
   // pack lastLocalStepNumber_
   comm->pack( &(param.lastLocalStepNumber_), 1, buf, bsize, pos );
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1058,110 +961,6 @@ Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int b
 {
   int length = 0;
   int vector_size = 0;
-
-#if 0
-  //unpack tag
-  comm->unpack( pB, bsize, pos, &length, 1 );
-
-  param.tag_ = std::string( (pB+pos), length );
-  pos += length;
-
-  //unpack type
-  int enum_type = -1;
-  comm->unpack( pB, bsize, pos, &enum_type, 1 );
-
-  switch (enum_type)
-  {
-    case -1:
-      break;
-
-    case Util::STR:
-      comm->unpack( pB, bsize, pos, &length, 1 );
-      param.setVal(std::string( (pB+pos), length ));
-      pos += length;
-      break;
-
-    case Util::DBLE: 
-    {
-      double d = 0.0;
-      
-      comm->unpack( pB, bsize, pos, &d, 1 );
-      param.setVal(d);
-    }
-    break;
-
-    case Util::INT: 
-    {
-      int i = 0;
-      comm->unpack( pB, bsize, pos, &i, 1 );
-      param.setVal(i);
-    }
-    break;
-
-    case Util::BOOL:
-    {
-      int i = 0;
-      comm->unpack( pB, bsize, pos, &i, 1 );
-      if (i == 0)
-        param.setVal(false);
-      else
-        param.setVal(true);
-    }
-    break;
-
-    case Util::LNG:
-    {
-      long l = 0;
-      comm->unpack( pB, bsize, pos, &l, 1 );
-      param.setVal(l);
-    }
-    break;
-
-    case Util::EXPR:
-      comm->unpack( pB, bsize, pos, &length, 1 );
-      // ERK.  This expression is allocated iwth the base group, which is easy 
-      // to create, but doesn't do anything.  But, this doesn't matter.  .param 
-      // and .global_param are not usually evaluated stand-alone, as they are 
-      // usually attached to other expressions. The expressions they are 
-      // attached to are the ones that need a meaningful group class.
-      param.setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), std::string( (pB+pos), length )));
-      pos += length;
-      break;
-
-    case Util::STR_VEC:
-    {
-
-      comm->unpack( pB, bsize, pos, &vector_size, 1 );
-      param.setVal(std::vector<std::string>());
-      std::vector<std::string> &x = param.getValue<std::vector<std::string> >();
-      x.reserve(vector_size);
-
-      for (int i=0; i< vector_size; i++)
-      {
-        comm->unpack( pB, bsize, pos, &length, 1 );
-        x.push_back(std::string( (pB+pos), length ));
-        pos += length;
-      }
-    }
-
-    break;
-
-    case Util::DBLE_VEC:
-    {
-      comm->unpack( pB, bsize, pos, &vector_size, 1 );
-      param.setVal(std::vector<double>());
-      std::vector<double> &x = param.getValue<std::vector<double> >();
-      x.resize(vector_size, 0.0);
-      comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
-    }
-
-    break;
-
-    default:
-      Report::UserFatal() << "SweepParam::unpack: unknown type";
-
-  }
-#else
 
   //unpack name 
   comm->unpack( pB, bsize, pos, &length, 1 );
@@ -1323,7 +1122,6 @@ Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int b
     comm->unpack( pB, bsize, pos, &i, 1 );
     param.lastLocalStepNumber_ = i;
   }
-#endif
 }
 
 } // namespace Xyce
