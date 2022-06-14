@@ -2084,12 +2084,10 @@ bool Transient::doProcessFailedStep()
     bsuccess = false;
   }
 
-#if 1
   if (VERBOSE_TIME && bsuccess)
   {
     outputFailedStepData();
   }
-#endif
 
   if (VERBOSE_TIME && !bsuccess)
   {
