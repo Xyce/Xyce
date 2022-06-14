@@ -2010,14 +2010,11 @@ struct NOISEAnalysisReg : public IO::PkgOptionsReg
 //
 //  .noise v(output <,ref>) src ( dec | lin | oct ) pts fstart fstop + <pts_per_summary>
 //
-// for now ignoring the optional points per summary
-//
 // Scope         : public
 // Creator       : Eric R. Keiter
 // Creation Date : 12/8/2014
 //-----------------------------------------------------------------------------
-bool
-extractNOISEData(
+bool extractNOISEData(
   IO::PkgOptionsMgr &           options_manager,
   IO::CircuitBlock &            circuit_block,
   const std::string &           netlist_filename,
@@ -2290,9 +2287,7 @@ bool outputNoiseNameFile(
 // Function      : NOISEFactory::registerFactory
 // Purpose       :
 //-----------------------------------------------------------------------------
-bool
-registerNOISEFactory(
-  FactoryBlock &        factory_block)
+bool registerNOISEFactory(FactoryBlock & factory_block)
 {
   NOISEFactory *factory = new NOISEFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.initialConditionsManager_);
 

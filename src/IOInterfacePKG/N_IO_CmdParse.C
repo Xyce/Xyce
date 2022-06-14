@@ -195,6 +195,7 @@ void usage(std::ostream &os)
      << "  -noise_names_file <path>    output noise source names file to <path> and exit\n"
      << "  -quiet                      suppress some of the simulation-progress messages sent to stdout\n"
      << "  -jacobian_test              jacobian matrix diagnostic\n"
+     << "  -hspice-ext  <option>       apply hspice compatibility features during parsing.  option=all applies them all\n"
      << "  -redefined_params <option>  set option for redefined .params as ignore (use last), usefirst, warn or error\n"
      << "  -subckt_multiplier <option> set option to true(default) or false to apply implicit subcircuit multipliers\n"
      << "  -delim <TAB|COMMA|string>   set the output file field delimiter\n"

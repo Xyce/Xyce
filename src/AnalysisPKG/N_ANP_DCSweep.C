@@ -39,6 +39,7 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
 #include <N_ANP_SweepParamFreeFunctions.h>
+#include <N_ANP_OutputConductanceFile.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
 #include <N_IO_InitialConditions.h>
@@ -95,6 +96,8 @@ DCSweep::DCSweep(
     tiaParams_(),
     sensFlag_(analysis_manager.getSensFlag()),
     dcLoopInitialized_(false),
+    condTestFlag_(false),
+    condTestDeviceNames_(),
     numSensParams_(0),
     dcLoopSize_(0)
 {}
@@ -112,38 +115,59 @@ DCSweep::~DCSweep()
 
 //-----------------------------------------------------------------------------
 // Function      : DCSweep::setTranOptions
-// Purpose       :
-// Special Notes : These are from '.options timeint'
+// Purpose       : Process '.options timeint' parameters
+//
+// Special Notes : Most time integration options are not relevant to the DC sweep class.  
+//
+//                 But, if one has a transient circuit that uses some of these, and then 
+//                 changes the analysis in that circuit from .TRAN to .DC, but leaves the 
+//                 options line in place, it makes sense that Xyce should not throw a 
+//                 fatal error.  So, all the valid options should be included in 
+//                 the if-then-else block below.
+//                 
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 04/18/02
 //-----------------------------------------------------------------------------
-bool DCSweep::setTimeIntegratorOptions(
-  const Util::OptionBlock &     option_block)
+bool DCSweep::setTimeIntegratorOptions(const Util::OptionBlock & option_block)
 {
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
     const Util::Param &param = (*it);
 
-    if (param.uTag() == "DAESTATEDERIV")
+    if (param.uTag() == "METHOD") { ; }
+    else if (param.uTag()=="EXITTIME" ) { ; }
+    else if (param.uTag()=="EXITSTEP" ) { ; }
+    else if (param.uTag() == "HISTORYTRACKINGDEPTH" ) { ; }
+    else if (param.uTag() == "PASSNLSTALL") { ; }
+    else if (param.uTag() == "CONDTEST")
+    {
+      condTestFlag_ = static_cast<bool> (param.getImmutableValue<int>());
+    }
+    else if (std::string( param.uTag() ,0,18) == "CONDTESTDEVICENAME")
+    {
+      condTestDeviceNames_.push_back(param.stringValue() );
+    }
+    else if (param.uTag() == "DAESTATEDERIV")
+    {
       analysisManager_.setDAEStateDerivFlag(static_cast<bool> (param.getImmutableValue<int>()));
+    }
     else if (param.uTag() == "DEBUGLEVEL")
+    {
       IO::setTimeIntegratorDebugLevel(analysisManager_.getCommandLine(), param.getImmutableValue<int>());
-    else if (nonlinearManager_.setReturnCodeOption(param))
-      ;
-    else if (tiaParams_.setTimeIntegratorOption(param))
-      ;
-    else if (setDCOPOption(param))
-      ;
-    else if (param.uTag() == "METHOD")
-      ;
+    }
+    else if ( std::string( param.uTag() ,0,11) == "BREAKPOINTS") { ; }
+    else if (nonlinearManager_.setReturnCodeOption(param)) { ; }
+    else if (tiaParams_.setTimeIntegratorOption(param)) { ; }
+    else if (setDCOPOption(param)) { ; }
     else
+    {
       Report::UserError() << param.uTag() << " is not a recognized time integration option";
+    }
   }
 
   return true;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : DCSweep::setAnalysisParams

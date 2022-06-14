@@ -263,6 +263,11 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Zero bias threshold voltage variation");
 
+    p.addPar ("DELVT0",0.0,&MOSFET_B4::Instance::delvto)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_BASIC)
+     .setDescription("Zero bias threshold voltage variation");
+
     p.addPar ("XGW",0.0,&MOSFET_B4::Instance::xgw)
      .setGivenMember(&MOSFET_B4::Instance::XGWgiven)
      .setUnit(U_NONE)
@@ -4373,6 +4378,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("Geometry dependent parasitics model selector");
 
+    p.addPar ("RGEOMOD",0,&MOSFET_B4::Model::rgeoMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setDescription("S/D resistance and contact model selector");
+
     p.addPar ("FNOIMOD",1,&MOSFET_B4::Model::fnoiMod)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
@@ -4488,7 +4498,7 @@ bool Instance::processParams ()
   else if ((rbodyMod != 0) && (rbodyMod != 1) && (rbodyMod != 2))
   {
     rbodyMod = model_.rbodyMod;
-    UserWarning(*this) << "rbodyMod has been set to its global value: ";
+    UserWarning(*this) << "rbodyMod has been set to its global value: " << model_.rbodyMod;
   }
 
   if (!RGATEMODgiven)
@@ -4498,17 +4508,24 @@ bool Instance::processParams ()
   else if ((rgateMod != 0) && (rgateMod != 1) && (rgateMod != 2) && (rgateMod != 3))
   {
     rgateMod = model_.rgateMod;
-    UserWarning(*this) << "rgateMod has been set to its global value: ";
+    UserWarning(*this) << "rgateMod has been set to its global value: " << model_.rgateMod;
   }
 
   if (!GEOMODgiven)
   {
     geoMod = model_.geoMod;
   }
+
   if (!RGEOMODgiven)
   {
-    rgeoMod = 0;
+    rgeoMod = model_.rgeoMod;
   }
+  else if ((rgeoMod != 0) && (rgeoMod != 1))
+  {   
+    rgeoMod = model_.rgeoMod;
+    UserWarning(*this) << "rgeoMod has been set to its global value: " << model_.rgeoMod;
+  }
+
   if (!TRNQSMODgiven)
   {
     trnqsMod = model_.trnqsMod;
@@ -4532,11 +4549,7 @@ bool Instance::processParams ()
   // now set the temperature related stuff.
   updateTemperature(temp);
 
-  // Note:  Xyce does not support noise analysis, so the noiseAnalGive
-  // flag is always false.  However, I've left it in here to show consistency
-  // with the original spice3f5 code.
-
-  bool noiseAnalGiven=false;
+  bool noiseAnalGiven=getSolverState().noiseFlag;
 
   // process drain series resistance
   int createNode = 0;
@@ -13415,7 +13428,7 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   switch(model_.fnoiMod)
   {
     case 0:
-      noiseData.noiseDens[FLNOIZ] *= model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
+      noiseData.noiseDens[FLNOIZ] = model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
         / (pow(noiseData.freq, model_.ef) * paramPtr->leff * paramPtr->leff * model_.coxe);
 
       break;
@@ -13434,11 +13447,11 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
 
       if (T1 > 0.0)
       {
-        noiseData.noiseDens[FLNOIZ] *= (Ssi * Swi) / T1;
+        noiseData.noiseDens[FLNOIZ] = (Ssi * Swi) / T1;
       }
       else
       {
-        noiseData.noiseDens[FLNOIZ] *= 0.0;
+        noiseData.noiseDens[FLNOIZ] = 0.0;
       }
       break;
   }
@@ -15790,6 +15803,7 @@ Model::Model(
     rgateMod(0),
     perMod(0),
     geoMod(0),
+    rgeoMod(0),
     mtrlMod(0),
     igcMod(0),
     igbMod(0),

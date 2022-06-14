@@ -39,7 +39,6 @@
 #include <N_DEV_YLin.h>
 
 #include <N_DEV_DeviceOptions.h>
-#include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_Message.h>
 #include <N_IO_OutputFileBase.h>

@@ -34,6 +34,9 @@
 //
 //
 //-------------------------------------------------------------------------
+//
+#include <iostream>
+#include <fstream>
 
 #include <Xyce_config.h>
 
@@ -42,10 +45,13 @@
 #include <N_DEV_ExternData.h>
 #include <N_DEV_ExternalSimulationData.h>
 #include <N_LAS_System.h>
+#include <N_LAS_Matrix.h>
 #include <N_LOA_CktLoader.h>
 #include <N_NLS_Manager.h>
 #include <N_NLS_ConductanceExtractor.h>
+#include <N_NLS_TwoLevelPrintJac.h>
 #include <N_TIA_StepErrorControl.h>
+#include <N_TIA_DataStore.h>
 #include <N_TIA_WorkingIntegrationMethod.h>
 #include <N_UTL_FeatureTest.h>
 
@@ -115,6 +121,11 @@ bool SecondLevelSimulator::simulateStep(
 
   // calculate the conductance:
   getNonlinearManager().getConductanceExtractor().extract(inputMap, outputVector, jacobian);
+
+  // save a copy of these for use in outputs, etc.
+  inputMap_ = inputMap;
+  outputVector_ = outputVector;
+  jacobian_ = jacobian;
 
   return bsuccess;
 }
@@ -194,10 +205,164 @@ SecondLevelSimulator::homotopyStepSuccess(
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/30/2006
 //---------------------------------------------------------------------------
-void
-SecondLevelSimulator::homotopyStepFailure()
+void SecondLevelSimulator::homotopyStepFailure()
 {
   secondLevelManager_->homotopyStepFailure();
+}
+
+//---------------------------------------------------------------------------
+// Function      : SecondLevelSimulator::daeOutputs
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/01/2022
+//---------------------------------------------------------------------------
+void SecondLevelSimulator::daeOutputs()
+{
+  Xyce::TimeIntg::DataStore* dsPtr_ = secondLevelManager_->getDataStore();
+
+  bool outputDAEvectors = secondLevelManager_->getOutputDAEvectors();
+  bool outputDAEvectors_noport = secondLevelManager_->getOutputDAEvectors_noport();
+  bool outputDAEmatrices = secondLevelManager_->getOutputDAEmatrices();
+
+  std::string netlistFile;
+  int outputStepNum=0;
+  if (outputDAEvectors || outputDAEvectors_noport || outputDAEmatrices)
+  {
+    netlistFile = commandLine_.getArgumentValue("netlist");
+    outputStepNum = secondLevelManager_->getStepNumber() + 1;
+  }
+
+  if (outputDAEvectors || outputDAEvectors_noport)
+  {
+    Linear::Vector *daeQ    = dsPtr_->daeQVectorPtr;
+    Linear::Vector *daeF    = dsPtr_->daeFVectorPtr;
+    Linear::Vector *daeB    = dsPtr_->daeBVectorPtr;
+    Linear::Vector *xVec    = dsPtr_->nextSolutionPtr;
+
+    if (outputDAEvectors)
+    {
+      char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
+      char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
+      char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
+      char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6b[ich] = 0;
+      sprintf(filename1, "%s_soln_%03d.txt", netlistFile.c_str(), outputStepNum);
+      sprintf(filename4, "%s_daeQ_%03d.txt", netlistFile.c_str(), outputStepNum);
+      sprintf(filename6, "%s_daeF_%03d.txt", netlistFile.c_str(), outputStepNum);
+      sprintf(filename6b,"%s_daeB_%03d.txt", netlistFile.c_str(), outputStepNum);
+
+      // write the vectors:
+      xVec->writeToFile(filename1);
+      daeQ->writeToFile(filename4);
+      daeF->writeToFile(filename6);
+      daeB->writeToFile(filename6b);
+    }
+
+    if (outputDAEvectors_noport) // output F and B vectors, with port Vsrcs subtracted out
+    {
+      char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
+      char filename7b[256];for (int ich = 0; ich < 256; ++ich) filename7b[ich] = 0;
+      sprintf(filename7, "%s_delF_%03d.txt", netlistFile.c_str(), outputStepNum);
+      sprintf(filename7b,"%s_delB_%03d.txt", netlistFile.c_str(), outputStepNum);
+
+      Xyce::Linear::Vector *delB = getLinearSystem().getRHSVector();// at this point, this isn't being used
+      Xyce::Linear::Vector *delF = getLinearSystem().getNewtonVector();// at this point, this isn't being used
+      Xyce::Linear::Vector *nextSol =  dsPtr_->nextSolutionPtr;
+      std::vector<std::string> names;
+      int numElectrodes = jacobian_.size();
+      std::map<std::string,double>::const_iterator iterM = inputMap_.begin();
+      std::map<std::string,double>::const_iterator  endM = inputMap_.end  ();
+      for (int iE1 = 0; iE1 < numElectrodes; ++iE1,++iterM) { names.push_back(iterM->first); }
+      delF->putScalar(0.0); 
+      delB->putScalar(0.0); 
+      getDeviceManager().loadTwoLevelVsrcs(names,delF,delB,nextSol);
+
+      delF->scale(-1.0);
+      delF->update(1.0,*daeF);
+
+      delB->scale(-1.0);
+      delB->update(1.0,*daeB);
+
+      // write the vectors:
+      delF->writeToFile(filename7);
+      delB->writeToFile(filename7b);
+    }
+  }
+
+  if (outputDAEmatrices)
+  {
+    char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
+    char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
+    sprintf(filename1, "%s_dQdx_%03d.txt", netlistFile.c_str(), outputStepNum);
+    sprintf(filename2, "%s_dFdx_%03d.txt", netlistFile.c_str(), outputStepNum);
+
+    // write the matrices:
+    bool useLIDs=false;
+    bool mmFormat=false;
+    dsPtr_->dQdxMatrixPtr->writeToFile (filename1, useLIDs, mmFormat );
+    dsPtr_->dFdxMatrixPtr->writeToFile (filename2, useLIDs, mmFormat );
+  }
+}
+
+//---------------------------------------------------------------------------
+// Function      : SecondLevelSimulator::reducedOutputs
+//
+// Purpose       : This function outputs the extracted conductance 
+//                 and the port currents to files.  It expects to be called 
+//                 only at the end of converged time steps (or converged DC 
+//                 steps).  In other words, from the stepSucccess function.
+//
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/01/2022
+//---------------------------------------------------------------------------
+void SecondLevelSimulator::reducedOutputs()
+{
+  // outputs
+  bool condOutput = secondLevelManager_->getCondOutputFlag();
+  bool currOutput = secondLevelManager_->getPortCurrentOutputFlag();
+
+  int outputStepNum(0);
+  std::ofstream out;
+  std::string netlistFile;
+  char tmp[8]; for (int ich = 0; ich < 8; ++ich) tmp[ich] = 0;
+
+  std::vector<std::string> names;
+  if (condOutput || currOutput)
+  {
+    outputStepNum = secondLevelManager_->getStepNumber();
+    netlistFile = commandLine_.getArgumentValue("netlist");
+    sprintf(tmp, "%03d", outputStepNum);
+
+    int numElectrodes = jacobian_.size();
+    std::map<std::string,double>::const_iterator iterM = inputMap_.begin();
+    std::map<std::string,double>::const_iterator  endM = inputMap_.end  ();
+    for (int iE1 = 0; iE1 < numElectrodes; ++iE1,++iterM) { names.push_back(iterM->first); }
+  }
+
+  if (condOutput)
+  {
+    std::string condFileName = netlistFile + "_conductance_" + std::string(tmp) + ".txt";
+    out.open(condFileName);
+    Xyce::Nonlinear::printJacobian(out,netlistFile,names,jacobian_);
+    out.close();  
+  }
+
+  if (currOutput)
+  {
+    int colw=20;
+    std::string currFileName = netlistFile + "_port_currents_" + std::string(tmp) + ".txt";
+    out.open(currFileName);
+    for (int ii=0;ii<outputVector_.size();++ii)
+    {
+      out << netlistFile << " port:"<< std::setw(15) << names[ii];
+      out << std::scientific << std::setw(colw) << std::setprecision(8) <<  outputVector_[ii];
+      out << std::endl;
+    }
+    out.close();  
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -210,7 +375,9 @@ SecondLevelSimulator::homotopyStepFailure()
 //---------------------------------------------------------------------------
 void SecondLevelSimulator::stepSuccess(Analysis::TwoLevelMode analysis)
 {
+  daeOutputs();
   secondLevelManager_->stepSecondLevelSuccess(analysis);
+  reducedOutputs();
 }
 
 //---------------------------------------------------------------------------

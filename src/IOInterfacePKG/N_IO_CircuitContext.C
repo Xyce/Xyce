@@ -1309,12 +1309,16 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   {
     for (Util::UParamList::iterator it = asYetUnresolvedParameters.begin(); it != asYetUnresolvedParameters.end(); ++it)
     {
-      Report::UserError0() << "Unable to resolve parameter " << (*it).uTag() << " found in .PARAM statement";
+      std::string tmp = std::string("");
+      if ((*it).getType() == Xyce::Util::EXPR) { tmp = (*it).uTag() + std::string(" = ") + ((*it).getValue<Util::Expression>().get_expression()); }
+      Report::UserError0() << "Unable to resolve parameter " << (*it).uTag() << " found in .PARAM statement" << tmp;
     }
 
     for (Util::UParamList::iterator it = asYetUnresolvedGlobalParameters.begin(); it != asYetUnresolvedGlobalParameters.end(); ++it)
     {
-      Report::UserError0() << "Unable to resolve global parameter " << (*it).uTag() << " found in .PARAM statement";
+      std::string tmp = std::string("");
+      if ((*it).getType() == Xyce::Util::EXPR) { tmp = (*it).uTag() + std::string(" = ") + ((*it).getValue<Util::Expression>().get_expression()); }
+      Report::UserError0() << "Unable to resolve global parameter " << (*it).uTag() << " found in .PARAM statement" << tmp;
     }
 
     for (std::vector<FunctionBlock>::iterator func_it = asYetUnresolvedFunctions.begin(); func_it != asYetUnresolvedFunctions.end(); ++func_it)

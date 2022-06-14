@@ -521,7 +521,7 @@ bool ConductanceExtractor::extract(
       if (DEBUG_CONDUCTANCE && isActive(Diag::NONLINEAR_CONDUCTANCE))
       {
         std::string vsrcName = iterM->first;
-        print_(vsrcName);
+        print(Xyce::dout(),vsrcName);
         Xyce::dout() << "dIdv = " << dIdv << std::endl;
       }
 
@@ -538,22 +538,23 @@ bool ConductanceExtractor::extract(
   NewtonVectorPtr_->putScalar(0.0);
   NewtonVectorPtr_->update(1.0, *(savedNewtonVectorPtr_));
 
-  if (VERBOSE_CONDUCTANCE)
-    printJacobian_ (inputMap,jacobian);
+  if (VERBOSE_NONLINEAR)
+    printJacobian (Xyce::dout(),inputMap,jacobian);
 
   return bsuccess;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ConductanceExtractor::printJacobian_
+// Function      : ConductanceExtractor::printJacobian
 // Purpose       : Prints the small STL jacobian to the screen.
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/08/06
 //-----------------------------------------------------------------------------
-void ConductanceExtractor::printJacobian_
-    (const std::map<std::string,double> & inputMap,
+void ConductanceExtractor::printJacobian
+    (std::ostream &os,
+     const std::map<std::string,double> & inputMap,
      std::vector< std::vector<double> > & jacobian)
 {
 
@@ -564,33 +565,36 @@ void ConductanceExtractor::printJacobian_
   std::map<std::string,double>::const_iterator  endM = inputMap.end  ();
   for (int iE1 = 0; iE1 < numElectrodes; ++iE1,++iterM) { names.push_back(iterM->first); }
 
-  Xyce::Nonlinear::printJacobian(Xyce::dout(),std::string(""),names,jacobian);
+  std::string netlistFile (nls_.commandLine_.getArgumentValue("netlist"));
+  Xyce::Nonlinear::printJacobian(os,netlistFile,names,jacobian);
 
   return;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ConductanceExtractor::print_
+// Function      : ConductanceExtractor::print
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/08/06
 //-----------------------------------------------------------------------------
-void ConductanceExtractor::print_(const std::string & varName)
+void ConductanceExtractor::print(
+      std::ostream &os,
+    const std::string & varName)
 {
-  Xyce::dout().width(15); Xyce::dout().precision(7); Xyce::dout().setf(std::ios::scientific);
+  os.width(15); os.precision(7); os.setf(std::ios::scientific);
   std::string srcName = varName;
-  Xyce::dout() << "Info for input voltage: " << srcName << std::endl;
-  Xyce::dout() << "Jacobian:" << std::endl;
-  jacobianMatrixPtr_->print(Xyce::dout());
+  os << "Info for input voltage: " << srcName << std::endl;
+  os << "Jacobian:" << std::endl;
+  jacobianMatrixPtr_->print(os);
 
   // now print out the dxdv vector:
-  Xyce::dout() << "dxdv:" << std::endl;
-  dxdvVectorPtr_->print(Xyce::dout());
+  os << "dxdv:" << std::endl;
+  dxdvVectorPtr_->print(os);
 
-  Xyce::dout() << "dfdv:" << std::endl;
-  dfdvVectorPtr_->print(Xyce::dout());
+  os << "dfdv:" << std::endl;
+  dfdvVectorPtr_->print(os);
 }
 
 } // namespace Nonlinear

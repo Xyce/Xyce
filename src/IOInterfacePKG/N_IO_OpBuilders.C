@@ -394,7 +394,8 @@ struct CircuitNoiseContOpBuilder : public Util::Op::Builder
           std::ostringstream s;
           s << suffix;
 
-          nt_it = outputManager_.getNoiseTypeNameMap().find("noise_" + args[0] + "_" + args[1] + "_" + s.str());
+          std::string key = "noise_" + args[0] + "_" + args[1] + "_" + s.str();
+          nt_it = outputManager_.getNoiseTypeNameMap().find(key);
           if (nt_it != outputManager_.getNoiseTypeNameMap().end())
           {
             typeIndex.push_back((*nt_it).second);

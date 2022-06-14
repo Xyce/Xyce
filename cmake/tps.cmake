@@ -249,7 +249,7 @@ endif()
 
 # Hybrid-hybrid ShyLU linear solver 
 if(Trilinos_VERSION VERSION_GREATER "12.12.1")
-  if (DEFINED Xyce_SHYLU_DDCore AND NOT Xyce_SHYLU_DDCore)
+  if (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
      set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
   else()
      message(STATUS "Looking for ShyLU in Trilinos")

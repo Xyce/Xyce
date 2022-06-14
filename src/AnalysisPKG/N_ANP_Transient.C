@@ -79,12 +79,10 @@
 #include <N_UTL_SaveIOSState.h>
 
 #include <N_ANP_HB.h>
+#include <N_ANP_OutputConductanceFile.h>
+
 namespace Xyce {
 namespace Analysis {
-
-void writeConductanceFile(const std::vector<std::string> &device_names, 
-    Nonlinear::ConductanceExtractor &conductance_extractor, 
-    const std::string &filename);
 
 //-----------------------------------------------------------------------------
 // Function      : Transient::Transient(AnalysisManager &manager)
@@ -149,8 +147,8 @@ Transient::Transient(
     historyTrackingDepth(25),
     passNLStall(false),
     saveTimeStepsFlag(false),
-    condTestFlag(false),
-    condTestDeviceNames(),
+    condTestFlag_(false),
+    condTestDeviceNames_(),
     hbAnalysis_(hb_analysis),
     mpdeManager_(mpde_manager),
     numSensParams_(0),
@@ -382,11 +380,11 @@ bool Transient::setTimeIntegratorOptions(
     }
     else if (param.uTag() == "CONDTEST")
     {
-      condTestFlag = static_cast<bool> (param.getImmutableValue<int>());
+      condTestFlag_ = static_cast<bool> (param.getImmutableValue<int>());
     }
-    else if (param.uTag() == "CONDTESTDEVICENAME")
+    else if (std::string( param.uTag() ,0,18) == "CONDTESTDEVICENAME")
     {
-      condTestDeviceNames.push_back(param.stringValue() );
+      condTestDeviceNames_.push_back(param.stringValue() );
     }
     else if (param.uTag() == "DAESTATEDERIV" )
     {
@@ -699,11 +697,6 @@ bool Transient::doRun()
       return bsuccess;
     }
     bsuccess = bsuccess && doLoopProcess() && doFinish();
-  }
-
-  if (condTestFlag)
-  {
-    writeConductanceFile(condTestDeviceNames, nonlinearManager_.getConductanceExtractor(), "conductance.txt");
   }
 
   return bsuccess;
@@ -4049,89 +4042,6 @@ std::vector<double> computeOutputInterpolationTimes(
   }
 
   return output_interpolation_times;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : writeConductanceFile
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/06/2006
-//-----------------------------------------------------------------------------
-void writeConductanceFile(
-    const std::vector<std::string> &device_names, 
-    Nonlinear::ConductanceExtractor &conductance_extractor, 
-    const std::string &filename)
-{
-  std::map<std::string,double> inputMap;
-
-  // load inputMap from tiaParam.device_names option
-  for (std::vector<std::string>::const_iterator it = device_names.begin(), 
-      end = device_names.end(); it != end; ++it) 
-  {
-    inputMap[*it] = 0.0;
-  }
-
-  // if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
-  // {
-  //   Xyce::dout() << "AnalysisManager::conductanceTest()" << std::endl;
-  //   std::list<std::string>::const_iterator it = tia_params.device_names.begin(); 
-  //   std::list<std::string>::const_iterator end = tia_params.device_names.end();
-  //   for ( ; it != end; ++it)
-  //     Xyce::dout() << "current device name = \"" << *it
-  //                  << "\" added to inputMap[ " << *it << " ] = " 
-  //                  << inputMap[ *it ] << std::endl;
-  // }
-
-  int isize = inputMap.size();
-  std::vector<double> outputVector(isize, 0.0);
-  std::vector< std::vector<double> > jacobian(isize);
-  for (int i = 0; i < isize; ++i)
-  {
-    jacobian[i].resize(isize, 0.0);
-  }
-
-  bool b1 = conductance_extractor.extract(inputMap, outputVector, jacobian);
-
-  int iE1, iE2;
-  int numElectrodes = isize;
-
-  FILE *fp1;
-  fp1 = fopen(filename.c_str(), "w");
-
-  fprintf(fp1, "%s", "Conductance array: \n");
-  fprintf(fp1,"%s", "              ");
-  if (b1)
-  {
-    std::map<std::string,double>::const_iterator iterM = inputMap.begin();
-    std::map<std::string,double>::const_iterator  endM = inputMap.end  ();
-    for (iE2 = 0; iE2 < numElectrodes; ++iE2, ++iterM)
-    {
-      std::string srcname = iterM->first;
-      fprintf(fp1, "\t%14s", srcname.c_str());
-    }
-    fprintf(fp1, "%s", "\n");
-
-    iterM = inputMap.begin();
-    for (iE1 = 0; iE1 < numElectrodes; ++iE1, ++iterM)
-    {
-      std::string srcname = iterM->first;
-      fprintf(fp1,"%14s",srcname.c_str());
-      for (iE2 = 0; iE2 < numElectrodes; ++iE2)
-      {
-        fprintf(fp1,"\t%14.4e",jacobian[iE1][iE2]);
-      }
-      fprintf(fp1,"%s", "\n");
-    }
-    fprintf(fp1,"%s", "\n");
-  }
-  else
-  {
-    fprintf(fp1,"%s", "\nConductance calculation failed!\n");
-  }
-
-  fclose(fp1);
 }
 
 namespace {
