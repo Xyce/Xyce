@@ -525,12 +525,6 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       ExtendedString tag = (*it).stringValue();
       hackOutputFormat_ = tag.toUpper();
     }
-#if 0
-    else if ((*it).uTag() == "OUTPUT_ALL_SAMPLES")
-    {
-      hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
-    }
-#endif
     else if ((*it).uTag() == "OUTPUT_SAMPLE_STATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
