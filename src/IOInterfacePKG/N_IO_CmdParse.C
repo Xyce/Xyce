@@ -410,23 +410,6 @@ CmdParse::setNetlist(
     Report::DevelFatal0().in("CmdParse::setNetlist") << "Unable to find netlist argument.";
   }
 
-
-#if 0
-  //++netIndex;
-
-  if ( netIndex >= argc_ )
-  {
-    // Unexectedly ran out of arguments on the command line.
-    Report::DevelFatal0().in("CmdParse::setNetlist") << "Did not find previous netlist setting.";
-  }
-  else if (argv_[netIndex][0] == '-')
-  {
-    // Error if we ran into another option here.
-    Report::DevelFatal0().in("CmdParse::setNetlist") << "Expected option value, but found option " << argv_[netIndex];
-  }
-  else // found it!
-#endif
-
   {
     delete [] argv_[netIndex];
 
