@@ -1185,7 +1185,6 @@ bool Instance::updatePrimaryState()
 //-----------------------------------------------------------------------------
 void Instance::loadErrorWeightMask ()
 {
-#ifndef Xyce_NO_MUTINDLIN_MASK
   Linear::Vector * maskVectorPtr = extData.deviceErrorWeightMask_;
 
   std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
@@ -1195,7 +1194,6 @@ void Instance::loadErrorWeightMask ()
     (*maskVectorPtr)[((*currentInductor)->li_Branch)] = 0.0;
     ++currentInductor;
   }
-#endif
 }
 
 //-----------------------------------------------------------------------------
