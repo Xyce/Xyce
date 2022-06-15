@@ -752,40 +752,10 @@ ParameterBlock::addDefaultCompositeModelParameters_(
 
   if (inputCompositeParamVecMap.find(baseTag) == inputCompositeParamVecMap.end())
   {
-#if 0
-    // did the user specify this composite?  If not, then set up a single
-    // "column" of the composite.
-    inputCompositeParamVecMap[baseTag].resize(1);
-    for (icomp=0;icomp<iDefaultCompSize;++icomp)
-    {
-      Device::Param & paramDefault = defaultComponents[icomp];
-      inputCompositeParamVecMap[baseTag][0].push_back(paramDefault);
-    }
-#else
-
     // do nothing.  If user did not specify, then don't include it in params.
-
-#endif
   }
   else
   {
-
-#if 0
-    // Error checks:  (flesh these out later)
-
-
-    // double check that the input composite has correct defaultComponents in it.
-    iNumCols = inputCompositeParamVecMap[baseTag].size();
-    for (ic=0;ic<iNumCols;++ic)
-    {
-
-    }
-
-    // double check that all the input composite parameters exist in metadata
-
-    // double check that the input composite is a matrix (each column same size) .
-
-#endif
 
     // push defaults into the inputCompositeParamVecMap, as needed.
     for (icomp=0;icomp<iDefaultCompSize;++icomp)
