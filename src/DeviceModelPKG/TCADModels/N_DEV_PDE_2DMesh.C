@@ -1689,18 +1689,6 @@ bool PDE_2DMesh::setupDefaultLabels(int numberElectrodes)
     tmpName = xLabel.name;
     tmpName.toUpper();
     mLabelMap[tmpName] = xLabel;
-
-#if 0
-    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-    {
-      Xyce::dout() << "Right before pushing back the ANODE label." << std::endl;
-      for (i=0;i<xLabel.mNodeVector.size();++i)
-      {
-	cout << "Node: " << i << " = " << xLabel.mNodeVector[i];
-	cout << std::endl;
-      }
-    }
-#endif
     mLabelVector.push_back(xLabel);
 
     // do the Cathode:
@@ -1724,19 +1712,6 @@ bool PDE_2DMesh::setupDefaultLabels(int numberElectrodes)
     tmpName = xLabel.name;
     tmpName.toUpper();
     mLabelMap[tmpName] = xLabel;
-
-#if 0
-    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-    {
-      Xyce::dout() << "Right before pushing back the CATHODE label." << std::endl;
-      for (i=0;i<xLabel.mNodeVector.size();++i)
-      {
-	cout << "Node: " << i << " = " << xLabel.mNodeVector[i];
-	cout << std::endl;
-      }
-    }
-#endif
-
     mLabelVector.push_back(xLabel);
 
     // set up NOFLUX:
@@ -1767,18 +1742,6 @@ bool PDE_2DMesh::setupDefaultLabels(int numberElectrodes)
     tmpName = xLabel.name;
     tmpName.toUpper();
     mLabelMap[tmpName] = xLabel;
-
-#if 0
-    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-    {
-      Xyce::dout() << "Right before pushing back the NOFLUX label." << std::endl;
-      for (i=0;i<xLabel.mNodeVector.size();++i)
-      {
-        Xyce::dout() << "Node: " << i << " = " << xLabel.mNodeVector[i];
-        Xyce::dout() << std::endl;
-      }
-    }
-#endif
     mLabelVector.push_back(xLabel);
 
     // Also assign labels to the edges in mEdgeVector.
@@ -3800,11 +3763,6 @@ void PDE_2DMesh::calcAdjacencyInfo ()
   // initialize the visit flag array
   for (i=0;i<numNodes;++i) afVisitedVec[i] = 0;
 
-#if 0
-  // allocate start and ending region indices
-  int cRegion = 1; // just SI. for now...  This will need updating later.
-#endif
-
   // loop through each element
   for(i = 0; i < numCells; ++i)
   {
@@ -3940,12 +3898,6 @@ void PDE_2DMesh::calcAdjacencyInfo ()
           aedgeinfo[k].Area2 = area;
         }
 
-#if 0
-        // write the node and edge information to disk
-        write(nFile, &nadj.inode, sizeof(INODE));
-        write(nFile, &nodeinfo, sizeof(NODEINFO) - sizeof(EDGEINFO *));
-        write(nFile, aedgeinfo, c * sizeof(EDGEINFO));
-#else
         // fill in mNode class w/information from nodeinfo.
         mNodeVector[*pinode].area  = nodeinfo.Area;
         mNodeVector[*pinode].cnode = nodeinfo.cNeighbor;
@@ -3966,7 +3918,6 @@ void PDE_2DMesh::calcAdjacencyInfo ()
           edgeTmp.Area1 = mNodeVector[*pinode].edgeInfoVector[k].Area1;
           edgeTmp.Area2 = mNodeVector[*pinode].edgeInfoVector[k].Area2;
         }
-#endif
         // Is this node a boundary node?
 	// may need to change this if statement later. It dependes upon the
 	// node list being ordered a certain way.  Either have to use a boundary
@@ -5072,21 +5023,6 @@ mNode::mNode () :
   fGotAll(false)
 {
 
-#if 0
-  aiNodeVector.reserve  (32);
-  aiEdgeVector.reserve  (32);
-  aiCellVector.reserve  (32);
-  auLabelVector.reserve (32);
-
-
-  for (int i=0;i<32;++i)
-  {
-    aiNodeVector[i] = -1;
-    aiEdgeVector[i] = -1;
-    aiCellVector[i] = -1;
-    auLabelVector[i] = -1;
-  }
-#endif
 }
 
 //-----------------------------------------------------------------------------

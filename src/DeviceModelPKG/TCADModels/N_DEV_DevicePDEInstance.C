@@ -160,13 +160,8 @@ double DevicePDEInstance::pd1aux1(double x)
 {
   double y;
 
-#if 0
-  if      (x < -bernSupport.bp0_MISC) x = -bernSupport.bp0_MISC;
-  else if (x >  bernSupport.bp0_MISC) x =  bernSupport.bp0_MISC;
-#else
   if      (x < -700.0) x = -700.0;
   else if (x >  700.0) x =  700.0;
-#endif
 
   if (x <= bernSupport.bp0_DAUX1)
   {
