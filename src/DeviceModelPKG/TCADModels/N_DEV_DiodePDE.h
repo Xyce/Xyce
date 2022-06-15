@@ -412,13 +412,8 @@ private:
   std::vector<double> nnVec;  // electron density
   std::vector<double> npVec;  // hole density
 
-#if 0
-  std::vector<double> unE_Vec; // mobility along edge, electron
-  std::vector<double> upE_Vec; // mobility along edge, hole
-#else
   std::vector<pdeFadType> unE_Vec; // mobility along edge, electron
   std::vector<pdeFadType> upE_Vec; // mobility along edge, hole
-#endif
 
   std::vector<double> tnVec;  // spatially dependent lifetimes, electron
   std::vector<double> tpVec;  // spatially dependent lifetimes, hole
