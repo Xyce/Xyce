@@ -2353,14 +2353,7 @@ bool CircuitContext::fullyResolveParam(Device::Param & param, double & value) co
         // rather than have a fatal error.
         if (param.hasExpressionValue())
         {
-#if 0
-          Util::Expression &expression = const_cast<Util::Expression &>(param.getValue<Util::Expression>());
-          double dVal;
-          expression.evaluateFunction (dVal);
-          value = dVal;
-#else
           value = param.getMutableValue<double>();
-#endif
         }
         else
         { // if not an expression, do things the old-fashioned way
