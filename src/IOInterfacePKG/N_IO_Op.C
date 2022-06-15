@@ -1852,18 +1852,11 @@ void ExpressionOp::init(
 //-----------------------------------------------------------------------------
 complex ExpressionOp::get(const ExpressionOp &op, const Util::Op::OpData &op_data)
 {
-#if 0
-  complex result(op.expressionData_.evaluate(op.comm_, 
-        op.outputMgr_.getCircuitTime(), 
-        op.outputMgr_.getCircuitTimeStep(), 
-        op_data), 0.0);
-#else
   complex result(0.0,0.0);
   op.expressionData_.evaluate(op.comm_, 
         op.outputMgr_.getCircuitTime(), 
         op.outputMgr_.getCircuitTimeStep(), 
         op_data,result);
-#endif
   return result;
 }
 
