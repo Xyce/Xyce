@@ -671,17 +671,6 @@ void DataStore::setConstantHistoryAdjoint ()
   }
 
   // don't bother with lead currents (for now? maybe ever)
-#if 0
-  if (leadCurrentSize)
-  {
-    // lead current and junction voltage vectors 
-    *(currLeadCurrentPtr) = *(nextLeadCurrentPtr);
-    *(currLeadCurrentQPtr) = *(nextLeadCurrentQPtr);
-    *(currLeadDeltaVPtr) = *(nextLeadDeltaVPtr);
-    *(currLeadCurrentQDerivPtr) = *(nextLeadCurrentQDerivPtr);
-  }
-#endif
-
 }
 
 
@@ -1017,13 +1006,6 @@ void DataStore::updateSolDataArraysAdjoint(int timeIndex)
     {
       *(lastStatePtr) = *(currStatePtr);
     }
-
-#if 0
-    // Derivative of States:  Skip for now
-    tmpPtr = currStateDerivPtr;
-    currStateDerivPtr = nextStateDerivPtr;
-    nextStateDerivPtr = tmpPtr;
-#endif
   }
 
   if (storeSize)
