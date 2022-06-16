@@ -204,7 +204,6 @@ class Stat
   friend class StatImpl;
   friend class StatTop;
   friend class TimeBlock;
-  friend class TimeBlockSynchronized;
   friend void updateRootStat(Stat);
   friend Stat createRootStat(const std::string &, const StatSet &);
   friend void deleteRootStat(Stat);
@@ -605,63 +604,6 @@ private:
 };
 
 /**
- * Class <b>TimeBlockSynchronized</b> is a time sentry for timing a statement
- * block.  The stat is generally started upon construction. But, the start is delayed
- * if the second argument is false.  In this case, manually start the stat by calling
- * the start() function.  This gives the safety of using a sentry, but does not force to
- * awkwardness associated with local variables crossing the timed block.
- *
- * Prior to starting the stat, an MPI synchronization barrier is set so that the
- * timing of routines which require MPI communication will all be at a known location
- * prior to executing.
- *
- */
-class TimeBlockSynchronized
-{
-public:
-  /**
-   * Creates a new <b>TimeBlockSynchronized</b> instance.  If
-   * <b>start_stat</b> is true, then the stat is started using the
-   * <b>start()</b>.  An <b>MPI_Barrier</b> is called to synchronize the
-   * start of the stat. The destructor will always stop a started stat.
-   *
-   * @param stat    a <b>Stat</b> reference to the stat to start.
-   *
-   * @param mpi_comm    a <b>MPI_Comm</b> value of the mpi communicator.
-
-   * @param start_stat  a <b>bool</b> value to start the stat on construction.
-   *
-   */
-  TimeBlockSynchronized(Stat &stat, Parallel::Machine mpi_comm, bool start_stat = true);
-
-  /**
-   * Destroys a <b>TimeBlockSynchronized</b> instance.  Stops the stat if it has
-   * been started.
-   *
-   */
-  ~TimeBlockSynchronized();
-
-  /**
-   * Member function <b>start</b> starts the stat associated with the time block.
-   * An <b>MPI_Barrier</b> is executed prior to starting the stat.
-   *
-   */
-  void start();
-
-  /**
-   * Member function <b>stop</b> stops the stat associated with the time block.
-   *
-   */
-  void stop();
-
-private:
-  Stat &      m_stat;  ////< Stat to accumulate block run times.
-  Parallel::Machine    m_mpiComm;  ////< MPI comm to synchronize across
-  bool      m_started;  ////< Stat has been started
-};
-
-
-/**
  * @brief Enumeration <b><unnnamed></b> defines the bit mask values for the diagnostic
  * stat's in the <b>Diag</b> namespace.
  *
@@ -691,8 +633,6 @@ enum StatSetMask {
 StatSet &xyceStatSet();
 
 Stat &xyceStat();
-
-void xyceStatDestroy();
 
 /**
  * @brief Enumeration <b><unnamed></b> defines some constants used for the
