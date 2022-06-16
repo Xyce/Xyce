@@ -123,16 +123,6 @@ inline bool baseNewton::solveLinearSystem()
   //! Solves a system of linear equations \c A*X=B or \c A'*X=B with a general \c n by \c n matrix \c A using the LU factorization computed by GETRF.
   lapack.GETRS( 'N', JacobianMatrix.numRows(), 1, JacobianMatrix.values(), JacobianMatrix.numRows(), &ipiv[0], RHS.values(), JacobianMatrix.numRows(), &info2) ;
 
-#if 0
-  Xyce::lout() << "LAPACK linear solve result" << std::endl;
-  Xyce::lout() << "info1 = " << info1 <<std::endl;
-  Xyce::lout() << "info2 = " << info1 <<std::endl;
-  for (int i=0;i<size;++i)
-  {
-    Xyce::lout() << "RHS("<<i<<") = " << RHS(i,0) <<std::endl;
-  }
-#endif
-
   // check this later
   return true;
 }
@@ -165,13 +155,7 @@ inline bool baseNewton::newtonSolve()
     dX = RHS;
     X += dX;
 
-#if 0
-    Xyce::lout() << "--------------\ndX vector:";
-    dX.print(Xyce::lout());
-    Xyce::lout() << "--------------\nX vector:";
-    X.print(Xyce::lout());
-#endif
-  
+
     converged = checkConvergence();
 
     if (iNewt >= maxSteps) 

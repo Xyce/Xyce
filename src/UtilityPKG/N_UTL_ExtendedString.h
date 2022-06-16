@@ -39,9 +39,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#if 1
 #include <iostream>
-#endif
 
 #include <N_UTL_NoCase.h>
 

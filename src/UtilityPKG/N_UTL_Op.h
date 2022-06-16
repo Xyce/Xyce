@@ -168,7 +168,6 @@ struct OpData
     RFparams_(0)
   {}
 
-#if 1
   // ERK.  code compiles without this, so maybe not needed.
   //
   // For the new outputsXyceExpressionGroup, it will probably be necessary for this class to be copied.  
@@ -220,7 +219,6 @@ struct OpData
 
     return *this;
   };
-#endif
 
   OpData(
     int                                 current_index,

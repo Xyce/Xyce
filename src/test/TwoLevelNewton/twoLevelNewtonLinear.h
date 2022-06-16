@@ -200,17 +200,6 @@ inline topLevelNewton::topLevelNewton(std::string & netlist):
 // to be called.
 inline void topLevelNewton::interfaceFunctions ()
 {
-#if 0
-    simulator_->homotopyStepSuccess(paramNames, paramVals);
-    simulator_->homotopyStepFailure();
-    simulator_->stepSuccess(analysis);
-    simulator_->stepFailure(analysis);
-    simulator_->getInitialQnorm (tle);
-    simulator_->getBreakPoints(breakPointTimes);
-    simulator_->updateStateArrays ();
-    simulator_->startTimeStep( beginIntegrationFlag, nextTimeStep, nextTime, currentOrder);
-    simulator_->setInternalParam (name, val);
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -394,15 +383,6 @@ inline void topLevelNewton::updateLinearSystem()
 
   // voltage drop for vconnect001   = value of source minus the solution variable, since attached to gnd
   RHS(4,0) += (vconnect001-v3);
-
-
-#if 0
-  Xyce::lout() << "Done setting up the linear system:"<<std::endl;
-  Xyce::lout() << "--------------\nJacobian:";
-  JacobianMatrix.print(Xyce::lout());
-  Xyce::lout() << "--------------\nRHS:";
-  RHS.print(Xyce::lout());
-#endif
 
 }
 
