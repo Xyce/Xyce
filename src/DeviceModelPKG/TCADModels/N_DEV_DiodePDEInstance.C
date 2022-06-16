@@ -1385,7 +1385,6 @@ bool Instance::setupJacStamp ()
 //-----------------------------------------------------------------------------
 bool Instance::cleanupJacStamp ()
 {
-#if 1
   // set up normal jacMap for when all resistances nonzero
   // If nothing is remapped, this amounts to a null operation when the
   // map is used later.  The maps become important when we start
@@ -1420,8 +1419,6 @@ bool Instance::cleanupJacStamp ()
     jacStamp = tempStamp_eric;
     jacMap2 = tempMap2_eric;
   }
-
-#endif // if 1
 
   return true;
 }
