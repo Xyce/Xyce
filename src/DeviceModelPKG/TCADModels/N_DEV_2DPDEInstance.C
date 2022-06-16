@@ -2349,11 +2349,7 @@ bool Instance::loadVecDDForm
       }
     }
     coef /= nodeArea;
-#if 1
     coef += - totSrcVec[i] - dndt;
-#else
-    coef += - RVec[i] - dndt;
-#endif
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
@@ -2406,11 +2402,7 @@ bool Instance::loadVecDDForm
     }
     coef /= -nodeArea;
 
-#if 1
     coef += - totSrcVec[i] - dpdt;
-#else
-    coef += - RVec[i] - dpdt;
-#endif
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
