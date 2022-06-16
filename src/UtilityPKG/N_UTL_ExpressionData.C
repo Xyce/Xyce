@@ -437,19 +437,6 @@ ExpressionData::setup(
         else
         {
           // this should never happen now.
-#if 0
-          double val=0.0;
-          if ( replacement_param.getType() == Xyce::Util::STR ||
-               replacement_param.getType() == Xyce::Util::DBLE )
-          {
-            val = replacement_param.getMutableValue<double>();
-          }
-
-          if (!expression_->make_var(varName,val))
-          {
-            Report::UserWarning0() << "Problem setting global parameter " << varName;
-          }
-#endif
         }
       }
       else
