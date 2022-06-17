@@ -118,9 +118,7 @@ public:
   bool processParams ();
   bool updateTemperature(const double & temp_tmp);
 
-#ifndef Xyce_ERK_JFET_CONV_TEST
   inline bool isConverged();
-#endif
 
 public:
   // Getters and setters
@@ -458,7 +456,6 @@ private:
   int dtype;      //  device type:  1 = NJF, -1 = PJF
 };
 
-#ifndef Xyce_ERK_JFET_CONV_TEST
 //-----------------------------------------------------------------------------
 // Function      : Instance:isConverged ()
 // Purpose       : Return whether a MOSFET device has done something that
@@ -477,7 +474,6 @@ inline bool Instance::isConverged()
 {
   return (!limitedFlag);
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Class         : Master
