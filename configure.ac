@@ -944,16 +944,6 @@ AS_IF([test x$enable_athena = xyes],
 
 AM_CONDITIONAL([BUILD_ATHENA], [test x$enable_athena = xyes])
 
-dnl Check for the ARAEnv library
-dnl do it here as it requires the same boost libraries that ATHENA does.
-dnl should be smarter about managing boost dependencies
-AC_LANG_PUSH(C++)
-AC_CHECK_LIB([ARAEnv], [main], [], [], [])
-if test "x$ac_cv_lib_ARAEnv_main" = xyes; then
-     AC_CHECK_HEADER([SRenvironment.h], [AC_DEFINE([HAVE_SRENVIRONMENT_H], [1],[Set to have SRenvironment.h])])
-fi
-AC_LANG_POP(C++)
-
 dnl LASTLY:  add -nofor_main to FFLAGS for DEC.  Can't do it earlier than this
 if test "$USING_DEC_CXX" != "no"; then
   FFLAGS="$FFLAGS -nofor_main"
