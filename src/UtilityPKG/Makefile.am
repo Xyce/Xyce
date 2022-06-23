@@ -46,7 +46,6 @@ libUtility_la_SOURCES = \
   N_UTL_Marshal.C \
   N_UTL_JSON.C \
   N_UTL_SendCURL.C \
-  N_UTL_ByThreadStreambuf.C \
   N_UTL_Misc.C \
   N_UTL_ExtendedString.C \
   N_UTL_NetlistLocation.C \
@@ -90,7 +89,6 @@ libUtility_la_SOURCES = \
   N_UTL_IndentStreamBuf.h \
   N_UTL_TeeStreamBuf.h \
   N_UTL_PThread.h \
-  N_UTL_ByThreadStreambuf.h \
   N_UTL_LogStream.h \
   N_UTL_ReportHandler.h \
   N_UTL_Marshal.h \
