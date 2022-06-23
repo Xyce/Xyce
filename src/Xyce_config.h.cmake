@@ -54,10 +54,8 @@
 #cmakedefine HAVE_GETPWUID
 #cmakedefine HAVE_GETHOSTNAME
 #cmakedefine HAVE_GETDOMAINNAME
-#cmakedefine HAVE_SYSCONF
 #cmakedefine HAVE_SYS_UTSNAME_H
 #cmakedefine HAVE_UNAME
-#cmakedefine HAVE__PROC_SELF_STAT
 
 // Reaction parser
 #cmakedefine Xyce_REACTION_PARSER
