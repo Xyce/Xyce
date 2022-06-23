@@ -120,7 +120,7 @@ dnl ********************************************
 
 dnl ********************************************
 dnl Here we determine whether we're doing a threaded build
-AC_ARG_ENABLE(thread-safe-logging, AC_HELP_STRING([--enable-thread-safe-logging], 
+AC_ARG_ENABLE(thread-safe-logging, AS_HELP_STRING([--enable-thread-safe-logging], 
                                       [enable thread safe logging for one Xyce per thread runs (default is no)]), 
                                       ac_enable_threads=$enableval, 
                                       ac_enable_threads=no) 
@@ -386,7 +386,7 @@ AX_CXX_COMPILE_STDCXX(11,,mandatory)
 # bison's C++ interface has a habit of changing incompatibly from time
 # to time.  We therefore enumerate actual versions of Bison our interface
 # is *known* to work with and against which Xyce has been tested. 
-AC_PROG_LEX
+AC_PROG_LEX(noyywrap)
 XYCE_CHECK_BISON([3.8, 3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
 if test `basename $LEX` = "flex";
 then
