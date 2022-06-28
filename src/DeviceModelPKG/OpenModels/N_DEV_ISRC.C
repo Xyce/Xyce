@@ -565,6 +565,7 @@ bool Instance::loadFreqBVector (double frequency,
   {
 
     std::complex<double> tmpVal = 0.0;
+    double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
     switch (TRANSIENTSOURCETYPE)
     {
@@ -574,7 +575,7 @@ bool Instance::loadFreqBVector (double frequency,
 	if (frequency == 0.0 )
 	  tmpVal = std::complex<double> ( v0, 0);
 
-	if (frequency == freq)
+        if ( fabs(frequency - freq) < (frequency * tol  + tol ) )
 	  tmpVal = std::complex<double> ( 0.5*mag*sin(phase), -0.5*mag*cos(phase) );
 
       }
@@ -587,7 +588,7 @@ bool Instance::loadFreqBVector (double frequency,
 
 	fIdx = std::round( frequency/freq);
 
-	double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
+//	double tol = 2.0*Util::MachineDependentParams::MachinePrecision();
 
 	if ( ( fabs(frequency - freq * fIdx) < (frequency * tol  + tol ) ) &&  ( 2* fIdx + 1 <= size_ ) )
 	  tmpVal = std::complex<double> ( ftOutData_[ 2* fIdx]/size_ , ftOutData_[ 2* fIdx + 1 ]/size_);
