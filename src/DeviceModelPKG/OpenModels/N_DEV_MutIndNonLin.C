@@ -647,6 +647,12 @@ bool Instance::processParams()
     ++i;
     ++currentInductor;
   }
+  
+  if( model_.UseConstantDeltaVScaling )
+  {
+    // set scaling to 1.0 so it can be safely factored in as a constant.
+    maxVoltageDrop = 1.0;
+  }
 
   // now set the temperature related stuff.
   updateTemperature(temp);
@@ -1300,7 +1306,7 @@ bool Instance::updateIntermediateVars ()
   }
 
   // Now find (dP/dV_1):
-  double dMirrp_dVp = (delM * DeltaVScaling * (1.0-pow(tanh_qV,2.0))) /
+  double dMirrp_dVp = (delM * (DeltaVScaling/maxVoltageDrop) * (1.0-pow(tanh_qV,2.0))) /
                       (2.0 * (Kirr - Alpha * sq_delM02delM2));
   double dMirrp_dVn = -dMirrp_dVp;
 
@@ -1894,7 +1900,7 @@ bool Instance::loadDAEdFdx ()
       (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += 0.0;
       (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += 0.0;
       (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] += 0.0;
-      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 1.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 0.0;
     }
     else
     {
