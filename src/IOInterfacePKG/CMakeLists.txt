@@ -25,7 +25,6 @@ target_sources(XyceLib PRIVATE
       N_IO_OutputFileBase.C
       N_IO_OutputPrn.C
       N_IO_OutputCsd.C
-      N_IO_OutputHDF5.C
       N_IO_PrintDeviceCount.C
       N_IO_InitialConditions.C
       N_IO_OutputterExternal.C
@@ -45,7 +44,6 @@ target_sources(XyceLib PRIVATE
       N_IO_OutputterHBTimeTecplot.C
       N_IO_OutputterHBFreqTecplot.C
       N_IO_OutputterHBICTecplot.C
-      N_IO_OutputterHDF5.C
       N_IO_OutputterHomotopy.C
       N_IO_OutputterHomotopyCSV.C
       N_IO_OutputterHomotopyPrn.C

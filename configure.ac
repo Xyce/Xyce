@@ -343,17 +343,13 @@ XYCE_DEBUG_OPTION([athena], [yes], [building the ATHENA device],Xyce_ATHENA_REQU
 XYCE_DEBUG_OPTION([adms_sensitivities], [yes], [analytic sensitivities in ADMS-generated device models],Xyce_ADMS_SENSITIVITIES)
 
 
-# Default to HDF5 support off 
+# Default to curl support off
 # Note:  a fourth argument *must* be given, because XYCE_DEBUG_OPTION 
 # forces a "-D" into CPPFLAGS.  But because this particular option may be
-# disabled later when we check if HDF5 libraries and headers are there, the
-# fourth argument must not be the same one that Xyce uses to test for HDF5.
+# disabled later when we check if cURL libraries and headers are there, the
+# fourth argument must not be the same one that Xyce uses to test for cURL.
 # That is, the fourth argument is just "user has asked for this feature"
 # not "this feature works"
-XYCE_DEBUG_OPTION(hdf5,no,[support for HDF5 output library],Xyce_HDF5, USE_HDF5)
-
-# Default to curl support off
-# see commentary above re: HDF5 and use of multiple symbols here.
 # do NOT use "Xyce_CURL" in code, because it will be defined if cURL requested
 # even if cURL isn't usable.
 XYCE_DEBUG_OPTION(curl,no,[support for curl for metrics reporting],Xyce_CURL, USE_CURL)
@@ -843,43 +839,6 @@ fi
 
 AM_CONDITIONAL(BUILD_INTEL_FFT_SUPPORT, test "X$ac_cv_header_mkl_dfti_h" = "Xyes")
 AM_CONDITIONAL(BUILD_FFTW_SUPPORT, test "X$ac_cv_header_fftw3_h" = "Xyes")
-
-# check if the HDF5 functions are available 
-#
-# check if the HDF5 library header is around (version 1.8+), and if it is,
-# check for the library (Note. HDF5 can depend on libsz.a and libz.a,
-# which are available on their web site.  The libz.a used by hdf5 IS NOT the 
-# same as libzc.a used for compressing files.)
-
-if test "X$USE_HDF5" = "Xyes"; then
-  AC_SEARCH_LIBS( [inflate], [z] )
-  AC_SEARCH_LIBS( [SZ_Decompress], [sz])
-  if test "$USE_MPI" = yes; then
-    # look for an HDF5 function that is only defined if HDF is also
-    # built with MPI support.  Currently Xyce in parallel needs 
-    # Parallel HDF5 to do IO in parallel.
-    AC_CHECK_HEADER( [hdf5.h],
-                     [AC_SEARCH_LIBS( [H5Pset_fapl_mpio], [hdf5],
-                                      [AC_DEFINE([Xyce_USE_HDF5],[1], [Set to use HDF5 library])],
-                                      [AC_MSG_WARN([Could not find HDF5 Library with MPI support.  Disabling parallel HDF5 support])
-                                       ac_cv_header_hdf5_h=no
-                                      ])]
-                   )
-  else
-    # configuring Xyce to build in serial, so only look for serial functions 
-    # to check HDF5 availabilit 
-    AC_CHECK_HEADER( [hdf5.h],
-                     [AC_SEARCH_LIBS( [H5Fclose], [hdf5],
-                                      [AC_DEFINE([Xyce_USE_HDF5],[1], [Set to use HDF5 library])],
-                                      [AC_MSG_WARN([Could not find HDF5 Library.  Disabling HDF5 support])
-                                       ac_cv_header_hdf5_h=no
-                                      ])]
-                   )
-  fi      
-else
- ac_cv_header_hdf5_h=no
-fi  
-AM_CONDITIONAL(BUILD_HDF5_SUPPORT, test "X$ac_cv_header_hdf5_h" = "Xyes")
 
 dnl *********************************************************************
 dnl cURL support

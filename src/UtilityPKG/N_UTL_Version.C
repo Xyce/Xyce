@@ -201,10 +201,6 @@ std::string Version::getCapabilities()
 #endif
 #endif
 
-#ifdef Xyce_USE_HDF5
-  capabilities += "HDF5\n";
-#endif
-
 #ifdef Xyce_USE_CURL
   capabilities += "Metrics reporting via cURL\n";
 #ifdef Xyce_TRACKING_URL

@@ -45,10 +45,6 @@
 #include <string>
 #include <vector>
 
-#ifdef Xyce_USE_HDF5
-#include <hdf5.h>
-#endif
-
 #include <N_ANP_fwd.h>
 #include <N_ANP_UQ_fwd.h>
 #include <N_DEV_fwd.h>
@@ -634,10 +630,6 @@ public:
   std::ostream *openBinaryFile(const std::string &path);
   int closeFile(std::ostream *os);
 
-  bool prepareHDF5Output(Parallel::Machine comm);
-  bool updateHDF5Output(Parallel::Machine comm, const Linear::Vector &solnVecPtr);
-  bool closeHDF5Output();
-
   const OutputParameterMap &getOutputParameterMap() const
   {
     return outputParameterMap_;
@@ -752,17 +744,6 @@ private:
 
   OutputterFactoryMap   outputterFactoryMap_;
   OpenPathStreamMap     openPathStreamMap_;
-
-  // HDF5 file support vars
-  bool hdf5FileNameGiven_;
-  bool hdf5HeaderWritten_;
-  std::string hdf5FileName_;
-  int hdf5IndexValue_;
-
-#ifdef Xyce_USE_HDF5
-  hid_t hdf5FileId_;
-  hid_t hdf5PlistId_;
-#endif  // Xyce_USE_HDF5
 
 };
 

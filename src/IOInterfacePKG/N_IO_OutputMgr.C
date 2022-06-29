@@ -149,10 +149,7 @@ OutputMgr::OutputMgr(
     phaseOutputUsesRadians_(false),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
-    maxDCSteps_(0),
-    hdf5FileNameGiven_(false),
-    hdf5HeaderWritten_(false),
-    hdf5IndexValue_(0)
+    maxDCSteps_(0)
 {
   if (command_line.getArgumentValue("-delim") == "TAB")
   {
@@ -876,11 +873,7 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
   //
   // .OPTIONS OUTPUT INITIAL_INTERVAL= <interval> [<t0> <i0> [<t1> <i1>...]]
   //
-  // additional options can appear before or after the INITIAL_INTERVAL as in
-  //
-  //.OPTIONS OUTPUT HDF5FILE= xxxx INITIAL_INTERVAL=<interval> [<t0> <i0> [<t1> <i1>...]]
-  // or
-  // .OPTIONS OUTPUT INITIAL_INTERVAL= <interval> [<t0> <i0> [<t1> <i1>...]] HDF5FILE=xxxx
+  // additional options can appear before or after the INITIAL_INTERVAL 
   //
 
   bool intervalSpecified = false;
@@ -926,13 +919,6 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
           doneWithTimePairs = true;
         }
       }
-    }
-    else if ((*it).tag() == "HDF5FILENAME")
-    {
-    // look for other option tags
-      hdf5FileNameGiven_= true;
-      hdf5FileName_= (*it).stringValue();
-      ++it;
     }
     else if ((*it).tag()=="PRINTHEADER")
     {
@@ -1096,11 +1082,6 @@ void OutputMgr::checkPrintParameters(
   for (auto op : tempOpList)
   {
     delete op;
-  }
-
-  if (hdf5FileNameGiven_)
-  {
-    prepareHDF5Output(comm);
   }
 }
 
@@ -3234,12 +3215,6 @@ void OutputMgr::output(
     }
   }
 
-  // This will become an outputter
-  if (hdf5FileNameGiven_)
-  {
-    updateHDF5Output(comm, solnVecPtr);
-  }
-  
   outputCalledBefore_ = true;
 }
 
@@ -3578,11 +3553,6 @@ void OutputMgr::finishOutput()
       (*it)->finishOutput();
     }
   }
-
-  if (hdf5FileNameGiven_)
-  {
-    closeHDF5Output();
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3837,7 +3807,6 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("INITIAL_INTERVAL", Util::Param("INITIAL_INTERVAL", 0.0)));
     parameters.insert(Util::ParamMap::value_type("TIME", Util::Param("TIME", 0.0)));
     parameters.insert(Util::ParamMap::value_type("INTERVAL", Util::Param("INTERVAL", 0.0)));
-    parameters.insert(Util::ParamMap::value_type("HDF5FILENAME", Util::Param("HDF5FILENAME", "")));
     parameters.insert(Util::ParamMap::value_type("PRINTHEADER", Util::Param("PRINTHEADER", true)));
     parameters.insert(Util::ParamMap::value_type("PRINTFOOTER", Util::Param("PRINTFOOTER", true)));
     parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
