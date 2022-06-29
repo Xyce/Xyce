@@ -410,11 +410,7 @@ XyceTests::checkStatus(
     updateVectorPtr_->update(1.0, x, -1.0, oldX, 0.0);
 
     // Compute final result
-#ifdef Xyce_SPICE_NORMS
     updateVectorPtr_->wMaxNorm(weights,&weightedUpdate_);
-#else
-    updateVectorPtr_->wRMSNorm(weights,&weightedUpdate_);
-#endif
 
     // RPP: If a line search is being used, we must account for any 
     // damping of the step length.  Otherwise delta X could be small due 

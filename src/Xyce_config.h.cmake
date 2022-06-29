@@ -1,9 +1,6 @@
 #ifndef  Xyce_CONFIG_H
 #define  Xyce_CONFIG_H
 
-// This is required (so why is it ifdef'd?)
-#cmakedefine Xyce_SPICE_NORMS
-
 // Compile Xyce for MPI parallelism
 #cmakedefine Xyce_PARALLEL_MPI
 
