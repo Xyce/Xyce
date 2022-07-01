@@ -89,6 +89,8 @@ set(Xyce_GRAPH_DEBUG               FALSE CACHE BOOL "Enable debug output for the
 # Troubleshooting
 set(Xyce_DEBUG_TESTJAC             FALSE CACHE BOOL "Enable debug output for the ???")
 
+# Use constants from BSIM3 instead of more precise constants consistent with other devices
+set(Xyce_USE_BSIM3_CONST           FALSE CACHE BOOL "Use constants from BSIM3 model")
 
 # Include the optional directories
 

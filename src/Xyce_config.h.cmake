@@ -118,6 +118,9 @@
 // Troubleshooting
 #cmakedefine Xyce_DEBUG_TESTJAC
 
+// Use constants from BSIM3 device 
+#cmakedefine Xyce_USE_BSIM3_CONST
+
 // Set the Xyce version for the code
 #define VERSION "@Xyce_XyceVERSION@"
 
