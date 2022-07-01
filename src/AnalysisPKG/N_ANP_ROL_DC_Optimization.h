@@ -54,7 +54,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cmath>
 #include <map>
 
 // ------------ Xyce Includes -----------//
@@ -82,6 +81,7 @@
 #include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Analysis {

@@ -34,6 +34,7 @@
 #include "N_PDS_Comm.h"
 #include "N_PDS_ParMap.h"
 #include "N_UTL_FeatureTest.h"
+#include "N_UTL_Math.h"
 
 /*
 // Epetra includes
@@ -49,7 +50,6 @@
 
 #include "ROL_Vector.hpp"
 
-#include <cmath>
 #include <fstream>
 
 /** \class Xyce::Linear::XyceVector

@@ -40,7 +40,6 @@
 
 // ----------   Standard Includes   ----------
 #include <vector>
-#include <cmath>
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_AnalysisManager.h>
@@ -63,6 +62,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Param.h>
+#include <N_UTL_Math.h>
 
 // ---------- Static Initializations ----------
 

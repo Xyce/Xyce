@@ -40,7 +40,6 @@
 
 // ---------- Standard Includes ----------
 
-#include <cmath>
 #include <time.h>
 
 #include <Sacado_No_Kokkos.hpp>
@@ -54,6 +53,7 @@
 #include <N_DEV_Const.h>
 #include <N_DEV_CompositeParam.h>
 #include <N_DEV_ScalingVars.h>
+#include <N_UTL_Math.h>
 
 // ---------- Forward Declarations ----------
 

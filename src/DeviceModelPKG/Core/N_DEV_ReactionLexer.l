@@ -24,7 +24,6 @@
 
 %{
 #include <Xyce_config.h>
-#include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -34,6 +33,7 @@
 #include <vector>
 #include <N_DEV_Specie.h>
 #include <N_DEV_ReactionNetwork.h>
+#include <N_UTL_Math.h>
 namespace Xyce {
 namespace Device {
 class ReactionLexer;

@@ -3403,11 +3403,6 @@ std::vector< std::vector< std::vector<int> > > Instance::jacMap2_v;
 
 #define CONSTboltz  (1.3806226e-23)
 
-#ifdef M_PI   // if this is defined, we need to undef it to avoid compiler warnings
-#undef M_PI
-#endif
-#define M_PI        (3.141592654)
-
 #endif     // Xyce_USE_BSIMSOI_CONST
 
 #define DELTA_1 0.02

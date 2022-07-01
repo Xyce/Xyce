@@ -38,6 +38,8 @@
 #include <N_PDS_SerialComm.h>
 #endif
 
+#include <N_UTL_Math.h>
+
 #include <EpetraExt_CrsMatrixIn.h>
 #include <EpetraExt_MultiVectorIn.h>
 #include <Epetra_SerialComm.h>
@@ -53,7 +55,6 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
 
 int main(int argc, char* argv[])
 {

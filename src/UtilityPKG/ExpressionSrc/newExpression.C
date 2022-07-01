@@ -41,10 +41,10 @@
 #include <vector>
 #include <list>
 #include <map>
-#include <cmath>
 
 #include <newExpression.h>
 #include <N_ERH_Message.h>
+#include <N_UTL_Math.h>
 
 //-------------------------------------------------------------------------------
 // Expression Lexer/Parser header stuff

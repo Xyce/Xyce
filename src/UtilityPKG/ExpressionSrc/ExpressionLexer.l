@@ -23,7 +23,6 @@
 
 %{
 
-#include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <string>
@@ -35,6 +34,7 @@
 #include <ast.h>
 #include <newExpression.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Util {
