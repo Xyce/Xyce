@@ -2641,15 +2641,6 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B3::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3ModelSens);
 
-#ifdef FRINGE_DONE
-  p.addPar("USEFRINGE",0.0,&MOSFET_B3::Model::useFring)
-    .setUnit(U_UNKNOWN)
-    .setCategory(CAT_INVALID)
-    .setDescription("NOT in BSIM3")
-    .setAnalyticSensitivityAvailable(true)
-    .setSensitivityFunctor(&bsim3ModelSens);
-
-#endif
   p.addPar("TNOM",0.0,&MOSFET_B3::Model::tnom)
     .setUnit(STANDARD)
     .setCategory(CAT_NONE)
@@ -16511,9 +16502,6 @@ void bsim3InstanceSensitivity::operator()(
   fadType modelPar_pvoffcv=mod.pvoffcv;	  bool modelPar_given_PVOFFCV=mod.given("PVOFFCV");
   fadType modelPar_pacde=mod.pacde;	  bool modelPar_given_PACDE=mod.given("PACDE");
   fadType modelPar_pmoin=mod.pmoin;	  bool modelPar_given_PMOIN=mod.given("PMOIN");
-#ifdef FRINGE_DONE
-  fadType modelPar_useFring=mod.useFring;	  bool modelPar_given_USEFRINGE=mod.given("USEFRINGE");
-#endif
   fadType modelPar_tnom=mod.tnom;	  bool modelPar_given_TNOM=mod.given("TNOM");
   fadType modelPar_cgso=mod.cgso;	  bool modelPar_given_CGSO=mod.given("CGSO");
   fadType modelPar_cgdo=mod.cgdo;	  bool modelPar_given_CGDO=mod.given("CGDO");
@@ -18983,12 +18971,6 @@ void bsim3ModelSensitivity::operator()(
   fadType modelPar_pmoin=mod.pmoin; 
   bool modelPar_given_PMOIN=mod.given("PMOIN"); 
   modParamMap["PMOIN"] = &modelPar_pmoin;
-  
-#ifdef FRINGE_DONE
-  fadType modelPar_useFring=mod.useFring; 
-  bool modelPar_given_USEFRINGE=mod.given("USEFRINGE"); 
-  modParamMap["USEFRINGE"] = &modelPar_useFring;
-#endif
   
   fadType modelPar_tnom=mod.tnom; 
   bool modelPar_given_TNOM=mod.given("TNOM"); 
