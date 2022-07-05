@@ -6109,10 +6109,8 @@ void Instance::debugOutputModelParams()
 //-----------------------------------------------------------------------------
 Instance::~Instance ()
 {
-#ifndef REUSE_PARAMPTR
   if (paramPtr != static_cast<SizeDependParam *> (NULL))
     delete paramPtr;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -7390,38 +7388,8 @@ if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugT
 
   rbodyext = bodySquares * model_.rbsh;
 
-#ifdef REUSE_PARAMPTR
-  // This next block determines whether  or not to use the model
-  // size dependent parameters, or those of the instance.  If we are
-  // using the instance, we may have to allocate the structure.
-
-  std::list<SizeDependParam*>::iterator it_dpL =
-    model_.sizeDependParamList.begin();
-  std::list<SizeDependParam*>::iterator end_dpL =
-    model_.sizeDependParamList.end();
-
-  paramPtr = NULL;
-
-  for( ; it_dpL != end_dpL; ++it_dpL ) {
-    if( (*it_dpL)->Length == l && (*it_dpL)->Width == w &&
-        (*it_dpL)->Rth0 == rth0 && (*it_dpL)->Cth0 == cth0) {
-      paramPtr = (*it_dpL);
-      break;
-    }
-  }
-
-  if ( paramPtr != NULL )
-  {
-  }
-  else
-  {
+  if (paramPtr == static_cast<SizeDependParam *> (NULL))
     paramPtr = new SizeDependParam ();
-
-    model_.sizeDependParamList.push_back( paramPtr );
-#else
-    if (paramPtr == static_cast<SizeDependParam *> (NULL))
-      paramPtr = new SizeDependParam ();
-#endif
 
     paramPtr->referenceTemperature = temp_tmp;
 
@@ -8326,9 +8294,6 @@ if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugT
       T2 = (T0 + 2.0 * T0 * T0);
       paramPtr->thetaRout = paramPtr->pdibl1 * T2
                              + paramPtr->pdibl2;
-#ifdef REUSE_PARAMPTR
-  }
-#endif
 
   csbox = model_.cbox*sourceArea;
   csmin = model_.csdmin*sourceArea;
