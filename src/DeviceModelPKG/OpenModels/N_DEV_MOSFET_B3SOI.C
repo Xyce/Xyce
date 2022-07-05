@@ -17270,13 +17270,6 @@ Model::Model(
 
   // Set any non-constant parameter defaults:
 
-#ifdef Xyce_B3SOI_USE_DEFL
-  if (!model_lGiven)
-    model_l=getDeviceOptions().defl;
-  if (!model_wGiven)
-    model_w=getDeviceOptions().defw;
-#endif
-
   if (!given("TNOM"))
     tnom = getDeviceOptions().tnom;
   if (!given("TOXM"))

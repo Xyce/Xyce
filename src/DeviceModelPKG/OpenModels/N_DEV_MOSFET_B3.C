@@ -10462,12 +10462,6 @@ bool Model::processInstanceParams()
   setModParams(MB.params);
 
   // Set any non-constant parameter defaults:
-#ifdef Xyce_BSIM3_USE_DEFL
-  if (!given("L"))
-    model_l=getDeviceOptions().defl;
-  if (!given("W"))
-    model_w=getDeviceOptions().defw;
-#endif
   if (!given("TNOM"))
     tnom = getDeviceOptions().tnom;
 
