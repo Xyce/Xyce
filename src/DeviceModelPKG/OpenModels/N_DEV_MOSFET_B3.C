@@ -5488,12 +5488,6 @@ bool Instance::updateTemperature (const double & temp_tmp)
     paramPtr->rds0 = (paramPtr->rdsw + paramPtr->prt * T0)
                      / pow(paramPtr->weff * 1E6, paramPtr->wr);
 
-#ifdef CHECK_MODEL_DONE
-    if (checkModel((*M_iter), iterI, ckt))
-    {
-      UserError(*this) << "Error(s) detected during V3.2 parameter checking for " << name.c_str() << " in model " << model_.name;
-#endif
-
       paramPtr->cgdo = (model_.cgdo + paramPtr->cf) * paramPtr->weffCV;
       paramPtr->cgso = (model_.cgso + paramPtr->cf) * paramPtr->weffCV;
       paramPtr->cgbo = model_.cgbo * paramPtr->leffCV;
