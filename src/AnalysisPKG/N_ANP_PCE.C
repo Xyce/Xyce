@@ -525,12 +525,6 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       ExtendedString tag = (*it).stringValue();
       hackOutputFormat_ = tag.toUpper();
     }
-#if 0
-    else if ((*it).uTag() == "OUTPUT_ALL_SAMPLES")
-    {
-      hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
-    }
-#endif
     else if ((*it).uTag() == "OUTPUT_SAMPLE_STATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
@@ -1017,15 +1011,6 @@ void PCE::setupStokhosObjects ()
 
   numBlockRows_ = pceGraph->numLocalEntities();
 
-#if 0
-  std::cout << "Cijk:" <<std::endl;
-  Cijk->print(std::cout);
-
-  // this is the matrix that gets output to A.mm
-  Epetra_CrsMatrix mat(Copy, *pceGraph->epetraObj());
-  pceGraph->epetraObj()->PrintGraphData(std::cout);
-  mat.Print(std::cout);
-#endif
 #endif
 }
 

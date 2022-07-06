@@ -1,7 +1,6 @@
 
 # required source subdirectories
 add_subdirectory( Output )
-add_subdirectory( Tests )
 # -- process files for this library ------------------------------------------
 
 # class source list
@@ -26,7 +25,6 @@ target_sources(XyceLib PRIVATE
       N_IO_OutputFileBase.C
       N_IO_OutputPrn.C
       N_IO_OutputCsd.C
-      N_IO_OutputHDF5.C
       N_IO_PrintDeviceCount.C
       N_IO_InitialConditions.C
       N_IO_OutputterExternal.C
@@ -46,7 +44,6 @@ target_sources(XyceLib PRIVATE
       N_IO_OutputterHBTimeTecplot.C
       N_IO_OutputterHBFreqTecplot.C
       N_IO_OutputterHBICTecplot.C
-      N_IO_OutputterHDF5.C
       N_IO_OutputterHomotopy.C
       N_IO_OutputterHomotopyCSV.C
       N_IO_OutputterHomotopyPrn.C
@@ -117,7 +114,7 @@ target_sources(XyceLib PRIVATE
       N_IO_WildcardSupport.C )
 
 # add header files to project
-target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
 

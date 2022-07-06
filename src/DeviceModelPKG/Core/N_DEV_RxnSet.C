@@ -622,21 +622,6 @@ void Instance::initializeChemistry ()
       }
       else
       {
-#if 0
-        // This is the original doping/carrier intialization.
-        // It is hardwired to boron and phosphorus, so
-        // it should be phased out and/or deprecated.
-
-        if (regVec[ireg]->reactantExist("BM"))
-        {
-          regVec[ireg]->setInitialCondition("BM", (*rdVecPtr)[ireg]->Boron_Concentration);
-        }
-
-        if (regVec[ireg]->reactantExist("PP"))
-        {
-          regVec[ireg]->setInitialCondition("PP", (*rdVecPtr)[ireg]->Phosphorus_Concentration);
-        }
-#endif
       }
 
       if (model_.given("MASTERSOURCE"))
@@ -1537,42 +1522,6 @@ void Instance::registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVe
     regVec[ireg]->registerJacLIDs(jacLIDVec, jacMap, jacMap2);
   }
 
-
-#if 0
-  // For now diffusion can only be set up in the jacobian matrix
-  // via setRow function calls.
-
-  // If this is the base or emitter, then add a single column to the stamp.
-  // Otherwise, if this is the BE point (in the middle) then add 2 columns,
-  // for 2 neighbors.
-  for (int ireg=0;ireg<numRegions;++ireg)
-  {
-    int row = regPosIndexVec[ireg] + regV0subIndexVec[ireg];
-    if (row < 0) continue;
-
-    int rowSize = jacStamp[row].size();
-    if (ireg==0)
-    {
-      int col = regPosIndexVec[1] + regV0subIndexVec[1];
-      jacStamp[row].resize(rowSize+1);
-      jacStamp[row][rowSize] = col;
-    }
-    else if (ireg==numRegions-1)
-    {
-      int col = regPosIndexVec[numRegions-2] + regV0subIndexVec[numRegions-2];
-      jacStamp[row].resize(rowSize+1);
-      jacStamp[row][rowSize] = col;
-    }
-    else
-    {
-      int col1 = regPosIndexVec[ireg+1] + regV0subIndexVec[ireg+1];
-      int col2 = regPosIndexVec[ireg-1] + regV0subIndexVec[ireg-1];
-      jacStamp[row].resize(rowSize+2);
-      jacStamp[row][rowSize+1] = col1;
-      jacStamp[row][rowSize+2] = col2;
-    }
-  }
-#endif
 
   for (int iReg=0;iReg<numRegions;++iReg)
   {

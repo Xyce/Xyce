@@ -1,7 +1,6 @@
 #
 # add sub directories
 add_subdirectory(ExpressionSrc)
-add_subdirectory(ExpressionTest)
 
 # generate a timestamp.h
 string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
@@ -71,8 +70,8 @@ target_sources(XyceLib PRIVATE
 
 # add header files to project
 target_include_directories(XyceLib PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${CMAKE_CURRENT_BINARY_DIR} )
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> )
 
 
 

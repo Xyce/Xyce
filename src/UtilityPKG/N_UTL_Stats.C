@@ -45,13 +45,6 @@
 #include <stdexcept>
 #include <limits>
 
-#ifdef Xyce_INCLUDE_LIBPAPI
-#  include <papi.h>
-#  if defined(PAPI_VERSION) && (PAPI_VERSION_MAJOR(PAPI_VERSION) != 3)
-#    error "Compiling against an unknown PAPI version"
-#  endif
-#endif
-
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 #include <N_UTL_FormatTime.h>
@@ -819,92 +812,6 @@ StatTop::getTop()
   return s_statTop;
 }
 
-
-TimeBlockSynchronized::TimeBlockSynchronized(
-  Stat &    stat,
-  Parallel::Machine    mpi_comm,
-  bool      start_stat)
-  : m_stat(stat),
-    m_mpiComm(mpi_comm),
-    m_started(start_stat)
-{
-  if (m_stat.m_statImpl->shouldRecord()) {
-#ifdef XYCE_HAS_MPI
-    if (mpi_comm != MPI_COMM_NULL)
-      MPI_Barrier(mpi_comm);
-#endif
-
-    if (start_stat)
-      m_stat.start();
-  }
-}
-
-
-TimeBlockSynchronized::~TimeBlockSynchronized()
-{
-  if (m_started) {
-    try {
-      m_stat.stop();
-    }
-    catch (...) {
-    }
-  }
-}
-
-
-void
-TimeBlockSynchronized::start()
-{
-  // Place barrier here
-  Parallel::Barrier(m_mpiComm);
-  m_started = true;
-  m_stat.start();
-}
-
-
-void
-TimeBlockSynchronized::stop()
-{
-  m_started = false;
-  m_stat.stop();
-  // Does a barrier need to be here?
-  // MPI_Barrier(Env::parallel_comm());
-}
-
-} // namespace Stats
-} // namespace Xyce
-
-
-#ifdef XYCE_INCLUDE_LIBPAPI
-class PAPIRuntimeError : public std::runtime_error
-{
-public:
-  PAPIRuntimeError(const char *message, int status)
-    : std::runtime_error(message),
-      m_status(status)
-  {}
-
-  virtual const char *what() const throw() {
-    static std::string message;
-    static char papi_message[PAPI_MAX_STR_LEN];
-
-    PAPI_perror(m_status, papi_message, sizeof(papi_message));
-
-    message = std::runtime_error::what();
-    message += papi_message;
-
-    return message.c_str();
-  }
-
-private:
-  int m_status;
-};
-#endif
-
-
-namespace Xyce {
-namespace Stats {
-
 namespace {
 
 size_t
@@ -955,13 +862,6 @@ xyceStat()
 {
   return xyceRootStat()->xyceStat();
 }
-
-// void
-// xyceStatDestroy()
-// {
-//   xyceRootStat().reset();
-// }
-
 
 void
 setEnabledStatMask(

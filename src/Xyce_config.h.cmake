@@ -1,9 +1,6 @@
 #ifndef  Xyce_CONFIG_H
 #define  Xyce_CONFIG_H
 
-// This is required (so why is it ifdef'd?)
-#cmakedefine Xyce_SPICE_NORMS
-
 // Compile Xyce for MPI parallelism
 #cmakedefine Xyce_PARALLEL_MPI
 
@@ -54,10 +51,8 @@
 #cmakedefine HAVE_GETPWUID
 #cmakedefine HAVE_GETHOSTNAME
 #cmakedefine HAVE_GETDOMAINNAME
-#cmakedefine HAVE_SYSCONF
 #cmakedefine HAVE_SYS_UTSNAME_H
 #cmakedefine HAVE_UNAME
-#cmakedefine HAVE__PROC_SELF_STAT
 
 // Reaction parser
 #cmakedefine Xyce_REACTION_PARSER
@@ -122,6 +117,9 @@
 
 // Troubleshooting
 #cmakedefine Xyce_DEBUG_TESTJAC
+
+// Use constants from BSIM3 device 
+#cmakedefine Xyce_USE_BSIM3_CONST
 
 // Set the Xyce version for the code
 #define VERSION "@Xyce_XyceVERSION@"

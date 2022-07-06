@@ -36,6 +36,7 @@ All additions and changes are under the following:
 
 #include <Xyce_config.h>
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #ifndef	M_PI

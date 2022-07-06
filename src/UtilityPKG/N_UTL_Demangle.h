@@ -37,10 +37,6 @@
 
 #include <string>
 
-#if __GNUC__ == 3 || __GNUC__ == 4 || defined __xlC__
-#define Xyce__USE_PLATFORM_DEMANGLER
-#endif
-
 namespace Xyce {
 
 /**

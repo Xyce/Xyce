@@ -45,7 +45,6 @@
 #include <list>
 #include <unordered_map>
 #include <string>
-#include <cmath>
 #include <complex>
 
 #include <Teuchos_RCP.hpp>
@@ -56,6 +55,7 @@
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_ERH_Message.h>
 #include <N_UTL_HspiceBools.h>
+#include <N_UTL_Math.h>
 #include <expressionParamTypes.h>
 
 #define CONSTCtoK    (273.15)  

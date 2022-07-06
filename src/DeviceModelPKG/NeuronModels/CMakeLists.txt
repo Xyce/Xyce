@@ -24,7 +24,7 @@ target_sources(XyceLib PRIVATE
       N_DEV_MembraneCS.C
       N_DEV_MembraneUserDefined.C)
 # add header files to project
-target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 
 

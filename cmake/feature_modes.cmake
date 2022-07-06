@@ -1,6 +1,3 @@
-# This should always be true, so why is it optional?
-set(Xyce_SPICE_NORMS TRUE)
-
 # For communicating the exact version of Xyce to the code
 set(Xyce_RELEASE                   FALSE CACHE BOOL "Set to TRUE to designate a release version")
 set(Xyce_QUALIFICATION             FALSE CACHE BOOL "Set to TRUE to designate a qualification release")
@@ -32,7 +29,7 @@ if ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""
 endif ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""))
 
 # Enable the Unit Tests
-option(Xyce_TEST_SUITE "Enables the unit tests" OFF)
+option(BUILD_TESTING "Enables the unit tests" OFF)
 
 # Enable the Plugin capability
 option(Xyce_PLUGIN_SUPPORT "Install Xyce with plugin compatibility" OFF)
@@ -92,6 +89,8 @@ set(Xyce_GRAPH_DEBUG               FALSE CACHE BOOL "Enable debug output for the
 # Troubleshooting
 set(Xyce_DEBUG_TESTJAC             FALSE CACHE BOOL "Enable debug output for the ???")
 
+# Use constants from BSIM3 instead of more precise constants consistent with other devices
+set(Xyce_USE_BSIM3_CONST           FALSE CACHE BOOL "Use constants from BSIM3 model")
 
 # Include the optional directories
 

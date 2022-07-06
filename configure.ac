@@ -120,7 +120,7 @@ dnl ********************************************
 
 dnl ********************************************
 dnl Here we determine whether we're doing a threaded build
-AC_ARG_ENABLE(thread-safe-logging, AC_HELP_STRING([--enable-thread-safe-logging], 
+AC_ARG_ENABLE(thread-safe-logging, AS_HELP_STRING([--enable-thread-safe-logging], 
                                       [enable thread safe logging for one Xyce per thread runs (default is no)]), 
                                       ac_enable_threads=$enableval, 
                                       ac_enable_threads=no) 
@@ -162,7 +162,6 @@ XYCE_DEBUG_OPTION(verbose_time,no,[verbosity in time integrator])
 XYCE_DEBUG_OPTION(verbose_nonlinear,no,[verbosity in nonlinear solver])
 XYCE_DEBUG_OPTION(verbose_nox,no,[verbosity in NOX nonlinear solver library])
 XYCE_DEBUG_OPTION(verbose_linear,no,[verbosity in linear solver])
-XYCE_DEBUG_OPTION(spice_norms,yes,[using SPICE type norms])
 XYCE_DEBUG_OPTION(bsim3_const,no,[using constants from BSIM3 instead of more precise constants consistent with other devices],Xyce_USE_BSIM3_CONST)
 
 dnl optionally compile in support for rad models if the directory is there and
@@ -344,17 +343,13 @@ XYCE_DEBUG_OPTION([athena], [yes], [building the ATHENA device],Xyce_ATHENA_REQU
 XYCE_DEBUG_OPTION([adms_sensitivities], [yes], [analytic sensitivities in ADMS-generated device models],Xyce_ADMS_SENSITIVITIES)
 
 
-# Default to HDF5 support off 
+# Default to curl support off
 # Note:  a fourth argument *must* be given, because XYCE_DEBUG_OPTION 
 # forces a "-D" into CPPFLAGS.  But because this particular option may be
-# disabled later when we check if HDF5 libraries and headers are there, the
-# fourth argument must not be the same one that Xyce uses to test for HDF5.
+# disabled later when we check if cURL libraries and headers are there, the
+# fourth argument must not be the same one that Xyce uses to test for cURL.
 # That is, the fourth argument is just "user has asked for this feature"
 # not "this feature works"
-XYCE_DEBUG_OPTION(hdf5,no,[support for HDF5 output library],Xyce_HDF5, USE_HDF5)
-
-# Default to curl support off
-# see commentary above re: HDF5 and use of multiple symbols here.
 # do NOT use "Xyce_CURL" in code, because it will be defined if cURL requested
 # even if cURL isn't usable.
 XYCE_DEBUG_OPTION(curl,no,[support for curl for metrics reporting],Xyce_CURL, USE_CURL)
@@ -386,7 +381,7 @@ AX_CXX_COMPILE_STDCXX(11,,mandatory)
 # bison's C++ interface has a habit of changing incompatibly from time
 # to time.  We therefore enumerate actual versions of Bison our interface
 # is *known* to work with and against which Xyce has been tested. 
-AC_PROG_LEX
+AC_PROG_LEX(noyywrap)
 XYCE_CHECK_BISON([3.8, 3.7, 3.6, 3.5, 3.4, 3.3, 3.2, 3.1, 3.0 ], , [BISON=no])
 if test `basename $LEX` = "flex";
 then
@@ -543,9 +538,6 @@ AC_CHECK_FUNCS(getpwuid)
 AC_CHECK_FUNCS(gethostname)
 AC_CHECK_FUNCS(getdomainname)
 AC_CHECK_FUNCS(uname)
-AC_CHECK_FUNCS(sysconf)
-AC_CHECK_FILES(/proc/self/stat)
-AC_CHECK_HEADERS(mathimf.h)
 
 dnl CAREFUL --- if parallel is enabled, epetra needs MPI, so better have
 dnl it later in the libs path! (which means detecting it earlier, since
@@ -848,43 +840,6 @@ fi
 AM_CONDITIONAL(BUILD_INTEL_FFT_SUPPORT, test "X$ac_cv_header_mkl_dfti_h" = "Xyes")
 AM_CONDITIONAL(BUILD_FFTW_SUPPORT, test "X$ac_cv_header_fftw3_h" = "Xyes")
 
-# check if the HDF5 functions are available 
-#
-# check if the HDF5 library header is around (version 1.8+), and if it is,
-# check for the library (Note. HDF5 can depend on libsz.a and libz.a,
-# which are available on their web site.  The libz.a used by hdf5 IS NOT the 
-# same as libzc.a used for compressing files.)
-
-if test "X$USE_HDF5" = "Xyes"; then
-  AC_SEARCH_LIBS( [inflate], [z] )
-  AC_SEARCH_LIBS( [SZ_Decompress], [sz])
-  if test "$USE_MPI" = yes; then
-    # look for an HDF5 function that is only defined if HDF is also
-    # built with MPI support.  Currently Xyce in parallel needs 
-    # Parallel HDF5 to do IO in parallel.
-    AC_CHECK_HEADER( [hdf5.h],
-                     [AC_SEARCH_LIBS( [H5Pset_fapl_mpio], [hdf5],
-                                      [AC_DEFINE([Xyce_USE_HDF5],[1], [Set to use HDF5 library])],
-                                      [AC_MSG_WARN([Could not find HDF5 Library with MPI support.  Disabling parallel HDF5 support])
-                                       ac_cv_header_hdf5_h=no
-                                      ])]
-                   )
-  else
-    # configuring Xyce to build in serial, so only look for serial functions 
-    # to check HDF5 availabilit 
-    AC_CHECK_HEADER( [hdf5.h],
-                     [AC_SEARCH_LIBS( [H5Fclose], [hdf5],
-                                      [AC_DEFINE([Xyce_USE_HDF5],[1], [Set to use HDF5 library])],
-                                      [AC_MSG_WARN([Could not find HDF5 Library.  Disabling HDF5 support])
-                                       ac_cv_header_hdf5_h=no
-                                      ])]
-                   )
-  fi      
-else
- ac_cv_header_hdf5_h=no
-fi  
-AM_CONDITIONAL(BUILD_HDF5_SUPPORT, test "X$ac_cv_header_hdf5_h" = "Xyes")
-
 dnl *********************************************************************
 dnl cURL support
 dnl if requested, check for curl.h header, if exists check for library, if 
@@ -943,16 +898,6 @@ AS_IF([test x$enable_athena = xyes],
 
 
 AM_CONDITIONAL([BUILD_ATHENA], [test x$enable_athena = xyes])
-
-dnl Check for the ARAEnv library
-dnl do it here as it requires the same boost libraries that ATHENA does.
-dnl should be smarter about managing boost dependencies
-AC_LANG_PUSH(C++)
-AC_CHECK_LIB([ARAEnv], [main], [], [], [])
-if test "x$ac_cv_lib_ARAEnv_main" = xyes; then
-     AC_CHECK_HEADER([SRenvironment.h], [AC_DEFINE([HAVE_SRENVIRONMENT_H], [1],[Set to have SRenvironment.h])])
-fi
-AC_LANG_POP(C++)
 
 dnl LASTLY:  add -nofor_main to FFLAGS for DEC.  Can't do it earlier than this
 if test "$USING_DEC_CXX" != "no"; then

@@ -58,27 +58,7 @@ int main( int argc, char * argv[] )
     //    return;
     exit(-1);
   }
- 
-#if 0 
-  // Set up the ADC's
-  // map of <ADCNAME, <parametername,parametervalue>>
-  std::map<string, std::map<string,double> > ADCParamsMap_;
-  xyce.getADCMap(ADCParamsMap_);
-  
-  // Setting up ADC width
-  // must construct a map of ADC name/bit vector widths
-  map<string,int> ADCWidthMap;
-  std::map<string, std::map<string,double> > ::iterator currentADC = ADCParamsMap_.begin();
-  std::map<string, std::map<string,double> > ::iterator endADC = ADCParamsMap_.end();
-  const int defaultWidth = 8;
-  while( currentADC != endADC )
-  {
-    ADCWidthMap[currentADC->first] = defaultWidth;
-    currentADC++;
-  }
-  xyce.setADCWidths(ADCWidthMap);
-#endif
-  
+
   // Set up time voltage pairs
   map< string, vector< pair<double,double> > > xyceTimeVoltageUpdateMap;
   xyce.getTimeVoltagePairs(xyceTimeVoltageUpdateMap);

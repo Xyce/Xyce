@@ -1385,7 +1385,6 @@ bool Instance::setupJacStamp ()
 //-----------------------------------------------------------------------------
 bool Instance::cleanupJacStamp ()
 {
-#if 1
   // set up normal jacMap for when all resistances nonzero
   // If nothing is remapped, this amounts to a null operation when the
   // map is used later.  The maps become important when we start
@@ -1420,8 +1419,6 @@ bool Instance::cleanupJacStamp ()
     jacStamp = tempStamp_eric;
     jacMap2 = tempMap2_eric;
   }
-
-#endif // if 1
 
   return true;
 }
@@ -4867,28 +4864,6 @@ bool Instance::outputTecplot ()
     fprintf(fp1,"%s","\t    \"Ex \",\n");
     fprintf(fp1,"%s","\t    \"Idispl \", \n");
 
-#if 0
-    fprintf(fp1,"%s","\t    \"Conduction Band, uncorrected \", \n");
-    fprintf(fp1,"%s","\t    \"Valance Band, uncorrected \", \n");
-
-    fprintf(fp1,"%s","\t    \"Band-gap narrowing, Conduction Band \", \n");
-    fprintf(fp1,"%s","\t    \"Band-gap narrowing, Valance Band \", \n");
-
-    fprintf(fp1,"%s","\t    \"Conduction Band, corrected for BGN \", \n");
-    fprintf(fp1,"%s","\t    \"Valance Band, corrected for BGN \", \n");
-    fprintf(fp1,"%s","\t    \"Fermi Level\", \n");
-
-    fprintf(fp1,"%s","\t    \"conduction band DOS\", \n");
-    fprintf(fp1,"%s","\t    \"valance band DOS\", \n");
-
-    fprintf(fp1,"\t    \"n0, Fermi-Dirac \",\n");
-    fprintf(fp1,"\t    \"p0, Fermi-Dirac \",\n");
-    fprintf(fp1,"\t    \"n0, Boltzmann\",\n");
-    fprintf(fp1,"\t    \"p0, Boltzmann\",\n");
-    fprintf(fp1,"\t    \"np0 Fermi-Dirac\",\n");
-    fprintf(fp1,"\t    \"Ni^2 (Boltzmann np0)\",\n");
-    fprintf(fp1,"%s","\t    \"Ni (intrinsic concentration) \", \n");
-#endif
   }
 
   fprintf(fp1,"\tZONE F=POINT,I=%d", NX);
@@ -4937,56 +4912,6 @@ bool Instance::outputTecplot ()
     fprintf(fp1,"  %20.12e",displCurrent[i]*scalingVars.J0);
     fprintf(fp1,"%s","\n");
 
-#if 0
-    fprintf(fp1,"  %20.12e", EcVec[i]);
-    fprintf(fp1,"  %20.12e", EvVec[i]);
-    fprintf(fp1,"  %20.12e", bgnCVec[i]);
-    fprintf(fp1,"  %20.12e", bgnVVec[i]);
-
-    double con = EcVec[i]-bgnCVec[i];
-    double val = EvVec[i]+bgnVVec[i];
-    fprintf(fp1,"  %20.12e", con);
-    fprintf(fp1,"  %20.12e", val);
-
-    fprintf(fp1,"%s","\n");
-
-    fprintf(fp1,"  %20.12e", EfVec[i]);
-    fprintf(fp1,"  %20.12e", NcVec[i]);
-    fprintf(fp1,"  %20.12e", NvVec[i]);
-
-    double Ni=NiVec[i];
-    double n0,p0;
-    n0_and_p0(
-        (nnVec[i]*scalingVars.C0), (npVec[i]*scalingVars.C0), 
-        Ni, con, val, NcVec[i], NvVec[i], Temp, n0, p0);
-
-    fprintf(fp1,"  %20.12e",n0);
-    fprintf(fp1,"  %20.12e",p0);
-
-    if (CdonorVec[i] > CacceptorVec[i])
-    {
-      n0 = (CdonorVec[i]-CacceptorVec[i]); p0=1.0;
-      if (n0 != 0.0) { p0 = Ni*Ni/n0; }
-    }
-    else
-    {
-      p0 = (CacceptorVec[i]-CdonorVec[i]); n0=1.0;
-      if (p0 != 0.0) { n0 = Ni*Ni/p0; }
-    }
-    fprintf(fp1,"  %20.12e",n0);
-    fprintf(fp1,"  %20.12e",p0);
-
-    double np0 = np0_calculation(
-        (nnVec[i]*scalingVars.C0), (npVec[i]*scalingVars.C0), 
-        Ni, con, val, NcVec[i], NvVec[i], Temp);
-
-    fprintf(fp1,"  %20.12e",np0);
-    fprintf(fp1,"  %20.12e",Ni*Ni);
-    fprintf(fp1,"  %20.12e",Ni);
-    fprintf(fp1,"\n");
-
-    fprintf(fp1,"%s","\n");
-#endif
   }
 
   ++callsOTEC;

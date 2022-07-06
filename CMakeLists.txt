@@ -126,9 +126,10 @@ if(Xyce_PLUGIN_SUPPORT)
 endif()
 
 add_subdirectory(src)
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 
-# JCV: this needs to be cleaned up a bit, along with all the other interfaces,
-# which are kind of all over the place in the repo
 if (Xyce_SIMULINK)
   add_subdirectory(utils)
 endif()

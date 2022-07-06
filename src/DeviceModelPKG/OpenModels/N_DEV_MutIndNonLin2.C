@@ -37,7 +37,6 @@
 
 #include <Xyce_config.h>
 
-// #define Xyce_NO_MUTIND_MASK 1
 // ---------- Standard Includes ----------
 #include <fstream>
 #include <algorithm>
@@ -1040,17 +1039,10 @@ bool Instance::updateIntermediateVars ()
 
   Happ = branchCurrentSum / Path;
   double dHdt=0.0;
-#ifdef MS_FACTORING2
-  double H = Happ - (Gap / Path) * latestMag * Ms;
-  // not actually dHdt but we only need to test if this > 0 or < 0
-  dHdt = - (Gap / Path) * MagVarUpdate * Ms;
-  double He = H + Alpha * latestMag * Ms;
-#else
   double H = Happ - (Gap / Path) * latestMag;
   // not actually dHdt but we only need to test if this > 0 or < 0
   dHdt = - (Gap / Path) * MagVarUpdate;
   double He = H + Alpha * latestMag;
-#endif
   /*
   if( dHdt > 0.0) 
   {
@@ -1076,11 +1068,7 @@ bool Instance::updateIntermediateVars ()
 
   double delM0 = model_.BetaM * Ms;
   double Man = Ms * He / ( A + sq_Heo2He2 );
-#ifdef MS_FACTORING2
-  double delM = Man - latestMag*Ms;
-#else
   double delM = Man - latestMag;
-#endif
 
   double delM2 = delM*delM;
   double delM02 = delM0*delM0;
@@ -1089,18 +1077,6 @@ bool Instance::updateIntermediateVars ()
   double delta0=1.0;
   double deltaM=1.0;
 
-#ifdef MS_FACTORING2
-  double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
-  double Manp =  Ms * (A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
-  /*
-  if( ((dHdt < 0.0) && ((Manp - latestMag)>0.0)) || ((dHdt >= 0.0) && ((Manp - latestMag)<0.0) ) )
-  {
-    deltaM=1.0;
-    Mirrp = 0.0;
-  }
-  */
-  P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / ((1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp)*Ms);
-#else
   double Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
   double Manp =  Ms*(A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
   /*
@@ -1112,7 +1088,6 @@ bool Instance::updateIntermediateVars ()
   */
   P = ( C * Manp + (1 - C) * Mirrp)        / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
   //P = ( C * deltaM * (Manp-Mirrp) + Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
-#endif
 
 
   // at this point we have P so now we can update mag.
@@ -1265,40 +1240,6 @@ bool Instance::updatePrimaryState()
   }
   // udate dependent parameters
   updateIntermediateVars ();
-  
-  
-  /*
-  Linear::Vector & stoVector = *(extData.nextStoVectorPtr);
-  stoVector[li_MagVarStore] = latestMag; 
-  stoVector[ li_HVarStore ] = model_.HCgsFactor * (Happ  - (model_.Gap / model_.Path) * latestMag);
-  stoVector[ li_BVarStore ] = model_.BCgsFactor * (4.0e-7 * M_PI * (stoVector[ li_HVarStore ] + latestMag));
-
-  
-  stoVector[li_RVarStore] = 0.0;
-  */
-
-
-#if 0
-  // don't need to do this as we're not using the state vector
-  Linear::Vector & solVector = *(extData.nextSolVectorPtr);
-  Linear::Vector & staVector = *(extData.nextStaVectorPtr);
-
-  std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
-  std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
-  int i = 0;
-  while( currentInductor != endInductor )
-  {
-    double current = solVector[ ( (*currentInductor)->li_Branch) ];
-    if( (getSolverState().dcopFlag) && ((*currentInductor)->ICGiven) )
-    {
-      current = (*currentInductor)->IC;
-    }
-    // place this value for the charge in the state vector.
-    staVector[((*currentInductor)->li_currentState)] = current;
-    currentInductor++;
-    i++;
-  }
-#endif
 
   return bsuccess;
 }
@@ -1688,11 +1629,7 @@ bool Instance::loadDAEdFdx ()
 
 
   // loop over each inductor and load it's dFdx components
-#ifdef MS_FACTORING2
-  double mid = 1.0 + (1.0 - (Gap/Path))*P*model_.Ms;
-#else
   double mid = 1.0 + (1.0 - (Gap/Path))*P;
-#endif
 
   std::vector< InductorInstanceData* >::iterator currentInductor = instanceData.begin();
   std::vector< InductorInstanceData* >::iterator endInductor = instanceData.end();
@@ -1750,11 +1687,7 @@ bool Instance::outputPlotFiles(bool force_final_output)
   if( outputStateVarsFlag && outputFileStreamPtr.get() && (*outputFileStreamPtr) )
   {
 
-#ifdef MS_FACTORING2
-    double latestMag = MagVar*model_.Ms;
-#else
     double latestMag = MagVar;
-#endif
 
     if( includeDeltaM )
     {
@@ -1858,13 +1791,8 @@ ScalarT Instance::Pcalc(
 
      ScalarT Happ = CurrentSum / Path;
 
-#ifdef MS_FACTORING2
-     ScalarT H = Happ - (Gap / Path) * Mag * Ms;
-     ScalarT He = H + Alpha * Mag * Ms;
-#else
      ScalarT H = Happ - (Gap / Path) * Mag;
      ScalarT He = H + Alpha * Mag;
-#endif
 
      ScalarT Heo = BetaH*A;
 
@@ -1876,25 +1804,15 @@ ScalarT Instance::Pcalc(
 
      ScalarT delM0 = model_.BetaM * Ms;
      ScalarT Man = Ms * He / ( A + sq_Heo2He2 );
-#ifdef MS_FACTORING2
-     ScalarT delM = Man - Mag*Ms;
-#else
      ScalarT delM = Man - Mag;
-#endif
 
      ScalarT delM2 = delM*delM;
      ScalarT delM02 = delM0*delM0;
      ScalarT sq_delM02delM2 = sqrt( delM02 + delM2 );
 
-#ifdef MS_FACTORING2
-     ScalarT Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
-     ScalarT Manp =  Ms * (A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
-     ScalarT Pval = ( C * Manp + (1 - C) * Mirrp) / ((1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp)*Ms);
-#else
      ScalarT Mirrp = (delM * tanh_qV + sq_delM02delM2 ) / (2*( Kirr- Alpha * sq_delM02delM2));
      ScalarT Manp =  Ms*(A + Heo2/sq_Heo2He2) / pow(A + sq_Heo2He2, 2.0);
      ScalarT Pval = ( C * Manp + (1 - C) * Mirrp) / (1 + (gap_path - Alpha) * C * Manp + gap_path * (1-C) * Mirrp);
-#endif
 
      return Pval;
 }  // end of Pcalc() function

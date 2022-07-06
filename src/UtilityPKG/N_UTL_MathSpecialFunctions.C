@@ -36,7 +36,7 @@
 
 #include <Xyce_config.h>
 
-#include<cmath>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Util {

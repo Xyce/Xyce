@@ -2641,15 +2641,6 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B3::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&bsim3ModelSens);
 
-#ifdef FRINGE_DONE
-  p.addPar("USEFRINGE",0.0,&MOSFET_B3::Model::useFring)
-    .setUnit(U_UNKNOWN)
-    .setCategory(CAT_INVALID)
-    .setDescription("NOT in BSIM3")
-    .setAnalyticSensitivityAvailable(true)
-    .setSensitivityFunctor(&bsim3ModelSens);
-
-#endif
   p.addPar("TNOM",0.0,&MOSFET_B3::Model::tnom)
     .setUnit(STANDARD)
     .setCategory(CAT_NONE)
@@ -5487,12 +5478,6 @@ bool Instance::updateTemperature (const double & temp_tmp)
 
     paramPtr->rds0 = (paramPtr->rdsw + paramPtr->prt * T0)
                      / pow(paramPtr->weff * 1E6, paramPtr->wr);
-
-#ifdef CHECK_MODEL_DONE
-    if (checkModel((*M_iter), iterI, ckt))
-    {
-      UserError(*this) << "Error(s) detected during V3.2 parameter checking for " << name.c_str() << " in model " << model_.name;
-#endif
 
       paramPtr->cgdo = (model_.cgdo + paramPtr->cf) * paramPtr->weffCV;
       paramPtr->cgso = (model_.cgso + paramPtr->cf) * paramPtr->weffCV;
@@ -10477,12 +10462,6 @@ bool Model::processInstanceParams()
   setModParams(MB.params);
 
   // Set any non-constant parameter defaults:
-#ifdef Xyce_BSIM3_USE_DEFL
-  if (!given("L"))
-    model_l=getDeviceOptions().defl;
-  if (!given("W"))
-    model_w=getDeviceOptions().defw;
-#endif
   if (!given("TNOM"))
     tnom = getDeviceOptions().tnom;
 
@@ -16048,36 +16027,7 @@ finished:
        qbulk,
        qdrn,
        qsrc,
-#if 0
-       ggtg,
-       ggtd,
-       ggtb,
-       ggts,
-       sxpart,
-       dxpart,
-       ddxpart_dVd,
-       ddxpart_dVg,
-       ddxpart_dVb,
-       ddxpart_dVs,
-       dsxpart_dVd,
-       dsxpart_dVg,
-       dsxpart_dVb,
-       dsxpart_dVs,
-       gcqgb,
-       gcqdb,
-       gcqsb,
-       gcqbb,
-#endif
        CoxWL
-#if 0
-         ,
-       Cdd,
-       Csd,
-       Cdg,
-       Csg,
-       Cds,
-       Css
-#endif
   );
 
     setupCapacitors_newDAE (
@@ -16546,9 +16496,6 @@ void bsim3InstanceSensitivity::operator()(
   fadType modelPar_pvoffcv=mod.pvoffcv;	  bool modelPar_given_PVOFFCV=mod.given("PVOFFCV");
   fadType modelPar_pacde=mod.pacde;	  bool modelPar_given_PACDE=mod.given("PACDE");
   fadType modelPar_pmoin=mod.pmoin;	  bool modelPar_given_PMOIN=mod.given("PMOIN");
-#ifdef FRINGE_DONE
-  fadType modelPar_useFring=mod.useFring;	  bool modelPar_given_USEFRINGE=mod.given("USEFRINGE");
-#endif
   fadType modelPar_tnom=mod.tnom;	  bool modelPar_given_TNOM=mod.given("TNOM");
   fadType modelPar_cgso=mod.cgso;	  bool modelPar_given_CGSO=mod.given("CGSO");
   fadType modelPar_cgdo=mod.cgdo;	  bool modelPar_given_CGDO=mod.given("CGDO");
@@ -17541,14 +17488,6 @@ void bsim3InstanceSensitivity::operator()(
   dfdp[local_Bulk] += (ceqbs.dx(0) + ceqbd.dx(0))*inst.numberParallel;
   dfdp[local_DrainPrime] += (-(ceqbd.dx(0) - cdreq.dx(0))-instance_Idrain.dx(0))*inst.numberParallel;
   dfdp[local_SourcePrime] += (-(cdreq.dx(0) + ceqbs.dx(0))-instance_Isource.dx(0))*inst.numberParallel;
-
-#if 0
-  std::cout << "sensitivityOperator: instance_Idrain = " << instance_Idrain << std::endl;
-  std::cout << "sensitivityOperator: instance_Isource = " << instance_Isource << std::endl;
-  std::cout << "sensitivityOperator: ceqbs  = " << ceqbs  << std::endl;
-  std::cout << "sensitivityOperator: ceqbd = " << ceqbd << std::endl;
-  std::cout << "sensitivityOperator: cdreq = " << cdreq << std::endl;
-#endif
 
 // don't bother with the IC stuff
 
@@ -19027,12 +18966,6 @@ void bsim3ModelSensitivity::operator()(
   bool modelPar_given_PMOIN=mod.given("PMOIN"); 
   modParamMap["PMOIN"] = &modelPar_pmoin;
   
-#ifdef FRINGE_DONE
-  fadType modelPar_useFring=mod.useFring; 
-  bool modelPar_given_USEFRINGE=mod.given("USEFRINGE"); 
-  modParamMap["USEFRINGE"] = &modelPar_useFring;
-#endif
-  
   fadType modelPar_tnom=mod.tnom; 
   bool modelPar_given_TNOM=mod.given("TNOM"); 
   modParamMap["TNOM"] = &modelPar_tnom;
@@ -20168,14 +20101,6 @@ void bsim3ModelSensitivity::operator()(
     dfdp[local_Bulk] += (ceqbs.dx(0) + ceqbd.dx(0))*in.numberParallel;
     dfdp[local_DrainPrime] += (-(ceqbd.dx(0) - cdreq.dx(0))-instance_Idrain.dx(0))*in.numberParallel;
     dfdp[local_SourcePrime] += (-(cdreq.dx(0) + ceqbs.dx(0))-instance_Isource.dx(0))*in.numberParallel;
-
-#if 0
-    std::cout << "sensitivityOperator: instance_Idrain = " << instance_Idrain << std::endl;
-    std::cout << "sensitivityOperator: instance_Isource = " << instance_Isource << std::endl;
-    std::cout << "sensitivityOperator: ceqbs  = " << ceqbs  << std::endl;
-    std::cout << "sensitivityOperator: ceqbd = " << ceqbd << std::endl;
-    std::cout << "sensitivityOperator: cdreq = " << cdreq << std::endl;
-#endif
 
   // don't bother with the IC stuff
 

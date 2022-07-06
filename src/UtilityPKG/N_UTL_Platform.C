@@ -51,10 +51,6 @@
 #include <LmCons.h>
 #endif
 
-#if defined(HAVE_MALLOC_H) && defined(HAVE_MALLINFO)
-#include <malloc.h>
-#endif
-
 #if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
 #include <sys/types.h>
 #include <pwd.h>
@@ -68,16 +64,8 @@
 #include <unistd.h>
 #endif
 
-#if defined(HAVE_UNISTD_H) && defined(HAVE_SYSCONF)
-#include <unistd.h>
-#endif
-
 #if defined(HAVE_SYS_UTSNAME_H) && defined(HAVE_UNAME)
 #include <sys/utsname.h>
-#endif
-
-#if defined(HAVE__PROC_SELF_STAT)
-#include <fstream>
 #endif
 
 namespace Xyce {
@@ -85,89 +73,6 @@ namespace Xyce {
 #if defined(HAVE_WINDOWS_H)
 std::string windowsVersionName();
 #endif
-
-//-----------------------------------------------------------------------------
-// Function      : get_heap_info
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Mon Apr  6 10:39:12 2015
-//-----------------------------------------------------------------------------
-void
-get_heap_info(
-   std::size_t &		heap_size,
-   std::size_t &		largest_free)
-{
-  heap_size = 0;
-  largest_free = 0;
-
-#if defined(HAVE_MALLOC_H) && defined(HAVE_MALLINFO)
-  static struct mallinfo minfo;
-  minfo = mallinfo();
-  heap_size = (size_t) minfo.uordblks + (size_t) minfo.hblkhd;
-  largest_free = (size_t) minfo.fordblks;
-#endif
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : get_available_memory
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Mon Apr  6 10:40:06 2015
-//-----------------------------------------------------------------------------
-size_t get_available_memory()
-{
-#if defined(HAVE_SYSCONF) && defined(_SC_ACPHYS_PAGES)
-  static size_t pagesize = getpagesize();
-  size_t avail = sysconf(_SC_AVPHYS_PAGES);
-  return avail * pagesize;
-
-#else
-  return 0;
-#endif
-}
-
-//-----------------------------------------------------------------------------
-// Function      : get_memory_info
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Mon Apr  6 10:40:09 2015
-//-----------------------------------------------------------------------------
-void
-get_memory_info(
-  size_t &		memory_usage,
-  size_t &		faults)
-{
-  memory_usage = 0;
-  faults = 0;
-
-#if defined(HAVE__PROC_SELF_STAT)
-  std::ifstream proc("/proc/self/stat", std::ios_base::in|std::ios_base::binary);
-  if (proc) {
-
-    std::string s;
-    int i;
-    for (i = 0; i < 11; ++i)
-      proc >> s;
-
-    proc >> faults;
-    ++i;
-
-    for (; i < 22; ++i)
-      proc >> s;
-
-    proc >> memory_usage;
-    ++i;
-  }
-#endif
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : hostname
@@ -338,43 +243,6 @@ osversion()
 #endif
 }
 
-
-//-----------------------------------------------------------------------------
-// Function      : pid
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Mon Apr  6 10:39:27 2015
-//-----------------------------------------------------------------------------
-int
-pid()
-{
-#if defined(HAVE_GETPID)
-  return ::getpid();
-#else
-  return 0;
-#endif
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : pgrp
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
-// Creation Date : Mon Apr  6 10:39:23 2015
-//-----------------------------------------------------------------------------
-int
-pgrp()
-{
-#if defined(HAVE_GETPGRP)
-  return ::getpgrp();
-#else
-  return 0;
-#endif
-}
 
 #if defined(HAVE_WINDOWS_H)
 typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);

@@ -51,7 +51,6 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
-#include <cmath>
 #include <complex>
 
 #include <Teuchos_RCP.hpp>
@@ -60,6 +59,7 @@
 #include "position.hh"
 #include <N_ERH_Message.h>
 #include <N_IO_fwd.h>
+#include <N_UTL_Math.h>
 #include "ExpressionType.h"
 #include "ast.h"
 #include "newExpression.h"

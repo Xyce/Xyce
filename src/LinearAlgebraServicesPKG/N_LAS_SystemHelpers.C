@@ -35,7 +35,6 @@
 
 #include <Xyce_config.h>
 
-#include <cmath>
 #include <utility>
 #include <numeric>
 
@@ -59,6 +58,8 @@
 #include <N_LAS_QueryUtil.h>
 
 #include <N_ERH_ErrorMgr.h>
+
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Linear {

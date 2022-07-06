@@ -252,27 +252,6 @@ private:
     return r;
   }
 
-#if 0
-  // KCL equation 2 -- -1 * equation 1 because of device symmetry
-  template <typename ScalarT>
-  static ScalarT kcl2EquF( const ScalarT& Vn1, const ScalarT& Vn2, const ScalarT& n, const ScalarT& m, const ScalarT& h,
-                           const ScalarT& memG, const ScalarT& restV, const ScalarT& Kg, const ScalarT& Ke, const ScalarT& NaG, const ScalarT& NaE )
-  {
-    ScalarT powN = n * n * n * n;
-    ScalarT powM = m * m * m;
-    ScalarT r = -1.0*(memG * (Vn1 - Vn2 - restV) + Kg * powN * (Vn1 - Vn2 - Ke ) + NaG * powM * h * (Vn1 - Vn2 - NaE ));
-    //ScalarT r = -1.0*(memG * (Vn1 - restV) - Kg * powN * (Vn1 - Vn2 - Ke ) - NaG * powM * h * (Vn1 - Vn2 - NaE ));
-    return r;
-  }
-
-  template <typename ScalarT>
-  static ScalarT kcl2EquQ( const ScalarT& Vn1, const ScalarT& Vn2, const ScalarT& memC )
-  {
-    ScalarT r = -1.0 * memC * (Vn1 - Vn2);
-    return r;
-  }
-#endif
-
   // n conservation equation
   template <typename ScalarT>
   static ScalarT nEquF( const ScalarT& Vn1, const ScalarT& n, const ScalarT& Vrest )

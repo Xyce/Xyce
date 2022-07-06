@@ -1526,27 +1526,6 @@ bool Topology::outputNameFile(
 //-----------------------------------------------------------------------------
 void Topology::loadNodeSymbols() const
 {
-#if 0
-  std::cout  << "In Topology::loadNodeSymbols. "
-    << "  nodeSymbols_[Util::SOLUTION_SYMBOL].size = " << nodeSymbols_[Util::SOLUTION_SYMBOL].size() 
-    << "  nodeSymbols_[Util::STATE_SYMBOL].size = " << nodeSymbols_[Util::STATE_SYMBOL].size() 
-    << "  nodeSymbols_[Util::STORE_SYMBOL].size = " << nodeSymbols_[Util::STORE_SYMBOL].size() 
-    << "  nodeSymbols_[Util::EXTERN_SYMBOL].size = " << nodeSymbols_[Util::EXTERN_SYMBOL].size() 
-    << "  nodeSymbols_[Util::BRANCH_SYMBOL].size = " << nodeSymbols_[Util::BRANCH_SYMBOL].size() 
-    << std::endl;
-
-  std::cout << "In Topology::loadNodeSymbols.  branch symbols:" <<std::endl;
-  NodeNameMap & branchMap = nodeSymbols_[Util::BRANCH_SYMBOL];
-
-  NodeNameMap::iterator iter = branchMap.begin();
-  NodeNameMap::iterator end  = branchMap.end();
-  int ii=0;
-  for (;iter!=end;iter++,ii++)
-  {
-    std::cout << ii << ": first = " << iter->first <<std::endl;
-  }
-#endif
-
   generateOrderedNodeList();
 
   if (nodeSymbols_[Util::SOLUTION_SYMBOL].empty()) {

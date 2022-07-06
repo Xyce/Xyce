@@ -49,9 +49,6 @@
 #include <N_TIA_TimeIntegrationMethods.h>
 #include <N_TIA_StepErrorControl.h>
 
-#define MATRIX_FAILSAFE 1
-#define NUM_LIMIT  1.0e-20
-
 namespace Xyce {
 namespace TimeIntg {
 
@@ -160,11 +157,7 @@ public:
 
   double partialTimeDeriv() const
   {
-#ifdef MATRIX_FAILSAFE
-    return NUM_LIMIT;
-#else
-    return 0.0;
-#endif
+    return 1.0e-20;
   }
 
   // Gets the leading coefficient for the specified time-integration method.

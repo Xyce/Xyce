@@ -8,6 +8,6 @@ target_sources(XyceLib PRIVATE
   outputsXyceExpressionGroup.C)
 
 target_include_directories(XyceLib PUBLIC
- "${CMAKE_CURRENT_SOURCE_DIR}"
- "${CMAKE_CURRENT_BINARY_DIR}"
- "${FLEX_INCLUDE_DIR}" )
+ $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> 
+ $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> 
+ $<BUILD_INTERFACE:${FLEX_INCLUDE_DIR}> )

@@ -65,7 +65,7 @@
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
 # The following does not appear to be used anywhere. Assuming it's not, it should be removed.
-add_library(trilinos INTERFACE IMPORTED GLOBAL)
+#add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
@@ -591,4 +591,13 @@ endif()
 #
 if (Xyce_SIMULINK)
      find_package(Matlab)
+endif()
+
+include(CTest)
+
+if(BUILD_TESTING)
+     # If the wrong version of GTest is found, try setting GTest_DIR or GTEST_ROOT to the install
+     # directory of the desired verstion of GTest; specify when invoking cmake to configure.
+     find_package(GTest REQUIRED)
+     include(GoogleTest)
 endif()

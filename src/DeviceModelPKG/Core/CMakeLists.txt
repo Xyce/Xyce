@@ -56,10 +56,11 @@ target_sources(XyceLib PRIVATE
       N_DEV_Configuration.C
       N_DEV_Algorithm.C
       N_DEV_Print.C)
+
 # add header files to project
 target_include_directories(XyceLib PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${REACTION_PARSER_INC})
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+      $<BUILD_INTERFACE:${REACTION_PARSER_INC}> )
 
 # -- build requested libraries -----------------------------------------------
 set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}

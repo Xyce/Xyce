@@ -40,7 +40,6 @@
 
 // ----------   Standard Includes   ----------
 #include <vector>
-#include <cmath>
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_AnalysisManager.h>
@@ -63,6 +62,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Param.h>
+#include <N_UTL_Math.h>
 
 // ---------- Static Initializations ----------
 
@@ -380,17 +380,6 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
   // time integration mode, if neccessary.
   nonlinearParameterManager_->getCurrentParams(nlParams);
 
-#ifndef Xyce_SPICE_NORMS
-  if (firstTime)
-  {
-    // First time through we want to tighten up the convergence tolerance a la
-    // Petzold, et al. The DeltaXTol parameter is used by converge_().
-    initialDeltaXTol = nlParams.getDeltaXTol();
-    nlParams.setDeltaXTol(initialDeltaXTol * 0.01);
-    firstTime = false;
-  }
-#endif
-
   // Output the nonlinear solver information header:
   if (VERBOSE_NONLINEAR)
   {
@@ -505,11 +494,6 @@ int DampedNewton::solve(NonLinearSolver * nlsTmpPtr)
     newtonStep_++;
 
   } // while (convergedStatus == 0)
-
-#ifndef Xyce_SPICE_NORMS
-  // Reset the tolerance which is used in converged_().
-  nlParams.setDeltaXTol(initialDeltaXTol);
-#endif
 
   // Increment the number of calls to the nonlinear solver.
   iNumCalls_++;
@@ -656,13 +640,6 @@ int DampedNewton::takeFirstSolveStep(NonLinearSolver * nlsTmpPtr)
   // Increment diagnostic step counters.  These need to be updated after
   // direction_, in which the current direction.
   newtonStep_++;
-
-#ifndef Xyce_SPICE_NORMS
-#if 0
-  // Reset the tolerance which is used in converged_().
-  nlParams.setDeltaXTol(initialDeltaXTol);
-#endif
-#endif
 
   // Increment the number of calls to the nonlinear solver.
   iNumCalls_++;
@@ -1292,11 +1269,7 @@ int DampedNewton::converged_()
   // Weighted norm of the change (wtNormDX_) is used in converged_() and
   // output by printStepInfo_().
 
-#ifdef Xyce_SPICE_NORMS
   searchDirectionPtr_->wMaxNorm(*solWtVectorPtr_, &wtNormDX_);
-#else
-  searchDirectionPtr_->wRMSNorm(*solWtVectorPtr_, &wtNormDX_);
-#endif
 
   // If the RHS norm is so small already, just say we're converged,
   // and move on.  If we don't do this, we may wind up dividing by a

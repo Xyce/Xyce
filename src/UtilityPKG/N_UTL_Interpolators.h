@@ -909,22 +909,6 @@ void cubicSpline<ScalarT>::eval(
     // cubic spline polynomial: 
     y_spline = a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2[klo] + (b*b*b-b)*y2[khi])*(h*h)/6.0;
 
-#if 0
-    // capping the spline value so that it doesn't extend
-    // the bounds of the endpoints
-    // this prevents wiggles and non-physical values
-    if ( (y_spline > ya[klo]) && (y_spline > ya[khi]) )
-    {
-      if (ya[klo] > ya[khi]) y_spline = ya[klo];
-      else y_spline = ya[khi];
-    }
-
-    if ( (y_spline < ya[klo]) && (y_spline < ya[khi]) )
-    {
-      if (ya[klo] < ya[khi]) y_spline = ya[klo];
-      else y_spline = ya[khi];
-    }
-#endif
   }
 }
 

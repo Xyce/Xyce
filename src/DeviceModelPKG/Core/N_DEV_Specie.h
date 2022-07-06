@@ -40,11 +40,11 @@
 
 #include <string>
 #include <vector>
-#include <cmath>
 
 #include <N_DEV_Const.h>
-#include <vector>
 #include <iostream>
+
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Device {

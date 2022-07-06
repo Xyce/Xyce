@@ -483,18 +483,6 @@ bool Instance::getInstanceBreakPoints ( std::vector<Util::BreakPoint> & breakPoi
     long long int timeInFS =static_cast<long long int>(
       (currentTime+model_.settlingTime_+6e-16)/1e-15);
 
-    // we need to pause
-#ifdef Xyce_OLD_PRE_ROLLBACK
-    breakPointTimes.push_back( Util::BreakPoint(timeInFS*1e-15,PAUSE_BREAKPOINT));
-#else
-
-    // See bug # 1720 on charleston bugzilla.  This breakpoint pushback is being
-    // commented out to fix this bug.
-    //
-    // However, this should not be a long-term fix!
-
-#endif
-
     // since time is always advancing, we can simply push_back the pair,
     // and always be sure
     TVVEC.push_back(std::pair<double,double>(timeInFS*1e-15,deltaV));
@@ -541,9 +529,7 @@ int Instance::deltaVToStateVal(double deltaV)
 {
   int stateVal;
   double vFrac = deltaVTovFrac(deltaV); 
- 
-#if 1
-  // I believe this is how it SHOULD be done
+
   if (vFrac < (1.0)/(nQuantLevels_) )
   {
     stateVal = 0;
@@ -556,10 +542,6 @@ int Instance::deltaVToStateVal(double deltaV)
   {
     stateVal =  int(vFrac*nQuantLevels_);
   }
-#else
-  // but this is how simbus is doing it:
-  stateVal = int(vFrac*(nQuantLevels_-1));
-#endif
 
   return stateVal;
 }

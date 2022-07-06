@@ -968,14 +968,9 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
   {
     Config<Traits>::addConfiguration()
       .registerDevice("s", 1)
-
-#ifdef Xyce_OLD_SWITCH
-      .registerModelType("sw", 1)
-#else
       .registerModelType("switch", 1)
       .registerModelType("iswitch", 1)
       .registerModelType("vswitch", 1)
-#endif
       ;
   }
 }

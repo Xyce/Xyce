@@ -9,8 +9,7 @@ target_sources(XyceLib PRIVATE
       N_CIR_MixedSignalSimulator.C
       N_CIR_GenCouplingSimulator.C)
 # add header files to project
-target_include_directories(XyceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-add_subdirectory(test)
 # -- build requested libraries -----------------------------------------------
 # libxyce is created at top level.  See ${Xyce_SOURCE_DIR}/src/CMakeLists.txt
