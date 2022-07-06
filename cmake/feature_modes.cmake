@@ -28,6 +28,14 @@ if ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""
     set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_LONG} ${QUALIFICATION_CHARACTER}" )
 endif ( DEFINED QUALIFICATION_CHARACTER AND NOT(QUALIFICATION_CHARACTER STREQUAL ""))
 
+# Check build type for including special compiler flags
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+     set(INSTRUMENTED_COMPILE_OPTIONS "-O0 -fprofile-arcs -ftest-coverage" CACHE STRING "Extra compiler flags for instrumented build type")
+else()
+     set(INSTRUMENTED_COMPILE_OPTIONS "" CACHE STRING "Extra compiler flags for instrumented build type")
+endif()
+set(CMAKE_CXX_FLAGS_INSTRUMENTED "${CMAKE_CXX_FLAGS} ${INSTRUMENTED_COMPILE_OPTIONS}")
+
 # Enable the Unit Tests
 option(BUILD_TESTING "Enables the unit tests" OFF)
 
