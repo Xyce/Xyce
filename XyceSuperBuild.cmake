@@ -27,6 +27,8 @@ if(DEFINED ENV{MKLROOT})
   set(BLA_VENDOR Intel10_64ilp_seq)
 endif()
 find_package(LAPACK 3.5.0)
+# Change separator in LAPACK_LIBARIES to avoid ';' being converted to a space
+string(REPLACE ";" "|" LAPACK_LIBRARIES "${LAPACK_LIBRARIES}")
 
 if(NOT LAPACK_LIBRARIES)
   if(WIN32)
@@ -207,6 +209,7 @@ ExternalProject_Add(Trilinos
   GIT_REPOSITORY https://github.com/Trilinos/Trilinos
   GIT_TAG trilinos-release-12-12-1
   GIT_SHALLOW True
+  LIST_SEPARATOR | # Use the alternate list separator
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Patch_EpetraExt_Transform_Composite.h <SOURCE_DIR>/packages/epetraext/src/transform/EpetraExt_Transform_Composite.h
   CMAKE_ARGS ${Xyce_TRILINOS_ARGS}
 )
