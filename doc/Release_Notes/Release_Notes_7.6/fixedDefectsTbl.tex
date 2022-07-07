@@ -38,12 +38,13 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{Xyce Backlog Bugs Issue 1}: Mutual inductor jacobian error &
+\textbf{Xyce Backlog Bugs/1}: Mutual inductor jacobian error &
 A jacobian term in the nonlinear mutual inductor was wrong when the bias was changing 
 across the primary inductor.  This jacobian error could lead to slower nonlinear 
 convergence in transient simulations.  It has been fixed. \\ \hline
 
-\textbf{Xyce Backlog Bugs Issue 2}: Mutual inductors have a bad device connectivity map &
+\textbf{Xyce Backlog Bugs/2}: Mutual inductors have a bad device connectivity map &
+>>>>>>> 38619b588 (Document fix of the CMake version reporting)
 The device connectivity map is used to determine the path to ground for error checking.  
 The linear and nonlinear mutual inductors were not correctly setting up 
 the device connectivity map and this resulted in false warnings that some circuit 
@@ -51,6 +52,13 @@ nodes did not have a path to ground.  The warning was invalid and this issue did
 not effect Xyce's calculations.  But the warning was incorrect and could cause 
 confusion.  The code has been fixed and this warning should no longer appear under
 false conditions. \\ \hline
+
+\textbf{Xyce Project Backlog/260}: Fix version string in CMake development builds &
+Xyce reports its version using \texttt{Xyce -v}.  With development versions of
+Xyce, the reported version should include the Git SHA against which the code
+was compiled along with the time of compilation. Prior to this change, CMake
+would include the SHA and time at \emph{configure} time, not compilation time.
+That is now fixed. \\ \hline
 
 \textbf{repo/issue number}: Short description placeholder &
 Description placeholder \\ \hline
