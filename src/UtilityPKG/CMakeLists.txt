@@ -2,17 +2,27 @@
 # add sub directories
 add_subdirectory(ExpressionSrc)
 
-# generate a timestamp.h
-string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
-execute_process(
-     COMMAND git -C ${CMAKE_SOURCE_DIR} describe --dirty
-     OUTPUT_VARIABLE GITSHA  ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-if (NOT ${GITSHA} STREQUAL "")
-     set(GITSTRING "-(${GITSHA})")
-endif ()
-set(XYCEBUILDTIMESTAMP "${CONFIGURE_TIME}${GITSTRING}")
-configure_file(timestamp.h.cmake timestamp.h)
-
+# Generate timestamp.h at build time
+add_custom_command(
+     OUTPUT timestamp.h
+     OUTPUT MakeMeRunEveryBuild.h
+     COMMAND ${CMAKE_COMMAND}
+          -D Git_FOUND=${Git_FOUND}
+          -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+          -D GIVEN_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/BuildTimeStamp.cmake
+     WORKING_DIRECTORY
+          ${CMAKE_CURRENT_BINARY_DIR}
+     DEPENDS
+          ${CMAKE_CURRENT_SOURCE_DIR}/BuildTimeStamp.cmake
+     COMMENT
+          "Updating version string Git SHA and time stamp"
+)
+add_custom_target(TimeStampHeader
+     DEPENDS timestamp.h
+     DEPENDS MakeMeRunEveryBuild.h
+)
+add_dependencies(XyceLib TimeStampHeader)
 
 # -- process files for this library ------------------------------------------
 
