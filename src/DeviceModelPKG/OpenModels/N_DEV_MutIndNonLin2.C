@@ -419,6 +419,16 @@ Instance::Instance(
   setNumBranchDataVars(0);    // by default don't allocate space in branch vectors   
   numBranchDataVarsIfAllocated = numInductors;  // space allocation if power is needed
   
+  // set up the device connectivity map
+  // each simple inductor in this mutual inductor
+  // is maked as a connection (given a common, non-zero
+  // value in devConMap)
+  devConMap.resize(2*numInductors);
+  for(int i=0, j=0; i<(2*numInductors); i+=2, j++)
+  {
+    devConMap[i] = devConMap[i+1] = (j+1);
+  }
+  
   inductorCurrents.resize( numInductors );
   inductanceVals.resize( numInductors );
   LOI.resize( numInductors );

@@ -364,9 +364,9 @@ Instance::Instance(
   // is maked as a connection (given a common, non-zero
   // value in devConMap)
   devConMap.resize(2*numInductors);
-  for(int i=0; i<(2*numInductors); i+=2)
+  for(int i=0, j=0; i<(2*numInductors); i+=2, j++)
   {
-    devConMap[i] = devConMap[i+1] = (i+1);
+    devConMap[i] = devConMap[i+1] = (j+1);
   }
 
   mEquInductorOffsets.resize( numInductors );
@@ -378,16 +378,6 @@ Instance::Instance(
   for( int i=0; i<numInductors; ++i)
   {
     LO[i].resize( numInductors );
-  }
-
-  // set up the device connectivity map
-  // each simple inductor in this mutual inductor
-  // is maked as a connection (given a common, non-zero
-  // value in devConMap)
-  devConMap.resize(2*numInductors);
-  for(int i=0; i<numInductors; i++)
-  {
-    devConMap[i] = devConMap[i+1] = (i+1);
   }
 
   // Calculate any parameters specified as expressions:
