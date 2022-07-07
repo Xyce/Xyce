@@ -38,6 +38,15 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{Xyce Backlog Bugs Issue 2}: Mutual inductors have a bad device connectivity map &
+The device connectivity map is used to determine the path to ground for error checking.  
+The linear and nonlinear mutual inductors were not correctly setting up 
+the device connectivity map and this resulted in false warnings that some circuit 
+nodes did not have a path to ground.  The warning was invalid and this issue did 
+not effect Xyce's calculations.  But the warning was incorrect and could cause 
+confusion.  The code has been fixed and this warning should no longer appear under
+false conditions. \\ \hline
+
 \textbf{repo/issue number}: Short description placeholder &
 Description placeholder \\ \hline
 
