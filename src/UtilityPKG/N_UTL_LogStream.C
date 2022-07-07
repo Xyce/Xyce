@@ -89,24 +89,6 @@
  * unique messages are written to pout() and logged when communication is possible and
  * makes sense.
  *
- *
- * Threading support for lout():
- *
- * While Xyce is not implemented to for thread safety, it is possible to execute several
- * instances of Xyce each on a single thread.  To support this, the lout() stream has a
- * thread to stream map that selects a unique output stream for each thread.
- *
- *   - Call initializeLogStreamByThread() to activate the per-thread stream.
- *
- *   - Each thread should call addThreadStream(std::ostream *os) to set the lout() stream
- *     destination for that thread.
- *
- *   - Each thread should call removeThreadStream(std::ostream *os) to remove the stream
- *     as a destination.
- *
- * Note that if no stream is associated with the thread, the original lout() stream is
- * used.
- *
  */
 
 // NEVER, leave this out!
@@ -119,7 +101,6 @@
 
 #include <N_ERH_ErrorMgr.h>
 
-#include <N_UTL_PThread.h>
 #include <N_UTL_LogStream.h>
 #include <N_UTL_IndentStreamBuf.h>
 #include <N_UTL_TeeStreamBuf.h>
@@ -150,28 +131,6 @@ std::ostringstream              s_poutBacklog;                                  
 const char *section_divider  = "------------------------------------------------------------";
 const char *subsection_divider = "----------------------------------------";
 
-typedef std::map<Util::xyce_pthread_t, std::ostream *> StreamMap;
-
-Util::xyce_pthread_mutex_t *    s_threadLoutMutex;                              ///< 0 means not threaded, otherwise mutex for m_threadLoutMap
-StreamMap                       s_threadLoutMap;                                ///< Destination output streams to write to
-
-struct Lock
-{
-  Lock(Util::xyce_pthread_mutex_t *lock)
-    : lock_(lock)
-  {
-    if (lock_)
-      Util::xyce_pthread_mutex_lock(lock_);
-  }
-
-    ~Lock()
-    {
-      if (lock_)
-        Util::xyce_pthread_mutex_unlock(lock_);
-    }
-
-    Util::xyce_pthread_mutex_t *lock_;
-};
 
 /**
  * Initializes output streams and stream buffers.
@@ -228,10 +187,6 @@ struct INIT
     s_pout.rdbuf(std::cout.rdbuf());
 
     s_logFileStream = 0;
-
-    delete s_threadLoutMutex;
-
-    s_threadLoutMutex = 0;
   }
 };
 
@@ -279,9 +234,6 @@ void initializeLogStream(int rank, int size)
 /**
  * Logging output stream.
  *
- * If threaded output has been activated, the per thread stream is returned if one has
- * been added to the per-thread stream map.
- *
  * @return reference to the logging output stream.
  *
  * @author David G. Baur  Raytheon  Sandia National Laboratories 1355 
@@ -290,17 +242,6 @@ void initializeLogStream(int rank, int size)
 std::ostream &lout()
 {
   init();
-
-  if (s_threadLoutMutex) {
-    Util::xyce_pthread_t thread_id = Util::xyce_pthread_self();
-
-    Lock lock(s_threadLoutMutex);
-
-    StreamMap::iterator it = s_threadLoutMap.find(thread_id);
-
-    if (it != s_threadLoutMap.end())
-      return *(*it).second;
-  }
 
   return s_lout;
 }
@@ -476,61 +417,6 @@ void closeLogFile()
   {
     s_loutStreambuf.remove(&std::cout);
   }
-}
-
-/**
- * Initialize the log streams for thread based logging.
- *
- * @author David G. Baur  Raytheon  Sandia National Laboratories 1355 
- * @date   Thu Oct  3 07:10:38 2013
- */
-void initializeLogStreamByThread()
-{
-  init();
-
-  s_threadLoutMutex = new Util::xyce_pthread_mutex_t();
-}
-
-/**
- * Associate an output stream with the calling thread.
- *
- *
- * @param os    Output stream pointer to associate with the calling thread
- *
- * @author David G. Baur  Raytheon  Sandia National Laboratories 1355 
- * @date   Wed Dec  4 10:13:42 2013
- */
-void addThreadStream(std::ostream *os)
-{
-  if (!s_threadLoutMutex)
-    throw std::runtime_error("Must initializeLogStreamByThread() first");
-
-  Util::xyce_pthread_t thread_id = Util::xyce_pthread_self();
-
-  Lock lock(s_threadLoutMutex);
-
-  s_threadLoutMap.insert(StreamMap::value_type(thread_id, os));
-}
-
-/**
- * Dissociate the output stream from the calling thread.
- *
- *
- * @param os    Output stream pointer to dissociate with the calling thread
- *
- * @author David G. Baur  Raytheon  Sandia National Laboratories 1355 
- * @date   Wed Dec  4 10:14:36 2013
- */
-void removeThreadStream(std::ostream *os)
-{
-  if (!s_threadLoutMutex)
-    throw std::runtime_error("Must initializeLogStreamByThread() first");
-
-  Util::xyce_pthread_t thread_id = Util::xyce_pthread_self();
-
-  Lock lock(s_threadLoutMutex);
-
-  s_threadLoutMap.erase(thread_id);
 }
 
 /** 

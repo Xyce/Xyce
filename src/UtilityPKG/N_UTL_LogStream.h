@@ -55,10 +55,6 @@ bool openLogFile(const std::string &path, bool per_processor);
 bool openDiagnosticFile(const std::string &path, bool per_processor);
 void closeLogFile();
 
-void initializeLogStreamByThread();
-void addThreadStream(std::ostream *os);
-void removeThreadStream(std::ostream *os);
-
 } // namespace Xyce
 
 #endif // Xyce_N_UTL_LogStream_h

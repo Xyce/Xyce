@@ -119,19 +119,6 @@ AM_CONDITIONAL(BUILD_XYCE_BINARY, test "X$ENABLE_XYCE_BINARY" != "Xno")
 dnl ********************************************
 
 dnl ********************************************
-dnl Here we determine whether we're doing a threaded build
-AC_ARG_ENABLE(thread-safe-logging, AS_HELP_STRING([--enable-thread-safe-logging], 
-                                      [enable thread safe logging for one Xyce per thread runs (default is no)]), 
-                                      ac_enable_threads=$enableval, 
-                                      ac_enable_threads=no) 
-if test "$ac_enable_threads" = yes; then 
-  AC_DEFINE(USE_THREADS, 1, [use threads]) 
-fi
-
-AM_CONDITIONAL(THREADS, test $ac_enable_threads = yes) 
-dnl ********************************************
-
-dnl ********************************************
 dnl Here we determine whether we're doing a parallel build or not
 XYCE_DEBUG_OPTION(mpi,no,[parallel build with MPI],Xyce_PARALLEL_MPI,USE_MPI)
 

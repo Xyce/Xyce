@@ -21,14 +21,6 @@ else
 fftw_SOURCES =
 endif
 
-if THREADS 
-threads_LIB = -lpthread 
-threads_CFLAGS = -pthread 
-else 
-threads_LIB = 
-threads_CFLAGS = 
-endif 
-
 libUtility_la_SOURCES = \
   $(intelfft_SOURCES) \
   $(fftw_SOURCES) \
@@ -88,7 +80,6 @@ libUtility_la_SOURCES = \
   N_UTL_Diagnostic.h \
   N_UTL_IndentStreamBuf.h \
   N_UTL_TeeStreamBuf.h \
-  N_UTL_PThread.h \
   N_UTL_LogStream.h \
   N_UTL_ReportHandler.h \
   N_UTL_Marshal.h \
