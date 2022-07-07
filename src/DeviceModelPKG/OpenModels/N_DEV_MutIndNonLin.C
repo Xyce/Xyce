@@ -364,7 +364,7 @@ Instance::Instance(
   // is maked as a connection (given a common, non-zero
   // value in devConMap)
   devConMap.resize(2*numInductors);
-  for(int i=0; i<numInductors; i++)
+  for(int i=0; i<(2*numInductors); i+=2)
   {
     devConMap[i] = devConMap[i+1] = (i+1);
   }
