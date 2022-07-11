@@ -8,13 +8,13 @@ install ( FILES ${Xyce_SOURCE_DIR}/distribution/README.TXT
 #Use a build-appropriate license file:
 if ( Xyce_RAD_MODELS )
   set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.ECILicense.txt" )
-else ( Xyce_RAD_MODELS )
+else()
   if ( Xyce_NONFREE_MODELS )
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.NonFreeLicense.txt" )
-  else ( Xyce_NONFREE_MODELS )
+  else ()
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.OSLicense.txt" )
-  endif ( Xyce_NONFREE_MODELS )
-endif ( Xyce_RAD_MODELS )
+  endif ()
+endif ()
 
 set ( CPACK_RESOURCE_FILE_README "${Xyce_SOURCE_DIR}/distribution/CPack.Description.txt" )
 
@@ -27,48 +27,48 @@ set ( CPACK_PACKAGE_VERSION_MAJOR "${Xyce_VERSION_MAJOR}" )
 set ( CPACK_PACKAGE_VERSION_MINOR "${Xyce_VERSION_MINOR}" )
 if ( Xyce_VERSION_PATCH)
   set ( CPACK_PACKAGE_VERSION_PATCH "${Xyce_VERSION_PATCH}" )
-else ( Xyce_VERSION_PATCH)
+else()
   set ( CPACK_PACKAGE_VERSION_PATCH "0" )
-endif ( Xyce_VERSION_PATCH)
+endif()
 
+# not all generators support this option.  In fact it may
+# be only the Windows NSIS one that does.  So use with caution
 set ( CPACK_PACKAGE_INSTALL_DIRECTORY "${Xyce_INSTALL_NAME}" )
 
 # generator specific settings
 
 if ( CMAKE_HOST_UNIX )
+  # set default install location on unix to /usr/local
+  set( CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
 
   if ( CMAKE_HOST_APPLE )
-
     # OSX bundle directives
-    set ( CPACK_GENERATOR "PackageMaker" )
-
-  else ( CMAKE_HOST_APPLE )
-
-  # rpm directives if nothing specified
+    set ( CPACK_GENERATOR "productbuild" )
+    set (CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/${Xyce_INSTALL_NAME}")
+  else()
+    # rpm directives if nothing specified
     SET( CPACK_GENERATOR "${GEN_TYPE}" )
-
-  endif ( CMAKE_HOST_APPLE )
+  endif()
 
   set ( CPACK_RPM_PACKAGE_DESCRIPTION "For more information, visit http://xyce.sandia.gov ." )
+  SET (CPACK_PACKAGE_DESCRIPTION_FILE "${Xyce_SOURCE_DIR}/distribution/CPack.Description.txt")
   set ( CPACK_RPM_PACKAGE_LICENSE "GPLv3" )
+  SET( CPACK_RPM_PACKAGE_RELOCATABLE "true")
   SET( CPACK_DEBIAN_FILE_NAME "Xyce-${Xyce_VERSION_STRING_LONG}.deb" )
   SET( CPACK_DEBIAN_PACKAGE_ARCHITECHTURE "i386" )
   SET( CPACK_DEBIAN_PACKAGE_MAINTAINER "Sandia National Laboratories" )
 
   if ( Xyce_VERSION_EXTRA )
-
     set ( CPACK_RPM_PACKAGE_NAME "Xyce-${Xyce_VERSION_EXTRA}" )
     SET( CPACK_DEBIAN_PACKAGE_NAME "Xyce-${Xyce_VERSION_EXTRA}")
     set(CPACK_ARCHIVE_FILE_NAME "Xyce-${Xyce_VERSION_EXTRA}")
-  else ( Xyce_VERSION_EXTRA )
-
+  else()
     set ( CPACK_RPM_PACKAGE_NAME "Xyce" )
     SET( CPACK_DEBIAN_PACKAGE_NAME "Xyce")
     set(CPACK_ARCHIVE_FILE_NAME "Xyce")
-
-  endif ( Xyce_VERSION_EXTRA )
-
-endif ( CMAKE_HOST_UNIX )
+  endif()
+  
+endif()
 
 
 if ( CMAKE_HOST_WIN32 )
@@ -131,4 +131,4 @@ if ( CMAKE_HOST_WIN32 )
           Delete \\\"$DESKTOP\\\\Xyce ${Xyce_VERSION_STRING_LONG} Command Prompt.lnk\\\" "
 )
 
-endif ( CMAKE_HOST_WIN32 )
+endif()
