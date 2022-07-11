@@ -254,10 +254,6 @@ dnl optionally compile in support for Charon linkage
 XYCE_DEBUG_OPTION(charon,no,[Charon device support],Xyce_CHARON, USE_CHARON)
 AM_CONDITIONAL(BUILD_CHARON_SUPPORT, test $USE_CHARON = yes)
 
-dnl optionally compile in support for Trilinos Development
-XYCE_DEBUG_OPTION(trilinos_dev,no,[support for development (pre-release) versions of Trilinos],Xyce_TRILINOS_DEV, USE_TRILINOS_DEV)
-AM_CONDITIONAL(TRILINOS_DEV, test $USE_TRILINOS_DEV = yes)
-
 dnl compile in support for partitioning
 XYCE_DEBUG_OPTION(isorropia,yes,[isorropia partitioning option],Xyce_USE_ISORROPIA,USE_ISORROPIA)
 XYCE_DEBUG_OPTION(zoltan,yes,[zoltan partitioning option],Xyce_USE_ZOLTAN,USE_ZOLTAN)
