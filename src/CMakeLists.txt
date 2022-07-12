@@ -190,6 +190,22 @@ endif()
 
 install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
 
+install(CODE [[
+  file(GET_RUNTIME_DEPENDENCIES
+    EXECUTABLES "./src/Xyce"
+    DIRECTORIES "/usr/local:/opt/local"
+    RESOLVED_DEPENDENCIES_VAR ResolvedDeps
+    )
+  foreach(aFile ${ResolvedDeps})
+    file(INSTALL
+      DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+      TYPE SHARED_LIBRARY
+      FOLLOW_SYMLINK_CHAIN
+      FILES "${aFile}"
+    )
+  endforeach()
+  ]])
+
 # Add header files needed by other codes to link against libxyce.*
 #
 # We need to do the following because Xyce was not designed to have a clean set
