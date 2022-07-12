@@ -38,6 +38,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{Xyce Backlog Bugs Issue 1}: Mutual inductor jacobian error &
+A jacobian term in the nonlinear mutual inductor was wrong when the bias was changing 
+across the primary inductor.  This jacobian error could lead to slower nonlinear 
+convergence in transient simulations.  It has been fixed. \\ \hline
+
 \textbf{Xyce Backlog Bugs Issue 2}: Mutual inductors have a bad device connectivity map &
 The device connectivity map is used to determine the path to ground for error checking.  
 The linear and nonlinear mutual inductors were not correctly setting up 
