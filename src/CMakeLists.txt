@@ -65,8 +65,7 @@ add_subdirectory(test)
 
 
 target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-     ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
-     ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
+     ${FLEX_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
 #
 # Xyce-Dakota linkage
@@ -91,14 +90,8 @@ if( Xyce_USE_FFTW )
   target_include_directories(XyceLib PUBLIC ${FFTWIncludeDir} )
 endif()
 
-target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES}
-     ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
-
-#
-# Set the INTERFACE_LINK_DIRECTORIES to any extra directories that Trilinos found
-# for its files.
-set_property(TARGET XyceLib APPEND PROPERTY INTERFACE_LINK_DIRECTORIES "${Trilinos_LIBRARY_DIRS}")
-set_property(TARGET XyceLib APPEND PROPERTY INTERFACE_LINK_DIRECTORIES "${Trilinos_TPL_LIBRARY_DIRS}")
+target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(XyceLib PUBLIC Trilinos::all_selected_libs)
 
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)

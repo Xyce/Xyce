@@ -38,12 +38,12 @@ else()
     "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
     "        Triutils AztecOO Belos TrilinosCouplings\n"
     "   Optional packages:\n"
-    "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL")
+    "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL MKL")
   find_package(${TriBITS_prefix} CONFIG
     REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
          AztecOO Belos TrilinosCouplings
-    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore 
-         Amesos2 Stokhos ROL)
+    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore
+         Amesos2 Stokhos ROL MKL)
   message(STATUS "Looking for Trilinos - found")
 endif()
 
@@ -51,9 +51,9 @@ endif()
 # From what I tell, there is no way to probe the version of Trilinos when it
 # is built as part of a different Tribits project.
 if(${TriBITS_prefix} STREQUAL "Trilinos" )
-  if(Trilinos_VERSION VERSION_LESS "12.12")
+  if(Trilinos_VERSION VERSION_LESS "13.5")
     message(FATAL_ERROR
-      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 12.12. Install a version of Trilinos of 12.12 or greater.")
+      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 13.5. Install a version of Trilinos of 13.5 or greater.")
   endif()
 else()
   # This is where we mitigate the TriBITS name mangling.  We change the
@@ -61,10 +61,7 @@ else()
   # rest of the configure process.
   set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
   set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
-  set( Trilinos_INCLUDE_DIRS ${${TriBITS_prefix}_INCLUDE_DIRS} )
-  set( Trilinos_LIBRARIES ${${TriBITS_prefix}_LIBRARIES} )
   set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
-  set( Trilinos_TPL_INCLUDE_DIRS ${${TriBITS_prefix}_TPL_INCLUDE_DIRS} )
   set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
 endif()
 
