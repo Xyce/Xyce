@@ -188,23 +188,10 @@ else()
   install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
 endif()
 
-install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
-
-install(CODE [[
-  file(GET_RUNTIME_DEPENDENCIES
-    EXECUTABLES "./src/Xyce"
-    DIRECTORIES "/usr/local:/opt/local"
-    RESOLVED_DEPENDENCIES_VAR ResolvedDeps
-    )
-  foreach(aFile ${ResolvedDeps})
-    file(INSTALL
-      DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-      TYPE SHARED_LIBRARY
-      FOLLOW_SYMLINK_CHAIN
-      FILES "${aFile}"
-    )
-  endforeach()
-  ]])
+install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
+  RUNTIME_DEPENDENCIES 
+  LIBRARY DESTINATION lib 
+  COMPONENT Core )
 
 # Add header files needed by other codes to link against libxyce.*
 #
@@ -298,7 +285,8 @@ install(FILES
     UtilityPKG/N_UTL_TypeIndex.h
     UtilityPKG/N_UTL_Xyce.h
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
-DESTINATION include)
+DESTINATION include
+COMPONENT Core  )
 
 # When Charon uses a specific part Xyce as a TPL, it links to code deep in
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
@@ -340,7 +328,8 @@ if(${TriBITS_prefix} STREQUAL "tcad-charon")
     UtilityPKG/N_UTL_Listener.h
     UtilityPKG/N_UTL_Timer.h
     UtilityPKG/N_UTL_WallTime.h
-  DESTINATION include)
+  DESTINATION include
+  COMPONENT Core )
 endif()
 
 # valid Cmake config package & version names are:
@@ -377,6 +366,8 @@ install(EXPORT XyceLibTarget
     Xyce::
   DESTINATION
     ${ConfigPackageLocation}
+  COMPONENT 
+    Core
 )
 
 install(
@@ -386,5 +377,5 @@ install(
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
-    Devel
+    Core
 )

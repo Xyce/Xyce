@@ -2,24 +2,46 @@
 # copyright, readme, license, etc.
 install ( FILES ${Xyce_SOURCE_DIR}/distribution/README.TXT
             DESTINATION doc
-            OPTIONAL )
+            OPTIONAL COMPONENT Documentation )
 
 
 #Use a build-appropriate license file:
 if ( Xyce_RAD_MODELS )
   set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.ECILicense.txt" )
+  install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.ECILicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
 else()
   if ( Xyce_NONFREE_MODELS )
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.NonFreeLicense.txt" )
+    install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.NonFreeLicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
   else ()
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.OSLicense.txt" )
+    install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.OSLicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
   endif ()
 endif ()
 
 set ( CPACK_RESOURCE_FILE_README "${Xyce_SOURCE_DIR}/distribution/CPack.Description.txt" )
 
 # set packaging variables
-set ( Xyce_INSTALL_NAME "Xyce ${Xyce_VERSION_STRING_LONG}" )
+set( Xyce_BaseName "Xyce")
+if (Xyce_RAD_MODELS)
+  set( Xyce_BaseName "${Xyce_BaseName}Rad")
+elseif (Xyce_NONFREE_MODELS)
+  set( Xyce_BaseName "${Xyce_BaseName}")
+else ()
+  set( Xyce_BaseName "${Xyce_BaseName}OpenSource")
+endif ()
+if( Xyce_PARALLEL_MPI )
+  set( Xyce_BaseName "${Xyce_BaseName}OMPI")
+endif ()
+
+
+set ( Xyce_INSTALL_NAME "${Xyce_BaseName}_${Xyce_VERSION_STRING_LONG}" )
 set ( CPACK_PACKAGE_NAME "${Xyce_INSTALL_NAME}" )
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xyce Parallel Electronic Simulator" )
 set ( CPACK_PACKAGE_VENDOR "Sandia National Laboratories" )
@@ -81,6 +103,14 @@ if ( CMAKE_HOST_WIN32 )
   set ( CPACK_NSIS_CONTACT "xyce-support@sandia.gov" )
   set ( CPACK_NSIS_MODIFY_PATH OFF )
 
+  #
+  # All of the following extra install() calls
+  # are probably not needed with the use of 
+  # install(TARGETS Xyce ... RUNTIME_DEPENDENCIES ) in Xyce/src/CMakeLists.txt
+  # However removal of these lines will need to be tested under Windows first
+  # All lines from here to just before the "registry settings" line
+  #
+  
   # there is probably a better way to do this with
   # file(GET_RUNTIME_DEPENDENCIES...)
   # but that requires cmake 3.17.3 or higher.  For now
