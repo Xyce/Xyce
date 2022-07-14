@@ -180,16 +180,17 @@ if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
   set_target_properties ( XyceLib PROPERTIES
 	 		OUTPUT_NAME xyce-share
 			CLEAN_DIRECT_OUTPUT ON)
-  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget)
+  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget COMPONENT Core )
 else()
   set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
-  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
+  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget COMPONENT Core )
 endif()
 
 install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
   RUNTIME_DEPENDENCIES 
+  DIRECTORIES "/usr/local/" "/opt/local" ${Xyce_INSTALLER_LIBPATH}
   LIBRARY DESTINATION lib 
   COMPONENT Core )
 
