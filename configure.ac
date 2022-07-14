@@ -515,12 +515,18 @@ AC_SEARCH_LIBS([dlopen], [dl])
 
 dnl *********************************************************************
 dnl stats information
-AC_CHECK_HEADERS(unistd.h malloc.h pwd.h sys/utsname.h)
+AC_CHECK_HEADERS(unistd.h malloc.h pwd.h sys/utsname.h sys/stat.h)
 AC_CHECK_FUNCS(mallinfo)
 AC_CHECK_FUNCS(getpwuid)
 AC_CHECK_FUNCS(gethostname)
 AC_CHECK_FUNCS(getdomainname)
 AC_CHECK_FUNCS(uname)
+
+# We must have either S_ISREG or _S_ISREG for the checkIfValidFile function
+AC_HEADER_STAT
+if test "x$STAT_MACROS_BROKEN" = "xyes"; then
+  AC_MSG_ERROR([Compiler is not able to interpret the values returned from the system call `stat()`.])
+fi
 
 dnl CAREFUL --- if parallel is enabled, epetra needs MPI, so better have
 dnl it later in the libs path! (which means detecting it earlier, since

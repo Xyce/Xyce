@@ -35,8 +35,17 @@ check_cxx_symbol_exists(gethostname "unistd.h" HAVE_GETHOSTNAME)
 check_cxx_symbol_exists(getdomainname "unistd.h" HAVE_GETDOMAINNAME)
 check_cxx_symbol_exists(uname "sys/utsname.h" HAVE_UNAME)
 
-# see `src/UtilityPKG/N_UTL_CheckIfValidFile.C` for more stuff about
-# HAVE_SYS_STAT_H that should be here.
+# Checking sys/stat.h for S_ISREG / _S_ISREG which is required by the
+# checkIfValidFile function
+
+check_cxx_symbol_exists(S_ISREG "sys/stat.h" HAVE_S_ISREG)
+check_cxx_symbol_exists(_S_ISREG "sys/stat.h" HAVE__S_ISREG)
+
+# We must have either S_ISREG or _S_ISREG for the checkIfValidFile function
+if (NOT (HAVE_S_ISREG OR HAVE__S_ISREG))
+     message(FATAL_ERROR 
+       "Compiler is not able to interpret the values returned from the system call `stat()`.")
+endif()
 
 ### Check for Windows features ###
 

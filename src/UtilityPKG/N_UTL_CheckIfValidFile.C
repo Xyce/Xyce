@@ -31,8 +31,6 @@
 #ifndef S_ISREG
 #ifdef _S_IFREG
 #define S_ISREG(mode) (((mode) & _S_IFMT) == _S_IFREG)
-#else
-#error stat.h missing S_ISREG and _S_IFREG.  Cannot proceed
 #endif
 #endif
 #endif
