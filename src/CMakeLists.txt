@@ -94,9 +94,11 @@ if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-# In the case where CURL has been built with CMake, then CURL_LIBRARIES and
-# CURL_INCLUDE_DIRS are NOT set; instead, there is an import library defined.
-# Check for that here:
+# See https://cmake.org/cmake/help/latest/module/FindCURL.html
+# The "FindCURL" provided by CMake defines CURL_LIBRARIES and CURL_INCLUDE_DIRS
+# (used above).  If curl was built using its CMake buildsystem, though, then it
+# provides its own CURLConfig.cmake file, which defines an import library.
+# Handle that case here:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceLib PUBLIC CURL::libcurl)
 endif()
