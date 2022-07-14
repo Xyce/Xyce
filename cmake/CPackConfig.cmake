@@ -41,8 +41,10 @@ if( Xyce_PARALLEL_MPI )
 endif ()
 
 
-set ( Xyce_INSTALL_NAME "${Xyce_BaseName}_${Xyce_VERSION_STRING_LONG}" )
-set ( CPACK_PACKAGE_NAME "${Xyce_INSTALL_NAME}" )
+set ( Xyce_INSTALL_NAME "${Xyce_BaseName}_${Xyce_VERSION_STRING_SHORT}" )
+if( NOT DEFINED CPACK_PACKAGE_NAME)
+  set ( CPACK_PACKAGE_NAME "${Xyce_INSTALL_NAME}" )
+endif()
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xyce Parallel Electronic Simulator" )
 set ( CPACK_PACKAGE_VENDOR "Sandia National Laboratories" )
 set ( CPACK_PACKAGE_VERSION_MAJOR "${Xyce_VERSION_MAJOR}" )
@@ -61,12 +63,13 @@ set ( CPACK_PACKAGE_INSTALL_DIRECTORY "${Xyce_INSTALL_NAME}" )
 
 if ( CMAKE_HOST_UNIX )
   # set default install location on unix to /usr/local
-  set( CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
+  set (CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/${Xyce_INSTALL_NAME}")
 
   if ( CMAKE_HOST_APPLE )
     # OSX bundle directives
-    set ( CPACK_GENERATOR "productbuild" )
-    set (CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/${Xyce_INSTALL_NAME}")
+    if( NOT DEFINED CPACK_GENERATOR)
+      set ( CPACK_GENERATOR "productbuild" )
+    endif()
   else()
     # rpm directives if nothing specified
     SET( CPACK_GENERATOR "${GEN_TYPE}" )
