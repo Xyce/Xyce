@@ -130,9 +130,7 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-if (Xyce_SIMULINK)
-  add_subdirectory(utils)
-endif()
+add_subdirectory(utils)
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
