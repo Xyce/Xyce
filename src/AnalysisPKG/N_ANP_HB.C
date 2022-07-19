@@ -1316,7 +1316,7 @@ bool HB::mapFreqs_()
 
 
 //      freqs_[i] = mappedFreqs_[i]; 
-      dout() << " mapped frequency " << mappedFreqs_[i] << std::endl;
+//      dout() << " mapped frequency " << mappedFreqs_[i] << std::endl;
     
     }
 
@@ -1332,18 +1332,6 @@ bool HB::mapFreqs_()
     Report::UserError() << "Unsupported frequency truncation method for FM based HB";
     return false;
   }
-
-/*  mappedFreqs_[0] = 1.0;
-
-
-  for (int i=1; i < numAnalysisFreqs; i++)
-  {
-    mappedFreqs_[i] = numFreqs_[i-1] * mappedFreqs_[i-1];
-
-//    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
-    
-  }   */
-
 
   return true;
 }
@@ -1862,7 +1850,7 @@ bool HB::setFreqPointsDia_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, diaindexMatrix, hbFreqs, 0.0 );
 
 
-//  if (DEBUG_HB)
+  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     diaindexMatrix.print(dout());
