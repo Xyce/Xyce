@@ -1308,8 +1308,6 @@ bool HB::mapFreqs_()
   else if (  selectHarm_  == "DIAMOND" )
   {
 
-//    mappedFreqs_[0] = 1.0;      intmodMax_
-
     std::vector<double>   origfreqs  =  freqs_;
 
     for (int i=0; i < numAnalysisFreqs; i++)
@@ -1318,7 +1316,7 @@ bool HB::mapFreqs_()
 
 
 //      freqs_[i] = mappedFreqs_[i]; 
-      dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+      dout() << " mapped frequency " << mappedFreqs_[i] << std::endl;
     
     }
 
@@ -1332,7 +1330,6 @@ bool HB::mapFreqs_()
   else
   {
     Report::UserError() << "Unsupported frequency truncation method for FM based HB";
-//    Report::UserError() << "Unsupported frequency truncation method for HB";
     return false;
   }
 
