@@ -1290,7 +1290,54 @@ bool HB::mapFreqs_()
   
   mappedFreqs_.resize(numAnalysisFreqs);
 
-  mappedFreqs_[0] = 1.0;
+  if (  selectHarm_  == "BOX" )
+  {
+
+    mappedFreqs_[0] = 1.0;
+
+
+    for (int i=1; i < numAnalysisFreqs; i++)
+    {
+      mappedFreqs_[i] = numFreqs_[i-1] * mappedFreqs_[i-1];
+
+//    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+    
+    }
+
+  }
+  else if (  selectHarm_  == "DIAMOND" )
+  {
+
+//    mappedFreqs_[0] = 1.0;      intmodMax_
+
+    std::vector<double>   origfreqs  =  freqs_;
+
+    for (int i=0; i < numAnalysisFreqs; i++)
+    {
+      mappedFreqs_[i] = (intmodMax_ * (numAnalysisFreqs - 1 ) - numAnalysisFreqs + i + 2 );
+
+
+//      freqs_[i] = mappedFreqs_[i]; 
+      dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
+    
+    }
+
+      freqs_ = mappedFreqs_;         
+
+      setFreqPointsDia_();
+
+
+      freqs_ = origfreqs;
+  }
+  else
+  {
+    Report::UserError() << "Unsupported frequency truncation method for FM based HB";
+//    Report::UserError() << "Unsupported frequency truncation method for HB";
+    return false;
+  }
+
+/*  mappedFreqs_[0] = 1.0;
+
 
   for (int i=1; i < numAnalysisFreqs; i++)
   {
@@ -1298,7 +1345,7 @@ bool HB::mapFreqs_()
 
 //    dout() << " mapped frequency point " << mappedFreqs_[i] << std::endl;
     
-  }
+  }   */
 
 
   return true;
@@ -1818,7 +1865,7 @@ bool HB::setFreqPointsDia_()
   currfreqPoints.multiply( Teuchos::TRANS, Teuchos::NO_TRANS, 1.0, diaindexMatrix, hbFreqs, 0.0 );
 
 
-  if (DEBUG_HB)
+//  if (DEBUG_HB)
   {
     dout() << "checking frequencies" << std::endl;
     diaindexMatrix.print(dout());
