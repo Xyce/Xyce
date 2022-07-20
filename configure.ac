@@ -699,10 +699,10 @@ if test "x$USE_DAKOTA" = "xyes"; then
   echo "checking for Dakota libraries."
 
   XYCE_LIBRARY_OPTION(boost_serialization)
-  XYCE_LIBRARY_OPTION(boost_signals)
   XYCE_LIBRARY_OPTION(boost_system)
   XYCE_LIBRARY_OPTION(boost_filesystem)
   XYCE_LIBRARY_OPTION(boost_regex)
+  XYCE_LIBRARY_OPTION(boost_program_options)
 
   XYCE_DAKOTA_LIBRARY_OPTION(Dakota, USE_DAKOTA_MAKEFILE, yes)
   if test "x$USE_DAKOTA_MAKEFILE" = "xno"; then

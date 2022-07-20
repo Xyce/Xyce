@@ -68,6 +68,16 @@ target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINA
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
+#
+# Xyce-Dakota linkage
+#
+if( Xyce_Dakota )
+  target_include_directories(XyceLib PUBLIC ${Dakota_INCLUDE_DIRS} )
+ 
+  target_link_libraries(XyceLib PUBLIC ${Dakota_LIBRARIES} )
+  target_link_libraries(XyceLib PUBLIC ${Dakota_TPL_LIBRARIES} )
+endif()
+
 # 
 # if we are using FFTW we need to add it's components rather than it as a 
 # target so that tools that link to Xyce externally will have the right

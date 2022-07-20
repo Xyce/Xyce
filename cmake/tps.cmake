@@ -552,7 +552,6 @@ if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
           set(FFT FFTW::FFTW)
      endif()
 endif()
-
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
      message("Neither FFTW or Intel MKL enabled - disabling the FFT capability")
      set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability" FORCE)
@@ -587,13 +586,28 @@ else()
      message(STATUS "Usage tracking is not enabled")
 endif()
 
-find_package(Git)
-
 #
 # Look for optional Matlab application to use the mex compiler for Simulink interface
 #
 if (Xyce_SIMULINK)
      find_package(Matlab)
+endif()
+
+#
+# Look for optional Dakota libraries to build integrated Xyce-Dakota binary
+#
+if (Xyce_DAKOTA OR Xyce_Dakota)
+     find_package(Dakota REQUIRED)
+     if(Dakota_FOUND)
+          message(STATUS "Looking for Dakota libraries - Dakota found")
+
+          message(STATUS "Looking for Boost")
+          find_package(Boost 1.69 REQUIRED
+            COMPONENTS filesystem program_options regex serialization system)
+
+          set(Xyce_Dakota TRUE CACHE BOOL "Use Dakota library")
+     endif()
+
 endif()
 
 include(CTest)
