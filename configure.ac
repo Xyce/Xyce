@@ -417,7 +417,7 @@ fi
 dnl Include the top-level of the include and lib directories in the search
 dnl Add to loader flags so comes before all -l's
 if test -d $ARCHDIR/lib; then
-  LDFLAGS="$LDFLAGS -L$ARCHDIR/lib"
+  LDFLAGS="-L$ARCHDIR/lib $LDFLAGS "
 fi
 if test -d $ARCHDIR/include; then
   CPPFLAGS="-I$ARCHDIR/include $CPPFLAGS"
