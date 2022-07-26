@@ -1,4 +1,5 @@
 project(Xyce_Superbuild VERSION 8.0.0 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 include(ExternalProject)
 find_package(Git)
@@ -27,6 +28,8 @@ if(DEFINED ENV{MKLROOT})
   set(BLA_VENDOR Intel10_64ilp_seq)
 endif()
 find_package(LAPACK 3.5.0)
+# Change separator in LAPACK_LIBARIES to avoid ';' being converted to a space
+string(REPLACE ";" "|" LAPACK_LIBRARIES "${LAPACK_LIBRARIES}")
 
 if(NOT LAPACK_LIBRARIES)
   if(WIN32)
@@ -53,6 +56,8 @@ set(DEFAULT_ARGS
   # -DCMAKE_CONFIGURATION_TYPES:STRING=${CMAKE_SS_CONF_TYPES}
   -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+  -DCMAKE_MACOSX_RPATH=${CMAKE_MACOSX_RPATH}
+  -DCMAKE_INSTALL_RPATH=${CMAKE_INSTALL_RPATH}
 )
 set(ADMS_ARGS
   ${DEFAULT_ARGS}
@@ -67,6 +72,8 @@ set(Xyce_ARGS ${DEFAULT_ARGS}
   -DADMS_XML=${CMAKE_CURRENT_BINARY_DIR}/install/bin/admsXml
   -DXyce_PLUGIN_SUPPORT=ON
   -DXyce_USE_SUPERBUILD=OFF
+  -DFLEX_EXECUTABLE:FILEPATH=${FLEX_EXECUTABLE}
+  -DFLEX_INCLUDE_DIR:PATH=${FLEX_INCLUDE_DIR}
 )
 
 list(APPEND TRILINOS_PARALLEL_ARGS
@@ -207,6 +214,7 @@ ExternalProject_Add(Trilinos
   GIT_REPOSITORY https://github.com/Trilinos/Trilinos
   GIT_TAG trilinos-release-12-12-1
   GIT_SHALLOW True
+  LIST_SEPARATOR | # Use the alternate list separator
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Patch_EpetraExt_Transform_Composite.h <SOURCE_DIR>/packages/epetraext/src/transform/EpetraExt_Transform_Composite.h
   CMAKE_ARGS ${Xyce_TRILINOS_ARGS}
 )

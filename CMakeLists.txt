@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
 
-option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?")
+option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?" OFF)
 if(Xyce_USE_SUPERBUILD)
   include("XyceSuperBuild.cmake")
   return()
@@ -130,9 +130,7 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-if (Xyce_SIMULINK)
-  add_subdirectory(utils)
-endif()
+add_subdirectory(utils)
 
 # add in unit tests subdirectory if it exists
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)

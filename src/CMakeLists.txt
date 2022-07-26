@@ -68,6 +68,16 @@ target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINA
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIRS}
      ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
+#
+# Xyce-Dakota linkage
+#
+if( Xyce_Dakota )
+  target_include_directories(XyceLib PUBLIC ${Dakota_INCLUDE_DIRS} )
+ 
+  target_link_libraries(XyceLib PUBLIC ${Dakota_LIBRARIES} )
+  target_link_libraries(XyceLib PUBLIC ${Dakota_TPL_LIBRARIES} )
+endif()
+
 # 
 # if we are using FFTW we need to add it's components rather than it as a 
 # target so that tools that link to Xyce externally will have the right
@@ -94,9 +104,11 @@ if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
-# In the case where CURL has been built with CMake, then CURL_LIBRARIES and
-# CURL_INCLUDE_DIRS are NOT set; instead, there is an import library defined.
-# Check for that here:
+# See https://cmake.org/cmake/help/latest/module/FindCURL.html
+# The "FindCURL" provided by CMake defines CURL_LIBRARIES and CURL_INCLUDE_DIRS
+# (used above).  If curl was built using its CMake buildsystem, though, then it
+# provides its own CURLConfig.cmake file, which defines an import library.
+# Handle that case here:
 if (Xyce_USE_CURL AND  NOT (DEFINED CURL_LIBRARIES))
   target_link_libraries(XyceLib PUBLIC CURL::libcurl)
 endif()

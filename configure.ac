@@ -119,19 +119,6 @@ AM_CONDITIONAL(BUILD_XYCE_BINARY, test "X$ENABLE_XYCE_BINARY" != "Xno")
 dnl ********************************************
 
 dnl ********************************************
-dnl Here we determine whether we're doing a threaded build
-AC_ARG_ENABLE(thread-safe-logging, AS_HELP_STRING([--enable-thread-safe-logging], 
-                                      [enable thread safe logging for one Xyce per thread runs (default is no)]), 
-                                      ac_enable_threads=$enableval, 
-                                      ac_enable_threads=no) 
-if test "$ac_enable_threads" = yes; then 
-  AC_DEFINE(USE_THREADS, 1, [use threads]) 
-fi
-
-AM_CONDITIONAL(THREADS, test $ac_enable_threads = yes) 
-dnl ********************************************
-
-dnl ********************************************
 dnl Here we determine whether we're doing a parallel build or not
 XYCE_DEBUG_OPTION(mpi,no,[parallel build with MPI],Xyce_PARALLEL_MPI,USE_MPI)
 
@@ -266,10 +253,6 @@ AM_CONDITIONAL(DAKOTA_OBJ_NEEDED, test $USE_DAKOTA = yes )
 dnl optionally compile in support for Charon linkage
 XYCE_DEBUG_OPTION(charon,no,[Charon device support],Xyce_CHARON, USE_CHARON)
 AM_CONDITIONAL(BUILD_CHARON_SUPPORT, test $USE_CHARON = yes)
-
-dnl optionally compile in support for Trilinos Development
-XYCE_DEBUG_OPTION(trilinos_dev,no,[support for development (pre-release) versions of Trilinos],Xyce_TRILINOS_DEV, USE_TRILINOS_DEV)
-AM_CONDITIONAL(TRILINOS_DEV, test $USE_TRILINOS_DEV = yes)
 
 dnl compile in support for partitioning
 XYCE_DEBUG_OPTION(isorropia,yes,[isorropia partitioning option],Xyce_USE_ISORROPIA,USE_ISORROPIA)
@@ -434,7 +417,7 @@ fi
 dnl Include the top-level of the include and lib directories in the search
 dnl Add to loader flags so comes before all -l's
 if test -d $ARCHDIR/lib; then
-  LDFLAGS="$LDFLAGS -L$ARCHDIR/lib"
+  LDFLAGS="-L$ARCHDIR/lib $LDFLAGS "
 fi
 if test -d $ARCHDIR/include; then
   CPPFLAGS="-I$ARCHDIR/include $CPPFLAGS"
@@ -716,10 +699,10 @@ if test "x$USE_DAKOTA" = "xyes"; then
   echo "checking for Dakota libraries."
 
   XYCE_LIBRARY_OPTION(boost_serialization)
-  XYCE_LIBRARY_OPTION(boost_signals)
   XYCE_LIBRARY_OPTION(boost_system)
   XYCE_LIBRARY_OPTION(boost_filesystem)
   XYCE_LIBRARY_OPTION(boost_regex)
+  XYCE_LIBRARY_OPTION(boost_program_options)
 
   XYCE_DAKOTA_LIBRARY_OPTION(Dakota, USE_DAKOTA_MAKEFILE, yes)
   if test "x$USE_DAKOTA_MAKEFILE" = "xno"; then

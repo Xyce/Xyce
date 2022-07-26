@@ -474,9 +474,9 @@ endif()
 set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
 
 if (Xyce_USE_FFT AND Xyce_USE_INTEL_FFT)
-     message("\"Xyce_USE_FFT\" and \"Xyce_USE_INTEL_FFT\" are TRUE.  It is assumed the")
-     message("Intel MKL was found in a previous configuration run, or the user is")
-     message("explicitly enabling it.")
+     message("\"Xyce_USE_FFT\" and \"Xyce_USE_INTEL_FFT\" are TRUE.  It is assumed "
+             "the Intel MKL was found in a previous configuration run, or the user "
+             "is explicitly enabling it.")
 elseif (Xyce_USE_FFT)
      message(STATUS "Looking for FFT libraries")
 endif()
@@ -522,17 +522,18 @@ if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
           # is already aware of it, specifing it on the link line again is unnecessary.
           set(FFT "")
      elseif (HAVE_MKL_FFT AND NOT Tri_KNOWS_MKL)
-          message("Intel Math Kernel Library found, but it is not known to Trilinos.")
-          message("Disabling the Intel Math Kernel Library.")
-          message("If you want to force the use of the Intel MKL FFT capability, set")
-          message("\"Xyce_USE_FFT=TRUE\" and \"Xyce_USE_INTEL_FFT=TRUE\", and set")
-          message("the appropriate MKL flags in the Xyce CMake invocation (see")
-          message("<https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor>).")
+          message(STATUS "Looking for FFT libraries - found the Intel Math Kernel Library")
+          message(WARNING "The Intel Math Kernel Library was found, but it is not known to Trilinos.\n"
+                  "Disabling the Intel Math Kernel Library.\n"
+                  "If you want to force the use of the Intel MKL FFT capability, set "
+                  "\"Xyce_USE_FFT=TRUE\" and \"Xyce_USE_INTEL_FFT=TRUE\", and set "
+                  "the appropriate MKL flags in the Xyce CMake invocation (see "
+                  "https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor).")
      elseif (Tri_KNOWS_MKL AND NOT HAVE_MKL_FFT)
           message(STATUS "Looking for FFT libraries - Intel Math Kernel Library not found")
-          message("Trilinos seems to be aware of the Intel Math Kernel Library, but the FFT")
-          message("capability was not found.  This may be an indication of a problem with")
-          message("the current platform configuration.")
+          message(WARNING "Trilinos seems to be aware of the Intel Math Kernel Library, but the FFT "
+                  "capability was not found.  This may be an indication of a problem with "
+                  "the current platform configuration.")
      else()
           message(STATUS "Looking for FFT libraries - Intel Math Kernel Library not found")
      endif()
@@ -551,7 +552,6 @@ if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
           set(FFT FFTW::FFTW)
      endif()
 endif()
-
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
      message("Neither FFTW or Intel MKL enabled - disabling the FFT capability")
      set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability" FORCE)
@@ -591,6 +591,23 @@ endif()
 #
 if (Xyce_SIMULINK)
      find_package(Matlab)
+endif()
+
+#
+# Look for optional Dakota libraries to build integrated Xyce-Dakota binary
+#
+if (Xyce_DAKOTA OR Xyce_Dakota)
+     find_package(Dakota REQUIRED)
+     if(Dakota_FOUND)
+          message(STATUS "Looking for Dakota libraries - Dakota found")
+
+          message(STATUS "Looking for Boost")
+          find_package(Boost 1.69 REQUIRED
+            COMPONENTS filesystem program_options regex serialization system)
+
+          set(Xyce_Dakota TRUE CACHE BOOL "Use Dakota library")
+     endif()
+
 endif()
 
 include(CTest)

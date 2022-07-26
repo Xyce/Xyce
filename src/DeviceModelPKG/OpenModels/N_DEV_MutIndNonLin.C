@@ -364,9 +364,9 @@ Instance::Instance(
   // is maked as a connection (given a common, non-zero
   // value in devConMap)
   devConMap.resize(2*numInductors);
-  for(int i=0; i<numInductors; i++)
+  for(int i=0, j=0; i<(2*numInductors); i+=2, j++)
   {
-    devConMap[i] = devConMap[i+1] = (i+1);
+    devConMap[i] = devConMap[i+1] = (j+1);
   }
 
   mEquInductorOffsets.resize( numInductors );
@@ -378,16 +378,6 @@ Instance::Instance(
   for( int i=0; i<numInductors; ++i)
   {
     LO[i].resize( numInductors );
-  }
-
-  // set up the device connectivity map
-  // each simple inductor in this mutual inductor
-  // is maked as a connection (given a common, non-zero
-  // value in devConMap)
-  devConMap.resize(2*numInductors);
-  for(int i=0; i<numInductors; i++)
-  {
-    devConMap[i] = devConMap[i+1] = (i+1);
   }
 
   // Calculate any parameters specified as expressions:
@@ -656,6 +646,12 @@ bool Instance::processParams()
     (*currentInductor)->baseL = inductorInductances[i];
     ++i;
     ++currentInductor;
+  }
+  
+  if( model_.UseConstantDeltaVScaling )
+  {
+    // set scaling to 1.0 so it can be safely factored in as a constant.
+    maxVoltageDrop = 1.0;
   }
 
   // now set the temperature related stuff.
@@ -1310,7 +1306,7 @@ bool Instance::updateIntermediateVars ()
   }
 
   // Now find (dP/dV_1):
-  double dMirrp_dVp = (delM * DeltaVScaling * (1.0-pow(tanh_qV,2.0))) /
+  double dMirrp_dVp = (delM * (DeltaVScaling/maxVoltageDrop) * (1.0-pow(tanh_qV,2.0))) /
                       (2.0 * (Kirr - Alpha * sq_delM02delM2));
   double dMirrp_dVn = -dMirrp_dVp;
 
@@ -1904,7 +1900,7 @@ bool Instance::loadDAEdFdx ()
       (*dFdxMatPtr)[((*currentInductor)->li_Neg)]   [((*currentInductor)->ANegEquBraVarOffset)]  += 0.0;
       (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquPosNodeOffset)] += 0.0;
       (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquNegNodeOffset)] += 0.0;
-      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 1.0;
+      (*dFdxMatPtr)[((*currentInductor)->li_Branch)][((*currentInductor)->ABraEquBraVarOffset)]  += 0.0;
     }
     else
     {
