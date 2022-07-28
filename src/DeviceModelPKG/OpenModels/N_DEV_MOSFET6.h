@@ -609,7 +609,6 @@ private:
   double surfaceStateDensity;
   double oxideThickness;
   double surfaceMobility;     // input - use tSurfMob
-  double surfaceMobility0;
 
   double fNcoef;
   double fNexp;

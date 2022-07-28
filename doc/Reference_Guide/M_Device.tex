@@ -233,12 +233,17 @@ Layout-dependent body resistance coefficient.
 
 \comments
 
-The simulator provides three MOSFET device models, which differ in the
+The simulator provides multiple MOSFET device models, which differ in the
 formulation of the I-V characteristic. The \texttt{LEVEL} parameter
 selects among different models as shown below.
 
 For HSPICE compatibility, the BSIM4 model can be specified with either
 level 14 or level 54.
+
+If a model supports parameter aliases (e.g. ``U0'' and ``UO'' or
+``VT0'' and ``VTO'' in the levels 1-6 MOSFETS), it would be a mistake
+to specify both parameters and give them different values.  There is
+no warning or error message if you do that.  Don't do that.
 
 \end{Device}
 

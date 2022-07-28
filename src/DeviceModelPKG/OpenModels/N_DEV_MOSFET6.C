@@ -159,6 +159,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET6::Model> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Zero-bias threshold voltage");
 
+  p.addPar ("VT0",0.0,&MOSFET6::Model::vt0)
+   .setUnit(U_VOLT)
+   .setCategory(CAT_VOLT)
+   .setDescription("Zero-bias threshold voltage (alias for VTO)");
+
   p.addPar ("KV",2.0,&MOSFET6::Model::kv)
    .setUnit(U_NONE)
    .setCategory(CAT_NONE)
@@ -326,10 +331,10 @@ void Traits::loadModelParameters(ParametricData<MOSFET6::Model> &p)
    .setCategory(ParameterCategory(CAT_PROCESS | UNDOCUMENTED))
    .setDescription("Surface mobility");
 
-  p.addPar ("U0",600.0,&MOSFET6::Model::surfaceMobility0)
+  p.addPar ("U0",600.0,&MOSFET6::Model::surfaceMobility)
    .setUnit(U_CMM2VM1SM1)
    .setCategory(CAT_PROCESS)
-   .setDescription("Surface mobility");
+   .setDescription("Surface mobility (alias for UO)");
 
   p.addPar ("FC",0.5,&MOSFET6::Model::fwdCapDepCoeff)
    .setUnit(U_NONE)
@@ -2890,7 +2895,7 @@ bool Model::processParams ()
           gamma1 = 0.0;
         }
 
-        if(!given("VTO"))
+        if(!given("VTO") && !given("VT0"))
         {
           if(!given("NSS"))
           {
@@ -3038,16 +3043,6 @@ Model::Model(
   updateDependentParameters();
 
   // calculate dependent (ie computed) params and check for errors:
-  if (given("U0"))
-  {
-    if (given("UO"))
-      UserError(*this) << "Both uo and u0 have been specified and, which is not allowed";
-    else
-      UserWarning(*this) << "Surface mobility has been specified as u0 instead of uo, uo is the preferred syntax";
-
-    surfaceMobility = surfaceMobility0;
-  }
-
   processParams ();
 }
 

@@ -163,6 +163,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET1::Model> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Zero-bias threshold voltage");
 
+  p.addPar("VT0",0.0,&MOSFET1::Model::vt0)
+   .setUnit(U_VOLT)
+   .setCategory(CAT_VOLT)
+   .setDescription("Zero-bias threshold voltage (alias for VTO)");
+
   p.addPar("KP",2e-5,&MOSFET1::Model::transconductance)
    .setUnit(U_AMPVM2)
    .setCategory(CAT_PROCESS)
@@ -282,10 +287,10 @@ void Traits::loadModelParameters(ParametricData<MOSFET1::Model> &p)
    .setCategory(ParameterCategory(CAT_PROCESS | UNDOCUMENTED))
    .setDescription("Surface mobility");
 
-  p.addPar("U0",600.0,&MOSFET1::Model::surfaceMobility0)
+  p.addPar("U0",600.0,&MOSFET1::Model::surfaceMobility)
    .setUnit(U_CMM2VM1SM1)
    .setCategory(CAT_PROCESS)
-   .setDescription("Surface mobility");
+   .setDescription("Surface mobility (alias for UO)");
 
   p.addPar("FC",0.5,&MOSFET1::Model::fwdCapDepCoeff)
    .setUnit(U_NONE)
@@ -3969,7 +3974,7 @@ bool Model::processParams ()
                        CONSTQ * substrateDoping*1e6)/
             oxideCapFactor;
         }
-        if(!given("VTO"))
+        if(!given("VTO") && !given("VT0"))
         {
           if(!given("NSS"))
             surfaceStateDensity=0;
@@ -4097,16 +4102,6 @@ Model::Model(
   updateDependentParameters();
 
   // calculate dependent (ie computed) params and check for errors:
-  if (given("U0"))
-  {
-    if (given("UO"))
-      UserError(*this) << "Both uo and u0 have been specified and, which is not allowed";
-    else
-      UserWarning(*this) << "Surface mobility has been specified as u0 instead of uo, uo is the preferred syntax";
-
-    surfaceMobility = surfaceMobility0;
-  }
-
   processParams ();
 }
 
