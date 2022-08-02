@@ -344,6 +344,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
 {
     p.addPar ("EOT",15.0e-10,&MOSFET_B4::Model::eot)
+     .setGivenMember(&MOSFET_B4::Model::eotGiven)
      .setUnit(U_METER)
      .setCategory(CAT_PROCESS)
      .setDescription("Equivalent gate oxide thickness in meters");
@@ -352,6 +353,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_VOLT)
      .setCategory(CAT_BASIC)
      .setDescription("Voltage for extraction of equivalent gate oxide thickness");
+
+    p.addPar ("TEMPEOT",300.15,&MOSFET_B4::Model::tempeot)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setDescription("Temperature for extraction of EOT");
+
+    p.addPar ("LEFFEOT",1e-6,&MOSFET_B4::Model::leffeot)
+     .setUnit(U_METER)
+     .setCategory(CAT_BASIC)
+     .setDescription("Effective length for extraction of EOT");
+
+    p.addPar ("WEFFEOT",10e-6,&MOSFET_B4::Model::weffeot)
+     .setUnit(U_METER)
+     .setCategory(CAT_BASIC)
+     .setDescription("Effective width for extraction of EOT");
 
     p.addPar ("ADOS",1.0,&MOSFET_B4::Model::ados)
      .setUnit(U_NONE)
@@ -376,6 +392,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setDescription("Physical gate oxide thickness in meters");
 
     p.addPar ("TOXM",30.0e-10,&MOSFET_B4::Model::toxm)
+     .setGivenMember(&MOSFET_B4::Model::toxmGiven)
      .setUnit(U_METER)
      .setCategory(CAT_PROCESS)
      .setDescription("Gate oxide thickness at which parameters are extracted");
@@ -612,6 +629,26 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Second parameter for Vth shift due to pocket");
 
+    p.addPar ("DVTP2",0.0,&MOSFET_B4::Model::dvtp2)
+     .setUnit(U_VMX)
+     .setCategory(CAT_BASIC)
+     .setDescription("3rd parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP3",0.0,&MOSFET_B4::Model::dvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setDescription("4th parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP4",0.0,&MOSFET_B4::Model::dvtp4)
+     .setUnit(U_VOLTM1)
+     .setCategory(CAT_BASIC)
+     .setDescription("5th parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP5",0.0,&MOSFET_B4::Model::dvtp4)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_BASIC)
+     .setDescription("6th parameter for Vth shift due to pocket");
+
     p.addPar ("LPE0",1.74e-7,&MOSFET_B4::Model::lpe0)
      .setUnit(U_METER)
      .setCategory(CAT_BASIC)
@@ -729,10 +766,20 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Mobility exponent");
 
+    p.addPar ("UCS",1.67,&MOSFET_B4::Model::ucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setDescription("Colombic scattering exponent");
+
     p.addPar ("UTE",-1.5,&MOSFET_B4::Model::ute)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Temperature coefficient of mobility");
+
+    p.addPar ("UCSTE",-1.5,&MOSFET_B4::Model::ucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Temperature coefficient of colombic mobility");
 
     p.addPar ("VOFF",-0.08,&MOSFET_B4::Model::voff)
      .setUnit(U_VOLT)
@@ -1196,6 +1243,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Temperature parameter for voff");
 
+    p.addPar ("TNFACTOR",0.0,&MOSFET_B4::Model::tnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Temperature parameter for nfactor");
+
+    p.addPar ("TETA0",0.0,&MOSFET_B4::Model::teta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Temperature parameter for eta0");
+
+    p.addPar ("TVOFFCV",0.0,&MOSFET_B4::Model::tvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Temperature parameter for tvoffcv");
+
     p.addPar ("LINTNOI",0.0,&MOSFET_B4::Model::lintnoi)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -1437,6 +1499,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_GDLEAKAGE)
      .setDescription("Parameter for body-bias dependence of GIDL");
 
+    p.addPar ("RGIDL",1.0,&MOSFET_B4::Model::rgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("GIDL vg parameter");
+
+    p.addPar ("KGIDL",0.0,&MOSFET_B4::Model::kgidl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("GIDL vb parameter");
+
+    p.addPar ("FGIDL",0.0,&MOSFET_B4::Model::fgidl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("GIDL vb parameter");
+
     p.addPar ("EGIDL",0.8,&MOSFET_B4::Model::egidl)
      .setUnit(U_VOLT)
      .setCategory(CAT_GDLEAKAGE)
@@ -1456,6 +1533,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_VOLT3)
      .setCategory(CAT_GDLEAKAGE)
      .setDescription("Parameter for body-bias dependence of GISL");
+
+    p.addPar ("RGISL",1.0,&MOSFET_B4::Model::rgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("Parameter for GISL gate bias dependence");
+
+    p.addPar ("KGISL",0.0,&MOSFET_B4::Model::kgisl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("Parameter for GISL body bias dependence");
+
+    p.addPar ("FGISL",0.0,&MOSFET_B4::Model::fgisl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setDescription("Parameter for GISL body bias dependence");
 
     p.addPar ("EGISL",0.8,&MOSFET_B4::Model::egisl)
      .setUnit(U_VOLT)
@@ -1659,6 +1751,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Drain gate-edge sidewall trap-assisted saturation current density");
+
+    p.addPar ("JTWEFF",0.0,&MOSFET_B4::Model::jtweff)
+     .setUnit(U_METER)
+     .setCategory(CAT_NONE)
+     .setDescription("TAT current width dependence");
 
     p.addPar ("NJTS",20.0,&MOSFET_B4::Model::njts)
      .setUnit(U_NONE)
@@ -2111,6 +2208,26 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of dvtp1");
 
+    p.addPar ("LDVTP2",0.0,&MOSFET_B4::Model::ldvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of dvtp2");
+
+    p.addPar ("LDVTP3",0.0,&MOSFET_B4::Model::ldvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of dvtp3");
+
+    p.addPar ("LDVTP4",0.0,&MOSFET_B4::Model::ldvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of dvtp4");
+
+    p.addPar ("LDVTP5",0.0,&MOSFET_B4::Model::ldvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of dvtp5");
+
     p.addPar ("LLPE0",0.0,&MOSFET_B4::Model::llpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2225,6 +2342,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of ute");
+
+    p.addPar ("LUCSTE",0.0,&MOSFET_B4::Model::lucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of ucste");
 
     p.addPar ("LVOFF",0.0,&MOSFET_B4::Model::lvoff)
      .setUnit(U_NONE)
@@ -2426,6 +2548,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of cgidl");
 
+    p.addPar ("LRGIDL",0.0,&MOSFET_B4::Model::lrgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of rgidl");
+
+    p.addPar ("LKGIDL",0.0,&MOSFET_B4::Model::lkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of kgidl");
+
+    p.addPar ("LFGIDL",0.0,&MOSFET_B4::Model::lfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of fgidl");
+
     p.addPar ("LEGIDL",0.0,&MOSFET_B4::Model::legidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2445,6 +2582,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of cgisl");
+
+    p.addPar ("LRGISL",0.0,&MOSFET_B4::Model::lrgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of rgisl");
+
+    p.addPar ("LKGISL",0.0,&MOSFET_B4::Model::lkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of kgisl");
+
+    p.addPar ("LFGISL",0.0,&MOSFET_B4::Model::lfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of fgisl");
 
     p.addPar ("LEGISL",0.0,&MOSFET_B4::Model::legisl)
      .setUnit(U_NONE)
@@ -2637,6 +2789,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription(" Length dependence of eu");
 
+    p.addPar ("LUCS",0.0,&MOSFET_B4::Model::lucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription(" Length dependence of ucs");
+
     p.addPar ("LVFBSDOFF",0.0,&MOSFET_B4::Model::lvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2651,6 +2808,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of tvoff");
+
+    p.addPar ("LTNFACTOR",0.0,&MOSFET_B4::Model::ltnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of tnfactor");
+
+    p.addPar ("LTETA0",0.0,&MOSFET_B4::Model::lteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of teta0");
+
+    p.addPar ("LTVOFFCV",0.0,&MOSFET_B4::Model::ltvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Length dependence of tvoffcv");
 
     p.addPar ("WCDSC",0.0,&MOSFET_B4::Model::wcdsc)
      .setUnit(U_NONE)
@@ -2817,6 +2989,26 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of dvtp1");
 
+    p.addPar ("WDVTP2",0.0,&MOSFET_B4::Model::wdvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of dvtp2");
+
+    p.addPar ("WDVTP3",0.0,&MOSFET_B4::Model::wdvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of dvtp3");
+
+    p.addPar ("WDVTP4",0.0,&MOSFET_B4::Model::wdvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of dvtp4");
+
+    p.addPar ("WDVTP5",0.0,&MOSFET_B4::Model::wdvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of dvtp5");
+
     p.addPar ("WLPE0",0.0,&MOSFET_B4::Model::wlpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2931,6 +3123,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of ute");
+
+    p.addPar ("WUCSTE",0.0,&MOSFET_B4::Model::wucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of ucste");
 
     p.addPar ("WVOFF",0.0,&MOSFET_B4::Model::wvoff)
      .setUnit(U_NONE)
@@ -3132,6 +3329,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of cgidl");
 
+    p.addPar ("WRGIDL",0.0,&MOSFET_B4::Model::wrgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of rgidl");
+
+    p.addPar ("WKGIDL",0.0,&MOSFET_B4::Model::wkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of kgidl");
+
+    p.addPar ("WFGIDL",0.0,&MOSFET_B4::Model::wfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of fgidl");
+
     p.addPar ("WEGIDL",0.0,&MOSFET_B4::Model::wegidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3151,6 +3363,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of cgisl");
+
+    p.addPar ("WRGISL",0.0,&MOSFET_B4::Model::wrgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of rgisl");
+
+    p.addPar ("WKGISL",0.0,&MOSFET_B4::Model::wkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of kgisl");
+
+    p.addPar ("WFGISL",0.0,&MOSFET_B4::Model::wfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of fgisl");
 
     p.addPar ("WEGISL",0.0,&MOSFET_B4::Model::wegisl)
      .setUnit(U_NONE)
@@ -3342,6 +3569,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of eu");
 
+    p.addPar ("WUCS",0.0,&MOSFET_B4::Model::wucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of ucs");
+
     p.addPar ("WVFBSDOFF",0.0,&MOSFET_B4::Model::wvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3356,6 +3588,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of tvoff");
+
+    p.addPar ("WTNFACTOR",0.0,&MOSFET_B4::Model::wtnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of tnfactor");
+
+    p.addPar ("WTETA0",0.0,&MOSFET_B4::Model::wteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of teta0");
+
+    p.addPar ("WTVOFFCV",0.0,&MOSFET_B4::Model::wtvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Width dependence of tvoffcv");
 
     p.addPar ("PCDSC",0.0,&MOSFET_B4::Model::pcdsc)
      .setUnit(U_NONE)
@@ -3522,6 +3769,26 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of dvtp1");
 
+    p.addPar ("PDVTP2",0.0,&MOSFET_B4::Model::pdvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of dvtp2");
+
+    p.addPar ("PDVTP3",0.0,&MOSFET_B4::Model::pdvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of dvtp3");
+
+    p.addPar ("PDVTP4",0.0,&MOSFET_B4::Model::pdvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of dvtp4");
+
+    p.addPar ("PDVTP5",0.0,&MOSFET_B4::Model::pdvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of dvtp5");
+
     p.addPar ("PLPE0",0.0,&MOSFET_B4::Model::plpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3636,6 +3903,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of ute");
+
+    p.addPar ("PUCSTE",0.0,&MOSFET_B4::Model::pucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of ucste");
 
     p.addPar ("PVOFF",0.0,&MOSFET_B4::Model::pvoff)
      .setUnit(U_NONE)
@@ -3837,6 +4109,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of cgidl");
 
+    p.addPar ("PRGIDL",0.0,&MOSFET_B4::Model::prgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of rgidl");
+
+    p.addPar ("PKGIDL",0.0,&MOSFET_B4::Model::pkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of kgidl");
+
+    p.addPar ("PFGIDL",0.0,&MOSFET_B4::Model::pfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of fgidl");
+
     p.addPar ("PEGIDL",0.0,&MOSFET_B4::Model::pegidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3861,6 +4148,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of egisl");
+
+    p.addPar ("PRGISL",0.0,&MOSFET_B4::Model::prgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of rgisl");
+
+    p.addPar ("PKGISL",0.0,&MOSFET_B4::Model::pkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of kgisl");
+
+    p.addPar ("PFGISL",0.0,&MOSFET_B4::Model::pfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of fgisl");
 
     p.addPar ("PAIGC",0.0,&MOSFET_B4::Model::paigc)
      .setUnit(U_NONE)
@@ -4047,6 +4349,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of eu");
 
+    p.addPar ("PUCS",0.0,&MOSFET_B4::Model::pucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of ucs");
+
     p.addPar ("PVFBSDOFF",0.0,&MOSFET_B4::Model::pvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -4061,6 +4368,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of tvoff");
+
+    p.addPar ("PTNFACTOR",0.0,&MOSFET_B4::Model::ptnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of tnfactor");
+
+    p.addPar ("PTETA0",0.0,&MOSFET_B4::Model::pteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of teta0");
+
+    p.addPar ("PTVOFFCV",0.0,&MOSFET_B4::Model::ptvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Cross-term dependence of tvoffcv");
 
     // stress effect
     p.addPar ("SAREF",1.0e-6,&MOSFET_B4::Model::saref)
@@ -4269,12 +4591,22 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Thermal noise parameter");
 
+    p.addPar ("TNOIC",0.0,&MOSFET_B4::Model::tnoic)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Thermal noise parameter");
+
     p.addPar ("RNOIA",0.577,&MOSFET_B4::Model::rnoia)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Thermal noise coefficient");
 
     p.addPar ("RNOIB",0.5164,&MOSFET_B4::Model::rnoib)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Thermal noise coefficient");
+
+    p.addPar ("RNOIC",0.395,&MOSFET_B4::Model::rnoic)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Thermal noise coefficient");
@@ -4387,6 +4719,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("parameter for nonm-silicon substrate or metal gate selector");
 
+    p.addPar ("MTRLCOMPATMOD",0,&MOSFET_B4::Model::mtrlCompatMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setDescription("New material Mod backward compatibility selector");
+
     p.addPar ("IGCMOD",0,&MOSFET_B4::Model::igcMod)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
@@ -4401,6 +4738,11 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Temperature model selector");
+
+    p.addPar ("GIDLMOD",0,&MOSFET_B4::Model::gidlMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setDescription("parameter for GIDL selector");
 
     p.addPar ("PARAMCHK",1,&MOSFET_B4::Model::paramChk)
      .setUnit(U_NONE)
@@ -4542,7 +4884,7 @@ bool Instance::processParams ()
 
   // process drain series resistance
   int createNode = 0;
-  if ( (model_.rdsMod != 0) || (model_.tnoiMod != 0 && noiseAnalGiven))
+  if ( (model_.rdsMod != 0) || (model_.tnoiMod == 1 && noiseAnalGiven))
   {
     createNode = 1;
   }
@@ -4576,7 +4918,7 @@ bool Instance::processParams ()
 
   // process source series resistance
   createNode = 0;
-  if ( (model_.rdsMod != 0) || (model_.tnoiMod != 0 && noiseAnalGiven))
+  if ( (model_.rdsMod != 0) || (model_.tnoiMod == 1 && noiseAnalGiven))
   {
     createNode = 1;
   }
@@ -4837,6 +5179,8 @@ Instance::Instance(
     gmbs(0.0),
     gbd(0.0),
     gbs(0.0),
+    noiGd0(0.0),
+    Coxeff(0.0),
     gbbs(0.0),
     gbgs(0.0),
     gbds(0.0),
@@ -6569,14 +6913,15 @@ bool Instance::updateTemperature (const double & temp_tmp)
   double delTemp(0.0), TRatio(0.0), Inv_L(0.0), Inv_W(0.0), Inv_LW(0.0), Vtm0, Tnom(0.0);
   double dumPs(0.0), dumPd(0.0), dumAs(0.0), dumAd(0.0), PowWeffWr(0.0);
   double Nvtms(0.0), Nvtmd(0.0), SourceSatCurrent(0.0), DrainSatCurrent(0.0);
-  double T10(0.0);
+  double T10(0.0), T11(0.0);
   double Inv_saref(0.0), Inv_sbref(0.0), Inv_sa(0.0), Inv_sb(0.0), rho(0.0), Ldrn(0.0), dvth0_lod(0.0);
   double W_tmp(0.0), Inv_ODeff(0.0), OD_offset(0.0), dk2_lod(0.0), deta0_lod(0.0);
   double lnl(0.0), lnw(0.0), lnnf(0.0), rbpbx(0.0), rbpby(0.0), rbsbx(0.0), rbsby(0.0), rbdbx(0.0), rbdby(0.0),bodymode(0.0);
   double kvsat(0.0), wlod(0.0), sceff(0.0), Wdrn(0.0);
   double V0, lt1, ltw, Theta0, Delt_vth, TempRatio, Vth_NarrowW, Lpe_Vb; 
   //double Vth; // converted to instance variable
-  double n, Vgsteff, Vgs_eff, toxpf, toxpi, Tcen, toxe, epsrox, vddeot;
+  double n, n0, Vgsteff, Vgs_eff, toxpf, toxpi, Tcen, toxe, epsrox, vddeot;
+  double vtfbphi2eot, phieot, TempRatioeot, Vtm0eot, Vtmeot,vbieot;
 
   int niter;
 
@@ -6618,6 +6963,31 @@ bool Instance::updateTemperature (const double & temp_tmp)
     else if ((!model_.toxeGiven) && (model_.toxpGiven))
     {
       model_.toxe = model_.toxp + model_.dtox;
+      if (!model_.toxmGiven)
+      {
+        model_.toxm = model_.toxe;
+      }
+    }
+  }
+  else if (model_.mtrlCompatMod != 0)
+  {
+    T0 = model_.epsrox / 3.9;
+    if ((model_.eotGiven) && (model_.toxpGiven) && (model_.dtoxGiven)
+        && (fabs(model_.eot * T0 - (model_.toxp + model_.dtox)) > 1.0e-20))
+    {
+      UserWarning(*this) << "eot, toxp and dtox all given and eot * EPSROX / 3.9 != toxp + dtox; dtox ignored";
+    }
+    else if ((model_.eotGiven) && (!model_.toxpGiven))
+    {
+      model_.toxp = T0 * model_.eot - model_.dtox;
+    }
+    else if ((!model_.eotGiven) && (model_.toxpGiven))
+    {
+      model_.eot = (model_.toxp + model_.dtox) / T0;
+      if (!model_.toxmGiven)
+      {
+        model_.toxm = model_.eot;
+      }
     }
   }
 
@@ -6636,7 +7006,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
 
 
   model_.coxe = epsrox * CONSTEPS0 / toxe;
-  if (model_.mtrlMod == 0)
+  if (model_.mtrlMod == 0 || model_.mtrlCompatMod != 0)
     model_.coxp = model_.epsrox * CONSTEPS0 / model_.toxp;
 
   if (!model_.cgdoGiven)
@@ -6784,6 +7154,16 @@ bool Instance::updateTemperature (const double & temp_tmp)
   }
 
   T0 = model_.tcjsw * delTemp;
+  if (model_.SunitLengthSidewallJctCap < 0.0)
+  {
+   model_.SunitLengthSidewallJctCap = 0.0;
+   UserWarning(*this) << "CJSWS is negative. Cjsws is clamped to zero";
+  }
+  if (model_.DunitLengthSidewallJctCap < 0.0)
+  {
+   model_.DunitLengthSidewallJctCap = 0.0;
+   UserWarning(*this) << "CJSWD is negative. Cjswd is clamped to zero";
+  }
   if (T0 >= -1.0)
   {
    model_.SunitLengthSidewallTempJctCap = model_.SunitLengthSidewallJctCap *(1.0 + T0);
@@ -6869,56 +7249,56 @@ bool Instance::updateTemperature (const double & temp_tmp)
 
   if (model_.ijthdfwd <= 0.0)
   {
-   model_.ijthdfwd = 0.1;
+   model_.ijthdfwd = 0.0;
    UserWarning(*this) << "Ijthdfwd reset to " << model_.ijthdfwd;
   }
   if (model_.ijthsfwd <= 0.0)
   {
-   model_.ijthsfwd = 0.1;
+   model_.ijthsfwd = 0.0;
    UserWarning(*this) << "Ijthsfwd reset to " << model_.ijthsfwd;
   }
   if (model_.ijthdrev <= 0.0)
   {
-   model_.ijthdrev = 0.1;
+   model_.ijthdrev = 0.0;
    UserWarning(*this) << "Ijthdrev reset to " << model_.ijthdrev;
   }
   if (model_.ijthsrev <= 0.0)
   {
-   model_.ijthsrev = 0.1;
+   model_.ijthsrev = 0.0;
    UserWarning(*this) << "Ijthsrev reset to " << model_.ijthsrev;
   }
 
   if ((model_.xjbvd <= 0.0) && (model_.dioMod == 2))
   {
-   model_.xjbvd = 1.0;
+   model_.xjbvd = 0.0;
    UserWarning(*this) << "Xjbvd reset to " << model_.xjbvd;
   }
   else if ((model_.xjbvd < 0.0) && (model_.dioMod == 0))
   {
-   model_.xjbvd = 1.0;
+   model_.xjbvd = 0.0;
    UserWarning(*this) << "Xjbvd reset to " << model_.xjbvd;
   }
 
   if (model_.bvd <= 0.0)
   {
-   model_.bvd = 10.0;
+   model_.bvd = 0.0;
    UserWarning(*this) << "BVD reset to " << model_.bvd;
   }
 
   if ((model_.xjbvs <= 0.0) && (model_.dioMod == 2))
   {
-   model_.xjbvs = 1.0;
+   model_.xjbvs = 0.0;
    UserWarning(*this) << "Xjbvs reset to " << model_.xjbvs;
   }
   else if ((model_.xjbvs < 0.0) && (model_.dioMod == 0))
   {
-   model_.xjbvs = 1.0;
+   model_.xjbvs = 0.0;
    UserWarning(*this) << "Xjbvs reset to " << model_.xjbvs;
   }
 
   if (model_.bvs <= 0.0)
   {
-   model_.bvs = 10.0;
+   model_.bvs = 0.0;
    UserWarning(*this) << "BVS reset to " << model_.bvs;
   }
 
@@ -7068,6 +7448,10 @@ bool Instance::updateTemperature (const double & temp_tmp)
                   + model_.lnfactor * Inv_L
                   + model_.wnfactor * Inv_W
                   + model_.pnfactor * Inv_LW;
+    paramPtr->tnfactor = model_.tnfactor
+                  + model_.ltnfactor * Inv_L
+                  + model_.wtnfactor * Inv_W
+                  + model_.ptnfactor * Inv_LW;
     paramPtr->xj = model_.xj
                   + model_.lxj * Inv_L
                   + model_.wxj * Inv_W
@@ -7194,6 +7578,22 @@ bool Instance::updateTemperature (const double & temp_tmp)
                        + model_.ldvtp1 * Inv_L
                        + model_.wdvtp1 * Inv_W
                        + model_.pdvtp1 * Inv_LW;
+    paramPtr->dvtp2 = model_.dvtp2
+                       + model_.ldvtp2 * Inv_L
+                       + model_.wdvtp2 * Inv_W
+                       + model_.pdvtp2 * Inv_LW;
+    paramPtr->dvtp3 = model_.dvtp3
+                       + model_.ldvtp3 * Inv_L
+                       + model_.wdvtp3 * Inv_W
+                       + model_.pdvtp3 * Inv_LW;
+    paramPtr->dvtp4 = model_.dvtp4
+                       + model_.ldvtp4 * Inv_L
+                       + model_.wdvtp4 * Inv_W
+                       + model_.pdvtp4 * Inv_LW;
+    paramPtr->dvtp5 = model_.dvtp5
+                       + model_.ldvtp5 * Inv_L
+                       + model_.wdvtp5 * Inv_W
+                       + model_.pdvtp5 * Inv_LW;
     paramPtr->dvt0 = model_.dvt0
                       + model_.ldvt0 * Inv_L
                       + model_.wdvt0 * Inv_W
@@ -7282,6 +7682,14 @@ bool Instance::updateTemperature (const double & temp_tmp)
                     + model_.lute * Inv_L
                     + model_.wute * Inv_W
                     + model_.pute * Inv_LW;
+    paramPtr->ucs = model_.ucs
+                    + model_.lucs * Inv_L
+                    + model_.wucs * Inv_W
+                    + model_.pucs * Inv_LW;
+    paramPtr->ucste = model_.ucste
+                    + model_.lucste * Inv_L
+                    + model_.wucste * Inv_W
+                    + model_.pucste * Inv_LW;
     paramPtr->voff = model_.voff
                     + model_.lvoff * Inv_L
                     + model_.wvoff * Inv_W
@@ -7342,6 +7750,10 @@ bool Instance::updateTemperature (const double & temp_tmp)
                       + model_.leta0 * Inv_L
                       + model_.weta0 * Inv_W
                       + model_.peta0 * Inv_LW;
+    paramPtr->teta0 = model_.teta0
+                      + model_.lteta0 * Inv_L
+                      + model_.wteta0 * Inv_W
+                      + model_.pteta0 * Inv_LW;
     paramPtr->etab = model_.etab
                       + model_.letab * Inv_L
                       + model_.wetab * Inv_W
@@ -7422,6 +7834,18 @@ bool Instance::updateTemperature (const double & temp_tmp)
                        + model_.legidl * Inv_L
                        + model_.wegidl * Inv_W
                        + model_.pegidl * Inv_LW;
+    paramPtr->rgidl = model_.rgidl
+                       + model_.lrgidl * Inv_L
+                       + model_.wrgidl * Inv_W
+                       + model_.prgidl * Inv_LW;
+    paramPtr->kgidl = model_.kgidl
+                       + model_.lkgidl * Inv_L
+                       + model_.wkgidl * Inv_W
+                       + model_.pkgidl * Inv_LW;
+    paramPtr->fgidl = model_.fgidl
+                       + model_.lfgidl * Inv_L
+                       + model_.wfgidl * Inv_W
+                       + model_.pfgidl * Inv_LW;
     paramPtr->agisl = model_.agisl
                          + model_.lagisl * Inv_L
                          + model_.wagisl * Inv_W
@@ -7438,6 +7862,18 @@ bool Instance::updateTemperature (const double & temp_tmp)
                          + model_.legisl * Inv_L
                          + model_.wegisl * Inv_W
                          + model_.pegisl * Inv_LW;
+    paramPtr->rgisl = model_.rgisl
+                         + model_.lrgisl * Inv_L
+                         + model_.wrgisl * Inv_W
+                         + model_.prgisl * Inv_LW;
+    paramPtr->kgisl = model_.kgisl
+                         + model_.lkgisl * Inv_L
+                         + model_.wkgisl * Inv_W
+                         + model_.pkgisl * Inv_LW;
+    paramPtr->fgisl = model_.fgisl
+                         + model_.lfgisl * Inv_L
+                         + model_.wfgisl * Inv_W
+                         + model_.pfgisl * Inv_LW;
     paramPtr->aigc = model_.aigc
                        + model_.laigc * Inv_L
                        + model_.waigc * Inv_W
@@ -7623,6 +8059,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
     PowWeffWr = pow(paramPtr->weffCJ * 1.0e6, paramPtr->wr) * nf;
 
     T1 = T2 = T3 = T4 = 0.0;
+    paramPtr->ucs = paramPtr->ucs * pow(TRatio, paramPtr->ucste);
     if(model_.tempMod == 0)
     {
       paramPtr->ua = paramPtr->ua + paramPtr->ua1 * T0;
@@ -7645,11 +8082,22 @@ bool Instance::updateTemperature (const double & temp_tmp)
       paramPtr->rdswmin = (model_.rdswmin + T10) * nf / PowWeffWr;
     }
     else
-    { // tempMod = 1, 2
-      paramPtr->ua = paramPtr->ua * (1.0 + paramPtr->ua1 * delTemp) ;
-      paramPtr->ub = paramPtr->ub * (1.0 + paramPtr->ub1 * delTemp);
-      paramPtr->uc = paramPtr->uc * (1.0 + paramPtr->uc1 * delTemp);
-      paramPtr->ud = paramPtr->ud * (1.0 + paramPtr->ud1 * delTemp);
+    { 
+      if (model_.tempMod == 3)
+      {
+        paramPtr->ua = paramPtr->ua * pow(TRatio, paramPtr->ua1) ;
+        paramPtr->ub = paramPtr->ub * pow(TRatio, paramPtr->ub1);
+        paramPtr->uc = paramPtr->uc * pow(TRatio, paramPtr->uc1);
+        paramPtr->ud = paramPtr->ud * pow(TRatio, paramPtr->ud1);
+      }
+      else
+      {
+        // tempMod = 1, 2
+        paramPtr->ua = paramPtr->ua * (1.0 + paramPtr->ua1 * delTemp) ;
+        paramPtr->ub = paramPtr->ub * (1.0 + paramPtr->ub1 * delTemp);
+        paramPtr->uc = paramPtr->uc * (1.0 + paramPtr->uc1 * delTemp);
+        paramPtr->ud = paramPtr->ud * (1.0 + paramPtr->ud1 * delTemp);
+      }
       paramPtr->vsattemp = paramPtr->vsat * (1.0 - paramPtr->at * delTemp);
       T10 = 1.0 + paramPtr->prt * delTemp;
       if(model_.rdsMod)
@@ -7702,9 +8150,18 @@ bool Instance::updateTemperature (const double & temp_tmp)
       paramPtr->eu = 0.0;
       UserWarning(*this) << "eu has been negative; reset to 0.0";
     }
+    if (paramPtr->ucs < 0.0)
+    {
+      paramPtr->ucs = 0.0;
+      UserWarning(*this) << "ucs has been negative; reset to 0.0";
+    }
 
     paramPtr->vfbsdoff = paramPtr->vfbsdoff * (1.0 + paramPtr->tvfbsdoff * delTemp);
     paramPtr->voff = paramPtr->voff * (1.0 + paramPtr->tvoff * delTemp);
+
+    paramPtr->nfactor = paramPtr->nfactor + paramPtr->tnfactor * delTemp / Tnom;
+    paramPtr->voffcv = paramPtr->voffcv * (1.0 + paramPtr->tvoffcv * delTemp);
+    paramPtr->eta0 = paramPtr->eta0 + paramPtr->teta0 * delTemp / Tnom;
 
     // Source End Velocity Limit
     if((model_.vtlGiven) && (model_.vtl > 0.0) )
@@ -7738,7 +8195,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
 
     if (model_.mtrlMod == 0)
     {
-      paramPtr->litl = sqrt(3.0 * paramPtr->xj * toxe);
+      paramPtr->litl = sqrt(3.0 * 3.9 / epsrox * paramPtr->xj * toxe);
     }
     else
     {
@@ -7973,7 +8430,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
     if((model_.tempMod == 1) || (model_.tempMod == 0))
       T3 = (paramPtr->kt1 + paramPtr->kt1l / paramPtr->leff)
           * (TRatio - 1.0);
-    if(model_.tempMod == 2)
+    if((model_.tempMod == 2) || (model_.tempMod == 3))
           T3 = - paramPtr->kt1 * (TRatio - 1.0);
 
     T5 = paramPtr->k1ox * (T0 - 1.0) * paramPtr->sqrtPhi + T3;
@@ -8091,6 +8548,22 @@ bool Instance::updateTemperature (const double & temp_tmp)
       {
         UserWarning(*this) << "No WPE as none of SCA, SCB, SCC, SC is given and/or SC not positive";
       }
+    }
+    if (sca < 0.0)
+    {
+      UserWarning(*this) << "SCA = " << sca << " is negative. Set to 0.0.";
+    }
+    if (scb < 0.0)
+    {
+      UserWarning(*this) << "SCB = " << scb << " is negative. Set to 0.0.";
+    }
+    if (scc < 0.0)
+    {
+      UserWarning(*this) << "SCC = " << scc << " is negative. Set to 0.0.";
+    }
+    if (sc < 0.0)
+    {
+      UserWarning(*this) << "SC = " << sc << " is negative. Set to 0.0.";
     }
     sceff = sca + model_.web * scb
                 + model_.wec * scc;
@@ -8259,7 +8732,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
   DMCIeff = model_.dmci;
   DMDGeff = model_.dmdg - model_.dmcgt;
 
-  if (sourcePerimeterGiven)
+/*  if (sourcePerimeterGiven)
   {
    if (model_.perMod == 0)
       Pseff = sourcePerimeter;
@@ -8272,8 +8745,43 @@ bool Instance::updateTemperature (const double & temp_tmp)
              paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
             (Pseff), dumPd, dumAs, dumAd);
   }
+  if (Pseff < 0.0)
+    Pseff = 0.0; */
 
-  if (drainPerimeterGiven)
+  // New Diode Model v4.7
+  if (sourcePerimeterGiven)
+  {
+    // given
+    if (sourcePerimeter == 0.0)
+      Pseff = 0.0;
+    else if (sourcePerimeter < 0.0)
+    {
+      UserWarning(*this) << "Source Perimeter is specified as negative, it is set to zero.";
+      Pseff = 0.0;
+    }
+    else
+    {
+      if (model_.perMod == 0)
+        Pseff = sourcePerimeter;
+      else
+        Pseff = sourcePerimeter - paramPtr->weffCJ * nf;
+    }
+  }
+  else
+  {
+    // not given
+    PAeffGeo(nf, geoMod, min,
+             paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
+             (Pseff), dumPd, dumAs, dumAd);
+  }
+  if (Pseff < 0.0)
+  {
+    // v4.7 final check
+    Pseff = 0.0;
+    UserWarning(*this) << "Pseff is negative, it is set to zero.";
+  }
+
+/*  if (drainPerimeterGiven)
   {
    if (model_.perMod == 0)
      Pdeff = drainPerimeter;
@@ -8286,6 +8794,39 @@ bool Instance::updateTemperature (const double & temp_tmp)
               paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
               dumPs, (Pdeff), dumAs, dumAd);
   }
+  if (Pdeff < 0.0)
+    Pdeff = 0.0; */
+
+  if (drainPerimeterGiven)
+  {
+    // given
+    if (drainPerimeter == 0.0)
+      Pdeff = 0.0;
+    else if (drainPerimeter < 0.0)
+    {
+      UserWarning(*this) << "Drain Perimeter is specified as negative, it is set to zero.";
+      Pdeff = 0.0;
+    }
+    else
+    {
+      if (model_.perMod == 0)
+        Pdeff = drainPerimeter;
+      else 
+        Pdeff = drainPerimeter - paramPtr->weffCJ * nf;
+    }
+  }
+  else
+  {
+    // not given
+    PAeffGeo(nf, geoMod, min,
+             paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
+             dumPs, (Pdeff), dumAs, dumAd);
+  }
+  if (Pdeff < 0.0)
+  {
+    Pdeff = 0.0;
+    UserWarning(*this) << "Pdeff is negative, it is set to zero.";
+  }
 
   if (sourceAreaGiven)
    Aseff = sourceArea;
@@ -8293,6 +8834,11 @@ bool Instance::updateTemperature (const double & temp_tmp)
    PAeffGeo(nf, geoMod, min,
               paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
               dumPs, dumPd, (Aseff), dumAd);
+  if (Aseff < 0.0)
+  {
+    Aseff = 0.0;
+    UserWarning(*this) << "Aseff is negative, it is set to zero.";
+  }
 
   if (drainAreaGiven)
     Adeff = drainArea;
@@ -8300,6 +8846,11 @@ bool Instance::updateTemperature (const double & temp_tmp)
     PAeffGeo(nf, geoMod, min,
               paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
               dumPs, dumPd, dumAs, (Adeff));
+  if (Adeff < 0.0)
+  {
+    Adeff = 0.0;
+    UserWarning(*this) << "Adeff is negative, it is set to zero.";
+  }
 
   // Processing S/D resistance and conductance below
   if (model_.rdsMod || sourceSquaresGiven)
@@ -8374,7 +8925,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
   Nvtms = model_.vtm * model_.SjctEmissionCoeff;
   if ((Aseff <= 0.0) && (Pseff <= 0.0))
   {
-    SourceSatCurrent = 1.0e-14;
+    SourceSatCurrent = 0.0;
   }
   else
   {
@@ -8441,7 +8992,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
   Nvtmd = model_.vtm * model_.DjctEmissionCoeff;
   if ((Adeff <= 0.0) && (Pdeff <= 0.0))
   {
-    DrainSatCurrent = 1.0e-14;
+    DrainSatCurrent = 0.0;
   }
   else
   {
@@ -8525,20 +9076,92 @@ bool Instance::updateTemperature (const double & temp_tmp)
   T9 = model_.xtsswgd * T7;
   DEXP2(T9, T6);
 
+  // IBM TAT
+  if (model_.jtweff < 0.0)
+  {
+    model_.jtweff = 0.0;
+    UserWarning(*this) << "TAT width dependence effect is negative. Jtweff is clamped to zero.";
+  }
+
+  T11 = sqrt(model_.jtweff / paramPtr->weffCJ) + 1.0;
+
   T10 = paramPtr->weffCJ * nf;
   SjctTempRevSatCur = T1 * Aseff * model_.jtss;
   DjctTempRevSatCur = T2 * Adeff * model_.jtsd;
   SswTempRevSatCur = T3 * Pseff * model_.jtssws;
   DswTempRevSatCur = T4 * Pdeff * model_.jtsswd;
-  SswgTempRevSatCur = T5 * T10 * model_.jtsswgs;
-  DswgTempRevSatCur = T6 * T10 * model_.jtsswgd;
+  SswgTempRevSatCur = T5 * T11 * model_.jtsswgs;
+  DswgTempRevSatCur = T6 * T11 * model_.jtsswgd;
 
-  if(model_.mtrlMod)
+  // high k
+  // Calculate VgsteffVth for mobMod=3
+  if (model_.mobMod == 3)
+  {
+    // Calculate n @ Vbs=Vds=0
+    V0 = paramPtr->vbi - paramPtr->phi;
+    lt1 = model_.factor1 * paramPtr->sqrtXdep0;
+    ltw = lt1;
+    T0 = paramPtr->dvt1 * paramPtr->leff / lt1;
+    if (T0 < CONSTEXP_THRESHOLD)
+    {
+      T1 = exp(T0);
+      T2 = T1 - 1.0;
+      T3 = T2 * T2;
+      T4 = T3 + 2.0 * T1 * CONSTMIN_EXP;
+      Theta0 = T1 / T4;
+    }
+    else
+      Theta0 = 1.0 / (CONSTMAX_EXP - 2.0);
+
+    tmp1 = epssub / paramPtr->Xdep0;
+    nstar = model_.vtm / Charge_q * (model_.coxe + tmp1 + paramPtr->cit);
+    tmp2 = paramPtr->nfactor * tmp1;
+    tmp3 = (tmp2 + paramPtr->cdsc * Theta0 + paramPtr->cit) / model_.coxe;
+    if (tmp3 >= -0.5)
+      n0 = 1.0 + tmp3;
+    else
+    {
+      T0 = 1.0 / (3.0 + 8.0 * tmp3);
+      n0 = (1.0 + 3.0 * tmp3) * T0;
+    }
+
+    T0 = n0 * model_.vtm;
+    T1 = paramPtr-> voffcbn;
+    T2 = T1 / T0;
+    if (T2 < -CONSTEXP_THRESHOLD)
+    {
+      T3 = model_.coxe * CONSTMIN_EXP / paramPtr->cdep0;
+      T4 = paramPtr->mstar + T3 * n0;
+    }
+    else if (T2 > CONSTEXP_THRESHOLD)
+    {
+      T3 = model_.coxe * CONSTMAX_EXP / paramPtr->cdep0;
+      T4 = paramPtr->mstar + T3 * n0;
+    }
+    else
+    {
+      T3 = exp(T2) * model_.coxe / paramPtr->cdep0;
+      T4 = paramPtr->mstar + T3 * n0;
+    }
+
+    paramPtr->VgsteffVth = T0 * log(2.0) / T4;
+  }
+
+  // New DITS term added in 4.7
+  T0 = -paramPtr->dvtp3 * log(paramPtr->leff);
+  DEXP2(T0, T1);
+  paramPtr->dvtp2factor = paramPtr->dvtp5 + paramPtr->dvtp2 * T1;
+
+  if ((model_.mtrlMod != 0) && (model_.mtrlCompatMod == 0))
   {
     /* Calculate TOXP from EOT */
 
     /* Calculate Vgs_eff @ Vgs = VDD with Poly Depletion Effect */
-    tmp2 = vfb + paramPtr->phi;
+    Vtm0eot = CONSTKboQ * model_.tempeot;
+    Vtmeot = Vtm0eot;
+    vbieot = Vtm0eot * log(paramPtr->nsd * paramPtr->ndep / (ni * ni));
+    phieot = Vtm0eot * log(paramPtr->ndep / ni) + paramPtr->phin + 0.4;
+    tmp2 = vfb + phieot;
     vddeot = model_.dtype * model_.vddeot;
     T0 = model_.epsrgate * CONSTEPS0;
     if ((paramPtr->ngate > 1.0e18) && (paramPtr->ngate < 1.0e25)
@@ -8559,10 +9182,10 @@ bool Instance::updateTemperature (const double & temp_tmp)
       Vgs_eff = vddeot;
 
     /* Calculate Vth @ Vds=Vbs=0 */
-    V0 = paramPtr->vbi - paramPtr->phi;
+    V0 = vbieot - phieot;
     lt1 = model_.factor1* paramPtr->sqrtXdep0;
     ltw = lt1;
-    T0 = paramPtr->dvt1 * paramPtr->leff / lt1;
+    T0 = paramPtr->dvt1 * model_.leffeot / lt1;
     if (T0 < CONSTEXP_THRESHOLD)
     {
       T1 = exp(T0);
@@ -8574,7 +9197,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
     else
       Theta0 = 1.0 / (CONSTMAX_EXP - 2.0);
     Delt_vth = paramPtr->dvt0 * Theta0 * V0;
-    T0 = paramPtr->dvt1w * paramPtr->weff * paramPtr->leff / ltw;
+    T0 = paramPtr->dvt1w * model_.weffeot * model_.leffeot / ltw;
     if (T0 < CONSTEXP_THRESHOLD)
     {   T1 = exp(T0);
       T2 = T1 - 1.0;
@@ -8585,20 +9208,20 @@ bool Instance::updateTemperature (const double & temp_tmp)
     else
       T5 = 1.0 / (CONSTMAX_EXP - 2.0); /* 3.0 * MIN_EXP omitted */
     T2 = paramPtr->dvt0w * T5 * V0;
-    TempRatio =  temp / model_.tnom - 1.0;
-    T0 = sqrt(1.0 + paramPtr->lpe0 / paramPtr->leff);
-    T1 = paramPtr->k1ox * (T0 - 1.0) * paramPtr->sqrtPhi
-      + (paramPtr->kt1 + paramPtr->kt1l / paramPtr->leff) * TempRatio;
-    Vth_NarrowW = toxe * paramPtr->phi
-      / (paramPtr->weff + paramPtr->w0);
-    Lpe_Vb = sqrt(1.0 + paramPtr->lpeb / paramPtr->leff);
+    TempRatioeot =  model_.tempeot / model_.tnom - 1.0;
+    T0 = sqrt(1.0 + paramPtr->lpe0 / model_.leffeot);
+    T1 = paramPtr->k1ox * (T0 - 1.0) * sqrt(phieot)
+      + (paramPtr->kt1 + paramPtr->kt1l / model_.leffeot) * TempRatioeot;
+    Vth_NarrowW = toxe * phieot
+      / (model_.weffeot + paramPtr->w0);
+    Lpe_Vb = sqrt(1.0 + paramPtr->lpeb / model_.leffeot);
     Vth = model_.dtype * vth0 +
-      (paramPtr->k1ox - paramPtr->k1)*paramPtr->sqrtPhi*Lpe_Vb
+      (paramPtr->k1ox - paramPtr->k1) * sqrt(phieot) * Lpe_Vb
       - Delt_vth - T2 + paramPtr->k3 * Vth_NarrowW + T1;
 
     /* Calculate n */
     tmp1 = epssub / paramPtr->Xdep0;
-    nstar = model_.vtm / Charge_q *
+    nstar = Vtmeot / Charge_q *
       (model_.coxe	+ tmp1 + paramPtr->cit);
     tmp2 = paramPtr->nfactor * tmp1;
     tmp3 = (tmp2 + paramPtr->cdsc * Theta0 + paramPtr->cit) / model_.coxe;
@@ -8613,22 +9236,30 @@ bool Instance::updateTemperature (const double & temp_tmp)
     /* Vth correction for Pocket implant */
     if (paramPtr->dvtp0 > 0.0)
     {
-      T3 = paramPtr->leff + paramPtr->dvtp0 * 2.0;
+      T3 = model_.leffeot + paramPtr->dvtp0 * 2.0;
       if (model_.tempMod < 2)
-        T4 = model_.vtm * log(paramPtr->leff / T3);
+        T4 = Vtmeot * log(model_.leffeot / T3);
       else
-        T4 = model_.vtm0 * log(paramPtr->leff / T3);
+        T4 = Vtm0eot * log(model_.leffeot / T3);
       Vth -= n * T4;
     }
     Vgsteff = Vgs_eff-Vth;
     /* calculating Toxp */
+    T3 = model_.dtype * vth0 - vfb - phieot;
+    T4 = T3 + T3;
+    T5 = 2.5 * T3;
+
+    vtfbphi2eot = 4.0 * T3;
+    if (vtfbphi2eot < 0.0)
+      vtfbphi2eot = 0.0;
+
     niter = 0;
     toxpf = toxe;
     do
     {
       toxpi = toxpf;
       tmp2 = 2.0e8 * toxpf;
-      T0 = (Vgsteff + vtfbphi2) / tmp2;
+      T0 = (Vgsteff + vtfbphi2eot) / tmp2;
       T1 = 1.0 + exp(model_.bdos * 0.7 * log(T0));
       Tcen = model_.ados * 1.9e-9 / T1;
       toxpf = toxe - epsrox/model_.epsrsub * Tcen;
@@ -8703,7 +9334,8 @@ bool Instance::updateIntermediateVars ()
   double Cox(0.0), Tox(0.0);
   double Tcen(0.0), dTcen_dVg(0.0), dTcen_dVd(0.0), dTcen_dVb(0.0);
   double Ccen(0.0);
-  double Coxeff(0.0), dCoxeff_dVd(0.0), dCoxeff_dVg(0.0), dCoxeff_dVb(0.0);
+  //double Coxeff(0.0); // made into an instance variable
+  double dCoxeff_dVd(0.0), dCoxeff_dVg(0.0), dCoxeff_dVb(0.0);
   double Denomi(0.0), dDenomi_dVg(0.0), dDenomi_dVd(0.0), dDenomi_dVb(0.0);
   double dueff_dVg(0.0), dueff_dVd(0.0), dueff_dVb(0.0);
   double Esat(0.0);
@@ -8714,6 +9346,7 @@ bool Instance::updateIntermediateVars ()
   double dVasat_dVg(0.0), dVasat_dVb(0.0);
   double dVasat_dVd(0.0), Va(0.0), dVa_dVd(0.0), dVa_dVg(0.0), dVa_dVb(0.0);
   double Vbseff(0.0), dVbseff_dVb(0.0), VbseffCV(0.0), dVbseffCV_dVb(0.0);
+  double VgsteffVth(0.0), dT11_dVg(0.0);
   double Arg1(0.0), One_Third_CoxWL(0.0), Two_Third_CoxWL(0.0), Alphaz(0.0);
 
   double T0,dT0_dVg(0.0), dT0_dVd(0.0), dT0_dVb(0.0);
@@ -8738,6 +9371,7 @@ bool Instance::updateIntermediateVars ()
   double VADITS(0.0), dVADITS_dVg(0.0), dVADITS_dVd(0.0);
   double Lpe_Vb(0.0);
   double dDITS_Sft_dVb(0.0), dDITS_Sft_dVd(0.0);
+  double DITS_Sft2, dDITS_Sft2_dVd;
   double VACLM(0.0), dVACLM_dVg(0.0), dVACLM_dVd(0.0), dVACLM_dVb(0.0);
   double VADIBL(0.0), dVADIBL_dVg(0.0), dVADIBL_dVd(0.0), dVADIBL_dVb(0.0);
   double Xdep(0.0), dXdep_dVb(0.0);
@@ -9258,7 +9892,7 @@ bool Instance::updateIntermediateVars ()
   Nvtms = model_.vtm * model_.SjctEmissionCoeff;
   if ((Aseff <= 0.0) && (Pseff <= 0.0))
   {
-    SourceSatCurrent = 1.0e-14;
+    SourceSatCurrent = 0.0;
   }
   else
   {
@@ -9373,7 +10007,7 @@ bool Instance::updateIntermediateVars ()
   Nvtmd = model_.vtm * model_.DjctEmissionCoeff;
   if ((Adeff <= 0.0) && (Pdeff <= 0.0))
   {
-    DrainSatCurrent = 1.0e-14;
+    DrainSatCurrent = 0.0;
   }
   else
   {
@@ -9871,6 +10505,23 @@ bool Instance::updateIntermediateVars ()
     dVth_dVd -= dDITS_Sft_dVd;
     dVth_dVb -= dDITS_Sft_dVb;
   }
+
+  // v4.7 DITS_SFT2
+  if ((paramPtr->dvtp4 == 0.0) || (paramPtr->dvtp2factor == 0.0))
+  {
+    T0 = 0.0;
+    DITS_Sft2 = 0.0;
+  }
+  else
+  {
+    T1 = 2.0 * paramPtr->dvtp4 * Vds;
+    DEXP(T1, T0, T10);
+    DITS_Sft2 = paramPtr->dvtp2factor * (T0 - 1) / (T0 + 1);
+    dDITS_Sft2_dVd = paramPtr->dvtp2factor * paramPtr->dvtp4 * 4.0 * T10 / ((T0 + 1) * (T0 - 1));
+    Vth -= DITS_Sft2;
+    dVth_dVd -= dDITS_Sft2_dVd;
+  }
+
   von = Vth;
 
   // Poly Gate Si Depletion Effect
@@ -10008,7 +10659,7 @@ bool Instance::updateIntermediateVars ()
 
     if (Rds > 0.0)
     {
-     grdsw = 1.0 / Rds;
+     grdsw = 1.0 / Rds * nf;
     }
     else
     {
@@ -10078,7 +10729,7 @@ bool Instance::updateIntermediateVars ()
   Abulk0 *= T0;
 
   // Mobility calculation
-  if (model_.mtrlMod)
+  if (model_.mtrlMod && (model_.mtrlCompatMod == 0))
     T14 = 2.0 * model_.dtype *(model_.phig - model_.easub - 0.5*model_.Eg0 + 0.45);
   else
     T14 = 0.0;
@@ -10120,7 +10771,7 @@ bool Instance::updateIntermediateVars ()
     dDenomi_dVb = T13 * dVth_dVb + paramPtr->uc * T4;
     dDenomi_dVg+= T7;
   }
-  else
+  else if (model_.mobMod == 2)
   {   T0 = (Vgsteff + vtfbphi1) / toxe;
     T1 = exp(paramPtr->eu * log(T0));
     dT1_dVg = T1 * paramPtr->eu / T0 / toxe;
@@ -10138,6 +10789,29 @@ bool Instance::updateIntermediateVars ()
     T13 = 2.0 * (T11 + T8);
     dDenomi_dVd = T13 * dVth_dVd;
     dDenomi_dVb = T13 * dVth_dVb + T1 * paramPtr->uc;
+  }
+  else
+  {
+    // high K mobility
+
+    // universal mobility
+    T0 = (Vgsteff + vtfbphi1) * 1.0e-8 / toxe / 6.0;
+    T1 = exp(paramPtr->eu * log(T0));
+    dT1_dVg = T1 * paramPtr->eu * 1.0e-8 / T0 / toxe / 6.0;
+    T2 = paramPtr->ua + paramPtr->uc * Vbseff;
+
+    // Coulombic
+    VgsteffVth = paramPtr->VgsteffVth;
+
+    T10 = exp(paramPtr->ucs * log(0.5 + 0.5 * Vgsteff / VgsteffVth));
+    T11 = paramPtr->ud / T10;
+    dT11_dVg = -0.5 * paramPtr->ucs * T11 / (0.5 + 0.5 * Vgsteff / VgsteffVth) / VgsteffVth;
+
+    dDenomi_dVg = T2 * dT1_dVg + dT11_dVg;
+    dDenomi_dVd = 0.0;
+    dDenomi_dVb = T1 * paramPtr->uc;
+
+    T5 = T1 * T2 + T11;
   }
 
   if (T5 >= -0.8)
@@ -10356,6 +11030,7 @@ bool Instance::updateIntermediateVars ()
     dEsatL_dVb *= T10;
     dEsatL_dVb += EsatL * dT10_dVb;
     EsatL *= T10;
+    Esat = EsatL / Leff;
   }
 
   // Calculate Vasat
@@ -10594,7 +11269,7 @@ bool Instance::updateIntermediateVars ()
   }
 
   // Calculate VASCBE
-  if (paramPtr->pscbe2 > 0.0)
+  if ((paramPtr->pscbe2 > 0.0) && (paramPtr->pscbe1 >= 0.0))
   {
     if (diffVds > paramPtr->pscbe1 * paramPtr->litl / CONSTEXP_THRESHOLD)
     {
@@ -10887,7 +11562,7 @@ bool Instance::updateIntermediateVars ()
     gdtots = gdtotb = 0.0;
   }
 
-  // Calculate GIDL current
+  // GIDL/GISL Models
   if (model_.mtrlMod == 0)
   {
     T0 = 3.0 * toxe;
@@ -10897,99 +11572,215 @@ bool Instance::updateIntermediateVars ()
     T0 = model_.epsrsub * toxe / epsrox;
   }
 
-  if(model_.mtrlMod ==0)
-    T1 = (vds - vgs_eff - paramPtr->egidl ) / T0;
-  else
-    T1 = (vds - vgs_eff - paramPtr->egidl + paramPtr->vfbsd) / T0;
+  // Calculate GIDL current
+  if (model_.gidlMod == 0)
+  {
+    if(model_.mtrlMod ==0)
+      T1 = (vds - vgs_eff - paramPtr->egidl ) / T0;
+    else
+      T1 = (vds - vgs_eff - paramPtr->egidl + paramPtr->vfbsd) / T0;
 
-  if ((paramPtr->agidl <= 0.0) || (paramPtr->bgidl <= 0.0)
-                || (T1 <= 0.0) || (paramPtr->cgidl <= 0.0) || (vbd > 0.0))
-  {
-    Igidl = Ggidld = Ggidlg = Ggidlb = 0.0;
-  }
-  else
-  {
-    dT1_dVd = 1.0 / T0;
-    dT1_dVg = -dvgs_eff_dvg * dT1_dVd;
-    T2 = paramPtr->bgidl / T1;
-    if (T2 < 100.0)
+    if ((paramPtr->agidl <= 0.0) || (paramPtr->bgidl <= 0.0)
+                  || (T1 <= 0.0) || (paramPtr->cgidl <= 0.0) || (vbd > 0.0))
     {
-      Igidl = paramPtr->agidl * paramPtr->weffCJ * T1 * exp(-T2);
-      T3 = Igidl * (1.0 + T2) / T1;
-      Ggidld = T3 * dT1_dVd;
-      Ggidlg = T3 * dT1_dVg;
+      Igidl = Ggidld = Ggidlg = Ggidlb = 0.0;
     }
     else
     {
-      Igidl = paramPtr->agidl * paramPtr->weffCJ * 3.720075976e-44;
-      Ggidld = Igidl * dT1_dVd;
-      Ggidlg = Igidl * dT1_dVg;
-      Igidl *= T1;
+      dT1_dVd = 1.0 / T0;
+      dT1_dVg = -dvgs_eff_dvg * dT1_dVd;
+      T2 = paramPtr->bgidl / T1;
+      if (T2 < 100.0)
+      {
+        Igidl = paramPtr->agidl * paramPtr->weffCJ * T1 * exp(-T2);
+        T3 = Igidl * (1.0 + T2) / T1;
+        Ggidld = T3 * dT1_dVd;
+        Ggidlg = T3 * dT1_dVg;
+      }
+      else
+      {
+        Igidl = paramPtr->agidl * paramPtr->weffCJ * 3.720075976e-44;
+        Ggidld = Igidl * dT1_dVd;
+        Ggidlg = Igidl * dT1_dVg;
+        Igidl *= T1;
+      }
+
+      T4 = vbd * vbd;
+      T5 = -vbd * T4;
+      T6 = paramPtr->cgidl + T5;
+      T7 = T5 / T6;
+      T8 = 3.0 * paramPtr->cgidl * T4 / T6 / T6;
+      Ggidld = Ggidld * T7 + Igidl * T8;
+      Ggidlg = Ggidlg * T7;
+      Ggidlb = -Igidl * T8;
+      Igidl *= T7;
     }
+    ggidld = Ggidld;
+    ggidlg = Ggidlg;
+    ggidlb = Ggidlb;
 
-    T4 = vbd * vbd;
-    T5 = -vbd * T4;
-    T6 = paramPtr->cgidl + T5;
-    T7 = T5 / T6;
-    T8 = 3.0 * paramPtr->cgidl * T4 / T6 / T6;
-    Ggidld = Ggidld * T7 + Igidl * T8;
-    Ggidlg = Ggidlg * T7;
-    Ggidlb = -Igidl * T8;
-    Igidl *= T7;
-  }
-  ggidld = Ggidld;
-  ggidlg = Ggidlg;
-  ggidlb = Ggidlb;
+    // Calculate GISL current
 
-  // Calculate GISL current
-
-  if (model_.mtrlMod == 0)
-  {
-    T1 = (-vds - vgd_eff - paramPtr->egisl ) / T0;
-  }
-  else
-  {
-    T1 = (-vds - vgd_eff - paramPtr->egisl + paramPtr->vfbsd ) / T0;
-  }
-
-  if ((paramPtr->agisl <= 0.0) || (paramPtr->bgisl <= 0.0)
-    || (T1 <= 0.0) || (paramPtr->cgisl <= 0.0) || (vbs > 0.0))
-  {
-    Igisl = Ggisls = Ggislg = Ggislb = 0.0;
-  }
-  else
-  {
-    dT1_dVd = 1.0 / T0;
-    dT1_dVg = -dvgd_eff_dvg * dT1_dVd;
-    T2 = paramPtr->bgisl / T1;
-    if (T2 < 100.0)
+    if (model_.mtrlMod == 0)
     {
-      Igisl = paramPtr->agisl * paramPtr->weffCJ * T1 * exp(-T2);
-      T3 = Igisl * (1.0 + T2) / T1;
-      Ggisls = T3 * dT1_dVd;
-      Ggislg = T3 * dT1_dVg;
+      T1 = (-vds - vgd_eff - paramPtr->egisl ) / T0;
     }
     else
     {
-      Igisl = paramPtr->agisl * paramPtr->weffCJ * 3.720075976e-44;
-      Ggisls = Igisl * dT1_dVd;
-      Ggislg = Igisl * dT1_dVg;
-      Igisl *= T1;
+      T1 = (-vds - vgd_eff - paramPtr->egisl + paramPtr->vfbsd ) / T0;
     }
 
-    T4 = vbs * vbs;
-    T5 = -vbs * T4;
-    T6 = paramPtr->cgisl + T5;
-    T7 = T5 / T6;
-    T8 = 3.0 * paramPtr->cgisl * T4 / T6 / T6;
-    Ggisls = Ggisls * T7 + Igisl * T8;
-    Ggislg = Ggislg * T7;
-    Ggislb = -Igisl * T8;
-    Igisl *= T7;
+    if ((paramPtr->agisl <= 0.0) || (paramPtr->bgisl <= 0.0)
+      || (T1 <= 0.0) || (paramPtr->cgisl <= 0.0) || (vbs > 0.0))
+    {
+      Igisl = Ggisls = Ggislg = Ggislb = 0.0;
+    }
+    else
+    {
+      dT1_dVd = 1.0 / T0;
+      dT1_dVg = -dvgd_eff_dvg * dT1_dVd;
+      T2 = paramPtr->bgisl / T1;
+      if (T2 < 100.0)
+      {
+        Igisl = paramPtr->agisl * paramPtr->weffCJ * T1 * exp(-T2);
+        T3 = Igisl * (1.0 + T2) / T1;
+        Ggisls = T3 * dT1_dVd;
+        Ggislg = T3 * dT1_dVg;
+      }
+      else
+      {
+        Igisl = paramPtr->agisl * paramPtr->weffCJ * 3.720075976e-44;
+        Ggisls = Igisl * dT1_dVd;
+        Ggislg = Igisl * dT1_dVg;
+        Igisl *= T1;
+      }
+
+      T4 = vbs * vbs;
+      T5 = -vbs * T4;
+      T6 = paramPtr->cgisl + T5;
+      T7 = T5 / T6;
+      T8 = 3.0 * paramPtr->cgisl * T4 / T6 / T6;
+      Ggisls = Ggisls * T7 + Igisl * T8;
+      Ggislg = Ggislg * T7;
+      Ggislb = -Igisl * T8;
+      Igisl *= T7;
+    }
+    ggisls = Ggisls;
+    ggislg = Ggislg;
+    ggislb = Ggislb;
   }
-  ggisls = Ggisls;
-  ggislg = Ggislg;
-  ggislb = Ggislb;
+  else
+  {
+    // v4.7 New Gidl/GISL model
+
+    // GISL
+    if (model_.mtrlMod == 0)
+      T1 = (-vds - paramPtr->rgisl * vgd_eff - paramPtr->egisl) / T0;
+    else
+      T1 = (-vds - paramPtr->rgisl * vgd_eff - paramPtr->egisl + paramPtr->vfbsd) / T0;
+
+    if ( (paramPtr->agisl <= 0.0) || 
+         (paramPtr->bgisl <= 0.0) || (T1 <= 0.0) || 
+         (paramPtr->cgisl < 0.0) )
+      Igisl = Ggisls = Ggislg = Ggislb = 0.0;
+    else
+    {
+      dT1_dVd = 1 / T0;
+      dT1_dVg = - paramPtr->rgisl * dT1_dVd * dvgd_eff_dvg;
+      T2 = paramPtr->bgisl / T1;
+      if (T2 < CONSTEXPL_THRESHOLD)
+      {
+        Igisl = paramPtr->weffCJ * paramPtr->agisl * T1 * exp(-T2);
+        T3 = Igisl / T1 * (T2 + 1);
+        Ggisls = T3 * dT1_dVd;
+        Ggislg = T3 * dT1_dVg;
+      }
+      else
+      {
+        T3 = paramPtr->weffCJ * paramPtr->agisl * CONSTMIN_EXPL;
+        Igisl = T3 * T1;
+        Ggisls = T3 * dT1_dVd;
+        Ggislg = T3 * dT1_dVg;
+      }
+      T4 = vbs - paramPtr->fgisl;
+
+      if (T4 == 0)
+        T5 = CONSTEXPL_THRESHOLD;
+      else
+        T5 = paramPtr->kgisl / T4;
+      if (T5 < CONSTEXPL_THRESHOLD)
+      {
+        T6 = exp(T5);
+        Ggislb = -Igisl * T6 * T5 / T4;
+      }
+      else
+      {
+        T6 = CONSTMAX_EXPL;
+        Ggislb = 0.0;
+      }
+      Ggisls *= T6;
+      Ggislg *= T6;
+      Igisl *= T6;
+    }
+    ggisls = Ggisls;
+    ggislg = Ggislg;
+    ggislb = Ggislb;
+    // End of GISL
+
+    // GIDL
+    if (model_.mtrlMod == 0)
+      T1 = (vds - paramPtr->rgidl * vgs_eff - paramPtr->egidl) / T0;
+    else
+      T1 = (vds - paramPtr->rgidl * vgs_eff - paramPtr->egidl + paramPtr->vfbsd) / T0;
+
+    if ( (paramPtr->agidl <= 0.0) ||
+         (paramPtr->bgidl <= 0.0) || (T1 <= 0.0) ||
+         (paramPtr->cgidl < 0.0) )
+      Igidl = Ggidld = Ggidlg = Ggidlb = 0.0;
+    else
+    {
+      dT1_dVd = 1 / T0;
+      dT1_dVg = - paramPtr->rgidl * dT1_dVd * dvgs_eff_dvg;
+      T2 = paramPtr->bgidl / T1;
+      if (T2 < CONSTEXPL_THRESHOLD)
+      {
+        Igidl = paramPtr->weffCJ * paramPtr->agidl * T1 * exp(-T2);
+        T3 = Igidl / T1 * (T2 + 1);
+        Ggidld = T3 * dT1_dVd;
+        Ggidlg = T3 * dT1_dVg;
+      }
+      else
+      {
+        T3 = paramPtr->weffCJ * paramPtr->agidl * CONSTMIN_EXPL;
+        Igidl = T3 * T1;
+        Ggidld = T3 * dT1_dVd;
+        Ggidlg = T3 * dT1_dVg;
+      }
+      T4 = vbd - paramPtr->fgidl;
+      if (T4 == 0)
+        T5 = CONSTEXPL_THRESHOLD;
+      else
+        T5 = paramPtr->kgidl / T4;
+      if (T5 < CONSTEXPL_THRESHOLD)
+      {
+        T6 = exp(T5);
+        Ggidlb = -Igidl * T6 * T5 / T4;
+      }
+      else
+      {
+        T6 = CONSTMAX_EXPL;
+        Ggidlb = 0.0;
+      }
+      Ggidld *= T6;
+      Ggidlg *= T6;
+      Igidl *= T6;
+    }
+    ggidld = Ggidld;
+    ggidlg = Ggidlg;
+    ggidlb = Ggidlb;
+    // End of new GIDL
+  }
+  // End of Gidl
 
 
   // Calculate gate tunneling current
@@ -11047,7 +11838,7 @@ bool Instance::updateIntermediateVars ()
   {
     tmp = Vtm;
   }
-  else // model_.tempMod = 2
+  else // model_.tempMod = 2, 3
   {
     tmp = Vtm0;
   }
@@ -11145,7 +11936,7 @@ bool Instance::updateIntermediateVars ()
     }
     else
     {
-      T11 = paramPtr->Bechvb * toxe;
+      T11 = -paramPtr->Bechvb;
       T12 = Vgsteff + 1.0e-20;
       T13 = T11 / T12 / T12;
       T14 = -T13 / T12;
@@ -11484,6 +12275,8 @@ bool Instance::updateIntermediateVars ()
   gIgcds = -(gIgcdg + gIgcdd + gIgcdb);
   cd = cdrain;
 
+  // Calculations for noise analysis
+
   if (model_.tnoiMod == 0)
   {
     Abulk = Abulk0 * paramPtr->abulkCVfactor;
@@ -11514,6 +12307,10 @@ bool Instance::updateIntermediateVars ()
                     * paramPtr->leffCV
                     * (Vgsteff - 0.5 * T0 + Abulk * T3);
   }
+  else if (model_.tnoiMod == 2)
+  {
+    noiGd0 = nf * beta * Vgsteff / (1.0 + gche * Rds);
+  }
 
   // C-V begins
 
@@ -11532,24 +12329,24 @@ bool Instance::updateIntermediateVars ()
   {
     if (Vbseff < 0.0)
     {
-      Vbseff = Vbs;
-      dVbseff_dVb = 1.0;
+      VbseffCV = Vbs;
+      dVbseffCV_dVb = 1.0;
     }
     else
     {
-      Vbseff = paramPtr->phi - Phis;
-      dVbseff_dVb = -dPhis_dVb;
+      VbseffCV = paramPtr->phi - Phis;
+      dVbseffCV_dVb = -dPhis_dVb * dVbseff_dVb;
     }
 
     Vfb = paramPtr->vfbcv;
     Vth = Vfb + paramPtr->phi + paramPtr->k1ox * sqrtPhis;
     Vgst = Vgs_eff - Vth;
-    dVth_dVb = paramPtr->k1ox * dsqrtPhis_dVb;
+    dVth_dVb = paramPtr->k1ox * dsqrtPhis_dVb * dVbseff_dVb;
     dVgst_dVb = -dVth_dVb;
     dVgst_dVg = dVgs_eff_dVg;
 
     CoxWL = model_.coxe * paramPtr->weffCV * paramPtr->leffCV * nf;
-    Arg1 = Vgs_eff - Vbseff - Vfb;
+    Arg1 = Vgs_eff - VbseffCV - Vfb;
 
     if (Arg1 <= 0.0)
     {
@@ -11559,7 +12356,7 @@ bool Instance::updateIntermediateVars ()
 
       cggb = CoxWL * dVgs_eff_dVg;
       cgdb = 0.0;
-      cgsb = CoxWL * (dVbseff_dVb - dVgs_eff_dVg);
+      cgsb = CoxWL * (dVbseffCV_dVb - dVgs_eff_dVg);
 
       cdgb = 0.0;
       cddb = 0.0;
@@ -11580,7 +12377,7 @@ bool Instance::updateIntermediateVars ()
       T0 = CoxWL * T1 / T2;
       cggb = T0 * dVgs_eff_dVg;
       cgdb = 0.0;
-      cgsb = T0 * (dVbseff_dVb - dVgs_eff_dVg);
+      cgsb = T0 * (dVbseffCV_dVb - dVgs_eff_dVg);
 
       cdgb = 0.0;
       cddb = 0.0;
@@ -11596,10 +12393,10 @@ bool Instance::updateIntermediateVars ()
       Two_Third_CoxWL = 2.0 * One_Third_CoxWL;
 
       AbulkCV = Abulk0 * paramPtr->abulkCVfactor;
-      dAbulkCV_dVb = paramPtr->abulkCVfactor * dAbulk0_dVb;
-      Vdsat = Vgst / AbulkCV;
-      dVdsat_dVg = dVgs_eff_dVg / AbulkCV;
-      dVdsat_dVb = - (Vdsat * dAbulkCV_dVb + dVth_dVb)/ AbulkCV;
+      dAbulkCV_dVb = paramPtr->abulkCVfactor * dAbulk0_dVb * dVbseff_dVb;
+      dVdsat_dVg = 1.0 / AbulkCV;
+      Vdsat = Vgst * dVdsat_dVg;
+      dVdsat_dVb = - (Vdsat * dAbulkCV_dVb + dVth_dVb) * dVdsat_dVg;
 
       if (model_.xpart > 0.5)
       {
@@ -11744,8 +12541,8 @@ bool Instance::updateIntermediateVars ()
           qbulk = -(qgate - T4 * T7);
           T7 *= T9;
           T0 = 4.0 * T4 * (1.0 - T5);
-          T12 = (-T7 * dAlphaz_dVg - cdgb
-              - T0 * dVdsat_dVg) * dVgs_eff_dVg;
+          T12 = (-T7 * dAlphaz_dVg - T0 * dVdsat_dVg) * dVgs_eff_dVg
+              - cdgb;
           T11 = -T7 * dAlphaz_dVb - T10 - T0 * dVdsat_dVb;
           T10 = -4.0 * T4 * (T2 - 0.5 + 0.5 * T5) - cddb;
           tmp = -(T10 + T11 + T12);
@@ -13109,7 +13906,12 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   double tmp = 0.0;
   double T1 = 0.0;
   double T2 = 0.0;
+  double T3 = 0.0;
+  double T4 = 0.0;
   double T5 = 0.0;
+  double T6 = 0.0;
+  double T7 = 0.0;
+  double T8 = 0.0;
   double T10 = 0.0;
   double T11 = 0.0;
   double Ssi = 0.0;
@@ -13117,6 +13919,21 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   double npart_beta = 0.0;
   double npart_theta = 0.0;
   double igsquare = 0.0;
+
+  // tnoiMod=2 (v4.7)
+  double eta = 0.0;
+  double Leff = 0.0;
+  double Lvsat = 0.0;
+  double gamma = 0.0;
+  double delta = 0.0;
+  double epsilon = 0.0;
+  double GammaGd0 = 0.0;
+  double npart_c = 0.0;
+  double sigrat = 0.0;
+  double C0 = 0.0;
+  double omega = 0.0;
+  double ctnoi = 0.0;
+  double tau = 0.0;
 
   if (model_.tnoiMod == 0)
   {
@@ -13137,12 +13954,16 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
       tmp = 0.0;
     }
   }
-  else
+  else if (model_.tnoiMod == 1)
   {
     T5 = Vgsteff_forNoise / EsatL;
     T5 *= T5;
     npart_beta = model_.rnoia * (1.0 + T5 * model_.tnoia * paramPtr->leff);
     npart_theta = model_.rnoib * (1.0 + T5 * model_.tnoib * paramPtr->leff);
+    if (npart_theta > 0.9)
+      npart_theta = 0.9;
+    if (npart_theta > 0.9 * npart_beta)
+      npart_theta = 0.9 * npart_beta;
 
     if (model_.rdsMod == 0)
     {   
@@ -13157,13 +13978,27 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
 
     if (vds >= 0.0)
     {
-      gspr = gspr / (1.0 + npart_theta * npart_theta * gspr / IdovVds);  /* bugfix */
+      gspr = gspr * (1.0 + npart_theta * npart_theta * gspr / IdovVds);  /* bugfix */
     }
     else
     {
-      gdpr = gdpr / (1.0 + npart_theta * npart_theta * gdpr / IdovVds);
+      gdpr = gdpr * (1.0 + npart_theta * npart_theta * gdpr / IdovVds);
     }
   } 
+  else
+  {
+    // tnoiMod=2 (v4.7)
+    if (model_.rdsMod == 0)
+    {
+      gspr = sourceConductance;
+      gdpr = drainConductance;
+    }
+    else
+    {
+      gspr = gstot;
+      gdpr = gdtot;
+    }
+  }
 
   devSupport.noiseSupport(noiseData.noiseDens[RDNOIZ],
    noiseData.lnNoiseDens[RDNOIZ], THERMNOISE,
@@ -13289,6 +14124,42 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
     noiseData.lnNoiseDens[RBPBNOIZ] = std::log(std::max(noiseData.noiseDens[RBPBNOIZ], N_MINLOG));
     noiseData.lnNoiseDens[RBSBNOIZ] = std::log(std::max(noiseData.noiseDens[RBSBNOIZ], N_MINLOG));
     noiseData.lnNoiseDens[RBDBNOIZ] = std::log(std::max(noiseData.noiseDens[RBDBNOIZ], N_MINLOG));
+  }
+
+  if (model_.tnoiMod == 2)
+  {
+    eta = 1.0 - Vdseff_forNoise * AbovVgst2Vtm;
+    T0 = 1.0 - eta;
+    T1 = 1.0 + eta;
+    T2 = T1 + 2.0 * Abulk_forNoise * model_.vtm / Vgsteff_forNoise;
+    Leff = paramPtr->leff;
+    Lvsat = Leff * (1.0 + Vdseff_forNoise / EsatL);
+    T6 = Leff / Lvsat;
+
+    T5 = Vgsteff / EsatL;
+    T5 = T5 * T5;
+    gamma = T6 * (0.5 * T1 + T0 * T0 / (6.0 * T2));
+    T3 = T2 * T2;
+    T4 = T0 * T0;
+    T5 = T3 * T3;
+    delta = (T1 / T3 - (5.0 * T1 + T2) * T4 / (15.0 * T5) + T4 * T4 / (9.0 * T5 * T2)) / (6.0 * T6 * T6 * T6);
+    T7 = T0 / T2;
+    epsilon = (T7 - T7 * T7 * T7 / 3.0) / (6.0 * T6);
+
+    T8 = Vgsteff_forNoise / EsatL;
+    T8 *= T8;
+    npart_c = model_.rnoic * (1.0 + T8 * model_.tnoic * Leff);
+    ctnoi = epsilon / sqrt(gamma * delta) * (2.5316 * npart_c);
+
+    npart_beta = model_.rnoia * (1.0 + T8 * model_.tnoia * Leff);
+    npart_theta = model_.rnoib * (1.0 + T8 * model_.tnoib * Leff);
+    gamma = gamma * (3.0 * npart_beta * npart_beta);
+    delta = delta * (3.75 * npart_theta * npart_theta);
+
+    GammaGd0 = gamma * noiGd0;
+    C0 = Coxeff * paramPtr->weffCV * nf * paramPtr->leffCV;
+    T0 = C0 / noiGd0;
+    sigrat = T0 * sqrt(delta / gamma);
   }
 
   switch(model_.tnoiMod)
@@ -15457,7 +16328,7 @@ int Instance::RdsEndIso
       case 6:
           if ((DMCG + DMCI) == 0.0)
             msg = "(DMCG + DMCI) can not be equal to zero\n";
-          if (nuEnd == 0.0)
+          if ((nuEnd == 0.0) || ((DMCG + DMCI) == 0.0))
             Rend = 0.0;
           else
             Rend = Rsh * Weffcj / (3.0 * nuEnd * (DMCG + DMCI));
@@ -15483,7 +16354,7 @@ int Instance::RdsEndIso
       case 8:
         if ((DMCG + DMCI) == 0.0)
           msg = "(DMCG + DMCI) can not be equal to zero\n";
-        if (nuEnd == 0.0)
+        if ((nuEnd == 0.0) || ((DMCG + DMCI) == 0.0))
           Rend = 0.0;
         else
           Rend = Rsh * Weffcj / (3.0 * nuEnd * (DMCG + DMCI));
@@ -15677,14 +16548,19 @@ Model::Model(
     geoMod(0),
     rgeoMod(0),
     mtrlMod(0),
+    mtrlCompatMod(0),
     igcMod(0),
     igbMod(0),
     tempMod(0),
+    gidlMod(0),
     binUnit(0),
     paramChk(0),
     version("4.6.1"),
     eot(0.0),
     vddeot(0.0),
+    tempeot(0.0),
+    leffeot(0.0),
+    weffeot(0.0),
     ados(0.0),
     bdos(0.0),
     toxe(0.0),
@@ -15733,6 +16609,10 @@ Model::Model(
     w0(0.0),
     dvtp0(0.0),
     dvtp1(0.0),
+    dvtp2(0.0),
+    dvtp3(0.0),
+    dvtp4(0.0),
+    dvtp5(0.0),
     lpe0(0.0),
     lpeb(0.0),
     dvt0(0.0),
@@ -15756,9 +16636,14 @@ Model::Model(
     up(0.0),
     lp(0.0),
     u0(0.0),
+    ucs(0.0),
     ute(0.0),
+    ucste(0.0),
     voff(0.0),
     tvoff(0.0),
+    tnfactor(0.0),
+    teta0(0.0),
+    tvoffcv(0.0),
     minv(0.0),
     minvcv(0.0),
     voffl(0.0),
@@ -15797,10 +16682,16 @@ Model::Model(
     agidl(0.0),
     bgidl(0.0),
     cgidl(0.0),
+    rgidl(0.0),
+    kgidl(0.0),
+    fgidl(0.0),
     egidl(0.0),
     agisl(0.0),
     bgisl(0.0),
     cgisl(0.0),
+    rgisl(0.0),
+    kgisl(0.0),
+    fgisl(0.0),
     egisl(0.0),
     aigc(0.0),
     bigc(0.0),
@@ -15842,6 +16733,7 @@ Model::Model(
     jtsswd(0.0),
     jtsswgs(0.0),
     jtsswgd(0.0),
+    jtweff(0.0),
     njts(0.0),
     njtssw(0.0),
     njtsswg(0.0),
@@ -15918,8 +16810,10 @@ Model::Model(
 
     tnoia(0.0),
     tnoib(0.0),
+    tnoic(0.0),
     rnoia(0.0),
     rnoib(0.0),
+    rnoic(0.0),
     ntnoi(0.0),
 
     // CV model and Parasitics
@@ -15991,6 +16885,10 @@ Model::Model(
     lw0(0.0),
     ldvtp0(0.0),
     ldvtp1(0.0),
+    ldvtp2(0.0),
+    ldvtp3(0.0),
+    ldvtp4(0.0),
+    ldvtp5(0.0),
     llpe0(0.0),
     llpeb(0.0),
     ldvt0(0.0),
@@ -16015,8 +16913,12 @@ Model::Model(
     lu0(0.0),
     leu(0.0),
     lute(0.0),
+    lucste(0.0),
     lvoff(0.0),
     ltvoff(0.0),
+    ltnfactor(0.0),
+    lteta0(0.0),
+    ltvoffcv(0.0),
     lminv(0.0),
     lminvcv(0.0),
     ldelta(0.0),
@@ -16050,10 +16952,16 @@ Model::Model(
     lagidl(0.0),
     lbgidl(0.0),
     lcgidl(0.0),
+    lrgidl(0.0),
+    lkgidl(0.0),
+    lfgidl(0.0),
     legidl(0.0),
     lagisl(0.0),
     lbgisl(0.0),
     lcgisl(0.0),
+    lrgisl(0.0),
+    lkgisl(0.0),
+    lfgisl(0.0),
     legisl(0.0),
     laigc(0.0),
     lbigc(0.0),
@@ -16136,6 +17044,10 @@ Model::Model(
     ww0(0.0),
     wdvtp0(0.0),
     wdvtp1(0.0),
+    wdvtp2(0.0),
+    wdvtp3(0.0),
+    wdvtp4(0.0),
+    wdvtp5(0.0),
     wlpe0(0.0),
     wlpeb(0.0),
     wdvt0(0.0),
@@ -16159,9 +17071,14 @@ Model::Model(
     wlp(0.0),
     wu0(0.0),
     weu(0.0),
+    wucs(0.0),
     wute(0.0),
+    wucste(0.0),
     wvoff(0.0),
     wtvoff(0.0),
+    wtnfactor(0.0),
+    wteta0(0.0),
+    wtvoffcv(0.0),
     wminv(0.0),
     wminvcv(0.0),
     wdelta(0.0),
@@ -16195,10 +17112,16 @@ Model::Model(
     wagidl(0.0),
     wbgidl(0.0),
     wcgidl(0.0),
+    wrgidl(0.0),
+    wkgidl(0.0),
+    wfgidl(0.0),
     wegidl(0.0),
     wagisl(0.0),
     wbgisl(0.0),
     wcgisl(0.0),
+    wrgisl(0.0),
+    wkgisl(0.0),
+    wfgisl(0.0),
     wegisl(0.0),
     waigc(0.0),
     wbigc(0.0),
@@ -16281,6 +17204,10 @@ Model::Model(
     pw0(0.0),
     pdvtp0(0.0),
     pdvtp1(0.0),
+    pdvtp2(0.0),
+    pdvtp3(0.0),
+    pdvtp4(0.0),
+    pdvtp5(0.0),
     plpe0(0.0),
     plpeb(0.0),
     pdvt0(0.0),
@@ -16304,9 +17231,14 @@ Model::Model(
     plp(0.0),
     pu0(0.0),
     peu(0.0),
+    pucs(0.0),
     pute(0.0),
+    pucste(0.0),
     pvoff(0.0),
     ptvoff(0.0),
+    ptnfactor(0.0),
+    pteta0(0.0),
+    ptvoffcv(0.0),
     pminv(0.0),
     pminvcv(0.0),
     pdelta(0.0),
@@ -16340,11 +17272,17 @@ Model::Model(
     pagidl(0.0),
     pbgidl(0.0),
     pcgidl(0.0),
+    prgidl(0.0),
+    pkgidl(0.0),
+    pfgidl(0.0),
     pegidl(0.0),
     pagisl(0.0),
     pbgisl(0.0),
     pcgisl(0.0),
     pegisl(0.0),
+    prgisl(0.0),
+    pkgisl(0.0),
+    pfgisl(0.0),
     paigc(0.0),
     pbigc(0.0),
     pcigc(0.0),
@@ -16563,8 +17501,10 @@ Model::Model(
     rbdby0Given(false),
     lambdaGiven(false),
     pigcdGiven(false),
+    eotGiven(false),
     toxeGiven(false),
     toxpGiven(false),
+    toxmGiven(false),
     dtoxGiven(false),
     cgdoGiven(false),
     dlcGiven(false),
@@ -16617,6 +17557,8 @@ Model::Model(
     vddeot= (dtype == CONSTNMOS)?1.5:-1.5;
   if (!given("EU"))
     eu =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
+  if (!given("UCS"))
+    ucs =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
   if (!given("UA"))
     ua =(mobMod == 2) ? 1.0E-15 : 1.0E-9; // UNIT M/V
   if (!given("UC"))
@@ -16717,6 +17659,21 @@ Model::Model(
   {
     if (given("EGIDL"))
       egisl=egidl;
+  }
+  if (!given("RGISL"))
+  {
+    if (given("RGIDL"))
+      rgisl=rgidl;
+  }
+  if (!given("KGISL"))
+  {
+    if (given("KGIDL"))
+      kgisl=kgidl;
+  }
+  if (!given("FGISL"))
+  {
+    if (given("FGIDL"))
+      fgisl=fgidl;
   }
 
   if (!given("DLCIG"))
@@ -16848,6 +17805,21 @@ Model::Model(
     if (given("LEGIDL"))
       legisl = legidl;
   }
+  if (!given("LRGISL"))
+  {
+    if (given("LRGIDL"))
+      lrgisl = lrgidl;
+  }
+  if (!given("LKGISL"))
+  {
+    if (given("LKGIDL"))
+      lkgisl = lkgidl;
+  }
+  if (!given("LFGISL"))
+  {
+    if (given("LFGIDL"))
+      lfgisl = lfgidl;
+  }
 
   // This is ugly, ugly, ugly.
   // This stuff is all the "else" clauses from the spice code, which are
@@ -16898,6 +17870,21 @@ Model::Model(
     if (given("WEGIDL"))
       wegisl = wegidl;
   }
+  if (!given("WRGISL"))
+  {
+    if (given("WRGIDL"))
+      wrgisl = wrgidl;
+  }
+  if (!given("WKGISL"))
+  {
+    if (given("WKGIDL"))
+      wkgisl = wkgidl;
+  }
+  if (!given("WFGISL"))
+  {
+    if (given("WFGIDL"))
+      wfgisl = wfgidl;
+  }
 
   // See above, under "ugly, ugly, ugly"
   if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
@@ -16932,6 +17919,21 @@ Model::Model(
   {
     if (given("PEGIDL"))
       pegisl = pegidl;
+  }
+  if (!given("PRGISL"))
+  {
+    if (given("PRGIDL"))
+      prgisl = prgidl;
+  }
+  if (!given("PKGISL"))
+  {
+    if (given("PKGIDL"))
+      pkgisl = pkgidl;
+  }
+  if (!given("PFGISL"))
+  {
+    if (given("PFGIDL"))
+      pfgisl = pfgidl;
   }
 
   // Vide supra, re "ugly"

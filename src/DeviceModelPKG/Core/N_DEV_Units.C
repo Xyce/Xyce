@@ -171,6 +171,7 @@ UnitInfo unitTable[] =
   U_VM,              U_VM2,            "V*m",                    "Vm",
   U_VM2,             U_VM3,            "V*m**2",                 "Vm$^{2}$",
   U_VM3,             U_INVALID,        "V*m**3",                 "Vm$^{3}$",
+  U_VMX,             U_VMX,            "V*m**X",                 "Vm$^{X}$",
   U_VMM1,            U_VOLT,           "V/m",                    "Vm$^{-1}$",
   U_VMM2,            U_VOLT,           "V/m**2",                 "Vm$^{-2}$",
   U_VMM3,            U_VOLT,           "V/m**3",                 "Vm$^{-3}$",
