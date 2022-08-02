@@ -1031,7 +1031,7 @@ case "$target" in
   *-apple-darwin*)
     CPACK_SYSTEM_NAME="Darwin"
     CPACK_PACKAGING_INSTALL_PREFIX="/"
-    CXXFLAGS="-Wl,-rpath,/usr/local/$CPACK_PACKAGE_NAME/lib/ $CXXFLAGS"
+    CXXFLAGS="-Wl,-rpath,@executable_path/../lib/ $CXXFLAGS"
     ;;
   *)
     CPACK_SYSTEM_NAME=$target
