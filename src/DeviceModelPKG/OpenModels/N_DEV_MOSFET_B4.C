@@ -8552,18 +8552,22 @@ bool Instance::updateTemperature (const double & temp_tmp)
     if (sca < 0.0)
     {
       UserWarning(*this) << "SCA = " << sca << " is negative. Set to 0.0.";
+      sca = 0.0;
     }
     if (scb < 0.0)
     {
       UserWarning(*this) << "SCB = " << scb << " is negative. Set to 0.0.";
+      scb = 0.0;
     }
     if (scc < 0.0)
     {
       UserWarning(*this) << "SCC = " << scc << " is negative. Set to 0.0.";
+      scc = 0.0;
     }
     if (sc < 0.0)
     {
       UserWarning(*this) << "SC = " << sc << " is negative. Set to 0.0.";
+      sc = 0.0;
     }
     sceff = sca + model_.web * scb
                 + model_.wec * scc;
@@ -8732,22 +8736,6 @@ bool Instance::updateTemperature (const double & temp_tmp)
   DMCIeff = model_.dmci;
   DMDGeff = model_.dmdg - model_.dmcgt;
 
-/*  if (sourcePerimeterGiven)
-  {
-   if (model_.perMod == 0)
-      Pseff = sourcePerimeter;
-   else
-      Pseff = sourcePerimeter - paramPtr->weffCJ * nf;
-  }
-  else
-  {
-    PAeffGeo(nf, geoMod, min,
-             paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
-            (Pseff), dumPd, dumAs, dumAd);
-  }
-  if (Pseff < 0.0)
-    Pseff = 0.0; */
-
   // New Diode Model v4.7
   if (sourcePerimeterGiven)
   {
@@ -8780,22 +8768,6 @@ bool Instance::updateTemperature (const double & temp_tmp)
     Pseff = 0.0;
     UserWarning(*this) << "Pseff is negative, it is set to zero.";
   }
-
-/*  if (drainPerimeterGiven)
-  {
-   if (model_.perMod == 0)
-     Pdeff = drainPerimeter;
-   else
-     Pdeff = drainPerimeter - paramPtr->weffCJ * nf;
-  }
-  else
-  {
-    PAeffGeo(nf, geoMod, min,
-              paramPtr->weffCJ, DMCGeff, DMCIeff, DMDGeff,
-              dumPs, (Pdeff), dumAs, dumAd);
-  }
-  if (Pdeff < 0.0)
-    Pdeff = 0.0; */
 
   if (drainPerimeterGiven)
   {
