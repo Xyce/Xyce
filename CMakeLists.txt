@@ -118,6 +118,7 @@ endif()
 if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
+
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
