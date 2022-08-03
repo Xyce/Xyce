@@ -13729,6 +13729,8 @@ void Instance::setupNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   noiseData.noiseNames[IGDNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_igd");
   noiseData.noiseNames[IGBNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_igb");
 
+  noiseData.noiseNames[CORLNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_corl");
+
   // RD thermal:
   noiseData.li_Pos[RDNOIZ] = li_DrainPrime;
   noiseData.li_Neg[RDNOIZ] = li_Drain;
@@ -13837,6 +13839,31 @@ void Instance::setupNoiseSources (Xyce::Analysis::NoiseData & noiseData)
     noiseData.li_Neg[RBSBNOIZ] = -1;
     noiseData.li_Pos[RBDBNOIZ] = -1;
     noiseData.li_Neg[RBDBNOIZ] = -1;
+  }
+
+  if (model_.tnoiMod == 2)
+  {
+    if (mode >= 0)
+    {
+      noiseData.li_Pos[CORLNOIZ] = li_DrainPrime;
+      noiseData.li_Neg[CORLNOIZ] = li_SourcePrime;
+      noiseData.li_PosCorl[CORLNOIZ] = li_GatePrime;
+      noiseData.li_NegCorl[CORLNOIZ] = li_SourcePrime;
+    }
+    else
+    {
+      noiseData.li_Pos[CORLNOIZ] = li_SourcePrime;
+      noiseData.li_Neg[CORLNOIZ] = li_DrainPrime;
+      noiseData.li_PosCorl[CORLNOIZ] = li_GatePrime;
+      noiseData.li_NegCorl[CORLNOIZ] = li_DrainPrime;
+    }
+  }
+  else
+  {
+    noiseData.li_Pos[CORLNOIZ] = -1;
+    noiseData.li_Neg[CORLNOIZ] = -1;
+    noiseData.li_PosCorl[CORLNOIZ] = -1;
+    noiseData.li_NegCorl[CORLNOIZ] = -1;
   }
 
   //  dNodePrime, sNodePrime,
@@ -14157,6 +14184,40 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
           (T2 - igsquare),temp);
 
       break;
+    case 2:
+      T2 = GammaGd0;
+      T3 = ctnoi * ctnoi;
+      T4 = 1.0 - T3;
+      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ], noiseData.lnNoiseDens[IDNOIZ], THERMNOISE,
+          //dNodePrime, sNodePrime,
+          T2 * T4, temp);
+
+      // Evaluate output noise due to two correlated noise sources 
+      omega = 2.0 * M_PI * noiseData.freq;
+      T5 = omega * sigrat;
+      T6 = T5 * T5;
+      T7 = T6 / (1.0 + T6);
+      noiseData.T0 = sqrt(T2 * T3);
+      double T1 = sqrt(T2 * T7);
+      noiseData.T2 = T1 * cos(0.5 * M_PI);
+      noiseData.T3 = T1 * sin(0.5 * M_PI);
+
+      if (mode >= 0)
+      {
+        devSupport.noiseSupport(noiseData.noiseDens[CORLNOIZ], noiseData.lnNoiseDens[CORLNOIZ], THERMNOISE,
+            // dNodePrime, sNodePrime, T2 * T3,
+            // gNodePrime, sNodePrime, T2 * T7,
+            // 0.5 * M_PI,
+            1.0, temp);
+      }
+      else
+      {
+        devSupport.noiseSupport(noiseData.noiseDens[CORLNOIZ], noiseData.lnNoiseDens[CORLNOIZ], THERMNOISE,
+            // sNodePrime, dNodePrime, T2 * T3,
+            // gNodePrime, dNodePrime, T2 * T7,
+            // 0.5 * M_PI,
+            1.0, temp);
+      }
   }
 
   switch(model_.fnoiMod)
