@@ -776,7 +776,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Temperature coefficient of mobility");
 
-    p.addPar ("UCSTE",-1.5,&MOSFET_B4::Model::ucste)
+    p.addPar ("UCSTE",-4.775e-3,&MOSFET_B4::Model::ucste)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Temperature coefficient of colombic mobility");
@@ -9062,8 +9062,8 @@ bool Instance::updateTemperature (const double & temp_tmp)
   DjctTempRevSatCur = T2 * Adeff * model_.jtsd;
   SswTempRevSatCur = T3 * Pseff * model_.jtssws;
   DswTempRevSatCur = T4 * Pdeff * model_.jtsswd;
-  SswgTempRevSatCur = T5 * T11 * model_.jtsswgs;
-  DswgTempRevSatCur = T6 * T11 * model_.jtsswgd;
+  SswgTempRevSatCur = T5 * T10 * T11 * model_.jtsswgs;
+  DswgTempRevSatCur = T6 * T10 * T11 * model_.jtsswgd;
 
   // high k
   // Calculate VgsteffVth for mobMod=3
@@ -10489,7 +10489,7 @@ bool Instance::updateIntermediateVars ()
     T1 = 2.0 * paramPtr->dvtp4 * Vds;
     DEXP(T1, T0, T10);
     DITS_Sft2 = paramPtr->dvtp2factor * (T0 - 1) / (T0 + 1);
-    dDITS_Sft2_dVd = paramPtr->dvtp2factor * paramPtr->dvtp4 * 4.0 * T10 / ((T0 + 1) * (T0 - 1));
+    dDITS_Sft2_dVd = paramPtr->dvtp2factor * paramPtr->dvtp4 * 4.0 * T10 / ((T0 + 1) * (T0 + 1));
     Vth -= DITS_Sft2;
     dVth_dVd -= dDITS_Sft2_dVd;
   }
