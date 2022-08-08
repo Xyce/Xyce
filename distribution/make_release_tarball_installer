@@ -90,7 +90,6 @@ case $BUILDNAME in
         cp -v $MKLROOT/lib/libmkl_intel_thread*.dylib  $LIBDIR
         cp -v $MKLROOT/lib/libmkl_core*.dylib          $LIBDIR
         cp -v $MKLROOT/lib/libmkl_avx*.dylib          $LIBDIR
-        cp -v $MKLROOT/lib/libmkl_mc*.dylib          $LIBDIR
 
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libiomp5.dylib  $LIBDIR
         cp -v $ONEAPI_ROOT/compiler/latest/mac/compiler/lib/libimf.dylib    $LIBDIR
