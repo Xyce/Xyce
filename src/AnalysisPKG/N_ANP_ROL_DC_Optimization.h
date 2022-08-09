@@ -31,6 +31,8 @@
 #ifndef Xyce_N_ANP_ROL_DC_Optimizationh
 #define Xyce_N_ANP_ROL_DC_Optimizationh
 
+#include <Xyce_config.h>
+
 #ifndef FD_HESSIAN
 #define FD_HESSIAN 0 // 0 to set all hessvec to zero (Gauss-Newton Hessian); else FD Hessian
 #endif
@@ -40,6 +42,15 @@
 #endif
 
 #ifdef Xyce_ROL
+
+namespace Xyce {
+namespace Nonlinear {
+template <typename ScalarT>
+class objectiveFunctionData;
+}
+}
+
+class ROL_Objective;
 
 // ---------- ROL Includes ------------//
 
@@ -58,8 +69,8 @@
 
 // ------------ Xyce Includes -----------//
 
-#include <Xyce_config.h>
 #include <N_ANP_AnalysisManager.h>
+#include <N_ANP_ROL.h>
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_OutputMgrAdapter.h>
 
@@ -68,6 +79,7 @@
 #include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>
+#include <N_LAS_Builder.h>
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h>
 #include <N_NLS_Sensitivity.h>
@@ -93,6 +105,87 @@ enum sensDiffMode
   SENS_CNT,
   NUM_DIFF_MODES
 };
+
+//-------------------------------------------------------------------------
+// Class         : ROL_DC
+// Purpose       : Thin inheritance layer of DCSweep class for ROL
+// Special Notes :
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 07/29/22
+//-------------------------------------------------------------------------
+class ROL_DC: public DCSweep
+{
+public:
+
+  ROL_DC(
+      AnalysisManager &analysis_manager, 
+      Nonlinear::Manager &nonlinear_manager,
+      Loader::Loader &loader, 
+      Linear::System & linear_system,
+      Topo::Topology & topology,
+      IO::InitialConditionsManager & initial_conditions_manager)
+  : DCSweep( analysis_manager, &linear_system, nonlinear_manager, loader, topology, initial_conditions_manager ),
+    analysisManager_( analysis_manager ),
+    nonlinearManager_( nonlinear_manager ),
+    loader_( loader ),
+    topology_( topology ),
+    initialConditionsManager_( initial_conditions_manager ),
+    linearSystem_( linear_system ),
+    outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
+    stepLoopSize_(0),
+    numParams_(0)
+  {}
+
+  virtual ~ROL_DC() { doFree(); }
+
+  void setSweepValue(int step);
+  bool doAllocations(int nc, int nz);
+  int  getLoopSize() { return dcLoopSize_; }
+  std::map< std::string, std::vector<std::string> >& getDataNamesMap() { return dataNamesMap_; }
+  std::map< std::string, std::vector< std::vector<double> > >& getDataTablesMap() { return dataTablesMap_; }
+
+  bool setAnalysisParams(const std::vector<Util::OptionBlock>& paramsBlock);
+  bool createObjectives(const std::vector<ROL_Objective>& objVec);
+
+  using DCSweep::setTimeIntegratorOptions;
+
+  using DCSweep::doFinish;
+  using DCSweep::doLoopProcess;
+  using DCSweep::doProcessFailedStep;
+  using DCSweep::doHandlePredictor;
+
+  bool doInit();
+  bool doProcessSuccessfulStep();
+
+  Teuchos::RCP<::ROL::Objective_SimOpt<RealT> > obj_;
+
+  std::vector<Linear::Vector *>         solutionPtrVector_;
+  std::vector<Linear::Vector *>         statePtrVector_;
+  std::vector<Linear::Vector *>         constraintPtrVector_;
+  std::vector<Linear::Vector *>         mydfdpPtrVector_;
+  std::vector<Linear::Vector *>         mydqdpPtrVector_;
+  std::vector<Linear::Vector *>         mydbdpPtrVector_;
+  std::vector<Linear::Vector *>         mysensRHSPtrVector_;
+
+protected:
+  using DCSweep::doRun;
+
+private:
+  bool doFree();
+
+  std::vector<ROL_Objective>            objVec_;
+
+  AnalysisManager &                     analysisManager_;
+  Nonlinear::Manager &                  nonlinearManager_; // TT
+  Loader::Loader &                      loader_;
+  Topo::Topology &                      topology_;
+  IO::InitialConditionsManager &        initialConditionsManager_;
+  Linear::System &                      linearSystem_;
+  OutputMgrAdapter &                    outputManagerAdapter_;
+  int                                   stepLoopSize_;
+  int                                   numParams_;
+};
+
 
 // **************** EqualityConstraint class *************************************//
 
@@ -1168,32 +1261,32 @@ private:
 
 public: 
   
-  Objective_DC_L2Norm(Real alpha, int ns, int nz)
+  Objective_DC_L2Norm(Real alpha, int ns, int nz, std::vector<ROL_Objective_Arg<Real> >& objArgs)
   {
     ns_ = ns; // number of sources (same as number of constraints)
     nz_ = nz; // number of optimization variables
     alpha_ = alpha;
-    solindex_ = 0; // 0 for diode_forTimur, 1 for diopde, 2 for diode_direct, 5 for vbic (collector current)
     Imeas_ = Teuchos::rcp(new std::vector<Real>(ns_,0.0));
-    Real temp;
-    std::ifstream measurements("measurementsDC.txt");
-    std::cout << "Reading measurements" << std::endl;
-    if (measurements.is_open())
+
+    for ( int iObj = 0; iObj < objArgs.size(); ++iObj )
     {
-      for (int i=0;i<ns_;i++)
+      // Check if the argument points at data from .DATA or a solution index
+      if (objArgs[iObj].objDataPtr != 0)
       {
-        measurements >> temp;
-        measurements >> temp;
-        (*Imeas_)[i] = temp;
+        int index = objArgs[iObj].objIndex;
+        std::vector< std::vector< double > > & dataPtr = *(objArgs[iObj].objDataPtr);
+        if ( dataPtr.size() != ns_ )  
+          Report::UserError0() << "ROL DC data objective is not the same dimension as the number of constraints: " << ns_;
+        for (int i=0; i<ns_; ++i)
+        {
+          (*Imeas_)[i] = dataPtr[i][index];
+        }
+      }
+      else
+      {
+        solindex_ = objArgs[iObj].objIndex;
       }
     }
-    else
-    {
-      std::cout << "Could not open measurements file" << std::endl;
-      return;
-    }
-    measurements.close();
-    
   }
     
   Real value(const ::ROL::Vector<Real> &u, 

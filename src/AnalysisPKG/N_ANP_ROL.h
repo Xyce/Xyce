@@ -41,12 +41,19 @@
 #include <N_ANP_AnalysisBase.h>
 #include <N_ANP_AnalysisManager.h> 
 #include <N_ANP_RegisterAnalysis.h>
-#include <N_ANP_DCSweep.h>
+#include <N_IO_OptionBlock.h>
+
+namespace Xyce {
+namespace Nonlinear {
+
+template <typename ScalarT>
+class objectiveFunctionData;
+}
+}
 
 namespace Xyce {
 namespace Analysis {
 
-class ROL_DC;
 class ROL_Objective;
 
 typedef double RealT;
@@ -91,6 +98,7 @@ public:
   // Method to set ROL options
   bool setROLOptions(const Util::OptionBlock & option_block);
   bool setROLObjectives(const std::vector<Util::OptionBlock>& option_block);
+  bool setOptParams();
 
   // Method to set ROL DC description
   bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
@@ -135,17 +143,20 @@ private:
   std::string                           paramFile_;  // Name of file with parameters and bounds
   std::string                           rolParamFile_;  // Name of file with parameters and bounds
   std::string                           outputFile_;  // Name of file containing ROL output
-  int                                   objType_;   // Objective type
 
   AnalysisBase *                        currentAnalysisObject_;
 
   std::vector<ROL_Objective>            rolDCObjVec_;
 
-  std::vector<double>                   objectiveVec_;
-  std::vector<double>                   dOdpVec_;
-  std::vector<double>                   dOdpAdjVec_;
-  std::vector<double>                   scaled_dOdpVec_;
-  std::vector<double>                   scaled_dOdpAdjVec_;
+  std::vector<RealT>                    zInitValue_;
+  std::vector<RealT>                    zLowerBoundVector_;
+  std::vector<RealT>                    zUpperBoundVector_;
+
+  std::vector<RealT>                    objectiveVec_;
+  std::vector<RealT>                    dOdpVec_;
+  std::vector<RealT>                    dOdpAdjVec_;
+  std::vector<RealT>                    scaled_dOdpVec_;
+  std::vector<RealT>                    scaled_dOdpAdjVec_;
 
   Util::OptionBlock                     saved_lsOB_;  // Linear solver options
   Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
@@ -158,93 +169,35 @@ private:
 //-------------------------------------------------------------------------
 // Class         : ROL_Objective
 // Purpose       : Describe ROL objective
-// Special Notes :
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
-// Creation Date : 01/24/08
 //-------------------------------------------------------------------------
 class ROL_Objective
 {
   public:
-    int objType_;              // Internal objective type, not supported by SENS (ex. data fitting)
-    int sensTag_;              // Objective is tied to a .SENS statement, with same tag
-    int objTag_;               // ROL objective tag, useful for combining objectives
-
-  ROL_Objective()
-  : objType_(-1),
-    sensTag_(-1),
-    objTag_(-1)
-  {}
+    std::string objType_;                // Internal objective type, not supported by SENS (ex. data fitting)
+    std::string objTag_;                 // ROL objective tag, useful for combining objectives
+    std::vector<std::string> objArgs_;   // Objective arguments
+ 
+  ROL_Objective() {}
 
   virtual ~ROL_Objective() {}
 };
 
-bool registerROLFactory(FactoryBlock &factory_block);
-
-class ROL_DC: public DCSweep
+template<class Real>
+class ROL_Objective_Arg
 {
-public:
-
-  ROL_DC(
-      AnalysisManager &analysis_manager, 
-      Nonlinear::Manager &nonlinear_manager,
-      Loader::Loader &loader, 
-      Linear::System & linear_system,
-      Topo::Topology & topology,
-      IO::InitialConditionsManager & initial_conditions_manager)
-  : DCSweep( analysis_manager, &linear_system, nonlinear_manager, loader, topology, initial_conditions_manager ),
-    analysisManager_( analysis_manager ),
-    nonlinearManager_( nonlinear_manager ),
-    loader_( loader ),
-    topology_( topology ),
-    initialConditionsManager_( initial_conditions_manager ),
-    linearSystem_( linear_system ),
-    outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
-    stepLoopSize_(0),
-    numParams_(0)
-  {} 
+  public:
+    int objIndex;  // either the solution vector index or data column index
+    std::vector< std::vector< double > > *  objDataPtr;  // point to input data, don't delete!
    
-  virtual ~ROL_DC() { doFree(); }
-
-  void setSweepValue(int step);
-  bool doAllocations(int nc, int nz);
-  int  getLoopSize() { return dcLoopSize_; }
-
-  bool setAnalysisParams(const std::vector<Util::OptionBlock>& paramsBlock);
-
-  using DCSweep::setTimeIntegratorOptions;
-
-  using DCSweep::doFinish;
-  using DCSweep::doLoopProcess;
-  using DCSweep::doProcessFailedStep;
-  using DCSweep::doHandlePredictor;
-
-  bool doInit();
-  bool doProcessSuccessfulStep();
-
-  std::vector<Linear::Vector *>         solutionPtrVector_;
-  std::vector<Linear::Vector *>         statePtrVector_;
-  std::vector<Linear::Vector *>         constraintPtrVector_;
-  std::vector<Linear::Vector *>         mydfdpPtrVector_;
-  std::vector<Linear::Vector *>         mydqdpPtrVector_;
-  std::vector<Linear::Vector *>         mydbdpPtrVector_;
-  std::vector<Linear::Vector *>         mysensRHSPtrVector_;
-
-protected:
-  using DCSweep::doRun;
-
-private:
-  bool doFree();
-
-  AnalysisManager &                     analysisManager_;
-  Nonlinear::Manager &                  nonlinearManager_; // TT
-  Loader::Loader &                      loader_;
-  Topo::Topology &                      topology_;
-  IO::InitialConditionsManager &        initialConditionsManager_;
-  Linear::System &                      linearSystem_;
-  OutputMgrAdapter &                    outputManagerAdapter_;
-  int                                   stepLoopSize_;
-  int                                   numParams_;
+  ROL_Objective_Arg()
+  : objIndex(-1),
+    objDataPtr(0)
+  {}
+    
+  virtual ~ROL_Objective_Arg() {}
 };
+
+bool registerROLFactory(FactoryBlock &factory_block);
 
 } // namespace Analysis
 } // namespace Xyce

@@ -163,14 +163,14 @@ private:
   std::vector<double>                   scaled_dOdpVec_;
   std::vector<double>                   scaled_dOdpAdjVec_;
 
-  std::map< std::string, std::vector<std::string> > dataNamesMap_;
-  std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;
-
   std::vector < AnalysisBase * > parentAnalysisPtrVec_;
 
 protected:
   int                                   dcLoopSize_;
   SweepVector                           dcSweepVector_;
+
+  std::map< std::string, std::vector<std::string> > dataNamesMap_;
+  std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;
 
 };
 
