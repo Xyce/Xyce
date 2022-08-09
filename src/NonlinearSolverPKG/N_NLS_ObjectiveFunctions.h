@@ -52,8 +52,12 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 
+#include <N_TIA_DataStore.h>
 #include <N_LAS_System.h>
+#include <N_LAS_Builder.h>
 #include <N_TOP_Topology.h>
+
+#include <N_IO_CmdParse.h>
 
 namespace Xyce {
 namespace Nonlinear {
