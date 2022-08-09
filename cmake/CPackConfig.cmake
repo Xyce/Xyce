@@ -4,6 +4,8 @@ install ( FILES ${Xyce_SOURCE_DIR}/distribution/README.TXT
             DESTINATION doc
             OPTIONAL COMPONENT Documentation )
 
+# install optionally specified libraries (mainly to support Intel MKL issues)
+install ( FILES ${Xyce_INSTALL_EXTRA_LIBS} DESTINATION lib COMPONENT Core )
 
 #Use a build-appropriate license file:
 if ( Xyce_RAD_MODELS )
