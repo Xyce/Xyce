@@ -58,6 +58,7 @@
 #include <N_TOP_Topology.h>
 
 #include <N_IO_CmdParse.h>
+#include <N_IO_OutputMgr.h>
 
 namespace Xyce {
 namespace Nonlinear {
