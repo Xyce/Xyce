@@ -39,16 +39,16 @@
 
 // ----------   Xyce Includes   ----------
 #include <Xyce_config.h>
-#include <N_CIR_Xyce.h>
+#include <N_CIR_GenCouplingSimulator.h>
 #include <N_DEV_Device.h>
-#include <N_DEV_Algorithm.h>
+//#include <N_DEV_Algorithm.h>
 #include <N_DEV_ADC.h>
 
 #include <N_CIR_XyceCInterface.h>
 
 //-----------------------------------------------------------------------------
 // Function      : xyce_open
-// Purpose       : Create a pointer to an N_CIR_Xyce object (whose class name 
+// Purpose       : Create a pointer to an Xyce::Circuit::GenCouplingSimulator object (whose class name 
 //                 is Xyce::Circuit::Simulator). This function must be called 
 //                 before any of the other functions in this file are used.
 // Special Notes :
@@ -58,14 +58,14 @@
 //-----------------------------------------------------------------------------
 void xyce_open( void ** ptr)
 {
-  N_CIR_Xyce * xycePtr = new N_CIR_Xyce();
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = new Xyce::Circuit::GenCouplingSimulator();
   *ptr = xycePtr;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : xyce_close
 // Purpose       : Call the Xyce::Circuit::Simulator::finalize function via a 
-//                 pointer to an N_CIR_Xyce object. It then cleans up that 
+//                 pointer to an Xyce::Circuit::GenCouplingSimulator object. It then cleans up that 
 //                 pointer (that typically was created with the xyce_open 
 //                 function).
 // Special Notes :
@@ -75,7 +75,7 @@ void xyce_open( void ** ptr)
 //-----------------------------------------------------------------------------
 void xyce_close( void** ptr)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   xycePtr->finalize();
   delete xycePtr;
   *ptr = 0;
@@ -84,7 +84,7 @@ void xyce_close( void** ptr)
 //-----------------------------------------------------------------------------
 // Function      : xyce_initialize
 // Purpose       : Call the Xyce::Circuit::Simulator::initialize function via a 
-//                 pointer to an N_CIR_Xyce object. A typical use case is to 
+//                 pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is to 
 //                 create that pointer with the xyce_open() function.  The 
 //                 return values are Xyce::Circuit::Simulator::RunStatus enum 
 //                 values.
@@ -93,18 +93,34 @@ void xyce_close( void** ptr)
 // Creator       : Rich Schiek, SNL, Electrical Models and Simulation
 // Creation Date : 3/01/2018
 //-----------------------------------------------------------------------------
+int xyce_initialize_early( void** ptr, int argc, char ** argv )
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  return( xycePtr->initializeEarly( argc, argv ) );
+}
+
+int xyce_initialize_late( void** ptr )
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  return( xycePtr->initializeLate() );
+}
+
 int xyce_initialize( void** ptr, int argc, char ** argv )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
-  return( xycePtr->initialize( argc, argv ) );
+  int run_status = xyce_initialize_early (ptr, argc, argv);
+  if ( run_status != Xyce::Circuit::Simulator::SUCCESS ) {
+    return run_status;
+  }
+  return xyce_initialize_late (ptr);
 }
+    
 
 //-----------------------------------------------------------------------------
 // Function      : xyce_runSimulation
 // Purpose       : Call the Xyce::Circuit::Simulator::runSimulation function via 
-//                 a pointer to an N_CIR_Xyce object. A typical use case is to 
+//                 a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is to 
 //                 create that pointer with the xyce_open() function, and to then 
-//                 initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function.
 // Special Notes :
 // Scope         : public
@@ -113,16 +129,16 @@ int xyce_initialize( void** ptr, int argc, char ** argv )
 //-----------------------------------------------------------------------------
 int xyce_runSimulation(void ** ptr)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   return(xycePtr->runSimulation());
 }
 
 //-----------------------------------------------------------------------------
 // Function      : xyce_simulateUntil
 // Purpose       : Call the Xyce::Circuit::Simulator::simulateUntil function
-//                 via a pointer to an N_CIR_Xyce object. A typical use case is 
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is 
 //                 to create that pointer with the xyce_open() function, and to 
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function.  This function will
 //                 return 0 if the simulation failed, because of an issue such as
 //                 a DCOP failure.  See the "Application Note: Mixed Signal 
@@ -137,7 +153,7 @@ int xyce_runSimulation(void ** ptr)
 //-----------------------------------------------------------------------------
 int xyce_simulateUntil(  void **ptr, double requestedUntilTime, double* completedUntilTime )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   double cTime;
   bool retVal = xycePtr->simulateUntil( requestedUntilTime,  cTime);
   *completedUntilTime =cTime;
@@ -149,9 +165,9 @@ int xyce_simulateUntil(  void **ptr, double requestedUntilTime, double* complete
 //-----------------------------------------------------------------------------
 // Function      : xyce_getNumDevices
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
-//                 via a pointer to an N_CIR_Xyce object. A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  This function is then
 //                 typically used to get the number for devices (of the requested
 //                 type) before a subsequent call to xyce_getNumDevices(),
@@ -166,7 +182,7 @@ int xyce_simulateUntil(  void **ptr, double requestedUntilTime, double* complete
 //-----------------------------------------------------------------------------
 int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int* maxDevNameLength)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   const std::string modelGroupNameString( modelGroupName );
   std::vector<std::string> deviceNamesVec;
   bool retVal = xycePtr->getDeviceNames(modelGroupNameString , deviceNamesVec);
@@ -187,9 +203,9 @@ int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int*
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTotalNumDevices
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
-//                 via a pointer to an N_CIR_Xyce object. A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  This function is then
 //                 typically used to get the total number for devices in the
 //                 netlist before a subsequent call to xyce_getAllDeviceNames().
@@ -202,7 +218,7 @@ int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int*
 //-----------------------------------------------------------------------------
 int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::vector<std::string> deviceNamesVec;
   int retVal = xycePtr->getAllDeviceNames(deviceNamesVec);
 
@@ -222,9 +238,9 @@ int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength)
 //-----------------------------------------------------------------------------
 // Function      : xyce_getDeviceNames
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
-//                 via a pointer to an N_CIR_Xyce object. A typical use case is 
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is 
 //                 to create that pointer with the xyce_open() function, and to 
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function.  The modelGroupName can
 //                 be any valid model group name (e.g., "M" for MOSFETs, "Q" for 
 //                 BJTs, etc.).  As other examples, for Y devices, "YDAC" and not "DAC"
@@ -240,7 +256,7 @@ int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength)
 //-----------------------------------------------------------------------------
 int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, char ** deviceNames)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   const std::string modelGroupNameString( modelGroupName );
   std::vector<std::string> deviceNamesVec;
   bool retVal = xycePtr->getDeviceNames(modelGroupNameString , deviceNamesVec);
@@ -256,9 +272,9 @@ int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, ch
 //-----------------------------------------------------------------------------
 // Function      : xyce_getAllDeviceNames
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
-//                 via a pointer to an N_CIR_Xyce object. A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  The deviceNames parameter
 //                 will then contain the fully-qualifed names of all the devices
 //                 in the netlist.  Return 0 if there are no devices in the netlist.
@@ -269,7 +285,7 @@ int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, ch
 //-----------------------------------------------------------------------------
 int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::vector<std::string> deviceNamesVec;
   bool retVal = xycePtr->getAllDeviceNames(deviceNamesVec);
 
@@ -284,10 +300,10 @@ int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 //-----------------------------------------------------------------------------
 // Function      : xyce_getDACDeviceNames
 // Purpose       : Call the Xyce::Circuit::Simulator::getDACDeviceNames 
-//                 function via a pointer to an N_CIR_Xyce object. So, it is
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. So, it is
 //                 basically a specialized version of xyce_getDeviceNames. 
 //                 A typical use case is to create that pointer with the 
-//                 xyce_open() function, and to then initialize the N_CIR_Xyce 
+//                 xyce_open() function, and to then initialize the Xyce::Circuit::GenCouplingSimulator 
 //                 object with the xyce_initialize() function before using this 
 //                 function.  Return 1 if any YDAC devices exist in the netlist. 
 //                 Return 0 otherwise.
@@ -298,7 +314,7 @@ int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 //-----------------------------------------------------------------------------
 int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::vector<std::string> deviceNamesVec;
   bool retVal= xycePtr->getDACDeviceNames( deviceNamesVec );
 
@@ -313,9 +329,9 @@ int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 //-----------------------------------------------------------------------------
 // Function      : xyce_checkDeviceParamName
 // Purpose       : Call the Xyce::Circuit::Simulator::checkDeviceParamName function
-//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  The full_param_name
 //                 should be identical to that used on a .PRINT line; so X1:R1:R
 //                 for the resistance (R) of device R1 that is in subcircuit X1.
@@ -329,7 +345,7 @@ int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 //-----------------------------------------------------------------------------
 int xyce_checkDeviceParamName(void **ptr, char* full_param_name)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string full_param_nameStr( full_param_name);
   int result = xycePtr->checkDeviceParamName( full_param_nameStr );
   return result;
@@ -338,9 +354,9 @@ int xyce_checkDeviceParamName(void **ptr, char* full_param_name)
 //-----------------------------------------------------------------------------
 // Function      : xyce_getDeviceParamVal
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceParamVal function
-//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  The full_param_name
 //                 should be identical to that used on a .PRINT line; so X1:R1:R
 //                 for the resistance (R) of device R1 that is in subcircuit X1.
@@ -355,7 +371,7 @@ int xyce_checkDeviceParamName(void **ptr, char* full_param_name)
 //-----------------------------------------------------------------------------
 int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string full_param_nameStr( full_param_name);
   double pVal;
   int result = xycePtr->getDeviceParamVal( full_param_nameStr, pVal );
@@ -372,9 +388,9 @@ int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
 //-----------------------------------------------------------------------------
 // Function      : xyce_getNumAdjNodesForDevice
 // Purpose       : Call the Xyce::Circuit::Simulator::getNumAdjNodesForDevice function
-//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  The device name should be
 //                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
 //                 This function returns 1 if the device that exists in the netlist.
@@ -387,7 +403,7 @@ int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
 //-----------------------------------------------------------------------------
 int xyce_getNumAdjNodesForDevice(void **ptr, char * deviceName, int* numAdjNodes)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string deviceName_str(deviceName);
   int mNumAdjNodes;
 
@@ -400,9 +416,9 @@ int xyce_getNumAdjNodesForDevice(void **ptr, char * deviceName, int* numAdjNodes
 //-----------------------------------------------------------------------------
 // Function      : xyce_getAdjGIDsForDevice
 // Purpose       : Call the Xyce::Circuit::Simulator::getAdjGIDsForDevice function
-//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 via a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is
 //                 to create that pointer with the xyce_open() function, and to
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize()
 //                 function before using this function.  The device name should be
 //                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
 //                 This function returns 1 if the device that exists in the netlist.
@@ -416,7 +432,7 @@ int xyce_getNumAdjNodesForDevice(void **ptr, char * deviceName, int* numAdjNodes
 //-----------------------------------------------------------------------------
 int xyce_getAdjGIDsForDevice(void **ptr, char * deviceName, int* numAdjNodes, int* adjGIDs)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string deviceName_str(deviceName);
   std::vector<int> gids;
 
@@ -434,9 +450,9 @@ int xyce_getAdjGIDsForDevice(void **ptr, char * deviceName, int* numAdjNodes, in
 //-----------------------------------------------------------------------------
 // Function      : xyce_getADCmap
 // Purpose       : Call the Xyce::Circuit::Simulator::getADCMap function via
-//                 a pointer to an N_CIR_Xyce object. A typical use case is to
+//                 a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical use case is to
 //                 create that pointer with the xyce_open() function, and to 
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function. This function will 
 //                 return 1 if any YADC devices exist in the netlist. It will 
 //                 return 0 otherwise. 
@@ -448,7 +464,7 @@ int xyce_getAdjGIDsForDevice(void **ptr, char * deviceName, int* numAdjNodes, in
 int xyce_getADCMap(void ** ptr, int* numADCnames, char ** ADCnames, int *  widths, double * resistances,
                    double * upperVLimits, double * lowerVLimits, double * settlingTimes)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::map<std::string, std::map<std::string, double> > ADCMap;
 
   int status = xycePtr->getADCMap(ADCMap);
@@ -473,9 +489,9 @@ int xyce_getADCMap(void ** ptr, int* numADCnames, char ** ADCnames, int *  width
 //-----------------------------------------------------------------------------
 // Function      : xyce_updateTimeVoltagePairs
 // Purpose       : Call the Xyce::Circuit::Simulator::updateTimeVoltagePairs 
-//                 function via a pointer to an N_CIR_Xyce object. A typical 
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical 
 //                 use case is to create that pointer with the xyce_open() 
-//                 function, and to then initialize the N_CIR_Xyce object with 
+//                 function, and to then initialize the Xyce::Circuit::GenCouplingSimulator object with 
 //                 the xyce_initialize() function before using this function. 
 //                 See the "Application Note: Mixed Signal Simulation with 
 //                 Xyce" for a discussion of how to use this function. This 
@@ -489,7 +505,7 @@ int xyce_getADCMap(void ** ptr, int* numADCnames, char ** ADCnames, int *  width
 //-----------------------------------------------------------------------------
 int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, double * timeArray, double * voltageArray)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
 
   std::string name(DACname);
   std::map< std::string, std::vector<std::pair<double,double> > *> timePointsMap;
@@ -513,9 +529,9 @@ int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, doub
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeVoltagePairsADC 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeVoltagePairs
-//                 function via a pointer to an N_CIR_Xyce object. A typical 
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical 
 //                 use case is to create that pointer with the xyce_open() 
-//                 function, and to then initialize the N_CIR_Xyce object with 
+//                 function, and to then initialize the Xyce::Circuit::GenCouplingSimulator object with 
 //                 the xyce_initialize() function before using this function. 
 //                 See the "Application Note: Mixed Signal Simulation with 
 //                 Xyce" for a discussion of how to use this function. This 
@@ -529,7 +545,7 @@ int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, doub
 //-----------------------------------------------------------------------------
 int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames, int * numPoints, double ** timeArray, double ** voltageArray )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
  
   std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
   int status = xycePtr->getTimeVoltagePairs( timeVoltageUpdateMap );
@@ -564,14 +580,14 @@ int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeVoltagePairsADCsz 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeVoltagePairsSz()
-//                 function via a pointer to an N_CIR_Xyce object.
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object.
 // Scope         : public
 // Creator       : 
 // Creation Date : 11/11/2021
 //-----------------------------------------------------------------------------
 int xyce_getTimeVoltagePairsADCsz( void** ptr, int *maxPoints )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
 
   int maxPts;
   
@@ -586,7 +602,7 @@ int xyce_getTimeVoltagePairsADCsz( void** ptr, int *maxPoints )
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeVoltagePairsADCLimitData
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeVoltagePairs
-//                 function via a pointer to an N_CIR_Xyce object but limit the
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object but limit the
 //                 returned data assuming the maximum dimensions of the arras are:
 //                 ADCnamesArray[maxNumADCnames][maxNameLength]
 //                 timeArray[maxNumADCnames][maxNumPoints]
@@ -599,7 +615,7 @@ int xyce_getTimeVoltagePairsADCsz( void** ptr, int *maxPoints )
 //                 Using numPointsArray allows the calling program to know the 
 //                 number of valid points in the time and voltage arrays. 
 //                 A typical use case is to create that pointer with the 
-//                 xyce_open() function, and to then initialize the N_CIR_Xyce 
+//                 xyce_open() function, and to then initialize the Xyce::Circuit::GenCouplingSimulator 
 //                 object with the xyce_initialize() function before using this 
 //                 function.  Also, precallocation of the arrays ADCnamesArray,
 //                 timeArray, voltageArray and numPointsArray is REQUIRED.
@@ -617,7 +633,7 @@ int xyce_getTimeVoltagePairsADCLimitData( void** ptr,
   const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
   int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, double ** voltageArray )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   
   std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
   int status = xycePtr->getTimeVoltagePairs( timeVoltageUpdateMap );
@@ -668,9 +684,9 @@ int xyce_getTimeVoltagePairsADCLimitData( void** ptr,
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeStatePairsADC 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeStatePairs
-//                 function via a pointer to an N_CIR_Xyce object. A typical 
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. A typical 
 //                 use case is to create that pointer with the xyce_open() 
-//                 function, and to then initialize the N_CIR_Xyce object with 
+//                 function, and to then initialize the Xyce::Circuit::GenCouplingSimulator object with 
 //                 the xyce_initialize() function before using this function. 
 //                 See the "Application Note: Mixed Signal Simulation with 
 //                 Xyce" for a discussion of how to use this function. This 
@@ -684,7 +700,7 @@ int xyce_getTimeVoltagePairsADCLimitData( void** ptr,
 //-----------------------------------------------------------------------------
 int xyce_getTimeStatePairsADC( void** ptr, int * numADCnames, char ** ADCnames, int * numPoints, double ** timeArray, int ** stateArray )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
  
   std::map< std::string, std::vector< std::pair<double,int> > > timeStateUpdateMap;
   int status = xycePtr->getTimeStatePairs( timeStateUpdateMap );
@@ -719,7 +735,7 @@ int xyce_getTimeStatePairsADC( void** ptr, int * numADCnames, char ** ADCnames, 
 //-----------------------------------------------------------------------------
 // Function      : xyce_getTimeStatePairsADCLimitData 
 // Purpose       : Call the Xyce::Circuit::Simulator::getTimeStatePairs
-//                 function via a pointer to an N_CIR_Xyce object but limit the
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object but limit the
 //                 returned data assuming the maximum dimensions of the arras are:
 //                 ADCnamesArray[maxNumADCnames][maxNameLength]
 //                 timeArray[maxNumADCnames][maxNumPoints]
@@ -732,7 +748,7 @@ int xyce_getTimeStatePairsADC( void** ptr, int * numADCnames, char ** ADCnames, 
 //                 Using numPointsArray allows the calling program to know the 
 //                 number of valid points in the time and voltage arrays. 
 //                 A typical use case is to create that pointer with the 
-//                 xyce_open() function, and to then initialize the N_CIR_Xyce 
+//                 xyce_open() function, and to then initialize the Xyce::Circuit::GenCouplingSimulator 
 //                 object with the xyce_initialize() function before using this 
 //                 function.  Also, precallocation of the arrays ADCnamesArray,
 //                 timeArray, voltageArray and numPointsArray is REQUIRED.
@@ -744,7 +760,7 @@ int xyce_getTimeStatePairsADCLimitData( void** ptr,
   const int maxNumADCnames, const int maxNameLength, const int maxNumPoints,
   int * numADCnames, char ** ADCnamesArray, int * numPointsArray, double ** timeArray, int ** stateArray )
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
  
   std::map< std::string, std::vector< std::pair<double,int> > > timeStateUpdateMap;
   int status = xycePtr->getTimeStatePairs( timeStateUpdateMap );
@@ -795,9 +811,9 @@ int xyce_getTimeStatePairsADCLimitData( void** ptr,
 //-----------------------------------------------------------------------------
 // Function      : xyce_setADCWidths
 // Purpose       : Call the Xyce::Circuit::Simulator::setADCWidths function via 
-//                 a pointer to an N_CIR_Xyce object.  A typical use case is to 
+//                 a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is to 
 //                 create that pointer with the xyce_open() function, and to 
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function.  This function will 
 //                 return 1 if the “output bit-vector width” is successfully 
 //                 updated at every ADC specified in the ADCnames parameter. 
@@ -810,7 +826,7 @@ int xyce_getTimeStatePairsADCLimitData( void** ptr,
 //-----------------------------------------------------------------------------
 int xyce_setADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  widths) 
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   
   std::map<std::string, int> ADCWidthMap;
   for( int i=0; i<numADCnames; i++ )
@@ -825,9 +841,9 @@ int xyce_setADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  wid
 //-----------------------------------------------------------------------------
 // Function      : xyce_getADCWidths
 // Purpose       : Call the Xyce::Circuit::Simulator::getADCWidths function via 
-//                 a pointer to an N_CIR_Xyce object.  A typical use case is to 
+//                 a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is to 
 //                 create that pointer with the xyce_open() function, and to 
-//                 then initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 then initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function.  This function will 
 //                 return 1 if the “output bit-vector width” is successfully 
 //                 found for every ADC specified in the ADCnames parameter. 
@@ -840,7 +856,7 @@ int xyce_setADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  wid
 //-----------------------------------------------------------------------------
 int xyce_getADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  widths) 
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::map<std::string, int> ADCWidthMap;
   for( int i=0; i<numADCnames; i++ )
   {
@@ -860,9 +876,9 @@ int xyce_getADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  wid
 //-----------------------------------------------------------------------------
 // Function      : xyce_checkResponseVar
 // Purpose       : Call the Xyce::Circuit::Simulator::checkResponseVar
-//                 function via a pointer to an N_CIR_Xyce object.  A typical 
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical 
 //                 use case is to create that pointer with the xyce_open() 
-//                 function, and to then initialize the N_CIR_Xyce object with 
+//                 function, and to then initialize the Xyce::Circuit::GenCouplingSimulator object with 
 //                 the xyce_initialize() function before using this function.
 //                 This function returns 1 if variable name is a valid measure 
 //                 name in the the Xyce simulation. Otherwise, it returns 0.
@@ -873,7 +889,7 @@ int xyce_getADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  wid
 //-----------------------------------------------------------------------------
 int xyce_checkResponseVar(void ** ptr, char * variable_name)
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string variable_nameStr( variable_name );
   int result = xycePtr->checkResponseVar(  variable_nameStr );
   return result;
@@ -882,9 +898,9 @@ int xyce_checkResponseVar(void ** ptr, char * variable_name)
 //-----------------------------------------------------------------------------
 // Function      : xyce_obtainResponse
 // Purpose       : Call the Xyce::Circuit::Simulator::obtainResponse function via
-//                 a pointer to an N_CIR_Xyce object.  A typical use case is to
+//                 a pointer to an Xyce::Circuit::GenCouplingSimulator object.  A typical use case is to
 //                 create that pointer with the xyce_open() function, and to then
-//                 initialize the N_CIR_Xyce object with the xyce_initialize() 
+//                 initialize the Xyce::Circuit::GenCouplingSimulator object with the xyce_initialize() 
 //                 function before using this function. The value parameter is
 //                 the value of the variable_name measure at the current sim 
 //                 time. If the Xyce simulation is done then the value parameter 
@@ -899,7 +915,7 @@ int xyce_checkResponseVar(void ** ptr, char * variable_name)
 //-----------------------------------------------------------------------------
 int xyce_obtainResponse(void ** ptr, char * variable_name, double* value) 
 {
-  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
   std::string variable_nameStr( variable_name );
   double mVal;
   int result = xycePtr->obtainResponse(  variable_nameStr,  mVal );
