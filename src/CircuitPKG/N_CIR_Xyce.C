@@ -1051,6 +1051,7 @@ Simulator::RunStatus Simulator::initializeEarly(
     outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());
     outputManager_->setMainContextGlobalParamMap(netlist_import_tool.getMainContextGlobalParams().begin(), netlist_import_tool.getMainContextGlobalParams().end());
+    deviceManager_->setEarlyNoiseFlag(netlist_import_tool.getAnalysisName()); 
 
     // if "-remeasure" was on the command line, then we don't need to
     // instantiate the devices.  We do need to partially allocate the
