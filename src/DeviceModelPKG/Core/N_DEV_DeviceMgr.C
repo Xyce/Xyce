@@ -792,21 +792,6 @@ void DeviceMgr::setSPAnalysisFlag(bool flagVal)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceMgr::setEarlyNoiseFlag
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : 
-// Creation Date : 
-//-----------------------------------------------------------------------------
-void DeviceMgr::setEarlyNoiseFlag(std::string analysisName)
-{
-  if (analysisName == "NOISE")
-    solState_.earlyNoiseFlag_ = true;
-
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setSPAnalysisFlag
 // Purpose       :
 // Special Notes :

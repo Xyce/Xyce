@@ -196,7 +196,6 @@ enum ParameterUnit
     U_VM,                  // V*m
     U_VM2,                 // V*m**2
     U_VM3,                 // V*m**3
-    U_VMX,                 // V*m**X
     U_VMM1,                // V/m
     U_VMM2,                // V/m**2
     U_VMM3,                // V/m**3

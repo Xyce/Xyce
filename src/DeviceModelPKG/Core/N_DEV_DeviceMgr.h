@@ -152,8 +152,6 @@ public:
 
   void setSPAnalysisFlag(bool flagVal);
 
-  void setEarlyNoiseFlag(std::string analysisName);
-
   void setDisableInitJctFlags(bool flag);
 
   // Initialization function, to be called after all registrations are
