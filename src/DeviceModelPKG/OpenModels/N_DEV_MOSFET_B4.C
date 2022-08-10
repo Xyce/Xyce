@@ -4877,10 +4877,7 @@ bool Instance::processParams ()
     UserWarning(*this) << "acnqsMod has been set to its global value: ";
   }
 
-  // now set the temperature related stuff.
-  updateTemperature(temp);
-
-  bool noiseAnalGiven=getSolverState().noiseFlag;
+  bool noiseAnalGiven=getSolverState().earlyNoiseFlag_;
 
   // process drain series resistance
   int createNode = 0;
@@ -4949,6 +4946,9 @@ bool Instance::processParams ()
   {
     sourceMOSFET_B4Exists = false;
   }
+
+  // now set the temperature related stuff.
+  updateTemperature(temp);
 
 
   // set up numIntVars:
@@ -8825,7 +8825,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
   }
 
   // Processing S/D resistance and conductance below
-  if (model_.rdsMod || sourceSquaresGiven)
+  if (sourceMOSFET_B4Exists)
   {
     sourceConductance = 0.0;
     if(sourceSquaresGiven)
@@ -8859,7 +8859,7 @@ bool Instance::updateTemperature (const double & temp_tmp)
     sourceConductance = 0.0;
   }
 
-  if (model_.rdsMod || drainSquaresGiven)
+  if (drainMOSFET_B4Exists)
   {
     drainConductance = 0.0;
     if(drainSquaresGiven)

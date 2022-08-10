@@ -137,6 +137,8 @@ public:
 
   bool spAnalysisFlag_;
 
+  bool earlyNoiseFlag_;
+
   // output flag:
   bool   doubleDCOPEnabled;   // true if taking 2 DCOP steps for PDE sim.
   int    doubleDCOPStep;      // 0 or 1.  (first or second "double" DCOP).
