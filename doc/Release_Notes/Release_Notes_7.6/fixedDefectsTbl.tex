@@ -24,13 +24,11 @@
 \small
 
 \begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
-     \caption{Fixed Defects.  Note that we have multiple issue
-     tracking systems for Sandia users.  SON, which bugzilla on the
-     open network, and SRN, which is bugzilla on the restricted
-     network.  We are also transitioning from bugzilla to gitlab issue
-     tracking.  Further, some issues are reported by open source users
-     on GitHub and these issues may be tracked using multiple issue
-     numbers.} \\ \hline
+     \caption{Fixed Defects.  The Xyce team has multiple issue
+     trackers, and the table below indicates fixed issues by
+     indentifying both the tracker and the issue number.  Further,
+     some issues are reported by open source users on GitHub and these
+     issues may be tracked using multiple issue numbers.} \\ \hline
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endfirsthead
      \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
@@ -64,6 +62,12 @@ That is now fixed. \\ \hline
 The C-interface to the C++ object N\_CIR\_Xyce did not have the needed
 files for building under CMake.  This issue has been resolved and the 
 C-interface is now built and installed as part of Xyce. \\ \hline
+
+\textbf{Xyce Project Backlog/302}: Xyce legacy MOSFETs do not recognize VT0 &
+Xyce did not properly recognize that VT0 should be an alias for VTO in
+the levels 1 through 6 legacy MOSFET devices.  These have been
+recognized by every SPICE derivative since SPICE3 (though were not
+recognized by SPICE2), and are now recognized by Xyce, too. \\ \hline
 
 \textbf{repo/issue number}: Short description placeholder &
 Description placeholder \\ \hline

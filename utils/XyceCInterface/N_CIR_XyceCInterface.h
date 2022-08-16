@@ -42,7 +42,9 @@ extern "C" {
 
 void xyce_open( void** ptr );
 void xyce_close( void** ptr);
+int xyce_initialize_early( void** ptr, int narg, char ** argv);
 int xyce_initialize( void** ptr, int narg, char ** argv);
+int xyce_initialize_late( void** ptr );
 
 int xyce_runSimulation(void ** ptr);
 

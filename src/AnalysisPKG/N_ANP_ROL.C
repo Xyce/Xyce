@@ -43,6 +43,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_LOA_Loader.h>
 #include <N_NLS_Manager.h> // TT: was not included
+#include <N_NLS_ObjectiveFunctions.h>
 #include <N_TIA_DataStore.h>
 #include <N_TIA_StepErrorControl.h>
 #include <N_TIA_WorkingIntegrationMethod.h> // TT: was not included
@@ -52,6 +53,8 @@
 #include <N_UTL_Factory.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
+#include <N_UTL_Expression.h>
+#include <N_UTL_ExpressionData.h>
 #include <N_ERH_Message.h>
 
 #include <N_TOP_Topology.h>
@@ -119,7 +122,6 @@ ROL::ROL(
     paramFile_("parameters.txt"),
     rolParamFile_("input.xml"),
     outputFile_("rol_output.txt"),
-    objType_(-1),
     currentAnalysisObject_(0)
 {}
 
@@ -165,6 +167,52 @@ bool ROL::setROLOptions( const Util::OptionBlock & option_block)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ROL::setOptParams
+// Purpose       :
+// Special Notes : These are from a file
+// Scope         : public
+// Creator       :
+// Creation Date : 2/4/2022
+//-----------------------------------------------------------------------------
+bool ROL::setOptParams()
+{
+  // Read in z's param names, initial guess and upper and lower bounds.
+  std::ifstream param_file;
+  std::string deviceName,paramName,dummy;
+  RealT temp;
+  numParams_ = 0;
+  paramNameVec_.clear();
+  param_file.open(paramFile_.c_str(), std::ifstream::in);
+  if ( param_file.fail() )
+  {
+    Report::UserError0() << "Cannot open the ROL parameter file: " << paramFile_;
+    return false;
+  }
+  else
+  {
+    getline(param_file,dummy); // skip the first line
+    while (true)
+    {
+      if(!(param_file >> deviceName)) break;
+      if(!(param_file >> paramName)) break;
+      paramName = deviceName+":"+paramName;
+      paramNameVec_.push_back(paramName);
+      if(!(param_file >> temp)) break; // init guess
+      zInitValue_.push_back(temp);
+      if(!(param_file >> temp)) break; // lo bound
+      zLowerBoundVector_.push_back(temp);
+      if(!(param_file >> temp)) break; // up bound
+      zUpperBoundVector_.push_back(temp);
+
+      numParams_ += 1;
+    }
+    param_file.close();
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ROL::run()
 // Purpose       : This is the main controlling loop for ROL analysis.
 //
@@ -194,6 +242,7 @@ bool ROL::doInit()
 
   if (sensFlag_)
   {
+    std::cout << "Sens flag has been enabled!" << std::endl;
     Stats::StatTop _sensitivityStat("Sensitivity");
 
     nonlinearManager_.enableSensitivity(
@@ -204,10 +253,6 @@ bool ROL::doInit()
         outputManagerAdapter_.getOutputManager(),
         numSensParams_);
   }
-
-  std::cout << "DC objectives: " << rolDCObjVec_.size() << std::endl;
-  if (rolDCObjVec_.size())
-    objType_ = rolDCObjVec_[0].objType_; 
 
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
@@ -287,52 +332,21 @@ bool ROL::doLoopProcess()
     }
     dc_sweep.doInit();
     stepLoopSize_ = dc_sweep.getLoopSize();
- 
+
     // Number of simulation variables
     int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
     int nc = stepLoopSize_;  // Number of constraints.
 
     RealT tol = 1.e-12;
-   
+  
     // STEP 1A: Initialize vectors.  //////////////////////////////////////////
 
-    // Read in z's param names, initial guess and upper and lower bounds.
-    std::ifstream param_file;
-    std::string deviceName,paramName,dummy;
-    std::vector<RealT> zInitValue, zLowerBoundVector, zUpperBoundVector;
-    RealT temp;
-    numParams_ = 0; 
-    paramNameVec_.clear();
-    param_file.open(paramFile_.c_str(), std::ifstream::in);
-    if ( param_file.fail() )
-    {
-      Report::UserError0() << "Cannot open the ROL parameter file: " << paramFile_;
-      return false;
-    }
-    else
-    {
-      getline(param_file,dummy); // skip the first line
-      while (true)
-      {
-        if(!(param_file >> deviceName)) break;
-        if(!(param_file >> paramName)) break;
-        paramName = deviceName+":"+paramName;
-        paramNameVec_.push_back(paramName);
-        if(!(param_file >> temp)) break; // init guess
-        zInitValue.push_back(temp);
-        if(!(param_file >> temp)) break; // lo bound
-        zLowerBoundVector.push_back(temp);
-        if(!(param_file >> temp)) break; // up bound
-        zUpperBoundVector.push_back(temp);
-
-        numParams_ += 1;
-      }
-      param_file.close();
-    }
+    // Set the parameter bounds.
+    setOptParams();
 
     // Configure the optimization vector.
     int nz = numParams_;     // Number of optimization variables                                           
-    auto p = ::ROL::makePtr<  std::vector   <RealT>>(zInitValue);
+    auto p = ::ROL::makePtr<  std::vector   <RealT>>(zInitValue_);
     auto z = ::ROL::makePtr<::ROL::StdVector<RealT>>(p);
     // p := pointer to a standard vector representing z
 
@@ -386,17 +400,12 @@ bool ROL::doLoopProcess()
 
     // STEP 3: Build our objective.  /////////////////////////////////////////
 
-    // Create a full space objective (as well as a penalty when solving the
-    // amplifier problem).
-    // 0 - L2Norm, 1 - amplifier circuit
+    dc_sweep.createObjectives( rolDCObjVec_ );
+    
+    // Get the objective from dc_sweep object
     Teuchos::RCP<::ROL::Objective_SimOpt<RealT> > obj, pen;
-    if (objType_ == 0)
-      obj = ::ROL::makePtr<Objective_DC_L2Norm<RealT>>(1.0e-4, nc, nz);
-    else if (objType_ == 1)
-      obj = ::ROL::makePtr<Objective_DC_AMP<RealT>>(nc, nz);
-    else
-      Report::UserError0() << "ROL: Objective type " << objType_ << " is not recognized";
-   
+    obj = dc_sweep.obj_;
+
     // Create a reduced objective (and penalty) from the full space counterpart.
     auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l, false);
 
@@ -431,7 +440,7 @@ bool ROL::doLoopProcess()
 
     // std::cout << std::scientific << "Scaling: " << scale << "\n";
     
-    auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector, zUpperBoundVector);
+    auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector_, zUpperBoundVector_);
     
     // STEP 5A: Define the optimization problem.  /////////////////////////////
 
@@ -557,15 +566,15 @@ bool ROL::setROLObjectives(const std::vector<Util::OptionBlock>& OB)
       }   
       else if ( tag == "OBJ_TYPE" )
       {
-        new_obj.objType_ = it->getImmutableValue<int>();
-      }
-      else if ( tag == "SENS_TAG" )
-      {
-        new_obj.sensTag_ = it->getImmutableValue<int>();
+        new_obj.objType_ = ExtendedString( it->stringValue() );
       }
       else if ( tag == "OBJ_TAG" )
       {
-        new_obj.objTag_ = it->getImmutableValue<int>();
+        new_obj.objTag_ = ExtendedString( it->stringValue() );
+      }
+      else if ( tag == "OBJ_ARGS" )
+      {
+        new_obj.objArgs_ = it->getValue<std::vector<std::string> >();
       }
       else
       { 
@@ -916,39 +925,27 @@ bool extractROLObjData(
   else  
     Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Unrecognized analysis type '" << curr << "' on .ROL_OBJ line";
 
+  // Get OBJ_TAG
+  curr = parsed_line[++linePosition].string_;
+  Util::toUpper(curr);
+  option_block.addParam(Util::Param("OBJ_TAG", curr));
+
+  // Get OBJ_TYPE
+  curr = parsed_line[++linePosition].string_;
+  Util::toUpper(curr);
+  option_block.addParam(Util::Param("OBJ_TYPE", curr));
+
+  std::vector< std::string > argVec;
+
   linePosition++;
 
   while( linePosition < numFields )
   {
-    std::string curr = parsed_line[linePosition].string_;
+    curr = parsed_line[linePosition++].string_;
     Util::toUpper(curr);
-
-    if (curr == "OBJ_TAG")
-    {
-      if (parsed_line[linePosition + 1].string_ == "=")
-        linePosition ++;
-      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
-    }
-    else if (curr == "SENS_TAG")
-    {
-      if (parsed_line[linePosition + 1].string_ == "=")
-        linePosition ++;
-      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
-    }
-    else if (curr == "OBJ_TYPE")
-    {
-      if (parsed_line[linePosition + 1].string_ == "=")
-        linePosition ++;
-      option_block.addParam(Util::Param(curr, parsed_line[++linePosition].string_));
-    }
-    else
-    {
-      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) << "Unrecognized value '" << curr << "' on .ROL_OBJ line";
-      break;
-    }
-
-    linePosition++;
-  } 
+    argVec.push_back( curr );
+  }
+  option_block.addParam(Util::Param("OBJ_ARGS", argVec)); 
 
   circuit_block.addOptions(option_block);
 
@@ -956,113 +953,6 @@ bool extractROLObjData(
 }
 
 } // namespace <unnamed>
-
-//-----------------------------------------------------------------------------
-// TT: this function gets called by the value() function in EqualityConstraint class; 
-//     it updates sweep parameter so that correct source term is loaded into RHS vector
-//-----------------------------------------------------------------------------
-void ROL_DC::setSweepValue(int step)
-{
-  bool reset = updateSweepParams(loader_, step, dcSweepVector_.begin(), dcSweepVector_.end(), false);
-}
-
-bool ROL_DC::doInit()
-{
-  bool ret = DCSweep::doInit();
-  
-  nonlinearManager_.resetAll(Nonlinear::DC_OP);
-
-  return ret;
-}
-
-bool ROL_DC::doProcessSuccessfulStep()
-{
-  bool ret = DCSweep::doProcessSuccessfulStep();
-
-  int currentStep = outputManagerAdapter_.getDCAnalysisStepNumber();
-
-  TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
-  *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr); 
-
-  return ret;
-}
-
-bool ROL_DC::doAllocations(int nc, int nz)
-{
-  stepLoopSize_ = nc;
-  numParams_ = nz;
-
-  // Allocate space for solution and simulation space vectors
-  solutionPtrVector_.resize(nc);
-  statePtrVector_.resize(nc);
-  constraintPtrVector_.resize(nc);
-
-  for (int i=0;i<nc;i++)
-  {
-    solutionPtrVector_[i]   = linearSystem_.builder().createVector();
-    statePtrVector_[i]      = linearSystem_.builder().createVector();
-    constraintPtrVector_[i] = linearSystem_.builder().createVector();
-  }
-  // Allocate space for sensitivity vectors
-  mydfdpPtrVector_.resize(nz);
-  mydqdpPtrVector_.resize(nz);
-  mydbdpPtrVector_.resize(nz);
-  mysensRHSPtrVector_.resize(nz);
-  for (int i=0;i<nz;i++)
-  {
-    mydfdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mydqdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mydbdpPtrVector_[i] = linearSystem_.builder().createVector();
-    mysensRHSPtrVector_[i] = linearSystem_.builder().createVector();
-  }
-
-  return true;
-}
-
-bool ROL_DC::setAnalysisParams(const std::vector<Util::OptionBlock>& OB)
-{
-  std::vector<Util::OptionBlock>::const_iterator it = OB.begin();
-  std::vector<Util::OptionBlock>::const_iterator end = OB.end();
-  for( ; it != end; ++it )
-    DCSweep::setAnalysisParams( *it );
-
-  return true;
-}
-
-bool ROL_DC::doFree()
-{
-  for (int i=0;i<stepLoopSize_;i++)
-  {
-    delete solutionPtrVector_[i];
-    solutionPtrVector_[i] = 0;
-    delete statePtrVector_[i];
-    statePtrVector_[i] = 0;
-    delete constraintPtrVector_[i];
-    constraintPtrVector_[i] = 0;
-  }
-  solutionPtrVector_.clear();
-  statePtrVector_.clear();
-  constraintPtrVector_.clear();
-
-  for (int i=0;i<numParams_;i++)
-  {
-    delete mydfdpPtrVector_[i];
-    mydfdpPtrVector_[i] = 0;
-    delete mydqdpPtrVector_[i];
-    mydqdpPtrVector_[i] = 0;
-    delete mydbdpPtrVector_[i];
-    mydbdpPtrVector_[i] = 0;
-    delete mysensRHSPtrVector_[i];
-    mysensRHSPtrVector_[i] = 0;
-  }
-  mydfdpPtrVector_.clear();
-  mydqdpPtrVector_.clear();
-  mydbdpPtrVector_.clear();
-  mysensRHSPtrVector_.clear();
-
-  return true;
-}
-
 
 bool registerROLFactory(
    FactoryBlock &        factory_block)
