@@ -163,6 +163,7 @@ if(Xyce_PLUGIN_SUPPORT)
         utils/ADMS/xyceHeaderFile_nosac.xml
         utils/ADMS/xyceImplementationFile_nosac.xml
         ${CMAKE_BINARY_DIR}/XycePluginProject.cmake
+        utils/ADMS/CMakeLists.txt
       DESTINATION share)
 
     install(
