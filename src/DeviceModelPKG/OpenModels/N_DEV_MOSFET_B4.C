@@ -16734,11 +16734,8 @@ Model::Model(
 
 
 
-  // The seemingly unnecessary and absurd parentheses around CONSTEPS0/M_PI
-  // turned out to be necessary for getting this statement to evaluate properly
-  // on Windows with Intel compilers.  Bleah.
   if (!given("CF"))
-    cf = 2.0 * epsrox * ((CONSTEPS0) / (M_PI)) * log(1.0 + 0.4E-6 / toxe);
+    cf = 2.0 * epsrox * CONSTEPS0/M_PI * log(1.0 + 0.4E-6 / toxe);
 
   if (!given("JSD"))
     DjctSatCurDensity=SjctSatCurDensity;
