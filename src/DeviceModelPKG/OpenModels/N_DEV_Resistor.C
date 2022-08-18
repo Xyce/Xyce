@@ -294,7 +294,7 @@ Instance::Instance(
     expNumVars(0),
     solVarDep(false),
     R(0.0),
-    multiplicityFactor(0.0),
+    multiplicityFactor(1.0),
     factor(1.0),
     length(0.0),
     width(0.0),

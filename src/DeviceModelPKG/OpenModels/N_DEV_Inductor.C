@@ -202,7 +202,7 @@ Instance::Instance(
   : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
     model_(model),
     L(0),
-    multiplicityFactor(0.0),
+    multiplicityFactor(1.0),
     IC(0),
     ICGiven(false),
     baseL(0.0),

@@ -348,7 +348,7 @@ Instance::Instance(
     model_(model),
     expPtr(0),
     expNumVars(0),
-    multiplicityFactor(0.0),
+    multiplicityFactor(1.0),
     IC(0),
     temperatureFactor(1.0),
     ageFactor(1.0),
