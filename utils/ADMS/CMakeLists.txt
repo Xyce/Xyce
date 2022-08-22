@@ -10,22 +10,30 @@
 #  these required files will be in place
 #
 #    <Path to Xyce Install>/bin/admsXml
+#    <Path to Xyce Install>/share/CMakeLists.txt
 #    <Path to Xyce Install>/share/xyceAnalogFunction_nosac.xml
 #    <Path to Xyce Install>/share/xxyceBasicTemplates_nosac.xml
-#    <Path to Xyce Install>/xyceHeaderFile_nosac.xml
-#    <Path to Xyce Install>/xyceImplementationFile_nosac.xml
-#    <Path to Xyce Install>/xyceVersion_nosac.xml
+#    <Path to Xyce Install>/share/xyceHeaderFile_nosac.xml
+#    <Path to Xyce Install>/share/xyceImplementationFile_nosac.xml
+#    <Path to Xyce Install>/share/xyceVersion_nosac.xml
 #
 # How to Run this Script
 # 
-# cmake -DVERILOG_FILES="file1.va;file2.va;..."  
+# cmake -DVERILOG_FILES="file1.va;file2.va;..."  <Path to Xyce Install>/share/CMakeLists.txt
 #
-# or i
+# or 
 #
-# cmake -DCMAKE_PREFIX_PATH=<Path to Xyce Install> 
+# cmake -DCMAKE_PREFIX_PATH=<Path to Xyce Install> \
+#  -DVERILOG_FILES="file1.va;file2.va;..."  \
+#  <Path to Xyce Install>/share/CMakeLists.txt
 #
 # Optional variables
 #
+# CMAKE_INSTALL_PREFIX = Set this to control where compiled models will be installed.
+#   If unset, then the default is in $HOME/lib 
+#
+# PLUGIN_NAME = The name to be used for the plugin library.  If not defined then 
+#   the default is "xyceplugin"#
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -42,6 +50,11 @@ if(DEFINED PLUGIN_NAME)
   set(library_name "${PLUGIN_NAME}")
 else()
   set(library_name "xyceplugin")
+endif()
+
+if(NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ENV{HOME} "/lib")
+  message(STATUS "Setting install prefix to ${CMAKE_INSTALL_PREFIX}")
 endif()
 
 message(STATUS "Verilog files = ${VERILOG_FILES}")
@@ -113,8 +126,8 @@ add_library("${library_name}" SHARED ${SourceFiles} ${BootstrapFileName} )
 target_include_directories( "${library_name}" PUBLIC ${CMAKE_CURRENT_BINARY_DIR} )
 target_link_libraries( "${library_name}" Xyce::XyceLib)
 
-#target_include_directories("${library_name}")
-#target_link_libraries("${library_name}" xyce)
+
+message( INFO "Cmake set-up is done.  Run \"cmake --build .\" to build the plugins.")
 
 
 
