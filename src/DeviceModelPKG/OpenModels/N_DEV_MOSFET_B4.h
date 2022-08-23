@@ -1204,6 +1204,7 @@ private:
   Model();
   Model(const Model &);
   Model &operator=(const Model &);
+  void checkAndFixVersion_();
 
 public:
   virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
@@ -1263,6 +1264,7 @@ private:
   int    binUnit;
   int    paramChk;
   std::string version;
+  double versionDouble;
   double eot;
   double vddeot;
   double ados;

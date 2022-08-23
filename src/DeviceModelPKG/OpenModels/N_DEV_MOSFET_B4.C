@@ -109,6 +109,40 @@ namespace Device {
 
 namespace MOSFET_B4 {
 
+// Utility functions
+namespace {
+
+//-----------------------------------------------------------------------------
+// Function      : convertVersToDouble
+// Purpose       : converts a version string like "4.6.1" to a CMC-style
+//                 double (4.61).  Having internal representation of version
+//                 as a double eases work on support of multiple versions
+// Special Notes :
+// Scope         : (unnamed namespace under MOSFET_B4)
+// Creator       : Tom Russo, SNL 1355
+//-----------------------------------------------------------------------------
+double convertVersToDouble(const std::string &versionString)
+{
+  double retval=0.0;
+
+  std::string::size_type first_dot = versionString.find_first_of(".");
+  std::string::size_type last_dot = versionString.find_last_of(".");
+
+  if (first_dot == std::string::npos || first_dot == last_dot)
+  {
+    // then we are trivially convertible to double
+    retval=std::stod(versionString);
+  }
+  else
+  {
+    retval=std::stod(versionString.substr(0,first_dot))
+      + 0.1*convertVersToDouble(versionString.substr(first_dot+1));
+  }
+
+  return retval;
+}
+} // namespace (unnamed)
+
 void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 {
     p.addPar ("TEMP",0.0,&MOSFET_B4::Instance::temp)
@@ -15569,6 +15603,37 @@ int Instance::RdsEndSha
 // Class Model
 
 //-----------------------------------------------------------------------------
+// Function      : checkAndFixVersion_
+// Purpose       : check the version string given on the model line (if any)
+//                 set the double precision version, and reset as needed to
+//                 match a version that actually exists
+// Special Notes :
+// Scope         : private
+// Creator       : Tom Russo, SNL 1355
+//-----------------------------------------------------------------------------
+void Model::checkAndFixVersion_()
+{
+  versionDouble = convertVersToDouble(version);
+
+  if (versionDouble < 4.61)
+  {
+    UserWarning(*this) << "Model card specifies BSIM4 version " << version
+         << " which is older than the oldest version supported in Xyce (4.6.1). "
+                       << " Using oldest version available."
+                       << std::endl;
+    versionDouble=4.61;
+  }
+  else if (versionDouble > 4.61)
+  {
+    UserWarning(*this) << "Model card specifies BSIM4 version " << version
+         << " which is newer than the latest version supported in Xyce (4.6.1). "
+                       << " Using latest version available."
+                       << std::endl;
+    versionDouble=4.61;
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Model::processParams
 // Purpose       :
 // Special Notes :
@@ -15683,6 +15748,7 @@ Model::Model(
     binUnit(0),
     paramChk(0),
     version("4.6.1"),
+    versionDouble(4.61),
     eot(0.0),
     vddeot(0.0),
     ados(0.0),
@@ -16573,6 +16639,7 @@ Model::Model(
     sizeDependParamList()
 
 {
+
   if (getType() != "")
   {
     if (getType() == "NMOS") {
@@ -16594,6 +16661,8 @@ Model::Model(
   // Set params according to .model line and constant defaults from metadata:
   setModParams (MB.params);
 
+  checkAndFixVersion_();
+  
   // Set any non-constant parameter defaults:
   if (!given("TNOM"))
     tnom = getDeviceOptions().tnom;
