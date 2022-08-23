@@ -323,50 +323,61 @@ void Topology::resolveDependentVars()
     std::vector<int> procVec;
     std::vector<int> gndGID( 1, -1 );
 
-    directory.getSolnGIDs( solnNidVec, gidVec, procVec );
+    // Get the solution GIDs and check for bad solution nodes.
+    std::vector<NodeID> badSolnNodes = directory.getSolnGIDs( solnNidVec, gidVec, procVec );
 
-    int count = 0;
-    for (CktNodeList::iterator it_cnL = mainGraphPtr_->getBFSNodeList()->begin(),
+    // Compute global number of bad solution nodes
+    int local_bSN_size = badSolnNodes.size(), global_bSN_size = 0;
+    pdsManager_.getPDSComm()->sumAll(&local_bSN_size, &global_bSN_size, 1);
+
+    // Output error messages for bad solution nodes
+    checkForBadSolnNodes( badSolnNodes );
+
+    if (global_bSN_size == 0)
+    {
+      int count = 0;
+      for (CktNodeList::iterator it_cnL = mainGraphPtr_->getBFSNodeList()->begin(),
          it_cnL_end = mainGraphPtr_->getBFSNodeList()->end(); it_cnL != it_cnL_end; ++it_cnL )
-    {
-      if ( (*it_cnL)->type() == _DNODE )
       {
-        CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_cnL);
-
-        if (solnLocVec[count] != solnLocVec[count+1])
+        if ( (*it_cnL)->type() == _DNODE )
         {
-            
-          indexVec.assign( gidVec.begin()+solnLocVec[count],
-                           gidVec.begin()+solnLocVec[count+1] );
+          CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_cnL);
 
-          if (solnFndGndVec[count] == true)
+          if (solnLocVec[count] != solnLocVec[count+1])
           {
-            // Get dependent solution variables
-            cktNodeDevPtr->getDepSolnVars( idVec );
+            
+            indexVec.assign( gidVec.begin()+solnLocVec[count],
+                             gidVec.begin()+solnLocVec[count+1] );
 
-            for (int i=0; i<idVec.size(); ++i)
+            if (solnFndGndVec[count] == true)
             {
-              if ( idVec[i] == gndNode )
-              {
-                indexVec.insert( indexVec.begin()+i, gndGID );
-              }
-            } 
-          }
-          cktNodeDevPtr->set_DepSolnGIDVec( indexVec );
-          cktNodeDevPtr->registerDepSolnGIDs( indexVec );
-        }
-        ++count;
-      }
-    }
+              // Get dependent solution variables
+              cktNodeDevPtr->getDepSolnVars( idVec );
 
-    if (!pdsManager_.getPDSComm()->isSerial())
-    {
-      depSolnGIDMap_.clear();
-      for( unsigned int i = 0; i < gidVec.size(); ++i )
-        for( unsigned int ii = 0; ii < gidVec[i].size(); ++ii )
-          depSolnGIDMap_[ gidVec[i][ii] ] = procVec[i];
-      depSolnGIDMap_[-1] = pdsManager_.getPDSComm()->procID();
-    }
+              for (int i=0; i<idVec.size(); ++i)
+              {
+                if ( idVec[i] == gndNode )
+                {
+                  indexVec.insert( indexVec.begin()+i, gndGID );
+                }
+              } 
+            }
+            cktNodeDevPtr->set_DepSolnGIDVec( indexVec );
+            cktNodeDevPtr->registerDepSolnGIDs( indexVec );
+          }
+          ++count;
+        }
+      }
+
+      if (!pdsManager_.getPDSComm()->isSerial())
+      {
+        depSolnGIDMap_.clear();
+        for( unsigned int i = 0; i < gidVec.size(); ++i )
+          for( unsigned int ii = 0; ii < gidVec[i].size(); ++ii )
+            depSolnGIDMap_[ gidVec[i][ii] ] = procVec[i];
+        depSolnGIDMap_[-1] = pdsManager_.getPDSComm()->procID();
+      }
+    }  
   }
 }
 
@@ -1798,6 +1809,69 @@ void Topology::outputTopoWarnings(unordered_set<std::string> & oneTermName,
     {
       std::string msg("Voltage Node (" + *it + ") " + warn2);
       Report::UserWarning0() << msg;
+    }
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : Topology::checkForBadSolnNodes
+// Purpose       : Check if any solution nodes were not found in resolveDependentVars 
+// Special Notes :
+// Scope         : private
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 08/16/05
+//-----------------------------------------------------------------------------
+void Topology::checkForBadSolnNodes( const std::vector<NodeID>& badSolnNodes )
+{
+  if ( badSolnNodes.size() )
+  {
+    CktNodeList::iterator it_cnL = mainGraphPtr_->getBFSNodeList()->begin();
+    CktNodeList::iterator it_cnL_end = mainGraphPtr_->getBFSNodeList()->end(); 
+    std::vector<NodeID>::const_iterator it_bSN = badSolnNodes.begin();
+
+    std::vector<NodeID> idVec;
+    NodeID gndNode( "0", _VNODE );
+
+    for ( ; it_bSN != badSolnNodes.end(); ++it_bSN )
+    {
+      bool foundNode = false;
+
+      // Find out if any device nodes have dependent variables that need to be resolved.
+      for ( ; it_cnL != it_cnL_end && !foundNode; ++it_cnL )
+      { 
+        if ( (*it_cnL)->type() == _DNODE )
+        { 
+          CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_cnL);
+      
+          // Get dependent solution variables
+          cktNodeDevPtr->getDepSolnVars( idVec );
+      
+          if( !idVec.empty() )
+          { 
+            for (int i=0; i<idVec.size() && !foundNode; ++i)
+            { 
+              if ( idVec[i] != gndNode )
+              { 
+                unordered_map<std::string, std::string>::iterator alias_it = aliasMap_.find( Xyce::get_node_id( idVec[i] ) );
+                if ( alias_it != aliasMap_.end() )
+                { 
+                  if ( Xyce::get_node_id(*it_bSN) == alias_it->second )
+                  {
+                    Report::UserError() << "Device " << (*it_cnL)->get_id() << " refers to unknown solution node " << Xyce::get_node_id(*it_bSN) << std::endl;
+                    foundNode = true;
+                  }
+                }
+                else if ( *it_bSN == idVec[i] )
+                { 
+                  Report::UserError() << "Device " << (*it_cnL)->get_id() << " refers to unknown solution node " << Xyce::get_node_id(*it_bSN) << std::endl;
+                  foundNode = true;
+                } 
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

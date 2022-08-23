@@ -121,8 +121,8 @@ public:
   void deleteEntries( KeyList & keys );
 
   // Get the items in the directory.
-  void getEntries( KeyList & keys,
-                   DataMap & entries );
+  std::vector<KT> getEntries( KeyList & keys,
+                              DataMap & entries );
 
   AC & container() { return container_; }
   ContainerIter & begin() { return container_.begin(); }
@@ -264,16 +264,17 @@ deleteEntries( KeyList & keys )
 // Creation Date : 8/7/03
 //-----------------------------------------------------------------------------
 template <typename KT, typename DT, class DH, class AC, class MG>
-void
+std::vector<KT>
 Directory<KT,DT,DH,AC,MG>::
 getEntries( KeyList & keys,
             DataMap & entries )
 {
   //Push Keys to owning processors
-  KeyList newKeys;
+  KeyList newKeys, badKeys;
   ProcList procs;
   pushKeys_( keys, newKeys, procs );
-  //int numProcs = procs.size();
+
+  RCP<DT> tmpDT = Teuchos::rcp( new DT() );
 
   KeyListCIter citKL  = newKeys.begin();
   KeyListCIter cendKL = newKeys.end();
@@ -283,15 +284,20 @@ getEntries( KeyList & keys,
   for( ; citKL != cendKL; ++citKL )
   {
     ContainerCIter cit = container_.find( *citKL );
-    if( cit == container_.end() )
+    if( cit != container_.end() )
     {
-      Xyce::Report::DevelFatal().in("Xyce::Parallel::Directory::getEntries")
-        << "Data not in directory: " << *citKL;
+      newEntries[*citKL] = cit->second;
     }
-    newEntries[*citKL] = cit->second;
+    else
+    {
+      badKeys.push_back( *citKL );
+      newEntries[*citKL] = tmpDT;  // Put a dummy entry in the map.
+    }
   }
 
   migrate_.rvs( procs, newKeys, newEntries, entries );
+
+  return badKeys;
 }
 
 //-----------------------------------------------------------------------------

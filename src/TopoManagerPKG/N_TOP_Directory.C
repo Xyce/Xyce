@@ -148,28 +148,33 @@ bool Directory::generateDirectory()
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/19/01
 //-----------------------------------------------------------------------------
-bool Directory::getProcs( const std::vector<NodeID> & idVec,
-                                std::vector<int> & procVec )
+std::vector<NodeID> Directory::getProcs( const std::vector<NodeID> & idVec,
+                                         std::vector<int> & procVec )
 {
   int size = idVec.size();
-  procVec.resize( size );
+  procVec.resize( size, -1 );
+
+  std::vector<NodeID> badIDs;
 
   if (!pdsComm_.isSerial())
   {
     DirectoryData::NodeDir::DataMap nodes;
 
     std::vector<NodeID> ids( idVec );
-    data_->directory.getEntries( ids, nodes );
+    badIDs = data_->directory.getEntries( ids, nodes );
 
     for( int i = 0; i < size; ++i )
-      procVec[i] = nodes[idVec[i]]->proc();
+    {
+      if ( std::find( badIDs.begin(), badIDs.end(), idVec[i] ) == badIDs.end() )
+        procVec[i] = nodes[idVec[i]]->proc();
+    }
   }
   else
   {
     std::fill( procVec.begin(), procVec.end(), pdsComm_.procID() );
   }
 
-  return true;
+  return badIDs;
 }
 
 //-----------------------------------------------------------------------------
@@ -180,55 +185,68 @@ bool Directory::getProcs( const std::vector<NodeID> & idVec,
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/19/01
 //-----------------------------------------------------------------------------
-bool Directory::getSolnGIDs( const std::vector<NodeID> & idVec,
-                                   std::vector< std::vector<int> > & gidVec,
-                                   std::vector<int> & procVec )
+std::vector<NodeID> Directory::getSolnGIDs( const std::vector<NodeID> & idVec,
+                                            std::vector< std::vector<int> > & gidVec,
+                                            std::vector<int> & procVec )
 {
   gidVec.resize( idVec.size() );
-  getProcs( idVec, procVec );
 
-  if (!pdsComm_.isSerial())
+  // This method will find bad NodeIDs that weren't caught before in parallel execution
+  // NOTE:  Serial execution will not find bad NodeIDs, they are caught below.
+  std::vector<NodeID> badSolnNodes = getProcs( idVec, procVec );
+
+  int local_bSN_size = badSolnNodes.size(), global_bSN_size = 0;
+  pdsComm_.sumAll(&local_bSN_size, &global_bSN_size, 1); 
+
+  if (global_bSN_size==0)
   {
-    typedef Xyce::Parallel::Migrate< NodeID, std::vector<int> > SGMigrate;
-    SGMigrate migrator(pdsComm_);
-
-    std::vector<int> sortedProcVec( procVec );
-    std::vector<NodeID> ids( idVec );
-    SortContainer2( sortedProcVec, ids );
-
-    std::vector<NodeID> inIDs;
-    migrator( sortedProcVec, ids, inIDs );
-
-    SGMigrate::DataMap outGIDs;
-    for( unsigned int i = 0; i < inIDs.size(); ++i )
+    if (!pdsComm_.isSerial())
     {
-      RCP< std::vector<int> > gids( rcp( new std::vector<int>() ) );
-      const CktNode * cnp = topology_.findCktNode( inIDs[i] );
-      gids->assign( cnp->get_SolnVarGIDList().begin(), cnp->get_SolnVarGIDList().end() );
-      outGIDs[inIDs[i]] = gids;
-    }
+      typedef Xyce::Parallel::Migrate< NodeID, std::vector<int> > SGMigrate;
+      SGMigrate migrator(pdsComm_);
 
-    SGMigrate::DataMap inGIDs;
-    migrator.rvs( sortedProcVec, inIDs, outGIDs, inGIDs );
+      std::vector<int> sortedProcVec( procVec );
+      std::vector<NodeID> ids( idVec );
+      SortContainer2( sortedProcVec, ids );
 
-    for( unsigned int i = 0; i < idVec.size(); ++i )
-      gidVec[i] = *(inGIDs[idVec[i]]);
-  }
-  else
-  {
-    for( unsigned int i = 0; i < idVec.size(); ++i )
-    {
-      const CktNode * cnp = topology_.findCktNode( idVec[i] );
-      if( !cnp )
+      std::vector<NodeID> inIDs;
+      migrator( sortedProcVec, ids, inIDs );
+
+      SGMigrate::DataMap outGIDs;
+      for( unsigned int i = 0; i < inIDs.size(); ++i )
       {
-        Report::DevelFatal() << "Directory node not found: " << idVec[i].first + "\n";
+        RCP< std::vector<int> > gids( rcp( new std::vector<int>() ) );
+        const CktNode * cnp = topology_.findCktNode( inIDs[i] );
+        gids->assign( cnp->get_SolnVarGIDList().begin(), cnp->get_SolnVarGIDList().end() );
+        outGIDs[inIDs[i]] = gids;
       }
-      gidVec[i].assign( cnp->get_SolnVarGIDList().begin(),
-                        cnp->get_SolnVarGIDList().end() );
+
+      SGMigrate::DataMap inGIDs;
+      migrator.rvs( sortedProcVec, inIDs, outGIDs, inGIDs );
+
+      for( unsigned int i = 0; i < idVec.size(); ++i )
+        gidVec[i] = *(inGIDs[idVec[i]]);
+    }
+    else
+    {
+      for( unsigned int i = 0; i < idVec.size(); ++i )
+      {
+        const CktNode * cnp = topology_.findCktNode( idVec[i] );
+        if( cnp )
+        {
+          gidVec[i].assign( cnp->get_SolnVarGIDList().begin(),
+                          cnp->get_SolnVarGIDList().end() );
+        }
+        else
+        {
+          badSolnNodes.push_back( idVec[i] );
+          gidVec[i].push_back( -1 );  // Put a dummy number as the GID value, error will be thrown.
+        }
+      }
     }
   }
 
-  return true;
+  return badSolnNodes;
 }
 
 } // namespace Topo
