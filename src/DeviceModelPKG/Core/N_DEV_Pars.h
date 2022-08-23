@@ -45,6 +45,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
 
 #include <N_DEV_fwd.h>
 #include <N_DEV_Units.h>
@@ -604,7 +605,11 @@ public:
       autoConvertTemp_(true),
       lengthScalingAllowed_(false),
       areaScalingAllowed_(false),
-      mutableInteger_(false)
+      mutableInteger_(false),
+      minimumVersion_(0.0),
+      minVerSet_(false),
+      maximumVersion_(std::numeric_limits<double>::max()),
+      maxVerSet_(false)
   {}
 
   ///
@@ -1207,7 +1212,57 @@ public:
     return autoConvertTemp_;
   }
 
-  
+  /// Set a minimum version of a consumer of this parameter that supports
+  /// the parameter.
+  ///
+  /// @param minimum version that supports the parameter
+  ///
+  /// @return reference to descriptor
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Tue 23 Aug 2022
+  ///
+  Descriptor &setMinimumVersion(double value)
+  {
+    minimumVersion_ = value;
+    minVerSet_ = true;
+    return *this;
+  }
+
+  /// Set a maximum version of a consumer of this parameter that supports
+  /// the parameter.
+  ///
+  /// @param maximum version that supports the parameter
+  ///
+  /// @return reference to descriptor
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Tue 23 Aug 2022
+  ///
+  Descriptor &setMaximumVersion(double value)
+  {
+    maximumVersion_ = value;
+    maxVerSet_ = true;
+    return *this;
+  }
+
+  /// versionIsInRange
+  /// Return true if value of version is in supported range
+  ///
+  /// @param version
+  ///
+  /// @return true if version in range or no range specified
+  bool versionIsInRange (double value)
+  {
+    if ( (minVerSet_ && value < minimumVersion_) ||
+         (maxVerSet_ && value > maximumVersion_))
+    {
+      return false;
+    }
+    else
+      return true;
+  }
+
 private:
   int                                 serialNumber_;          ///< Unique identifier of descriptor
   bool                                originalValueFlag_;     ///< Flag indicating original value was stored
@@ -1229,6 +1284,10 @@ private:
   bool                                lengthScalingAllowed_;  ///< Flag indicating that length scaling should be applied (if .options parser scale is set by netlist)
   bool                                areaScalingAllowed_;  ///< Flag indicating that area scaling should be applied (if .options parser scale is set by netlist)
   bool                                mutableInteger_;      ///< Flag indicating that an integer parameter can be modified via setParam
+  double                              minimumVersion_;
+  bool                                minVerSet_;
+  double                              maximumVersion_;
+  bool                                maxVerSet_;
 };
 
 ///
