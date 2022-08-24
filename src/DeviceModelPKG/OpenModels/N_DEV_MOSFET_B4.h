@@ -336,6 +336,26 @@ private:
   Instance(const Instance &);
   Instance &operator=(const Instance &);
 
+  // function pointers used to invoke "guts" of version-specific real functions
+  bool (Instance::*processParamsPtr_)();
+  bool (Instance::*updateTemperaturePtr_)(const double & temp_tmp);
+  bool (Instance::*updateIntermediateVarsPtr_)();
+  void (Instance::*setupNoiseSourcesPtr_)(Xyce::Analysis::NoiseData & noiseData);
+  void (Instance::*getNoiseSourcesPtr_)(Xyce::Analysis::NoiseData & noiseData);
+  int  (Instance::*RdsEndIsoPtr_)(
+     double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+     double nuEnd, int rgeo, int Type, double & Rend);
+
+  // version-specfific real functions for version 4.6.1
+  bool processParams4p61_();
+  bool updateTemperature4p61_(const double & temp_tmp);
+  bool updateIntermediateVars4p61_();
+  void setupNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData);
+  void getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData);
+  int RdsEndIso4p61_(
+     double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+     double nuEnd, int rgeo, int Type, double & Rend);
+
 public:
   void registerLIDs( const std::vector<int> & intLIDVecRef,
                      const std::vector<int> & extLIDVecRef );
@@ -1205,6 +1225,11 @@ private:
   Model(const Model &);
   Model &operator=(const Model &);
   void checkAndFixVersion_();
+  // function pointer used to invoke "guts" functions for multiple versions:
+  bool (Model::*processParamsPtr_)();
+
+  // version-specfific real functions for version 4.6.1
+  bool processParams4p61_();
 
 public:
   virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;

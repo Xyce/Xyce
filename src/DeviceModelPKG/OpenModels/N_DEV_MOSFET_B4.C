@@ -4478,12 +4478,24 @@ bool Instance::applyScale ()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::processParams
-// Purpose       :
+// Purpose       : wrapper for version-specific processParams calls
 // Special Notes :
 // Scope         : public
-// Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
+// Creator       : Tom Russo, SNL, 1355
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
+{
+  return (this->*processParamsPtr_)();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::processParams4p61_
+// Purpose       : version-specific process params for BSIM 4.6.1
+// Special Notes :
+// Scope         : private
+// Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
+//-----------------------------------------------------------------------------
+bool Instance::processParams4p61_ ()
 {
   double Rtot;
 
@@ -4743,6 +4755,12 @@ Instance::Instance(
   Model & Miter,
   const FactoryBlock &  factory_block)
   : DeviceInstance(IB, configuration.getInstanceParameters(), factory_block),
+    processParamsPtr_(&Instance::processParams4p61_),
+    updateTemperaturePtr_(&Instance::updateTemperature4p61_),
+    updateIntermediateVarsPtr_(&Instance::updateIntermediateVars4p61_),
+    setupNoiseSourcesPtr_(&Instance::setupNoiseSources4p61_),
+    getNoiseSourcesPtr_(&Instance::getNoiseSources4p61_),
+    RdsEndIsoPtr_(&Instance::RdsEndIso4p61_),
     model_(Miter),
     ueff  (0.0),
     thetavth  (0.0),
@@ -5533,6 +5551,28 @@ Instance::Instance(
 
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
+
+  // set up member function pointers based on version:
+  // nonsensicial if structure is a placeholder for when we actually
+  // have more than one version.
+  if (model_.versionDouble == 4.61)
+  {
+    processParamsPtr_ = &Instance::processParams4p61_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
+  }
+  else
+  {
+    processParamsPtr_ = &Instance::processParams4p61_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
+  }
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
@@ -6581,19 +6621,35 @@ void Instance::setupPointers ()
 #endif
 }
 
+
 //-----------------------------------------------------------------------------
 // Function      : Instance::updateTemperature
+// Purpose       : This updates all the instance-owned paramters which
+//                 are temperature dependent.
+// Special Notes : Wrapper for calls through a member function pointer
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+bool Instance::updateTemperature (const double & temp_tmp)
+{
+  return (this->*updateTemperaturePtr_)(temp_tmp);
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::updateTemperature4p61_
 // Purpose       : This updates all the instance-owned paramters which
 //                 are temperature dependent.
 //
 // Special Notes : Annoyingly, some model-owned parameters need to be
 //                 tweaked here because of how the SPICE code is set up.
 //
-// Scope         : public
+//                 This is the 4.6.1 version-specific updateTemperature
+// Scope         : private
 // Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
 // Creation Date : 11/25/06
 //-----------------------------------------------------------------------------
-bool Instance::updateTemperature (const double & temp_tmp)
+bool Instance::updateTemperature4p61_ (const double & temp_tmp)
 {
   std::string msg="";
 
@@ -8681,13 +8737,26 @@ bool Instance::updateTemperature (const double & temp_tmp)
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::updateIntermediateVars
-// Purpose       :
+// Purpose       : Wrapper for real version-specific updateIntermediateVars call
 // Special Notes :
 // Scope         : public
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+bool Instance::updateIntermediateVars ()
+{
+  return (this->*updateIntermediateVarsPtr_)();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::updateIntermediateVars4p61_
+// Purpose       :
+// Special Notes :
+// Scope         : private
 // Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
 // Creation Date : 11/25/06
 //-----------------------------------------------------------------------------
-bool Instance::updateIntermediateVars ()
+bool Instance::updateIntermediateVars4p61_ ()
 {
   bool bsuccess = true;
 
@@ -12961,14 +13030,27 @@ int Instance::getNumNoiseSources () const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::Device::MOSFET_B4::Instance::setupNoiseSources
-// Purpose       :
-// Special Notes :
+// Function      : setupNoiseSources
+// Purpose       : Version-generic setup of noise sources
+// Special Notes :  wrapper for version-specific code
 // Scope         : public
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+void Instance::setupNoiseSources (Xyce::Analysis::NoiseData & noiseData)
+{
+  (this->*setupNoiseSourcesPtr_)(noiseData);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : setupNoiseSources4p61_
+// Purpose       : Version-specific setup of noise sources
+// Special Notes :
+// Scope         : private
 // Creator       : Eric Keiter
 // Creation Date : 11/13/2018
 //-----------------------------------------------------------------------------
-void Instance::setupNoiseSources (Xyce::Analysis::NoiseData & noiseData)
+void Instance::setupNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
 {
   int numSources=NUMNOIZ;
   noiseData.numSources = numSources;
@@ -13129,16 +13211,28 @@ void Instance::setupNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   noiseData.li_Pos[IGBNOIZ] = li_GatePrime;
   noiseData.li_Neg[IGBNOIZ] = li_BodyPrime;
 }
+//-----------------------------------------------------------------------------
+// Function      : getNoiseSources
+// Purpose       : Version-generic getNoiseSources
+// Special Notes :
+// Scope         : private
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
+{
+  (this->*getNoiseSourcesPtr_)(noiseData);
+}
 
 //-----------------------------------------------------------------------------
-// Function      : Xyce::Device::MOSFET_B4::Instance::getNoiseSources
-// Purpose       :
+// Function      : getNoiseSources4p61_
+// Purpose       : Version-specific getNoiseSources
 // Special Notes :
-// Scope         : public
+// Scope         : private
 // Creator       : Eric Keiter
 // Creation Date : 11/13/2018
 //-----------------------------------------------------------------------------
-void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
+void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
 {
   double tmp = 0.0;
   double T1 = 0.0;
@@ -15473,6 +15567,22 @@ int Instance::RdsEndIso
   (double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
    double nuEnd, int rgeo, int Type, double & Rend)
 {
+  return (this->*RdsEndIsoPtr_)(Weffcj, Rsh, DMCG, DMCI, DMDG,
+                                nuEnd, rgeo, Type, Rend);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::RdsEndIso4p61_
+// Purpose       : Version-specific BSIM4 function
+// Special Notes :
+// Scope         : private
+// Creator       : Eric Keiter,SNL
+// Creation Date : 11/25/06
+//-----------------------------------------------------------------------------
+int Instance::RdsEndIso4p61_
+  (double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+   double nuEnd, int rgeo, int Type, double & Rend)
+{
   std::string msg="";
 	if (Type == 1)
 	{
@@ -15613,7 +15723,12 @@ int Instance::RdsEndSha
 //-----------------------------------------------------------------------------
 void Model::checkAndFixVersion_()
 {
-  versionDouble = convertVersToDouble(version);
+  if (given("version"))
+    versionDouble = convertVersToDouble(version);
+  else
+    versionDouble=4.61;     // not strictly necessary, because we set this
+                            // in the constructor initializers already, but
+                            // let's play it safe
 
   if (versionDouble < 4.61)
   {
@@ -15636,12 +15751,26 @@ void Model::checkAndFixVersion_()
 //-----------------------------------------------------------------------------
 // Function      : Model::processParams
 // Purpose       :
-// Special Notes :
+// Special Notes : Wrapper for the "guts" that are hidden in a function pointer
 // Scope         : public
+// Creator       : Tom Russo, SNL, 01355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+bool Model::processParams()
+{
+  return (this->*processParamsPtr_)();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::processParams4p61_
+// Purpose       :
+// Special Notes : Renamed from original single-version "processParams"
+// Scope         : private
 // Creator       : Eric Keiter, SNL, Electrical and Microsystems Modeling
 // Creation Date : 11/25/06
 //-----------------------------------------------------------------------------
-bool Model::processParams ()
+
+bool Model::processParams4p61_ ()
 {
   std::string msg;
 
@@ -15724,6 +15853,7 @@ Model::Model(
   const ModelBlock &    MB,
   const FactoryBlock &  factory_block)
   : DeviceModel(MB, configuration.getModelParameters(), factory_block),
+    processParamsPtr_(&Model::processParams4p61_),
     instanceContainer(0),
     modType       (0),
     dtype         (CONSTNMOS),
@@ -16662,7 +16792,15 @@ Model::Model(
   setModParams (MB.params);
 
   checkAndFixVersion_();
-  
+
+  // set up member function pointers based on version:
+  // nonsensicial if structure is a placeholder for when we actually
+  // have more than one version.
+  if (versionDouble == 4.61)
+    processParamsPtr_ = &Model::processParams4p61_;
+  else
+    processParamsPtr_ = &Model::processParams4p61_;
+
   // Set any non-constant parameter defaults:
   if (!given("TNOM"))
     tnom = getDeviceOptions().tnom;
