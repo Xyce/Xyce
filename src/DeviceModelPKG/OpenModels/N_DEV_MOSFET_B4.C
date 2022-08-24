@@ -4532,6 +4532,40 @@ void Instance::debugJacStampOutput ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : setupVersionPointers_
+// Purpose       : Set up the various member-function pointers needed
+//                 to make us perform version-specific operations
+// Special Notes :
+// Scope         : private
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+void Instance::setupVersionPointers_()
+{
+  // set up member function pointers based on version:
+  // nonsensicial if structure is a placeholder for when we actually
+  // have more than one version.
+  if (model_.versionDouble == 4.61)
+  {
+    processParamsPtr_ = &Instance::processParams4p61_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
+  }
+  else
+  {
+    processParamsPtr_ = &Instance::processParams4p61_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::Instance
 // Purpose       : instance block constructor
 // Special Notes :
@@ -5343,27 +5377,7 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
 
-  // set up member function pointers based on version:
-  // nonsensicial if structure is a placeholder for when we actually
-  // have more than one version.
-  if (model_.versionDouble == 4.61)
-  {
-    processParamsPtr_ = &Instance::processParams4p61_;
-    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
-    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
-    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
-    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
-    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
-  }
-  else
-  {
-    processParamsPtr_ = &Instance::processParams4p61_;
-    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
-    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
-    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
-    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
-    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
-  }
+  setupVersionPointers_();
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
@@ -8891,6 +8905,29 @@ bool Model::processInstanceParams()
   return true;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : setupVersionPointers_
+// Purpose       : Set up the various member-function pointers needed
+//                 to make us perform version-specific operations
+// Special Notes :
+// Scope         : private
+// Creator       : Tom Russo, SNL, 1355
+// Creation Date : 24 Aug 2022
+//-----------------------------------------------------------------------------
+void Model::setupVersionPointers_()
+{
+  // set up member function pointers based on version:
+  // nonsensicial if structure is a placeholder for when we actually
+  // have more than one version.
+  if (versionDouble == 4.61)
+  {
+    processParamsPtr_ = &Model::processParams4p61_;
+  }
+  else
+  {
+    processParamsPtr_ = &Model::processParams4p61_;
+  }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Model::Model
@@ -9844,14 +9881,7 @@ Model::Model(
   setModParams (MB.params);
 
   checkAndFixVersion_();
-
-  // set up member function pointers based on version:
-  // nonsensicial if structure is a placeholder for when we actually
-  // have more than one version.
-  if (versionDouble == 4.61)
-    processParamsPtr_ = &Model::processParams4p61_;
-  else
-    processParamsPtr_ = &Model::processParams4p61_;
+  setupVersionPointers_();
 
   // Set any non-constant parameter defaults:
   if (!given("TNOM"))

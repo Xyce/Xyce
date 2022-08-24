@@ -346,6 +346,8 @@ private:
      double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
      double nuEnd, int rgeo, int Type, double & Rend);
 
+  void setupVersionPointers_();
+
   // version-specfific real functions for version 4.6.1
   bool processParams4p61_();
   bool updateTemperature4p61_(const double & temp_tmp);
@@ -1225,6 +1227,9 @@ private:
   Model(const Model &);
   Model &operator=(const Model &);
   void checkAndFixVersion_();
+
+  void setupVersionPointers_();
+
   // function pointer used to invoke "guts" functions for multiple versions:
   bool (Model::*processParamsPtr_)();
 
