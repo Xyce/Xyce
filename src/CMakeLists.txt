@@ -322,6 +322,7 @@ configure_package_config_file(
   cmake/XyceConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake
   INSTALL_DESTINATION lib/cmake
+  PATH_VARS Trilinos_DIR
 )
 
 set(ConfigPackageLocation lib/cmake/Xyce)
