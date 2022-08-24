@@ -226,9 +226,11 @@ endif()
 # was changed to include a new method that returns solver statistics.  This
 # test and the Xyce_NOX_SOLVERSTATS ifdefs can be removed if the minimum
 # required version of Trilinos is raised.
+# 8/24/2022 - Minimum version was raised to 13.5 for cmake, but not autotools.
+#             This ifdef will be set to true for cmake builds.
 get_target_property(CMAKE_REQUIRED_INCLUDES NOX::all_libs INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(CMAKE_REQUIRED_LIBRARIES NOX::all_libs INTERFACE_LINK_LIBRARIES)
-check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
+set(Xyce_NOX_SOLVERSTATS TRUE CACHE BOOL "Use new method to return NOX solver statistics.")
 
 unset(CMAKE_REQUIRED_INCLUDES)
 unset(CMAKE_REQUIRED_LIBRARIES)
