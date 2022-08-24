@@ -28,6 +28,7 @@ target_sources(XyceLib PRIVATE
       N_DEV_MOSFET6.C
       N_DEV_MOSFET_B3.C
       N_DEV_MOSFET_B4.C
+      N_DEV_MOSFET_B4p61.C
       N_DEV_MOSFET_B3SOI.C
       N_DEV_MutIndLin.C
       N_DEV_MutIndNonLin.C
