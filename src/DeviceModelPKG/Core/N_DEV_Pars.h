@@ -1252,7 +1252,7 @@ public:
   /// @param version
   ///
   /// @return true if version in range or no range specified
-  bool versionIsInRange (double value)
+  bool versionIsInRange (double value) const
   {
     if ( (minVerSet_ && value < minimumVersion_) ||
          (maxVerSet_ && value > maximumVersion_))

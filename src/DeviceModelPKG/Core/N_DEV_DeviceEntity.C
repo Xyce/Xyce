@@ -1601,6 +1601,30 @@ bool DeviceEntity::given( const std::string & parameter_name ) const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceEntity::checkParamVersions
+// Purpose       : Return whether param was given and if so whether it
+//                 is valid for the current version of the device
+// Special Notes : issues warnings if parameter is not valid
+// Scope         : public
+// Creator       : Tom Russo
+// Creation Date : 25 Aug 2022
+//-----------------------------------------------------------------------------
+void DeviceEntity::checkParamVersions(double versionDouble) const
+{
+  ParameterMap::const_iterator it;
+  for ( it=getParameterMap().begin(); it != getParameterMap().end(); ++it)
+  {
+      const Descriptor &theParam = *(*it).second;
+      if (Xyce::Device::wasValueGiven(*this,theParam.getSerialNumber()))
+      {
+        if (!theParam.versionIsInRange(versionDouble))
+        {
+          UserWarning(*this) << "Parameter " << it->first << " not valid for device of version " << versionDouble << ".  Ignored. " << std::endl;
+        }
+      }
+  }
+}
+//-----------------------------------------------------------------------------
 // Function      : DeviceEntity::setParams
 // Purpose       : Set parameters according to a vector of params.  Used to
 //                 set instance or model parameter sets to netlist values
