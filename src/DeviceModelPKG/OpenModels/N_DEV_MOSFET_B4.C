@@ -4924,14 +4924,23 @@ void Instance::setupVersionPointers_()
     getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
     RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
   }
+  else   if (model_.versionDouble == 4.70)
+  {
+    processParamsPtr_ = &Instance::processParams4p70_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p70_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p70_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p70_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
+  }
   else
   {
-    processParamsPtr_ = &Instance::processParams4p61_;
-    updateTemperaturePtr_ = &Instance::updateTemperature4p61_;
-    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p61_;
-    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p61_;
-    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p61_;
-    RdsEndIsoPtr_ = &Instance::RdsEndIso4p61_;
+    processParamsPtr_ = &Instance::processParams4p70_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p70_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p70_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p70_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
   }
 }
 
@@ -4950,12 +4959,12 @@ Instance::Instance(
   Model & Miter,
   const FactoryBlock &  factory_block)
   : DeviceInstance(IB, configuration.getInstanceParameters(), factory_block),
-    processParamsPtr_(&Instance::processParams4p61_),
-    updateTemperaturePtr_(&Instance::updateTemperature4p61_),
-    updateIntermediateVarsPtr_(&Instance::updateIntermediateVars4p61_),
-    setupNoiseSourcesPtr_(&Instance::setupNoiseSources4p61_),
-    getNoiseSourcesPtr_(&Instance::getNoiseSources4p61_),
-    RdsEndIsoPtr_(&Instance::RdsEndIso4p61_),
+    processParamsPtr_(&Instance::processParams4p70_),
+    updateTemperaturePtr_(&Instance::updateTemperature4p70_),
+    updateIntermediateVarsPtr_(&Instance::updateIntermediateVars4p70_),
+    setupNoiseSourcesPtr_(&Instance::setupNoiseSources4p70_),
+    getNoiseSourcesPtr_(&Instance::getNoiseSources4p70_),
+    RdsEndIsoPtr_(&Instance::RdsEndIso4p70_),
     model_(Miter),
     ueff  (0.0),
     thetavth  (0.0),
@@ -9218,7 +9227,7 @@ void Model::checkAndFixVersion_()
   if (given("version"))
     versionDouble = convertVersToDouble(version);
   else
-    versionDouble=4.61;     // not strictly necessary, because we set this
+    versionDouble=4.70;     // not strictly necessary, because we set this
                             // in the constructor initializers already, but
                             // let's play it safe
 
@@ -9230,13 +9239,24 @@ void Model::checkAndFixVersion_()
                        << std::endl;
     versionDouble=4.61;
   }
-  else if (versionDouble > 4.61)
+  else if (versionDouble < 4.70)
+  {
+    if (versionDouble != 4.61)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+         << " not supported by Xyce. "
+         << " Using version 4.6.1, the supported version prior to the requested version "
+                       << std::endl;
+    }
+    versionDouble=4.61;
+  }
+  else if (versionDouble > 4.70)
   {
     UserWarning(*this) << "Model card specifies BSIM4 version " << version
-         << " which is newer than the latest version supported in Xyce (4.6.1). "
-                       << " Using latest version available."
+                       << " which is newer than the latest version supported in Xyce (4.7.0). "
+                       << " Using 4.7.0 instead."
                        << std::endl;
-    versionDouble=4.61;
+    versionDouble=4.70;
   }
 }
 
@@ -9294,9 +9314,13 @@ void Model::setupVersionPointers_()
   {
     processParamsPtr_ = &Model::processParams4p61_;
   }
+  else if (versionDouble == 4.70)
+  {
+    processParamsPtr_ = &Model::processParams4p70_;
+  }
   else
   {
-    processParamsPtr_ = &Model::processParams4p61_;
+    processParamsPtr_ = &Model::processParams4p70_;
   }
 }
 
@@ -9313,7 +9337,7 @@ Model::Model(
   const ModelBlock &    MB,
   const FactoryBlock &  factory_block)
   : DeviceModel(MB, configuration.getModelParameters(), factory_block),
-    processParamsPtr_(&Model::processParams4p61_),
+    processParamsPtr_(&Model::processParams4p70_),
     instanceContainer(0),
     modType       (0),
     dtype         (CONSTNMOS),
@@ -9339,8 +9363,8 @@ Model::Model(
     gidlMod(0),
     binUnit(0),
     paramChk(0),
-    version("4.6.1"),
-    versionDouble(4.61),
+    version("4.7.0"),
+    versionDouble(4.70),
     eot(0.0),
     vddeot(0.0),
     tempeot(0.0),

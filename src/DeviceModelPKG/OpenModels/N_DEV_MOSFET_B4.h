@@ -375,6 +375,16 @@ private:
      double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
      double nuEnd, int rgeo, int Type, double & Rend);
 
+  // version-specfific real functions for version 4.7.0
+  bool processParams4p70_();
+  bool updateTemperature4p70_(const double & temp_tmp);
+  bool updateIntermediateVars4p70_();
+  void setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData);
+  void getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData);
+  int RdsEndIso4p70_(
+     double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+     double nuEnd, int rgeo, int Type, double & Rend);
+
 public:
   void registerLIDs( const std::vector<int> & intLIDVecRef,
                      const std::vector<int> & extLIDVecRef );
@@ -1254,6 +1264,8 @@ private:
 
   // version-specfific real functions for version 4.6.1
   bool processParams4p61_();
+  // version-specfific real functions for version 4.6.1
+  bool processParams4p70_();
 
 public:
   virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
