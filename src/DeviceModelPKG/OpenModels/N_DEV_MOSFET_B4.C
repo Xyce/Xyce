@@ -378,6 +378,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
 {
     p.addPar ("EOT",15.0e-10,&MOSFET_B4::Model::eot)
+     .setGivenMember(&MOSFET_B4::Model::eotGiven)
      .setUnit(U_METER)
      .setCategory(CAT_PROCESS)
      .setDescription("Equivalent gate oxide thickness in meters");
@@ -386,6 +387,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_VOLT)
      .setCategory(CAT_BASIC)
      .setDescription("Voltage for extraction of equivalent gate oxide thickness");
+
+    p.addPar ("TEMPEOT",300.15,&MOSFET_B4::Model::tempeot)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("Temperature for extraction of EOT");
+
+    p.addPar ("LEFFEOT",1e-6,&MOSFET_B4::Model::leffeot)
+     .setUnit(U_METER)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("Effective length for extraction of EOT");
+
+    p.addPar ("WEFFEOT",10e-6,&MOSFET_B4::Model::weffeot)
+     .setUnit(U_METER)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("Effective width for extraction of EOT");
 
     p.addPar ("ADOS",1.0,&MOSFET_B4::Model::ados)
      .setUnit(U_NONE)
@@ -410,6 +429,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setDescription("Physical gate oxide thickness in meters");
 
     p.addPar ("TOXM",30.0e-10,&MOSFET_B4::Model::toxm)
+     .setGivenMember(&MOSFET_B4::Model::toxmGiven)
      .setUnit(U_METER)
      .setCategory(CAT_PROCESS)
      .setDescription("Gate oxide thickness at which parameters are extracted");
@@ -646,6 +666,30 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Second parameter for Vth shift due to pocket");
 
+    p.addPar ("DVTP2",0.0,&MOSFET_B4::Model::dvtp2)
+     .setUnit(U_VMX)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("3rd parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP3",0.0,&MOSFET_B4::Model::dvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("4th parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP4",0.0,&MOSFET_B4::Model::dvtp4)
+     .setUnit(U_VOLTM1)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("5th parameter for Vth shift due to pocket");
+
+    p.addPar ("DVTP5",0.0,&MOSFET_B4::Model::dvtp4)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("6th parameter for Vth shift due to pocket");
+
     p.addPar ("LPE0",1.74e-7,&MOSFET_B4::Model::lpe0)
      .setUnit(U_METER)
      .setCategory(CAT_BASIC)
@@ -763,10 +807,22 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_BASIC)
      .setDescription("Mobility exponent");
 
+    p.addPar ("UCS",1.67,&MOSFET_B4::Model::ucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_BASIC)
+     .setMinimumVersion(4.70)
+     .setDescription("Colombic scattering exponent");
+
     p.addPar ("UTE",-1.5,&MOSFET_B4::Model::ute)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Temperature coefficient of mobility");
+
+    p.addPar ("UCSTE",-4.775e-3,&MOSFET_B4::Model::ucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Temperature coefficient of colombic mobility");
 
     p.addPar ("VOFF",-0.08,&MOSFET_B4::Model::voff)
      .setUnit(U_VOLT)
@@ -1230,6 +1286,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Temperature parameter for voff");
 
+    p.addPar ("TNFACTOR",0.0,&MOSFET_B4::Model::tnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Temperature parameter for nfactor");
+
+    p.addPar ("TETA0",0.0,&MOSFET_B4::Model::teta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Temperature parameter for eta0");
+
+    p.addPar ("TVOFFCV",0.0,&MOSFET_B4::Model::tvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Temperature parameter for tvoffcv");
+
     p.addPar ("LINTNOI",0.0,&MOSFET_B4::Model::lintnoi)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -1471,6 +1545,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_GDLEAKAGE)
      .setDescription("Parameter for body-bias dependence of GIDL");
 
+    p.addPar ("RGIDL",1.0,&MOSFET_B4::Model::rgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("GIDL vg parameter");
+
+    p.addPar ("KGIDL",0.0,&MOSFET_B4::Model::kgidl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("GIDL vb parameter");
+
+    p.addPar ("FGIDL",0.0,&MOSFET_B4::Model::fgidl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("GIDL vb parameter");
+
     p.addPar ("EGIDL",0.8,&MOSFET_B4::Model::egidl)
      .setUnit(U_VOLT)
      .setCategory(CAT_GDLEAKAGE)
@@ -1490,6 +1582,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_VOLT3)
      .setCategory(CAT_GDLEAKAGE)
      .setDescription("Parameter for body-bias dependence of GISL");
+
+    p.addPar ("RGISL",1.0,&MOSFET_B4::Model::rgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("Parameter for GISL gate bias dependence");
+
+    p.addPar ("KGISL",0.0,&MOSFET_B4::Model::kgisl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("Parameter for GISL body bias dependence");
+
+    p.addPar ("FGISL",0.0,&MOSFET_B4::Model::fgisl)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_GDLEAKAGE)
+     .setMinimumVersion(4.70)
+     .setDescription("Parameter for GISL body bias dependence");
 
     p.addPar ("EGISL",0.8,&MOSFET_B4::Model::egisl)
      .setUnit(U_VOLT)
@@ -1693,6 +1803,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Drain gate-edge sidewall trap-assisted saturation current density");
+
+    p.addPar ("JTWEFF",0.0,&MOSFET_B4::Model::jtweff)
+     .setUnit(U_METER)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("TAT current width dependence");
 
     p.addPar ("NJTS",20.0,&MOSFET_B4::Model::njts)
      .setUnit(U_NONE)
@@ -2145,6 +2261,30 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of dvtp1");
 
+    p.addPar ("LDVTP2",0.0,&MOSFET_B4::Model::ldvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of dvtp2");
+
+    p.addPar ("LDVTP3",0.0,&MOSFET_B4::Model::ldvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of dvtp3");
+
+    p.addPar ("LDVTP4",0.0,&MOSFET_B4::Model::ldvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of dvtp4");
+
+    p.addPar ("LDVTP5",0.0,&MOSFET_B4::Model::ldvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of dvtp5");
+
     p.addPar ("LLPE0",0.0,&MOSFET_B4::Model::llpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2259,6 +2399,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of ute");
+
+    p.addPar ("LUCSTE",0.0,&MOSFET_B4::Model::lucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of ucste");
 
     p.addPar ("LVOFF",0.0,&MOSFET_B4::Model::lvoff)
      .setUnit(U_NONE)
@@ -2460,6 +2606,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of cgidl");
 
+    p.addPar ("LRGIDL",0.0,&MOSFET_B4::Model::lrgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of rgidl");
+
+    p.addPar ("LKGIDL",0.0,&MOSFET_B4::Model::lkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of kgidl");
+
+    p.addPar ("LFGIDL",0.0,&MOSFET_B4::Model::lfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of fgidl");
+
     p.addPar ("LEGIDL",0.0,&MOSFET_B4::Model::legidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2479,6 +2643,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of cgisl");
+
+    p.addPar ("LRGISL",0.0,&MOSFET_B4::Model::lrgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of rgisl");
+
+    p.addPar ("LKGISL",0.0,&MOSFET_B4::Model::lkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of kgisl");
+
+    p.addPar ("LFGISL",0.0,&MOSFET_B4::Model::lfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of fgisl");
 
     p.addPar ("LEGISL",0.0,&MOSFET_B4::Model::legisl)
      .setUnit(U_NONE)
@@ -2671,6 +2853,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription(" Length dependence of eu");
 
+    p.addPar ("LUCS",0.0,&MOSFET_B4::Model::lucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription(" Length dependence of ucs");
+
     p.addPar ("LVFBSDOFF",0.0,&MOSFET_B4::Model::lvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2685,6 +2873,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Length dependence of tvoff");
+
+    p.addPar ("LTNFACTOR",0.0,&MOSFET_B4::Model::ltnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of tnfactor");
+
+    p.addPar ("LTETA0",0.0,&MOSFET_B4::Model::lteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of teta0");
+
+    p.addPar ("LTVOFFCV",0.0,&MOSFET_B4::Model::ltvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Length dependence of tvoffcv");
 
     p.addPar ("WCDSC",0.0,&MOSFET_B4::Model::wcdsc)
      .setUnit(U_NONE)
@@ -2851,6 +3057,30 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of dvtp1");
 
+    p.addPar ("WDVTP2",0.0,&MOSFET_B4::Model::wdvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of dvtp2");
+
+    p.addPar ("WDVTP3",0.0,&MOSFET_B4::Model::wdvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of dvtp3");
+
+    p.addPar ("WDVTP4",0.0,&MOSFET_B4::Model::wdvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of dvtp4");
+
+    p.addPar ("WDVTP5",0.0,&MOSFET_B4::Model::wdvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of dvtp5");
+
     p.addPar ("WLPE0",0.0,&MOSFET_B4::Model::wlpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -2965,6 +3195,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of ute");
+
+    p.addPar ("WUCSTE",0.0,&MOSFET_B4::Model::wucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of ucste");
 
     p.addPar ("WVOFF",0.0,&MOSFET_B4::Model::wvoff)
      .setUnit(U_NONE)
@@ -3166,6 +3402,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of cgidl");
 
+    p.addPar ("WRGIDL",0.0,&MOSFET_B4::Model::wrgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of rgidl");
+
+    p.addPar ("WKGIDL",0.0,&MOSFET_B4::Model::wkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of kgidl");
+
+    p.addPar ("WFGIDL",0.0,&MOSFET_B4::Model::wfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of fgidl");
+
     p.addPar ("WEGIDL",0.0,&MOSFET_B4::Model::wegidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3185,6 +3439,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of cgisl");
+
+    p.addPar ("WRGISL",0.0,&MOSFET_B4::Model::wrgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of rgisl");
+
+    p.addPar ("WKGISL",0.0,&MOSFET_B4::Model::wkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of kgisl");
+
+    p.addPar ("WFGISL",0.0,&MOSFET_B4::Model::wfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of fgisl");
 
     p.addPar ("WEGISL",0.0,&MOSFET_B4::Model::wegisl)
      .setUnit(U_NONE)
@@ -3376,6 +3648,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of eu");
 
+    p.addPar ("WUCS",0.0,&MOSFET_B4::Model::wucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of ucs");
+
     p.addPar ("WVFBSDOFF",0.0,&MOSFET_B4::Model::wvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3390,6 +3668,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Width dependence of tvoff");
+
+    p.addPar ("WTNFACTOR",0.0,&MOSFET_B4::Model::wtnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of tnfactor");
+
+    p.addPar ("WTETA0",0.0,&MOSFET_B4::Model::wteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of teta0");
+
+    p.addPar ("WTVOFFCV",0.0,&MOSFET_B4::Model::wtvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Width dependence of tvoffcv");
 
     p.addPar ("PCDSC",0.0,&MOSFET_B4::Model::pcdsc)
      .setUnit(U_NONE)
@@ -3556,6 +3852,30 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of dvtp1");
 
+    p.addPar ("PDVTP2",0.0,&MOSFET_B4::Model::pdvtp2)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of dvtp2");
+
+    p.addPar ("PDVTP3",0.0,&MOSFET_B4::Model::pdvtp3)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of dvtp3");
+
+    p.addPar ("PDVTP4",0.0,&MOSFET_B4::Model::pdvtp4)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of dvtp4");
+
+    p.addPar ("PDVTP5",0.0,&MOSFET_B4::Model::pdvtp5)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of dvtp5");
+
     p.addPar ("PLPE0",0.0,&MOSFET_B4::Model::plpe0)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3670,6 +3990,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of ute");
+
+    p.addPar ("PUCSTE",0.0,&MOSFET_B4::Model::pucste)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of ucste");
 
     p.addPar ("PVOFF",0.0,&MOSFET_B4::Model::pvoff)
      .setUnit(U_NONE)
@@ -3871,6 +4197,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of cgidl");
 
+    p.addPar ("PRGIDL",0.0,&MOSFET_B4::Model::prgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of rgidl");
+
+    p.addPar ("PKGIDL",0.0,&MOSFET_B4::Model::pkgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of kgidl");
+
+    p.addPar ("PFGIDL",0.0,&MOSFET_B4::Model::pfgidl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of fgidl");
+
     p.addPar ("PEGIDL",0.0,&MOSFET_B4::Model::pegidl)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -3890,6 +4234,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of cgisl");
+
+    p.addPar ("PRGISL",0.0,&MOSFET_B4::Model::prgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of rgisl");
+
+    p.addPar ("PKGISL",0.0,&MOSFET_B4::Model::pkgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of kgisl");
+
+    p.addPar ("PFGISL",0.0,&MOSFET_B4::Model::pfgisl)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of fgisl");
 
     p.addPar ("PEGISL",0.0,&MOSFET_B4::Model::pegisl)
      .setUnit(U_NONE)
@@ -4081,6 +4443,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of eu");
 
+    p.addPar ("PUCS",0.0,&MOSFET_B4::Model::pucs)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of ucs");
+
     p.addPar ("PVFBSDOFF",0.0,&MOSFET_B4::Model::pvfbsdoff)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -4095,6 +4463,24 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Cross-term dependence of tvoff");
+
+    p.addPar ("PTNFACTOR",0.0,&MOSFET_B4::Model::ptnfactor)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of tnfactor");
+
+    p.addPar ("PTETA0",0.0,&MOSFET_B4::Model::pteta0)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of teta0");
+
+    p.addPar ("PTVOFFCV",0.0,&MOSFET_B4::Model::ptvoffcv)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Cross-term dependence of tvoffcv");
 
     // stress effect
     p.addPar ("SAREF",1.0e-6,&MOSFET_B4::Model::saref)
@@ -4303,6 +4689,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_NONE)
      .setDescription("Thermal noise parameter");
 
+    p.addPar ("TNOIC",0.0,&MOSFET_B4::Model::tnoic)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
+     .setDescription("Thermal noise parameter");
+
     p.addPar ("RNOIA",0.577,&MOSFET_B4::Model::rnoia)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -4311,6 +4703,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
     p.addPar ("RNOIB",0.5164,&MOSFET_B4::Model::rnoib)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
+     .setDescription("Thermal noise coefficient");
+
+    p.addPar ("RNOIC",0.395,&MOSFET_B4::Model::rnoic)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setMinimumVersion(4.70)
      .setDescription("Thermal noise coefficient");
 
     p.addPar ("NTNOI",1.0,&MOSFET_B4::Model::ntnoi)
@@ -4421,6 +4819,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("parameter for nonm-silicon substrate or metal gate selector");
 
+    p.addPar ("MTRLCOMPATMOD",0,&MOSFET_B4::Model::mtrlCompatMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setMinimumVersion(4.70)
+     .setDescription("New material Mod backward compatibility selector");
+
     p.addPar ("IGCMOD",0,&MOSFET_B4::Model::igcMod)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
@@ -4435,6 +4839,12 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Temperature model selector");
+
+    p.addPar ("GIDLMOD",0,&MOSFET_B4::Model::gidlMod)
+     .setUnit(U_NONE)
+     .setCategory(CAT_CONTROL)
+     .setMinimumVersion(4.70)
+     .setDescription("parameter for GIDL selector");
 
     p.addPar ("PARAMCHK",1,&MOSFET_B4::Model::paramChk)
      .setUnit(U_NONE)
@@ -4714,6 +5124,8 @@ Instance::Instance(
     gmbs(0.0),
     gbd(0.0),
     gbs(0.0),
+    noiGd0(0.0),
+    Coxeff(0.0),
     gbbs(0.0),
     gbgs(0.0),
     gbds(0.0),
@@ -8744,7 +9156,6 @@ int Instance::RdseffGeo
   return 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Instance::RdsEndIso
 // Purpose       :
@@ -8961,15 +9372,20 @@ Model::Model(
     geoMod(0),
     rgeoMod(0),
     mtrlMod(0),
+    mtrlCompatMod(0),
     igcMod(0),
     igbMod(0),
     tempMod(0),
+    gidlMod(0),
     binUnit(0),
     paramChk(0),
     version("4.6.1"),
     versionDouble(4.61),
     eot(0.0),
     vddeot(0.0),
+    tempeot(0.0),
+    leffeot(0.0),
+    weffeot(0.0),
     ados(0.0),
     bdos(0.0),
     toxe(0.0),
@@ -9018,6 +9434,10 @@ Model::Model(
     w0(0.0),
     dvtp0(0.0),
     dvtp1(0.0),
+    dvtp2(0.0),
+    dvtp3(0.0),
+    dvtp4(0.0),
+    dvtp5(0.0),
     lpe0(0.0),
     lpeb(0.0),
     dvt0(0.0),
@@ -9041,9 +9461,14 @@ Model::Model(
     up(0.0),
     lp(0.0),
     u0(0.0),
+    ucs(0.0),
     ute(0.0),
+    ucste(0.0),
     voff(0.0),
     tvoff(0.0),
+    tnfactor(0.0),
+    teta0(0.0),
+    tvoffcv(0.0),
     minv(0.0),
     minvcv(0.0),
     voffl(0.0),
@@ -9082,10 +9507,16 @@ Model::Model(
     agidl(0.0),
     bgidl(0.0),
     cgidl(0.0),
+    rgidl(0.0),
+    kgidl(0.0),
+    fgidl(0.0),
     egidl(0.0),
     agisl(0.0),
     bgisl(0.0),
     cgisl(0.0),
+    rgisl(0.0),
+    kgisl(0.0),
+    fgisl(0.0),
     egisl(0.0),
     aigc(0.0),
     bigc(0.0),
@@ -9127,6 +9558,7 @@ Model::Model(
     jtsswd(0.0),
     jtsswgs(0.0),
     jtsswgd(0.0),
+    jtweff(0.0),
     njts(0.0),
     njtssw(0.0),
     njtsswg(0.0),
@@ -9203,8 +9635,10 @@ Model::Model(
 
     tnoia(0.0),
     tnoib(0.0),
+    tnoic(0.0),
     rnoia(0.0),
     rnoib(0.0),
+    rnoic(0.0),
     ntnoi(0.0),
 
     // CV model and Parasitics
@@ -9276,6 +9710,10 @@ Model::Model(
     lw0(0.0),
     ldvtp0(0.0),
     ldvtp1(0.0),
+    ldvtp2(0.0),
+    ldvtp3(0.0),
+    ldvtp4(0.0),
+    ldvtp5(0.0),
     llpe0(0.0),
     llpeb(0.0),
     ldvt0(0.0),
@@ -9300,8 +9738,12 @@ Model::Model(
     lu0(0.0),
     leu(0.0),
     lute(0.0),
+    lucste(0.0),
     lvoff(0.0),
     ltvoff(0.0),
+    ltnfactor(0.0),
+    lteta0(0.0),
+    ltvoffcv(0.0),
     lminv(0.0),
     lminvcv(0.0),
     ldelta(0.0),
@@ -9335,10 +9777,16 @@ Model::Model(
     lagidl(0.0),
     lbgidl(0.0),
     lcgidl(0.0),
+    lrgidl(0.0),
+    lkgidl(0.0),
+    lfgidl(0.0),
     legidl(0.0),
     lagisl(0.0),
     lbgisl(0.0),
     lcgisl(0.0),
+    lrgisl(0.0),
+    lkgisl(0.0),
+    lfgisl(0.0),
     legisl(0.0),
     laigc(0.0),
     lbigc(0.0),
@@ -9421,6 +9869,10 @@ Model::Model(
     ww0(0.0),
     wdvtp0(0.0),
     wdvtp1(0.0),
+    wdvtp2(0.0),
+    wdvtp3(0.0),
+    wdvtp4(0.0),
+    wdvtp5(0.0),
     wlpe0(0.0),
     wlpeb(0.0),
     wdvt0(0.0),
@@ -9444,9 +9896,14 @@ Model::Model(
     wlp(0.0),
     wu0(0.0),
     weu(0.0),
+    wucs(0.0),
     wute(0.0),
+    wucste(0.0),
     wvoff(0.0),
     wtvoff(0.0),
+    wtnfactor(0.0),
+    wteta0(0.0),
+    wtvoffcv(0.0),
     wminv(0.0),
     wminvcv(0.0),
     wdelta(0.0),
@@ -9480,10 +9937,16 @@ Model::Model(
     wagidl(0.0),
     wbgidl(0.0),
     wcgidl(0.0),
+    wrgidl(0.0),
+    wkgidl(0.0),
+    wfgidl(0.0),
     wegidl(0.0),
     wagisl(0.0),
     wbgisl(0.0),
     wcgisl(0.0),
+    wrgisl(0.0),
+    wkgisl(0.0),
+    wfgisl(0.0),
     wegisl(0.0),
     waigc(0.0),
     wbigc(0.0),
@@ -9566,6 +10029,10 @@ Model::Model(
     pw0(0.0),
     pdvtp0(0.0),
     pdvtp1(0.0),
+    pdvtp2(0.0),
+    pdvtp3(0.0),
+    pdvtp4(0.0),
+    pdvtp5(0.0),
     plpe0(0.0),
     plpeb(0.0),
     pdvt0(0.0),
@@ -9589,9 +10056,14 @@ Model::Model(
     plp(0.0),
     pu0(0.0),
     peu(0.0),
+    pucs(0.0),
     pute(0.0),
+    pucste(0.0),
     pvoff(0.0),
     ptvoff(0.0),
+    ptnfactor(0.0),
+    pteta0(0.0),
+    ptvoffcv(0.0),
     pminv(0.0),
     pminvcv(0.0),
     pdelta(0.0),
@@ -9625,10 +10097,16 @@ Model::Model(
     pagidl(0.0),
     pbgidl(0.0),
     pcgidl(0.0),
+    prgidl(0.0),
+    pkgidl(0.0),
+    pfgidl(0.0),
     pegidl(0.0),
     pagisl(0.0),
     pbgisl(0.0),
     pcgisl(0.0),
+    prgisl(0.0),
+    pkgisl(0.0),
+    pfgisl(0.0),
     pegisl(0.0),
     paigc(0.0),
     pbigc(0.0),
@@ -9848,8 +10326,10 @@ Model::Model(
     rbdby0Given(false),
     lambdaGiven(false),
     pigcdGiven(false),
+    eotGiven(false),
     toxeGiven(false),
     toxpGiven(false),
+    toxmGiven(false),
     dtoxGiven(false),
     cgdoGiven(false),
     dlcGiven(false),
@@ -9858,7 +10338,6 @@ Model::Model(
     sizeDependParamList()
 
 {
-
   if (getType() != "")
   {
     if (getType() == "NMOS") {
@@ -9906,6 +10385,8 @@ Model::Model(
     vddeot= (dtype == CONSTNMOS)?1.5:-1.5;
   if (!given("EU"))
     eu =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
+  if (!given("UCS"))
+    ucs =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
   if (!given("UA"))
     ua =(mobMod == 2) ? 1.0E-15 : 1.0E-9; // UNIT M/V
   if (!given("UC"))
@@ -10006,6 +10487,21 @@ Model::Model(
   {
     if (given("EGIDL"))
       egisl=egidl;
+  }
+  if (!given("RGISL"))
+  {
+    if (given("RGIDL"))
+      rgisl=rgidl;
+  }
+  if (!given("KGISL"))
+  {
+    if (given("KGIDL"))
+      kgisl=kgidl;
+  }
+  if (!given("FGISL"))
+  {
+    if (given("FGIDL"))
+      fgisl=fgidl;
   }
 
   if (!given("DLCIG"))
@@ -10134,6 +10630,21 @@ Model::Model(
     if (given("LEGIDL"))
       legisl = legidl;
   }
+  if (!given("LRGISL"))
+  {
+    if (given("LRGIDL"))
+      lrgisl = lrgidl;
+  }
+  if (!given("LKGISL"))
+  {
+    if (given("LKGIDL"))
+      lkgisl = lkgidl;
+  }
+  if (!given("LFGISL"))
+  {
+    if (given("LFGIDL"))
+      lfgisl = lfgidl;
+  }
 
   // This is ugly, ugly, ugly.
   // This stuff is all the "else" clauses from the spice code, which are
@@ -10184,6 +10695,21 @@ Model::Model(
     if (given("WEGIDL"))
       wegisl = wegidl;
   }
+  if (!given("WRGISL"))
+  {
+    if (given("WRGIDL"))
+      wrgisl = wrgidl;
+  }
+  if (!given("WKGISL"))
+  {
+    if (given("WKGIDL"))
+      wkgisl = wkgidl;
+  }
+  if (!given("WFGISL"))
+  {
+    if (given("WFGIDL"))
+      wfgisl = wfgidl;
+  }
 
   // See above, under "ugly, ugly, ugly"
   if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
@@ -10218,6 +10744,21 @@ Model::Model(
   {
     if (given("PEGIDL"))
       pegisl = pegidl;
+  }
+  if (!given("PRGISL"))
+  {
+    if (given("PRGIDL"))
+      prgisl = prgidl;
+  }
+  if (!given("PKGISL"))
+  {
+    if (given("PKGIDL"))
+      pkgisl = pkgidl;
+  }
+  if (!given("PFGISL"))
+  {
+    if (given("PFGIDL"))
+      pfgisl = pfgidl;
   }
 
   // Vide supra, re "ugly"

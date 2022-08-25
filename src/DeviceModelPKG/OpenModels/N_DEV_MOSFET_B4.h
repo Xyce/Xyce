@@ -54,7 +54,7 @@ namespace Xyce {
 namespace Device {
 namespace MOSFET_B4 {
 
-enum noiseType {RDNOIZ, RSNOIZ, RGNOIZ, RBPSNOIZ, RBPDNOIZ, RBPBNOIZ, RBSBNOIZ, RBDBNOIZ, IDNOIZ, FLNOIZ, IGSNOIZ, IGDNOIZ, IGBNOIZ, NUMNOIZ };
+enum noiseType {RDNOIZ, RSNOIZ, RGNOIZ, RBPSNOIZ, RBPDNOIZ, RBPBNOIZ, RBSBNOIZ, RBDBNOIZ, IDNOIZ, FLNOIZ, IGSNOIZ, IGDNOIZ, IGBNOIZ, CORLNOIZ, NUMNOIZ };
 
 class Model;
 class Instance;
@@ -126,6 +126,10 @@ private:
   double w0;
   double dvtp0;
   double dvtp1;
+  double dvtp2;
+  double dvtp3;
+  double dvtp4;
+  double dvtp5;
   double lpe0;
   double lpeb;
   double dvt0;
@@ -149,9 +153,14 @@ private:
   double lp;
   double u0;
   double eu;
+  double ucs;
   double ute;
+  double ucste;
   double voff;
   double tvoff;
+  double tnfactor;
+  double teta0;
+  double tvoffcv;
   double minv;
   double minvcv;
   double vfb;
@@ -189,10 +198,16 @@ private:
   double bgidl;
   double cgidl;
   double egidl;
+  double fgidl;
+  double kgidl;
+  double rgidl;
   double agisl;
   double bgisl;
   double cgisl;
   double egisl;
+  double fgisl;
+  double kgisl;
+  double rgisl;
   double aigc;
   double bigc;
   double cigc;
@@ -276,6 +291,7 @@ private:
   double theta0vb0;
   double thetaRout;
   double mstar;
+  double VgsteffVth;
   double mstarcv;
   double voffcbn;
   double voffcbncv;
@@ -300,6 +316,7 @@ private:
   double k1ox;
   double k2ox;
   double vfbzbfactor;
+  double dvtp2factor;
 
   // ERK.  I added this to make temperature sweeps work.
   double referenceTemperature;
@@ -588,6 +605,8 @@ private:
   double gmbs;
   double gbd;
   double gbs;
+  double noiGd0;
+  double Coxeff;
 
   double gbbs;
   double gbgs;
@@ -1288,15 +1307,20 @@ private:
   int    geoMod;
   int    rgeoMod;
   int    mtrlMod;
+  int    mtrlCompatMod;
   int    igcMod;
   int    igbMod;
   int    tempMod;
+  int    gidlMod;
   int    binUnit;
   int    paramChk;
   std::string version;
   double versionDouble;
   double eot;
   double vddeot;
+  double tempeot;
+  double leffeot;
+  double weffeot;
   double ados;
   double bdos;
   double toxe;
@@ -1345,6 +1369,10 @@ private:
   double w0;
   double dvtp0;
   double dvtp1;
+  double dvtp2;
+  double dvtp3;
+  double dvtp4;
+  double dvtp5;
   double lpe0;
   double lpeb;
   double dvt0;
@@ -1368,9 +1396,14 @@ private:
   double up;
   double lp;
   double u0;
+  double ucs;
   double ute;
+  double ucste;
   double voff;
   double tvoff;
+  double tnfactor;
+  double teta0;
+  double tvoffcv;
   double minv;
   double minvcv;
   double voffl;
@@ -1409,10 +1442,16 @@ private:
   double agidl;
   double bgidl;
   double cgidl;
+  double rgidl;
+  double kgidl;
+  double fgidl;
   double egidl;
   double agisl;
   double bgisl;
   double cgisl;
+  double rgisl;
+  double kgisl;
+  double fgisl;
   double egisl;
   double aigc;
   double bigc;
@@ -1455,6 +1494,7 @@ private:
   double jtsswd;
   double jtsswgs;
   double jtsswgd;
+  double jtweff;
   double njts;
   double njtssw;
   double njtsswg;
@@ -1531,8 +1571,10 @@ private:
 
   double tnoia;
   double tnoib;
+  double tnoic;
   double rnoia;
   double rnoib;
+  double rnoic;
   double ntnoi;
 
   // CV model and Parasitics
@@ -1604,6 +1646,10 @@ private:
   double lw0;
   double ldvtp0;
   double ldvtp1;
+  double ldvtp2;
+  double ldvtp3;
+  double ldvtp4;
+  double ldvtp5;
   double llpe0;
   double llpeb;
   double ldvt0;
@@ -1627,9 +1673,14 @@ private:
   double llp;
   double lu0;
   double leu;
+  double lucs;
   double lute;
+  double lucste;
   double lvoff;
   double ltvoff;
+  double ltnfactor;
+  double lteta0;
+  double ltvoffcv;
   double lminv;
   double lminvcv;
   double ldelta;
@@ -1663,10 +1714,16 @@ private:
   double lagidl;
   double lbgidl;
   double lcgidl;
+  double lrgidl;
+  double lkgidl;
+  double lfgidl;
   double legidl;
   double lagisl;
   double lbgisl;
   double lcgisl;
+  double lrgisl;
+  double lkgisl;
+  double lfgisl;
   double legisl;
   double laigc;
   double lbigc;
@@ -1749,6 +1806,10 @@ private:
   double ww0;
   double wdvtp0;
   double wdvtp1;
+  double wdvtp2;
+  double wdvtp3;
+  double wdvtp4;
+  double wdvtp5;
   double wlpe0;
   double wlpeb;
   double wdvt0;
@@ -1772,9 +1833,14 @@ private:
   double wlp;
   double wu0;
   double weu;
+  double wucs;
   double wute;
+  double wucste;
   double wvoff;
   double wtvoff;
+  double wtnfactor;
+  double wteta0;
+  double wtvoffcv;
   double wminv;
   double wminvcv;
   double wdelta;
@@ -1808,10 +1874,16 @@ private:
   double wagidl;
   double wbgidl;
   double wcgidl;
+  double wrgidl;
+  double wkgidl;
+  double wfgidl;
   double wegidl;
   double wagisl;
   double wbgisl;
   double wcgisl;
+  double wrgisl;
+  double wkgisl;
+  double wfgisl;
   double wegisl;
   double waigc;
   double wbigc;
@@ -1894,6 +1966,10 @@ private:
   double pw0;
   double pdvtp0;
   double pdvtp1;
+  double pdvtp2;
+  double pdvtp3;
+  double pdvtp4;
+  double pdvtp5;
   double plpe0;
   double plpeb;
   double pdvt0;
@@ -1917,9 +1993,14 @@ private:
   double plp;
   double pu0;
   double peu;
+  double pucs;
   double pute;
+  double pucste;
   double pvoff;
   double ptvoff;
+  double ptnfactor;
+  double pteta0;
+  double ptvoffcv;
   double pminv;
   double pminvcv;
   double pdelta;
@@ -1953,10 +2034,16 @@ private:
   double pagidl;
   double pbgidl;
   double pcgidl;
+  double prgidl;
+  double pkgidl;
+  double pfgidl;
   double pegidl;
   double pagisl;
   double pbgisl;
   double pcgisl;
+  double prgisl;
+  double pkgisl;
+  double pfgisl;
   double pegisl;
   double paigc;
   double pbigc;
@@ -2178,8 +2265,10 @@ private:
   bool lambdaGiven;
   bool pigcdGiven;
 
+  bool eotGiven;
   bool toxeGiven;
   bool toxpGiven;
+  bool toxmGiven;
   bool dtoxGiven;
   bool cgdoGiven;
   bool dlcGiven;
