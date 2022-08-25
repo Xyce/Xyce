@@ -1357,10 +1357,28 @@ bool NOISE::solveAdjointNOISE_()
     {
       int li_Pos = noiseDataVec_[i]->li_Pos[j];
       int li_Neg = noiseDataVec_[i]->li_Neg[j];
+      int li_PosCorl = noiseDataVec_[i]->li_PosCorl[j];
+      int li_NegCorl = noiseDataVec_[i]->li_NegCorl[j];
+      double gain = 0.0;
 
-      double realVal = ((li_Pos!=-1)?Xreal[li_Pos]:0) - ((li_Neg!=-1)?Xreal[li_Neg]:0);
-      double imagVal = ((li_Pos!=-1)?Ximag[li_Pos]:0) - ((li_Neg!=-1)?Ximag[li_Neg]:0);
-      double gain = (realVal*realVal) + (imagVal*imagVal);
+      // if two sets of nodes available, calculate correlated gain.
+      // otherwise, calculate uncorrelated gain.
+      if ((li_PosCorl != -1) && (li_NegCorl != -1))
+      {
+        double realVal1 = ((li_Pos!=-1)?Xreal[li_Pos]:0) - ((li_Neg!=-1)?Xreal[li_Neg]:0);
+        double imagVal1 = ((li_Pos!=-1)?Ximag[li_Pos]:0) - ((li_Neg!=-1)?Ximag[li_Neg]:0);
+        double realVal2 = ((li_PosCorl!=-1)?Xreal[li_PosCorl]:0) - ((li_NegCorl!=-1)?Xreal[li_NegCorl]:0);
+        double imagVal2 = ((li_PosCorl!=-1)?Ximag[li_PosCorl]:0) - ((li_NegCorl!=-1)?Ximag[li_NegCorl]:0);
+        double realOut = noiseDataVec_[i]->T0 * realVal1 + noiseDataVec_[i]->T2 * realVal2 - noiseDataVec_[i]->T3 * imagVal2;
+        double imagOut = noiseDataVec_[i]->T0 * imagVal1 + noiseDataVec_[i]->T2 * imagVal2 + noiseDataVec_[i]->T3 * realVal2;
+        gain = (realOut*realOut) + (imagOut*imagOut);
+      }
+      else
+      {
+        double realVal = ((li_Pos!=-1)?Xreal[li_Pos]:0) - ((li_Neg!=-1)?Xreal[li_Neg]:0);
+        double imagVal = ((li_Pos!=-1)?Ximag[li_Pos]:0) - ((li_Neg!=-1)?Ximag[li_Neg]:0);
+        gain = (realVal*realVal) + (imagVal*imagVal);
+      }
 
       noiseDataVec_[i]->totalNoise += noiseDataVec_[i]->noiseDens[j];
       noiseDataVec_[i]->outputNoiseDens[j] = gain * noiseDataVec_[i]->noiseDens[j];

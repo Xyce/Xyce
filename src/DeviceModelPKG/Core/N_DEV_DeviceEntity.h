@@ -240,6 +240,7 @@ public:
 
 public:
   bool given(const std::string & parameter_name) const;
+  void checkParamVersions(double versionDouble) const;
 
   virtual std::ostream &printName(std::ostream &os) const = 0;
 
