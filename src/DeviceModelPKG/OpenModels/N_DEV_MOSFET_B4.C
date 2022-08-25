@@ -63,46 +63,6 @@
 
 #define CONSTEPS0 8.85418e-12
 
-#define Charge_q     (1.60219e-19) // electron charge, used in the
-                                   // updateTemperature function instead of
-                                   // of CONSTQ.  Having 2 constants for
-                                   // the same quantity (with different
-                                   // precision) doesn't make sense, but
-                                   // it is what is in the spice3f5 bsim4.
-
-#define CONSTKboQ 8.617087e-5  // another updateTemperature constant, which is
-                               // not really necessary but I am keeping for
-                               // compatibility with the spice3f5 bsim4.
-
-#define CONSTvt0     (CONSTboltz * (27.0 +CONSTCtoK)/CONSTQ)
-
-#define CONSTMM  3  // smooth coeff
-
-#define DEXP(A,B,C) {                                                         \
-        if (A > CONSTEXP_THRESHOLD) {                                         \
-            B = CONSTMAX_EXP*(1.0+(A)-CONSTEXP_THRESHOLD);                    \
-            C = CONSTMAX_EXP;                                                 \
-        } else if (A < -CONSTEXP_THRESHOLD)  {                                \
-            B = CONSTMIN_EXP;                                                 \
-            C = 0;                                                            \
-        } else   {                                                            \
-            B = exp(A);                                                       \
-            C = B;                                                            \
-        }                                                                     \
-    }
-
-
-#define DELTA  1.0E-9
-#define DEXP2(A,B) {                                                       \
-        if (A > CONSTEXP_THRESHOLD) {                                      \
-            B = CONSTMAX_EXP*(1.0+(A)-CONSTEXP_THRESHOLD);                 \
-        } else if (A < -CONSTEXP_THRESHOLD)  {                             \
-            B = CONSTMIN_EXP;                                              \
-        } else   {                                                         \
-            B = exp(A);                                                    \
-        }                                                                  \
-    }
-
 
 namespace Xyce {
 namespace Device {
