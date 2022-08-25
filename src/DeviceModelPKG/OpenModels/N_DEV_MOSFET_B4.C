@@ -5758,6 +5758,7 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams (IB.params);
 
+  checkParamVersions(model_.versionDouble);
   setupVersionPointers_();
 
   // Calculate any parameters specified as expressions:
@@ -10344,6 +10345,7 @@ Model::Model(
   setModParams (MB.params);
 
   checkAndFixVersion_();
+  checkParamVersions(versionDouble);
   setupVersionPointers_();
 
   // Set any non-constant parameter defaults:
