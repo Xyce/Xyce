@@ -40,10 +40,15 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(xyce_plugin)
+project(xyce_plugin NONE)
 
 # Xyce is required 
 find_package(Xyce)
+
+# set up compiler to the same as used for Xyce
+set(CMAKE_CXX_COMPILER ${Xyce_CXX_COMPILER})
+set(CMAKE_CXX_COMPILER_FLAGS ${Xyce_CXX_COMPILER_FLAGS})
+enable_language(CXX)
 
 # Determine library name.
 if(DEFINED PLUGIN_NAME)
@@ -73,7 +78,7 @@ set(SourceHeaders)
 # to get source file names
 foreach( vafile ${VERILOG_FILES} )
   # need to read the module name from each va input file
-  file(READ ${vafile} vaFileText )
+  file(READ "${CMAKE_CURRENT_BINARY_DIR}/${vafile}" vaFileText )
   string(REGEX MATCH "module[ \t]+[^ \t\r\n(]+" moduleAndName ${vaFileText} )
   string(REGEX REPLACE "module[ \t]+" "" module ${moduleAndName} )
   #string(REPLACE ".va" "" module "${vafile}" ) 
@@ -92,8 +97,8 @@ foreach( vafile ${VERILOG_FILES} )
             -e ${Xyce_XmlDir}/xyceBasicTemplates_nosac.xml 
             -e ${Xyce_XmlDir}/xyceAnalogFunction_nosac.xml 
             -e ${Xyce_XmlDir}/xyceHeaderFile_nosac.xml 
-            -e ${Xyce_XmlDir}/xyceImplementationFile_nosac.xml ${vafile} 
-    DEPENDS ${vaFile}
+            -e ${Xyce_XmlDir}/xyceImplementationFile_nosac.xml "${CMAKE_CURRENT_BINARY_DIR}/${vafile}" 
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${vaFile}"
   )
 endforeach()
 
