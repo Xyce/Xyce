@@ -85,6 +85,10 @@
 // files such as limits.h, hw.h, hw_ieee.h, and/or hw_vax.h.  limits.h
 // is a file that comes with the compiler, but the rest are part of 3f5.
 //
+#define CONSTMAX_EXPL 2.688117142e+43
+#define CONSTMIN_EXPL 3.720075976e-44
+#define CONSTEXPL_THRESHOLD 100.0
+
 #define CONSTEXP_THRESHOLD 34.0
 #define CONSTMAX_EXP 5.834617425e14
 #define CONSTMIN_EXP 1.713908431e-15
