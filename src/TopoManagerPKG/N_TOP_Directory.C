@@ -246,6 +246,66 @@ std::vector<NodeID> Directory::getSolnGIDs( const std::vector<NodeID> & idVec,
     }
   }
 
+  else
+  {
+    // In parallel, the bad solution node may be reported on a different processor by the parallel
+    // directory. So, it is necessary to communicate all the bad solution nodes to create the correct 
+    // error message.  First set the badSolnNodes to the local badSolnNodes and add off-processor
+    // contributions.
+    int numProc = pdsComm_.numProc();
+    int procID = pdsComm_.procID();
+    std::vector<int> local_numBadNodes( numProc, 0 ), numBadNodes( numProc, 0 );
+    local_numBadNodes[ procID ] = local_bSN_size;   
+    pdsComm_.sumAll(&local_numBadNodes[0], &numBadNodes[0], numProc );
+
+    // Count the bytes for packing the strings for the bad nodes.
+    int byteCount = 0;
+    for ( std::vector< Xyce::NodeID >::iterator it = badSolnNodes.begin(); it != badSolnNodes.end(); ++it )
+      byteCount += Xyce::packedByteCount( *it );
+
+    // Loop over the processors and broadcast any bad solution nodes.
+    for (int proc = 0; proc < numProc; ++proc)
+    {
+      // Broadcast the buffer size for this processor.
+      int bsize=0;
+      if (proc == procID) { bsize = byteCount; }
+      pdsComm_.bcast( &bsize, 1, proc );
+        
+      if (bsize)
+      {
+        // Create buffer.
+        int pos = 0;
+        char * badNodeBuffer = new char[bsize];
+        
+        if ( proc == procID )
+        {
+          // Pack the bad node buffer
+          for (int i=0; i<local_bSN_size; ++i)
+            Xyce::pack(badSolnNodes[i], badNodeBuffer, bsize, pos, &pdsComm_);
+        }
+
+        // Broadcast packed buffer.
+        pdsComm_.bcast( badNodeBuffer, bsize, proc );
+
+        if ( proc != procID )
+        {
+          // Extract bad nodes and append them to the badSolnNodes list
+          NodeID tmpNode;
+
+          // Unpack each node and append to the badSolnNodes vector
+          for (int i=0; i<numBadNodes[proc]; ++i)
+          {
+            Xyce::unpack(tmpNode, badNodeBuffer, bsize, pos, &pdsComm_);
+            badSolnNodes.push_back( tmpNode );
+          }
+        }          
+  
+        // Clean up.
+        delete [] badNodeBuffer;
+      }
+    } 
+  }
+
   return badSolnNodes;
 }
 
