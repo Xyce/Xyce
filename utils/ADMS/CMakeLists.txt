@@ -108,23 +108,23 @@ message( STATUS  "SourceHeaders ${SourceHeaders}" )
 
 # make the bootstrap code for the shared library
 string( CONCAT BootstrapFileName "N_DEV_Module" "${library_name}" ".C" )
-file( WRITE ${BootstrapFileName} "#include<Xyce_config.h>\n" )
+file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}" "#include<Xyce_config.h>\n" )
 foreach( header ${SourceHeaders} )
-  file( APPEND ${BootstrapFileName} "#include<" "${header}" ">\n" )
+  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}" "#include<" "${header}" ">\n" )
 endforeach()
 
 
-file( APPEND ${BootstrapFileName}  "struct Bootstrap\n" )
-file( APPEND ${BootstrapFileName}  "{\n" )
-file( APPEND ${BootstrapFileName}  "  Bootstrap()\n" )
-file( APPEND ${BootstrapFileName}  "  {\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "struct Bootstrap\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "{\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "  Bootstrap()\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "  {\n" )
 foreach( module ${ModuleNames})
-  file( APPEND ${BootstrapFileName}  "    Xyce::Device::ADMS" "${module}" "::registerDevice();\n" )
+  file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "    Xyce::Device::ADMS" "${module}" "::registerDevice();\n" )
 endforeach()
 
-file( APPEND ${BootstrapFileName}  "  }\n" )
-file( APPEND ${BootstrapFileName}  "};\n" )
-file( APPEND ${BootstrapFileName}  "Bootstrap s_bootstrap;\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "  }\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "};\n" )
+file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "Bootstrap s_bootstrap;\n" )
 # done making the bootstrap file.
 
 add_library("${library_name}" SHARED ${SourceFiles} ${BootstrapFileName} )
