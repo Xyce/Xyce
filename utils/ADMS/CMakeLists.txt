@@ -43,7 +43,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(xyce_plugin NONE)
 
 # Xyce is required 
-find_package(Xyce)
+#file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.." XyceDirHint )
+find_package(Xyce REQUIRED HINTS @CMAKE_INSTALL_PREFIX@ @CPACK_PACKAGING_INSTALL_PREFIX@)
 
 # set up compiler to the same as used for Xyce
 set(CMAKE_CXX_COMPILER ${Xyce_CXX_COMPILER})
@@ -61,6 +62,11 @@ if(NOT DEFINED CMAKE_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX ENV{HOME} "/lib")
   message(STATUS "Setting install prefix to ${CMAKE_INSTALL_PREFIX}")
 endif()
+
+if(NOT DEFINED VERILOG_FILES)
+  message( FATAL_ERROR "No Verilog input files given.  Use -DVERILOG_FILES=\"file1.va;...fileN.va\" to specify verilog inputs.")    
+endif()
+
 
 message(STATUS "Verilog files = ${VERILOG_FILES}")
 message(STATUS "Xyce_DIR = ${Xyce_DIR}")

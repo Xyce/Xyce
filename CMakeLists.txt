@@ -163,12 +163,18 @@ if(Xyce_PLUGIN_SUPPORT)
         utils/ADMS/xyceHeaderFile_nosac.xml
         utils/ADMS/xyceImplementationFile_nosac.xml
         ${CMAKE_BINARY_DIR}/XycePluginProject.cmake
-        utils/ADMS/CMakeLists.txt
       DESTINATION share)
 
     install(
       DIRECTORY utils/ADMS/examples/toys
       DESTINATION share/examples)
+
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY ) 
+    install(
+      FILES
+        ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
+      DESTINATION share)
 
     message(STATUS "Plugin compatibility enabled")
   else()
