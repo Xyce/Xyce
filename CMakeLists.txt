@@ -169,6 +169,13 @@ if(Xyce_PLUGIN_SUPPORT)
       DIRECTORY utils/ADMS/examples/toys
       DESTINATION share/examples)
 
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY ) 
+    install(
+      FILES
+        ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
+      DESTINATION share)
+
     message(STATUS "Plugin compatibility enabled")
   else()
     message(WARNING "ADMS not found.  Disabling the plugin capability.")
