@@ -75,7 +75,15 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
-\item The voltage-controlled current source (VCCS, or '\texttt{G}' device) now supports the \texttt{M} multiplier parameter.
+\item The voltage-controlled current source (VCCS, or '\texttt{G}'
+    device) now supports the \texttt{M} multiplier parameter.
+\item The BSIM4 device (level 14 and 54 MOSFET) now supports two
+    versions, the 4.6.1 version that has been present for many
+    releases and the 4.7.0 version new to this release.  The specific
+    version of BSIM4 can be selected by setting the \texttt{VERSION}
+    parameter on the \texttt{.MODEL} line for the device.  At this
+    time the BSIM4 is the only device in Xyce that supports multiple
+    versions in this manner.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
