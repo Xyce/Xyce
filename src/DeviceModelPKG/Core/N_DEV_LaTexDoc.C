@@ -172,7 +172,8 @@ void unitDescription(
   const Descriptor &            descriptor,
   ParameterUnit &               unit,
   ParameterCategory &           category,
-  std::string &                 description)
+  std::string &                 description,
+  std::string &                 versionRange)
 {
   unit = descriptor.getUnit();
   if (unit == STANDARD)
@@ -233,8 +234,9 @@ void unitDescription(
 
         std::string base_description;
         ParameterCategory base_category = CAT_UNKNOWN;
+        std::string versionRange;
 
-        unitDescription(base_name, parameter_map, base_descriptor, unit, base_category, base_description);
+        unitDescription(base_name, parameter_map, base_descriptor, unit, base_category, base_description,versionRange);
         if (unit != U_INVALID && unit != U_UNKNOWN)
         {
           for (int i = 0; i < num; ++i)
@@ -260,6 +262,26 @@ void unitDescription(
       description = descriptor.getDescription();
     }
   }
+  {
+    std::ostringstream verRange;
+    versionRange="";
+    if (descriptor.isMinVersionSet() && descriptor.isMaxVersionSet())
+    {
+      verRange << "[Only between versions " << descriptor.getMinimumVersion() << " and " << descriptor.getMaximumVersion() << "]" ;
+      versionRange = verRange.str();
+    }
+    else if (descriptor.isMinVersionSet())
+    {
+      verRange << "[Only for versions starting with " << descriptor.getMinimumVersion() << "]" ;
+      versionRange = verRange.str();
+    }
+    else if (descriptor.isMaxVersionSet())
+    {
+      verRange << "[Only for versions up to " << descriptor.getMaximumVersion() << "]" ;
+      versionRange = verRange.str();
+    }
+  }
+
 }
 
 const UnitInfo &findUnit(const int unit)
@@ -270,7 +292,7 @@ const UnitInfo &findUnit(const int unit)
   return *(Units::unitTable);
 }
 
-std::ostream &documentParameter(std::ostream &os, const std::string &name, const int parameter_unit, const std::string &description, const Descriptor &descriptor)
+std::ostream &documentParameter(std::ostream &os, const std::string &name, const int parameter_unit, const std::string &description, const std::string &versionRange, const Descriptor &descriptor)
 {
   if (descriptor.getCompositeParametricData<void>()) {
     os << laTexProtect(name) << " & " << laTexProtect(description) << " & ";
@@ -279,7 +301,12 @@ std::ostream &documentParameter(std::ostream &os, const std::string &name, const
     os << "\\multicolumn{2}{c}{See Table~\\ref{" << name << "_Composite_Params}} ";
   }
   else {
-    os << laTexProtect(name) << " & " << laTexProtect(description) << " & ";
+    os << laTexProtect(name);
+    if (versionRange != "")
+    {
+      os << "\\newline" << "{\\normalfont " << versionRange << "}";
+    }
+    os << " & " << laTexProtect(description) << " & ";
 
     const UnitInfo &unit_info = findUnit(parameter_unit);
     os << unit_info.doc;
@@ -352,9 +379,10 @@ laTexComposite(
       std::string parameter_description;
       ParameterUnit parameter_unit = U_INVALID;
       ParameterCategory parameter_category = CAT_UNKNOWN;
-      unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description);
+      std::string versionRange;
+      unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description,versionRange);
 
-      documentParameter(os, parameter_name, parameter_unit, parameter_description, descriptor);
+      documentParameter(os, parameter_name, parameter_unit, parameter_description, versionRange, descriptor);
     }
   }
 
@@ -398,7 +426,8 @@ laTexDevice(
           std::string parameter_description;
           ParameterUnit parameter_unit = U_INVALID;
           ParameterCategory parameter_category = CAT_UNKNOWN;
-          unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description);
+          std::string versionRange;
+          unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description,versionRange);
 
           if (parameter_category == category) {
             if (!header.empty() && !header_printed) {
@@ -407,7 +436,7 @@ laTexDevice(
               os << std::endl
                  << "\\category{" << header << "}" << "\\\\ \\hline" << std::endl;
             }
-            documentParameter(os, parameter_name, parameter_unit, parameter_description, descriptor);
+            documentParameter(os, parameter_name, parameter_unit, parameter_description, versionRange, descriptor);
           }
         }
       }
@@ -423,9 +452,10 @@ laTexDevice(
         std::string parameter_description;
         ParameterUnit parameter_unit = U_INVALID;
         ParameterCategory parameter_category = CAT_UNKNOWN;
-        unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description);
+        std::string versionRange;
+        unitDescription((*it).first, parameter_map, descriptor, parameter_unit, parameter_category, parameter_description,versionRange);
 
-        documentParameter(os, parameter_name, parameter_unit, parameter_description, descriptor);
+        documentParameter(os, parameter_name, parameter_unit, parameter_description, versionRange, descriptor);
       }
     }
   }

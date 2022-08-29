@@ -1229,6 +1229,30 @@ public:
     return *this;
   }
 
+  /// Return a bool indicating whether or not a minimum version was set
+  ///
+  /// @return true if minimum version set
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Mon 29 Aug 2022
+  ///
+  bool isMinVersionSet() const
+  {
+    return minVerSet_;
+  }
+
+  /// Return minimum version of device that supports this parameter
+  ///
+  /// @return minimum version number
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Mon 29 Aug 2022
+  ///
+  double getMinimumVersion() const
+  {
+    return minimumVersion_;
+  }
+
   /// Set a maximum version of a consumer of this parameter that supports
   /// the parameter.
   ///
@@ -1244,6 +1268,30 @@ public:
     maximumVersion_ = value;
     maxVerSet_ = true;
     return *this;
+  }
+
+  /// Return a bool indicating whether or not a minimum version was set
+  ///
+  /// @return true if minimum version set
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Mon 29 Aug 2022
+  ///
+  bool isMaxVersionSet() const
+  {
+    return maxVerSet_;
+  }
+
+  /// Return minimum version of device that supports this parameter
+  ///
+  /// @return minimum version number
+  ///
+  /// @author Tom Russo, Sandia National Laboratories 1355
+  /// @date Mon 29 Aug 2022
+  ///
+  double getMaximumVersion() const
+  {
+    return maximumVersion_;
   }
 
   /// versionIsInRange

@@ -42,6 +42,7 @@ JTSSWD & Drain STI sidewall trap-assisted saturation current density & -- & 0 \\
 JTSSWGD & Drain gate-edge sidewall trap-assisted saturation current density & -- & 0 \\ \hline
 JTSSWGS & Source gate-edge sidewall trap-assisted saturation current density & -- & 0 \\ \hline
 JTSSWS & Source STI sidewall trap-assisted saturation current density & -- & 0 \\ \hline
+JTWEFF\newline{\normalfont [Only for versions starting with 4.7]} & TAT current width dependence & m & 0 \\ \hline
 K2WE &  K2 shift factor for well proximity effect  & -- & 0 \\ \hline
 K3B & Body effect coefficient of k3 & -- & 0 \\ \hline
 KF & Flicker noise coefficient & -- & 0 \\ \hline
@@ -110,6 +111,10 @@ LDVT2 & Length dependence of dvt2 & -- & 0 \\ \hline
 LDVT2W & Length dependence of dvt2w & -- & 0 \\ \hline
 LDVTP0 & Length dependence of dvtp0 & -- & 0 \\ \hline
 LDVTP1 & Length dependence of dvtp1 & -- & 0 \\ \hline
+LDVTP2\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of dvtp2 & -- & 0 \\ \hline
+LDVTP3\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of dvtp3 & -- & 0 \\ \hline
+LDVTP4\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of dvtp4 & -- & 0 \\ \hline
+LDVTP5\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of dvtp5 & -- & 0 \\ \hline
 LDWB & Length dependence of dwb & -- & 0 \\ \hline
 LDWG & Length dependence of dwg & -- & 0 \\ \hline
 LEGIDL & Length dependence of egidl & -- & 0 \\ \hline
@@ -118,6 +123,8 @@ LEIGBINV & Length dependence for eigbinv & -- & 0 \\ \hline
 LETA0 & Length dependence of eta0 & -- & 0 \\ \hline
 LETAB & Length dependence of etab & -- & 0 \\ \hline
 LEU &  Length dependence of eu & -- & 0 \\ \hline
+LFGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of fgidl & -- & 0 \\ \hline
+LFGISL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of fgisl & -- & 0 \\ \hline
 LFPROUT & Length dependence of pdiblcb & -- & 0 \\ \hline
 LGAMMA1 & Length dependence of gamma1 & -- & 0 \\ \hline
 LGAMMA2 & Length dependence of gamma2 & -- & 0 \\ \hline
@@ -128,6 +135,8 @@ LK2WE &  Length dependence of k2we  & -- & 0 \\ \hline
 LK3 & Length dependence of k3 & -- & 0 \\ \hline
 LK3B & Length dependence of k3b & -- & 0 \\ \hline
 LKETA & Length dependence of keta & -- & 0 \\ \hline
+LKGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of kgidl & -- & 0 \\ \hline
+LKGISL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of kgisl & -- & 0 \\ \hline
 LKT1 & Length dependence of kt1 & -- & 0 \\ \hline
 LKT1L & Length dependence of kt1l & -- & 0 \\ \hline
 LKT2 & Length dependence of kt2 & -- & 0 \\ \hline
@@ -178,9 +187,14 @@ LPSCBE2 & Length dependence of pscbe2 & -- & 0 \\ \hline
 LPVAG & Length dependence of pvag & -- & 0 \\ \hline
 LRDSW & Length dependence of rdsw  & -- & 0 \\ \hline
 LRDW & Length dependence of rdw & -- & 0 \\ \hline
+LRGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of rgidl & -- & 0 \\ \hline
+LRGISL\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of rgisl & -- & 0 \\ \hline
 LRSW & Length dependence of rsw & -- & 0 \\ \hline
+LTETA0\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of teta0 & -- & 0 \\ \hline
+LTNFACTOR\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of tnfactor & -- & 0 \\ \hline
 LTVFBSDOFF & Length dependence of tvfbsdoff & -- & 0 \\ \hline
 LTVOFF & Length dependence of tvoff & -- & 0 \\ \hline
+LTVOFFCV\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of tvoffcv & -- & 0 \\ \hline
 LU0 & Length dependence of u0 & -- & 0 \\ \hline
 LUA & Length dependence of ua & -- & 0 \\ \hline
 LUA1 & Length dependence of ua1 & -- & 0 \\ \hline
@@ -188,6 +202,8 @@ LUB & Length dependence of ub & -- & 0 \\ \hline
 LUB1 & Length dependence of ub1 & -- & 0 \\ \hline
 LUC & Length dependence of uc & -- & 0 \\ \hline
 LUC1 & Length dependence of uc1 & -- & 0 \\ \hline
+LUCS\newline{\normalfont [Only for versions starting with 4.7]} &  Length dependence of ucs & -- & 0 \\ \hline
+LUCSTE\newline{\normalfont [Only for versions starting with 4.7]} & Length dependence of ucste & -- & 0 \\ \hline
 LUD & Length dependence of ud & -- & 0 \\ \hline
 LUD1 & Length dependence of ud1 & -- & 0 \\ \hline
 LUP & Length dependence of up & -- & 0 \\ \hline
@@ -293,6 +309,10 @@ PDVT2 & Cross-term dependence of dvt2 & -- & 0 \\ \hline
 PDVT2W & Cross-term dependence of dvt2w & -- & 0 \\ \hline
 PDVTP0 & Cross-term dependence of dvtp0 & -- & 0 \\ \hline
 PDVTP1 & Cross-term dependence of dvtp1 & -- & 0 \\ \hline
+PDVTP2\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of dvtp2 & -- & 0 \\ \hline
+PDVTP3\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of dvtp3 & -- & 0 \\ \hline
+PDVTP4\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of dvtp4 & -- & 0 \\ \hline
+PDVTP5\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of dvtp5 & -- & 0 \\ \hline
 PDWB & Cross-term dependence of dwb & -- & 0 \\ \hline
 PDWG & Cross-term dependence of dwg & -- & 0 \\ \hline
 PEGIDL & Cross-term dependence of egidl & -- & 0 \\ \hline
@@ -301,6 +321,8 @@ PEIGBINV & Cross-term dependence for eigbinv & -- & 0 \\ \hline
 PETA0 & Cross-term dependence of eta0 & -- & 0 \\ \hline
 PETAB & Cross-term dependence of etab & -- & 0 \\ \hline
 PEU & Cross-term dependence of eu & -- & 0 \\ \hline
+PFGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of fgidl & -- & 0 \\ \hline
+PFGISL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of fgisl & -- & 0 \\ \hline
 PFPROUT & Cross-term dependence of pdiblcb & -- & 0 \\ \hline
 PGAMMA1 & Cross-term dependence of gamma1 & -- & 0 \\ \hline
 PGAMMA2 & Cross-term dependence of gamma2 & -- & 0 \\ \hline
@@ -311,6 +333,8 @@ PK2WE &  Cross-term dependence of k2we  & -- & 0 \\ \hline
 PK3 & Cross-term dependence of k3 & -- & 0 \\ \hline
 PK3B & Cross-term dependence of k3b & -- & 0 \\ \hline
 PKETA & Cross-term dependence of keta & -- & 0 \\ \hline
+PKGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of kgidl & -- & 0 \\ \hline
+PKGISL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of kgisl & -- & 0 \\ \hline
 PKT1 & Cross-term dependence of kt1 & -- & 0 \\ \hline
 PKT1L & Cross-term dependence of kt1l & -- & 0 \\ \hline
 PKT2 & Cross-term dependence of kt2 & -- & 0 \\ \hline
@@ -352,10 +376,15 @@ PPSCBE2 & Cross-term dependence of pscbe2 & -- & 0 \\ \hline
 PPVAG & Cross-term dependence of pvag & -- & 0 \\ \hline
 PRDSW & Cross-term dependence of rdsw  & -- & 0 \\ \hline
 PRDW & Cross-term dependence of rdw & -- & 0 \\ \hline
+PRGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of rgidl & -- & 0 \\ \hline
+PRGISL\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of rgisl & -- & 0 \\ \hline
 PRSW & Cross-term dependence of rsw & -- & 0 \\ \hline
 PRT & Temperature coefficient of parasitic resistance  & -- & 0 \\ \hline
+PTETA0\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of teta0 & -- & 0 \\ \hline
+PTNFACTOR\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of tnfactor & -- & 0 \\ \hline
 PTVFBSDOFF & Cross-term dependence of tvfbsdoff & -- & 0 \\ \hline
 PTVOFF & Cross-term dependence of tvoff & -- & 0 \\ \hline
+PTVOFFCV\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of tvoffcv & -- & 0 \\ \hline
 PU0 & Cross-term dependence of u0 & -- & 0 \\ \hline
 PUA & Cross-term dependence of ua & -- & 0 \\ \hline
 PUA1 & Cross-term dependence of ua1 & -- & 0 \\ \hline
@@ -363,6 +392,8 @@ PUB & Cross-term dependence of ub & -- & 0 \\ \hline
 PUB1 & Cross-term dependence of ub1 & -- & 0 \\ \hline
 PUC & Cross-term dependence of uc & -- & 0 \\ \hline
 PUC1 & Cross-term dependence of uc1 & -- & 0 \\ \hline
+PUCS\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of ucs & -- & 0 \\ \hline
+PUCSTE\newline{\normalfont [Only for versions starting with 4.7]} & Cross-term dependence of ucste & -- & 0 \\ \hline
 PUD & Cross-term dependence of ud & -- & 0 \\ \hline
 PUD1 & Cross-term dependence of ud1 & -- & 0 \\ \hline
 PUP & Cross-term dependence of up & -- & 0 \\ \hline
@@ -418,6 +449,7 @@ RBSDBYNF & Body resistance RBSDBY NF scaling & -- & 0 \\ \hline
 RBSDBYW & Body resistance RBSDBY W scaling & -- & 0 \\ \hline
 RNOIA & Thermal noise coefficient & -- & 0.577 \\ \hline
 RNOIB & Thermal noise coefficient & -- & 0.5164 \\ \hline
+RNOIC\newline{\normalfont [Only for versions starting with 4.7]} & Thermal noise coefficient & -- & 0.395 \\ \hline
 SAREF & Reference distance between OD edge to poly of one side & -- & 1e-06 \\ \hline
 SBREF & Reference distance between OD edge to poly of the other side & -- & 1e-06 \\ \hline
 SCREF &  Reference distance to calculate SCA,SCB and SCC & -- & 1e-06 \\ \hline
@@ -426,7 +458,9 @@ STK2 & K2 shift factor related to stress effect on vth & -- & 0 \\ \hline
 TCJ & Temperature coefficient of cj & -- & 0 \\ \hline
 TCJSW & Temperature coefficient of cjsw & -- & 0 \\ \hline
 TCJSWG & Temperature coefficient of cjswg & -- & 0 \\ \hline
+TETA0\newline{\normalfont [Only for versions starting with 4.7]} & Temperature parameter for eta0 & -- & 0 \\ \hline
 TKU0 & Temperature coefficient of KU0 & -- & 0 \\ \hline
+TNFACTOR\newline{\normalfont [Only for versions starting with 4.7]} & Temperature parameter for nfactor & -- & 0 \\ \hline
 TNJTS & Temperature coefficient for NJTS & -- & 0 \\ \hline
 TNJTSD & Temperature coefficient for NJTSD & -- & 0 \\ \hline
 TNJTSSW & Temperature coefficient for NJTSSW & -- & 0 \\ \hline
@@ -435,15 +469,18 @@ TNJTSSWG & Temperature coefficient for NJTSSWG & -- & 0 \\ \hline
 TNJTSSWGD & Temperature coefficient for NJTSSWGD & -- & 0 \\ \hline
 TNOIA & Thermal noise parameter & -- & 1.5 \\ \hline
 TNOIB & Thermal noise parameter & -- & 3.5 \\ \hline
+TNOIC\newline{\normalfont [Only for versions starting with 4.7]} & Thermal noise parameter & -- & 0 \\ \hline
 TNOM & Parameter measurement temperature & -- & Ambient Temperature \\ \hline
 TPB & Temperature coefficient of pb & -- & 0 \\ \hline
 TPBSW & Temperature coefficient of pbsw & -- & 0 \\ \hline
 TPBSWG & Temperature coefficient of pbswg & -- & 0 \\ \hline
 TVFBSDOFF & Temperature parameter for vfbsdoff & -- & 0 \\ \hline
 TVOFF & Temperature parameter for voff & -- & 0 \\ \hline
+TVOFFCV\newline{\normalfont [Only for versions starting with 4.7]} & Temperature parameter for tvoffcv & -- & 0 \\ \hline
 UA1 & Temperature coefficient of ua & -- & 1e-09 \\ \hline
 UB1 & Temperature coefficient of ub & -- & -1e-18 \\ \hline
 UC1 & Temperature coefficient of uc & -- & 0 \\ \hline
+UCSTE\newline{\normalfont [Only for versions starting with 4.7]} & Temperature coefficient of colombic mobility & -- & -0.004775 \\ \hline
 UD1 & Temperature coefficient of ud & -- & 0 \\ \hline
 UTE & Temperature coefficient of mobility & -- & -1.5 \\ \hline
 VTSD & Drain bottom trap-assisted voltage dependent parameter & -- & 10 \\ \hline
@@ -509,6 +546,10 @@ WDVT2 & Width dependence of dvt2 & -- & 0 \\ \hline
 WDVT2W & Width dependence of dvt2w & -- & 0 \\ \hline
 WDVTP0 & Width dependence of dvtp0 & -- & 0 \\ \hline
 WDVTP1 & Width dependence of dvtp1 & -- & 0 \\ \hline
+WDVTP2\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of dvtp2 & -- & 0 \\ \hline
+WDVTP3\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of dvtp3 & -- & 0 \\ \hline
+WDVTP4\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of dvtp4 & -- & 0 \\ \hline
+WDVTP5\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of dvtp5 & -- & 0 \\ \hline
 WDWB & Width dependence of dwb & -- & 0 \\ \hline
 WDWG & Width dependence of dwg & -- & 0 \\ \hline
 WEB & Coefficient for SCB & -- & 0 \\ \hline
@@ -519,6 +560,8 @@ WEIGBINV & Width dependence for eigbinv & -- & 0 \\ \hline
 WETA0 & Width dependence of eta0 & -- & 0 \\ \hline
 WETAB & Width dependence of etab & -- & 0 \\ \hline
 WEU & Width dependence of eu & -- & 0 \\ \hline
+WFGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of fgidl & -- & 0 \\ \hline
+WFGISL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of fgisl & -- & 0 \\ \hline
 WFPROUT & Width dependence of pdiblcb & -- & 0 \\ \hline
 WGAMMA1 & Width dependence of gamma1 & -- & 0 \\ \hline
 WGAMMA2 & Width dependence of gamma2 & -- & 0 \\ \hline
@@ -528,6 +571,8 @@ WK2WE &  Width dependence of k2we  & -- & 0 \\ \hline
 WK3 & Width dependence of k3 & -- & 0 \\ \hline
 WK3B & Width dependence of k3b & -- & 0 \\ \hline
 WKETA & Width dependence of keta & -- & 0 \\ \hline
+WKGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of kgidl & -- & 0 \\ \hline
+WKGISL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of kgisl & -- & 0 \\ \hline
 WKT1 & Width dependence of kt1 & -- & 0 \\ \hline
 WKT1L & Width dependence of kt1l & -- & 0 \\ \hline
 WKT2 & Width dependence of kt2 & -- & 0 \\ \hline
@@ -578,9 +623,14 @@ WPSCBE2 & Width dependence of pscbe2 & -- & 0 \\ \hline
 WPVAG & Width dependence of pvag & -- & 0 \\ \hline
 WRDSW & Width dependence of rdsw  & -- & 0 \\ \hline
 WRDW & Width dependence of rdw & -- & 0 \\ \hline
+WRGIDL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of rgidl & -- & 0 \\ \hline
+WRGISL\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of rgisl & -- & 0 \\ \hline
 WRSW & Width dependence of rsw & -- & 0 \\ \hline
+WTETA0\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of teta0 & -- & 0 \\ \hline
+WTNFACTOR\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of tnfactor & -- & 0 \\ \hline
 WTVFBSDOFF & Width dependence of tvfbsdoff & -- & 0 \\ \hline
 WTVOFF & Width dependence of tvoff & -- & 0 \\ \hline
+WTVOFFCV\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of tvoffcv & -- & 0 \\ \hline
 WU0 & Width dependence of u0 & -- & 0 \\ \hline
 WUA & Width dependence of ua & -- & 0 \\ \hline
 WUA1 & Width dependence of ua1 & -- & 0 \\ \hline
@@ -588,6 +638,8 @@ WUB & Width dependence of ub & -- & 0 \\ \hline
 WUB1 & Width dependence of ub1 & -- & 0 \\ \hline
 WUC & Width dependence of uc & -- & 0 \\ \hline
 WUC1 & Width dependence of uc1 & -- & 0 \\ \hline
+WUCS\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of ucs & -- & 0 \\ \hline
+WUCSTE\newline{\normalfont [Only for versions starting with 4.7]} & Width dependence of ucste & -- & 0 \\ \hline
 WUD & Width dependence of ud & -- & 0 \\ \hline
 WUD1 & Width dependence of ud1 & -- & 0 \\ \hline
 WUP & Width dependence of up & -- & 0 \\ \hline
@@ -656,6 +708,10 @@ DVT2 & Short channel effect coeff. 2 & V$^{-1}$ & -0.032 \\ \hline
 DVT2W & Narrow Width effect coeff. 2 & V$^{-1}$ & -0.032 \\ \hline
 DVTP0 & First parameter for Vth shift due to pocket & m & 0 \\ \hline
 DVTP1 & Second parameter for Vth shift due to pocket & V$^{-1}$ & 0 \\ \hline
+DVTP2\newline{\normalfont [Only for versions starting with 4.7]} & 3rd parameter for Vth shift due to pocket & Vm$^{X}$ & 0 \\ \hline
+DVTP3\newline{\normalfont [Only for versions starting with 4.7]} & 4th parameter for Vth shift due to pocket & -- & 0 \\ \hline
+DVTP4\newline{\normalfont [Only for versions starting with 4.7]} & 5th parameter for Vth shift due to pocket & V$^{-1}$ & 0 \\ \hline
+DVTP5\newline{\normalfont [Only for versions starting with 4.7]} & 6th parameter for Vth shift due to pocket & V & 0 \\ \hline
 DWB & Width reduction parameter & m/V$^{1/2}$ & 0 \\ \hline
 DWG & Width reduction parameter & m/V & 0 \\ \hline
 EASUB & Electron affinity of substrate & V & 4.05 \\ \hline
@@ -670,6 +726,7 @@ K3 & Narrow width effect coefficient & -- & 80 \\ \hline
 KETA & Body-bias coefficient of non-uniform depletion width effect. & V$^{-1}$ & -0.047 \\ \hline
 LAMBDA &  Velocity overshoot parameter & -- & 0 \\ \hline
 LC &  back scattering parameter & m & 5e-09 \\ \hline
+LEFFEOT\newline{\normalfont [Only for versions starting with 4.7]} & Effective length for extraction of EOT & m & 1e-06 \\ \hline
 LINT & Length reduction parameter & m & 0 \\ \hline
 LP & Channel length exponential factor of mobility & m & 1e-08 \\ \hline
 LPE0 & Equivalent length of pocket region at zero bias & m & 1.74e-07 \\ \hline
@@ -685,14 +742,16 @@ PDITS & Coefficient for drain-induced Vth shifts & V$^{-1}$ & 0 \\ \hline
 PDITSD & Vds dependence of drain-induced Vth shifts & V$^{-1}$ & 0 \\ \hline
 PDITSL & Length dependence of drain-induced Vth shifts & m$^{-1}$ & 0 \\ \hline
 PHIN & Adjusting parameter for surface potential due to non-uniform vertical doping & V & 0 \\ \hline
-PSCBE1 & Substrate current body-effect coefficient & V/m & 4.24e+08 \\ \hline
+PSCBE1 & Substrate current body-effect coefficient & Vm$^{-1}$ & 4.24e+08 \\ \hline
 PSCBE2 & Substrate current body-effect coefficient & m/V & 1e-05 \\ \hline
 TBGASUB & First parameter of band-gap change due to temperature & eV/K & 0.000702 \\ \hline
 TBGBSUB & Second parameter of band-gap change due to temperature & K & 1108 \\ \hline
+TEMPEOT\newline{\normalfont [Only for versions starting with 4.7]} & Temperature for extraction of EOT & -- & 300.15 \\ \hline
 U0 & Low-field mobility at Tnom & m$^{2}$/(Vs) & 0 \\ \hline
 UA & Linear gate dependence of mobility & m/V & 0 \\ \hline
 UB & Quadratic gate dependence of mobility & m$^{2}$/V$^{2}$ & 1e-19 \\ \hline
 UC & Body-bias dependence of mobility & V$^{-1}$ & 0 \\ \hline
+UCS\newline{\normalfont [Only for versions starting with 4.7]} & Colombic scattering exponent & -- & 1.67 \\ \hline
 UD & Coulomb scattering factor of mobility & m$^{-2}$ & 0 \\ \hline
 UP & Channel length linear factor of mobility & m$^{-2}$ & 0 \\ \hline
 VBM & Maximum body voltage & V & -3 \\ \hline
@@ -704,6 +763,7 @@ VSAT & Saturation velocity at tnom & m/s & 80000 \\ \hline
 VTH0 &  & V & 0 \\ \hline
 VTL &  thermal velocity & m/s & 200000 \\ \hline
 W0 & Narrow width effect parameter & m & 2.5e-06 \\ \hline
+WEFFEOT\newline{\normalfont [Only for versions starting with 4.7]} & Effective width for extraction of EOT & m & 1e-05 \\ \hline
 WINT & Width reduction parameter & m & 0 \\ \hline
 XN &  back scattering parameter & -- & 3 \\ \hline
 
@@ -737,15 +797,18 @@ CVCHARGEMOD & Capacitance charge model selector & -- & 0 \\ \hline
 DIOMOD & Diode IV model selector & -- & 1 \\ \hline
 FNOIMOD & Flicker noise model selector & -- & 1 \\ \hline
 GEOMOD & Geometry dependent parasitics model selector & -- & 0 \\ \hline
+GIDLMOD\newline{\normalfont [Only for versions starting with 4.7]} & parameter for GIDL selector & -- & 0 \\ \hline
 IGBMOD & Gate-to-body Ig model selector & -- & 0 \\ \hline
 IGCMOD & Gate-to-channel Ig model selector & -- & 0 \\ \hline
 MOBMOD & Mobility model selector & -- & 0 \\ \hline
+MTRLCOMPATMOD\newline{\normalfont [Only for versions starting with 4.7]} & New material Mod backward compatibility selector & -- & 0 \\ \hline
 MTRLMOD & parameter for nonm-silicon substrate or metal gate selector & -- & 0 \\ \hline
 PARAMCHK & Model parameter checking selector & -- & 1 \\ \hline
 PERMOD & Pd and Ps model selector & -- & 1 \\ \hline
 RBODYMOD & Distributed body R model selector & -- & 0 \\ \hline
 RDSMOD & Bias-dependent S/D resistance model selector & -- & 0 \\ \hline
 RGATEMOD & Gate R model selector & -- & 0 \\ \hline
+RGEOMOD & S/D resistance and contact model selector & -- & 0 \\ \hline
 TEMPMOD & Temperature model selector & -- & 0 \\ \hline
 TNOIMOD & Thermal noise model selector & -- & 0 \\ \hline
 TRNQSMOD & Transient NQS model selector & -- & 0 \\ \hline
@@ -821,10 +884,16 @@ BETA0 & substrate current model parameter & V$^{-1}$ & 0 \\ \hline
 \category{Gate-induced Drain Leakage Model Parameters}\\ \hline
 AGIDL & Pre-exponential constant for GIDL & $\mathsf{\Omega}^{-1}$ & 0 \\ \hline
 AGISL & Pre-exponential constant for GISL & $\mathsf{\Omega}^{-1}$ & 0 \\ \hline
-BGIDL & Exponential constant for GIDL & V/m & 2.3e+09 \\ \hline
-BGISL & Exponential constant for GISL & V/m & 2.3e-09 \\ \hline
+BGIDL & Exponential constant for GIDL & Vm$^{-1}$ & 2.3e+09 \\ \hline
+BGISL & Exponential constant for GISL & Vm$^{-1}$ & 2.3e-09 \\ \hline
 CGIDL & Parameter for body-bias dependence of GIDL & V$^3$ & 0.5 \\ \hline
 CGISL & Parameter for body-bias dependence of GISL & V$^3$ & 0.5 \\ \hline
 EGIDL & Fitting parameter for Bandbending & V & 0.8 \\ \hline
 EGISL & Fitting parameter for Bandbending & V & 0.8 \\ \hline
+FGIDL\newline{\normalfont [Only for versions starting with 4.7]} & GIDL vb parameter & V & 0 \\ \hline
+FGISL\newline{\normalfont [Only for versions starting with 4.7]} & Parameter for GISL body bias dependence & V & 0 \\ \hline
+KGIDL\newline{\normalfont [Only for versions starting with 4.7]} & GIDL vb parameter & V & 0 \\ \hline
+KGISL\newline{\normalfont [Only for versions starting with 4.7]} & Parameter for GISL body bias dependence & V & 0 \\ \hline
+RGIDL\newline{\normalfont [Only for versions starting with 4.7]} & GIDL vg parameter & -- & 1 \\ \hline
+RGISL\newline{\normalfont [Only for versions starting with 4.7]} & Parameter for GISL gate bias dependence & -- & 1 \\ \hline
 \end{DeviceParamTableGenerated}
