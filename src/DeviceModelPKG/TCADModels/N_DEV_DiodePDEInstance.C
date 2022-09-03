@@ -5046,7 +5046,8 @@ bool Instance::calcRecombination ()
 
     if (includeAugerRecomb)
     {
-      Raug = MaterialSupport::calcRaug (bulkMaterial, Ni,n,p);
+      Raug = MaterialSupport::calcRaug (bulkMaterial, Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+      Raug /= scalingVars.R0;
     }
 
     RVec[i] = (Rsrh + Raug);
@@ -5096,8 +5097,10 @@ bool Instance::pdRecombination ()
 
     if (includeAugerRecomb)
     {
-      dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni,n,p);
-      dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni,n,p);
+        dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+        dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+        dRaugdn *= scalingVars.t0;// check this
+        dRaugdp *= scalingVars.t0;
     }
 
     dRdnVec[i] = dRsrhdn + dRaugdn;

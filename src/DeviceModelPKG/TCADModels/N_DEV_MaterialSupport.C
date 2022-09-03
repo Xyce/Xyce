@@ -588,13 +588,10 @@ double MaterialSupport::pdRsrhP
 // Function      : MaterialSupport::calcRaug
 // Purpose       : Calculates Auger recombination.
 //
-// Special Notes : For this function, it shouldn't matter if the variables
-//                 are scaled or not.
-//
-//                 I believe (but am not sure) that the constants Cn and Cp
-//                 are material dependent.  That is part of why the
-//                 material name is passed in as an argument.  The values
-//                 here are for Si.
+// Special Notes : This function MUST be called with unscaled 
+//                 variables.  The coefficients Cn, Cp are in units of
+//                 cm^6/s.  But they cannot be scaled correctly in 
+//                 this function without knowing C0 and t0.
 //
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
@@ -604,8 +601,9 @@ double MaterialSupport::calcRaug
   (const std::string & material, double ni, double n, double p)
 {
   double Ni = ni;
-  double Cn = 2.8e-31;
-  double Cp = 1.2e-31;
+  double Cn = MaterialLayer(material).augpnn;
+  double Cp = MaterialLayer(material).augnpp;
+
   double pn = Ni*Ni;
 
   double A = (n*p-pn);
@@ -622,13 +620,10 @@ double MaterialSupport::calcRaug
 // Purpose       : Calculates partial derivative w.r.t. electron density
 //                 for Auger recombination.
 //
-// Special Notes : For this function, it shouldn't matter if the variables
-//                 are scaled or not.
-//
-//                 I believe (but am not sure) that the constants Cn and Cp
-//                 are material dependent.  That is part of why the
-//                 material name is passed in as an argument.  The values
-//                 here are for Si.
+// Special Notes : This function MUST be called with unscaled 
+//                 variables.  The coefficients Cn, Cp are in units of
+//                 cm^6/s.  But they cannot be scaled correctly in 
+//                 this function without knowing C0 and t0.
 //
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
@@ -643,8 +638,8 @@ double MaterialSupport::pdRaugN
   double dAdn;
   double dBdn;
 
-  double Cn = 2.8e-31;
-  double Cp = 1.2e-31;
+  double Cn = MaterialLayer(material).augpnn;
+  double Cp = MaterialLayer(material).augnpp;
   double pn = Ni*Ni;
   double arg = CONSTMAX_EXP_ARG;
 
@@ -668,13 +663,10 @@ double MaterialSupport::pdRaugN
 // Purpose       : Calculates partial derivative w.r.t. hole density
 //                 for Auger recombination.
 //
-// Special Notes : For this function, it shouldn't matter if the variables
-//                 are scaled or not.
-//
-//                 I believe (but am not sure) that the constants Cn and Cp
-//                 are material dependent.  That is part of why the
-//                 material name is passed in as an argument.  The values
-//                 here are for Si.
+// Special Notes : This function MUST be called with unscaled 
+//                 variables.  The coefficients Cn, Cp are in units of
+//                 cm^6/s.  But they cannot be scaled correctly in 
+//                 this function without knowing C0 and t0.
 //
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
@@ -689,8 +681,8 @@ double MaterialSupport::pdRaugP
   double dAdp;
   double dBdp;
 
-  double Cn = 2.8e-31;
-  double Cp = 1.2e-31;
+  double Cn = MaterialLayer(material).augpnn;
+  double Cp = MaterialLayer(material).augnpp;
   double pn = Ni*Ni;
   double arg = CONSTMAX_EXP_ARG;
 

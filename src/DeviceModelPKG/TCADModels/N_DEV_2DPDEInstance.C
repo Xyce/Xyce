@@ -4830,9 +4830,9 @@ bool Instance::calcRecombination ()
     double tn = tnVec[i];
     double tp = tpVec[i];
 
-    // assuming Si for now.
     Rsrh = MaterialSupport::calcRsrh (bulkMaterial, Ni,n,p,tn,tp);
-    Raug = MaterialSupport::calcRaug (bulkMaterial, Ni,n,p);
+    Raug = MaterialSupport::calcRaug (bulkMaterial, Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+    Raug /= scalingVars.R0;    
 
     RVec[i] = (Rsrh + Raug);
 
@@ -4946,8 +4946,10 @@ bool Instance::pdRecombination ()
     dRsrhdn = MaterialSupport::pdRsrhN(bulkMaterial,Ni,n,p,tn,tp);
     dRsrhdp = MaterialSupport::pdRsrhP(bulkMaterial,Ni,n,p,tn,tp);
 
-    dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni,n,p);
-    dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni,n,p);
+    dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+    dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+    dRaugdn *= scalingVars.t0;// check this
+    dRaugdp *= scalingVars.t0;
 
     dRdnVec[i] = (dRsrhdn + dRaugdn);
     dRdpVec[i] = (dRsrhdp + dRaugdp);
