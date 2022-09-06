@@ -148,28 +148,33 @@ bool Directory::generateDirectory()
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/19/01
 //-----------------------------------------------------------------------------
-bool Directory::getProcs( const std::vector<NodeID> & idVec,
-                                std::vector<int> & procVec )
+std::vector<NodeID> Directory::getProcs( const std::vector<NodeID> & idVec,
+                                         std::vector<int> & procVec )
 {
   int size = idVec.size();
-  procVec.resize( size );
+  procVec.resize( size, -1 );
+
+  std::vector<NodeID> badIDs;
 
   if (!pdsComm_.isSerial())
   {
     DirectoryData::NodeDir::DataMap nodes;
 
     std::vector<NodeID> ids( idVec );
-    data_->directory.getEntries( ids, nodes );
+    badIDs = data_->directory.getEntries( ids, nodes );
 
     for( int i = 0; i < size; ++i )
-      procVec[i] = nodes[idVec[i]]->proc();
+    {
+      if ( std::find( badIDs.begin(), badIDs.end(), idVec[i] ) == badIDs.end() )
+        procVec[i] = nodes[idVec[i]]->proc();
+    }
   }
   else
   {
     std::fill( procVec.begin(), procVec.end(), pdsComm_.procID() );
   }
 
-  return true;
+  return badIDs;
 }
 
 //-----------------------------------------------------------------------------
@@ -180,55 +185,128 @@ bool Directory::getProcs( const std::vector<NodeID> & idVec,
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 07/19/01
 //-----------------------------------------------------------------------------
-bool Directory::getSolnGIDs( const std::vector<NodeID> & idVec,
-                                   std::vector< std::vector<int> > & gidVec,
-                                   std::vector<int> & procVec )
+std::vector<NodeID> Directory::getSolnGIDs( const std::vector<NodeID> & idVec,
+                                            std::vector< std::vector<int> > & gidVec,
+                                            std::vector<int> & procVec )
 {
   gidVec.resize( idVec.size() );
-  getProcs( idVec, procVec );
 
-  if (!pdsComm_.isSerial())
+  // This method will find bad NodeIDs that weren't caught before in parallel execution
+  // NOTE:  Serial execution will not find bad NodeIDs, they are caught below.
+  std::vector<NodeID> badSolnNodes = getProcs( idVec, procVec );
+
+  int local_bSN_size = badSolnNodes.size(), global_bSN_size = 0;
+  pdsComm_.sumAll(&local_bSN_size, &global_bSN_size, 1); 
+
+  if (global_bSN_size==0)
   {
-    typedef Xyce::Parallel::Migrate< NodeID, std::vector<int> > SGMigrate;
-    SGMigrate migrator(pdsComm_);
-
-    std::vector<int> sortedProcVec( procVec );
-    std::vector<NodeID> ids( idVec );
-    SortContainer2( sortedProcVec, ids );
-
-    std::vector<NodeID> inIDs;
-    migrator( sortedProcVec, ids, inIDs );
-
-    SGMigrate::DataMap outGIDs;
-    for( unsigned int i = 0; i < inIDs.size(); ++i )
+    if (!pdsComm_.isSerial())
     {
-      RCP< std::vector<int> > gids( rcp( new std::vector<int>() ) );
-      const CktNode * cnp = topology_.findCktNode( inIDs[i] );
-      gids->assign( cnp->get_SolnVarGIDList().begin(), cnp->get_SolnVarGIDList().end() );
-      outGIDs[inIDs[i]] = gids;
+      typedef Xyce::Parallel::Migrate< NodeID, std::vector<int> > SGMigrate;
+      SGMigrate migrator(pdsComm_);
+
+      std::vector<int> sortedProcVec( procVec );
+      std::vector<NodeID> ids( idVec );
+      SortContainer2( sortedProcVec, ids );
+
+      std::vector<NodeID> inIDs;
+      migrator( sortedProcVec, ids, inIDs );
+
+      SGMigrate::DataMap outGIDs;
+      for( unsigned int i = 0; i < inIDs.size(); ++i )
+      {
+        RCP< std::vector<int> > gids( rcp( new std::vector<int>() ) );
+        const CktNode * cnp = topology_.findCktNode( inIDs[i] );
+        gids->assign( cnp->get_SolnVarGIDList().begin(), cnp->get_SolnVarGIDList().end() );
+        outGIDs[inIDs[i]] = gids;
+      }
+
+      SGMigrate::DataMap inGIDs;
+      migrator.rvs( sortedProcVec, inIDs, outGIDs, inGIDs );
+
+      for( unsigned int i = 0; i < idVec.size(); ++i )
+        gidVec[i] = *(inGIDs[idVec[i]]);
     }
-
-    SGMigrate::DataMap inGIDs;
-    migrator.rvs( sortedProcVec, inIDs, outGIDs, inGIDs );
-
-    for( unsigned int i = 0; i < idVec.size(); ++i )
-      gidVec[i] = *(inGIDs[idVec[i]]);
+    else
+    {
+      for( unsigned int i = 0; i < idVec.size(); ++i )
+      {
+        const CktNode * cnp = topology_.findCktNode( idVec[i] );
+        if( cnp )
+        {
+          gidVec[i].assign( cnp->get_SolnVarGIDList().begin(),
+                          cnp->get_SolnVarGIDList().end() );
+        }
+        else
+        {
+          badSolnNodes.push_back( idVec[i] );
+          gidVec[i].push_back( -1 );  // Put a dummy number as the GID value, error will be thrown.
+        }
+      }
+    }
   }
+
   else
   {
-    for( unsigned int i = 0; i < idVec.size(); ++i )
+    // In parallel, the bad solution node may be reported on a different processor by the parallel
+    // directory. So, it is necessary to communicate all the bad solution nodes to create the correct 
+    // error message.  First set the badSolnNodes to the local badSolnNodes and add off-processor
+    // contributions.
+    int numProc = pdsComm_.numProc();
+    int procID = pdsComm_.procID();
+    std::vector<int> local_numBadNodes( numProc, 0 ), numBadNodes( numProc, 0 );
+    local_numBadNodes[ procID ] = local_bSN_size;   
+    pdsComm_.sumAll(&local_numBadNodes[0], &numBadNodes[0], numProc );
+
+    // Count the bytes for packing the strings for the bad nodes.
+    int byteCount = 0;
+    for ( std::vector< Xyce::NodeID >::iterator it = badSolnNodes.begin(); it != badSolnNodes.end(); ++it )
+      byteCount += Xyce::packedByteCount( *it );
+
+    // Loop over the processors and broadcast any bad solution nodes.
+    for (int proc = 0; proc < numProc; ++proc)
     {
-      const CktNode * cnp = topology_.findCktNode( idVec[i] );
-      if( !cnp )
+      // Broadcast the buffer size for this processor.
+      int bsize=0;
+      if (proc == procID) { bsize = byteCount; }
+      pdsComm_.bcast( &bsize, 1, proc );
+        
+      if (bsize)
       {
-        Report::DevelFatal() << "Directory node not found: " << idVec[i].first + "\n";
+        // Create buffer.
+        int pos = 0;
+        char * badNodeBuffer = new char[bsize];
+        
+        if ( proc == procID )
+        {
+          // Pack the bad node buffer
+          for (int i=0; i<local_bSN_size; ++i)
+            Xyce::pack(badSolnNodes[i], badNodeBuffer, bsize, pos, &pdsComm_);
+        }
+
+        // Broadcast packed buffer.
+        pdsComm_.bcast( badNodeBuffer, bsize, proc );
+
+        if ( proc != procID )
+        {
+          // Extract bad nodes and append them to the badSolnNodes list
+          NodeID tmpNode;
+
+          // Unpack each node and append to the badSolnNodes vector
+          for (int i=0; i<numBadNodes[proc]; ++i)
+          {
+            Xyce::unpack(tmpNode, badNodeBuffer, bsize, pos, &pdsComm_);
+            badSolnNodes.push_back( tmpNode );
+          }
+        }          
+  
+        // Clean up.
+        delete [] badNodeBuffer;
       }
-      gidVec[i].assign( cnp->get_SolnVarGIDList().begin(),
-                        cnp->get_SolnVarGIDList().end() );
-    }
+    } 
   }
 
-  return true;
+  return badSolnNodes;
 }
 
 } // namespace Topo

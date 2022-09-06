@@ -72,7 +72,7 @@ if(BUILD_ONLY_UNIT_TESTS)
      # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
      # loaded before "project" is called.
      message(STATUS "Looking for required Trilinos package: Teuchos")
-     find_package(Trilinos 12.12 REQUIRED  Teuchos)
+     find_package(Trilinos 13.5 REQUIRED  Teuchos)
      message(STATUS "Looking for required Trilinos package: Teuchoss - found")
 
      # Set the compiler, so "project" finds the right one.
@@ -149,11 +149,11 @@ if(BUILD_ONLY_UNIT_TESTS)
           $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../ExpressionSrc/ >
           $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/ >
           $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/ >
-          ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
+          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/ >)
 
-     target_link_libraries(parserReqdComplex PUBLIC
-          ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} GTest::gtest)
+     target_link_libraries(parserReqdComplex PUBLIC Trilinos::all_selected_libs)
+
+     target_link_libraries(parserReqdComplex PUBLIC GTest::gtest)
 
      # Build the test executables.
      add_executable(astUnitTest astUnitTest.C)

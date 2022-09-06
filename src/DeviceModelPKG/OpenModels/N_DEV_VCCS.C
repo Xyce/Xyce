@@ -62,6 +62,10 @@ void Traits::loadInstanceParameters(ParametricData<VCCS::Instance> &p)
 {
   p.addPar ("T", 0.0, &VCCS::Instance::Transconductance)
     .setDescription("Transconductance");
+
+  p.addPar("M", 1.0, &VCCS::Instance::multiplicityFactor)
+    .setUnit(U_NONE)
+    .setDescription("Multiplicity Factor");
 }
 
 void Traits::loadModelParameters(ParametricData<VCCS::Model> &p)
@@ -87,6 +91,7 @@ Instance::Instance(
   : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
     model_(model),
     Transconductance(1.0),
+    multiplicityFactor(1.0),
     li_Pos(-1),
     li_Neg(-1),
     li_ContPos(-1),
@@ -129,6 +134,9 @@ Instance::Instance(
   {
     UserError(*this) << "Could not find Transconductance parameter in instance.";
   }
+
+  processParams();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -142,6 +150,25 @@ Instance::Instance(
 Instance::~Instance ()
 {
 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/18/2022
+//-----------------------------------------------------------------------------
+bool Instance::processParams()
+{
+  // M must be non-negative
+  if (multiplicityFactor <= 0)
+  {
+    UserError(*this) << "Multiplicity Factor (M) must be non-negative" << std::endl;
+  }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -353,14 +380,14 @@ bool Instance::loadDAEFVector ()
   double v_cont_pos = solVec[li_ContPos];
   double v_cont_neg = solVec[li_ContNeg];
 
-  fVec[li_Pos] += Transconductance * ( v_cont_pos - v_cont_neg );
-  fVec[li_Neg] += -Transconductance * ( v_cont_pos - v_cont_neg );
+  fVec[li_Pos] += Transconductance * ( v_cont_pos - v_cont_neg )  * multiplicityFactor;
+  fVec[li_Neg] += -Transconductance * ( v_cont_pos - v_cont_neg ) * multiplicityFactor;
 
   if( loadLeadCurrent )
   {
     double * leadF = extData.nextLeadCurrFCompRawPtr;
     double * junctionV = extData.nextJunctionVCompRawPtr;
-    leadF[li_branch_data] = Transconductance * ( v_cont_pos - v_cont_neg );
+    leadF[li_branch_data] = Transconductance * ( v_cont_pos - v_cont_neg ) * multiplicityFactor;
     junctionV[li_branch_data] = solVec[li_Pos] - solVec[li_Neg];
   }
   
@@ -383,10 +410,10 @@ bool Instance::loadDAEdFdx ()
 {
   Linear::Matrix & dFdx = *(extData.dFdxMatrixPtr);
 
-  dFdx[li_Pos][APosEquContPosVarOffset] += Transconductance;
-  dFdx[li_Pos][APosEquContNegVarOffset] -= Transconductance;
-  dFdx[li_Neg][ANegEquContPosVarOffset] -= Transconductance;
-  dFdx[li_Neg][ANegEquContNegVarOffset] += Transconductance;
+  dFdx[li_Pos][APosEquContPosVarOffset] += Transconductance * multiplicityFactor;
+  dFdx[li_Pos][APosEquContNegVarOffset] -= Transconductance * multiplicityFactor;
+  dFdx[li_Neg][ANegEquContPosVarOffset] -= Transconductance * multiplicityFactor;
+  dFdx[li_Neg][ANegEquContNegVarOffset] += Transconductance * multiplicityFactor;
 
   return true;
 }
@@ -477,6 +504,27 @@ void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
     op(*it);
 }
 
+//----------------------------------------------------------------------------
+// Function      : Model::processInstanceParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 08/18/2022
+//----------------------------------------------------------------------------
+bool Model::processInstanceParams()
+{
+  std::vector<Instance*>::iterator iter;
+  std::vector<Instance*>::iterator first = instanceContainer.begin();
+  std::vector<Instance*>::iterator last  = instanceContainer.end();
+
+  for (iter=first; iter!=last; ++iter)
+  {
+    (*iter)->processParams();
+  }
+
+  return true;
+}
 
 // VCCS Master functions:
 
@@ -538,11 +586,11 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double v_cont_neg = solVec[vi.li_ContNeg];
 
 
-    fVec[vi.li_Pos] += vi.Transconductance * ( v_cont_pos - v_cont_neg );
-    fVec[vi.li_Neg] += -vi.Transconductance * ( v_cont_pos - v_cont_neg );
+    fVec[vi.li_Pos] += vi.Transconductance * ( v_cont_pos - v_cont_neg ) * vi.multiplicityFactor;
+    fVec[vi.li_Neg] += -vi.Transconductance * ( v_cont_pos - v_cont_neg ) * vi.multiplicityFactor;
     if( vi.loadLeadCurrent )
     {
-      leadF[vi.li_branch_data] = vi.Transconductance * ( v_cont_pos - v_cont_neg );
+      leadF[vi.li_branch_data] = vi.Transconductance * ( v_cont_pos - v_cont_neg ) * vi.multiplicityFactor;
       junctionV[vi.li_branch_data] = solVec[vi.li_Pos] - solVec[vi.li_Neg];
     }
   }
@@ -592,16 +640,16 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx, int 
     Instance & vi = *(*it);
 
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
-    *vi.f_PosEquContPosVarPtr += vi.Transconductance;
-    *vi.f_PosEquContNegVarPtr -= vi.Transconductance;
-    *vi.f_NegEquContPosVarPtr -= vi.Transconductance;
-    *vi.f_NegEquContNegVarPtr += vi.Transconductance;
+    *vi.f_PosEquContPosVarPtr += vi.Transconductance * vi.multiplicityFactor;
+    *vi.f_PosEquContNegVarPtr -= vi.Transconductance * vi.multiplicityFactor;
+    *vi.f_NegEquContPosVarPtr -= vi.Transconductance * vi.multiplicityFactor;
+    *vi.f_NegEquContNegVarPtr += vi.Transconductance * vi.multiplicityFactor;
 #else
 
-    dFdx[vi.li_Pos][vi.APosEquContPosVarOffset] += vi.Transconductance;
-    dFdx[vi.li_Pos][vi.APosEquContNegVarOffset] -= vi.Transconductance;
-    dFdx[vi.li_Neg][vi.ANegEquContPosVarOffset] -= vi.Transconductance;
-    dFdx[vi.li_Neg][vi.ANegEquContNegVarOffset] += vi.Transconductance;
+    dFdx[vi.li_Pos][vi.APosEquContPosVarOffset] += vi.Transconductance * vi.multiplicityFactor;
+    dFdx[vi.li_Pos][vi.APosEquContNegVarOffset] -= vi.Transconductance * vi.multiplicityFactor;
+    dFdx[vi.li_Neg][vi.ANegEquContPosVarOffset] -= vi.Transconductance * vi.multiplicityFactor;
+    dFdx[vi.li_Neg][vi.ANegEquContNegVarOffset] += vi.Transconductance * vi.multiplicityFactor;
 #endif
   }
 

@@ -69,15 +69,13 @@
 
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
-list(FIND Trilinos_TPL_LIST MPI MPI_Enabled)
-if (MPI_Enabled GREATER -1)
+if(TARGET MPI::all_libs)
      message(STATUS "Checking if MPI is enabled in Trilinos - MPI enabled")
      set(Xyce_PARALLEL_MPI TRUE CACHE BOOL "Build Xyce with MPI enabled" FORCE)
 
      # For MPI builds, Isorropia and Zoltan are REQUIRED
      message(STATUS "Looking for Isorropia in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST Isorropia Isorropia_FOUND)
-     if ( Isorropia_FOUND GREATER -1)
+     if(TARGET Isorropia::all_libs)
           set(Xyce_USE_ISORROPIA TRUE)
           message(STATUS "Looking for Isorropia in Trilinos - found")
      else()
@@ -89,8 +87,7 @@ if (MPI_Enabled GREATER -1)
      endif()
 
      message(STATUS "Looking for Zoltan in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
-     if (Zoltan_FOUND LESS 0)
+     if(NOT TARGET Zoltan::all_libs)
           message(STATUS "Looking for Zoltan in Trilinos - not found")
           message("Zoltan is required for MPI parallel builds.\n"
                "Enable the following in the Trilinos build:\n"
@@ -98,6 +95,7 @@ if (MPI_Enabled GREATER -1)
           set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
      message(STATUS "Looking for Zoltan in Trilinos - found")
+     
 else()
      message(STATUS "Checking if MPI is enabled in Trilinos - MPI not enabled")
      set(Xyce_PARALLEL_MPI FALSE CACHE BOOL "Build Xyce with MPI enabled")
@@ -106,38 +104,45 @@ endif()
 
 # Search for required TPL packages
 
-message(STATUS "Looking for BLAS and LAPACK via Trilinos")
-list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
-list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
-if ((BLAS_IN_Trilinos GREATER -1) AND (LAPACK_IN_Trilinos GREATER -1))
-     message(STATUS "Looking for BLAS and LAPACK via Trilinos - found")
+message(STATUS "Looking for BLAS and via Trilinos")
+if(TARGET BLAS::all_libs)
+     message(STATUS "Looking for BLAS via Trilinos - found")
 else()
-     message(STATUS "Looking for BLAS and LAPACK via Trilinos - not found")
-     message("BLAS and LAPACK are not available via Trilinos.\n"
+     message(STATUS "Looking for BLAS via Trilinos - not found")
+     message("BLAS is not available via Trilinos.\n"
           "Enable the following in the Trilinos build:\n"
-          "  -D TPL_ENABLE_BLAS=ON\n"
+          "  -D TPL_ENABLE_BLAS=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+
+message(STATUS "Looking for LAPACK and via Trilinos")
+if(TARGET LAPACK::all_libs)
+     message(STATUS "Looking for LAPACK via Trilinos - found")
+else()
+     message(STATUS "Looking for LAPACK via Trilinos - not found")
+     message("LAPACK is not available via Trilinos.\n"
+          "Enable the following in the Trilinos build:\n"
           "  -D TPL_ENABLE_LAPACK=ON")
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
 # Search for required features
 
-set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
-
 # Since Trilinos depends on OpenMP, we look for it first, so it is available
 # for some of the Trilinos feature probes.
-if(Trilinos_VERSION VERSION_GREATER "12.12.1")
-  list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
-  if (OpenMP_IN_Kokkos GREATER -1)
-     find_package(OpenMP REQUIRED)
-  endif()
-else()
-  check_cxx_symbol_exists(EPETRA_HAVE_OMP Epetra_config.h OpenMP_IN_Epetra)
-  if (OpenMP_IN_Epetra GREATER -1)
-     find_package(OpenMP REQUIRED)
-  endif()
+list(FIND Kokkos_DEVICES OPENMP OpenMP_IN_Kokkos)
+if (OpenMP_IN_Kokkos GREATER -1)
+   find_package(OpenMP REQUIRED)
 endif()
 
+if(NOT TARGET NOX::loca)
+     message("Trilinos was not built with LOCA support in NOX.\n"
+          "Enable the following in the Trilinos build:\n"
+          "  -D NOX_ENABLE_LOCA=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+
+get_target_property(CMAKE_REQUIRED_INCLUDES Amesos::all_libs INTERFACE_INCLUDE_DIRECTORIES)
 check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
 if (NOT KLU_IN_Trilinos)
      message("Trilinos was not built with KLU support in Amesos.\n"
@@ -147,7 +152,7 @@ if (NOT KLU_IN_Trilinos)
 endif()
 
 if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
-
+     get_target_property(CMAKE_REQUIRED_INCLUDES EpetraExt::all_libs INTERFACE_INCLUDE_DIRECTORIES)
      check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
      if (NOT Epetra_BTF_IN_Trilinos)
           message("Trilinos was not built with BTF support in EpetraExt.\n"
@@ -171,20 +176,17 @@ if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
                "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
           set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
-
 else()
      message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
           "This build of Xyce is not functional for any other purpose.\n")
 endif()
 
-# When updating to a new version of Trilinos, the following message will need
-# to be updated. Post 12.12.1, the flag should be:
-#         -D Trilinos_ENABLE_COMPLEX_DOUBLE=ON
+get_target_property(CMAKE_REQUIRED_INCLUDES Teuchos::all_libs INTERFACE_INCLUDE_DIRECTORIES)
 check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
 if (NOT Teuchos_COMPLEX_IN_Trilinos)
      message("Trilinos was not built with COMPLEX support in Teuchos.\n"
           "Enable the following in the Trilinos build:\n"
-          "  -D Teuchos_ENABLE_COMPLEX=ON")
+          "  -D Trilinos_ENABLE_COMPLEX_DOUBLE=ON")
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
@@ -205,10 +207,11 @@ endif()
 # However, the test *prepends* those flags, so they get overridden by the
 # debug flags of the check, itself.  The following is probably an abuse of
 # CMAKE_REQUIRED_DEFINITIONS, but it seems to work.
+
 if (MSVC)
      set(CMAKE_REQUIRED_DEFINITIONS "${Trilinos_CXX_COMPILER_FLAGS}")
 endif()
-set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
+get_target_property(CMAKE_REQUIRED_LIBRARIES Teuchos::all_libs INTERFACE_LINK_LIBRARIES)
 
 # Perform an initial check to see if we can compile against Trilinos at all.
 # This could reveal compiler setup problems and/or Trilinos setup problems.
@@ -219,26 +222,21 @@ if (NOT Trilinos_COMPILE_SUCCESS)
      Trilinos was installed. See the CMake log files for more information.")
 endif()
 
-check_include_file_cxx(LOCA.H LOCA_IN_Trilinos ${OpenMP_CXX_FLAGS})
-if (NOT LOCA_IN_Trilinos)
-     message("Trilinos was not built with LOCA support in NOX.\n"
-          "Enable the following in the Trilinos build:\n"
-          "  -D NOX_ENABLE_LOCA=ON")
-     set(Trilinos_IS_MISSING_FEATURES TRUE)
-endif()
-
-unset(CMAKE_REQUIRED_LIBRARIES)
-if (MSVC)
-     unset(CMAKE_REQUIRED_DEFINITIONS)
-endif()
-
 # After the release of Trilinos 12.12.1, the abstract solver interface in NOX
 # was changed to include a new method that returns solver statistics.  This
 # test and the Xyce_NOX_SOLVERSTATS ifdefs can be removed if the minimum
 # required version of Trilinos is raised.
-check_include_file_cxx(NOX_SolverStats.hpp Xyce_NOX_SOLVERSTATS)
+# 8/24/2022 - Minimum version was raised to 13.5 for cmake, but not autotools.
+#             This ifdef will be set to true for cmake builds.
+get_target_property(CMAKE_REQUIRED_INCLUDES NOX::all_libs INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(CMAKE_REQUIRED_LIBRARIES NOX::all_libs INTERFACE_LINK_LIBRARIES)
+set(Xyce_NOX_SOLVERSTATS TRUE CACHE BOOL "Use new method to return NOX solver statistics.")
 
 unset(CMAKE_REQUIRED_INCLUDES)
+unset(CMAKE_REQUIRED_LIBRARIES)
+if (MSVC)
+     unset(CMAKE_REQUIRED_DEFINITIONS)
+endif()
 
 if (Trilinos_IS_MISSING_FEATURES)
      message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos.\n"
@@ -248,42 +246,24 @@ endif()
 # Search for optional Trilinos packages
 
 # Hybrid-hybrid ShyLU linear solver 
-if(Trilinos_VERSION VERSION_GREATER "12.12.1")
-  if (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
-     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
-  else()
-     message(STATUS "Looking for ShyLU in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST ShyLU_DDCore ShyLU_DD_IN_Trilinos)
-     if (ShyLU_DD_IN_Trilinos GREATER -1)
-          message(STATUS "Looking for ShyLU in Trilinos - found")
-          set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
-     else()
-          message(STATUS "Looking for ShyLU in Trilinos - not found")
-          set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package" FORCE)
-     endif()
-  endif()
+if (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
+   set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
 else()
-  if (DEFINED Xyce_SHYLU AND NOT Xyce_SHYLU)
-     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package")
-  else()
-     message(STATUS "Looking for ShyLU in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST ShyLU ShyLU_IN_Trilinos)
-     if (ShyLU_IN_Trilinos GREATER -1)
-          message(STATUS "Looking for ShyLU in Trilinos - found")
-          set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
-     else()
-          message(STATUS "Looking for ShyLU in Trilinos - not found")
-          set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package" FORCE)
-     endif()
-  endif()
+   message(STATUS "Looking for ShyLU in Trilinos")
+   if(TARGET ShyLU_DDCore::all_libs)
+        message(STATUS "Looking for ShyLU in Trilinos - found")
+        set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver package")
+   else()
+        message(STATUS "Looking for ShyLU in Trilinos - not found")
+        set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver package" FORCE)
+   endif()
 endif()
 
 if (DEFINED Xyce_AMESOS2 AND NOT Xyce_AMESOS2)
      set(Xyce_AMESOS2 FALSE CACHE BOOL "Enables the Amesos2 linear solver")
 else()
      message(STATUS "Looking for Amesos2 in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST Amesos2 Amesos2_IN_Trilinos)
-     if (Amesos2_IN_Trilinos GREATER -1)
+     if(TARGET Amesos2::all_libs)
           set(Xyce_AMESOS2 TRUE CACHE BOOL "Enables the Amesos2 linear solver")
           message(STATUS "Looking for Amesos2 in Trilinos - found")
      else()
@@ -293,7 +273,7 @@ else()
 endif()
 
 if (Xyce_AMESOS2)
-     set(CMAKE_REQUIRED_INCLUDES ${Trilinos_INCLUDE_DIRS})
+     get_target_property(CMAKE_REQUIRED_INCLUDES Amesos2::all_libs INTERFACE_INCLUDE_DIRECTORIES)
 
      # KLU2
      if (DEFINED Xyce_AMESOS2_KLU2 AND NOT Xyce_AMESOS2_KLU2)
@@ -314,26 +294,14 @@ if (Xyce_AMESOS2)
           check_cxx_symbol_exists(HAVE_AMESOS2_BASKER Amesos2_config.h Amesos2_Basker_IN_Trilinos)
           if (Amesos2_Basker_IN_Trilinos)
                set(Xyce_AMESOS2_BASKER TRUE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")
+               set(Xyce_NEW_BASKER TRUE)
+               # After the release of Trilinos 12.12 (maybe 12.14?), the Amesos2/Basker interface was changed.
+               # Xyce's cmake builds only support the new basker interface, but the autotools build still
+               # supports options for using both. The Xyce_NEW_BASKER ifdefs can be removed if the minimum 
+               # required version of Trilinos is raised for both build systems.
           else()
                set(Xyce_AMESOS2_BASKER FALSE CACHE BOOL "Enables the templated Basker linear solver in Amesos2" FORCE)
           endif()
-     endif()
-
-     # After the release of Trilinos 12.12 (maybe 12.14?), the Amesos2/Basker
-     # interface was changed.  This check and the Xyce_NEW_BASKER ifdefs can be
-     # removed if the minimum required version of Trilinos is raised.
-     set(CMAKE_REQUIRED_LIBRARIES ${Trilinos_LIBRARIES})
-     set(CMAKE_REQUIRED_FLAGS ${OpenMP_CXX_FLAGS})
-     if (Xyce_AMESOS2_BASKER) 
-       check_cxx_source_compiles("
-            #include \"Amesos2_Basker.hpp\"
-            int main(){Basker::Basker<int, double> basker_; return 0;}
-            " Trilinos_USING_OLD_BASKER)
-       if (Trilinos_USING_OLD_BASKER)
-          set(Xyce_NEW_BASKER FALSE)
-       else()
-          set(Xyce_NEW_BASKER TRUE)
-       endif()
      endif()
 
      # ShyLU-Basker
@@ -357,8 +325,7 @@ if (DEFINED Xyce_STOKHOS_ENABLE AND NOT Xyce_STOKHOS_ENABLE)
      set(Xyce_STOKHOS_ENABLE FALSE CACHE BOOL "Enables the Stokhos linear solver")
 else()
      message(STATUS "Looking for Stokhos in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST Stokhos Stokhos_IN_Trilinos)
-     if (Stokhos_IN_Trilinos GREATER -1)
+     if(TARGET Stokhos::all_libs)
           message(STATUS "Looking for Stokhos in Trilinos - found")
           set(Xyce_STOKHOS_ENABLE TRUE CACHE BOOL "Enables the Stokhos linear solver")
      else()
@@ -371,8 +338,7 @@ if (DEFINED Xyce_ROL AND NOT Xyce_ROL)
      set(Xyce_ROL FALSE CACHE BOOL "Enables the ROL linear solver")
 else()
      message(STATUS "Looking for ROL in Trilinos")
-     list(FIND Trilinos_PACKAGE_LIST ROL ROL_IN_Trilinos)
-     if (ROL_IN_Trilinos GREATER -1)
+     if(TARGET ROL::all_libs)
           set(Xyce_ROL TRUE CACHE BOOL "Enables the ROL linear solver")
           message(STATUS "Looking for ROL in Trilinos - found")
      else()
@@ -391,8 +357,7 @@ if (DEFINED HAVE_LIBPARMETIS AND NOT HAVE_LIBPARMETIS)
      set(HAVE_LIBPARMETIS FALSE CACHE BOOL "Enables the ParMETIS partitioning library")
 else()
      message(STATUS "Looking for ParMETIS via Trilinos")
-     list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
-     if (ParMETIS_IN_Trilinos GREATER -1)
+     if(TARGET ParMETIS::all_libs)
           message(STATUS "Looking for ParMETIS via Trilinos - found")
           set(HAVE_LIBPARMETIS TRUE CACHE BOOL "Enables the ParMETIS partitioning library")
      else()
@@ -405,8 +370,7 @@ if (DEFINED Xyce_AMD AND NOT Xyce_AMD)
      set(Xyce_AMD FALSE CACHE BOOL "Enables the option of AMD ordering for the linear solver")
 else()
      message(STATUS "Looking for AMD via Trilinos")
-     list(FIND Trilinos_TPL_LIST AMD AMD_IN_Trilinos)
-     if (AMD_IN_Trilinos GREATER -1)
+     if(TARGET AMD::all_libs)
           message(STATUS "Looking for AMD via Trilinos - found")
           set(Xyce_AMD TRUE CACHE BOOL "Enables the option of AMD ordering for the linear solver")
      else()
@@ -419,24 +383,21 @@ endif()
 # be defined.
 
 message(STATUS "Looking for PARDISO_MKL via Trilinos")
-list(FIND Trilinos_TPL_LIST PARDISO_MKL PARDISO_IN_Trilinos)
-if (PARDISO_IN_Trilinos GREATER -1)
+if (TARGET PARDISO_MKL::all_libs)
      message(STATUS "Looking for PARDISO_MKL via Trilinos - found")
 else()
      message(STATUS "Looking for PARDISO_MKL via Trilinos - not found")
 endif()
 
 message(STATUS "Looking for SuperLU via Trilinos")
-list(FIND Trilinos_TPL_LIST SuperLU SuperLU_IN_Trilinos)
-if (SuperLU_IN_Trilinos GREATER -1)
+if (TARGET SuperLU::all_libs)
      message(STATUS "Looking for SuperLU via Trilinos - found")
 else()
      message(STATUS "Looking for SuperLU via Trilinos - not found")
 endif()
 
 message(STATUS "Looking for SuperLUDist via Trilinos")
-list(FIND Trilinos_TPL_LIST SuperLUDist SuperLUDist_IN_Trilinos)
-if (SuperLUDist_IN_Trilinos GREATER -1)
+if (TARGET SuperLUDist::all_libs)
      message(STATUS "Looking for SuperLUDist via Trilinos - found")
 else()
      message(STATUS "Looking for SuperLUDist via Trilinos - not found")
@@ -490,30 +451,15 @@ if (Xyce_USE_FFTW AND NOT Xyce_USE_FFT)
      set(Xyce_USE_FFTW FALSE CACHE BOOL "Use FFTW library" FORCE)
 endif()
 
-# Trilinos will search for the Intel MKL in the context of leveraging the BLAS
-# and LAPACK capabilities.  If BLAS and LAPACK are enabled via the Intel MKL,
-# then they will be in the Trilinos_TPL_LIST variable (already seached above);
-# but Trilinos_TPL_LIST will not explicitly mention the MKL.  However, the MKL
-# linking information should be in the other Trilinos CMake TPL variables.  We
-# are not going to search for the Intel MKL, ourselves; we will simply check to
-# see if the MKL FFT header is available, *and* that its directory is known to
-# Trilinos (indicating Trilinos will supply all the needed MKL linking
-# information).  This is admittedly a bit hinky.  It could fail if the Trilinos
-# link line is somehow incomplete, and environment variables pointing to the
-# MKL are not in place.  Nevertheless, it should work for most use cases, and
-# I've tried to give the user guidance as to what is going on.
-#
 # Note that the following is not done on a re-run of the configuration, when
 # Xyce_USE_INTEL_FFT=TRUE (as might happen with ccmake).  That should not be a
 # problem, since we're relying on information from Trilinos, anyway.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
-     set(CMAKE_REQUIRED_INCLUDES "${Trilinos_TPL_INCLUDE_DIRS}")
-     check_include_file_cxx("mkl_dfti.h" HAVE_MKL_FFT)
-     unset(CMAKE_REQUIRED_INCLUDES)
-     # The following is very cludgy, but I don't know how else to probe Trilnos for the MKL.
-     string(FIND "${Trilinos_TPL_LIBRARIES}" "mkl" Tri_MKL_STRING_FOUND)
-     if(Tri_MKL_STRING_FOUND GREATER -1)
+     if(TARGET MKL::all_libs)
           set(Tri_KNOWS_MKL TRUE)
+          get_target_property(CMAKE_REQUIRED_INCLUDES MKL::all_libs INTERFACE_INCLUDE_DIRECTORIES)
+          check_include_file_cxx("mkl_dfti.h" HAVE_MKL_FFT)
+          unset(CMAKE_REQUIRED_INCLUDES)
      endif()
      if (Tri_KNOWS_MKL AND HAVE_MKL_FFT)
           message(STATUS "Looking for FFT libraries - found the Intel Math Kernel Library")
@@ -585,6 +531,8 @@ if (Xyce_USE_CURL)
 else()
      message(STATUS "Usage tracking is not enabled")
 endif()
+
+find_package(Git)
 
 #
 # Look for optional Matlab application to use the mex compiler for Simulink interface

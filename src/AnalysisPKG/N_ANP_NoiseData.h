@@ -72,10 +72,15 @@ public:
     lastLnNoiseDens(0),
     li_Pos(0),
     li_Neg(0),
+    li_PosCorl(1,-1),
+    li_NegCorl(1,-1),
     totalNoise(0.0),
     totalOutputNoise(0.0),
     totalInputNoise(0.0),
-    numSources(0)
+    numSources(0), 
+    T0(0.0),
+    T2(0.0),
+    T3(0.0)
   {};
 
   virtual ~NoiseData ();
@@ -104,12 +109,18 @@ public:
   std::vector<double> lastLnNoiseDens;
   std::vector<int> li_Pos;
   std::vector<int> li_Neg;
+  std::vector<int> li_PosCorl;
+  std::vector<int> li_NegCorl;
 
   double totalNoise;
   double totalOutputNoise;
   double totalInputNoise;
 
   int numSources;
+
+  double T0;
+  double T2;
+  double T3;
 };
 
 // inline functions
@@ -129,6 +140,8 @@ inline void NoiseData::resize(int size)
   lastLnNoiseDens.clear();
   li_Pos.clear();
   li_Neg.clear();
+  li_PosCorl.clear();
+  li_NegCorl.clear();
 
   noiseNames.resize(size);
 
@@ -143,6 +156,8 @@ inline void NoiseData::resize(int size)
 
   li_Pos.resize(size);
   li_Neg.resize(size);
+  li_PosCorl.resize(size,-1);
+  li_NegCorl.resize(size,-1);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,6 +178,8 @@ inline NoiseData::~NoiseData()
   lastLnNoiseDens.clear();
   li_Pos.clear();
   li_Neg.clear();
+  li_PosCorl.clear();
+  li_NegCorl.clear();
 }
 
 //-----------------------------------------------------------------------------

@@ -94,6 +94,8 @@ private:
   Instance &operator=(const Instance &);
 
 public:
+  virtual bool processParams();
+
   bool isLinearDevice() const
   {
     if ( loadLeadCurrent )
@@ -141,6 +143,7 @@ private:
   Model &       model_;         //< Owning model
 
   double Transconductance;
+  double multiplicityFactor;     // multiplicity factor (M)
 
   // Matrix equation index variables:
   // local indices (offsets)
@@ -201,10 +204,7 @@ public:
     return true;
   }
 
-  virtual bool processInstanceParams() 
-  {
-    return true;
-  }
+  virtual bool processInstanceParams() ;
 
 public:
   void addInstance(Instance *instance) 

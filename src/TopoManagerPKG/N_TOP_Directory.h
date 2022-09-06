@@ -78,12 +78,13 @@ public:
 
   bool generateDirectory();
 
-  bool getProcs( const std::vector<NodeID> & idVec,
-                 std::vector<int> & procVec );
+  std::vector<NodeID> getProcs( const std::vector<NodeID> & idVec,
+                                std::vector<int> & procVec );
 
-  bool getSolnGIDs( const std::vector<NodeID> & idVec,
-                    std::vector< std::vector<int> > & gidVec,
-                    std::vector<int> & procVec );
+  std::vector<NodeID> getSolnGIDs( const std::vector<NodeID> & idVec,
+                                   std::vector< std::vector<int> > & gidVec,
+                                   std::vector<int> & procVec );
+
 private:
 
   // Copy constructor (private).

@@ -780,8 +780,34 @@ void CktGraphBasic::removeRedundantDevices( std::vector< NodeID > & devicesToBeR
     std::vector< NodeID> singletonIDs = cktgph_.getSingletons();
     if (singletonIDs.size() > 0)
     {
+      std::vector< NodeID> singletonDevs;
+
       cktgph_.removeKeys( singletonIDs );
-      devicesToBeRemoved.insert(devicesToBeRemoved.end(), singletonIDs.begin(), singletonIDs.end());
+   
+      // Check if the singleton was a device
+      std::vector< NodeID>::iterator sIDs_it = singletonIDs.begin();
+      for ( ; sIDs_it != singletonIDs.end(); ++sIDs_it )
+      {
+        if( Xyce::get_node_type( *sIDs_it ) == _DNODE )
+          singletonDevs.push_back( *sIDs_it );
+      }
+
+      // If there are singleton devices, find the device object to add to removedDevices
+      std::vector< NodeID>::iterator sdIDs_it = singletonDevs.begin();
+      for ( ; sdIDs_it != singletonDevs.end(); ++sdIDs_it )
+      {
+        Graph::Data1Map::const_iterator currentCktNodeItr = dataMap.begin();
+        Graph::Data1Map::const_iterator endCktNodeItr = dataMap.end();
+        while( currentCktNodeItr != endCktNodeItr )
+        {
+          if( (((*currentCktNodeItr).second)->type() == _DNODE) && ((*currentCktNodeItr).first == *sdIDs_it) )
+          {
+            devicesToBeRemoved.push_back((*currentCktNodeItr).first);
+            removedDevices.push_back((*currentCktNodeItr).second);
+          }
+          currentCktNodeItr++;
+        }
+      }
     }
 
     isModified_=true;

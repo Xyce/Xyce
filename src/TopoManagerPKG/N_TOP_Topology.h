@@ -285,6 +285,9 @@ private:
 
   // Collect the set of names on processor 0.
   void generateGlobalNameSet( unordered_set<std::string> & local_names );
+
+  // Check for bad solution nodes from resolveDependentVars
+  void checkForBadSolnNodes( const std::vector<NodeID>& badSolnNodes );
 };
 
 bool registerPkgOptionsMgr(Topology &topology, IO::PkgOptionsMgr &options_manager);
