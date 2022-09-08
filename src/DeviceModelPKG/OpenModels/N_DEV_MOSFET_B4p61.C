@@ -6720,28 +6720,28 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
   } 
 
   devSupport.noiseSupport(noiseData.noiseDens[RDNOIZ],
-   noiseData.lnNoiseDens[RDNOIZ], THERMNOISE,
-   //dNodePrime, dNode,
-   gdpr,temp);
+                          noiseData.lnNoiseDens[RDNOIZ], THERMNOISE,
+                          //dNodePrime, dNode,
+                          gdpr*numberParallel,temp);
 
   devSupport.noiseSupport(noiseData.noiseDens[RSNOIZ],
-      noiseData.lnNoiseDens[RSNOIZ],  THERMNOISE,
-      //sNodePrime, sNode,
-      gspr,temp);
+                          noiseData.lnNoiseDens[RSNOIZ],  THERMNOISE,
+                          //sNodePrime, sNode,
+                          gspr*numberParallel,temp);
 
   if ((rgateMod == 1) || (rgateMod == 2))
   {   
     devSupport.noiseSupport(noiseData.noiseDens[RGNOIZ],
-      noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
-      //gNodePrime, gNodeExt,
-      grgeltd,temp);
+                            noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
+                            //gNodePrime, gNodeExt,
+                            grgeltd*numberParallel,temp);
   }
   else if (rgateMod == 3)
   {   
     devSupport.noiseSupport(noiseData.noiseDens[RGNOIZ],
-      noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
-      //gNodeMid, gNodeExt,
-      grgeltd,temp);
+                            noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
+                            //gNodeMid, gNodeExt,
+                            grgeltd*numberParallel,temp);
   }
   else
   {    
@@ -6767,61 +6767,61 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
     if(bodymode == 5)
     {
       devSupport.noiseSupport(noiseData.noiseDens[RBPSNOIZ],
-          noiseData.lnNoiseDens[RBPSNOIZ],  THERMNOISE,
-          //bNodePrime, sbNode,
-          grbps,temp);
+                              noiseData.lnNoiseDens[RBPSNOIZ],  THERMNOISE,
+                              //bNodePrime, sbNode,
+                              grbps*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBPDNOIZ],
-          noiseData.lnNoiseDens[RBPDNOIZ],  THERMNOISE,
-          //bNodePrime, dbNode,
-          grbpd,temp);
+                              noiseData.lnNoiseDens[RBPDNOIZ],  THERMNOISE,
+                              //bNodePrime, dbNode,
+                              grbpd*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBPBNOIZ],
-          noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
-          //bNodePrime, bNode,
-          grbpb,temp);
+                              noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
+                              //bNodePrime, bNode,
+                              grbpb*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBSBNOIZ],
-          noiseData.lnNoiseDens[RBSBNOIZ],  THERMNOISE,
-          //bNode, sbNode,
-          grbsb,temp);
+                              noiseData.lnNoiseDens[RBSBNOIZ],  THERMNOISE,
+                              //bNode, sbNode,
+                              grbsb*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBDBNOIZ],
-          noiseData.lnNoiseDens[RBDBNOIZ],  THERMNOISE,
-          //bNode, dbNode,
-          grbdb,temp);
+                              noiseData.lnNoiseDens[RBDBNOIZ],  THERMNOISE,
+                              //bNode, dbNode,
+                              grbdb*numberParallel,temp);
     }
     if(bodymode == 3)
     {
       devSupport.noiseSupport(noiseData.noiseDens[RBPSNOIZ],
-          noiseData.lnNoiseDens[RBPSNOIZ],  THERMNOISE,
-          //bNodePrime, sbNode,
-          grbps,temp);
+                              noiseData.lnNoiseDens[RBPSNOIZ],  THERMNOISE,
+                              //bNodePrime, sbNode,
+                              grbps*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBPDNOIZ],
-          noiseData.lnNoiseDens[RBPDNOIZ],  THERMNOISE,
-          //bNodePrime, dbNode,
-          grbpd,temp);
+                              noiseData.lnNoiseDens[RBPDNOIZ],  THERMNOISE,
+                              //bNodePrime, dbNode,
+                              grbpd*numberParallel,temp);
 
       devSupport.noiseSupport(noiseData.noiseDens[RBPBNOIZ],
-          noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
-          //bNodePrime, bNode,
-          grbpb,temp);
+                              noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
+                              //bNodePrime, bNode,
+                              grbpb*numberParallel,temp);
 
       noiseData.noiseDens[RBSBNOIZ] = 0.0;
       noiseData.noiseDens[RBDBNOIZ] = 0.0;
       noiseData.lnNoiseDens[RBSBNOIZ] = std::log(std::max(noiseData.noiseDens[RBSBNOIZ], N_MINLOG));
-      noiseData.lnNoiseDens[RBDBNOIZ] = std::log(std::max(noiseData.noiseDens[RBDBNOIZ], N_MINLOG));				     
+      noiseData.lnNoiseDens[RBDBNOIZ] = std::log(std::max(noiseData.noiseDens[RBDBNOIZ], N_MINLOG));
     }
     if(bodymode == 1)
     {
       devSupport.noiseSupport(noiseData.noiseDens[RBPBNOIZ],
-          noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
-          //bNodePrime, bNode,
-          grbpb,temp);				    
+                              noiseData.lnNoiseDens[RBPBNOIZ],  THERMNOISE,
+                              //bNodePrime, bNode,
+                              grbpb*numberParallel,temp);
 
       noiseData.noiseDens[RBPSNOIZ] = 0.0;
-      noiseData.noiseDens[RBPDNOIZ] = 0.0;                                    
+      noiseData.noiseDens[RBPDNOIZ] = 0.0;
 
       noiseData.noiseDens[RBSBNOIZ] = 0.0;
       noiseData.noiseDens[RBDBNOIZ] = 0.0;
@@ -6834,7 +6834,7 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
   else
   {
     noiseData.noiseDens[RBPSNOIZ] = 0.0;
-    noiseData.noiseDens[RBPDNOIZ] = 0.0;   
+    noiseData.noiseDens[RBPDNOIZ] = 0.0;
     noiseData.noiseDens[RBPBNOIZ] = 0.0;
     noiseData.noiseDens[RBSBNOIZ] = 0.0;
     noiseData.noiseDens[RBDBNOIZ] = 0.0;
@@ -6851,9 +6851,10 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
       T0 = ueff * fabs(qinv);
       T1 = T0 * tmp + paramPtr->leff * paramPtr->leff;
 
-      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ], noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
-          //dNodePrime, sNodePrime,
-          (T0 / T1) * model_.ntnoi,temp);
+      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                              noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
+                              //dNodePrime, sNodePrime,
+                              (T0 / T1) * model_.ntnoi * numberParallel,temp);
 
       break;
     case 1:
@@ -6863,9 +6864,10 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
       T1 = npart_beta * (gm + gmbs) + gds;
       T2 = T1 * T1 / IdovVds;
 
-      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ], noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
-          //dNodePrime, sNodePrime, 
-          (T2 - igsquare),temp);
+      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                              noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
+                              //dNodePrime, sNodePrime, 
+                              (T2 - igsquare)*numberParallel,temp);
 
       break;
   }
@@ -6873,7 +6875,7 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
   switch(model_.fnoiMod)
   {
     case 0:
-      noiseData.noiseDens[FLNOIZ] = model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
+      noiseData.noiseDens[FLNOIZ] = numberParallel * model_.kf * exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
         / (pow(noiseData.freq, model_.ef) * paramPtr->leff * paramPtr->leff * model_.coxe);
 
       break;
@@ -6892,7 +6894,7 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
 
       if (T1 > 0.0)
       {
-        noiseData.noiseDens[FLNOIZ] = (Ssi * Swi) / T1;
+        noiseData.noiseDens[FLNOIZ] = numberParallel* (Ssi * Swi) / T1;
       }
       else
       {
@@ -6906,31 +6908,31 @@ void Instance::getNoiseSources4p61_ (Xyce::Analysis::NoiseData & noiseData)
   if(mode >= 0) 
   {  /* bugfix  */
     devSupport.noiseSupport(noiseData.noiseDens[IGSNOIZ],
-        noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
-        //gNodePrime, sNodePrime,
-        (Igs + Igcs),temp);
+                            noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
+                            //gNodePrime, sNodePrime,
+                            (Igs + Igcs)*numberParallel,temp);
 
     devSupport.noiseSupport(noiseData.noiseDens[IGDNOIZ],
-        noiseData.lnNoiseDens[IGDNOIZ],  SHOTNOISE,
-        //gNodePrime, dNodePrime,
-        (Igd + Igcd),temp);
+                            noiseData.lnNoiseDens[IGDNOIZ],  SHOTNOISE,
+                            //gNodePrime, dNodePrime,
+                            (Igd + Igcd)*numberParallel,temp);
   } 
   else 
   {
     devSupport.noiseSupport(noiseData.noiseDens[IGSNOIZ],
-        noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
-        //gNodePrime, sNodePrime,
-        (Igs + Igcd),temp);
+                            noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
+                            //gNodePrime, sNodePrime,
+                            (Igs + Igcd)*numberParallel,temp);
 
     devSupport.noiseSupport(noiseData.noiseDens[IGDNOIZ],
-        noiseData.lnNoiseDens[IGDNOIZ],  SHOTNOISE,
-        //gNodePrime, dNodePrime,
-        (Igd + Igcs),temp);
+                            noiseData.lnNoiseDens[IGDNOIZ],  SHOTNOISE,
+                            //gNodePrime, dNodePrime,
+                            (Igd + Igcs)*numberParallel,temp);
   }
   devSupport.noiseSupport(noiseData.noiseDens[IGBNOIZ],
-      noiseData.lnNoiseDens[IGBNOIZ],  SHOTNOISE,
-      //gNodePrime, bNodePrime,
-      Igb,temp);
+                          noiseData.lnNoiseDens[IGBNOIZ],  SHOTNOISE,
+                          //gNodePrime, bNodePrime,
+                          Igb*numberParallel,temp);
 }
 
 //-----------------------------------------------------------------------------

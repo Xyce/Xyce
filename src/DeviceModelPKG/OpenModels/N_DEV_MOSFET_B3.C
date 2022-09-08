@@ -8694,14 +8694,14 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   // thermal noise, RD:
   devSupport.noiseSupport(
   noiseData.noiseDens[0], noiseData.lnNoiseDens[0], THERMNOISE,
-            drainConductance,
+            drainConductance*numberParallel,
             temp);
 
   // thermal noise, RS:
   devSupport.noiseSupport(
-  noiseData.noiseDens[1], noiseData.lnNoiseDens[1], THERMNOISE,
-            sourceConductance,
-            temp);
+     noiseData.noiseDens[1], noiseData.lnNoiseDens[1], THERMNOISE,
+     sourceConductance*numberParallel,
+     temp);
 
   // thermal noise, ID:
   switch(model_.noiMod)
@@ -8709,8 +8709,8 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
     case 1:
     case 3:
       devSupport.noiseSupport(
-      noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
-          2.0 * fabs(gm + gds + gmbs) / 3.0, temp);
+         noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
+         numberParallel * 2.0 * fabs(gm + gds + gmbs) / 3.0, temp);
 
       break;
     case 5:
@@ -8718,25 +8718,31 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
       {
       double vdsLocal = std::min( vds, vdsat);
       devSupport.noiseSupport(
-      noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
-          (3.0 - vdsLocal / vdsat) * fabs(gm + gds + gmbs) / 3.0, temp);
+         noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
+         numberParallel*(
+            (3.0 - vdsLocal / vdsat) * fabs(gm + gds + gmbs) / 3.0
+                         )
+         , temp);
       }
       break;
     case 2:
     case 4:
       devSupport.noiseSupport(
-      noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
-      (ueff * fabs(qinv) / (paramPtr->leff * paramPtr->leff + ueff *fabs(qinv) * rds)), temp);
+         noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE,
+         numberParallel*(
+            (ueff * fabs(qinv) / (paramPtr->leff * paramPtr->leff + ueff *fabs(qinv) * rds))
+                         )
+            , temp);
       break;
   }
 
-  // flicker noise 
+  // flicker noise
   switch(model_.noiMod )
-  {  
+  {
     case 1:
     case 4:
     case 5:
-      noiseData.noiseDens[3] = model_.kf * 
+      noiseData.noiseDens[3] = numberParallel*model_.kf *
         std::exp(model_.af * std::log(std::max(fabs(cd), N_MINLOG)))
         / (std::pow(noiseData.freq,model_.ef) * paramPtr->leff * paramPtr->leff *model_.cox);
       break;
@@ -8746,7 +8752,7 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
       {
         double vdsLocal = vds;
         if (vdsLocal < 0.0)
-        { 
+        {
           vdsLocal = -vdsLocal;
         }
         double Ssi,Swi,T10,T11,T1;
@@ -8757,7 +8763,7 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
         T1 = Swi + Ssi;
         if (T1 > 0.0)
         {
-          noiseData.noiseDens[3] = (Ssi * Swi) / T1; 
+          noiseData.noiseDens[3] = numberParallel*(Ssi * Swi) / T1;
         }
         else
         {
