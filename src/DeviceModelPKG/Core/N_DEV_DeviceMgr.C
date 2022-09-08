@@ -38,6 +38,7 @@
 #include <Xyce_config.h>
 
 #include <algorithm>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
 
