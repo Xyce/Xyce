@@ -3086,22 +3086,22 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
   // thermal noise, RD:
   devSupport.noiseSupport(
       noiseData.noiseDens[0], noiseData.lnNoiseDens[0], THERMNOISE, 
-                  drainConductance,
+                  drainConductance*numberParallel,
                   temp);
 
   // thermal noise, RS:
   devSupport.noiseSupport(
       noiseData.noiseDens[1], noiseData.lnNoiseDens[1], THERMNOISE, 
-                  sourceConductance,
+                  sourceConductance*numberParallel,
                   temp);
 
   // thermal noise, ID:
   devSupport.noiseSupport(
       noiseData.noiseDens[2], noiseData.lnNoiseDens[2], THERMNOISE, 
-                  (2.0/3.0 * fabs(gm)), temp);
+                  (2.0/3.0 * fabs(gm))*numberParallel, temp);
 
   // flicker noise 
-  noiseData.noiseDens[3] = model_.fNcoef * std::exp(model_.fNexp *
+  noiseData.noiseDens[3] = numberParallel*model_.fNcoef * std::exp(model_.fNexp *
 				 std::log(std::max(fabs(cd),N_MINLOG))) /
 				 (noiseData.freq * w * (l - 2*model_.latDiff) *
 				 model_.oxideCapFactor * model_.oxideCapFactor);
