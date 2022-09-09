@@ -1454,6 +1454,9 @@ bool CircuitBlock::handleLinePass1(
     }
     else if (ES1 == ".SUBCKT")
     {
+      // get the old context name to compare at the end of this subckt block
+      std::string old_name = circuitContext_.getCurrentContextPtr()->getName();
+
       // Create a new CircuitBlock to hold the subcircuit definition.
       // Set the parentCircuitPtr of the new CircuitBlock.
       CircuitBlock* subcircuitBlockPtr =
@@ -1507,6 +1510,18 @@ bool CircuitBlock::handleLinePass1(
 
       result = subcircuitBlockPtr->parseNetlistFilePass1(options_manager, libSelect, libInside)
                && result;
+
+      // get the current context name to compare 
+      CircuitContext* context = circuitContext_.getCurrentContextPtr();
+      std::string name = context->getName();
+
+      // Check if the parser thinks it is still inside a subcircuit, even though it is done.
+      // This means the netlist finished parsing without find .ENDS.
+      if (old_name != name)
+      {
+        Report::UserError().at(context->getLocation())
+          << "Subcircuit " << context->getName() << " missing .ENDS";
+      }
     }
 
     else if (ES1 == ".PREPROCESS")
