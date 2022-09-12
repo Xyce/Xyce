@@ -56,13 +56,6 @@
 #include <N_UTL_Math.h>
 #include <N_ANP_NoiseData.h>
 
-// ---------- BSIM4 constants ---------------
-// Many constants are obtained from N_DEV_Const.h
-// A few overrides (2) are below, to make this device as close
-// to the original spice3f5 code as possible.
-
-#define CONSTEPS0 8.85418e-12
-
 
 namespace Xyce {
 namespace Device {
