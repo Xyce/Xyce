@@ -49,25 +49,34 @@ typedef std::complex<double> cmplx;
 //-------------------------------------------------------------------------------
 // test values of binary operators 
 //
-#define AST_BINARY_OP_TEST_MACRO(TYPE,NAME,OP,CPPOP, VAL1, VAL2) \
+#define AST_BINARY_OP_TEST_MACRO(NAME,OP,CPPOP, VAL1, VAL2) \
 TEST ( NAME, OP ) \
 { \
-  RCP<astNode<TYPE> > arg1 = rcp(new numval<TYPE> (VAL1)); \
-  RCP<astNode<TYPE> > arg2 = rcp(new numval<TYPE> (VAL2)); \
-  RCP<OP<TYPE> > OP_1 = rcp(new OP<TYPE>(arg1,arg2)); \
-  EXPECT_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
+  RCP<astNode<double> > arg1 = rcp(new numval<double> (VAL1)); \
+  RCP<astNode<double> > arg2 = rcp(new numval<double> (VAL2)); \
+  RCP<OP<double> > OP_1 = rcp(new OP<double>(arg1,arg2)); \
+  EXPECT_DOUBLE_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
 }
 
-AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryAddOp,+,1.0,2.0) 
-AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryMinusOp,-,1.0,2.0) 
-AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryMulOp,*,1.0,2.0) 
-AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryDivOp,/,1.0,2.0) 
+#define AST_BINARY_OP_TEST_MACRO_CMPLX(NAME,OP,CPPOP, VAL1, VAL2) \
+TEST ( NAME, OP ) \
+{ \
+  RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (VAL1)); \
+  RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (VAL2)); \
+  RCP<OP<cmplx> > OP_1 = rcp(new OP<cmplx>(arg1,arg2)); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->val()),std::real(VAL1 CPPOP VAL2)); \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->val()),std::imag(VAL1 CPPOP VAL2)); \
+}
 
+AST_BINARY_OP_TEST_MACRO(Double_Binary_Ast_Op,binaryAddOp,+,1.0,2.0) 
+AST_BINARY_OP_TEST_MACRO(Double_Binary_Ast_Op,binaryMinusOp,-,1.0,2.0) 
+AST_BINARY_OP_TEST_MACRO(Double_Binary_Ast_Op,binaryMulOp,*,1.0,2.0) 
+AST_BINARY_OP_TEST_MACRO(Double_Binary_Ast_Op,binaryDivOp,/,1.0,2.0) 
 
-AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryAddOp,+,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
-AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryMinusOp,-,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
-AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryMulOp,*,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
-AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryDivOp,/,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
+AST_BINARY_OP_TEST_MACRO_CMPLX(Complex_Binary_Ast_Op,binaryAddOp,+,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
+AST_BINARY_OP_TEST_MACRO_CMPLX(Complex_Binary_Ast_Op,binaryMinusOp,-,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
+AST_BINARY_OP_TEST_MACRO_CMPLX(Complex_Binary_Ast_Op,binaryMulOp,*,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
+AST_BINARY_OP_TEST_MACRO_CMPLX(Complex_Binary_Ast_Op,binaryDivOp,/,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
 
 //-------------------------------------------------------------------------------
 // test values of unary std functions 
@@ -77,7 +86,16 @@ TEST ( NAME, OP )  \
 {  \
   RCP<astNode<TYPE> > arg1 = rcp(new numval<TYPE> (VAL)); \
   RCP<OP<TYPE> > OP_1 = rcp(new OP<TYPE>(arg1)); \
-  EXPECT_EQ(OP_1->val(), CPPFUNC(VAL));  \
+  EXPECT_DOUBLE_EQ(OP_1->val(), CPPFUNC(VAL));  \
+}
+
+#define AST_OP_TEST_CMPLX_MACRO(TYPE,NAME,OP,CPPFUNC, VAL) \
+TEST ( NAME, OP )  \
+{  \
+  RCP<astNode<TYPE> > arg1 = rcp(new numval<TYPE> (VAL)); \
+  RCP<OP<TYPE> > OP_1 = rcp(new OP<TYPE>(arg1)); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->val()), std::real(CPPFUNC(VAL)));  \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->val()), std::imag(CPPFUNC(VAL)));  \
 }
 
 AST_OP_TEST_MACRO(double, Double_UnaryFunc_Ast_Ops, sqrtOp,  std::sqrt,  4.0)
@@ -98,30 +116,30 @@ AST_OP_TEST_MACRO(double, Double_UnaryFunc_Ast_Ops, sinhOp, std::sinh, 0.5)
 AST_OP_TEST_MACRO(double, Double_UnaryFunc_Ast_Ops, tanOp, std::tan, 0.5)
 AST_OP_TEST_MACRO(double, Double_UnaryFunc_Ast_Ops, tanhOp, std::tanh, 0.5)
 
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sqrtOp,  std::sqrt, cmplx(4.0, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, expOp, std::exp, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, absOp, std::abs, cmplx(-.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sinOp, std::sin, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, cosOp, std::cos, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, acosOp, std::acos, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, acoshOp, std::acosh, cmplx(1.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, asinOp, std::asin, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, asinhOp, std::asinh, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, atanOp, std::atan, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, atanhOp, std::atanh, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, coshOp, std::cosh, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, logOp, std::log, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, log10Op, std::log10, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sinhOp, std::sinh, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, tanOp, std::tan, cmplx(.5, 0.2))
-AST_OP_TEST_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, tanhOp, std::tanh, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sqrtOp,  std::sqrt, cmplx(4.0, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, expOp, std::exp, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, absOp, std::abs, cmplx(-.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sinOp, std::sin, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, cosOp, std::cos, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, acosOp, std::acos, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, acoshOp, std::acosh, cmplx(1.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, asinOp, std::asin, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, asinhOp, std::asinh, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, atanOp, std::atan, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, atanhOp, std::atanh, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, coshOp, std::cosh, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, logOp, std::log, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, log10Op, std::log10, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, sinhOp, std::sinh, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, tanOp, std::tan, cmplx(.5, 0.2))
+AST_OP_TEST_CMPLX_MACRO(cmplx, Complex_UnaryFunc_Ast_Ops, tanhOp, std::tanh, cmplx(.5, 0.2))
 
 //-------------------------------------------------------------------------------
 // constants
 TEST ( Ast_Const_Test, Pi )
 {  
   piConstOp<double> testPi;
-  EXPECT_EQ(testPi.val(), M_PI);  
+  EXPECT_DOUBLE_EQ(testPi.val(), M_PI);  
 }
 
 //-------------------------------------------------------------------------------
@@ -131,7 +149,7 @@ TEST ( Double_Ast_Func_Test, powOp )
   RCP<astNode<double> > arg1 = rcp(new numval<double> (2.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
   RCP<astNode<double> > testPow = rcp(new powOp<double>(arg1,arg2)); 
-  EXPECT_EQ(testPow->val(), std::pow(2.0,3.0));  
+  EXPECT_DOUBLE_EQ(testPow->val(), std::pow(2.0,3.0));  
 }
 
 TEST ( Double_Ast_Func_Test, pwrsOp )
@@ -139,7 +157,7 @@ TEST ( Double_Ast_Func_Test, pwrsOp )
   RCP<astNode<double> > arg1 = rcp(new numval<double> (2.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
   RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
-  EXPECT_EQ(testPow->val(), std::pow(2.0,3.0));  
+  EXPECT_DOUBLE_EQ(testPow->val(), std::pow(2.0,3.0));  
 }
 
 TEST ( Double_Ast_Func_Test, pwrsOp2 )
@@ -147,7 +165,7 @@ TEST ( Double_Ast_Func_Test, pwrsOp2 )
   RCP<astNode<double> > arg1 = rcp(new numval<double> (0.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
   RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
-  EXPECT_EQ(testPow->val(), 0.0);  
+  EXPECT_DOUBLE_EQ(testPow->val(), 0.0);  
 }
 
 TEST ( Double_Ast_Func_Test, pwrsOp3 )
@@ -155,7 +173,7 @@ TEST ( Double_Ast_Func_Test, pwrsOp3 )
   RCP<astNode<double> > arg1 = rcp(new numval<double> (-2.0));
   RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
   RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
-  EXPECT_EQ(testPow->val(), -std::pow(2.0,3.0) );
+  EXPECT_DOUBLE_EQ(testPow->val(), -std::pow(2.0,3.0) );
 }
 
 TEST ( Double_Ast_Func_Test, phaseOp )
@@ -163,7 +181,7 @@ TEST ( Double_Ast_Func_Test, phaseOp )
   double a1(-1.0);
   RCP<astNode<double> > arg1 = rcp(new numval<double> (a1));
   RCP<astNode<double> > testPhase = rcp(new phaseOp<double>(arg1)); 
-  EXPECT_EQ(testPhase->val(), std::arg(a1)*(180.0/M_PI));   // default behavior uses Degrrees, not radians
+  EXPECT_DOUBLE_EQ(testPhase->val(), std::arg(a1)*(180.0/M_PI));   // default behavior uses Degrrees, not radians
 }
 
 TEST ( Complex_Ast_Func_Test, powOp )
@@ -175,7 +193,8 @@ TEST ( Complex_Ast_Func_Test, powOp )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new powOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_EQ(testPow->val(), std::pow(a1,a2));  
+  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(a1,a2)));
+  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(a1,a2)));
 }
 
 TEST ( Complex_Ast_Func_Test, pwrsOp )
@@ -187,7 +206,8 @@ TEST ( Complex_Ast_Func_Test, pwrsOp )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_EQ(testPow->val(), std::pow(a1,a2));  
+  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(a1,a2)));
+  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(a1,a2)));
 }
 
 TEST ( Complex_Ast_Func_Test, pwrsOp2 )
@@ -199,11 +219,12 @@ TEST ( Complex_Ast_Func_Test, pwrsOp2 )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_EQ(testPow->val(), std::complex<double>(0.0,0.0));
+  EXPECT_DOUBLE_EQ(std::real(testPow->val()), 0.0);
+  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), 0.0);
 }
 
 TEST ( Complex_Ast_Func_Test, pwrsOp3 )
-{  
+{
   std::complex<double> a1(-2.0,0.0);
   std::complex<double> a2(3.0,0.0);
 
@@ -211,15 +232,17 @@ TEST ( Complex_Ast_Func_Test, pwrsOp3 )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_EQ(testPow->val(), -std::pow( std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0) ));
+  EXPECT_DOUBLE_EQ(std::real(testPow->val()),std::real( -std::pow( std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0) )));
+  EXPECT_DOUBLE_EQ(std::imag(testPow->val()),std::imag( -std::pow( std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0) )));
 }
 
 TEST ( Complex_Ast_Func_Test, phaseOp )
-{  
+{
   std::complex<double> a1(-1.0,0.0);
   RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
   RCP<astNode<cmplx> > testPhase = rcp(new phaseOp<cmplx>(arg1)); 
-  EXPECT_EQ(testPhase->val(), std::arg(a1)*(180.0/M_PI));   // default behavior uses Degrrees, not radians
+  EXPECT_DOUBLE_EQ(std::real(testPhase->val()), std::real(std::arg(a1)*(180.0/M_PI)));   // default behavior uses Degrrees, not radians
+  EXPECT_DOUBLE_EQ(std::imag(testPhase->val()), std::imag(std::arg(a1)*(180.0/M_PI)));   // default behavior uses Degrrees, not radians
 }
 
 TEST ( Complex_Ast_Func_Test, realOp )
@@ -227,7 +250,7 @@ TEST ( Complex_Ast_Func_Test, realOp )
   std::complex<double> a1(-1.0,0.3);
   RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
   RCP<astNode<cmplx> > testReal = rcp(new realOp<cmplx>(arg1)); 
-  EXPECT_EQ(testReal->val(), std::real(a1));  
+  EXPECT_DOUBLE_EQ(std::real(testReal->val()), std::real(a1));  
 }
 
 TEST ( Complex_Ast_Func_Test, imagOp )
@@ -235,7 +258,7 @@ TEST ( Complex_Ast_Func_Test, imagOp )
   std::complex<double> a1(-1.0,0.3);
   RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
   RCP<astNode<cmplx> > testImag = rcp(new imagOp<cmplx>(arg1)); 
-  EXPECT_EQ(testImag->val(), std::imag(a1));   
+  EXPECT_DOUBLE_EQ(std::real(testImag->val()), std::imag(a1));   
 }
 
 TEST ( Double_Ast_Func_Test, unaryMinusOp)
@@ -244,7 +267,7 @@ TEST ( Double_Ast_Func_Test, unaryMinusOp)
   RCP<astNode<double> > arg1 = rcp(new numval<double> (a1));
   RCP<astNode<double> > negarg1 = rcp(new unaryMinusOp<double>(arg1)); 
 
-  EXPECT_EQ(negarg1->val(), -1.0);
+  EXPECT_DOUBLE_EQ(negarg1->val(), -1.0);
 }
 
 TEST ( Complex_Ast_Func_Test, unaryMinusOp)
@@ -253,7 +276,8 @@ TEST ( Complex_Ast_Func_Test, unaryMinusOp)
   RCP<astNode<std::complex<double> > > arg1 = rcp(new numval<std::complex<double> > (a1));
   RCP<astNode<std::complex<double> > > negarg1 = rcp(new unaryMinusOp<std::complex<double> >(arg1)); 
 
-  EXPECT_EQ(negarg1->val(), std::complex<double>(-1.0,-1.0));
+  EXPECT_DOUBLE_EQ(std::real(negarg1->val()), -1.0);
+  EXPECT_DOUBLE_EQ(std::imag(negarg1->val()), -1.0);
 }
 
 
@@ -282,12 +306,12 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp )
   // test initial value(v1)
   time_op2->setValue(time);
   spicePulseOp<double> pulse( sourceArgs, time_op);
-  EXPECT_EQ(pulse.val(), v1);
+  EXPECT_DOUBLE_EQ(pulse.val(), v1);
 
   // test post-rise value(v2)
   time=tr+0.5*pw;
   time_op2->setValue(time);
-  EXPECT_EQ(pulse.val(), v2);
+  EXPECT_DOUBLE_EQ(pulse.val(), v2);
 }
 
 TEST ( Double_Ast_Spice_Src_Test, spicePulseOp_breakPoints )
@@ -336,9 +360,12 @@ TEST ( Double_Ast_Spice_Src_Test, spicePulseOp_breakPoints )
   }
 
   std::vector<double> bpTimes(breakPointTimes.size());
-  for (int ii=0;ii<breakPointTimes.size();ii++) { bpTimes[ii] = breakPointTimes[ii].value(); }
   EXPECT_EQ(breakPointTimes.size(), bpTestVec.size());
-  EXPECT_EQ(bpTimes,bpTestVec);
+  for (int ii=0;ii<breakPointTimes.size();ii++) 
+  { 
+    bpTimes[ii] = breakPointTimes[ii].value(); 
+    EXPECT_DOUBLE_EQ(bpTimes[ii],bpTestVec[ii]);
+  }
 }
 
 TEST ( Double_Ast_Spice_Src_Test, spiceSinOp )
@@ -365,14 +392,14 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSinOp )
   spiceSinOp<double> sinOp (sourceArgs, time_op);
 
   double DCOPValue = v0 + va * std::sin (2.0*M_PI*(phase/360));
-  EXPECT_EQ(sinOp.val(), DCOPValue);
+  EXPECT_DOUBLE_EQ(sinOp.val(), DCOPValue);
 
   // test a transient value, which should be 
   // TRANValue = (v0) + (va) * std::sin(2.0*mpi*((freq)*time + (phase)/360)) * std::exp( -(time*(theta)));
   time=1.0/10000.0;
   time_op2->setValue(time);
   double TRANValue = v0 + va * std::sin(2.0*M_PI*((freq)*time + (phase)/360)) * std::exp( -(time*(theta)));
-  EXPECT_EQ(sinOp.val(), TRANValue);
+  EXPECT_DOUBLE_EQ(sinOp.val(), TRANValue);
 }
 
 TEST ( Double_Ast_Spice_Src_Test, spiceExpOp )
@@ -397,25 +424,25 @@ TEST ( Double_Ast_Spice_Src_Test, spiceExpOp )
   // test time <= td1, which should be v1
   time_op2->setValue(time);
   spiceExpOp<double> expOp ( sourceArgs, time_op );
-  EXPECT_EQ(expOp.val(), v1);
+  EXPECT_DOUBLE_EQ(expOp.val(), v1);
 
   // test td1 < time <= td2, which should be 
   // value = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1));
   time=(td1+td2)*0.5;
   time_op2->setValue(time);
   double value = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1));
-  EXPECT_EQ(expOp.val(), value);
+  EXPECT_DOUBLE_EQ(expOp.val(), value);
 
   // test time > td2, which should be 
   // value = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1)) + (v1-v2)*(1.0-std::exp(-(time-td2)/tau2)) ;
   time=td2*1.1;
   time_op2->setValue(time);
   value = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1)) + (v1-v2)*(1.0-std::exp(-(time-td2)/tau2)) ;
-  EXPECT_EQ(expOp.val(), value);
+  EXPECT_DOUBLE_EQ(expOp.val(), value);
 }
 
 TEST ( Double_Ast_Spice_Src_Test, spiceSffmOp )
-{  
+{
   // these numbers are from the   SOURCES/sources.cir
   //  V0=-0.5 VA=2 FC=100meg MDI=0.3 FS=2.1meg
   //
@@ -442,7 +469,7 @@ TEST ( Double_Ast_Spice_Src_Test, spiceSffmOp )
   time=0.1;
   time_op2->setValue(time);
   double value = v0 + va * sin((2 * M_PI * fc * time) + mdi * sin (2 * M_PI * fs * time));
-  EXPECT_EQ(sffmOp.val(), value);
+  EXPECT_DOUBLE_EQ(sffmOp.val(), value);
 }
 
 //-------------------------------------------------------------------------------
@@ -458,45 +485,67 @@ TEST ( Double_Ast_Deriv_Test, test1)
   RCP<astNode<double> > binaryAddOp_1 = rcp(new binaryAddOp<double>( arg1, arg2));
 
   // value
-  EXPECT_EQ(binaryAddOp_1->val(),(2.0 + 5.0));
+  EXPECT_DOUBLE_EQ(binaryAddOp_1->val(),(2.0 + 5.0));
 
   // derivs
   arg1->setDerivIndex(0);  
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(binaryAddOp_1->dx(0),1.0);
-  EXPECT_EQ(binaryAddOp_1->dx(1),1.0);
+  EXPECT_DOUBLE_EQ(binaryAddOp_1->dx(0),1.0);
+  EXPECT_DOUBLE_EQ(binaryAddOp_1->dx(1),1.0);
 }
 
-#define AST_BINARY_DERIV_TEST_MACRO(TYPE,NAME,OP,CPPOP, VAL1, VAL2, D1, D2) \
+#define AST_BINARY_DERIV_TEST_MACRO(NAME,OP,CPPOP, VAL1, VAL2, D1, D2) \
 TEST ( NAME, OP ) \
 { \
-  RCP<astNode<TYPE> > val1 = rcp(new numval<TYPE> (VAL1)); \
-  RCP<astNode<TYPE> > val2 = rcp(new numval<TYPE> (VAL2)); \
-  RCP<astNode<TYPE> > arg1 = rcp(new paramOp<TYPE> (std::string("A")));  \
+  RCP<astNode<double> > val1 = rcp(new numval<double> (VAL1)); \
+  RCP<astNode<double> > val2 = rcp(new numval<double> (VAL2)); \
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A")));  \
   arg1->setNode(val1); \
-  RCP<astNode<TYPE> > arg2 = rcp(new paramOp<TYPE> (std::string("B"))); \
+  RCP<astNode<double> > arg2 = rcp(new paramOp<double> (std::string("B"))); \
   arg2->setNode(val2); \
-  RCP<astNode<TYPE> > OP_1 = rcp(new OP<TYPE> (arg1,arg2)); \
-  EXPECT_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
+  RCP<astNode<double> > OP_1 = rcp(new OP<double> (arg1,arg2)); \
+  EXPECT_DOUBLE_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
   arg1->setDerivIndex(0); \
   arg2->setDerivIndex(1); \
   arg1->setIsVar(); \
   arg2->setIsVar(); \
-  EXPECT_EQ(OP_1->dx(0),D1); \
-  EXPECT_EQ(OP_1->dx(1),D2); \
-}  
+  EXPECT_DOUBLE_EQ(OP_1->dx(0),D1); \
+  EXPECT_DOUBLE_EQ(OP_1->dx(1),D2); \
+}
 
-AST_BINARY_DERIV_TEST_MACRO(double,Double_Ast_Deriv_Test,binaryAddOp,+,3.0,4.0,1.0,1.0)
-AST_BINARY_DERIV_TEST_MACRO(double,Double_Ast_Deriv_Test,binaryMinusOp,-,3.0,4.0,1.0,-1.0)
-AST_BINARY_DERIV_TEST_MACRO(double,Double_Ast_Deriv_Test,binaryMulOp,*,3.0,4.0,4.0,3.0)
-AST_BINARY_DERIV_TEST_MACRO(double,Double_Ast_Deriv_Test,binaryDivOp,/,3.0,4.0,0.25,(-3.0/16.0))
+#define AST_BINARY_DERIV_TEST_MACRO_CMPLX(NAME,OP,CPPOP, VAL1, VAL2, D1, D2) \
+TEST ( NAME, OP ) \
+{ \
+  RCP<astNode<cmplx> > val1 = rcp(new numval<cmplx> (VAL1)); \
+  RCP<astNode<cmplx> > val2 = rcp(new numval<cmplx> (VAL2)); \
+  RCP<astNode<cmplx> > arg1 = rcp(new paramOp<cmplx> (std::string("A")));  \
+  arg1->setNode(val1); \
+  RCP<astNode<cmplx> > arg2 = rcp(new paramOp<cmplx> (std::string("B"))); \
+  arg2->setNode(val2); \
+  RCP<astNode<cmplx> > OP_1 = rcp(new OP<cmplx> (arg1,arg2)); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->val()),std::real((VAL1 CPPOP VAL2))); \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->val()),std::imag((VAL1 CPPOP VAL2))); \
+  arg1->setDerivIndex(0); \
+  arg2->setDerivIndex(1); \
+  arg1->setIsVar(); \
+  arg2->setIsVar(); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->dx(0)),std::real(D1)); \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->dx(0)),std::imag(D1)); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->dx(1)),std::real(D2)); \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->dx(1)),std::imag(D2)); \
+} 
 
-AST_BINARY_DERIV_TEST_MACRO(cmplx,Complex_Ast_Deriv_Test,binaryAddOp,+,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(1.0,0.0),cmplx(1.0,0.0))
-AST_BINARY_DERIV_TEST_MACRO(cmplx,Complex_Ast_Deriv_Test,binaryMinusOp,-,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(1.0,0.0),cmplx(-1.0,0.0))
-AST_BINARY_DERIV_TEST_MACRO(cmplx,Complex_Ast_Deriv_Test,binaryMulOp,*,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(4.0,2.0),cmplx(3.0,1.0))
-AST_BINARY_DERIV_TEST_MACRO(cmplx,Complex_Ast_Deriv_Test,binaryDivOp,/,cmplx(3.0,1.0),cmplx(4.0,2.0), +cmplx(4.0,2.0)/(cmplx(4.0,2.0)*cmplx(4.0,2.0)), -cmplx(3.0,1.0)/(cmplx(4.0,2.0)*cmplx(4.0,2.0)))
+AST_BINARY_DERIV_TEST_MACRO(Double_Ast_Deriv_Test,binaryAddOp,+,3.0,4.0,1.0,1.0)
+AST_BINARY_DERIV_TEST_MACRO(Double_Ast_Deriv_Test,binaryMinusOp,-,3.0,4.0,1.0,-1.0)
+AST_BINARY_DERIV_TEST_MACRO(Double_Ast_Deriv_Test,binaryMulOp,*,3.0,4.0,4.0,3.0)
+AST_BINARY_DERIV_TEST_MACRO(Double_Ast_Deriv_Test,binaryDivOp,/,3.0,4.0,0.25,(-3.0/16.0))
+
+AST_BINARY_DERIV_TEST_MACRO_CMPLX(Complex_Ast_Deriv_Test,binaryAddOp,+,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(1.0,0.0),cmplx(1.0,0.0))
+AST_BINARY_DERIV_TEST_MACRO_CMPLX(Complex_Ast_Deriv_Test,binaryMinusOp,-,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(1.0,0.0),cmplx(-1.0,0.0))
+AST_BINARY_DERIV_TEST_MACRO_CMPLX(Complex_Ast_Deriv_Test,binaryMulOp,*,cmplx(3.0,1.0),cmplx(4.0,2.0),cmplx(4.0,2.0),cmplx(3.0,1.0))
+AST_BINARY_DERIV_TEST_MACRO_CMPLX(Complex_Ast_Deriv_Test,binaryDivOp,/,cmplx(3.0,1.0),cmplx(4.0,2.0), +cmplx(4.0,2.0)/(cmplx(4.0,2.0)*cmplx(4.0,2.0)), -cmplx(3.0,1.0)/(cmplx(4.0,2.0)*cmplx(4.0,2.0)))
 
 //-------------------------------------------------------------------------------
 // derivatives of unary std functions
@@ -507,11 +556,26 @@ TEST ( NAME, OP ) \
   RCP<astNode<TYPE> > arg1 = rcp(new paramOp<TYPE> ( std::string("A")));  \
   arg1->setNode(val1); \
   RCP<astNode<TYPE> > OP_1 = rcp(new OP<TYPE> (arg1)); \
-  EXPECT_EQ(OP_1->val(),CPPFUNC(VAL1)); \
+  EXPECT_DOUBLE_EQ(OP_1->val(),CPPFUNC(VAL1)); \
   arg1->setDerivIndex(0); \
   arg1->setIsVar(); \
-  EXPECT_EQ( (OP_1->dx(0)-D1), 0.0); \
-} 
+  EXPECT_DOUBLE_EQ( (OP_1->dx(0)-D1), 0.0); \
+}
+
+#define AST_UNARY_DERIV_TEST_MACRO2(TYPE,NAME,OP,CPPFUNC,VAL1,D1) \
+TEST ( NAME, OP ) \
+{ \
+  RCP<astNode<TYPE> > val1 = rcp(new numval<TYPE> (VAL1)); \
+  RCP<astNode<TYPE> > arg1 = rcp(new paramOp<TYPE> ( std::string("A")));  \
+  arg1->setNode(val1); \
+  RCP<astNode<TYPE> > OP_1 = rcp(new OP<TYPE> (arg1)); \
+  EXPECT_DOUBLE_EQ(std::real(OP_1->val()),std::real(CPPFUNC(VAL1))); \
+  EXPECT_DOUBLE_EQ(std::imag(OP_1->val()),std::imag(CPPFUNC(VAL1))); \
+  arg1->setDerivIndex(0); \
+  arg1->setIsVar(); \
+  EXPECT_DOUBLE_EQ( std::real(OP_1->dx(0)-D1), 0.0); \
+  EXPECT_DOUBLE_EQ( std::imag(OP_1->dx(0)-D1), 0.0); \
+}
 
 // complex
 AST_UNARY_DERIV_TEST_MACRO(double, Double_UnaryDeriv_Ast_Ops, sqrtOp, std::sqrt, 4.0, (0.5/std::sqrt(4.0)))
@@ -537,27 +601,27 @@ AST_UNARY_DERIV_TEST_MACRO(double, Double_UnaryDeriv_Ast_Ops, logOp, std::log, 0
 AST_UNARY_DERIV_TEST_MACRO(double, Double_UnaryDeriv_Ast_Ops, log10Op, std::log10, 0.5, 1.0/(0.5*std::log(10)))
 
 // complex
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, sqrtOp, std::sqrt, cmplx(4.0,0.2), (0.5/std::sqrt(cmplx(4.0,0.2))))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, expOp, std::exp, cmplx(0.5,0.2), std::exp(cmplx(0.5,0.2)))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, absOp, std::abs, cmplx(-0.5,0.2), -1.0)
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, sinOp, std::sin, cmplx(0.5,0.2), std::cos(cmplx(0.5,0.2)))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, cosOp, std::cos, cmplx(0.5,0.2), -std::sin(cmplx(0.5,0.2)))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, tanOp, std::tan, cmplx(0.5,0.2), (1.0+std::tan(cmplx(0.5,0.2))*std::tan(cmplx(0.5,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, sqrtOp, std::sqrt, cmplx(4.0,0.2), (0.5/std::sqrt(cmplx(4.0,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, expOp, std::exp, cmplx(0.5,0.2), std::exp(cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, absOp, std::abs, cmplx(-0.5,0.2), -1.0)
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, sinOp, std::sin, cmplx(0.5,0.2), std::cos(cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, cosOp, std::cos, cmplx(0.5,0.2), -std::sin(cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, tanOp, std::tan, cmplx(0.5,0.2), (1.0+std::tan(cmplx(0.5,0.2))*std::tan(cmplx(0.5,0.2))))
 
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, asinOp, std::asin, cmplx(0.5,0.2),(+1.0/std::sqrt(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2))))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, acosOp, std::acos, cmplx(0.5,0.2),(-1.0/std::sqrt(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2))))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, atanOp, std::atan, cmplx(0.5,0.2),(+1.0/(1.0+cmplx(0.5,0.2)*cmplx(0.5,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, asinOp, std::asin, cmplx(0.5,0.2),(+1.0/std::sqrt(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, acosOp, std::acos, cmplx(0.5,0.2),(-1.0/std::sqrt(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, atanOp, std::atan, cmplx(0.5,0.2),(+1.0/(1.0+cmplx(0.5,0.2)*cmplx(0.5,0.2))))
 
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, sinhOp, std::sinh, cmplx(0.5,0.2), std::cosh(cmplx(0.5,0.2)))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, coshOp, std::cosh, cmplx(0.5,0.2), std::sinh(cmplx(0.5,0.2)))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, tanhOp, std::tanh, cmplx(0.1,0.2), 1.0/(std::cosh(cmplx(0.1,0.2))*std::cosh(cmplx(0.1,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, sinhOp, std::sinh, cmplx(0.5,0.2), std::cosh(cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, coshOp, std::cosh, cmplx(0.5,0.2), std::sinh(cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, tanhOp, std::tanh, cmplx(0.1,0.2), 1.0/(std::cosh(cmplx(0.1,0.2))*std::cosh(cmplx(0.1,0.2))))
 
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, asinhOp, std::asinh, cmplx(0.5,0.2), 1.0/(std::sqrt(1.0+cmplx(0.5,0.2)*cmplx(0.5,0.2))))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, acoshOp, std::acosh, cmplx(1.5,0.2), (1.0/(std::sqrt( (cmplx(1.5,0.2)-1.0) * (cmplx(1.5,0.2)+1.0) ))))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, atanhOp, std::atanh, cmplx(0.5,0.2), 1.0/(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, asinhOp, std::asinh, cmplx(0.5,0.2), 1.0/(std::sqrt(1.0+cmplx(0.5,0.2)*cmplx(0.5,0.2))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, acoshOp, std::acosh, cmplx(1.5,0.2), (1.0/(std::sqrt( (cmplx(1.5,0.2)-1.0) * (cmplx(1.5,0.2)+1.0) ))))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, atanhOp, std::atanh, cmplx(0.5,0.2), 1.0/(1.0-cmplx(0.5,0.2)*cmplx(0.5,0.2)))
 
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, logOp, std::log, cmplx(0.5,0.2), 1.0/cmplx(0.5,0.2))
-AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, log10Op, std::log10, cmplx(0.5,0.2), 1.0/(cmplx(0.5,0.2)*std::log(10)))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, logOp, std::log, cmplx(0.5,0.2), 1.0/cmplx(0.5,0.2))
+AST_UNARY_DERIV_TEST_MACRO2(cmplx, Complex_UnaryDeriv_Ast_Ops, log10Op, std::log10, cmplx(0.5,0.2), 1.0/(cmplx(0.5,0.2)*std::log(10)))
 
 // testing cosh and acosh for -10  (see the ascth.cir test)
 
@@ -567,10 +631,10 @@ TEST ( Double_UnaryDeriv_Ast_Ops , coshOp_ascth_test )
   RCP<astNode<double> > arg1 = rcp(new paramOp<double> ( std::string("A")));
   arg1->setNode(val1);
   RCP<astNode<double> > cosh_1 = rcp(new coshOp<double> (arg1));
-  EXPECT_EQ(cosh_1->val(), std::cosh(-10.0)); 
+  EXPECT_DOUBLE_EQ(cosh_1->val(), std::cosh(-10.0)); 
   arg1->setDerivIndex(0);
   arg1->setIsVar();
-  EXPECT_EQ( (cosh_1->dx(0)-std::sinh(-10.0)), 0.0);
+  EXPECT_DOUBLE_EQ( (cosh_1->dx(0)-std::sinh(-10.0)), 0.0);
 }
 
 TEST ( Double_UnaryDeriv_Ast_Ops , acoshOp_ascth_test ) 
@@ -581,11 +645,11 @@ TEST ( Double_UnaryDeriv_Ast_Ops , acoshOp_ascth_test )
   RCP<astNode<double> > arg1 = rcp(new paramOp<double> ( std::string("A")));
   arg1->setNode(val1);
   RCP<astNode<double> > acosh_1 = rcp(new acoshOp<double> (arg1));
-  EXPECT_EQ(acosh_1->val(), std::acosh(input)); 
+  EXPECT_DOUBLE_EQ(acosh_1->val(), std::acosh(input)); 
   arg1->setDerivIndex(0);
   arg1->setIsVar();
   double deriv = 1.0/(std::sqrt( (input-1) * (input+1) ));
-  EXPECT_EQ( (acosh_1->dx(0)-deriv), 0.0 );
+  EXPECT_DOUBLE_EQ( (acosh_1->dx(0)-deriv), 0.0 );
 }
 
 //-------------------------------------------------------------------------------
@@ -603,15 +667,15 @@ TEST ( Double_Ast_Deriv_Test, powOp )
 
   // value
   RCP<astNode<double> > testPow = rcp(new powOp<double> (arg1,arg2));
-  EXPECT_EQ(testPow->val(), std::pow(A,B));  
+  EXPECT_DOUBLE_EQ(testPow->val(), std::pow(A,B));  
 
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
-  EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+  EXPECT_DOUBLE_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
+  EXPECT_DOUBLE_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp )
@@ -627,19 +691,19 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp )
 
   // value
   RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,arg2));
-  EXPECT_EQ(testPwrs->val(), std::pow(A,B));  
+  EXPECT_DOUBLE_EQ(testPwrs->val(), std::pow(A,B));  
 
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
-  EXPECT_EQ(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
+  EXPECT_DOUBLE_EQ(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp2 )
-{  
+{
   double A=0.0;
   double B=4.0;
   RCP<astNode<double> > val1 = rcp(new numval<double> (A));
@@ -651,15 +715,15 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp2 )
 
   // value
   RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,arg2));
-  EXPECT_EQ(testPwrs->val(), std::pow(A,B));  
+  EXPECT_DOUBLE_EQ(testPwrs->val(), std::pow(A,B));  
 
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0)-0.0, 0.0 );
-  EXPECT_EQ(testPwrs->dx(1)-0.0, 0.0 );
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0)-0.0, 0.0 );
+  EXPECT_DOUBLE_EQ(testPwrs->dx(1)-0.0, 0.0 );
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp3 )
@@ -684,7 +748,7 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp3 )
   RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
 
   // value
-  EXPECT_EQ(testPwrs->val(), negPow->val());
+  EXPECT_DOUBLE_EQ(testPwrs->val(), negPow->val());
 
   // derivative
   negarg1->setDerivIndex(0);
@@ -693,8 +757,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp3 )
   negarg1->setIsVar();
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
-  EXPECT_EQ(testPwrs->dx(1),negPow->dx(1));
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0),negPow->dx(0));
+  EXPECT_DOUBLE_EQ(testPwrs->dx(1),negPow->dx(1));
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp4 )
@@ -717,18 +781,18 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp4 )
   RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
 
   // value
-  EXPECT_EQ(testPwrs->val(), negPow->val());
+  EXPECT_DOUBLE_EQ(testPwrs->val(), negPow->val());
 
   // derivative
   negarg1->setDerivIndex(0);
   arg1->setDerivIndex(0);
   negarg1->setIsVar();
   arg1->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp5 )
-{  
+{
   double A=-7.0;
   double B=-4.0;
   RCP<astNode<double> > val1 = rcp(new numval<double> (A));
@@ -747,14 +811,14 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp5 )
   RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
 
   // value
-  EXPECT_EQ(testPwrs->val(), negPow->val());
+  EXPECT_DOUBLE_EQ(testPwrs->val(), negPow->val());
 
   // derivative
   negarg1->setDerivIndex(0);
   arg1->setDerivIndex(0);
   negarg1->setIsVar();
   arg1->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp6 )
@@ -775,12 +839,12 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp6 )
   RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
 
   // value
-  EXPECT_EQ(testPwrs->val(), negPow->val());
+  EXPECT_DOUBLE_EQ(testPwrs->val(), negPow->val());
 
   // derivative
   arg2->setDerivIndex(0);
   arg2->setIsVar();
-  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+  EXPECT_DOUBLE_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
 TEST ( Complex_Ast_Deriv_Test, powOp )
@@ -798,7 +862,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
 
   // value
   RCP<astNode<cmplx> > testPow = rcp(new powOp<cmplx> (arg1,arg2));
-  EXPECT_EQ(testPow->val(), std::pow(A,B));  
+  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(A,B)));
+  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(A,B)));
 
   // general:
   // (B.dx(i)*std::log(A.val())+B.val()*A.dx(i)/A.val())*std::pow(A.val(),B.val())
@@ -814,8 +879,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
-  EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+  EXPECT_DOUBLE_EQ(std::real(testPow->dx(0)-((B/A)*std::pow(A,(B)))), 0.0 );
+  EXPECT_DOUBLE_EQ(std::imag(testPow->dx(1)-(std::log(A))*std::pow(A,B)), 0.0 );
 }
 
 //-------------------------------------------------------------------------------
@@ -831,8 +896,8 @@ TEST ( Double_Ast_Param_Test, paramOp )
   RCP<astNode<double> > paramB = rcp(new paramOp<double> (std::string("B")));
   paramB->setNode(valB);
 
-  EXPECT_EQ(paramA->val()-A, 0.0);
-  EXPECT_EQ(paramB->val()-B, 0.0);
+  EXPECT_DOUBLE_EQ(paramA->val()-A, 0.0);
+  EXPECT_DOUBLE_EQ(paramB->val()-B, 0.0);
 }
 
 //-------------------------------------------------------------------------------
@@ -849,8 +914,8 @@ TEST ( Double_Ast_Param_Test, voltageOp1 )
   voltageA->setVal(A);
   voltageB->setVal(B);
 
-  EXPECT_EQ(voltageA->val()-A, 0.0);
-  EXPECT_EQ(voltageB->val()-B, 0.0);
+  EXPECT_DOUBLE_EQ(voltageA->val()-A, 0.0);
+  EXPECT_DOUBLE_EQ(voltageB->val()-B, 0.0);
 }
 
 //-------------------------------------------------------------------------------
@@ -875,7 +940,7 @@ TEST ( Double_Ast_Func_Test, test1)
 
   function2->setNode(function1);
   function2->setFuncArgs(dummyBaseArgs); // this does work
-  EXPECT_EQ(function2->val(), 11.0);
+  EXPECT_DOUBLE_EQ(function2->val(), 11.0);
 }
 
 TEST ( Complex_Ast_Func_Test, test1)
@@ -899,7 +964,8 @@ TEST ( Complex_Ast_Func_Test, test1)
 
   function2->setNode(function1);
   function2->setFuncArgs(dummyBaseArgs);
-  EXPECT_EQ(function2->val(), std::complex<double> (11.0,9.0));
+  EXPECT_DOUBLE_EQ(std::real(function2->val()), 11.0);
+  EXPECT_DOUBLE_EQ(std::imag(function2->val()), 9.0);
 }
 
 TEST ( Double_Ast_Func_Test, test2)
@@ -940,7 +1006,7 @@ TEST ( Double_Ast_Func_Test, test2)
 
   function2->setNode(f2);
   function2->setFuncArgs(dummyBaseArgs2);
-  EXPECT_EQ(function2->val(), 25.0);
+  EXPECT_DOUBLE_EQ(function2->val(), 25.0);
 }
 
 TEST ( Complex_Ast_Func_Test, test2)
@@ -981,7 +1047,10 @@ TEST ( Complex_Ast_Func_Test, test2)
 
   function2->setNode(f2);
   function2->setFuncArgs(dummyBaseArgs2);
-  EXPECT_EQ(function2->val(), std::complex<double>(3,1)+std::complex<double>(2,4)*std::complex<double>(11,9));
+  EXPECT_DOUBLE_EQ(std::real(function2->val()), 
+      std::real (std::complex<double>(3,1)+std::complex<double>(2,4)*std::complex<double>(11,9)) );
+  EXPECT_DOUBLE_EQ(std::imag(function2->val()), 
+      std::imag (std::complex<double>(3,1)+std::complex<double>(2,4)*std::complex<double>(11,9)) );
 }
 
 //-------------------------------------------------------------------------------
@@ -997,7 +1066,7 @@ TEST ( Double_Ast_Param_Test, test1)
   double B=5.0;
   RCP<astNode<double> > paramValB = rcp(new numval<double> (B));
   RCP<astNode<double> > finalExp = rcp(new binaryAddOp<double> (paramValB,testParamA));
-  EXPECT_EQ(finalExp->val(), A+B);
+  EXPECT_DOUBLE_EQ(finalExp->val(), A+B);
 }
 
 TEST ( Complex_Ast_Param_Test, test1)
@@ -1012,7 +1081,8 @@ TEST ( Complex_Ast_Param_Test, test1)
   std::complex<double> B(5.0,4.0);
   RCP<astNode<std::complex<double> > > paramValB = rcp(new numval<std::complex<double> > (B));
   RCP<astNode<std::complex<double> > > finalExp = rcp(new binaryAddOp<std::complex<double> > (paramValB,testParamA));
-  EXPECT_EQ(finalExp->val(), (A+B));
+  EXPECT_DOUBLE_EQ(std::real(finalExp->val()), std::real(A+B));
+  EXPECT_DOUBLE_EQ(std::imag(finalExp->val()), std::imag(A+B));
 }
 
 TEST ( Double_Ast_Param_Test, test2)
@@ -1032,7 +1102,7 @@ TEST ( Double_Ast_Param_Test, test2)
   // define the expression that uses the .params
   binaryMulOp <double> finalExp(testParamA, testParamB);
 
-  EXPECT_EQ(finalExp.val(), 12.0);
+  EXPECT_DOUBLE_EQ(finalExp.val(), 12.0);
 }
 
 TEST ( Complex_Ast_Param_Test, test2)
@@ -1050,7 +1120,8 @@ TEST ( Complex_Ast_Param_Test, test2)
   // define the expression that uses the .params
   binaryMulOp <std::complex<double> > finalExp(testParamA, testParamB);
 
-  EXPECT_EQ(finalExp.val(), A*B);
+  EXPECT_DOUBLE_EQ(std::real(finalExp.val()), std::real(A*B));
+  EXPECT_DOUBLE_EQ(std::imag(finalExp.val()), std::imag(A*B));
 }
 
 TEST ( Double_Ast_Param_Test, test3)
@@ -1082,7 +1153,7 @@ TEST ( Double_Ast_Param_Test, test3)
   RCP<astNode<double> > finalExp = rcp(new binaryDivOp<double> (numerator, testParamC));
 
   // final result should be = 7/12
-  EXPECT_EQ(finalExp->val(), Result);
+  EXPECT_DOUBLE_EQ(finalExp->val(), Result);
 }
 
 TEST ( Complex_Ast_Param_Test, test3)
@@ -1112,80 +1183,81 @@ TEST ( Complex_Ast_Param_Test, test3)
   RCP<astNode<std::complex<double> > > finalExp = rcp(new binaryDivOp<std::complex<double> > (numerator, testParamC));
 
   // final result should be = (A+B)/C
-  EXPECT_EQ(finalExp->val(), Result );
+  EXPECT_DOUBLE_EQ(std::real(finalExp->val()), std::real(Result) );
+  EXPECT_DOUBLE_EQ(std::imag(finalExp->val()), std::imag(Result) );
 }
 
 //-------------------------------------------------------------------------------
 // test values of conditional operators and if statements
 //
-#define AST_IF_OP_TEST_MACRO(TYPE,NAME,SUBNAME,OP, C1, C2, VAL1, VAL2, RESULT) \
+#define AST_IF_OP_TEST_MACRO(NAME,SUBNAME,OP, C1, C2, VAL1, VAL2, RESULT) \
 TEST ( NAME, SUBNAME ) \
 { \
-  RCP<astNode<TYPE> > c1 = rcp(new numval<TYPE> (C1)); \
-  RCP<astNode<TYPE> > c2 = rcp(new numval<TYPE> (C2)); \
-  RCP<astNode<TYPE> > cond1 = rcp(new OP<TYPE> (c1,c2)); \
-  RCP<astNode<TYPE> > ifVal1 = rcp(new numval<TYPE> (VAL1)); \
-  RCP<astNode<TYPE> > ifVal2 = rcp(new numval<TYPE> (VAL2)); \
-  RCP<astNode<TYPE> > ifStmt = rcp(new ifStatementOp<TYPE>(cond1,ifVal1,ifVal2)); \
-  EXPECT_EQ(ifStmt->val(), RESULT);\
+  RCP<astNode<double> > c1 = rcp(new numval<double> (C1)); \
+  RCP<astNode<double> > c2 = rcp(new numval<double> (C2)); \
+  RCP<astNode<double> > cond1 = rcp(new OP<double> (c1,c2)); \
+  RCP<astNode<double> > ifVal1 = rcp(new numval<double> (VAL1)); \
+  RCP<astNode<double> > ifVal2 = rcp(new numval<double> (VAL2)); \
+  RCP<astNode<double> > ifStmt = rcp(new ifStatementOp<double>(cond1,ifVal1,ifVal2)); \
+  EXPECT_DOUBLE_EQ(ifStmt->val(), RESULT);\
 }
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,eq1,eqOp,3.0,2.0,2.0,3.0,3.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,eq2,eqOp,3.0,3.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,eq1,eqOp,3.0,2.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,eq2,eqOp,3.0,3.0,2.0,3.0,2.0) 
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,ne1,neOp,3.0,2.0,2.0,3.0,2.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,ne2,neOp,3.0,3.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,ne1,neOp,3.0,2.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,ne2,neOp,3.0,3.0,2.0,3.0,3.0) 
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,gt1,gtOp,3.0,2.0,2.0,3.0,2.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,gt2,gtOp,2.0,3.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,gt1,gtOp,3.0,2.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,gt2,gtOp,2.0,3.0,2.0,3.0,3.0) 
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,lt1,ltOp,3.0,2.0,2.0,3.0,3.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,lt2,ltOp,2.0,3.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,lt1,ltOp,3.0,2.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,lt2,ltOp,2.0,3.0,2.0,3.0,2.0) 
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,ge1,geOp,3.0,2.0,2.0,3.0,2.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,ge2,geOp,3.0,3.0,2.0,3.0,2.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,ge3,geOp,2.0,3.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,ge1,geOp,3.0,2.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,ge2,geOp,3.0,3.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,ge3,geOp,2.0,3.0,2.0,3.0,3.0) 
 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,le1,leOp,3.0,2.0,2.0,3.0,3.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,le2,leOp,3.0,3.0,2.0,3.0,2.0) 
-AST_IF_OP_TEST_MACRO(double,Double_Ast_if_Test,le3,leOp,2.0,3.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,le1,leOp,3.0,2.0,2.0,3.0,3.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,le2,leOp,3.0,3.0,2.0,3.0,2.0) 
+AST_IF_OP_TEST_MACRO(Double_Ast_if_Test,le3,leOp,2.0,3.0,2.0,3.0,2.0) 
 
-#define AST_LOGIC_OP_TEST_MACRO(TYPE,NAME,SUBNAME,OP, C1, C2, RESULT) \
+#define AST_LOGIC_OP_TEST_MACRO(NAME,SUBNAME,OP, C1, C2, RESULT) \
 TEST ( NAME, SUBNAME ) \
 { \
-  RCP<astNode<TYPE> > c1 = rcp(new numval<TYPE> (C1)); \
-  RCP<astNode<TYPE> > c2 = rcp(new numval<TYPE> (C2)); \
-  RCP<astNode<TYPE> > cond1 = rcp(new OP<TYPE> (c1,c2)); \
-  EXPECT_EQ(cond1->val(), RESULT);\
+  RCP<astNode<double> > c1 = rcp(new numval<double> (C1)); \
+  RCP<astNode<double> > c2 = rcp(new numval<double> (C2)); \
+  RCP<astNode<double> > cond1 = rcp(new OP<double> (c1,c2)); \
+  EXPECT_DOUBLE_EQ(cond1->val(), RESULT);\
 }
 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,and1,andOp, 1.0, 1.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,and2,andOp, 1.0, 0.0, 0.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,and3,andOp, 0.0, 1.0, 0.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,and4,andOp, 0.0, 0.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,and1,andOp, 1.0, 1.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,and2,andOp, 1.0, 0.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,and3,andOp, 0.0, 1.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,and4,andOp, 0.0, 0.0, 0.0) 
 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,or1,orOp, 1.0, 1.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,or2,orOp, 1.0, 0.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,or3,orOp, 0.0, 1.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,or4,orOp, 0.0, 0.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,or1,orOp, 1.0, 1.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,or2,orOp, 1.0, 0.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,or3,orOp, 0.0, 1.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,or4,orOp, 0.0, 0.0, 0.0) 
 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,xor1,xorOp, 1.0, 1.0, 0.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,xor2,xorOp, 1.0, 0.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,xor3,xorOp, 0.0, 1.0, 1.0) 
-AST_LOGIC_OP_TEST_MACRO(double,Double_Ast_logical_Test,xor4,xorOp, 0.0, 0.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,xor1,xorOp, 1.0, 1.0, 0.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,xor2,xorOp, 1.0, 0.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,xor3,xorOp, 0.0, 1.0, 1.0) 
+AST_LOGIC_OP_TEST_MACRO(Double_Ast_logical_Test,xor4,xorOp, 0.0, 0.0, 0.0) 
 
 TEST ( Double_Ast_logical_Test, not1 ) 
 { 
   RCP<astNode<double> > c1 = rcp(new numval<double> (1.0)); \
   RCP<astNode<double> > op = rcp(new unaryNotOp<double> (c1)); \
-  EXPECT_EQ(op->val(), 0.0);
+  EXPECT_DOUBLE_EQ(op->val(), 0.0);
 }
 
 TEST ( Double_Ast_logical_Test, not2 ) 
 { 
   RCP<astNode<double> > c1 = rcp(new numval<double> (0.0)); \
   RCP<astNode<double> > op = rcp(new unaryNotOp<double> (c1)); \
-  EXPECT_EQ(op->val(), 1.0);
+  EXPECT_DOUBLE_EQ(op->val(), 1.0);
 }
 
 //-------------------------------------------------------------------------------
@@ -1221,9 +1293,8 @@ TEST ( Double_Ast_table_Test, break1)
   {
     time_op->setValue(times[ii]);
     result[ii] = table->val();
+    EXPECT_DOUBLE_EQ(refRes[ii],result[ii]);
   }
-
-  EXPECT_EQ(refRes,result);
 }
 
 TEST ( Double_Ast_table_Test, array1)
@@ -1244,9 +1315,8 @@ TEST ( Double_Ast_table_Test, array1)
   {
     time_op->setValue(times[ii]);
     result[ii] = table->val();
+    EXPECT_DOUBLE_EQ(refRes[ii],result[ii]);
   }
-
-  EXPECT_EQ(refRes,result);
 }
 
 #define RCP_NV(VAL1) rcp(new numval<double>(VAL1))
@@ -1390,11 +1460,11 @@ TEST ( Double_Ast_table_Test, array2)
     result[ii] = tableFromParser->val();
     refResCopy[ii] = tablePureArrayCopy->val();
     resultCopy[ii] = tableFromParserCopy->val();
-  }
 
-  EXPECT_EQ(refRes,result);
-  EXPECT_EQ(refRes,resultCopy);
-  EXPECT_EQ(refResCopy,result);
+    EXPECT_DOUBLE_EQ(refRes[ii],result[ii]);
+    EXPECT_DOUBLE_EQ(refRes[ii],resultCopy[ii]);
+    EXPECT_DOUBLE_EQ(refResCopy[ii],result[ii]);
+  }
 }
 
 //-------------------------------------------------------------------------------
@@ -1412,7 +1482,7 @@ TEST ( Double_Ast_calculus_Test, ddx1)
   RCP<astNode<double> > f_of_x = rcp(new binaryAddOp<double> (paramValB,testParamA));
 
   RCP<astNode<double> > finalExp1 = rcp(new ddxOp<double> (f_of_x,testParamA));
-  EXPECT_EQ(finalExp1->val(), 1.0);
+  EXPECT_DOUBLE_EQ(finalExp1->val(), 1.0);
 }
 
 TEST ( Double_Ast_calculus_Test, ddx2)
@@ -1429,10 +1499,10 @@ TEST ( Double_Ast_calculus_Test, ddx2)
   RCP<astNode<double> > f_of_x = rcp(new binaryMulOp<double> (testParamA, testParamB));
 
   RCP<astNode<double> > finalExp1 = rcp(new ddxOp<double> (f_of_x,testParamA));
-  EXPECT_EQ(finalExp1->val(), 4.0);
+  EXPECT_DOUBLE_EQ(finalExp1->val(), 4.0);
 
   RCP<astNode<double> > finalExp2 = rcp(new ddxOp<double> (f_of_x,testParamB));
-  EXPECT_EQ(finalExp2->val(), 3.0);
+  EXPECT_DOUBLE_EQ(finalExp2->val(), 3.0);
 }
 
 TEST ( Double_Ast_calculus_Test, ddx3)
@@ -1444,7 +1514,7 @@ TEST ( Double_Ast_calculus_Test, ddx3)
   RCP<astNode<double> > f_of_x = rcp(new binaryMulOp<double> (testParamA, testParamA));
 
   ddxOp<double> finalExp1(f_of_x, testParamA);
-  EXPECT_EQ(finalExp1.val(), 6.0);
+  EXPECT_DOUBLE_EQ(finalExp1.val(), 6.0);
 }
 
 TEST ( Double_Ast_calculus_Test, ddx4)
@@ -1456,7 +1526,7 @@ TEST ( Double_Ast_calculus_Test, ddx4)
   RCP<astNode<double> > f_of_x = rcp(new sinOp<double> (testParamA));
 
   ddxOp<double> finalExp1(f_of_x, testParamA);
-  EXPECT_EQ(finalExp1.val(), std::cos(3.0));
+  EXPECT_DOUBLE_EQ(finalExp1.val(), std::cos(3.0));
 }
 
 TEST ( Double_Ast_floor_Test, test1)
@@ -1464,7 +1534,7 @@ TEST ( Double_Ast_floor_Test, test1)
   //Floor of 10.25 = 10
   RCP<astNode<double> > valA = rcp(new numval<double> (10.25));
   RCP<astNode<double> > floor1 = rcp(new floorOp<double> (valA));
-  EXPECT_EQ(floor1->val(), 10);
+  EXPECT_DOUBLE_EQ(floor1->val(), 10);
 }
 
 TEST ( Double_Ast_floor_Test, test2)
@@ -1472,7 +1542,7 @@ TEST ( Double_Ast_floor_Test, test2)
   //Floor of -34.251 = -35
   RCP<astNode<double> > valA = rcp(new numval<double> (-34.251));
   RCP<astNode<double> > floor1 = rcp(new floorOp<double> (valA));
-  EXPECT_EQ(floor1->val(), -35);
+  EXPECT_DOUBLE_EQ(floor1->val(), -35);
 }
 
 TEST ( Double_Ast_floor_Test, test3)
@@ -1480,7 +1550,7 @@ TEST ( Double_Ast_floor_Test, test3)
   //Floor of 0.71 = 0
   RCP<astNode<double> > valA = rcp(new numval<double> (0.71));
   RCP<astNode<double> > floor1 = rcp(new floorOp<double> (valA));
-  EXPECT_EQ(floor1->val(), 0);
+  EXPECT_DOUBLE_EQ(floor1->val(), 0);
 }
 
 TEST ( Double_Ast_floor_Test, test4)
@@ -1491,10 +1561,10 @@ TEST ( Double_Ast_floor_Test, test4)
   testParamA->setNode(valA);
   RCP<astNode<double> > floor1 = rcp(new floorOp<double> (testParamA));
 
-  EXPECT_EQ(floor1->val(), 10);
+  EXPECT_DOUBLE_EQ(floor1->val(), 10);
 
   RCP<astNode<double> > ddx1 = rcp(new ddxOp<double> (floor1,testParamA));
-  EXPECT_EQ(ddx1->val(), 0);
+  EXPECT_DOUBLE_EQ(ddx1->val(), 0);
 }
 
 TEST ( Double_Ast_ceil_Test, test1)
@@ -1502,7 +1572,7 @@ TEST ( Double_Ast_ceil_Test, test1)
   //Floor of 10.25 = 10
   RCP<astNode<double> > valA = rcp(new numval<double> (10.25));
   RCP<astNode<double> > ceil1 = rcp(new ceilOp<double> (valA));
-  EXPECT_EQ(ceil1->val(), 11);
+  EXPECT_DOUBLE_EQ(ceil1->val(), 11);
 }
 
 TEST ( Double_Ast_ceil_Test, test2)
@@ -1510,7 +1580,7 @@ TEST ( Double_Ast_ceil_Test, test2)
   //Floor of -34.251 = -35
   RCP<astNode<double> > valA = rcp(new numval<double> (-34.251));
   RCP<astNode<double> > ceil1 = rcp(new ceilOp<double> (valA));
-  EXPECT_EQ(ceil1->val(), -34);
+  EXPECT_DOUBLE_EQ(ceil1->val(), -34);
 }
 
 TEST ( Double_Ast_ceil_Test, test3)
@@ -1518,7 +1588,7 @@ TEST ( Double_Ast_ceil_Test, test3)
   //Floor of 0.71 = 0
   RCP<astNode<double> > valA = rcp(new numval<double> (0.71));
   RCP<astNode<double> > ceil1 = rcp(new ceilOp<double> (valA));
-  EXPECT_EQ(ceil1->val(), 1);
+  EXPECT_DOUBLE_EQ(ceil1->val(), 1);
 }
 
 TEST ( Double_Ast_ceil_Test, test4)
@@ -1529,9 +1599,9 @@ TEST ( Double_Ast_ceil_Test, test4)
   testParamA->setNode(valA);
   RCP<astNode<double> > ceil1 = rcp(new ceilOp<double> (testParamA));
 
-  EXPECT_EQ(ceil1->val(), 11);
+  EXPECT_DOUBLE_EQ(ceil1->val(), 11);
   RCP<astNode<double> > ddx1 = rcp(new ddxOp<double> (ceil1,testParamA));
-  EXPECT_EQ(ddx1->val(), 0);
+  EXPECT_DOUBLE_EQ(ddx1->val(), 0);
 }
 
 TEST ( Double_Ast_sgn_Test, test1)
@@ -1541,7 +1611,7 @@ TEST ( Double_Ast_sgn_Test, test1)
   // -1 if x < 0
   RCP<astNode<double> > valA = rcp(new numval<double> (10.25));
   RCP<astNode<double> > sgn1 = rcp(new sgnOp<double> (valA));
-  EXPECT_EQ(sgn1->val(), 1);
+  EXPECT_DOUBLE_EQ(sgn1->val(), 1);
 }
 
 TEST ( Double_Ast_sgn_Test, test2)
@@ -1551,7 +1621,7 @@ TEST ( Double_Ast_sgn_Test, test2)
 // -1 if x < 0
   RCP<astNode<double> > valA = rcp(new numval<double> (0.0));
   RCP<astNode<double> > sgn1 = rcp(new sgnOp<double> (valA));
-  EXPECT_EQ(sgn1->val(), 0);
+  EXPECT_DOUBLE_EQ(sgn1->val(), 0);
 }
 
 TEST ( Double_Ast_sgn_Test, test3)
@@ -1561,7 +1631,7 @@ TEST ( Double_Ast_sgn_Test, test3)
   // -1 if x < 0
   RCP<astNode<double> > valA = rcp(new numval<double> (-7.5));
   RCP<astNode<double> > sgn1 = rcp(new sgnOp<double> (valA));
-  EXPECT_EQ(sgn1->val(), -1);
+  EXPECT_DOUBLE_EQ(sgn1->val(), -1);
 }
 
 TEST ( Double_Ast_sign_Test, test1)
@@ -1570,7 +1640,7 @@ TEST ( Double_Ast_sign_Test, test1)
   RCP<astNode<double> > valX = rcp(new numval<double> (-25));
   RCP<astNode<double> > valY = rcp(new numval<double> (10.25));
   RCP<astNode<double> > sign1 = rcp(new signOp<double> (valX,valY));
-  EXPECT_EQ(sign1->val(), 25);
+  EXPECT_DOUBLE_EQ(sign1->val(), 25);
 } 
 
 TEST ( Double_Ast_sign_Test, test2)
@@ -1579,7 +1649,7 @@ TEST ( Double_Ast_sign_Test, test2)
   RCP<astNode<double> > valX = rcp(new numval<double> (15));
   RCP<astNode<double> > valY = rcp(new numval<double> (-10.25));
   RCP<astNode<double> > sign1 = rcp(new signOp<double> (valX,valY));
-  EXPECT_EQ(sign1->val(), -15);
+  EXPECT_DOUBLE_EQ(sign1->val(), -15);
 }
 
 TEST ( Double_Ast_limit_Test, test1)
@@ -1593,7 +1663,7 @@ TEST ( Double_Ast_limit_Test, test1)
   RCP<astNode<double> > valZ = rcp(new numval<double> (11.25)); // upper value
   RCP<astNode<double> > limit1 = rcp(new limitOp<double> (valX,valY,valZ));
 
-  EXPECT_EQ(limit1->val(), 1.25);
+  EXPECT_DOUBLE_EQ(limit1->val(), 1.25);
 }
 
 TEST ( Double_Ast_limit_Test, test2)
@@ -1607,7 +1677,7 @@ TEST ( Double_Ast_limit_Test, test2)
   RCP<astNode<double> > valZ = rcp(new numval<double> (11.25)); // upper value
   RCP<astNode<double> > limit1 = rcp(new limitOp<double> (valX,valY,valZ));
 
-  EXPECT_EQ(limit1->val(), 5);
+  EXPECT_DOUBLE_EQ(limit1->val(), 5);
 }
 
 TEST ( Double_Ast_limit_Test, test3)
@@ -1620,7 +1690,7 @@ TEST ( Double_Ast_limit_Test, test3)
   RCP<astNode<double> > valY = rcp(new numval<double> (1.25));  // lower value
   RCP<astNode<double> > valZ = rcp(new numval<double> (11.25)); // upper value
   RCP<astNode<double> > limit1 = rcp(new limitOp<double> (valX,valY,valZ));
-  EXPECT_EQ(limit1->val(), 11.25);
+  EXPECT_DOUBLE_EQ(limit1->val(), 11.25);
 }
 
 TEST ( Double_Ast_int_Test, test1)
@@ -1629,7 +1699,7 @@ TEST ( Double_Ast_int_Test, test1)
   // integer part of the real variable x 
   RCP<astNode<double> > valX = rcp(new numval<double> (11.2423));   // test value
   RCP<astNode<double> > int1 = rcp(new intOp<double> (valX));
-  EXPECT_EQ(int1->val(), 11);
+  EXPECT_DOUBLE_EQ(int1->val(), 11);
 }
 
 TEST ( Double_Ast_int_Test, test2)
@@ -1638,21 +1708,21 @@ TEST ( Double_Ast_int_Test, test2)
   // integer part of the real variable x 
   RCP<astNode<double> > valX = rcp(new numval<double> (-11.2423));   // test value
   RCP<astNode<double> > int1 = rcp(new intOp<double> (valX));
-  EXPECT_EQ(int1->val(),-11);
+  EXPECT_DOUBLE_EQ(int1->val(),-11);
 }
 
 TEST ( Double_Ast_stp_Test, test1)
 {
   RCP<astNode<double> > valA = rcp(new numval<double> (10.25));
   RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA));
-  EXPECT_EQ(stp1->val(), 1);
+  EXPECT_DOUBLE_EQ(stp1->val(), 1);
 }
 
 TEST ( Double_Ast_stp_Test, test2)
 {
   RCP<astNode<double> > valA = rcp(new numval<double> (-2));
   RCP<astNode<double> > stp1 = rcp(new stpOp<double> (valA));
-  EXPECT_EQ(stp1->val(), 0);
+  EXPECT_DOUBLE_EQ(stp1->val(), 0);
 }
 
 int main (int argc, char **argv)
