@@ -373,8 +373,14 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
   // This is kludgey - the model-specific stuff should be handled in a model function.
   // Some of this used to be in the model class's processParams, but was
   // moved back here because it makes updating from new spice BSIM4 code
-  // less painful, even though it makes no sense here.
+  // less painful, even though it makes no sense here because an instance
+  // function is modifying model data structures.
   //
+  // This stuff all comes from the SPICE code's "BSIM4temp" function which
+  // is a mélange of instance and model setting.  While all the model setting
+  // stuff technically should belong in Xyce's Model::processParams,
+  // keeping it here, where other code from BSIM4temp is taken, is why having
+  // it here makes things easier when updating or adding new versions.
 
   if (model_.mtrlMod == 0)
   {
