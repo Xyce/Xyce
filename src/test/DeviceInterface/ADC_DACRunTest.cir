@@ -1,0 +1,25 @@
+* 
+* Purpose: Demonstrate ADC & DAC function
+* Creator: Richard Schiek
+* Creation Date: 11/11/2021
+*
+
+YADC adc0 node1 0 simpleADC R=1T
+YADC adc1 1 0 simpleADC R=1T
+YADC adc2 node3 0 simpleADC R=1T
+.model simpleADC ADC(settlingtime=5ns uppervoltagelimit=5 lowervoltagelimit=0)
+
+YDAC dac1 2 0 simpleDAC
+.model simpleDAC DAC(tr=5e-9 tf=5e-9 r=.1)
+rd1 2 0 100
+
+*v1 1 0 pulse(0 5.0 0.0 1.0e-6 1.0e-6 1.0e-5 2.0e-5 )
+v1 1 0 sin(2.5 2.5 100k 0)
+
+v0 node1 0 0
+v2 node3 0 2
+
+
+.TRAN 0  1.0e-4
+.PRINT TRAN V(1) V(2) v(node1) v(node3)
+.END

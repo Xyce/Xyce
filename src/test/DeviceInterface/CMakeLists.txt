@@ -1,14 +1,18 @@
 
-add_executable( DeviceInterfaceTest EXCLUDE_FROM_ALL DeviceInterfaceTest.C )
-target_link_libraries( DeviceInterfaceTest XyceLib )
+if( BUILD_TESTING )
 
-add_executable( ADC_DACRunTest EXCLUDE_FROM_ALL ADC_DACRunTest.C )
-target_link_libraries( ADC_DACRunTest XyceLib )
+     add_executable( DeviceInterfaceTest DeviceInterfaceTest.C )
+     target_link_libraries( DeviceInterfaceTest XyceLib )
+     add_test( DeviceInterfaceTest DeviceInterfaceTest ADC_DACtest.cir )
+     set_tests_properties( DeviceInterfaceTest PROPERTIES REQUIRED_FILES "ADC_DACtest.cir" )
+     file( COPY ADC_DACtest.cir DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
 
-#if( Xyce_ENABLED_SHARED )
-#  target_link_librarie( DeviceInterfaceTest lib_xyce_shared )
-#else( Xyce_ENABLED_SHARED )
-#  target_link_libraries( DeviceInterfaceTest lib_xyce_static )
-#endif( Xyce_ENABLED_SHARED )
+     add_executable( ADC_DACRunTest ADC_DACRunTest.C )
+     target_link_libraries( ADC_DACRunTest XyceLib )
+     add_test( ADC_DACRunTest ADC_DACRunTest ADC_DACRunTest.cir )
+     set_tests_properties( ADC_DACRunTest PROPERTIES REQUIRED_FILES "ADC_DACRunTest.cir")
+     file( COPY ADC_DACRunTest.cir DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+endif()
 

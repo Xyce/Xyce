@@ -1,5 +1,3 @@
-
-
 add_subdirectory(MPITest)
 add_subdirectory(FFTInterface)
 add_subdirectory(LinearAlgebraTest)
