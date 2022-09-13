@@ -79,16 +79,12 @@ if (Xyce_PYMI)
   endif()
 endif(Xyce_PYMI)
 
-if( BUILD_TESTING )
+add_executable( testGenCoup testGenCoup.C )
+target_link_libraries( testGenCoup XyceLib )
 
-     add_executable( testGenCoup testGenCoup.C )
-     target_link_libraries( testGenCoup XyceLib )
+add_executable( TestGH19 TestGH19.C )
+target_link_libraries( TestGH19 XyceLib )
 
-     add_executable( TestGH19 TestGH19.C )
-     target_link_libraries( TestGH19 XyceLib )
-
-     add_executable( TestIssue29 TestIssue29.C )
-     target_link_libraries( TestIssue29 XyceLib )
-
-endif()
+add_executable( TestIssue29 TestIssue29.C )
+target_link_libraries( TestIssue29 XyceLib )
 

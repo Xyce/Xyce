@@ -125,6 +125,8 @@ endif()
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)
+endif()
+if(Xyce_TEST_BINARIES)
   add_subdirectory(src/test)
 endif()
 

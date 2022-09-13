@@ -1,7 +1,9 @@
 
-if( BUILD_TESTING AND Xyce_PARALLEL_MPI )
+if( Xyce_PARALLEL_MPI )
      add_executable( testMPI testBUG967.c )
      target_link_libraries( testMPI XyceLib )
-     add_test( testMPI testMPI )
+#     if( BUILD_TESTING )
+#          add_test( testMPI testMPI )
+#     endif()
 endif()
 
