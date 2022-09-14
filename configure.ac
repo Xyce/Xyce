@@ -1101,7 +1101,6 @@ AC_CONFIG_FILES([Makefile
  utils/Makefile
  utils/XyceCInterface/Makefile 
  src/test/Makefile
- src/test/XyceAsLibrary/Makefile
  src/test/DeviceInterface/Makefile
  src/test/FFTInterface/Makefile
  src/test/LinearAlgebraTest/Makefile
