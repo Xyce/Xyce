@@ -63,7 +63,7 @@ TEST ( XyceCInterface, Open)
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
-  EXPECT_TRUE( *((long *)xycePtr) != NULL );
+  EXPECT_TRUE( *((long *)xycePtr) != 0 );
   
 }
 
@@ -71,9 +71,9 @@ TEST ( XyceCInterface, OpenAndClose)
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
-  EXPECT_TRUE( *((long *)xycePtr) != NULL );
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
   xyce_close( & xycePtr );
-  EXPECT_TRUE( *((long *)xycePtr) == NULL );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
   
 }
 
