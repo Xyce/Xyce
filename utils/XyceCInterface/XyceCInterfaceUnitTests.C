@@ -77,6 +77,43 @@ TEST ( XyceCInterface, OpenAndClose)
   
 }
 
+TEST ( XyceCInterface, InitializeNetlist)
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist1.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+}
+
+
+TEST ( XyceCInterface, RunNetlist)
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist1.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+  
+  return_status = xyce_runSimulation( & xycePtr );
+  EXPECT_EQ( return_status, 1);
+  
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+}
+
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)

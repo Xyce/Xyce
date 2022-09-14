@@ -10,11 +10,11 @@ if(GTest_FOUND)
      target_link_libraries(XyceCInterfaceUnitTests PUBLIC xycecinterface GTest::gtest)
 
      # Some tests require a data file; put them in the right place
-     #file(COPY
-     #     ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist1.cir
-     #     ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist2.cir
-     #     ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist3.cir
-     #     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+     file(COPY
+          ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist1.cir
+          ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist2.cir
+          ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist3.cir
+          DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
      gtest_discover_tests( XyceCInterfaceUnitTests TEST_PREFIX XyceCInterfaceUnit:)
