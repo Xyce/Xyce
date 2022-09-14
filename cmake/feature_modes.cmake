@@ -39,6 +39,9 @@ set(CMAKE_CXX_FLAGS_INSTRUMENTED "${CMAKE_CXX_FLAGS} ${INSTRUMENTED_COMPILE_OPTI
 # Enable the Unit Tests
 option(BUILD_TESTING "Enables the unit tests" OFF)
 
+# Enable the Xyce_Regrassion test binaries
+option(Xyce_TEST_BINARIES "Enables building of binaries used by some regression tests" ON)
+
 # Enable the Plugin capability
 option(Xyce_PLUGIN_SUPPORT "Install Xyce with plugin compatibility" OFF)
 
