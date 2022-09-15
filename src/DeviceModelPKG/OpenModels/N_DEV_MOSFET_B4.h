@@ -211,6 +211,9 @@ private:
   double aigc;
   double bigc;
   double cigc;
+  double aigsd;  /// added in 4.8.2
+  double bigsd;  /// added in 4.8.2
+  double cigsd;  /// added in 4.8.2
   double aigs;
   double bigs;
   double cigs;
@@ -365,7 +368,7 @@ private:
 
   void setupVersionPointers_();
 
-  // version-specfific real functions for version 4.6.1
+  // version-specific real functions for version 4.6.1
   bool processParams4p61_();
   bool updateTemperature4p61_(const double & temp_tmp);
   bool updateIntermediateVars4p61_();
@@ -375,13 +378,23 @@ private:
      double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
      double nuEnd, int rgeo, int Type, double & Rend);
 
-  // version-specfific real functions for version 4.7.0
+  // version-specific real functions for version 4.7.0
   bool processParams4p70_();
   bool updateTemperature4p70_(const double & temp_tmp);
   bool updateIntermediateVars4p70_();
   void setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData);
   void getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData);
   int RdsEndIso4p70_(
+     double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
+     double nuEnd, int rgeo, int Type, double & Rend);
+
+  // version-specific real functions for version 4.8.2
+  bool processParams4p82_();
+  bool updateTemperature4p82_(const double & temp_tmp);
+  bool updateIntermediateVars4p82_();
+  void setupNoiseSources4p82_ (Xyce::Analysis::NoiseData & noiseData);
+  void getNoiseSources4p82_ (Xyce::Analysis::NoiseData & noiseData);
+  int RdsEndIso4p82_(
      double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
      double nuEnd, int rgeo, int Type, double & Rend);
 
@@ -568,6 +581,9 @@ private:
   double k2ox;
   double eta0;
 
+  double toxp;   /// added in 4.8.2
+  double coxp;   /// added in 4.8.2
+  
   double icVDS;
   double icVGS;
   double icVBS;
@@ -1264,8 +1280,10 @@ private:
 
   // version-specfific real functions for version 4.6.1
   bool processParams4p61_();
-  // version-specfific real functions for version 4.6.1
+  // version-specfific real functions for version 4.7.0
   bool processParams4p70_();
+  // version-specfific real functions for version 4.8.2
+  bool processParams4p82_();
 
 public:
   virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
@@ -1587,6 +1605,8 @@ private:
   double rnoia;
   double rnoib;
   double rnoic;
+  double gidlclamp;   /// new in 4.8.2
+  double idovvdsc;    /// new in 4.8.2
   double ntnoi;
 
   // CV model and Parasitics
@@ -2286,7 +2306,8 @@ private:
   bool dlcGiven;
   bool cgsoGiven;
   bool cgboGiven;
-
+  bool cfGiven;
+  
   std::list<SizeDependParam*> sizeDependParamList;
 };
 

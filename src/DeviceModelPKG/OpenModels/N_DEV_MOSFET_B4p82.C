@@ -24,15 +24,15 @@
 //
 // Purpose        : This file implements the BSIM4 MOSFET model.  It
 //                  is intended to be compatible with the Berkeley SPICE
-//                  (3f5) version, BSIM4 version 4.7.0 and implements only
+//                  (3f5) version, BSIM4 version 4.8.2 and implements only
 //                  those functions that differ from version to version.
 //
 //
 // Special Notes  :
 //
-// Creator        : Garrick Ng and Tom Russo
+// Creator        : Tom Russo
 //
-// Creation Date  : 25 Aug 2022
+// Creation Date  : 14 Sep 2022
 //
 //-------------------------------------------------------------------------
 
@@ -111,13 +111,13 @@ namespace Device {
 namespace MOSFET_B4 {
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::processParams4p70
-// Purpose       : Version-specific process params for 4.7.0
-// Special Notes : 
+// Function      : Instance::processParams4p82
+// Purpose       : Version-specific process params for 4.8.2
+// Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng 
+// Creator       : Tom Russo
 //-----------------------------------------------------------------------------
-bool Instance::processParams4p70_ ()
+bool Instance::processParams4p82_ ()
 {
   double Rtot;
 
@@ -178,7 +178,7 @@ bool Instance::processParams4p70_ ()
     rgeoMod = model_.rgeoMod;
   }
   else if ((rgeoMod != 0) && (rgeoMod != 1))
-  {   
+  {
     rgeoMod = model_.rgeoMod;
     UserWarning(*this) << "rgeoMod has been set to its global value: " << model_.rgeoMod;
   }
@@ -320,7 +320,7 @@ bool Instance::processParams4p70_ ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::updateTemperature4p70_
+// Function      : Instance::updateTemperature4p82_
 // Purpose       : This updates all the instance-owned paramters which
 //                 are temperature dependent.
 //
@@ -328,10 +328,10 @@ bool Instance::processParams4p70_ ()
 //                 tweaked here because of how the SPICE code is set up.
 //
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-bool Instance::updateTemperature4p70_ (const double & temp_tmp)
+bool Instance::updateTemperature4p82_ (const double & temp_tmp)
 {
   std::string msg="";
 
@@ -346,7 +346,7 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
   double W_tmp(0.0), Inv_ODeff(0.0), OD_offset(0.0), dk2_lod(0.0), deta0_lod(0.0);
   double lnl(0.0), lnw(0.0), lnnf(0.0), rbpbx(0.0), rbpby(0.0), rbsbx(0.0), rbsby(0.0), rbdbx(0.0), rbdby(0.0),bodymode(0.0);
   double kvsat(0.0), wlod(0.0), sceff(0.0), Wdrn(0.0);
-  double V0, lt1, ltw, Theta0, Delt_vth, TempRatio, Vth_NarrowW, Lpe_Vb; 
+  double V0, lt1, ltw, Theta0, Delt_vth, TempRatio, Vth_NarrowW, Lpe_Vb;
   //double Vth; // converted to instance variable
   double n, n0, Vgsteff, Vgs_eff, toxpf, toxpi, Tcen, toxe, epsrox, vddeot;
   double vtfbphi2eot, phieot, TempRatioeot, Vtm0eot, Vtmeot,vbieot;
@@ -402,6 +402,9 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
         model_.toxm = model_.toxe;
       }
     }
+    if (!model_.cfGiven)
+      model_.cf = 2.0 * model_.epsrox * CONSTEPS0/M_PI
+        * log(1.0 + 0.4E-6 / model_.toxe);
   }
   else if (model_.mtrlCompatMod != 0)
   {
@@ -761,7 +764,7 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
   {
     if( ((*it_dpL)->Length  == l)
      && ((*it_dpL)->Width   == w)
-     && ((*it_dpL)->NFinger == nf) 
+     && ((*it_dpL)->NFinger == nf)
      && ((*it_dpL)->referenceTemperature == temp_tmp))
     {
       paramPtr = (*it_dpL);
@@ -1188,6 +1191,10 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
                       + model_.lteta0 * Inv_L
                       + model_.wteta0 * Inv_W
                       + model_.pteta0 * Inv_LW;
+    paramPtr->tvoffcv = model_.tvoffcv    /* v4.8.0  */
+                      + model_.ltvoffcv * Inv_L
+                      + model_.wtvoffcv * Inv_W
+                      + model_.ptvoffcv * Inv_LW;
     paramPtr->etab = model_.etab
                       + model_.letab * Inv_L
                       + model_.wetab * Inv_W
@@ -1320,6 +1327,18 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
                        + model_.lcigc * Inv_L
                        + model_.wcigc * Inv_W
                        + model_.pcigc * Inv_LW;
+    paramPtr->aigsd = model_.aigsd
+                       + model_.laigsd * Inv_L
+                       + model_.waigsd * Inv_W
+                       + model_.paigsd * Inv_LW;
+    paramPtr->bigsd = model_.bigsd
+                       + model_.lbigsd * Inv_L
+                       + model_.wbigsd * Inv_W
+                       + model_.pbigsd * Inv_LW;
+    paramPtr->cigsd = model_.cigsd
+                       + model_.lcigsd * Inv_L
+                       + model_.wcigsd * Inv_W
+                       + model_.pcigsd * Inv_LW;
     paramPtr->aigs = model_.aigs
                        + model_.laigs * Inv_L
                        + model_.waigs * Inv_W
@@ -1516,7 +1535,7 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
       paramPtr->rdswmin = (model_.rdswmin + T10) * nf / PowWeffWr;
     }
     else
-    { 
+    {
       if (model_.tempMod == 3)
       {
         paramPtr->ua = paramPtr->ua * pow(TRatio, paramPtr->ua1) ;
@@ -1672,10 +1691,32 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
 
     paramPtr->Aechvb = (model_.dtype == CONSTNMOS) ? 4.97232e-7 : 3.42537e-7;
     paramPtr->Bechvb = (model_.dtype == CONSTNMOS) ? 7.45669e11 : 1.16645e12;
-    paramPtr->AechvbEdgeS = paramPtr->Aechvb * paramPtr->weff
-                            * model_.dlcig * paramPtr->ToxRatioEdge;
-    paramPtr->AechvbEdgeD = paramPtr->Aechvb * paramPtr->weff
-                            * model_.dlcigd * paramPtr->ToxRatioEdge;
+    if (model_.versionDouble <= 4.80)
+    {
+      paramPtr->AechvbEdgeS = paramPtr->Aechvb * paramPtr->weff
+                              * model_.dlcig * paramPtr->ToxRatioEdge;
+      paramPtr->AechvbEdgeD = paramPtr->Aechvb * paramPtr->weff
+                              * model_.dlcigd * paramPtr->ToxRatioEdge;
+    }
+    else
+    {
+      if (model_.dlcig < 0.0)
+      {
+        UserWarning(*this) << "Warning: dlcig = " << model_.dlcig <<
+          " is negative. Set to zero.";
+        model_.dlcig = 0.0;
+      }
+      paramPtr->AechvbEdgeS = paramPtr->Aechvb * paramPtr->weff
+                             * model_.dlcig * paramPtr->ToxRatioEdge;
+      if (model_.dlcigd < 0.0)
+      {
+        UserWarning(*this) << "Warning: dlcigd = " << model_.dlcigd <<
+          " is negative. Set to zero.";
+        model_.dlcigd = 0.0;
+      }
+      paramPtr->AechvbEdgeD = paramPtr->Aechvb * paramPtr->weff
+                             * model_.dlcigd * paramPtr->ToxRatioEdge;
+    }
     paramPtr->BechvbEdge = -paramPtr->Bechvb
                             * model_.toxe * paramPtr->poxedge;
     paramPtr->Aechvb *= paramPtr->weff * paramPtr->leff
@@ -1902,6 +1943,56 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
     paramPtr->inv_od_ref = Inv_saref + Inv_sbref;
     paramPtr->rho_ref = model_.ku0 / paramPtr->ku0temp * paramPtr->inv_od_ref;
 
+    /*high k*/
+    /*Calculate VgsteffVth for mobMod=3*/
+    if(model_.mobMod==3)
+    { /*Calculate n @ Vbs=Vds=0*/
+      lt1 = model_.factor1* paramPtr->sqrtXdep0;
+      T0 = paramPtr->dvt1 * paramPtr->leff / lt1;
+      if (T0 < CONSTEXP_THRESHOLD)
+      {
+        T1 = exp(T0);
+        T2 = T1 - 1.0;
+        T3 = T2 * T2;
+        T4 = T3 + 2.0 * T1 * CONSTMIN_EXP;
+        Theta0 = T1 / T4;
+      }
+      else
+        Theta0 = 1.0 / (CONSTMAX_EXP - 2.0);
+
+      tmp1 = epssub / paramPtr->Xdep0;
+      tmp2 = paramPtr->nfactor * tmp1;
+      tmp3 = (tmp2 + paramPtr->cdsc * Theta0 + paramPtr->cit) / model_.coxe;
+      if (tmp3 >= -0.5)
+        n0 = 1.0 + tmp3;
+      else
+      {
+        T0 = 1.0 / (3.0 + 8.0 * tmp3);
+        n0 = (1.0 + 3.0 * tmp3) * T0;
+      }
+
+      T0 = n0 * model_.vtm;
+      T1 = paramPtr->voffcbn;
+      T2 = T1/T0;
+      if (T2 < -CONSTEXP_THRESHOLD)
+      {   T3 = model_.coxe * CONSTMIN_EXP / paramPtr->cdep0;
+        T4 = paramPtr->mstar + T3 * n0;
+      }
+      else if (T2 > CONSTEXP_THRESHOLD)
+      {   T3 = model_.coxe * CONSTMAX_EXP / paramPtr->cdep0;
+        T4 = paramPtr->mstar + T3 * n0;
+      }
+      else
+      {  T3 = exp(T2)* model_.coxe / paramPtr->cdep0;
+        T4 = paramPtr->mstar + T3 * n0;
+      }
+      paramPtr->VgsteffVth = T0 * log(2.0)/T4;
+    }
+
+    /* New DITS term added in 4.7 */
+    T0 = -paramPtr->dvtp3 * log(paramPtr->leff);
+    DEXP2(T0, T1);
+    paramPtr->dvtp2factor = paramPtr->dvtp5 + paramPtr->dvtp2 * T1;
   } // End of size if-statement
 
   //  stress effect
@@ -2071,32 +2162,32 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
   {
     if (bodymode == 5)
     {
-      rbsbx =  exp( log(model_.rbsbx0) + model_.rbsdbxl * lnl +
-        model_.rbsdbxw * lnw + model_.rbsdbxnf * lnnf );
-      rbsby =  exp( log(model_.rbsby0) + model_.rbsdbyl * lnl +
-        model_.rbsdbyw * lnw + model_.rbsdbynf * lnnf );
+      rbsbx =  model_.rbsbx0 * exp(model_.rbsdbxl*lnl +
+                                   model_.rbsdbxw*lnw + model_.rbsdbxnf*lnnf);
+      rbsby =  model_.rbsby0 * exp(model_.rbsdbyl*lnl +
+                                   model_.rbsdbyw*lnw + model_.rbsdbynf*lnnf);
       rbsb = rbsbx * rbsby / (rbsbx + rbsby);
 
+      rbdbx =  model_.rbdbx0 * exp(model_.rbsdbxl*lnl +
+                                   model_.rbsdbxw*lnw + model_.rbsdbxnf*lnnf);
+      rbdby =  model_.rbdby0 * exp(model_.rbsdbyl*lnl +
+                                   model_.rbsdbyw*lnw + model_.rbsdbynf*lnnf);
 
-      rbdbx =  exp( log(model_.rbdbx0) + model_.rbsdbxl * lnl +
-        model_.rbsdbxw * lnw + model_.rbsdbxnf * lnnf );
-      rbdby =  exp( log(model_.rbdby0) + model_.rbsdbyl * lnl +
-        model_.rbsdbyw * lnw + model_.rbsdbynf * lnnf );
       rbdb = rbdbx * rbdby / (rbdbx + rbdby);
     }
 
     if ((bodymode == 3)|| (bodymode == 5))
     {
-      rbps = exp( log(model_.rbps0) + model_.rbpsl * lnl +
-           model_.rbpsw * lnw + model_.rbpsnf * lnnf );
-      rbpd = exp( log(model_.rbpd0) + model_.rbpdl * lnl +
-           model_.rbpdw * lnw + model_.rbpdnf * lnnf );
+      rbps = model_.rbps0 * exp( model_.rbpsl * lnl +
+                                 model_.rbpsw * lnw + model_.rbpsnf * lnnf );
+      rbpd = model_.rbpd0 * exp( model_.rbpdl * lnl +
+                                 model_.rbpdw * lnw + model_.rbpdnf * lnnf );
     }
 
-    rbpbx =  exp( log(model_.rbpbx0) + model_.rbpbxl * lnl +
-      model_.rbpbxw * lnw + model_.rbpbxnf * lnnf );
-    rbpby =  exp( log(model_.rbpby0) + model_.rbpbyl * lnl +
-      model_.rbpbyw * lnw + model_.rbpbynf * lnnf );
+    rbpbx =  model_.rbpbx0 * exp(model_.rbpbxl*lnl +
+                                 model_.rbpbxw*lnw + model_.rbpbxnf*lnnf );
+    rbpby =  model_.rbpby0 * exp(model_.rbpbyl*lnl +
+                                 model_.rbpbyw*lnw + model_.rbpbynf*lnnf );
     rbpb = rbpbx*rbpby/(rbpbx + rbpby);
   }
 
@@ -2217,7 +2308,7 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
     {
       if (model_.perMod == 0)
         Pdeff = drainPerimeter;
-      else 
+      else
         Pdeff = drainPerimeter - paramPtr->weffCJ * nf;
     }
   }
@@ -2499,65 +2590,6 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
   SswgTempRevSatCur = T5 * T10 * T11 * model_.jtsswgs;
   DswgTempRevSatCur = T6 * T10 * T11 * model_.jtsswgd;
 
-  // high k
-  // Calculate VgsteffVth for mobMod=3
-  if (model_.mobMod == 3)
-  {
-    // Calculate n @ Vbs=Vds=0
-    V0 = paramPtr->vbi - paramPtr->phi;
-    lt1 = model_.factor1 * paramPtr->sqrtXdep0;
-    ltw = lt1;
-    T0 = paramPtr->dvt1 * paramPtr->leff / lt1;
-    if (T0 < CONSTEXP_THRESHOLD)
-    {
-      T1 = exp(T0);
-      T2 = T1 - 1.0;
-      T3 = T2 * T2;
-      T4 = T3 + 2.0 * T1 * CONSTMIN_EXP;
-      Theta0 = T1 / T4;
-    }
-    else
-      Theta0 = 1.0 / (CONSTMAX_EXP - 2.0);
-
-    tmp1 = epssub / paramPtr->Xdep0;
-    nstar = model_.vtm / Charge_q * (model_.coxe + tmp1 + paramPtr->cit);
-    tmp2 = paramPtr->nfactor * tmp1;
-    tmp3 = (tmp2 + paramPtr->cdsc * Theta0 + paramPtr->cit) / model_.coxe;
-    if (tmp3 >= -0.5)
-      n0 = 1.0 + tmp3;
-    else
-    {
-      T0 = 1.0 / (3.0 + 8.0 * tmp3);
-      n0 = (1.0 + 3.0 * tmp3) * T0;
-    }
-
-    T0 = n0 * model_.vtm;
-    T1 = paramPtr-> voffcbn;
-    T2 = T1 / T0;
-    if (T2 < -CONSTEXP_THRESHOLD)
-    {
-      T3 = model_.coxe * CONSTMIN_EXP / paramPtr->cdep0;
-      T4 = paramPtr->mstar + T3 * n0;
-    }
-    else if (T2 > CONSTEXP_THRESHOLD)
-    {
-      T3 = model_.coxe * CONSTMAX_EXP / paramPtr->cdep0;
-      T4 = paramPtr->mstar + T3 * n0;
-    }
-    else
-    {
-      T3 = exp(T2) * model_.coxe / paramPtr->cdep0;
-      T4 = paramPtr->mstar + T3 * n0;
-    }
-
-    paramPtr->VgsteffVth = T0 * log(2.0) / T4;
-  }
-
-  // New DITS term added in 4.7
-  T0 = -paramPtr->dvtp3 * log(paramPtr->leff);
-  DEXP2(T0, T1);
-  paramPtr->dvtp2factor = paramPtr->dvtp5 + paramPtr->dvtp2 * T1;
-
   if ((model_.mtrlMod != 0) && (model_.mtrlCompatMod == 0))
   {
     /* Calculate TOXP from EOT */
@@ -2627,8 +2659,6 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
 
     /* Calculate n */
     tmp1 = epssub / paramPtr->Xdep0;
-    nstar = Vtmeot / Charge_q *
-      (model_.coxe	+ tmp1 + paramPtr->cit);
     tmp2 = paramPtr->nfactor * tmp1;
     tmp3 = (tmp2 + paramPtr->cdsc * Theta0 + paramPtr->cit) / model_.coxe;
     if (tmp3 >= -0.5)
@@ -2671,8 +2701,13 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
       toxpf = toxe - epsrox/model_.epsrsub * Tcen;
       niter++;
     } while ((niter<=4)&&(fabs(toxpf-toxpi)>1e-12));
-    model_.toxp = toxpf;
-    model_.coxp = epsrox * CONSTEPS0 / model_.toxp;
+    toxp = toxpf;
+    coxp = epsrox * CONSTEPS0 / model_.toxp;
+  }
+  else
+  {
+    toxp=model_.toxp;
+    coxp=model_.coxp;
   }
 
   ///////////////////////////////////////////////////////////////////////////////
@@ -2683,14 +2718,14 @@ bool Instance::updateTemperature4p70_ (const double & temp_tmp)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::updateIntermediateVars4p70_
+// Function      : Instance::updateIntermediateVars4p82_
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-bool Instance::updateIntermediateVars4p70_ ()
+bool Instance::updateIntermediateVars4p82_ ()
 {
   bool bsuccess = true;
 
@@ -4113,7 +4148,16 @@ bool Instance::updateIntermediateVars4p70_ ()
     dAbulk_dVg *= T10;
   }
 
-  Abulk_forNoise = Abulk; // ERK. this is a bit screwy.  But in spice3/ngspice, Abulk is saved as an instance variable and used later in noise calculations.  But, within the load function the "local" copy of Abulk gets modified further afterwards.  So it is then "wrong" for noise at that point.  As we've made Abulk a class variable, there needs to be an extra copy for noise, saved at the right time.
+  Abulk_forNoise = Abulk;  // ERK. this is a bit screwy.  But in
+                           // spice3/ngspice, Abulk is saved as an
+                           // instance variable and used later in
+                           // noise calculations. But, within the load
+                           // function the "local" copy of Abulk gets
+                           // modified further afterwards.  So it is
+                           // then "wrong" for noise at that point.
+                           // As we've made Abulk a class variable,
+                           // there needs to be an extra copy for
+                           // noise, saved at the right time.
 
   T2 = paramPtr->keta * Vbseff;
   if (T2 >= -0.9)
@@ -4195,6 +4239,60 @@ bool Instance::updateIntermediateVars4p70_ ()
     T13 = 2.0 * (T11 + T8);
     dDenomi_dVd = T13 * dVth_dVd;
     dDenomi_dVb = T13 * dVth_dVb + T1 * paramPtr->uc;
+  }
+  else if (model_.mobMod == 4) // Synopsys 08/30/2013 add
+  {
+    T0 = Vgsteff + vtfbphi1 - T14;
+    T2 = paramPtr->ua + paramPtr->uc * Vbseff;
+    T3 = T0 / toxe;
+    T12 = sqrt(vtfbphi1*vtfbphi1 + 0.0001);
+    T9 = 1.0/(Vgsteff + 2*T12);
+    T10 = T9*toxe;
+    T8 = paramPtr->ud * T10 * T10 * vtfbphi1;
+    T6 = T8 * vtfbphi1;
+    T5 = T3 * (T2 + paramPtr->ub * T3) + T6;
+    T7 = - 2.0 * T6 * T9;
+    dDenomi_dVg = (T2 + 2.0 * paramPtr->ub * T3) / toxe;
+    dDenomi_dVd = 0.0;
+    dDenomi_dVb = paramPtr->uc * T3;
+    dDenomi_dVg+= T7;
+  }
+  else if (model_.mobMod == 5) // Synopsys 08/30/2013 add
+  {
+    T0 = Vgsteff + vtfbphi1 - T14;
+    T2 = 1.0 + paramPtr->uc * Vbseff;
+    T3 = T0 / toxe;
+    T4 = T3 * (paramPtr->ua + paramPtr->ub * T3);
+    T12 = sqrt(vtfbphi1 * vtfbphi1 + 0.0001);
+    T9 = 1.0/(Vgsteff + 2*T12);
+    T10 = T9*toxe;
+    T8 = paramPtr->ud * T10 * T10 * vtfbphi1;
+    T6 = T8 * vtfbphi1;
+    T5 = T4 * T2 + T6;
+    T7 = - 2.0 * T6 * T9;
+    dDenomi_dVg = (paramPtr->ua + 2.0 * paramPtr->ub * T3) * T2
+      / toxe;
+    dDenomi_dVd = 0.0;
+    dDenomi_dVb = paramPtr->uc * T4;
+    dDenomi_dVg+= T7;
+  }
+  else if (model_.mobMod == 6) // Synopsys 08/30/2013 modify
+  {
+    T0 = (Vgsteff + vtfbphi1) / toxe;
+    T1 = exp(paramPtr->eu * log(T0));
+    dT1_dVg = T1 * paramPtr->eu / T0 / toxe;
+    T2 = paramPtr->ua + paramPtr->uc * Vbseff;
+
+    T12 = sqrt(vtfbphi1 * vtfbphi1 + 0.0001);
+    T9 = 1.0/(Vgsteff + 2*T12);
+    T10 = T9*toxe;
+    T8 = paramPtr->ud * T10 * T10 * vtfbphi1;
+    T6 = T8 * vtfbphi1;
+    T5 = T1 * T2 + T6;
+    T7 = - 2.0 * T6 * T9;
+    dDenomi_dVg = T2 * dT1_dVg + T7;
+    dDenomi_dVd = 0;
+    dDenomi_dVb = T1 * paramPtr->uc;
   }
   else
   {
@@ -4466,7 +4564,7 @@ bool Instance::updateIntermediateVars4p70_ ()
 
   // Calculate Idl first
   tmp1 = vtfbphi2;
-  tmp2 = 2.0e8 * model_.toxp;
+  tmp2 = 2.0e8 * toxp;
   dT0_dVg = 1.0 / tmp2;
   T0 = (Vgsteff + tmp1) * dT0_dVg;
 
@@ -4476,7 +4574,7 @@ bool Instance::updateIntermediateVars4p70_ ()
   Tcen = model_.ados * 1.9e-9 / T1;
   dTcen_dVg = -Tcen * T2 * dT0_dVg / T1;
 
-  Coxeff = epssub * model_.coxp / (epssub + model_.coxp * Tcen);
+  Coxeff = epssub * coxp / (epssub + coxp * Tcen);
   dCoxeff_dVg = -Coxeff * Coxeff * dTcen_dVg / epssub;
 
   CoxeffWovL = Coxeff * Weff / Leff;
@@ -4848,7 +4946,7 @@ bool Instance::updateIntermediateVars4p70_ ()
   gm = Gm;
   gmbs = Gmb;
   IdovVds = Ids;
-  if( IdovVds <= 1.0e-9) IdovVds = 1.0e-9;
+  if( IdovVds <= model_.idovvdsc) IdovVds = model_.idovvdsc;
 
   // Calculate Rg
   if ((rgateMod > 1) || (trnqsMod != 0) || (acnqsMod != 0))
@@ -5085,8 +5183,8 @@ bool Instance::updateIntermediateVars4p70_ ()
     else
       T1 = (-vds - paramPtr->rgisl * vgd_eff - paramPtr->egisl + paramPtr->vfbsd) / T0;
 
-    if ( (paramPtr->agisl <= 0.0) || 
-         (paramPtr->bgisl <= 0.0) || (T1 <= 0.0) || 
+    if ( (paramPtr->agisl <= 0.0) ||
+         (paramPtr->bgisl <= 0.0) || (T1 <= 0.0) ||
          (paramPtr->cgisl < 0.0) )
       Igisl = Ggisls = Ggislg = Ggislb = 0.0;
     else
@@ -5109,6 +5207,9 @@ bool Instance::updateIntermediateVars4p70_ ()
         Ggislg = T3 * dT1_dVg;
       }
       T4 = vbs - paramPtr->fgisl;
+      //--chetan dabhi solution for clamping T4-
+      if(T4 > model_.gidlclamp)
+        T4=model_.gidlclamp;
 
       if (T4 == 0)
         T5 = CONSTEXPL_THRESHOLD;
@@ -5163,6 +5264,10 @@ bool Instance::updateIntermediateVars4p70_ ()
         Ggidlg = T3 * dT1_dVg;
       }
       T4 = vbd - paramPtr->fgidl;
+      //--chetan dabhi solution for clamping T4-
+      if(T4 > model_.gidlclamp)
+        T4=model_.gidlclamp;
+
       if (T4 == 0)
         T5 = CONSTEXPL_THRESHOLD;
       else
@@ -5292,8 +5397,8 @@ bool Instance::updateIntermediateVars4p70_ ()
       }
       else if (model_.igcMod == 2)
       {
-        dVaux_dVd = -dVgs_eff_dVg * dVth_dVd;
-        dVaux_dVb = -dVgs_eff_dVg * dVth_dVb;
+        dVaux_dVd = -dVaux_dVg * dVth_dVd; // Synopsis 08/30/2013 modify
+        dVaux_dVb = -dVaux_dVg * dVth_dVb; // Synopsis 08/30/2013 modify
       }
       dVaux_dVg *= dVgs_eff_dVg;
     }
@@ -5358,7 +5463,7 @@ bool Instance::updateIntermediateVars4p70_ ()
     dT7_dVd = -Vdseff * dPigcd_dVd - Pigcd * dVdseff_dVd + dT7_dVg * dVgsteff_dVd;
     dT7_dVb = -Vdseff * dPigcd_dVb - Pigcd * dVdseff_dVb + dT7_dVg * dVgsteff_dVb;
     dT7_dVg *= dVgsteff_dVg;
-    dT7_dVb *= dVbseff_dVb;
+    // dT7_dVb *= dVbseff_dVb;   /* Synopsis, 2013/08/30 */
     T8 = T7 * T7 + 2.0e-4;
     dT8_dVg = 2.0 * T7;
     dT8_dVd = dT8_dVg * dT7_dVd;
@@ -6347,8 +6452,8 @@ bool Instance::updateIntermediateVars4p70_ ()
       dVfbeff_dVg = T1 * dVgs_eff_dVg;
       dVfbeff_dVb = -T1 * dVbseffCV_dVb;
 
-      Cox = model_.coxp;
-      Tox = 1.0e8 * model_.toxp;
+      Cox = coxp;
+      Tox = 1.0e8 * toxp;
       T0 = (Vgs_eff - VbseffCV - vfbzb) / Tox;
       dT0_dVg = dVgs_eff_dVg / Tox;
       dT0_dVb = -dVbseffCV_dVb / Tox;
@@ -6372,7 +6477,7 @@ bool Instance::updateIntermediateVars4p70_ ()
         dTcen_dVg = dTcen_dVb = 0.0;
       }
 
-      LINK = 1.0e-3 * model_.toxp;
+      LINK = 1.0e-3 * toxp;
       V3 = paramPtr->ldeb - Tcen - LINK;
       V4 = sqrt(V3 * V3 + 4.0 * LINK * paramPtr->ldeb);
       Tcen = paramPtr->ldeb - 0.5 * (V3 + V4);
@@ -6914,14 +7019,14 @@ bool Instance::updateIntermediateVars4p70_ ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : setupNoiseSources4p70_
+// Function      : setupNoiseSources4p82_
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
+void Instance::setupNoiseSources4p82_ (Xyce::Analysis::NoiseData & noiseData)
 {
   int numSources=NUMNOIZ;
   noiseData.numSources = numSources;
@@ -6931,9 +7036,9 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 
   // Note: the letter suffixes (e.g., rd) are used by the DNO() and DNI()
   // operators for .PRINT NOISE
-  noiseData.noiseNames[RDNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rd");  // noise due to rd 
-  noiseData.noiseNames[RSNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rs");  // noise due to rs 
-  noiseData.noiseNames[RGNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rg");  // noise due to rg 
+  noiseData.noiseNames[RDNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rd");  // noise due to rd
+  noiseData.noiseNames[RSNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rs");  // noise due to rs
+  noiseData.noiseNames[RGNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rg");  // noise due to rg
 
   noiseData.noiseNames[RBPSNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rbps");
   noiseData.noiseNames[RBPDNOIZ] = "noise_" + getName().getEncodedName()+ std::string("_rbpd");
@@ -6959,13 +7064,13 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 
   // RG thermal:
   //       gNodePrime, gNodeExt,
-  // Xyce: li_GatePrime, 
+  // Xyce: li_GatePrime,
   noiseData.li_Pos[RGNOIZ] = li_GatePrime;
   noiseData.li_Neg[RGNOIZ] = li_GateExt;
 
   int bodymode = 5;
   if (rbodyMod == 2)
-  {	
+  {
     if( ( !model_.rbps0Given) || ( !model_.rbpd0Given) )
     {
       bodymode = 1;
@@ -6982,7 +7087,7 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
     {
       // RBPS nodes and conductance: bNodePrime, sbNode, grbps
       //                       Xyce:  li_BodyPrime, li_SourceBody
-      noiseData.li_Pos[RBPSNOIZ] = li_BodyPrime; 
+      noiseData.li_Pos[RBPSNOIZ] = li_BodyPrime;
       noiseData.li_Neg[RBPSNOIZ] = li_SourceBody;
 
       // RBPD nodes and conductance: bNodePrime, dbNode, grbpd
@@ -7010,7 +7115,7 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
     {
       // RBPS nodes and conductance: bNodePrime, sbNode, grbps
       //                       Xyce:  li_BodyPrime, li_SourceBody
-      noiseData.li_Pos[RBPSNOIZ] = li_BodyPrime; 
+      noiseData.li_Pos[RBPSNOIZ] = li_BodyPrime;
       noiseData.li_Neg[RBPSNOIZ] = li_SourceBody;
 
       // RBPD nodes and conductance: bNodePrime, dbNode, grbpd
@@ -7089,7 +7194,7 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
   noiseData.li_Pos[IDNOIZ] = li_DrainPrime;
   noiseData.li_Neg[IDNOIZ] = li_SourcePrime;
 
-  //dNodePrime, sNodePrime, 
+  //dNodePrime, sNodePrime,
   //  Xyce:  li_DrainPrime, li_SourcePrime
   noiseData.li_Pos[FLNOIZ] = li_DrainPrime;
   noiseData.li_Neg[FLNOIZ] = li_SourcePrime;
@@ -7111,14 +7216,14 @@ void Instance::setupNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : getNoiseSources4p70_
+// Function      : getNoiseSources4p82_
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
+void Instance::getNoiseSources4p82_ (Xyce::Analysis::NoiseData & noiseData)
 {
   double tmp = 0.0;
   double T1 = 0.0;
@@ -7129,6 +7234,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
   double T6 = 0.0;
   double T7 = 0.0;
   double T8 = 0.0;
+  double T9 = 0.0;
   double T10 = 0.0;
   double T11 = 0.0;
   double Ssi = 0.0;
@@ -7155,17 +7261,17 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
   if (model_.tnoiMod == 0)
   {
     if (model_.rdsMod == 0)
-    {   
+    {
       gspr = sourceConductance;
       gdpr = drainConductance;
 
       if (grdsw > 0.0)
-        tmp = 1.0 / grdsw; /* tmp used below */ 
+        tmp = 1.0 / grdsw; /* tmp used below */
       else
         tmp = 0.0;
     }
     else
-    {   
+    {
       gspr = gstot;
       gdpr = gdtot;
       tmp = 0.0;
@@ -7183,12 +7289,12 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
       npart_theta = 0.9 * npart_beta;
 
     if (model_.rdsMod == 0)
-    {   
+    {
       gspr = sourceConductance;
       gdpr = drainConductance;
     }
     else
-    {   
+    {
       gspr = gstot;
       gdpr = gdtot;
     }
@@ -7201,7 +7307,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
     {
       gdpr = gdpr * (1.0 + npart_theta * npart_theta * gdpr / IdovVds);
     }
-  } 
+  }
   else
   {
     // tnoiMod=2 (v4.7)
@@ -7228,28 +7334,28 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
                           gspr*numberParallel,temp);
 
   if ((rgateMod == 1) || (rgateMod == 2))
-  {   
+  {
     devSupport.noiseSupport(noiseData.noiseDens[RGNOIZ],
                             noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
                             //gNodePrime, gNodeExt,
                             grgeltd*numberParallel,temp);
   }
   else if (rgateMod == 3)
-  {   
+  {
     devSupport.noiseSupport(noiseData.noiseDens[RGNOIZ],
                             noiseData.lnNoiseDens[RGNOIZ],  THERMNOISE,
                             //gNodeMid, gNodeExt,
                             grgeltd*numberParallel,temp);
   }
   else
-  {    
+  {
     noiseData.noiseDens[RGNOIZ] = 0.0;
     noiseData.lnNoiseDens[RGNOIZ] = std::log(std::max(noiseData.noiseDens[RGNOIZ], N_MINLOG));
   }
 
   int bodymode = 5;
   if (rbodyMod == 2)
-  {	
+  {
     if( ( !model_.rbps0Given) || ( !model_.rbpd0Given) )
     {
       bodymode = 1;
@@ -7261,7 +7367,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
   }
 
   if (rbodyMod)
-  { 
+  {
     if(bodymode == 5)
     {
       devSupport.noiseSupport(noiseData.noiseDens[RBPSNOIZ],
@@ -7332,7 +7438,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
   else
   {
     noiseData.noiseDens[RBPSNOIZ] = 0.0;
-    noiseData.noiseDens[RBPDNOIZ] = 0.0;   
+    noiseData.noiseDens[RBPDNOIZ] = 0.0;
     noiseData.noiseDens[RBPBNOIZ] = 0.0;
     noiseData.noiseDens[RBSBNOIZ] = 0.0;
     noiseData.noiseDens[RBDBNOIZ] = 0.0;
@@ -7352,9 +7458,6 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
     Leff = paramPtr->leff;
     Lvsat = Leff * (1.0 + Vdseff_forNoise / EsatL);
     T6 = Leff / Lvsat;
-
-    T5 = Vgsteff / EsatL;
-    T5 = T5 * T5;
     gamma = T6 * (0.5 * T1 + T0 * T0 / (6.0 * T2));
     T3 = T2 * T2;
     T4 = T0 * T0;
@@ -7365,44 +7468,109 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 
     T8 = Vgsteff_forNoise / EsatL;
     T8 *= T8;
-    npart_c = model_.rnoic * (1.0 + T8 * model_.tnoic * Leff);
-    ctnoi = epsilon / sqrt(gamma * delta) * (2.5316 * npart_c);
+    if (model_.versionDouble <= 4.80)
+      {
+        npart_c = model_.rnoic * (1.0 + T8 * model_.tnoic * Leff);
+        ctnoi = epsilon / sqrt(gamma * delta) * (2.5316 * npart_c);
 
-    npart_beta = model_.rnoia * (1.0 + T8 * model_.tnoia * Leff);
-    npart_theta = model_.rnoib * (1.0 + T8 * model_.tnoib * Leff);
-    gamma = gamma * (3.0 * npart_beta * npart_beta);
-    delta = delta * (3.75 * npart_theta * npart_theta);
+        npart_beta = model_.rnoia * (1.0 + T8 * model_.tnoia * Leff);
+        npart_theta = model_.rnoib * (1.0 + T8 * model_.tnoib * Leff);
+        gamma = gamma * (3.0 * npart_beta * npart_beta);
+        delta = delta * (3.75 * npart_theta * npart_theta);
 
-    GammaGd0 = gamma * noiGd0;
-    C0 = Coxeff * paramPtr->weffCV * nf * paramPtr->leffCV;
-    T0 = C0 / noiGd0;
-    sigrat = T0 * sqrt(delta / gamma);
+        GammaGd0 = gamma * noiGd0;
+        C0 = Coxeff * paramPtr->weffCV * nf * paramPtr->leffCV;
+        T0 = C0 / noiGd0;
+        sigrat = T0 * sqrt(delta / gamma);
+      }
+      else
+      {
+        npart_c = model_.rnoic * (1.0 + T8
+                                       * model_.tnoic * Leff);
+        // Limits added for rnoia, rnoib, rnoic, tnoia, tnoib and tnoic in BSIM4.8.1
+        T9 = gamma * delta ;
+        if (T9 > 0)
+          ctnoi   = epsilon / sqrt( gamma * delta) * (2.5316 * npart_c);
+        else
+          ctnoi   = 1.0 ;
+        if (ctnoi > 1)
+          ctnoi=1;
+        if (ctnoi < 0)
+          ctnoi=0;
+
+        npart_beta = model_.rnoia * (1.0 + T8
+                                          * model_.tnoia * Leff);
+        npart_theta = model_.rnoib * (1.0 + T8
+                                           * model_.tnoib * Leff);
+        gamma = gamma * (3.0 * npart_beta * npart_beta);
+        delta = delta * (3.75 * npart_theta * npart_theta);
+
+        GammaGd0 = gamma * noiGd0;
+        C0 = Coxeff * paramPtr->weffCV * nf * paramPtr->leffCV;
+        T0 = C0 / noiGd0;
+
+        if (gamma > 0 && delta > 0)
+          sigrat = T0 * sqrt(delta / gamma);
+        else
+          sigrat = 0.0;
+      }
   }
 
   switch(model_.tnoiMod)
   {
     case 0:
-      T0 = ueff * fabs(qinv);
-      T1 = T0 * tmp + paramPtr->leff * paramPtr->leff;
+      if (model_.versionDouble <= 4.80)
+      {
+        T0 = ueff * fabs(qinv);
+        T1 = T0 * tmp + paramPtr->leff * paramPtr->leff;
 
-      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
-                              noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
-                              //dNodePrime, sNodePrime,
-                              (T0 / T1) * model_.ntnoi*numberParallel,temp);
+        devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                                noiseData.lnNoiseDens[IDNOIZ], THERMNOISE,
+                                //dNodePrime, sNodePrime,
+                                (T0 / T1) * model_.ntnoi*numberParallel,temp);
+      }
+      else
+      {
+        T0 = ueff * fabs(qinv);
+        T1 = T0 * tmp + paramPtr->leff * paramPtr->leff;
 
+        devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                                noiseData.lnNoiseDens[IDNOIZ], THERMNOISE,
+                                //dNodePrime, sNodePrime,
+                                (T0 / T1) * model_.ntnoi*numberParallel,temp);
+        noiseData.noiseDens[CORLNOIZ] = 0.0;
+        noiseData.lnNoiseDens[CORLNOIZ] = std::log(std::max(noiseData.noiseDens[CORLNOIZ],N_MINLOG));
+      }
       break;
     case 1:
-      T0 = gm + gmbs + gds;
-      T0 *= T0;
-      igsquare = npart_theta * npart_theta * T0 / IdovVds;
-      T1 = npart_beta * (gm + gmbs) + gds;
-      T2 = T1 * T1 / IdovVds;
+      if (model_.versionDouble <= 4.80)
+      {
+        T0 = gm + gmbs + gds;
+        T0 *= T0;
+        igsquare = npart_theta * npart_theta * T0 / IdovVds;
+        T1 = npart_beta * (gm + gmbs) + gds;
+        T2 = T1 * T1 / IdovVds;
 
-      devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
-                              noiseData.lnNoiseDens[IDNOIZ], THERMNOISE, 
-                              //dNodePrime, sNodePrime, 
-                              (T2 - igsquare)*numberParallel,temp);
+        devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                                noiseData.lnNoiseDens[IDNOIZ], THERMNOISE,
+                                //dNodePrime, sNodePrime,
+                                (T2 - igsquare)*numberParallel,temp);
+      }
+      else
+      {
+        T0 = gm + gmbs + gds;
+        T0 *= T0;
+        igsquare = npart_theta * npart_theta * T0 / IdovVds;
+        T1 = npart_beta * (gm + gmbs) + gds;
+        T2 = T1 * T1 / IdovVds;
 
+        devSupport.noiseSupport(noiseData.noiseDens[IDNOIZ],
+                                noiseData.lnNoiseDens[IDNOIZ], THERMNOISE,
+                                //dNodePrime, sNodePrime,
+                                (T2 - igsquare)*numberParallel,temp);
+        noiseData.noiseDens[CORLNOIZ] = 0.0;
+        noiseData.lnNoiseDens[CORLNOIZ] = std::log(std::max(noiseData.noiseDens[CORLNOIZ],N_MINLOG));
+      }
       break;
     case 2:
       T2 = GammaGd0;
@@ -7413,7 +7581,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
                               //dNodePrime, sNodePrime,
                               T2 * T4*numberParallel, temp);
 
-      // Evaluate output noise due to two correlated noise sources 
+      // Evaluate output noise due to two correlated noise sources
       omega = 2.0 * M_PI * noiseData.freq;
       T5 = omega * sigrat;
       T6 = T5 * T5;
@@ -7476,7 +7644,7 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 
   noiseData.lnNoiseDens[FLNOIZ] = std::log(std::max(noiseData.noiseDens[FLNOIZ], N_MINLOG));
 
-  if(mode >= 0) 
+  if(mode >= 0)
   {  /* bugfix  */
     devSupport.noiseSupport(noiseData.noiseDens[IGSNOIZ],
                             noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
@@ -7487,8 +7655,8 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
                             noiseData.lnNoiseDens[IGDNOIZ],  SHOTNOISE,
                             //gNodePrime, dNodePrime,
                             (Igd + Igcd)*numberParallel,temp);
-  } 
-  else 
+  }
+  else
   {
     devSupport.noiseSupport(noiseData.noiseDens[IGSNOIZ],
                             noiseData.lnNoiseDens[IGSNOIZ],  SHOTNOISE,
@@ -7507,14 +7675,14 @@ void Instance::getNoiseSources4p70_ (Xyce::Analysis::NoiseData & noiseData)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::RdsEndIso4p70_
+// Function      : Instance::RdsEndIso4p82_
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-int Instance::RdsEndIso4p70_
+int Instance::RdsEndIso4p82_
   (double Weffcj, double Rsh, double DMCG, double DMCI, double DMDG,
    double nuEnd, int rgeo, int Type, double & Rend)
 {
@@ -7575,14 +7743,14 @@ int Instance::RdsEndIso4p70_
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Model::processParams4p70_
+// Function      : Model::processParams4p82_
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Garrick Ng
-// Creation Date : 3 Aug 2022
+// Creator       : Tom Russo
+// Creation Date : 14 Sep 2022
 //-----------------------------------------------------------------------------
-bool Model::processParams4p70_ ()
+bool Model::processParams4p82_ ()
 {
   std::string msg;
 
@@ -7637,51 +7805,46 @@ bool Model::processParams4p70_ ()
     eu =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
   if (!given("UCS"))
     ucs =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
-  if (!given("UA"))
-    ua =(mobMod == 2) ? 1.0E-15 : 1.0E-9; // UNIT M/V
-  if (!given("UC"))
-    uc = (mobMod == 1) ? -0.0465 : -0.0465E-9;
-  if (!given("UC1"))
-    uc1 =(mobMod == 1) ? -0.056 : -0.056E-9;
+  if (versionDouble <= 4.80)
+  {
+    if (!given("UA"))
+      ua =(mobMod == 2) ? 1.0E-15 : 1.0E-9; // UNIT M/V
+    if (!given("UC"))
+      uc = (mobMod == 1) ? -0.0465 : -0.0465E-9;
+    if (!given("UC1"))
+      uc1 =(mobMod == 1) ? -0.056 : -0.056E-9;
+  }
+  else
+  {
+    if (!given("UA"))
+      ua = ((mobMod == 2 || mobMod == 6)) ? 1.0e-15 : 1.0e-9; /* unit m/V */
+    if (!given("UC"))
+      uc = (mobMod == 1 || mobMod == 5) ? -0.0465 : -0.0465e-9;
+    if (!given("UC1"))
+      uc1 = (mobMod == 1 || mobMod == 5) ? -0.056 : -0.056e-9;
+  }
   if (!given("U0"))
     u0 = (dtype == CONSTNMOS) ? 0.067 : 0.025;
 
+  // NOTE!  4.8.2 has different default for fgidl than all previous versions,
+  // and so we have to override default from addPar here.
+  if (!given("FGIDL"))
+      fgidl=1.0;
+
   if (!given("AGISL"))
-  {
-    if (given("AGIDL"))
-      agisl=agidl;
-    // otherwise our initializer took care of it already
-  }
+    agisl=agidl;
   if (!given("BGISL"))
-  {
-    if (given("BGIDL"))
-      bgisl=bgidl;
-  }
+    bgisl=bgidl;
   if (!given("CGISL"))
-  {
-    if (given("CGIDL"))
-      cgisl=cgidl;
-  }
+    cgisl=cgidl;
   if (!given("EGISL"))
-  {
-    if (given("EGIDL"))
-      egisl=egidl;
-  }
+    egisl=egidl;
   if (!given("RGISL"))
-  {
-    if (given("RGIDL"))
-      rgisl=rgidl;
-  }
+    rgisl=rgidl;
   if (!given("KGISL"))
-  {
-    if (given("KGIDL"))
-      kgisl=kgidl;
-  }
+    kgisl=kgidl;
   if (!given("FGISL"))
-  {
-    if (given("FGIDL"))
-      fgisl=fgidl;
-  }
+    fgisl=fgidl;
 
   if (!given("AIGC"))
     aigc =(dtype == CONSTNMOS) ? 1.36E-2 : 9.80E-3;
@@ -7741,153 +7904,72 @@ bool Model::processParams4p70_ ()
 
   // Length dependence
   if (!given("LAGISL"))
-  {
-    if (given("LAGIDL"))
-      lagisl = lagidl;
-  }
+    lagisl = lagidl;
   if (!given("LBGISL"))
-  {
-    if (given("LBGIDL"))
-      lbgisl = lbgidl;
-  }
+    lbgisl = lbgidl;
   if (!given("LCGISL"))
-  {
-    if (given("LCGIDL"))
-      lcgisl = lcgidl;
-  }
+    lcgisl = lcgidl;
   if (!given("LEGISL"))
-  {
-    if (given("LEGIDL"))
-      legisl = legidl;
-  }
+    legisl = legidl;
   if (!given("LRGISL"))
-  {
-    if (given("LRGIDL"))
-      lrgisl = lrgidl;
-  }
+    lrgisl = lrgidl;
   if (!given("LKGISL"))
-  {
-    if (given("LKGIDL"))
-      lkgisl = lkgidl;
-  }
+    lkgisl = lkgidl;
   if (!given("LFGISL"))
-  {
-    if (given("LFGIDL"))
-      lfgisl = lfgidl;
-  }
+    lfgisl = lfgidl;
 
   if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
     laigs = laigd = laigsd;
-  }
   if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
     lbigs = lbigd = lbigsd;
-  }
   if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
     lcigs = lcigd = lcigsd;
-  }
 
   // Width dependence
   if (!given("WAGISL"))
-  {
-    if (given("WAGIDL"))
-      wagisl = wagidl;
-  }
+    wagisl = wagidl;
   if (!given("WBGISL"))
-  {
-    if (given("WBGIDL"))
-      wbgisl = wbgidl;
-  }
+    wbgisl = wbgidl;
   if (!given("WCGISL"))
-  {
-    if (given("WCGIDL"))
-      wcgisl = wcgidl;
-  }
+    wcgisl = wcgidl;
   if (!given("WEGISL"))
-  {
-    if (given("WEGIDL"))
-      wegisl = wegidl;
-  }
+    wegisl = wegidl;
   if (!given("WRGISL"))
-  {
-    if (given("WRGIDL"))
-      wrgisl = wrgidl;
-  }
+    wrgisl = wrgidl;
   if (!given("WKGISL"))
-  {
-    if (given("WKGIDL"))
-      wkgisl = wkgidl;
-  }
+    wkgisl = wkgidl;
   if (!given("WFGISL"))
-  {
-    if (given("WFGIDL"))
-      wfgisl = wfgidl;
-  }
+    wfgisl = wfgidl;
 
   if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
     waigs = waigd = waigsd;
-  }
   if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
     wbigs = wbigd = wbigsd;
-  }
   if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
     wcigs = wcigd = wcigsd;
-  }
 
-  // Cross-term dependence
+  // Cross-term depdendence
   if (!given("PAGISL"))
-  {
-    if (given("PAGIDL"))
-      pagisl = pagidl;
-  }
+    pagisl = pagidl;
   if (!given("PBGISL"))
-  {
-    if (given("PBGIDL"))
-      pbgisl = pbgidl;
-  }
+    pbgisl = pbgidl;
   if (!given("PCGISL"))
-  {
-    if (given("PCGIDL"))
-      pcgisl = pcgidl;
-  }
+    pcgisl = pcgidl;
   if (!given("PEGISL"))
-  {
-    if (given("PEGIDL"))
-      pegisl = pegidl;
-  }
+    pegisl = pegidl;
   if (!given("PRGISL"))
-  {
-    if (given("PRGIDL"))
-      prgisl = prgidl;
-  }
+    prgisl = prgidl;
   if (!given("PKGISL"))
-  {
-    if (given("PKGIDL"))
-      pkgisl = pkgidl;
-  }
+    pkgisl = pkgidl;
   if (!given("PFGISL"))
-  {
-    if (given("PFGIDL"))
-      pfgisl = pfgidl;
-  }
+    pfgisl = pfgidl;
 
   if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
     paigs = paigd = paigsd;
-  }
   if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
     pbigs = pbigd = pbigsd;
-  }
   if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
     pcigs = pcigd = pcigsd;
-  }
 
   if (!given("LLC"))
     Llc = Ll;
@@ -7906,6 +7988,7 @@ bool Model::processParams4p70_ ()
   if (!given("DLC"))
     dlc = Lint;
 
+
   if (!given("DLCIG"))
     dlcig = Lint;
   if (!given("DLCIGD"))
@@ -7917,9 +8000,6 @@ bool Model::processParams4p70_ ()
   }
   if (!given("DWJ"))
     dwj = dwc;
-
-  if (!given("CF"))
-    cf = 2.0 * epsrox * CONSTEPS0/M_PI * log(1.0 + 0.4E-6 / toxe);
 
   if (!given("JSD"))
     DjctSatCurDensity=SjctSatCurDensity;
@@ -8031,7 +8111,7 @@ bool Model::processParams4p70_ ()
   // We have changed model parameters (maybe) and so all size dependent params
   // we may have stored may be invalid.  Clear them
   clearTemperatureData();
-  
+
   return true;
 }
 
