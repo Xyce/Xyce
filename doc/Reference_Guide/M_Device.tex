@@ -604,16 +604,28 @@ User’s Manual, available for download at
 
 Note that the BSIM4 device in Xyce now supports multiple versions
 selectable with the \texttt{VERSION} parameter in the model card.  At
-this time only versions 4.6.1 and 4.7.0 are supported.  If a
-\texttt{VERSION} parameter is not given, the latest version supported
-is used.  If a \texttt{VERSION} parameter is given that is not one of
-the supported version numbers, the next lower supported version is
+this time versions 4.6.1, 4.7.0, and 4.8.2 are supported.  This
+version parameter may be specified either in legacy text format
+(``4.6.1'' or ``4.8.2'') or in the CMC standard floating point format
+(``4.61'' or ``4.82'').
+
+If a \texttt{VERSION} parameter is not given, the latest version
+supported is used.
+
+If a \texttt{VERSION} parameter is given that is not one of the
+supported version numbers, the closest matching supported version is
 used instead and a warning given.  If a version older than the lowest
-supported version is chosen, the lowest supported version is used and
-a warning given.  Specifying any model parameter that is not supported
-in the chosen version results in a warning and the parameter being
-ignored.  Parameters that are only valid for specific ranges of
-versions are noted as such in the
+supported version is chosen, the lowest supported version (4.6.1) is
+used and a warning given.  If a model lower than version 4.7.0 is
+requested, version 4.6.1 is used (and a warning given).  If a version
+newer than 4.7.0 but older than 4.8.0 is requested, 4.7.0 is used and
+a warning given.  If a version 4.8.0 or later is requested, 4.8.2 is
+used with an appropriate warning.
+
+Specifying any model parameter that is
+not supported in the chosen version results in a warning and the
+parameter being ignored.  Parameters that are only valid for specific
+ranges of versions are noted as such in the
 tables~\ref{M_14_Device_Instance_Params} and
 \ref{M_14_DeviceModelParams}.
 
@@ -621,6 +633,24 @@ At this time, the BSIM4 is the only device in Xyce that supports
 multiple versions in this manner.  All other devices that have
 multiple version in Xyce are handled by having a unique level number
 for each version.
+
+\textbf{NOTE: Many BSIM4 parameters listed in
+  tables~\ref{M_14_Device_Instance_Params} and
+  \ref{M_14_Device_Model_Params} as having default values of zero are
+  actually replaced with internally computed defaults if not given.
+  Specifying zero in your model card will override this internal
+  computation.  It is recommended that you only set model parameters
+  that you are actually changing from defaults and that you not
+  generate model cards containing default values from the tables.
+}
+
+\textbf{
+  Furthermore, the value of \texttt{FGIDL} changed from 0 to 1 with
+  version 4.8.2 of the BSIM4.  This change is NOT reflected in the
+  table, which is generated automatically, and which shows only the
+  default value of this parameter that applies to versions 4.6.1 and
+  4.7.0.}
+
 
 \input{M_14_Device_Instance_Params}
 \input{M_14_Device_Model_Params}
