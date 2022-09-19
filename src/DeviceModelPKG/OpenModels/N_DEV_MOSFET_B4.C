@@ -1418,6 +1418,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setDescription("D/G overlap C-V parameter");
 
     p.addPar ("CF",0.0,&MOSFET_B4::Model::cf)
+     .setGivenMember(&MOSFET_B4::Model::cfGiven)
      .setUnit(U_FARADMM1)
      .setCategory(CAT_CAP)
      .setDescription("Fringe capacitance parameter");
@@ -4664,6 +4665,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setMinimumVersion(4.70)
      .setDescription("Thermal noise coefficient");
 
+    p.addPar ("GIDLCLAMP",-1.0e-5,&MOSFET_B4::Model::gidlclamp)
+      .setUnit(U_NONE)
+      .setCategory(CAT_NONE)
+      .setMinimumVersion(4.82)
+      .setDescription("gidl clamp value");
+
+    // NOTE:  This is NOT a typo.  The BSIM4.8.2 model defines a model
+    // parameter "IDOVVDS" but associates it with an internal variable
+    // idovvdsc.
+    p.addPar ("IDOVVDS",1e-9,&MOSFET_B4::Model::idovvdsc)
+      .setUnit(U_NONE)
+      .setCategory(CAT_NONE)
+      .setMinimumVersion(4.82)
+      .setDescription("noise clamping limit parameter");
+
     p.addPar ("NTNOI",1.0,&MOSFET_B4::Model::ntnoi)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -4809,7 +4825,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("Bin  unit  selector");
 
-    p.addPar ("VERSION",std::string("4.6.1"),&MOSFET_B4::Model::version)
+    p.addPar ("VERSION",std::string("4.8.2"),&MOSFET_B4::Model::version)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("parameter for model version");
@@ -4926,14 +4942,23 @@ void Instance::setupVersionPointers_()
     getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
     RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
   }
+  else if (model_.versionDouble >= 4.80)
+  {
+    processParamsPtr_ = &Instance::processParams4p82_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p82_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p82_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p82_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p82_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p82_;
+  }
   else
   {
-    processParamsPtr_ = &Instance::processParams4p70_;
-    updateTemperaturePtr_ = &Instance::updateTemperature4p70_;
-    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p70_;
-    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p70_;
-    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
-    RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
+    processParamsPtr_ = &Instance::processParams4p82_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p82_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p82_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p82_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p82_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p82_;
   }
 }
 
@@ -5040,6 +5065,8 @@ Instance::Instance(
     vbsc(0.0),
     k2ox(0.0),
     eta0(0.0),
+    toxp(0.0),
+    coxp(0.0),
     icVDS(0.0),
     icVGS(0.0),
     icVBS(0.0),
@@ -9221,7 +9248,7 @@ void Model::checkAndFixVersion_()
   if (given("version"))
     versionDouble = convertVersToDouble(version);
   else
-    versionDouble=4.70;     // not strictly necessary, because we set this
+    versionDouble=4.82;     // not strictly necessary, because we set this
                             // in the constructor initializers already, but
                             // let's play it safe
 
@@ -9244,13 +9271,35 @@ void Model::checkAndFixVersion_()
     }
     versionDouble=4.61;
   }
-  else if (versionDouble > 4.70)
+  else if (versionDouble < 4.80)
   {
-    UserWarning(*this) << "Model card specifies BSIM4 version " << version
-                       << " which is newer than the latest version supported in Xyce (4.7.0). "
-                       << " Using 4.7.0 instead."
-                       << std::endl;
+    if (versionDouble != 4.70)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " not supported by Xyce. "
+                         << " Using 4.7.0 instead."
+                         << std::endl;
+    }
     versionDouble=4.70;
+  }
+  else if (versionDouble >= 4.80)
+  {
+    if (versionDouble < 4.82)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " not supported by Xyce. "
+                         << " Using 4.8.2 instead."
+                         << std::endl;
+    }
+    if (versionDouble > 4.82)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " which is newer than the latest version supported in Xyce (4.8.2)"
+                         << " Using 4.8.2 instead."
+                         << std::endl;
+    }
+    // DON'T reset the version value, though, because 4.8.2 has some
+    // conditionals that make it work differently if version <= 4.80
   }
 }
 
@@ -9312,9 +9361,13 @@ void Model::setupVersionPointers_()
   {
     processParamsPtr_ = &Model::processParams4p70_;
   }
+  else if (versionDouble >= 4.80)
+  {
+    processParamsPtr_ = &Model::processParams4p82_;
+  }
   else
   {
-    processParamsPtr_ = &Model::processParams4p70_;
+    processParamsPtr_ = &Model::processParams4p82_;
   }
 }
 
@@ -9357,8 +9410,8 @@ Model::Model(
     gidlMod(0),
     binUnit(0),
     paramChk(0),
-    version("4.7.0"),
-    versionDouble(4.70),
+    version("4.8.2"),
+    versionDouble(4.82),
     eot(0.0),
     vddeot(0.0),
     tempeot(0.0),
@@ -9617,6 +9670,8 @@ Model::Model(
     rnoia(0.0),
     rnoib(0.0),
     rnoic(0.0),
+    gidlclamp(-1.0e-5),
+    idovvdsc(1e-9),
     ntnoi(0.0),
 
     // CV model and Parasitics
@@ -10313,6 +10368,7 @@ Model::Model(
     dlcGiven(false),
     cgsoGiven(false),
     cgboGiven(false),
+    cfGiven(false),
     sizeDependParamList()
 
 {
