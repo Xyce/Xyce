@@ -51,6 +51,12 @@ not effect Xyce's calculations.  But the warning was incorrect and could cause
 confusion.  The code has been fixed and this warning should no longer appear under
 false conditions. \\ \hline
 
+\textbf{Xyce Backlog Bugs/7}: Infinite loop results when ".ends" is missing from netlist &
+If a netlist ended without closing a subcircuit with ".ends" and ".end" was not used
+to signify the end of the netlist, then Xyce would either execute an infinite loop or
+seg fault.  The parser now identifies this error and cleanly exits the simulation with
+an informative message. \\ \hline
+
 \textbf{Xyce Backlog Bugs/8}: MOSFET multiplicity not applied to noise &
 None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
 in Xyce were correctly applying the multiplicity factor (``M='') to
