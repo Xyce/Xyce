@@ -23,6 +23,8 @@
 //
 // test the N_LAS_BlockSystemHelpers
 //
+#include <Xyce_config.h>
+
 #include <N_LAS_EpetraGraph.h>
 #include <N_LAS_EpetraMultiVector.h>
 #include <N_LAS_EpetraBlockMatrix.h>
