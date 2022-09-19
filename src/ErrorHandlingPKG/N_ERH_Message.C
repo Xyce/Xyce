@@ -110,28 +110,14 @@ Message::~Message()
 {
   std::ostringstream os;
 
-  if (PARSABLE_LINE)
+  if ((messageType_ & MSG_TERMINATE) == 0)
   {
-    if ((messageType_ & MSG_TERMINATE) == 0)
-    {
-      if (netlistLocation_.getLineNumber() > 0)
-        os << netlistLocation_.getFilename() << ":" << netlistLocation_.getLineNumber() << ": ";
+    prefix(os, messageType_);
 
-      prefix(os, messageType_);
-      os << ":\n";
-    }
-  }
-  else
-  {
-    if ((messageType_ & MSG_TERMINATE) == 0)
-    {
-      prefix(os, messageType_);
-
-      if (netlistLocation_.getLineNumber() > 0)
-        os << " in file " << netlistLocation_.getFilename() << " at or near line " << netlistLocation_.getLineNumber() << "\n";
-      else
-        os << ": ";
-    }
+    if (netlistLocation_.getLineNumber() > 0)
+      os << " in file " << netlistLocation_.getFilename() << " at or near line " << netlistLocation_.getLineNumber() << "\n";
+    else
+      os << ": ";
   }
 
   if (functionName_)
