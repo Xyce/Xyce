@@ -123,7 +123,10 @@ sourceFunctionMetadata(DeviceParamMap &sourceFcnMap)
 // Creator        : 
 // Creation Date  : 
 //----------------------------------------------------------------------------
-const std::vector<Param> & getSourceFunctionParameters(const std::string & sourceFcn)
+const std::vector<Param> & getSourceFunctionParameters(
+    const std::string &sourceFcn, 
+    const IO::DeviceBlock & device_block,
+    const IO::TokenVector & parsedInputLine )
 {
   static DeviceParamMap sourceFcnMap;
 
@@ -133,7 +136,8 @@ const std::vector<Param> & getSourceFunctionParameters(const std::string & sourc
   DeviceParamMap::const_iterator it = sourceFcnMap.find(sourceFcn);
   if (it == sourceFcnMap.end())
   {
-    Report::DevelFatal() << "No such source function " << sourceFcn;
+    Report::UserError().at(device_block.getNetlistFilename(), parsedInputLine[0].lineNumber_)
+      << "No such source function " << sourceFcn << " in " << device_block.getInstanceName();
   }
 
   return (*it).second;
@@ -2842,7 +2846,9 @@ extractSourceFields(
         size_t numInputSourceFunctionParams = sourceFunctionParamEnd - sourceFunctionParamStart + 1;
 
         // const std::vector<Param> &sourceFunctionParameters = metadata_.getSourceFunctionParameters(sourceFunction);
-        const std::vector<Param> &sourceFunctionParameters = getSourceFunctionParameters(sourceFunction);
+        const std::vector<Param> &sourceFunctionParameters = getSourceFunctionParameters(sourceFunction,
+            device_block, parsedInputLine);
+
         for ( size_t k = 0; k < sourceFunctionParameters.size(); ++k )
         {
           if ( k < numInputSourceFunctionParams )
