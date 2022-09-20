@@ -113,15 +113,12 @@ target_link_libraries(Xyce XyceLib)
 if(WIN32)
   if(DEFINED ENV{MKLROOT})
 
-    if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-      set( POINTER_SIZE  "64" )
-    else()
-      set( POINTER_SIZE "32" )
-    endif()
+    file(TO_CMAKE_PATH "$ENV{MKLROOT}" MKLROOT)
+
     add_custom_command(
       TARGET Xyce POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-              $ENV{MKLROOT}/../redist/intel${POINTER_SIZE}/mkl/mkl_sequential.dll
+              ${MKLROOT}/redist/intel64/mkl_sequential.2.dll
               ${CMAKE_CURRENT_BINARY_DIR})
   endif()
 endif()

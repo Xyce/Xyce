@@ -87,34 +87,30 @@ if ( CMAKE_HOST_WIN32 )
   # rely on the old method but we should transition to the
   # new way when more recent versions of cmake are available.
 
+  file(TO_CMAKE_PATH "$ENV{ONEAPI_ROOT}" ONEAPI_ROOT)
+
   # Add the required intel library.  This is permitted for redistribution.
-  find_file(SVNL_PATH
+  find_file(SVML_PATH
     "svml_dispmd.dll"
     PATHS
-      "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler"
-      "$ENV{INTEL_DEV_REDIST}redist/intel64_win/compiler" )
+      "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
   find_file(MMD_PATH
       "libmmd.dll"
       PATHS
-        "$ENV{INTEL_DEV_REDIST}redist/intel64/compiler"
-        "$ENV{INTEL_DEV_REDIST}redist/intel64_win/compiler" )
-  if ( MMD_PATH AND SVNL_PATH)
-    # For native Windows builds, check for these two dll's.  If they don't exist,
-    # assume the package is being build on the legacy Windows build system and use that
-    # dll and path instead.
-    install ( FILES ${MMD_PATH}
-	    DESTINATION bin
-	    COMPONENT Runtime)
-    install ( FILES ${SVNL_PATH}
-	    DESTINATION bin
-	    COMPONENT Runtime)
-  else ()
-    set ( INTELLIBPATH "$ENV{ICPP_COMPILER12_CYGWIN}/redist/ia32/compiler" )
-    install ( FILES ${INTELLIBPATH}/libmmd.dll
-	    DESTINATION bin
-	    COMPONENT Runtime)
-  endif()
-
+        "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
+  find_file(IOMP5_PATH
+      "libiomp5md.dll"
+      PATHS
+        "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
+  install ( FILES ${MMD_PATH}
+          DESTINATION bin
+          COMPONENT Runtime)
+  install ( FILES ${SVML_PATH}
+          DESTINATION bin
+          COMPONENT Runtime)
+  install ( FILES ${IOMP5_PATH}
+            DESTINATION bin
+            COMPONENT Runtime)
 
   # For native Windows builds we also need assorted MS Visual Studio DLLs
   # This thing apparently takes care of it:
