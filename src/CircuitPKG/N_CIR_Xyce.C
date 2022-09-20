@@ -324,7 +324,10 @@ Simulator::Simulator(Parallel::Machine comm)
     adcDeviceMap_()
 {
   previousReportHandler_ = set_report_handler(report_handler);
+
+  // This creates the message groups and initializes them
   Xyce::Report::reset_message_counts();
+  Xyce::Report::set_max_message_count(Xyce::Report::MSG_WARNING, 100);
 
   rootStat_.start();
 
@@ -820,6 +823,11 @@ Simulator::RunStatus Simulator::initializeEarly(
   }
 
   s_errorWrap = commandLine_.argExists("-error-test") ? 2024 : 78;
+  if (commandLine_.argExists("-max-warnings"))
+  {
+    int max_warnings = commandLine_.getArgumentIntValue("-max-warnings", 100);
+    Xyce::Report::set_max_message_count(Xyce::Report::MSG_WARNING, max_warnings);
+  }
 
   // Load any device plugins requested
   // This has to be done very early, because -param, -doc, and -doc_cat
