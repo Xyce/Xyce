@@ -136,8 +136,8 @@ void Traits::loadInstanceParameters(ParametricData<TwoDPDE::Instance> &p)
    .setCategory(CAT_OUTPUT);
 
   p.addPar("MESHFILE", std::string("internal.msh"), &TwoDPDE::Instance::meshFileName)
-   .setDescription("This is a required field for a 2D simulation.  If the user"
-     "specifies meshfile=internal.mesh, the model will create a"
+   .setDescription("This is a required field for a 2D simulation.  If the user "
+     "specifies meshfile=internal.mesh, the model will create a "
      "Cartesian mesh using the parameters L,W,NX and NY.  If the user specifies "
      "anything else (for example meshfile=diode.msh), the model will attempt to "
      "read in a mesh file of that name.  The format is assumed to be that "

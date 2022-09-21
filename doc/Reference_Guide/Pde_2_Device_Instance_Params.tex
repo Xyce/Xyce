@@ -3,20 +3,20 @@
 %
 \index{2d pde (level 2)!device instance parameters}
 \begin{DeviceParamTableGenerated}{2D PDE (level 2) Device Instance Parameters}{Pde_2_Device_Instance_Params}
+AUGER & Flag to turn on/off Auger recombination & logical (T/F) & true \\ \hline
 BULKMATERIAL & Material of bulk material. & -- & 'SI' \\ \hline
 DISPLCUR & If true, displacement current is computed and output & logical (T/F) & false \\ \hline
 DOPINGPROFILES &  & \multicolumn{2}{c}{See Table~\ref{DOPINGPROFILES_Composite_Params}}  \\ \hline
 MAXVOLTDELTA & Maximum voltage change used by two-level Newton algorithm. & V & 0.025 \\ \hline
-MESHFILE & This is a required field for a 2D simulation.  If the user specifies meshfile=internal.mesh, the model will create aCartesian mesh using the parameters L,W,NX and NY.  If the user specifies anything else (for example meshfile=diode.msh), the model will attempt to read in a mesh file of that name.  The format is assumed to be that of the SG Framework. & -- & 'internal.msh' \\ \hline
+MESHFILE & This is a required field for a 2D simulation.  If the user specifies meshfile=internal.mesh, the model will create a Cartesian mesh using the parameters L,W,NX and NY.  If the user specifies anything else (for example meshfile=diode.msh), the model will attempt to read in a mesh file of that name.  The format is assumed to be that of the SG Framework. & -- & 'internal.msh' \\ \hline
 MOBMODEL & Mobility model. & -- & 'ARORA' \\ \hline
 NODE &  & \multicolumn{2}{c}{See Table~\ref{NODE_2D_Composite_Params}}  \\ \hline
 NX & Number of mesh points, x-direction. & -- & 11 \\ \hline
 NY & Number of mesh points, y-direction. & -- & 11 \\ \hline
 REGION &  & \multicolumn{2}{c}{See Table~\ref{REGION_Composite_Params}}  \\ \hline
+SRH & Flag to turn on/off Shockley-Read-Hall (SRH) recombination. & logical (T/F) & true \\ \hline
 TYPE & P-type or N-type - this is only relevant if using the default dopings & -- & 'PNP' \\ \hline
-USEMATRIXGID &  & -- & false \\ \hline
 USEOLDNI & Flag for using old (inaccurate) intrinsic carrier calculation. & logical (T/F) & false \\ \hline
-USEVECTORGID &  & -- & false \\ \hline
 VOLTLIM &  & logical (T/F) & false \\ \hline
 
 \category{Doping Parameters}\\ \hline
@@ -56,6 +56,8 @@ TXTDATALEVEL & Flag for volume-averaged text output.
 txtdataplot files will have the *.txt suffix, and the prefix will be the name of the device instance. & -- & 1 \\ \hline
 
 \category{Scaling Parameters}\\ \hline
+C0 & Density scalar; adjust to mitigate convergence problems.The model will do all of its scaling automatically, so it is generally not necessary to specify it manually. & cm$^{-3}$ & 1e+15 \\ \hline
+t0 & Time scalar; adjust to mitigate convergence problems.The model will do all of its scaling automatically, so it is generally not necessary to specify it manually. & s & 1e-06 \\ \hline
 X0 & Length scalar; adjust to mitigate convergence problems. The model will do all of its scaling automatically, so it is generally not necessary to specify it manually. & cm & 0.0001 \\ \hline
 
 \category{Boundary Condition Parameters}\\ \hline
