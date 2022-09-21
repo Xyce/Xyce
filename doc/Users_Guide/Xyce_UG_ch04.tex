@@ -56,7 +56,42 @@ constraints, the order of the statements is irrelevant.
 
 Nodes and elements form the foundation for the circuit topology. Each node represents a point in the circuit that is connected to the leads of multiple elements (devices). Each lead of every element is connected to a node, and each node is connected to multiple element leads.
 
-A node is simply a named point in the circuit. The naming of normal nodes is only known within the level of circuit hierarchy where they appear; normal nodes defined in the main circuit are not visible to subcircuits, nor are nodes defined in a subcircuit visible to the top-level circuit. Nodes can be passed into subcircuits through an argument list, and in this case subcircuits are given limited access to nodes from the upper-level circuit.  
+A node is simply a named point in the circuit.  The naming of normal nodes is mainly known within the level of circuit hierarchy where they appear.  Nodes can be passed into subcircuits through an argument list, and in this manner subcircuits are given access to nodes from the upper-level circuit.  Historicaly, this is how nodes are passed thru the circuit hierarchy in most circuit simulators, and this is the convention used by most circuit netlists.
+
+However, \Xyce{} also has the capability for fully resolved, internal subcircuit nodes to be accessed in the top level circuit.  Examples of this usage are as follows:
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}* example usage of fully resolved subcircuit nodes\color{black}
+Vin 1 0 1.0
+Rin 1 2 1.0
+X1 2 3 test
+Rout 3 0 1.0
+
+.subckt test A B
+Rt1 A testNode 1.0
+Rt2 testNode B 1.0
+.ends
+
+\color{blue}* this works: \color{black}
+Btest1 4 0 V = {V(X1:testNode)}
+Rtest1 4 0 1.0
+
+\color{blue}* this also works:\color{black}
+Itest2 0 5 1.0
+Rtest2 X1:testNode 5 1.0
+Rtest3 X1:testNode 0 1.0\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+The fully resolved name is specific to a single subcircuit instance.  
+Also, note that the field separator in this example is the colon (\texttt{:}), but \Xyce{} can 
+optionally use other characters as the separator, including a period (\texttt{.}) .  
+For information about specifying a different separator, see section~\ref{cmd_line_args}, 
+about \Xyce{} command line arguments, or the \Xyce{} Reference Guide\ReferenceGuide{} 
+for even more details.
 
 \subsubsection{Global Nodes}
 For cases where a particular node is used widely throughout various
