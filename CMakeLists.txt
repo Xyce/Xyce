@@ -110,7 +110,12 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+if(APPLE)
+  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+else()
+  set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} "$ORIGIN/../lib")
+endif()
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
