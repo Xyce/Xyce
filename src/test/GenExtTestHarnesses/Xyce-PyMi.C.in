@@ -52,7 +52,7 @@ using namespace py::literals;
 
 // pybind11 wrapper for DeviceOptions and SolverState
 PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
-    m.attr("__version__") = "7.4";
+    m.attr("__version__") = "@Xyce_VERSION_MAJOR@.@Xyce_VERSION_MINOR@";
     py::class_<Xyce::Device::DeviceOptions>(m, "DeviceOptions")
     .def_readonly("voltageLimiterFlag", &Xyce::Device::DeviceOptions::voltageLimiterFlag);
     py::class_<Xyce::Device::SolverState>(m, "SolverState")
