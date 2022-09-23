@@ -95,10 +95,18 @@ the \texttt{VERSION} parameter in the model card.  The BSIM4 is
 currently the only device in Xyce that supports multiple versions in
 this manner. \\ \hline
 
+
 \textbf{Xyce Project Backlog/448}:  Auger recombination function used by 
 the TCAD (PDE) devices is scaled incorrectly & The Auger recombination term 
 used by the TCAD devices in Xyce was scaled incorrectly, and this resulted 
 in that term being nearly zero.  This has been corrected.
+\\ \hline
+
+\textbf{Xyce Project Backlog/455}:  Xyce gives a bad error message for 
+malformed voltage source & Under some circumstances, a grammar mistake 
+in the netlist specification of an independent source caused Xyce to 
+exit with a fatal error, but with an incomprehensible error message.  
+This has been corrected.
 \\ \hline
 
 \textbf{repo/issue number}: Short description placeholder &
