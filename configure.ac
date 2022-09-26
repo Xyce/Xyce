@@ -533,6 +533,9 @@ fi
 
 dnl If the user enabled AMD, let's try to add it here:
 if test "x$AMD" = "xyes"; then
+  # Newer suitesparse sub-libraries may depend on suitesparseconfig.  If we
+  # find it, add it.
+  AC_CHECK_LIB(suitesparseconfig,SuiteSparse_time,[],[])
   AC_CHECK_LIB(amd,amd_valid,[],[AC_MSG_ERROR([FATAL: AMD  requested but AMD library not found or does not contain amd_valid])])
 fi
 
@@ -623,12 +626,13 @@ AC_CHECK_HEADER(Amesos_Umfpack.h,
   # This may already have been done if AMD enabled, but if it wasn't,
   # we require it now.  If it was already done, this is fast because
   # the results were cached
+  # Newer suitesparse sub-libraries may depend on suitesparseconfig.  If we
+  # find it, add it.
+  AC_CHECK_LIB(suitesparseconfig,SuiteSparse_time,[],[])
   AC_CHECK_LIB([amd],[amd_valid],[],[AC_MSG_ERROR([FATAL: Umfpack requires AMD but AMD library not found or does not contain amd_valid])])
 
   # we found that Trilinos has been built with Umfpack, we must now
   # find the libraries for umfpack
-  # Newer cholmods may depend on suitesparseconfig.  If we find it, add it.
-  AC_CHECK_LIB(suitesparseconfig,SuiteSparse_time,[],[])
   # cholmod may depend on colamd...
   AC_CHECK_LIB(colamd,colamd,[],[])
   # Newer umfpacks depend on cholmod.  If we find it, add it
