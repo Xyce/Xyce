@@ -1454,6 +1454,9 @@ bool CircuitBlock::handleLinePass1(
     }
     else if (ES1 == ".SUBCKT")
     {
+      // get the old context name to compare at the end of this subckt block
+      std::string old_name = circuitContext_.getCurrentContextPtr()->getName();
+
       // Create a new CircuitBlock to hold the subcircuit definition.
       // Set the parentCircuitPtr of the new CircuitBlock.
       CircuitBlock* subcircuitBlockPtr =
@@ -1507,6 +1510,18 @@ bool CircuitBlock::handleLinePass1(
 
       result = subcircuitBlockPtr->parseNetlistFilePass1(options_manager, libSelect, libInside)
                && result;
+
+      // get the current context name to compare 
+      CircuitContext* context = circuitContext_.getCurrentContextPtr();
+      std::string name = context->getName();
+
+      // Check if the parser thinks it is still inside a subcircuit, even though it is done.
+      // This means the netlist finished parsing without find .ENDS.
+      if (old_name != name)
+      {
+        Report::UserError().at(context->getLocation())
+          << "Subcircuit " << context->getName() << " missing .ENDS";
+      }
     }
 
     else if (ES1 == ".PREPROCESS")
@@ -2363,21 +2378,22 @@ bool CircuitBlock::parsePreprocess()
   //Get the first character of input.
   TokenVector line;
   char lineType;
-  int eof = ssfPtr_->peekAtNextLine( lineType );
   int removecounter = 0;
   int replacecounter = 0;
   int onetermcounter = 0;
   int nodcpathcounter = 0;
 
+  int eof = ssfPtr_->peekAtNextLine( lineType );
+
   while (!eof)
   {
     if (lineType == '.')
     {
-      eof = !ssfPtr_->getLine(line); //Breaks the line into fields.
-      ExtendedString ES1 ( line[0].string_ );
-      ES1.toUpper();
-
-      if ( ES1 != ".PREPROCESS" )
+      // Pass in a vector to scan for .PREPROCESS at the beginning of the line.
+      std::vector<std::string> vec = {".PREPROCESS"};
+      eof = !ssfPtr_->getLine(line, false, vec); //Breaks the line into fields.
+   
+      if ( line.empty() ) // The line was not a .PREPROCESS line
       {
         //do nothing
       }
@@ -2388,6 +2404,18 @@ bool CircuitBlock::parsePreprocess()
       }
       else
       {
+        if (DEBUG_IO)
+        {
+          Xyce::dout() << "parsePreprocess read netlist line: ";
+          for (unsigned int i = 0; i < line.size(); ++i)
+          {
+            Xyce::dout() << line[i].string_ << " ";
+          }
+          Xyce::dout() << std::endl;
+        }
+
+        ExtendedString ES1 ( line[0].string_ );
+        ES1.toUpper();
         ExtendedString preprocarg ( line[1].string_ );
         preprocarg.toUpper();
 

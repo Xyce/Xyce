@@ -206,6 +206,7 @@ void usage(std::ostream &os)
      << "  -nox <on|off>               NOX nonlinear solver usage\n"
      << "  -linsolv <solver>           force usage of specific linear solver\n"
      << "  -maxord <1..5>              maximum time integration order\n"
+     << "  -max-warnings <#>           maximum number of warning messages\n"
      << "  -prf <param file name>      specify a file with simulation parameters\n"
      << "  -rsf <response file name>   specify a file to save simulation responses functions.\n"
      << "  -r <file>                   generate a rawfile named <file> in binary format\n"
@@ -346,6 +347,7 @@ CmdParse::setCommandArgs()
   stArgs[ "-nox" ] = "";
   stArgs[ "-linsolv" ] = "";
   stArgs[ "-maxord" ] = "";
+  stArgs[ "-max-warnings" ] = "";
   stArgs[ "-prf" ] = "";                // specify a parameter input file to set runtime params from a file
   stArgs[ "-rsf" ] = "";                // specify a response output file to save results to a file
   stArgs[ "-r" ] = "";                  // Output binary rawfile.

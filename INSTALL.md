@@ -1,5 +1,14 @@
 # Xyce Configure, Build and Installation Guide Using CMake
 
+__IMPORTANT NOTE: THE CMAKE SYSTEM IS ACTIVELY BEING DEVELOPED__\
+This means these instructions are quickly becoming out-of-date. For example,
+the CMake system will currently build only against the develop branch of
+Trilinos. If you need the latest Xyce capabilities, it is recommended to use
+the Autotools build, as documented on the
+[Xyce Building Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
+
+_We will update these instructions before the next release._
+
 This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).

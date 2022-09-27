@@ -56,13 +56,6 @@
 #include <N_UTL_Math.h>
 #include <N_ANP_NoiseData.h>
 
-// ---------- BSIM4 constants ---------------
-// Many constants are obtained from N_DEV_Const.h
-// A few overrides (2) are below, to make this device as close
-// to the original spice3f5 code as possible.
-
-#define CONSTEPS0 8.85418e-12
-
 
 namespace Xyce {
 namespace Device {
@@ -1425,6 +1418,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setDescription("D/G overlap C-V parameter");
 
     p.addPar ("CF",0.0,&MOSFET_B4::Model::cf)
+     .setGivenMember(&MOSFET_B4::Model::cfGiven)
      .setUnit(U_FARADMM1)
      .setCategory(CAT_CAP)
      .setDescription("Fringe capacitance parameter");
@@ -4671,6 +4665,21 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setMinimumVersion(4.70)
      .setDescription("Thermal noise coefficient");
 
+    p.addPar ("GIDLCLAMP",-1.0e-5,&MOSFET_B4::Model::gidlclamp)
+      .setUnit(U_NONE)
+      .setCategory(CAT_NONE)
+      .setMinimumVersion(4.82)
+      .setDescription("gidl clamp value");
+
+    // NOTE:  This is NOT a typo.  The BSIM4.8.2 model defines a model
+    // parameter "IDOVVDS" but associates it with an internal variable
+    // idovvdsc.
+    p.addPar ("IDOVVDS",1e-9,&MOSFET_B4::Model::idovvdsc)
+      .setUnit(U_NONE)
+      .setCategory(CAT_NONE)
+      .setMinimumVersion(4.82)
+      .setDescription("noise clamping limit parameter");
+
     p.addPar ("NTNOI",1.0,&MOSFET_B4::Model::ntnoi)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
@@ -4816,7 +4825,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("Bin  unit  selector");
 
-    p.addPar ("VERSION",std::string("4.6.1"),&MOSFET_B4::Model::version)
+    p.addPar ("VERSION",std::string("4.8.2"),&MOSFET_B4::Model::version)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("parameter for model version");
@@ -4933,14 +4942,23 @@ void Instance::setupVersionPointers_()
     getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
     RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
   }
+  else if (model_.versionDouble >= 4.80)
+  {
+    processParamsPtr_ = &Instance::processParams4p82_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p82_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p82_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p82_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p82_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p82_;
+  }
   else
   {
-    processParamsPtr_ = &Instance::processParams4p70_;
-    updateTemperaturePtr_ = &Instance::updateTemperature4p70_;
-    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p70_;
-    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p70_;
-    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p70_;
-    RdsEndIsoPtr_ = &Instance::RdsEndIso4p70_;
+    processParamsPtr_ = &Instance::processParams4p82_;
+    updateTemperaturePtr_ = &Instance::updateTemperature4p82_;
+    updateIntermediateVarsPtr_ = &Instance::updateIntermediateVars4p82_;
+    setupNoiseSourcesPtr_ = &Instance::setupNoiseSources4p82_;
+    getNoiseSourcesPtr_ = &Instance::getNoiseSources4p82_;
+    RdsEndIsoPtr_ = &Instance::RdsEndIso4p82_;
   }
 }
 
@@ -5047,6 +5065,8 @@ Instance::Instance(
     vbsc(0.0),
     k2ox(0.0),
     eta0(0.0),
+    toxp(0.0),
+    coxp(0.0),
     icVDS(0.0),
     icVGS(0.0),
     icVBS(0.0),
@@ -9228,7 +9248,7 @@ void Model::checkAndFixVersion_()
   if (given("version"))
     versionDouble = convertVersToDouble(version);
   else
-    versionDouble=4.70;     // not strictly necessary, because we set this
+    versionDouble=4.82;     // not strictly necessary, because we set this
                             // in the constructor initializers already, but
                             // let's play it safe
 
@@ -9251,13 +9271,35 @@ void Model::checkAndFixVersion_()
     }
     versionDouble=4.61;
   }
-  else if (versionDouble > 4.70)
+  else if (versionDouble < 4.80)
   {
-    UserWarning(*this) << "Model card specifies BSIM4 version " << version
-                       << " which is newer than the latest version supported in Xyce (4.7.0). "
-                       << " Using 4.7.0 instead."
-                       << std::endl;
+    if (versionDouble != 4.70)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " not supported by Xyce. "
+                         << " Using 4.7.0 instead."
+                         << std::endl;
+    }
     versionDouble=4.70;
+  }
+  else if (versionDouble >= 4.80)
+  {
+    if (versionDouble < 4.82)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " not supported by Xyce. "
+                         << " Using 4.8.2 instead."
+                         << std::endl;
+    }
+    if (versionDouble > 4.82)
+    {
+      UserWarning(*this) << "Model card specifies BSIM4 version " << version
+                         << " which is newer than the latest version supported in Xyce (4.8.2)"
+                         << " Using 4.8.2 instead."
+                         << std::endl;
+    }
+    // DON'T reset the version value, though, because 4.8.2 has some
+    // conditionals that make it work differently if version <= 4.80
   }
 }
 
@@ -9319,9 +9361,13 @@ void Model::setupVersionPointers_()
   {
     processParamsPtr_ = &Model::processParams4p70_;
   }
+  else if (versionDouble >= 4.80)
+  {
+    processParamsPtr_ = &Model::processParams4p82_;
+  }
   else
   {
-    processParamsPtr_ = &Model::processParams4p70_;
+    processParamsPtr_ = &Model::processParams4p82_;
   }
 }
 
@@ -9364,8 +9410,8 @@ Model::Model(
     gidlMod(0),
     binUnit(0),
     paramChk(0),
-    version("4.7.0"),
-    versionDouble(4.70),
+    version("4.8.2"),
+    versionDouble(4.82),
     eot(0.0),
     vddeot(0.0),
     tempeot(0.0),
@@ -9624,6 +9670,8 @@ Model::Model(
     rnoia(0.0),
     rnoib(0.0),
     rnoic(0.0),
+    gidlclamp(-1.0e-5),
+    idovvdsc(1e-9),
     ntnoi(0.0),
 
     // CV model and Parasitics
@@ -10320,6 +10368,7 @@ Model::Model(
     dlcGiven(false),
     cgsoGiven(false),
     cgboGiven(false),
+    cfGiven(false),
     sizeDependParamList()
 
 {
@@ -10355,430 +10404,6 @@ Model::Model(
   // Calculate any parameters specified as expressions:
 
   updateDependentParameters();
-
-  // calculate dependent (ie computed) params
-  if (!given("TOXP") )
-    toxp = toxe;
-  if (!given("TOXM") )
-    toxm = toxe;
-  if (!given("DSUB") )
-    dsub = drout;
-
-  if (!given("VTH0") )
-    vth0 = (dtype == CONSTNMOS) ? 0.7 : -0.7;
-
-  if (!given("VDDEOT"))
-    vddeot= (dtype == CONSTNMOS)?1.5:-1.5;
-  if (!given("EU"))
-    eu =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
-  if (!given("UCS"))
-    ucs =(dtype == CONSTNMOS) ? 1.67 : 1.0;;
-  if (!given("UA"))
-    ua =(mobMod == 2) ? 1.0E-15 : 1.0E-9; // UNIT M/V
-  if (!given("UC"))
-    uc = (mobMod == 1) ? -0.0465 : -0.0465E-9;
-  if (!given("UC1"))
-    uc1 =(mobMod == 1) ? -0.056 : -0.056E-9;
-  if (!given("U0"))
-    u0 = (dtype == CONSTNMOS) ? 0.067 : 0.025;
-  if (!given("AIGC"))
-    aigc =(dtype == CONSTNMOS) ? 1.36E-2 : 9.80E-3;
-  if (!given("BIGC"))
-    bigc =(dtype == CONSTNMOS) ? 1.71E-3 : 7.59E-4;
-  if (!given("CIGC"))
-    cigc = (dtype == CONSTNMOS) ? 0.075 : 0.03;
-  if (given("AIGSD"))
-  {
-    aigs = aigd = aigsd;
-  }
-  else
-  {
-    aigsd = (dtype == CONSTNMOS) ? 1.36E-2 : 9.80E-3;
-    if (!given("AIGS"))
-      aigs = aigsd;
-    if (!given("AIGD"))
-      aigd = aigsd;
-  }
-
-  if (given("BIGSD"))
-  {
-    bigs = bigd = bigsd;
-  }
-  else
-  {
-    bigsd = (dtype == CONSTNMOS) ? 1.71E-3 : 7.59E-4;
-    if (!given("BIGS"))
-      bigs = bigsd;
-    if (!given("BIGD"))
-      bigd = bigsd;
-  }
-  if (given("CIGSD"))
-  {
-    cigs=cigd=cigsd;
-  }
-  else
-  {
-    cigsd = (dtype == CONSTNMOS) ? 0.075 : 0.03;
-    if (!given("CIGS"))
-      cigs=cigsd;
-    if (!given("CIGD"))
-      cigd=cigsd;
-  }
-  if (!given("IJTHDFWD"))
-    ijthdfwd = ijthsfwd;
-  if (!given("IJTHDREV"))
-    ijthdrev = ijthsrev;
-  if (!given("XJBVD"))
-    xjbvd = xjbvs;
-  if (!given("BVD"))
-    bvd = bvs;
-  if (!given("CKAPPAD"))
-    ckappad = ckappas;
-  if (!given("DMCI"))
-    dmci = dmcg;
-  if (!given("LLC"))
-    Llc = Ll;
-  if (!given("LWC"))
-    Lwc = Lw;
-  if (!given("LWLC"))
-    Lwlc = Lwl;
-  if (!given("WLC"))
-    Wlc = Wl;
-  if (!given("WWC"))
-    Wwc = Ww;
-  if (!given("WWLC"))
-    Wwlc = Wwl;
-  if (!given("DWC"))
-    dwc = Wint;
-  if (!given("DLC"))
-    dlc = Lint;
-
-  if (!given("AGISL"))
-  {
-    if (given("AGIDL"))
-      agisl=agidl;
-    // otherwise our initializer took care of it already
-  }
-  if (!given("BGISL"))
-  {
-    if (given("BGIDL"))
-      bgisl=bgidl;
-  }
-  if (!given("CGISL"))
-  {
-    if (given("CGIDL"))
-      cgisl=cgidl;
-  }
-  if (!given("EGISL"))
-  {
-    if (given("EGIDL"))
-      egisl=egidl;
-  }
-  if (!given("RGISL"))
-  {
-    if (given("RGIDL"))
-      rgisl=rgidl;
-  }
-  if (!given("KGISL"))
-  {
-    if (given("KGIDL"))
-      kgisl=kgidl;
-  }
-  if (!given("FGISL"))
-  {
-    if (given("FGIDL"))
-      fgisl=fgidl;
-  }
-
-  if (!given("DLCIG"))
-    dlcig = Lint;
-  if (!given("DLCIGD"))
-  {
-    if (!given("DLCIG"))
-      dlcigd = Lint;
-    else
-      dlcigd = dlcig;
-  }
-  if (!given("DWJ"))
-    dwj = dwc;
-
-
-
-
-  if (!given("CF"))
-    cf = 2.0 * epsrox * CONSTEPS0/M_PI * log(1.0 + 0.4E-6 / toxe);
-
-  if (!given("JSD"))
-    DjctSatCurDensity=SjctSatCurDensity;
-  if (!given("JSWD"))
-    DjctSidewallSatCurDensity=SjctSidewallSatCurDensity;
-  if (!given("JSWGD"))
-    DjctGateSidewallSatCurDensity=SjctGateSidewallSatCurDensity;
-  if (!given("PBD"))
-    DbulkJctPotential=SbulkJctPotential;
-  if (!given("NJD"))
-    DjctEmissionCoeff = SjctEmissionCoeff;
-  if (!given("XTID"))
-    DjctTempExponent = SjctTempExponent;
-  if (!given("MJD"))
-    DbulkJctBotGradingCoeff = SbulkJctBotGradingCoeff;
-  if (!given("MJSWD"))
-    DbulkJctSideGradingCoeff = SbulkJctSideGradingCoeff;
-  if (!given("MJSWGS"))
-    SbulkJctGateSideGradingCoeff = SbulkJctSideGradingCoeff;
-  if (!given("MJSWGD"))
-    DbulkJctGateSideGradingCoeff = SbulkJctGateSideGradingCoeff;
-  if (!given("PBSWD"))
-    DsidewallJctPotential = SsidewallJctPotential;
-  if (!given("PBSWGS"))
-    SGatesidewallJctPotential = SsidewallJctPotential;
-  if (!given("PBSWGD"))
-    DGatesidewallJctPotential = DsidewallJctPotential;
-  if (!given("CJD"))
-    DunitAreaJctCap=SunitAreaJctCap;
-  if (!given("CJSWD"))
-    DunitLengthSidewallJctCap = SunitLengthSidewallJctCap;
-  if (!given("CJSWGS"))
-    SunitLengthGateSidewallJctCap = SunitLengthSidewallJctCap ;
-  if (!given("CJSWGD"))
-    DunitLengthGateSidewallJctCap = SunitLengthGateSidewallJctCap;
-
-  if (!given("JTSD"))
-    jtsd = jtss;
-  if (!given("JTSSWD"))
-    jtsswd = jtssws;
-  if (!given("JTSSWGD"))
-    jtsswgd = jtsswgs;
-
-  if (!given("NJTSD"))
-  {
-    if (given("NJTS"))
-      njtsd =  njts;
-  }
-  if (!given("NJTSSWD"))
-  {
-    if (given("NJTSSW"))
-      njtsswd =  njtssw;
-  }
-  if (!given("NJTSSWGD"))
-  {
-    if (given("NJTSSWG"))
-      njtsswgd =  njtsswg;
-  }
-
-  if (!given("XTSD"))
-    xtsd = xtss;
-  if (!given("XTSSWD"))
-    xtsswd = xtssws;
-  if (!given("XTSSWGD"))
-    xtsswgd = xtsswgs;
-
-  if (!given("TNJTSD"))
-  {
-    if (given("TNJTS"))
-      tnjtsd =  tnjts;
-  }
-  if (!given("TNJTSSWD"))
-  {
-    if (given("TNJTSSW"))
-      tnjtsswd =  tnjtssw;
-  }
-  if (!given("TNJTSSWGD"))
-  {
-    if (given("TNJTSSWG"))
-      tnjtsswgd =  tnjtsswg;
-  }
-
-  if (!given("VTSD"))
-    vtsd = vtss;
-  if (!given("VTSSWD"))
-    vtsswd = vtssws;
-  if (!given("VTSSWGD"))
-    vtsswgd = vtsswgs;
-
-  if (!given("LAGISL"))
-  {
-    if (given("LAGIDL"))
-      lagisl = lagidl;
-  }
-  if (!given("LBGISL"))
-  {
-    if (given("LBGIDL"))
-      lbgisl = lbgidl;
-  }
-  if (!given("LCGISL"))
-  {
-    if (given("LCGIDL"))
-      lcgisl = lcgidl;
-  }
-  if (!given("LEGISL"))
-  {
-    if (given("LEGIDL"))
-      legisl = legidl;
-  }
-  if (!given("LRGISL"))
-  {
-    if (given("LRGIDL"))
-      lrgisl = lrgidl;
-  }
-  if (!given("LKGISL"))
-  {
-    if (given("LKGIDL"))
-      lkgisl = lkgidl;
-  }
-  if (!given("LFGISL"))
-  {
-    if (given("LFGIDL"))
-      lfgisl = lfgidl;
-  }
-
-  // This is ugly, ugly, ugly.
-  // This stuff is all the "else" clauses from the spice code, which are
-  // all like this:
-  //  if (given("xxxsd") && (given(xxxs) || given(xxxd)))
-  //  {
-  //    set not-given things to constants
-  //  }
-  //  else
-  //  {
-  //     set the s and d versions to the sd version
-  //  }
-  //  But we set the constants in the ParTable stuff, so all that is left is
-  // the else.  So I negated the conditional and left only the stuff in the
-  // else.
-  // TVR 1 Aug 07
-  //
-  if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
-    laigs = laigd = laigsd;
-  }
-  if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
-    lbigs = lbigd = lbigsd;
-  }
-  if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
-    lcigs = lcigd = lcigsd;
-  }
-
-  if (!given("WAGISL"))
-  {
-    if (given("WAGIDL"))
-      wagisl = wagidl;
-  }
-  if (!given("WBGISL"))
-  {
-    if (given("WBGIDL"))
-      wbgisl = wbgidl;
-  }
-  if (!given("WCGISL"))
-  {
-    if (given("WCGIDL"))
-      wcgisl = wcgidl;
-  }
-  if (!given("WEGISL"))
-  {
-    if (given("WEGIDL"))
-      wegisl = wegidl;
-  }
-  if (!given("WRGISL"))
-  {
-    if (given("WRGIDL"))
-      wrgisl = wrgidl;
-  }
-  if (!given("WKGISL"))
-  {
-    if (given("WKGIDL"))
-      wkgisl = wkgidl;
-  }
-  if (!given("WFGISL"))
-  {
-    if (given("WFGIDL"))
-      wfgisl = wfgidl;
-  }
-
-  // See above, under "ugly, ugly, ugly"
-  if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
-    waigs = waigd = waigsd;
-  }
-  if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
-    wbigs = wbigd = wbigsd;
-  }
-  if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
-    wcigs = wcigd = wcigsd;
-  }
-
-  if (!given("PAGISL"))
-  {
-    if (given("PAGIDL"))
-      pagisl = pagidl;
-  }
-  if (!given("PBGISL"))
-  {
-    if (given("PBGIDL"))
-      pbgisl = pbgidl;
-  }
-  if (!given("PCGISL"))
-  {
-    if (given("PCGIDL"))
-      pcgisl = pcgidl;
-  }
-  if (!given("PEGISL"))
-  {
-    if (given("PEGIDL"))
-      pegisl = pegidl;
-  }
-  if (!given("PRGISL"))
-  {
-    if (given("PRGIDL"))
-      prgisl = prgidl;
-  }
-  if (!given("PKGISL"))
-  {
-    if (given("PKGIDL"))
-      pkgisl = pkgidl;
-  }
-  if (!given("PFGISL"))
-  {
-    if (given("PFGIDL"))
-      pfgisl = pfgidl;
-  }
-
-  // Vide supra, re "ugly"
-  if (!(!given("AIGSD") && (given("AIGS") || given("AIGD"))))
-  {
-    paigs = paigd = paigsd;
-  }
-  if (!(!given("BIGSD") && (given("BIGS") || given("BIGD"))))
-  {
-    pbigs = pbigd = pbigsd;
-  }
-  if (!(!given("CIGSD") && (given("CIGS") || given("CIGD"))))
-  {
-    pcigs = pcigd = pcigsd;
-  }
-
-  if (!given("NOIA"))
-  {
-    if (dtype == CONSTNMOS)
-      oxideTrapDensityA = 6.25e41;
-    else
-      oxideTrapDensityA= 6.188e40;
-  }
-  if (!given("NOIB"))
-  {
-    if (dtype == CONSTNMOS)
-      oxideTrapDensityB = 3.125e26;
-    else
-      oxideTrapDensityB = 1.5e25;
-  }
-  if (!given("NOIC"))
-  {
-     oxideTrapDensityC = 8.75e9;
-  }
 
   processParams ();
 }

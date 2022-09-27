@@ -556,12 +556,10 @@ types in \Xyce{} require at least two nodes on each instance line. Section
 ~\ref{legalCharacters} lists the characters that are legal and illegal in
 \Xyce{} node and device names.
 
-Except for global nodes (below), voltage node names appearing in a
-subcircuit that are not listed in the subcircuit's argument list are
-accessible only to that subcircuit; devices outside the subcircuit
-cannot connect to local nodes.
+A node is simply a named point in the circuit.  The naming of nodes is mainly known within the level of circuit hierarchy where they appear.  Nodes can be passed into subcircuits through an argument list, and in this manner subcircuits are given access to nodes from the upper-level circuit.  Historicaly, this is how nodes are passed thru the circuit hierarchy in most circuit simulators, and this is the convention used by most circuit netlists.  However, \Xyce{} has two exceptions to this convention.  Global nodes, described in section~\ref{global_nodes} and fully resolved internal subcircuit nodes, described in section~\ref{subckt_nodes}.
 
 \subsubsection{Global nodes}
+\label{global_nodes}
 A special syntax is used to designate certain nodes as {\em global}
 nodes.  Any node whose name starts with the two characters ``\$G'' is
 a global node, and such nodes are available to be used in any
@@ -580,6 +578,7 @@ be used to define global nodes that do not start with the two
 characters ``\$G''.  See section \ref{GLOBAL_section} for more details.
 
 \subsubsection{Subcircuit Nodes}
+\label{subckt_nodes}
 
 Hierarchical netlists may be created using
 \texttt{.SUBCKT} [\ref{SubcircuitDefinition}] to define common subcircuit
@@ -598,17 +597,22 @@ expressions on \texttt{B} source lines.
 
 There are some circumstances when it is desirable to access internal
 nodes of a subcircuit from outside that subcircuit.  \Xyce{} provides a
-syntax that allows this to be done in {\em some\/} contexts.  The
-primary context in which this is supported is on \texttt{.PRINT}
-lines, to allow the user to print out signals that are usually local
-to a subcircuit.
+syntax that allows this to be done.  The primary context in which this 
+is supported is on \texttt{.PRINT} lines, to allow the user to print 
+out signals that are usually local to a subcircuit.  However, this 
+syntax isn't limited to \texttt{.PRINT} lines, and can work in
+other contexts.
 
 The syntax used by \Xyce{} to refer to nodes within a subcircuit is to
 prefix the name of the node with the full path of subcircuit instances
 in which the node is contained, with colons (:) separating the
 instance names.  So, to reference a node ``A'' that is inside a
 subcircuit instance called ``Xnot1'' inside another subcircuit
-instance called ``Xmain'', one would refer to ``Xmain:Xnot1:A''
+instance called ``Xmain'', one would refer to ``Xmain:Xnot1:A''.
+
+Note that while the default separator in \Xyce{} is the colon (:), the period (.) 
+is also optionally supported.  For more information about using a period separator, 
+see section~\ref{cmd_line_args}.
 
 The same syntax works on \texttt{.PRINT} lines even if the subcircuit
 node is one of the interface nodes on the \texttt{.SUBCKT} line, but
@@ -620,7 +624,7 @@ line.
 \shadowbox{
 \begin{minipage}{0.8\textwidth}
 \begin{vquote}
-\color{blue}* Netlist file demonstrating subcircuit node access\color{black}
+\color{blue}* Netlist demonstrating subcircuit node .PRINT access\color{black}
 V1  1   0   1
 X1  1   2   demosubc
 X2  2   0   demosubc
@@ -635,20 +639,49 @@ R2 C B 1
 *V(X1:C) is the internal C node of the X1 instance
 *V(X2:C) is the internal C node of the X2 instance
 *V(X1:B), V(X2:A) and V(2) are the same signal
-.print DC V(X1:C) V(X2:C) V(X1:A) V(1)  V(X1:B) V(X2:A) V(2)
+.print DC V(X1:C) V(X2:C) V(X1:A) V(1)  
++ V(X1:B) V(X2:A) V(2)
 .end
 \end{vquote}
 \end{minipage}
 }
 \end{centering}
 
-Subcircuit nodes may also be accessed from outside of the subcircuit
-in \texttt{B} source voltage or current expressions, though this usage
-violates the strict hierarchy of the netlist.  The one difference
-between this usage and \texttt{.PRINT} usage is that it is not
+Internal subcircuit nodes may also be accessed from outside of the subcircuit
+if one uses the fully resolved syntax.  This works in \texttt{B} source voltage or 
+current expressions, and also in standard netlist usage on device instance lines.
+This type of usage is outside of the typically 
+strict hierarchy required by most circuit simulators, but it can be useful in some contexts.
+
+The one difference between this usage and \texttt{.PRINT} usage is that it is not
 possible to use the subcircuit node syntax to access interface nodes.
 These must be accessed using the node names being used on the instance
-line, as in the ``V(1)'' example in the netlist fragment above.
+line, as in the ``V(1)'' example in the netlist fragment above.  Two valid examples of 
+internal subcircuit node access are given by the fragment below.
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}* Netlist demonstrating resolved subcircuit nodes\color{black}
+Vin 1 0 1.0
+X1 1 2 test
+Rout 2 0 1.0
+.subckt test A B
+Rt1 A testNode 1.0
+Rt2 testNode B 1.0
+.ends
+
+\color{blue}* this works: \color{black}
+Btest1 3 0 V = {V(X1:testNode)}
+Rtest1 3 0 1.0
+\color{blue}* this also works:\color{black}
+Itest2 0 4 1.0
+Rtest2 X1:testNode 4 1.0
+Rtest3 X1:testNode 0 1.0\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
 
 %%
 %% Legal and illegal characters in device names and node names

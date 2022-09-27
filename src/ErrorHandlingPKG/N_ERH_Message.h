@@ -50,8 +50,6 @@
 namespace Xyce {
 namespace Report {
 
-static const bool PARSABLE_LINE = false;        ///< Message useful for Emacs compilation
-
 ///
 /// @brief Typedef <b>MessageId</b> defines a message identifier. 
 //

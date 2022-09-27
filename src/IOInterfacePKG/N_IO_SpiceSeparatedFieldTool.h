@@ -73,7 +73,8 @@ public:
   // Destructor
   ~SpiceSeparatedFieldTool();
 
-  int getLine(std::vector<StringToken> & line, bool replgndvar=false);
+  int getLine(std::vector<StringToken> & line, bool replgndvar=false,
+              const std::vector<std::string> findFirstEntry = {});
   // R int
   // R- Returns 1 if end-of-file has not been reached, 0 otherwise.
   // O str

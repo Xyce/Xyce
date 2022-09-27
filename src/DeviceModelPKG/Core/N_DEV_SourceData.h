@@ -72,7 +72,10 @@ typedef std::map<std::string, std::vector<Param>, LessNoCase> DeviceParamMap;
 
 void sourceFunctionMetadata(DeviceParamMap &map);
 int getSourceFunctionID(const std::string & sourceFcn);
-const std::vector<Param> &getSourceFunctionParameters(const std::string &sourceFcn);
+const std::vector<Param> &getSourceFunctionParameters(
+    const std::string &sourceFcn, 
+    const IO::DeviceBlock & device_block,
+    const IO::TokenVector & parsedInputLine );
 
 //-----------------------------------------------------------------------------
 // Class         : SourceData

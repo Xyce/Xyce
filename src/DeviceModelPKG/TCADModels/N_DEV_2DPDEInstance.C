@@ -106,6 +106,20 @@ void Traits::loadInstanceParameters(ParametricData<TwoDPDE::Instance> &p)
       "necessary to specify it manually.")
    .setCategory(CAT_SCALING);
 
+  p.addPar("C0", 1.0e+15, &TwoDPDE::Instance::C0_user)
+    .setUnit(U_CMM3)
+    .setDescription("Density scalar; adjust to mitigate convergence problems."
+                    "The model will do all of its scaling automatically, so it is generally not "
+                    "necessary to specify it manually.")
+    .setCategory(CAT_SCALING);
+
+  p.addPar("t0", 1.0e-6, &TwoDPDE::Instance::t0_user)
+    .setUnit(U_SECOND)
+    .setDescription("Time scalar; adjust to mitigate convergence problems."
+                    "The model will do all of its scaling automatically, so it is generally not "
+                    "necessary to specify it manually.")
+    .setCategory(CAT_SCALING);
+
   p.addPar("L", 1.0e-3, &TwoDPDE::Instance::deviceLength)
    .setUnit(U_CM)
    .setDescription("Device length")
@@ -122,8 +136,8 @@ void Traits::loadInstanceParameters(ParametricData<TwoDPDE::Instance> &p)
    .setCategory(CAT_OUTPUT);
 
   p.addPar("MESHFILE", std::string("internal.msh"), &TwoDPDE::Instance::meshFileName)
-   .setDescription("This is a required field for a 2D simulation.  If the user"
-     "specifies meshfile=internal.mesh, the model will create a"
+   .setDescription("This is a required field for a 2D simulation.  If the user "
+     "specifies meshfile=internal.mesh, the model will create a "
      "Cartesian mesh using the parameters L,W,NX and NY.  If the user specifies "
      "anything else (for example meshfile=diode.msh), the model will attempt to "
      "read in a mesh file of that name.  The format is assumed to be that "
@@ -198,6 +212,14 @@ void Traits::loadInstanceParameters(ParametricData<TwoDPDE::Instance> &p)
     "calculation is included in the output files.  Normally, this calculation"
     " is used to initialize a drift-diffusion calculation and isn't of interest.")
    .setCategory(CAT_OUTPUT);
+
+  p.addPar("AUGER", true, &TwoDPDE::Instance::includeAugerRecomb)
+    .setUnit(U_LOGIC)
+    .setDescription("Flag to turn on/off Auger recombination");
+
+  p.addPar("SRH", true, &TwoDPDE::Instance::includeSRHRecomb)
+    .setUnit(U_LOGIC)
+    .setDescription("Flag to turn on/off Shockley-Read-Hall (SRH) recombination.");
 
   p.addPar("TYPE", std::string("PNP"), &TwoDPDE::Instance::deviceType)
    .setDescription("P-type or N-type - this is only relevant if using the default dopings");
@@ -306,6 +328,8 @@ Instance::Instance(
     outputIndex(0),
     outputNLPoisson(false),
     lastOutputTime(-10.0),
+    includeAugerRecomb(true),
+    includeSRHRecomb(true),
     tecplotLevel(0),
     sgplotLevel(0),
     gnuplotLevel(0),
@@ -3683,17 +3707,32 @@ bool Instance::setupScalingVars ()
   scalingVars.rV0 = 1.0/scalingVars.V0;
 
   // concentration scaling (cm^-3);
-  if (Na >= Nd) scalingVars.C0  = Na;
-  else          scalingVars.C0  = Nd;
+  if (given("C0"))
+  {
+    scalingVars.C0 = C0_user;
+  }
+  else
+  {
+    if (Na >= Nd) scalingVars.C0  = Na;
+    else          scalingVars.C0  = Nd;
+  }
 
-  scalingVars.D0  = 35.0;                   // diffusion coefficient scaling (cm^2/s)
+  if (given("t0"))
+  {
+    scalingVars.t0 = t0_user;
+    scalingVars.D0  = (scalingVars.x0*scalingVars.x0)/scalingVars.t0;
+  }
+  else
+  {
+    scalingVars.D0  = 35.0;                   // diffusion coefficient scaling (cm^2/s)
+    scalingVars.t0  = (scalingVars.x0*scalingVars.x0)/scalingVars.D0;             // time scaling (s)
+  }
 
   scalingVars.u0  = scalingVars.D0/scalingVars.V0;                  // mobility coefficient scaling (cm^2/V/s)
 
   scalingVars.R0  = scalingVars.D0*scalingVars.C0/(scalingVars.x0*scalingVars.x0);          // recombination rate scaling (cm^-3/s)
   scalingVars.rR0 = 1.0/scalingVars.R0;
 
-  scalingVars.t0  = (scalingVars.x0*scalingVars.x0)/scalingVars.D0;             // time scaling (s)
 
   scalingVars.E0  = scalingVars.V0/scalingVars.x0;                  // electric field scaling (V/cm)
 
@@ -4811,10 +4850,11 @@ bool Instance::obtainSolution ()
 //-----------------------------------------------------------------------------
 bool Instance::calcRecombination ()
 {
+  if (!includeAugerRecomb && !includeSRHRecomb) return true;
+
   bool bsuccess = true;
 
   int i;
-  double Rsrh, Raug;
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
@@ -4825,14 +4865,24 @@ bool Instance::calcRecombination ()
 
   for (i=0;i<numMeshPoints;++i)
   {
+    double Rsrh=0.0;
+    double Raug=0.0;
+
     double n  = nnVec[i];
     double p  = npVec[i];
     double tn = tnVec[i];
     double tp = tpVec[i];
 
-    // assuming Si for now.
-    Rsrh = MaterialSupport::calcRsrh (bulkMaterial, Ni,n,p,tn,tp);
-    Raug = MaterialSupport::calcRaug (bulkMaterial, Ni,n,p);
+    if (includeSRHRecomb)
+    {
+      Rsrh = MaterialSupport::calcRsrh (bulkMaterial, Ni,n,p,tn,tp);
+    }
+
+    if (includeAugerRecomb)
+    {
+      Raug = MaterialSupport::calcRaug (bulkMaterial, Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+      Raug /= scalingVars.R0;    
+    }
 
     RVec[i] = (Rsrh + Raug);
 
@@ -4920,14 +4970,10 @@ bool Instance::sumSources ()
 //-----------------------------------------------------------------------------
 bool Instance::pdRecombination ()
 {
+  if (!includeAugerRecomb && !includeSRHRecomb) return true;
+
   bool bsuccess = true;
-
   int i;
-
-  double dRsrhdn;
-  double dRsrhdp;
-  double dRaugdn;
-  double dRaugdp;
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
@@ -4938,16 +4984,29 @@ bool Instance::pdRecombination ()
 
   for (i=0;i<numMeshPoints;++i)
   {
+    double dRsrhdn=0.0;
+    double dRsrhdp=0.0;
+    double dRaugdn=0.0;
+    double dRaugdp=0.0;
+
     double n  = nnVec[i];
     double p  = npVec[i];
     double tn = tnVec[i];
     double tp = tpVec[i];
 
-    dRsrhdn = MaterialSupport::pdRsrhN(bulkMaterial,Ni,n,p,tn,tp);
-    dRsrhdp = MaterialSupport::pdRsrhP(bulkMaterial,Ni,n,p,tn,tp);
+    if (includeSRHRecomb)
+    {
+      dRsrhdn = MaterialSupport::pdRsrhN(bulkMaterial,Ni,n,p,tn,tp);
+      dRsrhdp = MaterialSupport::pdRsrhP(bulkMaterial,Ni,n,p,tn,tp);
+    }
 
-    dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni,n,p);
-    dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni,n,p);
+    if (includeAugerRecomb)
+    {
+      dRaugdn = MaterialSupport::pdRaugN(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+      dRaugdp = MaterialSupport::pdRaugP(bulkMaterial,Ni*scalingVars.C0,n*scalingVars.C0,p*scalingVars.C0);
+      dRaugdn *= scalingVars.t0;// check this
+      dRaugdp *= scalingVars.t0;
+    }
 
     dRdnVec[i] = (dRsrhdn + dRaugdn);
     dRdpVec[i] = (dRsrhdp + dRaugdp);

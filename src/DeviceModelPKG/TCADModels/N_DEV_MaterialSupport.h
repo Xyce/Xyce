@@ -51,6 +51,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Param.h>
+#include <N_DEV_MaterialLayer.h>
 
 // ---------- Forward Declarations ----------
 

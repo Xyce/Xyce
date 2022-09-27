@@ -342,6 +342,9 @@ private:
   bool outputNLPoisson;
   double lastOutputTime;
 
+  bool includeAugerRecomb;
+  bool includeSRHRecomb;
+
   int tecplotLevel;
   int sgplotLevel;
   int gnuplotLevel;

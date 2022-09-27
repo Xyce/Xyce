@@ -51,6 +51,17 @@ not effect Xyce's calculations.  But the warning was incorrect and could cause
 confusion.  The code has been fixed and this warning should no longer appear under
 false conditions. \\ \hline
 
+\textbf{Xyce Backlog Bugs/7}: Infinite loop results when ".ends" is missing from netlist &
+If a netlist ended without closing a subcircuit with ".ends" and ".end" was not used
+to signify the end of the netlist, then Xyce would either execute an infinite loop or
+seg fault.  The parser now identifies this error and cleanly exits the simulation with
+an informative message. \\ \hline
+
+\textbf{Xyce Backlog Bugs/8}: MOSFET multiplicity not applied to noise &
+None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
+in Xyce were correctly applying the multiplicity factor (``M='') to
+noise terms.  They do now. \\ \hline
+
 \textbf{Xyce Project Backlog/260}: Fix version string in CMake development builds &
 Xyce reports its version using \texttt{Xyce -v}.  With development versions of
 Xyce, the reported version should include the Git SHA against which the code
@@ -74,6 +85,29 @@ Xyce reports this error when non-existent solution nodes being referred to
 by circuit devices and cannot be resolved.  The simulator now provides a more
 informative error that indicates which solution node has not been resolved and
 what device refers to this node. \\ \hline
+
+\textbf{Xyce Project Backlog/419, 420, 352}:  Xyce only supports version 4.6.1 of the BSIM4 &
+Until now, Xyce only supported version 4.6.1 of the BSIM4 and ignored
+any setting of the \texttt{VERSION} parameter in the model card for level
+14 or 54.  As of this release, Xyce supports multiple versions (4.6.1,
+4.7.0, and 4.8.2), all specified as level 14 or 54 and selected by
+the \texttt{VERSION} parameter in the model card.  The BSIM4 is
+currently the only device in Xyce that supports multiple versions in
+this manner. \\ \hline
+
+
+\textbf{Xyce Project Backlog/448}:  Auger recombination function used by 
+the TCAD (PDE) devices is scaled incorrectly & The Auger recombination term 
+used by the TCAD devices in Xyce was scaled incorrectly, and this resulted 
+in that term being nearly zero.  This has been corrected.
+\\ \hline
+
+\textbf{Xyce Project Backlog/455}:  Xyce gives a bad error message for 
+malformed voltage source & Under some circumstances, a grammar mistake 
+in the netlist specification of an independent source caused Xyce to 
+exit with a fatal error, but with an incomprehensible error message.  
+This has been corrected.
+\\ \hline
 
 \textbf{repo/issue number}: Short description placeholder &
 Description placeholder \\ \hline

@@ -51,6 +51,7 @@
 #include <N_ERH_ErrorMgr.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_NoCase.h>
 
 namespace Xyce {
 namespace IO {
@@ -119,8 +120,9 @@ SpiceSeparatedFieldTool::~SpiceSeparatedFieldTool()
 // Creator       : Alan Lundin
 // Creation Date :
 //-------------------------------------------------------------------------
-int SpiceSeparatedFieldTool::getLine(std::vector<StringToken>& line, bool 
-replgndvar)
+int SpiceSeparatedFieldTool::getLine(std::vector<StringToken>& line, 
+                                     bool replgndvar,
+                                     const std::vector<std::string> findFirstEntry)
 {
   char c(0);
   const std::string nonid(" \t\n\r(){},='");
@@ -457,6 +459,35 @@ replgndvar)
       }
       //Xyce::dout() << "N_IO_SpiceSeparatedFieldTool::getLine field = >>" << field.string_ << "<<" << std::endl;
       line.push_back(field);
+     
+      // The findFirstEntry is a vector of character strings that are being used to limit the
+      // lines being fully tokenized by the SpiceSeparatedFieldTool. 
+      if ( !findFirstEntry.empty() && ( line.size() == 1 ) )
+      {
+        bool foundEntry = false;
+        for ( unsigned i=0; i<findFirstEntry.size() && !foundEntry; ++i )
+        {
+          foundEntry = equal_nocase( ucFieldString, findFirstEntry[i] );
+        }
+
+        // The requested character strings were not found, so clear the line, skip to the end of the line, and return.
+        if (!foundEntry)
+        {
+          line.clear(); 
+          if (!endOfLine)
+          { 
+            char lineType;
+            skipToEndOfLine();
+            int eof = peekAtNextLine( lineType );
+            while ( lineType == '+' && !eof )
+            {
+              skipToEndOfLine(); 
+              eof = peekAtNextLine( lineType );
+            }
+          }
+          return !in_.eof();
+        }  
+      } 
     }
   }
   // do any needed substitutions
