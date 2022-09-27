@@ -439,12 +439,38 @@ bool DistToolBase::getLine( TokenVector &line,
 
   while (!eof)
   {
+    char lineType;
+
+    // Determine if we need the line fully tokenized for the second pass.
+    // Tokenize the line if it is a device, or certain types of "." lines:
+    // .END, .ENDS, .ENDL, .INCLUDE, .INCL, .INC, .LIB, and .SUBCKT
     {
       //Stats::StatTop _getLineStat("Tokenize Line");
       //Stats::TimeBlock _getLineTimer(_getLineStat);
+      eof = ssfPtr_->peekAtNextLine( lineType );
 
-      eof = !ssfPtr_->getLine(line,preprocessFilter_[PreprocessType::REPLACE_GROUND]); // Breaks the line into fields.
+      // If the line is a device line, tokenize the full line
+      if (lineType >= 'A' && lineType <= 'Z')
+      {
+        eof = !ssfPtr_->getLine(line,preprocessFilter_[PreprocessType::REPLACE_GROUND]); 
+      }
+      else if (lineType == '.')
+      {
+        // Only get lines for .END, .ENDS, .ENDL, .INCLUDE, .INCL, .INC, .LIB, and .SUBCKT
+        std::vector<std::string> vec = {".END",".ENDS",".ENDL",".INCLUDE",".INCL",".INC",".LIB",".SUBCKT"};
+        //eof = !ssfPtr_->getLine(line,preprocessFilter_[PreprocessType::REPLACE_GROUND]); 
+        eof = !ssfPtr_->getLine(line, false, vec);
+
+        if (line.empty())
+          continue;
+      }
+      else
+        line.clear();
     }
+
+    // better not try to do anything if getLine returned an empty line!
+    if ( line.empty() )
+      continue;
 
     if (DEBUG_IO) 
     {
@@ -462,10 +488,6 @@ bool DistToolBase::getLine( TokenVector &line,
       }
     }
 
-    // better not try to do anything if getLine returned an empty line!
-    if ( line.empty() )
-      continue;
-
     // Determine what to do with the parsed line.
     ExtendedString ES1(line[0].string_);
     ES1.toUpper();
@@ -478,8 +500,6 @@ bool DistToolBase::getLine( TokenVector &line,
 
     if ( !(libSelect != libInsideHere && libInsideHere != "" && ES1 != ".ENDL"))
     {
-      char lineType;
-      lineType = ES1[0];
       bool removecomponent=false;
 
       if (lineType >= 'A' && lineType <= 'Z')
