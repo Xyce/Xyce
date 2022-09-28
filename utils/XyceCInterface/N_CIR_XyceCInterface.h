@@ -49,6 +49,9 @@ int xyce_initialize_late( void** ptr );
 int xyce_runSimulation(void ** ptr);
 
 int xyce_simulateUntil(  void ** ptr, double requestedUntilTime, double* completedUntilTime );
+bool xyce_simulationComplete( void ** ptr);
+
+bool xyce_checkCircuitParameterExists(void **ptr, char * paramName );
 
 int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int* maxDevNameLength);
 int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, char ** deviceNames);
@@ -63,7 +66,11 @@ int xyce_getNumAdjNodesForDevice(void **ptr, char* deviceName, int* numAdjNodes)
 int xyce_getAdjGIDsForDevice(void **ptr, char* deviceName, int* numAdjNodes, int* adjGIDs);
 
 int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, double * timeArray, double * voltageArray);
+
                 
+double xyce_getTime(void ** ptr);
+double xyce_getFinalTime(void ** ptr);
+
 int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames, int * numPoints, double ** timeArray, double ** voltageArray );
 int xyce_getTimeVoltagePairsADCsz( void** ptr, int * maxPoints );
 
@@ -88,6 +95,9 @@ int xyce_getADCMap(void ** ptr, int *numADCnames, char ** ADCnames, int *  width
 
 int xyce_setADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  widths);
 int xyce_getADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  widths);
+
+double xyce_getCircuitValue( void **ptr, char * paramName);
+bool xyce_setCircuitParameter( void **ptr, char * paramName, double  value);
 
 int xyce_checkResponseVar(void ** ptr, char * variable_name);
 
