@@ -1153,6 +1153,14 @@ bool DistToolDevBalanced::expandSubcircuitInstance(
   // Instantiate the devices in this subcircuit instance.
   TokenVector line;
 
+  // If this is a simple single-device subcircuit, jump to the device line directly
+  if ( subcircuitPtr->getSimpleSingleDevice() )
+  {
+    //std::cout << "Subcircuit " <<  subcircuitInstance.getModelName() << " is a simple single device subcircuit!" << std::endl;
+    ssfPtr_->setLocation( subcircuitPtr->getDevicePosition() );
+    ssfPtr_->setLineNumber( subcircuitPtr->getDeviceLine() );
+  }
+
   while (getLine(line, libSelect, libInside))
   {
     if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
@@ -1163,6 +1171,9 @@ bool DistToolDevBalanced::expandSubcircuitInstance(
         handleDeviceLine( line, libSelect, libInside );
       }
     }
+    // There was only one device to parse and distribute, so move on.
+    if ( subcircuitPtr->getSimpleSingleDevice() )
+      break;
   }
 
   // send MIs if present
