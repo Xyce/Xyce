@@ -123,7 +123,6 @@ bool updateTemperature
    ScalarT & tVcrit,
    ScalarT & tRS,
    ScalarT & tCOND,
-   ScalarT & tIRF,
    ScalarT & tIKF,
    ScalarT & tBrkdwnV,
 
@@ -176,7 +175,6 @@ bool updateIntermediateVars
    const ScalarT & tVcrit,
    const ScalarT & tRS,
    const ScalarT & tCOND,
-   const ScalarT & tIRF,
    const ScalarT & tIKF,
    const ScalarT & tBrkdwnV,
   
@@ -360,7 +358,6 @@ private:
   double tIKF;
   double tRS;
   double tCOND;
-  double tIRF;
 
   double Id;     //diode current
   double Gd;     //diode conductivity
