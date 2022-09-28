@@ -75,6 +75,19 @@ in simulation results as compared to prior versions of \Xyce{} may
 result from this change, but the changes will make the results more
 compatible with those from other simulators.  \\ \hline
 
+\textbf{Xyce Project Backlog/471}: Removal of spice-incompatible IRF parameter from diode &
+The \Xyce{} diode has, since 2005, supported a Xyce-specific, SPICE3F5
+incompatible parameter called \texttt{IRF} that purported to allow a
+user to fudge the reverse current expression to match experimental
+data.  Though the original implementation was intended to fall back to
+strict SPICE3F5 compliance when \texttt{IRF} was not specified, later
+development broke it and led to non-physical, temperature-dependent
+discontinuities in the diode formulation even when \texttt{IRF} was
+not specified.  In \Xyce{} 6.11 we fixed the fall-back behavior, but
+marked the parameter as deprecated and had \Xyce{} report a warning if
+it was specified.  As of \Xyce{} 7.6 this feature has been completely
+removed, restoring strict SPICE3F5 compatibility. \\ \hline
+
 \textbf{Xyce Project Backlog/260}: Fix version string in CMake development builds &
 Xyce reports its version using \texttt{Xyce -v}.  With development versions of
 Xyce, the reported version should include the Git SHA against which the code
