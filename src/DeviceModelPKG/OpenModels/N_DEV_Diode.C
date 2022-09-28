@@ -257,13 +257,6 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
-  p.addPar ("IRF", 1.0, &Diode::Model::IRF)
-    .setGivenMember(&Diode::Model::IRFGiven)
-    .setCategory(CAT_CURRENT)
-    .setDescription("Reverse current fitting factor")
-    .setAnalyticSensitivityAvailable(true)
-    .setSensitivityFunctor(&diodeSens);
-
   p.addPar ("NBV", 1.0, &Diode::Model::NBV)
     .setCategory(CAT_PROCESS)
     .setDescription("Reverse breakdown ideality factor (level 2)")
@@ -367,7 +360,6 @@ Instance::Instance(
     tSatCurR(0.0),
     tIKF(0.0),
     tRS(0.0),
-    tIRF(1.0),
     Id(0.0),
     Gd(0.0),
     Cd(0.0),
@@ -456,10 +448,6 @@ Instance::Instance(
   if ( model_.CJO == 0.0 )
     numStateVars = 1;
 
-  if ( (model_.IRFGiven) )
-  {
-    UserWarning(*this) << " IRF has been specified in the model card.  This usage is deprecated.  Please see the Reference Guide for details";
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1172,13 +1160,6 @@ bool Instance::updateIntermediateVars ()
     // Normal exponential
     else
     {
-      // Adjustment for linear portion of reverse current
-      double IRfactor;
-      //if(Vd >= 0) IRfactor = 1.0;  //error?  shouldn't this be Vd>=-3*Vte????
-      if(Vd >= -3.0 * Vte) IRfactor = 1.0;  //changing this to be consistent
-      else IRfactor = tIRF;                 //with model in reference guide.
-      Isat *= IRfactor;
-
       if (Vd >= -3.0 * Vte)
       {
         double arg1 = Vd / Vte;
@@ -1244,13 +1225,6 @@ bool Instance::updateIntermediateVars ()
     {
       Xyce::dout() << " Level 2 diode code " << std::endl;
     }
-    // Adjustment for linear portion of reverse current
-    double IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;    //error?  Shouldn't this be Vd >= -3*Vte?
-    if(Vd >= -3.0*Vte) IRfactor=1.0; //changing it to be consistent with model
-    else IRfactor = tIRF;            //in the reference manual.
-    Isat *= IRfactor;
-
     if (Vd >= -3.0 * Vte)
     {
       double arg1 = Vd / Vte;
@@ -1444,14 +1418,6 @@ bool Instance::updateTemperature( const double & temp )
   tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
   tRS   = model_.RS;
   tCOND = model_.COND;
-  if (model_.IRFGiven)
-  {
-    tIRF  = model_.IRF*pow(fact2,1.6);
-  }
-  else
-  {
-    tIRF = model_.IRF;
-  }
 
   int level = model_.getLevel();
   if(level == 2)   // this section is PSPICE compatible
@@ -1484,22 +1450,21 @@ bool Instance::updateTemperature( const double & temp )
   double reltol = 1.0e-3;
   if( model_.BVGiven )
   {
-    double IRfactor = tIRF;
     double cbv = model_.IBV;
     double xbv, xcbv;
-    if( cbv < IRfactor*tSatCur*tempBV/vt )
+    if( cbv < tSatCur*tempBV/vt )
     {
-      cbv = IRfactor*tSatCur*tempBV/vt;
+      cbv = tSatCur*tempBV/vt;
       xbv = tempBV;
     }
     else
     {
       double tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(IRfactor*tSatCur));
+      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(IRfactor*tSatCur)+1.0-xbv/vt);
-        xcbv = IRfactor*tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -1536,7 +1501,6 @@ bool Instance::updateTemperature( const double & temp )
     Xyce::dout() << " tVcrit  = " << tVcrit   << std::endl;
     Xyce::dout() << " tRS     = " << tRS      << std::endl;
     Xyce::dout() << " tCOND   = " << tCOND    << std::endl;
-    Xyce::dout() << " tIRF    = " << tIRF     << std::endl;
     Xyce::dout() << " tBrkdwnV= " << tBrkdwnV << std::endl;
   }
 
@@ -2207,7 +2171,6 @@ bool updateTemperature
    ScalarT & tVcrit,
    ScalarT & tRS,
    ScalarT & tCOND,
-   ScalarT & tIRF,
    ScalarT & tIKF,
    ScalarT & tBrkdwnV,
 
@@ -2300,14 +2263,6 @@ bool updateTemperature
   tVcrit = vte*log(vte/(root2*tSatCur));
   tRS   = RS;
   tCOND = COND;
-  if (IRFGiven)
-  {
-    tIRF  = IRF*pow(fact2,1.6);
-  }
-  else
-  {
-    tIRF = IRF;
-  }
 
   //int level = getLevel();
   if(level == 2)   // this section is PSPICE compatible
@@ -2340,22 +2295,21 @@ bool updateTemperature
   double reltol = 1.0e-3;
   if( BVGiven )
   {
-    ScalarT IRfactor = tIRF;
     ScalarT cbv = IBV;
     ScalarT xbv, xcbv;
-    if( cbv < IRfactor*tSatCur*tempBV/vt )
+    if( cbv < tSatCur*tempBV/vt )
     {
-      cbv = IRfactor*tSatCur*tempBV/vt;
+      cbv = tSatCur*tempBV/vt;
       xbv = tempBV;
     }
     else
     {
       ScalarT tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(IRfactor*tSatCur));
+      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(IRfactor*tSatCur)+1.0-xbv/vt);
-        xcbv = IRfactor*tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -2393,7 +2347,6 @@ bool updateIntermediateVars (
    const ScalarT & tVcrit,
    const ScalarT & tRS,
    const ScalarT & tCOND,
-   const ScalarT & tIRF,
    const ScalarT & tIKF,
    const ScalarT & tBrkdwnV,
 
@@ -2456,13 +2409,6 @@ bool updateIntermediateVars (
 
   if(level == 1)
   {
-    // Adjustment for linear portion of reverse current
-    ScalarT IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;  //error?  shouldn't this be Vd>=-3*Vte????
-    if(Vd >= -3.0 * Vte) IRfactor = 1.0;  //changing this to be consistent
-    else IRfactor = tIRF;                 //with model in reference guide.
-    Isat *= IRfactor;
-
     if (Vd >= -3.0 * Vte)
     {
       ScalarT arg1 = Vd / Vte;
@@ -2494,13 +2440,6 @@ bool updateIntermediateVars (
   }
   else if(level == 2)
   {
-    // Adjustment for linear portion of reverse current
-    ScalarT IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;    //error?  Shouldn't this be Vd >= -3*Vte?
-    if(Vd >= -3.0*Vte) IRfactor=1.0; //changing it to be consistent with model
-    else IRfactor = tIRF;            //in the reference manual.
-    Isat *= IRfactor;
-
     if (Vd >= -3.0 * Vte)
     {
       ScalarT arg1 = Vd / Vte;
@@ -2829,7 +2768,6 @@ void diodeSensitivity::operator()(
     fadType tVcrit = 0.0;
     fadType tRS = 0.0;
     fadType tCOND = 0.0;
-    fadType tIRF = 0.0;
     fadType tIKF = 0.0;
     fadType tBrkdwnV = 0.0;
 
@@ -2841,7 +2779,7 @@ void diodeSensitivity::operator()(
     updateTemperature(
        (*in)->Temp,
        Temp, tJctCap, tJctPot, tDepCap, tF1, tSatCur, tSatCurR, 
-       tVcrit, tRS, tCOND, tIRF, tIKF, tBrkdwnV,
+       tVcrit, tRS, tCOND, tIKF, tBrkdwnV,
        TNOM, VJ, CJO, M, N, IS, EG, XTI, RS, COND, IRF, 
        NR, IKF, TIKF, ISR, IBV, BV,
        mod.BVGiven,
@@ -2862,7 +2800,7 @@ void diodeSensitivity::operator()(
       // instance params:
       Temp, tJctCap, tJctPot, tDepCap, tF1,
       tSatCur, tSatCurR, tVcrit, tRS, tCOND,
-      tIRF, tIKF, tBrkdwnV,
+      tIKF, tBrkdwnV,
       // instance variables:
       Area, multiplicityFactor, (*in)->lambertWFlag, (*in)->getDeviceOptions().gmin,
       // model params:
