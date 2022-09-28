@@ -1222,18 +1222,8 @@ bool Instance::updateIntermediateVars ()
         arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
         double evrev = exp(arg1);
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
         Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
         Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
-#else
-        //added by K. Santarelli 9/18/07 to account for change in tBrkdwnV
-        //calculation.
-        double arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-        arg2=arg2*arg2*arg2;
-        double Isat_tBrkdwnV=Isat*(1-arg2);
-        Id = -Isat_tBrkdwnV * evrev + getDeviceOptions().gmin * Vd;
-        Gd = Isat_tBrkdwnV * evrev / Vte + getDeviceOptions().gmin;
-#endif
 
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
         {
@@ -1332,18 +1322,8 @@ bool Instance::updateIntermediateVars ()
       arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
       double evrev = exp(arg1);
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
       Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
       Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
-#else
-      //added 9/18/07 by K. Santarelli to account for change in tBrkdwnV
-      //calculation.
-      double arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      double Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + getDeviceOptions().gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + getDeviceOptions().gmin;
-#endif
       if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
       {
         Xyce::dout()  << "L2 Reverse breakdown regime." << std::endl;
@@ -1501,24 +1481,6 @@ bool Instance::updateTemperature( const double & temp )
     tempBV=model_.BV;
   }
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-  //Changed 9/18/07, K. R. Santarelli.  This is the original (broken) version
-  //of the breakdown voltage computation.  It has two known issues:
-  //
-  //1.  It assumes N (the emission coefficient) is always 1 (division by
-  //    vt instead of vte).
-  //2.  While the for loop terminates due to the fact that it's implemented via
-  //    a counter, the value of xbv does not converge in many cases, so the
-  //    value of xbv upon terminating is often garbage.
-  //
-  //For consistency with old, existing simulations, this version of the
-  //breakdown voltage calculation (along with the appropriate code for
-  //computing the breakdown current in the level 1 and level 2 models---see
-  //the appropriate sections of
-  //Instance::updateIntermediateVars) can be invoked by
-  //specifiying the CPPFLAG "-DXyce_BREAKDOWN_ORIGINAL" when creating a Xyce
-  //Build.  The default, however, is the code which follows #else.
-
   double reltol = 1.0e-3;
   if( model_.BVGiven )
   {
@@ -1543,64 +1505,6 @@ bool Instance::updateTemperature( const double & temp )
     }
     tBrkdwnV = xbv;
   }
-#else
-  if( model_.BVGiven)
-  {
-    double IRFactor=tIRF;
-    double cbv = model_.IBV;
-    double xbv;
-    double cthreshlow; //lower threshold for IBV
-    double cthreshhigh; //high threshold for IBV
-    int iter_count;
-    const int ITER_COUNT_MAX=8;
-    double arg2;
-
-    double arg1=3.0*vte/(CONSTe*tempBV);
-    arg1=arg1*arg1*arg1;
-    cthreshlow=tSatCur*IRFactor*(1-arg1);
-    cthreshhigh=tSatCur*IRFactor*(1-1.0/(CONSTe*CONSTe*CONSTe)) *
-                exp(-1.0*(3.0*vte-tempBV)/vte);
-
-    if(cbv >= cthreshhigh)
-    {                     //if IBV is too high, tBrkdwnV will go below 3NVt.
-      tBrkdwnV=3.0*vte;   //Clip tBrkdwnV to 3*N*Vt in this case (and hence
-    }                     //clip IBV to cthreshhigh).
-
-
-    else if(cbv <= cthreshlow)
-    {                          //if IBV is too low, tBrkdwnV will go above
-      tBrkdwnV=tempBV;  //BV.  Clip tBrkdwnV to BV in this case (and
-    }                          //hence clip IBV to cthreshlow).
-
-
-    //If IBV is in an acceptable range, perform a Picard iteration to find
-    //tBrkdwnV, starting with an initial guess of tBrkdwnV=tempBV, and
-    //running through the iteration ITER_COUNT_MAX times.
-
-    else
-    {
-      xbv=tempBV;
-      for(iter_count=0; iter_count < ITER_COUNT_MAX; iter_count++)
-      {
-        arg2=3.0*vte/(CONSTe*xbv);
-        arg2=arg2*arg2*arg2;
-        xbv=tempBV-vte*log(cbv/(tSatCur*IRFactor))+vte *
-            log(1-arg2);
-      }
-      tBrkdwnV=xbv;
-    }
-
-//Note that, not only is tBrkdwnV adjusted using this method, but the effective
-//value of Is (tSatCur) is adjusted as well.  The code used to use Is before,
-//but now it will use Is*IRFactor*(1-(3*N*Vt/(e*tBrkdwnV))^3) instead.  This is
-//reflected in changes made to Instance::updateIntermediateVars
-//(for "normal" level 1 and 2 diode models) for the reverse breakdown region.
-//Changes have not been made to the associated LambertW functions as of yet
-//since there seem to be other issues involved with those functions independent
-// of this change.
-  }
-#endif
-
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
@@ -2433,24 +2337,6 @@ bool updateTemperature
     tempBV=BV;
   }
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-  //Changed 9/18/07, K. R. Santarelli.  This is the original (broken) version
-  //of the breakdown voltage computation.  It has two known issues:
-  //
-  //1.  It assumes N (the emission coefficient) is always 1 (division by
-  //    vt instead of vte).
-  //2.  While the for loop terminates due to the fact that it's implemented via
-  //    a counter, the value of xbv does not converge in many cases, so the
-  //    value of xbv upon terminating is often garbage.
-  //
-  //For consistency with old, existing simulations, this version of the
-  //breakdown voltage calculation (along with the appropriate code for
-  //computing the breakdown current in the level 1 and level 2 models---see
-  //the appropriate sections of
-  //Instance::updateIntermediateVars) can be invoked by
-  //specifiying the CPPFLAG "-DXyce_BREAKDOWN_ORIGINAL" when creating a Xyce
-  //Build.  The default, however, is the code which follows #else.
-
   double reltol = 1.0e-3;
   if( BVGiven )
   {
@@ -2475,64 +2361,6 @@ bool updateTemperature
     }
     tBrkdwnV = xbv;
   }
-#else
-  if( BVGiven)
-  {
-    ScalarT IRFactor=tIRF;
-    ScalarT cbv = IBV;
-    ScalarT xbv;
-    ScalarT cthreshlow; //lower threshold for IBV
-    ScalarT cthreshhigh; //high threshold for IBV
-    int iter_count;
-    const int ITER_COUNT_MAX=8;
-    ScalarT arg2;
-
-    ScalarT arg1=3.0*vte/(e*tempBV);
-    arg1=arg1*arg1*arg1;
-    cthreshlow=tSatCur*IRFactor*(1-arg1);
-    cthreshhigh=tSatCur*IRFactor*(1-1.0/(e*e*e)) *
-                exp(-1.0*(3.0*vte-tempBV)/vte);
-
-    if(cbv >= cthreshhigh)
-    {                     //if IBV is too high, tBrkdwnV will go below 3NVt.
-      tBrkdwnV=3.0*vte;   //Clip tBrkdwnV to 3*N*Vt in this case (and hence
-    }                     //clip IBV to cthreshhigh).
-
-
-    else if(cbv <= cthreshlow)
-    {                          //if IBV is too low, tBrkdwnV will go above
-      tBrkdwnV=tempBV;  //BV.  Clip tBrkdwnV to BV in this case (and
-    }                          //hence clip IBV to cthreshlow).
-
-
-    //If IBV is in an acceptable range, perform a Picard iteration to find
-    //tBrkdwnV, starting with an initial guess of tBrkdwnV=tempBV, and
-    //running through the iteration ITER_COUNT_MAX times.
-
-    else
-    {
-      xbv=tempBV;
-      for(iter_count=0; iter_count < ITER_COUNT_MAX; iter_count++)
-      {
-        arg2=3.0*vte/(e*xbv);
-        arg2=arg2*arg2*arg2;
-        xbv=tempBV-vte*log(cbv/(tSatCur*IRFactor))+vte *
-            log(1-arg2);
-      }
-      tBrkdwnV=xbv;
-    }
-
-//Note that, not only is tBrkdwnV adjusted using this method, but the effective
-//value of Is (tSatCur) is adjusted as well.  The code used to use Is before,
-//but now it will use Is*IRFactor*(1-(3*N*Vt/(e*tBrkdwnV))^3) instead.  This is
-//reflected in changes made to Instance::updateIntermediateVars
-//(for "normal" level 1 and 2 diode models) for the reverse breakdown region.
-//Changes have not been made to the associated LambertW functions as of yet
-//since there seem to be other issues involved with those functions independent
-// of this change.
-  }
-#endif
-
   return true;
 }
 
@@ -2659,18 +2487,8 @@ bool updateIntermediateVars (
       arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
       ScalarT evrev = exp(arg1);
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
       Id = -Isat * evrev + gmin * Vd;
       Gd = Isat * evrev / Vte + gmin;
-#else
-      //added by K. Santarelli 9/18/07 to account for change in tBrkdwnV
-      //calculation.
-      ScalarT arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      ScalarT Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + gmin;
-#endif
     }
     Vc = Vd;
   }
@@ -2730,18 +2548,8 @@ bool updateIntermediateVars (
       arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
       ScalarT evrev = exp(arg1);
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
       Id = -Isat * evrev + gmin * Vd;
       Gd = Isat * evrev / Vte + gmin;
-#else
-      //added 9/18/07 by K. Santarelli to account for change in tBrkdwnV
-      //calculation.
-      ScalarT arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      ScalarT Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + gmin;
-#endif
     }
     Vc = Vd;
   }  // level
