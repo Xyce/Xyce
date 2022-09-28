@@ -62,6 +62,19 @@ None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
 in Xyce were correctly applying the multiplicity factor (``M='') to
 noise terms.  They do now. \\ \hline
 
+\textbf{Xyce Project Backlog/474}: Remove spice-incompatible breakdown parameter algorithm from level 1 and 2 diode &
+When a user specifies both \texttt{IBV} and \texttt{BV} to the diode,
+an iterative technique is employed to assure that the forward and
+reverse regions match, which can adjust the breakdown voltage if
+necessary.  The SPICE3F5 algorithm may or may not converge, and can
+sometimes produce unreasonable solutions to the matching problem.  In
+2007 an improved algorithm was devised and implemented in the \Xyce{}
+diode, but this broke strict SPICE compatibility.  This algorithm has
+been reverted to the SPICE-compatible method.  Some small differences
+in simulation results as compared to prior versions of \Xyce{} may
+result from this change, but the changes will make the results more
+compatible with those from other simulators.  \\ \hline
+
 \textbf{Xyce Project Backlog/260}: Fix version string in CMake development builds &
 Xyce reports its version using \texttt{Xyce -v}.  With development versions of
 Xyce, the reported version should include the Git SHA against which the code
