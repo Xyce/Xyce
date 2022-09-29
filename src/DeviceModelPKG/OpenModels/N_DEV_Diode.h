@@ -181,7 +181,6 @@ bool updateIntermediateVars
    // instance variables:
    const ScalarT & Area,
    const ScalarT & multiplicityFactor,
-   const int & lambertWFlag,
    const double & gmin,
 
   // model params:
@@ -297,9 +296,6 @@ public:
 
   bool processParams ();
   bool updateTemperature ( const double & temp = -999.0 );
-  bool lambertWCurrent (double Isat, double Vte, double RS);
-  bool lambertWBreakdownCurrent (double Isat, double Vte, double RS);
-  bool lambertWLinearReverseBias (double Isat, double Vte, double RS);
 
   bool updateIntermediateVars ();
   bool updatePrimaryState ();
@@ -344,7 +340,6 @@ private:
   double multiplicityFactor;
   double InitCond;
   double Temp;
-  int lambertWFlag;
   bool InitCondGiven;
 
   double tJctPot;

@@ -84,10 +84,6 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setUnit(U_LOGIC)
     .setCategory(CAT_CONTROL)
     .setDescription("Initial voltage drop across device set to zero");
-  p.addPar ("LAMBERTW", 0, &Diode::Instance::lambertWFlag)
-    .setUnit(U_LOGIC)
-    .setCategory(CAT_CONTROL)
-    .setDescription("Option to solve diode equations with the Lambert-W function");
 }
 
 void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
@@ -317,12 +313,8 @@ std::vector< std::vector<int> > Instance::jacMap2;
 bool Instance::processParams()
 {
   // Set any non-constant parameter defaults:
-  if (!given("LAMBERTW"))
-    lambertWFlag = getDeviceOptions().lambertWFlag;
   if (!given("TEMP"))
     Temp = getDeviceOptions().temp.getImmutableValue<double>();
-  if ( (model_.RS == 0.0) && (lambertWFlag == 1) )
-    model_.RS =1.0e-12;
 
   updateTemperature( Temp );
   return true;
@@ -348,7 +340,6 @@ Instance::Instance(
     multiplicityFactor(1.0),
     InitCond(0.0),
     Temp(getDeviceOptions().temp.getImmutableValue<double>()),
-    lambertWFlag(0),
     InitCondGiven(false),
     tJctPot(0.0),
     tJctCap(0.0),
@@ -443,7 +434,7 @@ Instance::Instance(
   // calculate dependent (ie computed) params and check for errors:
   processParams ();
 
-  if ( (model_.RS == 0.0) || (lambertWFlag == 1) )
+  if ( model_.RS == 0.0 )
     numIntVars = 0;
   if ( model_.CJO == 0.0 )
     numStateVars = 1;
@@ -499,7 +490,7 @@ void Instance::registerLIDs( const std::vector<int> & intLIDVecRef,
   //Setup of Pri node indices
   //If RS=0, Pri=Pos Node
   //--------------------------
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0)
     li_Pri = intLIDVec[0];
   else
     li_Pri = li_Pos;
@@ -628,7 +619,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 const std::vector< std::vector<int> > & Instance::jacobianStamp() const
 {
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0 )
     return jacStamp_RS;
   else
     return jacStamp;
@@ -648,7 +639,7 @@ void Instance::registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVe
   std::vector<int> map;
   std::vector< std::vector<int> > map2;
 
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0 )
   {
     map = jacMap_RS;
     map2 = jacMap2_RS;
@@ -1115,109 +1106,62 @@ bool Instance::updateIntermediateVars ()
   int level = model_.getLevel();
   if(level == 1)
   {
-    // Using LambertW function
-    if (lambertWFlag == 1)
+    if (Vd >= -3.0 * Vte)
     {
-      double RS = model_.RS;
-      if (Vd >= -3.0 * Vte)
+      double arg1 = Vd / Vte;
+      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+      double evd = exp(arg1);
+
+      Id = Isat * (evd - 1.0) + getDeviceOptions().gmin * Vd;
+      Gd = Isat * evd / Vte + getDeviceOptions().gmin;
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
       {
-        lambertWCurrent(Isat, Vte, RS);
-      }
-      // linear reverse bias
-      else if ( !tBrkdwnV || (Vd >= -tBrkdwnV) )
-      {
-        lambertWLinearReverseBias(Isat, Vte, RS);
-      }
-      // reverse breakdown
-      else
-      {
-        lambertWBreakdownCurrent(Isat, Vte, RS);
+        Xyce::dout()  << "Normal exponential regime." << std::endl;
+        Xyce::dout()  << " Vd  = " << Vd << std::endl;
+        Xyce::dout()  << " Vte = " << Vte << std::endl;
+        Xyce::dout()  << " Id  = " << Id  << std::endl;
+        Xyce::dout()  << " Gd  = " << Gd  << std::endl;
       }
 
-      double Vrs;
-      Vrs = (Id + Icd)*RS;
-      Vc = Vd - Vrs;
-    }
-    else if (lambertWFlag == 2)
-    {
-      if (Vd >= -3.0 * Vte)
-      {
-        lambertWCurrent(Isat, Vte, 1.0e-15);
-      }
-      // linear reverse bias
-      else if ( !tBrkdwnV || (Vd >= -tBrkdwnV) )
-      {
-        lambertWLinearReverseBias(Isat, Vte, 1.0e-15);
-      }
-      // reverse breakdown
-      else
-      {
-        lambertWBreakdownCurrent(Isat, Vte, 1.0e-15);
-      }
-      Vc = Vd;
     }
 
-    // Normal exponential
+    // Linear reverse bias
+    else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
+    {
+      double arg = 3.0 * Vte / (Vd * CONSTe);
+      arg = arg * arg * arg;
+      Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
+      Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+      {
+        Xyce::dout()  << "Linear reverse bias regime." << std::endl;
+        Xyce::dout()  << " Vd       = " << Vd << std::endl;
+        Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
+        Xyce::dout()  << " Id       = " << Id  << std::endl;
+        Xyce::dout()  << " Gd       = " << Gd  << std::endl;
+      }
+    }
+
+    // Reverse breakdown
     else
     {
-      if (Vd >= -3.0 * Vte)
+      double arg1 = -(tBrkdwnV + Vd) / Vte;
+      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+      double evrev = exp(arg1);
+
+      Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
+      Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
       {
-        double arg1 = Vd / Vte;
-        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-        double evd = exp(arg1);
-
-        Id = Isat * (evd - 1.0) + getDeviceOptions().gmin * Vd;
-        Gd = Isat * evd / Vte + getDeviceOptions().gmin;
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Normal exponential regime." << std::endl;
-          Xyce::dout()  << " Vd  = " << Vd << std::endl;
-          Xyce::dout()  << " Vte = " << Vte << std::endl;
-          Xyce::dout()  << " Id  = " << Id  << std::endl;
-          Xyce::dout()  << " Gd  = " << Gd  << std::endl;
-        }
-
+        Xyce::dout()  << "Reverse breakdown regime." << std::endl;
+        Xyce::dout()  << " Vd       = " << Vd << std::endl;
+        Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
+        Xyce::dout()  << " Id       = " << Id  << std::endl;
+        Xyce::dout()  << " Gd       = " << Gd  << std::endl;
       }
-
-      // Linear reverse bias
-      else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
-      {
-        double arg = 3.0 * Vte / (Vd * CONSTe);
-        arg = arg * arg * arg;
-        Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
-        Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Linear reverse bias regime." << std::endl;
-          Xyce::dout()  << " Vd       = " << Vd << std::endl;
-          Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-          Xyce::dout()  << " Id       = " << Id  << std::endl;
-          Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-        }
-      }
-
-      // Reverse breakdown
-      else
-      {
-        double arg1 = -(tBrkdwnV + Vd) / Vte;
-        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-        double evrev = exp(arg1);
-
-        Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
-        Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
-
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Reverse breakdown regime." << std::endl;
-          Xyce::dout()  << " Vd       = " << Vd << std::endl;
-          Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-          Xyce::dout()  << " Id       = " << Id  << std::endl;
-          Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-        }
-      }
-      Vc = Vd;
     }
-
+    Vc = Vd;
   }
   else if(level == 2)
   {
@@ -1503,210 +1447,6 @@ bool Instance::updateTemperature( const double & temp )
     Xyce::dout() << " tCOND   = " << tCOND    << std::endl;
     Xyce::dout() << " tBrkdwnV= " << tBrkdwnV << std::endl;
   }
-
-  return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWCurrent
-// Purpose       : Determine the diode current using Lambert-W function
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/5/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWCurrent(double Isat, double Vte, double RS)
-{
-  // with capacitor current and using LambertW accros whole model
-  /*  if (Cd != 0.0 && Icd != 0 && (lambertWFlag == 1))
-      {
-      double AA = Vte*(1.0 + RS*getSolverState().pdt*Cd);
-      double XX = Icd - getSolverState().pdt*Qd;
-      double arg1 = (Vd + RS*Isat - RS*XX)/AA;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evd = exp(arg1);
-      double lambWArg = Isat*RS/AA * evd;
-      double lambWReturn;
-      int ierr;
-      double lambWError;
-      devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-      else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-      else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-      }
-
-      double prefac = AA/RS;
-      Id = -Isat + prefac*lambWReturn;
-      Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-      Xyce::dout() << "lambWError = " << lambWError << std::endl;
-      Xyce::dout() << "Id         = " << Id << std::endl;
-      Xyce::dout() << "Gd         = " << Gd << std::endl;
-      Xyce::dout() << "Icd        = " << Icd << std::endl;
-      Xyce::dout() << "Cd         = " << Cd  << std::endl;
-      Xyce::dout() << "Qd         = " << Qd  << std::endl;
-      Xyce::dout() << "AA         = " << AA << std::endl;
-      Xyce::dout() << "XX         = " << XX << std::endl;
-      Xyce::dout() << "Using lambertwCurrent w/ capacitance" << std::endl;
-      }
-      #endif
-      }
-
-      // when capacitor current=0, there is no capacitance, or using LambertW
-      // only across the diode element
-      else
-      { */
-  double arg1 = (Vd + Isat*RS)/Vte;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-  double evd = exp(arg1);
-  double lambWArg = Isat*RS*evd/Vte;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  Id = -Isat+Vte*(lambWReturn)/RS;
-  Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-  // }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWLinearReverseBias
-// Purpose       : Function to maintain continuity between forward bias and
-//                 breakdown voltages of diode
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/30/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWLinearReverseBias(double Isat, double Vte, double RS)
-{
-  double FF1 = (Vd + tBrkdwnV)/(-3.0 * Vte + tBrkdwnV);
-  double FF2 = (1/2 - FF1)*(-2);
-  double arg = Vte/RS;
-  double arg1 = (Isat/arg - 3);
-  double arg2 = FF1*arg1;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg2);
-  double evd = exp(arg2);
-  double lambWArg = Isat*evd/arg;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-  {
-    if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-    else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-    else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-  }
-
-  Id = -Isat*FF1 + FF2*lambWReturn*arg;
-
-  double GdFF1 = 1/(-3.0*Vte + tBrkdwnV);
-  double GdFF2 = 2 * GdFF1;
-  double GdW = arg*lambWReturn*GdFF1*arg1/(1 + lambWReturn);
-  Gd = -Isat*GdFF1 + GdFF2*arg*lambWReturn + FF2*GdW;
-
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-  {
-    Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-    Xyce::dout() << "lambWError = " << lambWError << std::endl;
-    Xyce::dout() << "lambWReturn= " << lambWReturn << std::endl;
-    Xyce::dout() << "Id         = " << Id << std::endl;
-    Xyce::dout() << "Gd         = " << Gd << std::endl;
-    Xyce::dout() << "Using lambertwReverseBias" << std::endl;
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWBreakdownCurrent
-// Purpose       : Determine the diode breakdown current using Lambert-W function
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/11/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWBreakdownCurrent(double Isat, double Vte, double RS)
-{
-  // with capacitor current and applying LambertW accros whole diode model
-  /*  if (Cd != 0.0 && Icd != 0 && (lambertWFlag == 1))
-      {
-      double AA = Vte*(1 + RS*getSolverState().pdt*Cd);
-      double XX = Icd - getSolverState().pdt*Qd;
-      double arg1 = (RS*XX - Vd)/AA - tBrkdwnV/Vte;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evd = exp(arg1);
-      double lambWArg = Isat*RS*evd/AA;
-      double lambWReturn;
-      int ierr;
-      double lambWError;
-      devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-      else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-      else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-      }
-      #endif
-
-      Id = -AA*lambWReturn/RS;
-      Gd = (lambWReturn / (1 + lambWReturn)) * (1/RS);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-      Xyce::dout() << "lambWError = " << lambWError << std::endl;
-      Xyce::dout() << "Id         = " << Id << std::endl;
-      Xyce::dout() << "Gd         = " << Gd << std::endl;
-      Xyce::dout() << "Icd        = " << Icd << std::endl;
-      Xyce::dout() << "Cd         = " << Cd  << std::endl;
-      Xyce::dout() << "Qd         = " << Qd  << std::endl;
-      Xyce::dout() << "AA         = " << AA << std::endl;
-      Xyce::dout() << "XX         = " << XX << std::endl;
-      Xyce::dout() << "Using lambertwBreakdown w/ capacitance" << std::endl;
-      }
-      #endif
-      }
-
-      // without capacitor current or applying lambertW just accros diode element
-      else
-      {*/
-  double arg1 = (-Vd - tBrkdwnV)/ Vte;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-  double evd = exp(arg1);
-  double lambWArg = Isat*RS*evd/Vte;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  Id = -Vte*lambWReturn/RS;
-  Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-  // }
 
   return true;
 }
@@ -2353,7 +2093,6 @@ bool updateIntermediateVars (
    // instance variables:
    const ScalarT & Area,
    const ScalarT & multiplicityFactor,
-   const int & lambertWFlag,
    const double & gmin,
 
   // model params:
@@ -2802,7 +2541,7 @@ void diodeSensitivity::operator()(
       tSatCur, tSatCurR, tVcrit, tRS, tCOND,
       tIKF, tBrkdwnV,
       // instance variables:
-      Area, multiplicityFactor, (*in)->lambertWFlag, (*in)->getDeviceOptions().gmin,
+      Area, multiplicityFactor, (*in)->getDeviceOptions().gmin,
       // model params:
       M, BV, IBV, NBV, IBVL, NBVL, N, NR, TT, F2, F3,
       mod.getLevel(),

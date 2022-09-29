@@ -485,7 +485,6 @@ public:
 
   bool processParams ();
   bool updateTemperature (const double & temp = -999.0 );
-  bool lambertWCurrent (double &Id, double &Gd, double Vd, double Vte, double Isat);
 
   bool updateIntermediateVars ();
   bool updatePrimaryState ();
@@ -545,7 +544,6 @@ private:
   double TEMP;  // instance temperature (TEMP)
   double multiplicityFactor;
   bool   OFF;   // initial mode of operation (OFF)
-  bool lambertWFlag;
   bool IC_GIVEN;
   bool externalNodeMode;
   bool offFlag;

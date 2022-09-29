@@ -100,11 +100,6 @@ void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Initial condition of no voltage drops accross device");
 
-  p.addPar ("LAMBERTW",false,&BJT::Instance::lambertWFlag)
-   .setUnit(U_LOGIC)
-   .setCategory(CAT_NONE)
-   .setDescription("Flag for toggling the use of the lambert-W function instead of exponentials.");
-
   // multiplicity
   p.addPar ("M",  1.0, &BJT::Instance::multiplicityFactor)
     .setCategory(CAT_GEOMETRY)
@@ -832,7 +827,6 @@ Instance::Instance(
     TEMP(300.0),
     multiplicityFactor(1.0),
     OFF(false),
-    lambertWFlag(false),
     IC_GIVEN(false),
     externalNodeMode(false),
     offFlag(false),
@@ -2006,33 +2000,6 @@ bool Instance::updateTemperature( const double & temp )
   return true;
 }
 
-
-//----------------------------------------------------------------------------
-// Function      : Instance::lambertWCurrent
-// Purpose       : Determine the current through an individual BJT
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/30/02
-//---------------------------------------------------------------------------
-bool Instance::lambertWCurrent(double &Id, double &Gd, double Vd, double Vte, double Isat)
-{
-  double RS = 1.0e-12;
-  double arg1 = (Vd + Isat*RS)/Vte;
-  arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
-  double evd = exp(arg1);
-  double lambWArg = Isat*RS*evd/Vte;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  Id = -Isat+Vte*(lambWReturn)/RS;
-  Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-  return true;
-}
-
 //-----------------------------------------------------------------------------
 // Function      : Instance::loadErrorWeightMask
 //
@@ -3036,120 +3003,74 @@ bool Instance::updateIntermediateVars ()
   double iLeakBE = tBELeakCur * AREA;
   double iLeakBC = tBCLeakCur * AREA;
 
-  // determine currents using LambertW
-  if (lambertWFlag)
+  if (vBE > -5.0 * vtF)
   {
-    if( vBE > -5.0 * vtF )
-    {
-      lambertWCurrent(iBE, gBE, vBE, vtF, csat);
+    double arg1 = vBE / vtF ;
+    arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
+    double devBE;
+    double evBE;
 
-      if( iLeakBE == 0.0 )
-        iBEleak = gBEleak = 0.0;
-      else
-      {
-        lambertWCurrent(iBEleak, gBEleak, vBE, vtE, iLeakBE);
-      }
-    }
+    evBE = exp( arg1 );
+    devBE=evBE;
+    iBE = csat * ( evBE - 1.0 ) + getDeviceOptions().gmin * vBE;
+    gBE = csat * devBE / vtF + getDeviceOptions().gmin;
+
+    if (iLeakBE == 0.0)
+      iBEleak = gBEleak = 0.0;
     else
     {
-      gBE = -csat / vBE + getDeviceOptions().gmin;
-      iBE = gBE * vBE;
-      gBEleak = -iLeakBE / vBE;
-      iBEleak = gBEleak * vBE;
-    }
+      double arg1 = vBE / vtE ;
+      arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
+      double devBEleak;
+      double evBEleak;
 
-    if( vBC > -5.0 * vtR )
-    {
-      lambertWCurrent(iBC, gBC, vBC, vtR, csat);
-
-      if( iLeakBC == 0.0 )
-        iBCleak = gBCleak = 0.0;
-      else
-      {
-        lambertWCurrent(iBCleak, gBCleak, vBC, vtC, iLeakBC);
-      }
-    }
-    else
-    {
-      gBC = -csat / vBC + getDeviceOptions().gmin;
-      iBC = gBC * vBC;
-      gBCleak = -iLeakBC / vBC;
-      iBCleak = gBCleak * vBC;
+      evBEleak = exp(arg1);
+      devBEleak=evBEleak;
+      iBEleak = iLeakBE * (evBEleak - 1.0);
+      gBEleak = iLeakBE * devBEleak / vtE;
     }
   }
-
-  // determine currents using normal exponential
   else
   {
-    if (vBE > -5.0 * vtF)
-    {
-      double arg1 = vBE / vtF ;
-      arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
-      double devBE;
-      double evBE;
+    gBE = -csat / vBE + getDeviceOptions().gmin;
+    iBE = gBE * vBE;
+    gBEleak = -iLeakBE / vBE;
+    iBEleak = gBEleak * vBE;
+  }
 
-      evBE = exp( arg1 );
-      devBE=evBE;
-      iBE = csat * ( evBE - 1.0 ) + getDeviceOptions().gmin * vBE;
-      gBE = csat * devBE / vtF + getDeviceOptions().gmin;
+  if( vBC > -5.0 * vtR )
+  {
+    double arg1 = vBC / vtR ;
+    arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
+    double devBC;
+    double evBC;
 
-      if (iLeakBE == 0.0)
-        iBEleak = gBEleak = 0.0;
-      else
-      {
-        double arg1 = vBE / vtE ;
-        arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
-        double devBEleak;
-        double evBEleak;
+    evBC = exp( arg1 );
+    devBC=evBC;
+    iBC = csat * ( evBC - 1.0 ) + getDeviceOptions().gmin * vBC;
+    gBC = csat * devBC / vtR + getDeviceOptions().gmin;
 
-        evBEleak = exp(arg1);
-        devBEleak=evBEleak;
-        iBEleak = iLeakBE * (evBEleak - 1.0);
-        gBEleak = iLeakBE * devBEleak / vtE;
-      }
-    }
+    if (iLeakBC == 0.0)
+      iBCleak = gBCleak = 0.0;
     else
     {
-      gBE = -csat / vBE + getDeviceOptions().gmin;
-      iBE = gBE * vBE;
-      gBEleak = -iLeakBE / vBE;
-      iBEleak = gBEleak * vBE;
-    }
-
-    if( vBC > -5.0 * vtR )
-    {
-      double arg1 = vBC / vtR ;
+      double arg1 = vBC / vtC ;
       arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
-      double devBC;
-      double evBC;
+      double devBCleak;
+      double evBCleak;
 
-      evBC = exp( arg1 );
-      devBC=evBC;
-      iBC = csat * ( evBC - 1.0 ) + getDeviceOptions().gmin * vBC;
-      gBC = csat * devBC / vtR + getDeviceOptions().gmin;
-
-      if (iLeakBC == 0.0)
-        iBCleak = gBCleak = 0.0;
-      else
-      {
-        double arg1 = vBC / vtC ;
-        arg1 = std::min(CONSTMAX_EXP_ARG, arg1);
-        double devBCleak;
-        double evBCleak;
-
-        evBCleak = exp(arg1);
-        devBCleak=evBCleak;
-        iBCleak = iLeakBC * (evBCleak - 1.0);
-        gBCleak = iLeakBC * devBCleak / vtC;
-      }
+      evBCleak = exp(arg1);
+      devBCleak=evBCleak;
+      iBCleak = iLeakBC * (evBCleak - 1.0);
+      gBCleak = iLeakBC * devBCleak / vtC;
     }
-    else
-    {
-      gBC = -csat / vBC + getDeviceOptions().gmin;
-      iBC = gBC * vBC;
-      gBCleak = -iLeakBC / vBC;
-      iBCleak = gBCleak * vBC;
-    }
+  }
+  else
+  {
+    gBC = -csat / vBC + getDeviceOptions().gmin;
+    iBC = gBC * vBC;
+    gBCleak = -iLeakBC / vBC;
+    iBCleak = gBCleak * vBC;
   }
 
   // base charge calculations:
