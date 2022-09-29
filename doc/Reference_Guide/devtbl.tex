@@ -41,13 +41,6 @@ B3SOIVOLTLIM & BSIMSOI3 Voltage limiting.  This flag is similar to VOLTLIM, exce
 .IC initial conditions during the DCOP phase. }
 & \debug{10000.0} \\ \hline
 
-LAMBERTW\index{Lambert-W Function} & This flag determines if the Lambert-W 
-function should be applied in place of
-exponentials in hard-to-solve devices.  This capability is implemented in the diode
-and BJT.  Try this for BJT circuits that have convergence problems.  For best effect, this option
-should be tried with voltlim turned off.  A detailed explanation of the Lambert-W function,
-and its application to device modeling can be found in reference ~\cite{Banwell}. & 0 (FALSE) \\ \hline
-
 MAXTIMESTEP & Maximum time step size & 1.0E+99 \\ \hline
 
 SMOOTHBSRC & This flag enables smooth transitions by adding a RC network to the output of ABM devices    &    0  \\ \hline
