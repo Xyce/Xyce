@@ -47,9 +47,9 @@ module rlc (p,n);
   inout p,n;
   electrical internal1, internal2;
 
-  `attr(desc="Inductance", type="instance") parameter real L=1e-3 from (0:inf);
-  `attr(desc="Resistance", type="instance") parameter real R=1e3 from (0:inf);
-  `attr(desc="Capacitance", type="instance") parameter real C=1e-12 from (0:inf);
+  `attr(info="Inductance" type="instance") parameter real L=1e-3 from (0:inf);
+  `attr(info="Resistance" type="instance") parameter real R=1e3 from (0:inf);
+  `attr(info="Capacitance" type="instance") parameter real C=1e-12 from (0:inf);
   real InductorCurrent;
   real CapacitorCharge;
 
