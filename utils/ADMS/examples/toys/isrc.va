@@ -10,7 +10,7 @@ module isrc (p,n);
   // In this example we've explicitly stated that the parameter is allowed
   // to be a time-dependent expression in the netlist, which by default
   // is not allowed.
-  `attr(info="Time-dependent current expression" type="instance" dependence="TIME_DEP") parameter real Current=0 from (-inf:inf);
+  `attr(desc="Time-dependent current expression",type="instance",dependence="TIME_DEP") parameter real Current=0 from (-inf:inf);
 
   analog
   begin
