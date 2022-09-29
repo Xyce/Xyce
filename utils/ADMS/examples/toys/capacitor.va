@@ -1,14 +1,13 @@
 `include "disciplines.vams"
 `include "constants.vams"
 
-`define attr(txt) (*txt*)
 
-`attr(xyceModelGroup="Capacitor" xyceSpiceDeviceName="C" xyceLevelNumber="6") 
+(*xyceModelGroup="Capacitor", xyceSpiceDeviceName="C", xyceLevelNumber="6"*)
 module capacitor (p,n);
   electrical p,n;
   inout p,n;
 
-  `attr(info="Capacitance" type="instance") parameter real C=1p from (0:inf);
+  (*desc="Capacitance", type="instance" *) parameter real C=1p from (0:inf);
   real Q;
 
   analog

@@ -3,19 +3,17 @@
 // Xyce's K is not the one in constants.vams!
 `define X_K (1.3806226e23)
 
-`define attr(txt) (*txt*)
-
-`attr(xyceModelGroup="Resistor" xyceSpiceDeviceName="R" xyceLevelNumber="6") 
+(*xyceModelGroup="Resistor", xyceSpiceDeviceName="R", xyceLevelNumber="6"*)
 module resistor (p,n);
    electrical p,n;
    inout p,n;
-   
-   `attr(info="Resistance" type="instance") parameter real R=1 from (0:inf);
-   
+
+   (*desc="Resistance", type="instance"*) parameter real R=1 from (0:inf);
+
    real           Ir;
    real           tdevK;
    real           conductance;
-   
+
    analog
      begin
         tdevK=$temperature;
