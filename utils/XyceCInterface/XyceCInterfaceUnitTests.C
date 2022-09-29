@@ -284,7 +284,13 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist3 )
   int return_status = xyce_initialize( & xycePtr, 2, argvarray);
   EXPECT_EQ( return_status, 1);
   
-  char * dacNames[10];
+  const int maxNumNames = 10;
+  const int maxNameLength = 256;
+  char * dacNames[maxNumNames];
+  for( int i=0; i<maxNumNames; i++)
+  {
+    dacNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
   int numDacs;
   bool circuitHasDACs = xyce_getDACDeviceNames( &xycePtr, & numDacs, dacNames);
   EXPECT_TRUE( circuitHasDACs);
@@ -292,6 +298,10 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist3 )
 
   xyce_close( & xycePtr );
   EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumNames; i++)
+  {
+    free(dacNames[i]);
+  }
 }
 
 
@@ -414,6 +424,262 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
   
   xyce_close( & xycePtr );
   EXPECT_TRUE( ((long *)xycePtr) == 0 );
+}
+
+
+
+TEST ( XyceSimulator, GetADCMapTestNetlist1 )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist1.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+
+  const int maxNumADC = 10;
+  const int maxNameLength = 256;
+  char * adcNames[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumADC];
+  double adcRes[maxNumADC];
+  double adcUpperVLim[maxNumADC];
+  double adcLowerVLim[maxNumADC];
+  double adcSettlingTime[maxNumADC];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_FALSE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 0);
+
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumADC; i++)
+  {
+    free( adcNames[i]);
+  }
+}
+
+TEST ( XyceSimulator, GetADCMapTestNetlist3 )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist3.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+
+  const int maxNumADC = 10;
+  const int maxNameLength = 256;
+  char * adcNames[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumADC];
+  double adcRes[maxNumADC];
+  double adcUpperVLim[maxNumADC];
+  double adcLowerVLim[maxNumADC];
+  double adcSettlingTime[maxNumADC];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_TRUE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 2);
+
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumADC; i++)
+  {
+    free( adcNames[i]);
+  }
+}
+
+
+TEST ( XyceSimulator, GetTimeVoltagePairsNetlist3 )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist3.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+
+  const int maxNumADC = 10;
+  const int maxNameLength = 256;
+  char * adcNames[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumADC];
+  double adcRes[maxNumADC];
+  double adcUpperVLim[maxNumADC];
+  double adcLowerVLim[maxNumADC];
+  double adcSettlingTime[maxNumADC];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_TRUE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 2);
+  
+  // simulate forward in time about half way through the simulation
+  double finalTime = xyce_getFinalTime( & xycePtr );
+  double simToTime = 0.5*finalTime;
+  double actualTime=0.0;
+  bool stepResult = xyce_simulateUntil( & xycePtr, simToTime, & actualTime);
+  EXPECT_TRUE(stepResult);
+  // for this simple circuit we expect the simToTime and actualTime to be equal 
+  EXPECT_EQ( simToTime, actualTime );
+  double reportedTime = xyce_getTime( & xycePtr );
+  EXPECT_EQ( reportedTime, actualTime );
+  bool isSimComplete = xyce_simulationComplete( & xycePtr );
+  // should be false on all but the last step
+  EXPECT_FALSE( isSimComplete );
+  
+  int numADCret = 0;
+  int numPoints = 0;
+  const int maxDataPoints=10000;
+  double * timeArray[maxNumADC];
+  double * vArray[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    timeArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+    vArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+  }
+  int retResult = xyce_getTimeVoltagePairsADC( & xycePtr, & numADCret, adcNames, & numPoints, timeArray, vArray );
+  
+  EXPECT_EQ( retResult, 1);
+  EXPECT_EQ(numADCret, 2);
+  EXPECT_EQ(numPoints, 2);
+
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumADC; i++)
+  {
+    free( adcNames[i]);
+    free( timeArray[i]);
+    free( vArray[i]);
+  }
+}
+
+TEST ( XyceSimulator, UpdateTimeVoltagePairsNetlist3 )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist3.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+  
+  const int maxNumDev = 10;
+  const int maxNameLength = 256;
+  char * dacNames[maxNumDev];
+  for( int i=0; i<maxNumDev; i++)
+  {
+    dacNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numDacs;
+  bool circuitHasDACs = xyce_getDACDeviceNames( &xycePtr, & numDacs, dacNames);
+  EXPECT_TRUE( circuitHasDACs);
+  EXPECT_EQ( numDacs, 1);
+  
+  char * adcNames[maxNumDev];
+  for( int i=0; i<maxNumDev; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumDev];
+  double adcRes[maxNumDev];
+  double adcUpperVLim[maxNumDev];
+  double adcLowerVLim[maxNumDev];
+  double adcSettlingTime[maxNumDev];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_TRUE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 2);
+  
+  // simulate forward in time about half way through the simulation
+  double finalTime = xyce_getFinalTime( & xycePtr );
+  double simToTime = 0.5*finalTime;
+  double actualTime=0.0;
+  bool stepResult = xyce_simulateUntil( & xycePtr, simToTime, & actualTime);
+  EXPECT_TRUE(stepResult);
+  // for this simple circuit we expect the simToTime and actualTime to be equal 
+  EXPECT_EQ( simToTime, actualTime );
+  double reportedTime = xyce_getTime( & xycePtr );
+  EXPECT_EQ( reportedTime, actualTime );
+  bool isSimComplete = xyce_simulationComplete( & xycePtr );
+  // should be false on all but the last step
+  EXPECT_FALSE( isSimComplete );
+  
+  int numADCret = 0;
+  int numPoints = 0;
+  const int maxDataPoints=100;
+  double * timeArray[maxNumDev];
+  double * vArray[maxNumDev];
+  for( int i=0; i<maxNumDev; i++)
+  {
+    timeArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+    vArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+  }
+  int retResult = xyce_getTimeVoltagePairsADC( & xycePtr, & numADCret, adcNames, & numPoints, timeArray, vArray );
+  
+  EXPECT_EQ( retResult, 1);
+  EXPECT_EQ(numADCret, 2);
+  EXPECT_EQ(numPoints, 2);
+  
+  const int numTVPairs = 2;
+  double timeData[numTVPairs];
+  double dacVData[numTVPairs];
+  timeData[0] = actualTime + 1e-7;
+  timeData[1] = actualTime + 1e-3;
+  dacVData[0] = 0.5;
+  dacVData[1] = 0.5;
+  // set up data for the DAC
+  retResult = xyce_updateTimeVoltagePairs(& xycePtr, dacNames[0], numTVPairs, timeData, dacVData);
+  EXPECT_EQ( retResult, 1);
+  
+  return_status = xyce_runSimulation( & xycePtr );
+  EXPECT_EQ( return_status, 1);
+  
+  char param3[] = "V(N1)";
+  double circuitParamValue = xyce_getCircuitValue( & xycePtr, param3);
+  EXPECT_NEAR( circuitParamValue, 0.5,  1.0e-7 );
+
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumDev; i++)
+  {
+    free( adcNames[i]);
+    free( timeArray[i]);
+    free( vArray[i]);
+    free(dacNames[i]);
+  }
 }
 
 
