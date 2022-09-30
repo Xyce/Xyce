@@ -62,6 +62,12 @@ None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
 in Xyce were correctly applying the multiplicity factor (``M='') to
 noise terms.  They do now. \\ \hline
 
+\textbf{Xyce Backlog Bugs/19}: Error in the failure history output by Xyce in
+parallel &  A runtime error was observed in the failure history output when
+the node name string was not available on the processor accessing the string.
+The character string is now being broadcast from the processor that owns the
+character string to all other processors. \\ \hline
+
 \textbf{Xyce Project Backlog/474}: Remove spice-incompatible breakdown parameter algorithm from level 1 and 2 diode &
 When a user specifies both \texttt{IBV} and \texttt{BV} to the diode,
 an iterative technique is employed to assure that the forward and
