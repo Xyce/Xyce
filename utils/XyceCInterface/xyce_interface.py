@@ -556,7 +556,7 @@ class xyce_interface:
     paramValue = self.lib.xyce_getCircuitValue( byref(self.xycePtr), cvarName )
     return paramValue
     
-  def setCircuitParameter( self, paramName, paramValue)
+  def setCircuitParameter( self, paramName, paramValue):
     cvarName = c_char_p(paramName.encode('utf-8'))
     status = self.xyce_setCircuitParameter(byref(self.xycePtr), cvarName, paramValue)
     return status

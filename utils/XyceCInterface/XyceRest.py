@@ -238,7 +238,7 @@ def updateTimeVoltagePairs():
   if( 'voltarray' not in XyceObjectsDict):
     return 'voltarray not supplied., 400'
   voltArray = [ args['voltarray'] ]
-  result = xyceObj.updateTimeVoltagePairs( devName, timeArray, voltArray):
+  result = xyceObj.updateTimeVoltagePairs( devName, timeArray, voltArray)
 
   
 @app.route("/xyce_simulateuntil", methods=['POST'])
@@ -255,7 +255,7 @@ def simulateUntil():
   if( 'simtime' not in XyceObjectsDict):
     return 'simtime not supplied., 400'
   simTime = [ args['simtime'] ]
-  (status, simulatedTime ) = xyceObj.simulateUntil( simTime ):
+  (status, simulatedTime ) = xyceObj.simulateUntil( simTime )
   return (status, simulatedTime )
 
 
