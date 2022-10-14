@@ -950,6 +950,131 @@ ScalarT calcLombardiMob (MobInfo<ScalarT> & min)
   return mobil;
 }
 
+typedef Sacado::Fad::SFad<double,1> GP_fadType;
+typedef Sacado::Fad::SFad<GP_fadType,1> GP_fadFadType;
+
+// ----------------------------------------------------------------------------
+// Function      : FP
+// Purpose       : Support function for Philips mobility model.  It returns 
+//                 F(P) as a function of P.  P is the screening parameter.
+//
+//                 F(P) is an analytic function that describes electron-hole scattering
+//
+// Special Notes : Templated, so can be used w/Sacado to get 1st and 2nd derivatives.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2022
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+ScalarT FP ( ScalarT P, double m1_over_m2)
+{
+  // if computing FPp, m1_over_m2 = mh_mo/me_mo
+  // if computing FPn, m1_over_m2 = me_mo/mh_mo
+
+  // parameters for F(P):
+  double r1 = 0.7643;
+  double r2 = 2.2999;
+  double r3 = 6.5502;
+  double r4 = 2.3670;
+  double r5 = 0.01552; // from the original Klassen paper
+  //double r5 = 0.8552; // from the Sentaurus user guide, which this code was using b4
+  double r6 = 0.6478;
+
+  return (r1*pow(P,r6) + r2 + r3*m1_over_m2) /(pow(P,r6) + r4 - r5*m1_over_m2);
+}
+
+// ----------------------------------------------------------------------------
+// Function      : GP
+// Purpose       : Support function for Philips mobility model.  It returns 
+//                 G(P) as a function of P.  P is the screening parameter.
+//
+//                 G(P) is an analytic function that describes minority 
+//                 impurity scattering.
+//
+// Special Notes : Templated, so can be used w/Sacado to get 1st and 2nd derivatives.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2022
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+ScalarT GP (ScalarT P,double Ts, double m_mo)
+{
+  // parameters for G(P):
+  double s1 = 0.89233;
+  double s2 = 0.41372;
+  double s3 = 0.19778;
+  double s4 = 0.28227;
+  double s5 = 0.005978;
+  double s6 = 1.80618;
+  double s7 = 0.72169;
+
+  return 1.0 - (s1/pow(s2+P*pow(1.0/m_mo*Ts,s4),s3)) + (s5/pow(P*pow(m_mo/Ts,s7),s6));
+}
+
+// ----------------------------------------------------------------------------
+// Function      : minimizeGP
+// Purpose       : Support function for Philips mobility model.  It finds the
+//                 minimum point for the function G(P), and the corresponding 
+//                 value of P.  P is the screening parameter.
+//
+//                 G(P) is an analytic function that describes minority 
+//                 impurity scattering.
+//
+// Special Notes : 
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/13/2022
+// ----------------------------------------------------------------------------
+inline void minimizeGP( 
+    const double Ts,
+    const double m_mo,
+    const double Pmin_init,
+    double & minGP,
+    double & Pmin 
+    )
+{
+
+  Pmin = Pmin_init;
+
+  // find the mimimum G(P) using Newton's method.  
+  // The minima will happen when  G’(P) = 0, G’’(P) > 0
+  // P is updated at each iteration by  P -= G'(P)/G''(P).
+  // I get both G'(P) and G''(P) using Sacado, with a nested Fad type.
+
+  // the sacado dependencies tracked by ScalarT will be lost here, 
+  // but it shouldn't matter.  If we have to use the Pmin instead of Pp, 
+  // then the density dependence goes away anyway.
+  int maxStep=100;
+  for (int ii=0;ii<maxStep;ii++)
+  {
+    GP_fadType PminFad = Pmin;
+    PminFad.diff(0,1);
+    GP_fadFadType PminFF = PminFad;
+    PminFF.diff(0,1);
+
+    GP_fadFadType G_allDerivs = GP(PminFF,Ts,m_mo);
+    GP_fadFadType dP = - G_allDerivs.dx(0)/G_allDerivs.dx(0).dx(0);
+    PminFF += dP;
+
+    // Newton iteration output
+    //std::cout << "min GP NEWTON:  " << ii << "\t" << G_allDerivs << "\t" << PminFF << std::endl;
+
+    // if P goes negative, that is very bad!  NaN will result
+    if (PminFF < 1.0e-3) PminFF = 1.0e-3;
+
+    minGP = G_allDerivs.val().val();
+    Pmin = PminFF.val().val();
+
+    if ( std::abs(G_allDerivs.dx(0)) < 1.0e-6 && G_allDerivs.dx(0).dx(0) >= 0.0 )
+    {
+      break;
+    }
+  }
+}
+
 // ----------------------------------------------------------------------------
 // Function      : MaterialSupport::calcPhilipsMob
 // Purpose       : This function returns the mobility of electrons and
@@ -1056,6 +1181,7 @@ ScalarT calcPhilipsMob (MobInfo<ScalarT> & min)
   ScalarT Ndeff = Nd_doping * ( 1.0 + 1.0/(crfd_um + pow(nrfd_um/Nd_doping,2.0)));
   ScalarT Naeff = Na_doping * ( 1.0 + 1.0/(crfa_um + pow(nrfa_um/Na_doping,2.0)));
 
+
   double vsat = 2.4e7/(1.0+0.8*exp(min.T/600.0));
   if(min.holeFlag)
   {
@@ -1065,38 +1191,28 @@ ScalarT calcPhilipsMob (MobInfo<ScalarT> & min)
     ScalarT Pp = Tps*Tps * (1.0/( 2.459/(3.97e13*pow(Nscp,-2.0/3.0))
           + 3.828/(1.36e20/(n_dens+p_dens)*mh_mo) ));
 
-    // Initial values Pnmin is the Pmin value for 300 K.
-    // Initial values of FPnmin and dFPnmin are chosen to start the loop.
+    // Find the value P=Ppmin such that G(Ppmin) is at a minimum.
+    //
+    // Initial values Ppmin is the Pmin value for 300 K.
+    // Initial values of GPpmin and dGPpmin are chosen to start the loop.
     ScalarT Ppmin = 0.2891;
-    ScalarT FPpmin = 1.0;
-    ScalarT dFPpmin = 1.0;
-    // minimizing GPp here
-    while( (FPpmin > 0.00001) || (FPpmin < -0.00001) )
-    {
-      FPpmin = 1.0 - (0.89233/pow(0.41372+Ppmin*pow(1.0/mh_mo*Tps,0.28227),0.19778))
-        + (0.005978/pow(Ppmin*pow(mh_mo/Tps,0.72169),1.80618));
+    ScalarT GPpmin = 1.0;
 
-      dFPpmin = -0.89233*(-0.19778)*
-        pow(0.41372+Ppmin*pow(1.0/mh_mo*Tps,0.28227),-1.19778)*
-        pow(1.0/mh_mo*Tps,0.28227) +
-        0.005978*(-1.80618)*
-        pow(Ppmin*pow(mh_mo/Tps,0.72169),-2.80618)*
-        pow(mh_mo/Tps,0.72169);
+    if (Tps != 1.0) // only find a new minimum if temperature is not 300.
+    { 
+      double pminInit = 0.2891; // the 300k value
+      double minGP=0.0;
+      double minP=0.0;
 
-      Ppmin = Ppmin - FPpmin/dFPpmin;
+      minimizeGP(Tps,mh_mo,pminInit, minGP, minP);
+
+      Ppmin = minP;
+      GPpmin = minGP;
     }
 
-    ScalarT FPp = (0.7643*pow(Pp,0.6478) + 2.2999 + 6.5502*mh_mo/me_mo)
-      /(pow(Pp,0.6478) + 2.3670 - 0.8552*mh_mo/me_mo);
-
-    ScalarT GPp = 1.0 - (0.89233/pow(0.41372+Pp*pow(1.0/mh_mo*Tps,0.28227),0.19778))
-      + (0.005978/pow(Pp*pow(mh_mo/Tps,0.72169),1.80618));
-
-    if (Pp < Ppmin)
-    {
-      GPp = 1.0 - (0.89233/pow(0.41372+Ppmin*pow(1.0/mh_mo*Tps,0.28227),0.19778))
-        + (0.005978/pow(Ppmin*pow(mh_mo/Tps,0.72169),1.80618));
-    }
+    ScalarT FPp = FP(Pp,(mh_mo/me_mo));
+    ScalarT GPp = GP(Pp,Tps,mh_mo);
+    if (Pp < Ppmin) { GPp = GP(Ppmin,Tps,mh_mo); }
 
     ScalarT Nsceffp = Ndeff*GPp + Naeff + n_dens/FPp;
     ScalarT mulattp = mmxp_um * pow(Tps,-tetp_um);
@@ -1117,38 +1233,29 @@ ScalarT calcPhilipsMob (MobInfo<ScalarT> & min)
     ScalarT Pn = Tns*Tns * (1.0/(2.459/(3.97e13*pow(Nscn,-2.0/3.0))
           + 3.828/(1.36e20/(n_dens+p_dens)*me_mo)));
 
+    // Find the value P=Pnmin such that G(Pnmin) is at a minimum.
+    //
     // Initial values Pnmin is the Pmin value for 300 K.
-    // Initial values of FPnmin and dFPnmin are chosen to start the loop.
+    // Initial values of GPnmin and dGPnmin are chosen to start the loop.
     ScalarT Pnmin = 0.3246;
-    ScalarT FPnmin = 1.0;
-    ScalarT dFPnmin = 1.0;
+    ScalarT GPnmin = 1.0;
+
     // minimizing GPn here
-    while( (FPnmin > 0.00001) || (FPnmin < -0.00001) )
+    if (Tns != 1.0) // only find a new minimum if temperature is not 300.
     {
-      FPnmin = 1.0 - (0.89233/pow(0.41372+Pnmin*pow(1.0/me_mo*Tns,0.28227),0.19778))
-        + (0.005978/pow(Pnmin*pow(me_mo/Tns,0.72169),1.80618));
+      double nminInit = 0.3246; // the 300k value
+      double minGP=0.0;
+      double minP=0.0;
 
-      dFPnmin = -0.89233*(-0.19778)*
-        pow(0.41372+Pnmin*pow(1.0/me_mo*Tns,0.28227),-1.19778)*
-        pow(1.0/me_mo*Tns,0.28227) +
-        0.005978*(-1.80618)*
-        pow(Pnmin*pow(me_mo/Tns,0.72169),-2.80618)*
-        pow(me_mo/Tns,0.72169);
+      minimizeGP(Tns,me_mo,nminInit, minGP, minP);
 
-      Pnmin = Pnmin - FPnmin/dFPnmin;
+      Pnmin = minP;
+      GPnmin = minGP;
     }
 
-    ScalarT FPn = (0.7643*pow(Pn,0.6478) + 2.2999 + 6.5502*me_mo/mh_mo)
-      /(pow(Pn,0.6478) + 2.3670 - 0.8552*me_mo/mh_mo);
-
-    ScalarT GPn = 1.0 - (0.89233/pow(0.41372+Pn*pow(1.0/me_mo*Tns,0.28227),0.19778))
-      + (0.005978/pow(Pn*pow(me_mo/Tns,0.72169),1.80618));
-
-    if (Pn < Pnmin)
-    {
-      GPn = 1.0 - (0.89233/pow(0.41372+Pnmin*pow(1.0/me_mo*Tns,0.28227),0.19778))
-        + (0.005978/pow(Pnmin*pow(me_mo/Tns,0.72169),1.80618));
-    }
+    ScalarT FPn = FP(Pn, (me_mo/mh_mo));
+    ScalarT GPn = GP(Pn,Tns,me_mo);
+    if (Pn < Pnmin) { GPn = GP(Pnmin,Tns,me_mo); }
 
     ScalarT Nsceffn = Ndeff + Naeff*GPn + p_dens/FPn;
     ScalarT mulattn = mmxn_um * pow(Tns,-tetn_um);
