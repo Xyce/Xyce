@@ -977,8 +977,8 @@ ScalarT FP ( ScalarT P, double m1_over_m2)
   double r2 = 2.2999;
   double r3 = 6.5502;
   double r4 = 2.3670;
-  double r5 = 0.01552; // from the original Klassen paper
-  //double r5 = 0.8552; // from the Sentaurus user guide, which this code was using b4
+  //double r5 = 0.01552; // from the original Klassen paper
+  double r5 = 0.8552; // from various modern codes, including Sentaurus, Atlas, etc.
   double r6 = 0.6478;
 
   return (r1*pow(P,r6) + r2 + r3*m1_over_m2) /(pow(P,r6) + r4 - r5*m1_over_m2);
