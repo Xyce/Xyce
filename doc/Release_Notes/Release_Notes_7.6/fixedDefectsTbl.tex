@@ -141,5 +141,15 @@ exit with a fatal error, but with an incomprehensible error message.
 This has been corrected.
 \\ \hline
 
+\textbf{Xyce Project Backlog/bugs/23}: 
+Fix the Philips mobility model for the TCAD devices & 
+The Philips mobility model had a bug in it that resulted in NaNs 
+being produced during an intermediate calculation.   
+The model would discard these NaNs under most circumstances. 
+However, they were computed inside of a while loop, and on some compilers 
+these NaNs prevented the while loop from exiting.  This model has 
+been completely rewritten and this behavior will no longer occur.
+\\ \hline
+
 \end{longtable}
 }
