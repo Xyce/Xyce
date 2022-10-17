@@ -151,5 +151,16 @@ these NaNs prevented the while loop from exiting.  This model has
 been completely rewritten and this behavior will no longer occur.
 \\ \hline
 
+\textbf{Xyce Project Backlog/264}:  Modify Xyce CMake to use the modern CMake in Trilinos &
+Trilinos 13.5 introduces support for modern CMake targets. As part of the 
+transition to CMake targets, several Trilinos defined CMake variables have been 
+marked as deprecated (including some variables containing library names, library 
+paths, and include directories). When building Xyce from source with CMake, 
+dependencies in Trilinos are now referenced through Trilinos provided CMake 
+targets (instead of explicitly using library names and paths). These CMake build 
+system changes are not backwards compatible; the CMake scripts require Trilinos 
+13.5 or greater to build Xyce.
+\\ \hline
+
 \end{longtable}
 }
