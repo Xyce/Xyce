@@ -1188,14 +1188,14 @@ bool Instance::updateIntermediateVars ()
       if(tIKF > 0)
       {
         Khi = sqrt(tIKF/(tIKF+Inorm));
-        DKhi = 0.5*Khi*Gd1/(tIKF+Inorm);
+        DKhi = -0.5*Khi*Gd1/(tIKF+Inorm);
       }
       Kgen = 0;
       DKgen = 0;
       if(Irec != 0)
       {
         Kgen = sqrt( pow(((1-Vd/tJctPot)*(1-Vd/tJctPot) + 0.005),M) );
-        DKgen = -M*(1-Vd/tJctPot)/(tJctPot*Kgen);
+        DKgen = -M*(1-Vd/tJctPot)*Kgen/(tJctPot*((1-Vd/tJctPot)*(1-Vd/tJctPot)+0.005));
       }
 
       Id = Inorm*Khi + Irec*Kgen;
