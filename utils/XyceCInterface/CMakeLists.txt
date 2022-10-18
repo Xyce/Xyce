@@ -23,4 +23,8 @@ endif()
 
 install( TARGETS xycecinterface DESTINATION lib OPTIONAL)
 install( FILES N_CIR_XyceCInterface.h DESTINATION include OPTIONAL)
+install( FILES xyce_interface.py DESTINATION share OPTIONAL)
+install( FILES XyceRest.py DESTINATION share OPTIONAL)
+
+
 

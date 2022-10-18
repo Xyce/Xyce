@@ -1,3 +1,13 @@
+
+#
+# To run this from flask type:
+#
+# flask --app XyceRest.py run
+#
+# or on MacOS with MacPorts flask installed:
+#
+# flask-3.10 --app XyceRest.py run
+#
 from xyce_interface import xyce_interface
 
 from flask import Flask
@@ -91,7 +101,7 @@ def initialize():
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
   xyceObj.initialize(simFile)
-  return '',200
+  return 'success',200
   
 @app.route("/xyce_getsimtime", methods=['POST'])
 def getTime():
@@ -105,7 +115,7 @@ def getTime():
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
   time = xyceObj.getSimTime()
-  return time
+  return dict({'time': time})
   
 @app.route("/xyce_getfinaltime", methods=['POST'])
 def getFinalTime():
@@ -119,7 +129,7 @@ def getFinalTime():
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
   time = xyceObj.getFinalTime()
-  return time
+  return  dict({'time': time})
 
 @app.route("/xyce_getdacnames", methods=['POST'])
 def getDACDeviceNames():
@@ -133,25 +143,7 @@ def getDACDeviceNames():
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
   (status,dacNames) = xyceObj.getDACDeviceNames()
-  return (status,dacNames)
-  
-  
-@app.route("/xyce_checkcircuitparamexists", methods=['POST'])
-def checkCircuitParameterExists():
-  args=request.get_json()
-  if( 'uuid' not in args):
-    return 'Session ID not specified.', 400
-  theKey = args['uuid']
-  if( theKey not in XyceObjectsDict):
-    return 'Invalid Session ID., 400'
-  xyceObj = XyceObjectsDict[theKey]['xyceObj']
-  if( xyceObj == None):
-    return 'No existing Xyce Object', 200
-  if( 'paramname' not in XyceObjectsDict):
-    return 'paramname not supplied., 400'
-  paramName = [ args['paramname'] ]
-  result = xyceObj.checkCircuitParameterExists(paramName)
-  return result
+  return dict({'status':status, 'dacNames': dacNames})
   
 @app.route("/xyce_getadcmap", methods=['POST'])
 def getADCMap():
@@ -165,8 +157,26 @@ def getADCMap():
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
   (status, ADCnames, widths, resistances, upperVLimits, lowerVLimits, settlingTimes) = xyceObj.getADCMap()
-  return (status, ADCnames, widths, resistances, upperVLimits, lowerVLimits, settlingTimes)
+  return dict({'status':status, 'ADCnames':ADCnames, 'widths':widths, 'resistances':resistances, 'upperVLimits':upperVLimits, 'lowerVLimits':lowerVLimits, 'settlingTimes':settlingTimes})
 
+  
+@app.route("/xyce_checkcircuitparamexists", methods=['POST'])
+def checkCircuitParameterExists():
+  args=request.get_json()
+  if( 'uuid' not in args):
+    return 'Session ID not specified.', 400
+  theKey = args['uuid']
+  if( theKey not in XyceObjectsDict):
+    return 'Invalid Session ID., 400'
+  xyceObj = XyceObjectsDict[theKey]['xyceObj']
+  if( xyceObj == None):
+    return 'No existing Xyce Object', 200
+  if( 'paramname' not in args):
+    return 'paramname not supplied., 400'
+  paramName = args['paramname']
+  result = xyceObj.checkCircuitParameterExists(paramName)
+  return dict({'result': result})
+  
 @app.route("/xyce_getcircuitvalue", methods=['POST'])
 def getCircuitValue():
   args=request.get_json()
@@ -178,11 +188,11 @@ def getCircuitValue():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
-  if( 'paramname' not in XyceObjectsDict):
+  if( 'paramname' not in args):
     return 'paramname not supplied., 400'
-  paramName = [ args['paramname'] ]
+  paramName = args['paramname']
   result = xyceObj.getCircuitValue(paramName)
-  return result
+  return dict({'value':result})
 
 @app.route("/xyce_setcircuitparameter", methods=['POST'])
 def setCircuitParameter():
@@ -195,14 +205,14 @@ def setCircuitParameter():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
-  if( 'paramname' not in XyceObjectsDict):
+  if( 'paramname' not in args):
     return 'paramname not supplied., 400'
-  paramName = [ args['paramname'] ]
-  if( 'paramval' not in XyceObjectsDict):
+  paramName = args['paramname']
+  if( 'paramval' not in args):
     return 'paramval not supplied., 400'
-  paramValue = [ args['paramval'] ]
+  paramValue = args['paramval']
   result = xyceObj.setCircuitParameter(paramName, paramValue)
-  return result
+  return dict({'status':result})
   
 @app.route("/xyce_gettimevoltagepairs", methods=['POST'])
 def getTimeVoltagePairs():
@@ -215,8 +225,14 @@ def getTimeVoltagePairs():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
-  (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray)  = xyceObj.getTimeVoltagePairsADCLimitData
-  return (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray)
+  (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray)  = xyceObj.getTimeVoltagePairsADCLimitData()
+  timeArrayLinearized = []
+  voltageArrayLinearized = []
+  for i in range(0,numADCnames):
+    for j in range(0, numPointsArray[i]):
+      timeArrayLinearized.append( timeArray[i][j])
+      voltageArrayLinearized.append( voltageArray[i][j])
+  return dict({'status':status, 'ADCnames':ADCnames, 'numADCnames':numADCnames, 'numPointsInArray':numPointsArray, 'timeArray':timeArrayLinearized, 'voltageArray':voltageArrayLinearized})
 
 @app.route("/xyce_updatetimevoltagepairs", methods=['POST'])
 def updateTimeVoltagePairs():
@@ -229,16 +245,17 @@ def updateTimeVoltagePairs():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
-  if( 'devname' not in XyceObjectsDict):
+  if( 'devname' not in args):
     return 'devname not supplied., 400'
-  devName = [ args['devname'] ]  
-  if( 'timearray' not in XyceObjectsDict):
+  devName = args['devname']  
+  if( 'timearray' not in args):
     return 'timearray not supplied., 400'
-  timeArray = [ args['timearray'] ]
-  if( 'voltarray' not in XyceObjectsDict):
+  timeArray = args['timearray']
+  if( 'voltarray' not in args):
     return 'voltarray not supplied., 400'
-  voltArray = [ args['voltarray'] ]
+  voltArray = args['voltarray']
   result = xyceObj.updateTimeVoltagePairs( devName, timeArray, voltArray)
+  return dict({'status':result})
 
   
 @app.route("/xyce_simulateuntil", methods=['POST'])
@@ -252,11 +269,11 @@ def simulateUntil():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj == None):
     return 'No existing Xyce Object', 200
-  if( 'simtime' not in XyceObjectsDict):
+  if( 'simtime' not in args):
     return 'simtime not supplied., 400'
-  simTime = [ args['simtime'] ]
+  simTime = args['simtime']
   (status, simulatedTime ) = xyceObj.simulateUntil( simTime )
-  return (status, simulatedTime )
+  return  dict({'status': status, 'simulatedTime': simulatedTime})
 
 
 @app.route("/xyce_run", methods=['POST'])
@@ -270,7 +287,7 @@ def run():
   xyceObj = XyceObjectsDict[theKey]['xyceObj']
   if( xyceObj != None):
     xyceObj.runSimulation()
-  return '',200
+  return 'success',200
     
 @app.route("/xyce_close", methods=['POST'])
 def close():
@@ -285,7 +302,7 @@ def close():
   if( xyceObj != None):
     xyceObj.close()
   del XyceObjectsDict[theKey]
-  return '',200
+  return 'success',200
   
 @app.route("/xyce_closeall")
 def closeall():
@@ -293,6 +310,6 @@ def closeall():
     if (XyceObjectsDict[aKey]['xyceObj'] != None):
       XyceObjectsDict[aKey]['xyceObj'].close()
   XyceObjectsDict.clear()
-  return '',200
+  return 'success',200
   
 

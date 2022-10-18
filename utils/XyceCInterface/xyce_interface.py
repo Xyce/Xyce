@@ -539,10 +539,14 @@ class xyce_interface:
     return (status,width)     
 
   def getSimTime( self ):
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getTime.restype = c_double
     simTime = self.lib.xyce_getTime(byref(self.xycePtr))
     return simTime
     
   def getFinalTime( self ):
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getFinalTime.restype = c_double
     finalSimTime = self.lib.xyce_getFinalTime(byref(self.xycePtr))
     return finalSimTime
     
@@ -553,12 +557,14 @@ class xyce_interface:
     
   def getCircuitValue( self, paramName):
     cvarName = c_char_p(paramName.encode('utf-8'))
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getCircuitValue.restype = c_double
     paramValue = self.lib.xyce_getCircuitValue( byref(self.xycePtr), cvarName )
     return paramValue
     
   def setCircuitParameter( self, paramName, paramValue):
     cvarName = c_char_p(paramName.encode('utf-8'))
-    status = self.xyce_setCircuitParameter(byref(self.xycePtr), cvarName, paramValue)
+    status = self.lib.xyce_setCircuitParameter(byref(self.xycePtr), cvarName, c_double(paramValue))
     return status
     
     
