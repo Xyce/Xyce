@@ -140,9 +140,11 @@ char separator;
 //-------------------------------------------------------------------------------
 bool newExpression::lexAndParseExpression()
 {
-#if 0
-  Xyce::dout() << "lexAndParseExpression for " << expressionString_ <<std::endl;
-#endif
+  if (false) // debug output
+  {
+    Xyce::dout() << "lexAndParseExpression for " << expressionString_ <<std::endl;
+  }
+
   if (traditionalParse_)
   {
     std::stringstream expressionStringStream ( expressionString_ );
@@ -267,9 +269,10 @@ bool newExpression::lexAndParseExpression()
   if(isFreqDependent_) { freqOpVec_.push_back(freqNodePtr_); }
   if(isGminDependent_) { gminOpVec_.push_back(gminNodePtr_); }
 
-#if 0
-  dumpParseTree(Xyce::dout());
-#endif
+  if (false) // debug output
+  {
+    dumpParseTree(Xyce::dout());
+  }
 
   // let AC analysis know if it needs to produce RF param output
   if ( !(Teuchos::is_null(group_)) )
@@ -285,15 +288,16 @@ bool newExpression::lexAndParseExpression()
   checkIsConstant_();
   astArraysSetup_ = true;
 
-#if 0
-  // this is a test to ensure that adding a "global" AST layer works for all use cases.  
-  // I turn this on for unit tests, optionally.  But it should only be "on" for unit 
-  // testing and not otherwise.
-  if(parsed_)
+  if(false) // debug code 
   {
-    setAsGlobal();
+    // this is a test to ensure that adding a "global" AST layer works for all use cases.  
+    // I turn this on for unit tests, optionally.  But it should only be "on" for unit 
+    // testing and not otherwise.
+    if(parsed_)
+    {
+      setAsGlobal();
+    }
   }
-#endif
 
   return parsed_;
 }
@@ -882,10 +886,12 @@ void newExpression::setupVariousAstArrays()
 {
   if (!astArraysSetup_)
   {
-#if 0
-    Xyce::dout() << "Array sizes BEFORE update:" <<std::endl;
-    outputVariousAstArrays(Xyce::dout());
-#endif
+    if (false)
+    {
+      Xyce::dout() << "Array sizes BEFORE update:" <<std::endl;
+      outputVariousAstArrays(Xyce::dout());
+    }
+
     if (externalDependencies_)
     {
       // setup arrays that require full AST traversal:
@@ -1180,10 +1186,11 @@ void newExpression::setupVariousAstArrays()
       isFreqDependent_ = !(freqOpVec_.empty());
       isGminDependent_ = !(gminOpVec_.empty());
 
-#if 0
-      Xyce::dout() << "Array sizes AFTER update:" <<std::endl;
-      outputVariousAstArrays(Xyce::dout());
-#endif
+      if (false)
+      {
+        Xyce::dout() << "Array sizes AFTER update:" <<std::endl;
+        outputVariousAstArrays(Xyce::dout());
+      }
 
       if ( !(Teuchos::is_null(group_)) )
       {
@@ -1273,18 +1280,19 @@ void newExpression::checkIsConstant_()
       isConstant_ = false;
   }
 
-#if 0
-  if (isConstant_)
+  if (false)// debug output
   {
-    Xyce::dout() << "expression: " << expressionString_
-      << " is constant" << std::endl;
+    if (isConstant_)
+    {
+      Xyce::dout() << "expression: " << expressionString_
+        << " is constant" << std::endl;
+    }
+    else
+    {
+      Xyce::dout() << "expression: " << expressionString_
+        << " is NOT constant" << std::endl;
+    }
   }
-  else
-  {
-    Xyce::dout() << "expression: " << expressionString_
-      << " is constant" << std::endl;
-  }
-#endif
 }
 
 //-------------------------------------------------------------------------------
@@ -1298,10 +1306,11 @@ void newExpression::checkIsConstant_()
 bool newExpression::getValuesFromGroup_()
 {
   bool noChange=true;
-#if 0
-  std::cout << "newExpression::getValuesFromGroup_() expression = "
-    << expressionString_ << std::endl;
-#endif
+  if (false) // debug output
+  {
+    std::cout << "newExpression::getValuesFromGroup_() expression = "
+      << expressionString_ << std::endl;
+  }
 
   // this function will get nearly everything, including voltages, currents, parameters, etc.
   noChange = group_->putValues(*this);
@@ -1425,19 +1434,6 @@ bool newExpression::getValuesFromGroup_()
     }
   }
 
-#if 0
-  // these seem like they aren't used, commenting out.
-
-  double oldTime_ = time_;
-  time_ = group_->getTime();
-  timeStep_ = group_->getTimeStep ();
-  timeStepAlpha_ = group_->getTimeStepAlpha ();
-  timeStepPrefac_ = group_->getTimeStepPrefac ();
-
-  unsigned int oldStepNumber_ = stepNumber_;
-  stepNumber_ = group_->getStepNumber ();
-#endif
-
   // this probably never changes ... only set it 1x
   if ( !(phaseOpVec_.empty()) )
   {
@@ -1448,13 +1444,6 @@ bool newExpression::getValuesFromGroup_()
       phOp->setPhaseOutputUsesRadians( phaseOutputUsesRadians_ );
     }
   }
-
-#if 0
-  for (int ii=0;ii<twoArgLimitOpVec_.size();ii++)
-  {
-    Teuchos::RCP<twoArgLimitOp<usedType> > talOp = Teuchos::rcp_static_cast<twoArgLimitOp<usedType> > (twoArgLimitOpVec_[ii]);
-  }
-#endif
 
   return noChange;
 }
@@ -1519,42 +1508,46 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       groupSetup_=group_->setupGroup(*this);
     }
 
-#if 0
-    Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
-    dumpParseTree(Xyce::dout());
-#endif
-
-#if 0
-    // old, slower way
-    retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
-    if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
-
-    if ( !(Teuchos::is_null(astNodePtr_)) )
+    if (false) // debug output
     {
-      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
-      for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
-      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+      Xyce::dout() << "Parse Tree for " << expressionString_ << std::endl;
+      dumpParseTree(Xyce::dout());
     }
-#else
-    //  new faster way, using dx2().  This allows all the calculations to be performed in a single AST traversal.
-    bool noChange = getValuesFromGroup_(); // this was inside of evaluateFunction
-    
-    if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
-    if ( !(Teuchos::is_null(astNodePtr_)) )
+
+    if (false) // ERK. This (old, slow) code block is kept around in case I need to debug dx2.
     {
-      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
+      // old, slower way
+      retVal = evaluateFunction (result); // for now don't check anything beyond what evaluateFunction checks
+      if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
 
-      astNodePtr_->dx2(result,derivs);
-
-      // this block was in evaluateFunction
-      Util::fixNan(result);
-      Util::fixInf(result);
-      retVal = (result != savedResult_);
-      savedResult_ = result;
-
-      for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+      if ( !(Teuchos::is_null(astNodePtr_)) )
+      {
+        for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
+        for (int ii=0;ii<numDerivs_;++ii) { derivs[ii] = astNodePtr_->dx(ii); }
+        for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+      }
     }
-#endif
+    else
+    {
+      //  new faster way, using dx2().  This allows all the calculations to be performed in a single AST traversal.
+      bool noChange = getValuesFromGroup_(); // this was inside of evaluateFunction
+      
+      if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
+      if ( !(Teuchos::is_null(astNodePtr_)) )
+      {
+        for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
+
+        astNodePtr_->dx2(result,derivs);
+
+        // this block was in evaluateFunction
+        Util::fixNan(result);
+        Util::fixInf(result);
+        retVal = (result != savedResult_);
+        savedResult_ = result;
+
+        for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->unsetDerivIndex(); }
+      }
+    }
   }
   else
   {
@@ -1594,10 +1587,13 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
       groupSetup_=group_->setupGroup(*this);
     }
 
-#if 0
-    Xyce::dout() << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;
-    dumpParseTree(Xyce::dout());
-#endif
+
+    if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
+    {
+      Xyce::dout() << "newExpression::evaluateFunction. about to evaluate expression tree for " << expressionString_ << std::endl;
+      dumpParseTree(Xyce::dout());
+    }
+
 
     bool noChange = getValuesFromGroup_();
     bool doTheEvaluation = true;
@@ -1618,35 +1614,39 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     {
       if ( !(Teuchos::is_null(astNodePtr_)) )
       {
-#if 1
-        result = astNodePtr_->val();
-#else
-        // this is a test, to use with unit tests to ensure that the "result" evaluation in dx2 matches that of val().
-        std::vector<usedType> derivs; // if empty, then dx2 should run OK.
-        astNodePtr_->dx2(result, derivs);
-#endif
+
+        if (false) // ERK.  This code block is kept around for debug purposes.  It normally isn't used.
+        {
+          // this is a test, to use with unit tests to ensure that the "result" evaluation in dx2 matches that of val().
+          std::vector<usedType> derivs; // if empty, then dx2 should run OK.
+          astNodePtr_->dx2(result, derivs);
+        }
+        else
+        {
+          result = astNodePtr_->val();
+        }
+
         Util::fixNan(result);
         Util::fixInf(result);
       }
       retVal = (result != savedResult_);
 
-#if 0
-      Xyce::dout().width(20); Xyce::dout().precision(13);
-      Xyce::dout().setf(std::ios::scientific);
-
-      if (retVal)
+      if (false) // some useful debug outputs.  Normally not called.
       {
-        Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = true" << std::endl;
+        Xyce::dout().width(20); Xyce::dout().precision(13);
+        Xyce::dout().setf(std::ios::scientific);
+
+        if (retVal)
+        {
+          Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = true" << std::endl;
+        }
+        else
+        {
+          Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = false" << std::endl;
+        }
+
+        dumpParseTree(Xyce::dout());
       }
-      else
-      {
-        Xyce::dout() << "newExpression::evaluateFunction. just evaluated expression tree for " << expressionString_ << " result = " << result << " retVal(changed) = false" << std::endl;
-      }
-
-      dumpParseTree(Xyce::dout());
-#endif
-
-
 
       savedResult_ = result;
     }
@@ -1654,11 +1654,13 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     {
       retVal = false;
       result = savedResult_;
-#if 0
-      Xyce::dout()
-        << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for "
-        << expressionString_ << " result = " << result << std::endl;
-#endif
+
+      if(false) // debug output
+      {
+        Xyce::dout()
+          << "newExpression::evaluateFunction. just skipped evaluating the expression tree (b/c constant) for "
+          << expressionString_ << " result = " << result << std::endl;
+      }
     }
   }
   else
@@ -1670,11 +1672,12 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
     exit(0);
   }
 
-#if 0
+  if (false) // debug output
+  {
   Xyce::dout()
     << "newExpression::evaluateFunction. just evaluated expression tree for "
     << expressionString_ << " result = " << result << std::endl;
-#endif
+  }
 
   return retVal;
 }
@@ -1741,7 +1744,7 @@ bool newExpression::getBreakPoints (
     for (int ii=0;ii< limitSize; ii++)
     { (limitAstNodeVec_[ii])->getBreakPoints(breakPointTimes); }
 
-#if 0
+    if(false) // debug output
     {
       Xyce::dout() << "newExpression::getBreakPoints. Expression "
         << expressionString_ << "  Number of breakpoints = "
@@ -1752,7 +1755,6 @@ bool newExpression::getBreakPoints (
           << breakPointTimes[ii].value() <<std::endl;
       }
     }
-#endif
   }
 
   return true;
@@ -1879,9 +1881,10 @@ bool newExpression::replaceName (
     if (currentNameIter != currentNameVec_.end()) { *currentNameIter = new_name; }
   }
 
-#if 0
-  dumpParseTree(Xyce::dout());
-#endif
+  if (false) // debug output
+  {
+    dumpParseTree(Xyce::dout());
+  }
   return found;
 }
 
