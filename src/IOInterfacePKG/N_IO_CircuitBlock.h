@@ -83,7 +83,7 @@ public:
      CircuitContext &                                                   cc,
      Topo::Topology &                                                   topology,
      Device::DeviceMgr &                                                device_manager,
-     unordered_set<std::string> &                               dNames,
+     unordered_set<std::string> &                                       dNames,
      unordered_set<std::string> &                                       nNames,
      AliasNodeMap &                                                     alias_node_map,
      const std::vector< std::pair< std::string, std::string> > &        externalNetlistParams,
@@ -223,6 +223,16 @@ public:
   }
   int getLineEndPosition() const { 
     return lineEndPosition_; 
+  }
+
+  bool getSimpleSingleDevice() const {
+    return simpleSingleDevice_;
+  }
+  const std::streampos getDevicePosition() const { 
+    return devicePosition_; 
+  }
+  int getDeviceLine() const { 
+    return deviceLine_;
   }
 
   // At the top level reset the file and line positions and skip the comment line.
@@ -381,6 +391,18 @@ private:
   std::streampos fileEndPosition_;
   int lineStartPosition_;
   int lineEndPosition_;
+
+  // Data for single-device subcircuit parsing
+  std::streampos devicePosition_;
+  int            deviceLine_;
+  int            numDevices_;
+  bool           simpleSingleDevice_;
+
+  void setDevicePosition()
+  {
+    devicePosition_ = ssfPtr_->getFilePosition();
+    deviceLine_ = ssfPtr_->getLineNumber();
+  }
 
   // Top level circuit pointer
   CircuitBlock* mainCircuitPtr_;

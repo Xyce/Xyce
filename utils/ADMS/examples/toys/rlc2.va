@@ -42,16 +42,14 @@
 `include "disciplines.vams"
 `include "constants.vams"
 
-`define attr(txt) (*txt*)
-
 module rlc2 (p,n);
   electrical p,n;
   inout p,n;
   electrical internal1;
 
-  `attr(info="Inductance" type="instance") parameter real L=1e-3 from (0:inf);
-  `attr(info="Resistance" type="instance") parameter real R=1e3 from (0:inf);
-  `attr(info="Capacitance" type="instance") parameter real C=1e-12 from (0:inf);
+  (*desc="Inductance", type="instance"*) parameter real L=1e-3 from (0:inf);
+  (*desc="Resistance", type="instance"*) parameter real R=1e3 from (0:inf);
+  (*desc="Capacitance", type="instance"*) parameter real C=1e-12 from (0:inf);
   real totalCurrent;
   real CapacitorCharge;
 

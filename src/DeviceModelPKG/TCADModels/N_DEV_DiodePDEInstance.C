@@ -3392,6 +3392,7 @@ bool Instance::calcMobilities ()
   mi.mobModelName = mobModelName;
   mi.materialName = bulkMaterial;
   mi.fieldDependent = fieldDependentMobility;
+  mi.T = Temp;
 
   // Now do edge mobilities:
   for (i=0;i<LX;++i)

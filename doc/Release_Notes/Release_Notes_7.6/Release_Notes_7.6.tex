@@ -88,14 +88,17 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item Placeholder
 \item The new harmonics selection method based on diamond truncation has
   been added for HB analysis
+\item Improvements to the parser have been made to address significant slowdowns in 
+  processing the open source SkyWater 130nm PDK.  For exemplar stress tests, parsing 
+  is now up to 20x faster.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-  \item Placeholder
+\item The number of warnings output by Xyce can now be controlled by the command-line option
+  ``-max-warnings \#''.  The default maximum number of warnings is now 100, before it was unlimited.
 \end{XyceItemize}
 
 \subsubsection*{Xyce/ADMS Improvements}

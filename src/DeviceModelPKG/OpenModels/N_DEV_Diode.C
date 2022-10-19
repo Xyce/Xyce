@@ -84,10 +84,6 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setUnit(U_LOGIC)
     .setCategory(CAT_CONTROL)
     .setDescription("Initial voltage drop across device set to zero");
-  p.addPar ("LAMBERTW", 0, &Diode::Instance::lambertWFlag)
-    .setUnit(U_LOGIC)
-    .setCategory(CAT_CONTROL)
-    .setDescription("Option to solve diode equations with the Lambert-W function");
 }
 
 void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
@@ -125,20 +121,20 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
   p.addPar ("ISR", 0.0, &Diode::Model::ISR)
     .setUnit(U_AMP)
     .setCategory(CAT_CURRENT)
-    .setDescription("Recombination current parameter (level 2)")
+    .setDescription("Recombination current parameter")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("NR", 2.0, &Diode::Model::NR)
     .setCategory(CAT_NONE)
-    .setDescription("Emission coefficient for ISR (level 2)")
+    .setDescription("Emission coefficient for ISR")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("IKF", 0.0, &Diode::Model::IKF)
     .setUnit(U_AMP)
     .setCategory(CAT_CURRENT)
-    .setDescription("High-injection \"knee\" current (level 2)")
+    .setDescription("High-injection \"knee\" current")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
@@ -203,29 +199,29 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
   p.addPar ("TIKF", 0.0, &Diode::Model::TIKF)
     .setUnit(U_DEGCM1)
     .setCategory(CAT_TEMP)
-    .setDescription("IKF temperature coefficient (linear) (level 2)")
+    .setDescription("IKF temperature coefficient (linear)")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 ////
   p.addPar ("TBV1", 0.0, &Diode::Model::TBV1)
     .setUnit(U_DEGCM1)
     .setCategory(CAT_TEMP)
-    .setDescription("BV temperature coefficient (linear) (level 2)");
+    .setDescription("BV temperature coefficient (linear)");
 
   p.addPar ("TBV2", 0.0, &Diode::Model::TBV2)
     .setUnit(U_DEGCM2)
     .setCategory(CAT_TEMP)
-    .setDescription("BV temperature coefficient (quadratic) (level 2)");
+    .setDescription("BV temperature coefficient (quadratic)");
 
   p.addPar ("TRS1", 0.0, &Diode::Model::TRS1)
     .setUnit(U_DEGCM1)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (linear) (level 2)");
+    .setDescription("RS temperature coefficient (linear)");
 
   p.addPar ("TRS2", 0.0, &Diode::Model::TRS2)
     .setUnit(U_DEGCM2)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (quadratic) (level 2)");
+    .setDescription("RS temperature coefficient (quadratic)");
 ////
   p.addPar ("FC", 0.5, &Diode::Model::FC)
     .setCategory(CAT_CAP)
@@ -257,29 +253,22 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
-  p.addPar ("IRF", 1.0, &Diode::Model::IRF)
-    .setGivenMember(&Diode::Model::IRFGiven)
-    .setCategory(CAT_CURRENT)
-    .setDescription("Reverse current fitting factor")
-    .setAnalyticSensitivityAvailable(true)
-    .setSensitivityFunctor(&diodeSens);
-
   p.addPar ("NBV", 1.0, &Diode::Model::NBV)
     .setCategory(CAT_PROCESS)
-    .setDescription("Reverse breakdown ideality factor (level 2)")
+    .setDescription("Reverse breakdown ideality factor")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("IBVL", 0.0, &Diode::Model::IBVL)
     .setUnit(U_AMP)
     .setCategory(CAT_CURRENT)
-    .setDescription("Low-level reverse breakdown \"knee\" current (level 2)")
+    .setDescription("Low-level reverse breakdown \"knee\" current")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("NBVL", 1.0, &Diode::Model::NBVL)
     .setCategory(CAT_PROCESS)
-    .setDescription("Low-level reverse breakdown ideality factor (level 2)")
+    .setDescription("Low-level reverse breakdown ideality factor")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
@@ -324,12 +313,8 @@ std::vector< std::vector<int> > Instance::jacMap2;
 bool Instance::processParams()
 {
   // Set any non-constant parameter defaults:
-  if (!given("LAMBERTW"))
-    lambertWFlag = getDeviceOptions().lambertWFlag;
   if (!given("TEMP"))
     Temp = getDeviceOptions().temp.getImmutableValue<double>();
-  if ( (model_.RS == 0.0) && (lambertWFlag == 1) )
-    model_.RS =1.0e-12;
 
   updateTemperature( Temp );
   return true;
@@ -355,7 +340,6 @@ Instance::Instance(
     multiplicityFactor(1.0),
     InitCond(0.0),
     Temp(getDeviceOptions().temp.getImmutableValue<double>()),
-    lambertWFlag(0),
     InitCondGiven(false),
     tJctPot(0.0),
     tJctCap(0.0),
@@ -367,7 +351,6 @@ Instance::Instance(
     tSatCurR(0.0),
     tIKF(0.0),
     tRS(0.0),
-    tIRF(1.0),
     Id(0.0),
     Gd(0.0),
     Cd(0.0),
@@ -451,15 +434,11 @@ Instance::Instance(
   // calculate dependent (ie computed) params and check for errors:
   processParams ();
 
-  if ( (model_.RS == 0.0) || (lambertWFlag == 1) )
+  if ( model_.RS == 0.0 )
     numIntVars = 0;
   if ( model_.CJO == 0.0 )
     numStateVars = 1;
 
-  if ( (model_.IRFGiven) )
-  {
-    UserWarning(*this) << " IRF has been specified in the model card.  This usage is deprecated.  Please see the Reference Guide for details";
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -511,7 +490,7 @@ void Instance::registerLIDs( const std::vector<int> & intLIDVecRef,
   //Setup of Pri node indices
   //If RS=0, Pri=Pos Node
   //--------------------------
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0)
     li_Pri = intLIDVec[0];
   else
     li_Pri = li_Pos;
@@ -640,7 +619,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 const std::vector< std::vector<int> > & Instance::jacobianStamp() const
 {
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0 )
     return jacStamp_RS;
   else
     return jacStamp;
@@ -660,7 +639,7 @@ void Instance::registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVe
   std::vector<int> map;
   std::vector< std::vector<int> > map2;
 
-  if( model_.RS && (lambertWFlag != 1) )
+  if( model_.RS != 0.0 )
   {
     map = jacMap_RS;
     map2 = jacMap2_RS;
@@ -1124,238 +1103,90 @@ bool Instance::updateIntermediateVars ()
   // Current and Conductivity
   //----------------------------------------------
 
-  int level = model_.getLevel();
-  if(level == 1)
+  if (Vd >= -3.0 * Vte)
   {
-    // Using LambertW function
-    if (lambertWFlag == 1)
-    {
-      double RS = model_.RS;
-      if (Vd >= -3.0 * Vte)
-      {
-        lambertWCurrent(Isat, Vte, RS);
-      }
-      // linear reverse bias
-      else if ( !tBrkdwnV || (Vd >= -tBrkdwnV) )
-      {
-        lambertWLinearReverseBias(Isat, Vte, RS);
-      }
-      // reverse breakdown
-      else
-      {
-        lambertWBreakdownCurrent(Isat, Vte, RS);
-      }
+    double arg1 = Vd / Vte;
+    arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+    double evd = exp(arg1);
+    Inorm = Isat * (evd - 1.0) + getDeviceOptions().gmin * Vd;
+    Gd1 = Isat*evd/Vte + getDeviceOptions().gmin;
 
-      double Vrs;
-      Vrs = (Id + Icd)*RS;
-      Vc = Vd - Vrs;
-    }
-    else if (lambertWFlag == 2)
+    arg1 = Vd / VteR;
+    arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+    evd  = exp(arg1);
+    Irec = IsatR * (evd - 1.0);
+    Gd2  = IsatR*evd/VteR;
+
+    Khi = 1;
+    DKhi = 0;
+    if(tIKF > 0)
     {
-      if (Vd >= -3.0 * Vte)
-      {
-        lambertWCurrent(Isat, Vte, 1.0e-15);
-      }
-      // linear reverse bias
-      else if ( !tBrkdwnV || (Vd >= -tBrkdwnV) )
-      {
-        lambertWLinearReverseBias(Isat, Vte, 1.0e-15);
-      }
-      // reverse breakdown
-      else
-      {
-        lambertWBreakdownCurrent(Isat, Vte, 1.0e-15);
-      }
-      Vc = Vd;
+      Khi = sqrt(tIKF/(tIKF+Inorm));
+      DKhi = -0.5*Khi*Gd1/(tIKF+Inorm);
+    }
+    Kgen = 0;
+    DKgen = 0;
+    if(Irec != 0)
+    {
+      Kgen = sqrt( pow(((1-Vd/tJctPot)*(1-Vd/tJctPot) + 0.005),M) );
+      DKgen = -M*(1-Vd/tJctPot)*Kgen/(tJctPot*((1-Vd/tJctPot)*(1-Vd/tJctPot)+0.005));
     }
 
-    // Normal exponential
-    else
-    {
-      // Adjustment for linear portion of reverse current
-      double IRfactor;
-      //if(Vd >= 0) IRfactor = 1.0;  //error?  shouldn't this be Vd>=-3*Vte????
-      if(Vd >= -3.0 * Vte) IRfactor = 1.0;  //changing this to be consistent
-      else IRfactor = tIRF;                 //with model in reference guide.
-      Isat *= IRfactor;
-
-      if (Vd >= -3.0 * Vte)
-      {
-        double arg1 = Vd / Vte;
-        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-        double evd = exp(arg1);
-
-        Id = Isat * (evd - 1.0) + getDeviceOptions().gmin * Vd;
-        Gd = Isat * evd / Vte + getDeviceOptions().gmin;
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Normal exponential regime." << std::endl;
-          Xyce::dout()  << " Vd  = " << Vd << std::endl;
-          Xyce::dout()  << " Vte = " << Vte << std::endl;
-          Xyce::dout()  << " Id  = " << Id  << std::endl;
-          Xyce::dout()  << " Gd  = " << Gd  << std::endl;
-        }
-
-      }
-
-      // Linear reverse bias
-      else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
-      {
-        double arg = 3.0 * Vte / (Vd * CONSTe);
-        arg = arg * arg * arg;
-        Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
-        Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Linear reverse bias regime." << std::endl;
-          Xyce::dout()  << " Vd       = " << Vd << std::endl;
-          Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-          Xyce::dout()  << " Id       = " << Id  << std::endl;
-          Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-        }
-      }
-
-      // Reverse breakdown
-      else
-      {
-        double arg1 = -(tBrkdwnV + Vd) / Vte;
-        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-        double evrev = exp(arg1);
-
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-        Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
-        Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
-#else
-        //added by K. Santarelli 9/18/07 to account for change in tBrkdwnV
-        //calculation.
-        double arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-        arg2=arg2*arg2*arg2;
-        double Isat_tBrkdwnV=Isat*(1-arg2);
-        Id = -Isat_tBrkdwnV * evrev + getDeviceOptions().gmin * Vd;
-        Gd = Isat_tBrkdwnV * evrev / Vte + getDeviceOptions().gmin;
-#endif
-
-        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-        {
-          Xyce::dout()  << "Reverse breakdown regime." << std::endl;
-          Xyce::dout()  << " Vd       = " << Vd << std::endl;
-          Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-          Xyce::dout()  << " Id       = " << Id  << std::endl;
-          Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-        }
-      }
-      Vc = Vd;
-    }
-
-  }
-  else if(level == 2)
-  {
+    Id = Inorm*Khi + Irec*Kgen;
+    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      Xyce::dout() << " Level 2 diode code " << std::endl;
+      Xyce::dout()  << "Normal exponential regime." << std::endl;
+      Xyce::dout()  << " Vd  = " << Vd << std::endl;
+      Xyce::dout()  << " Vte = " << Vte << std::endl;
+      Xyce::dout()  << " Id  = " << Id  << std::endl;
+      Xyce::dout()  << " Irec= " << Irec  << std::endl;
+      Xyce::dout()  << " Gd  = " << Gd  << std::endl;
+      Xyce::dout()  << " Gd1 = " << Gd1 << std::endl;
+      Xyce::dout()  << " Gd2 = " << Gd2 << std::endl;
+      Xyce::dout()  << " Khi = " << Khi << std::endl;
+      Xyce::dout()  << " Kgen=" << Kgen << std::endl;
+      Xyce::dout()  << "DKgen=" <<DKgen << std::endl;
     }
-    // Adjustment for linear portion of reverse current
-    double IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;    //error?  Shouldn't this be Vd >= -3*Vte?
-    if(Vd >= -3.0*Vte) IRfactor=1.0; //changing it to be consistent with model
-    else IRfactor = tIRF;            //in the reference manual.
-    Isat *= IRfactor;
+  }
 
-    if (Vd >= -3.0 * Vte)
+  // Linear reverse bias
+  else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
+  {
+    double arg = 3.0 * Vte / (Vd * CONSTe);
+    arg = arg * arg * arg;
+    Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
+    Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
+    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      double arg1 = Vd / Vte;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evd = exp(arg1);
-      Inorm = Isat * (evd - 1.0) + getDeviceOptions().gmin * Vd;
-      Gd1 = Isat*evd/Vte + getDeviceOptions().gmin;
-
-      arg1 = Vd / VteR;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      evd  = exp(arg1);
-      Irec = IsatR * (evd - 1.0);
-      Gd2  = IsatR*evd/VteR;
-
-      Khi = 1;
-      DKhi = 0;
-      if(tIKF > 0)
-      {
-        Khi = sqrt(tIKF/(tIKF+Inorm));
-        DKhi = 0.5*Khi*Gd1/(tIKF+Inorm);
-      }
-      Kgen = 0;
-      DKgen = 0;
-      if(Irec != 0)
-      {
-        Kgen = sqrt( pow(((1-Vd/tJctPot)*(1-Vd/tJctPot) + 0.005),M) );
-        DKgen = -M*(1-Vd/tJctPot)/(tJctPot*Kgen);
-      }
-
-      Id = Inorm*Khi + Irec*Kgen;
-      Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-      {
-        Xyce::dout()  << "L2 Normal exponential regime." << std::endl;
-        Xyce::dout()  << " Vd  = " << Vd << std::endl;
-        Xyce::dout()  << " Vte = " << Vte << std::endl;
-        Xyce::dout()  << " Id  = " << Id  << std::endl;
-        Xyce::dout()  << " Irec= " << Irec  << std::endl;
-        Xyce::dout()  << " Gd  = " << Gd  << std::endl;
-        Xyce::dout()  << " Gd1 = " << Gd1 << std::endl;
-        Xyce::dout()  << " Gd2 = " << Gd2 << std::endl;
-        Xyce::dout()  << " Khi = " << Khi << std::endl;
-        Xyce::dout()  << " Kgen=" << Kgen << std::endl;
-        Xyce::dout()  << "DKgen=" <<DKgen << std::endl;
-      }
+      Xyce::dout()  << "Linear reverse bias regime." << std::endl;
+      Xyce::dout()  << " Vd       = " << Vd << std::endl;
+      Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
+      Xyce::dout()  << " Id       = " << Id  << std::endl;
+      Xyce::dout()  << " Gd       = " << Gd  << std::endl;
     }
+  }
 
-    // Linear reverse bias
-    else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
+  // Reverse breakdown
+  else
+  {
+    double arg1 = -(tBrkdwnV + Vd) / Vte;
+    arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+    double evrev = exp(arg1);
+
+    Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
+    Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
+    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      double arg = 3.0 * Vte / (Vd * CONSTe);
-      arg = arg * arg * arg;
-      Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
-      Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-      {
-        Xyce::dout()  << "L2 Linear reverse bias regime." << std::endl;
-        Xyce::dout()  << " Vd       = " << Vd << std::endl;
-        Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-        Xyce::dout()  << " Id       = " << Id  << std::endl;
-        Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-      }
+      Xyce::dout()  << "Reverse breakdown regime." << std::endl;
+      Xyce::dout()  << " Vd       = " << Vd << std::endl;
+      Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
+      Xyce::dout()  << " Id       = " << Id  << std::endl;
+      Xyce::dout()  << " Gd       = " << Gd  << std::endl;
     }
+  }
+  Vc = Vd;
 
-    // Reverse breakdown
-    else
-    {
-      double arg1 = -(tBrkdwnV + Vd) / Vte;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evrev = exp(arg1);
-
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-      Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
-      Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
-#else
-      //added 9/18/07 by K. Santarelli to account for change in tBrkdwnV
-      //calculation.
-      double arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      double Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + getDeviceOptions().gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + getDeviceOptions().gmin;
-#endif
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-      {
-        Xyce::dout()  << "L2 Reverse breakdown regime." << std::endl;
-        Xyce::dout()  << " Vd       = " << Vd << std::endl;
-        Xyce::dout()  << " tBrkdwnV = " << tBrkdwnV << std::endl;
-        Xyce::dout()  << " Id       = " << Id  << std::endl;
-        Xyce::dout()  << " Gd       = " << Gd  << std::endl;
-      }
-    }
-    Vc = Vd;
-
-  }  // level
 
   // Only compute if Capacitance is non-zero
   //---------------------------------------
@@ -1464,143 +1295,53 @@ bool Instance::updateTemperature( const double & temp )
   tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
   tRS   = model_.RS;
   tCOND = model_.COND;
-  if (model_.IRFGiven)
-  {
-    tIRF  = model_.IRF*pow(fact2,1.6);
-  }
-  else
-  {
-    tIRF = model_.IRF;
-  }
+
+  tSatCurR = model_.ISR*exp((Temp/TNOM - 1.0)*
+                            model_.EG/(model_.NR*vt)+
+                            model_.XTI/model_.NR*log(Temp/TNOM));
+
+  tIKF = model_.IKF*(1 + model_.TIKF*(Temp-TNOM));
+
+  tempBV = model_.BV*(1 + (Temp-TNOM)*
+                      ( model_.TBV1 + model_.TBV2*(Temp-TNOM) ));
+
+  tRS = model_.RS*(1 + (Temp-TNOM)*
+                   ( model_.TRS1 + model_.TRS2*(Temp-TNOM) ));
+
+  tCOND = 0.0;
+  if(tRS != 0.0) tCOND = 1.0/tRS;
 
   int level = model_.getLevel();
   if(level == 2)   // this section is PSPICE compatible
   {
-    tSatCurR = model_.ISR*exp((Temp/TNOM - 1.0)*
-                              model_.EG/(model_.NR*vt)+
-                              model_.XTI/model_.NR*log(Temp/TNOM));
-
-    tIKF = model_.IKF*(1 + model_.TIKF*(Temp-TNOM));
-
-    tempBV = model_.BV*(1 + (Temp-TNOM)*
-                        ( model_.TBV1 + model_.TBV2*(Temp-TNOM) ));
-
-    tRS = model_.RS*(1 + (Temp-TNOM)*
-                     ( model_.TRS1 + model_.TRS2*(Temp-TNOM) ));
-
-    tCOND = 0.0;
-    if(tRS != 0.0) tCOND = 1.0/tRS;
-
     tJctPot = (model_.VJ - egfet1)*fact2 - 3*vt*log(fact2) + egfet;
-
     tJctCap = model_.CJO/(1.0 +
                           model_.M*(4.0e-4*(Temp-TNOM) + (1-tJctPot/model_.VJ)));
   }
-  else
-  {
-    tempBV=model_.BV;
-  }
-
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-  //Changed 9/18/07, K. R. Santarelli.  This is the original (broken) version
-  //of the breakdown voltage computation.  It has two known issues:
-  //
-  //1.  It assumes N (the emission coefficient) is always 1 (division by
-  //    vt instead of vte).
-  //2.  While the for loop terminates due to the fact that it's implemented via
-  //    a counter, the value of xbv does not converge in many cases, so the
-  //    value of xbv upon terminating is often garbage.
-  //
-  //For consistency with old, existing simulations, this version of the
-  //breakdown voltage calculation (along with the appropriate code for
-  //computing the breakdown current in the level 1 and level 2 models---see
-  //the appropriate sections of
-  //Instance::updateIntermediateVars) can be invoked by
-  //specifiying the CPPFLAG "-DXyce_BREAKDOWN_ORIGINAL" when creating a Xyce
-  //Build.  The default, however, is the code which follows #else.
 
   double reltol = 1.0e-3;
   if( model_.BVGiven )
   {
-    double IRfactor = tIRF;
     double cbv = model_.IBV;
     double xbv, xcbv;
-    if( cbv < IRfactor*tSatCur*tempBV/vt )
+    if( cbv < tSatCur*tempBV/vt )
     {
-      cbv = IRfactor*tSatCur*tempBV/vt;
+      cbv = tSatCur*tempBV/vt;
       xbv = tempBV;
     }
     else
     {
       double tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(IRfactor*tSatCur));
+      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(IRfactor*tSatCur)+1.0-xbv/vt);
-        xcbv = IRfactor*tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
     tBrkdwnV = xbv;
   }
-#else
-  if( model_.BVGiven)
-  {
-    double IRFactor=tIRF;
-    double cbv = model_.IBV;
-    double xbv;
-    double cthreshlow; //lower threshold for IBV
-    double cthreshhigh; //high threshold for IBV
-    int iter_count;
-    const int ITER_COUNT_MAX=8;
-    double arg2;
-
-    double arg1=3.0*vte/(CONSTe*tempBV);
-    arg1=arg1*arg1*arg1;
-    cthreshlow=tSatCur*IRFactor*(1-arg1);
-    cthreshhigh=tSatCur*IRFactor*(1-1.0/(CONSTe*CONSTe*CONSTe)) *
-                exp(-1.0*(3.0*vte-tempBV)/vte);
-
-    if(cbv >= cthreshhigh)
-    {                     //if IBV is too high, tBrkdwnV will go below 3NVt.
-      tBrkdwnV=3.0*vte;   //Clip tBrkdwnV to 3*N*Vt in this case (and hence
-    }                     //clip IBV to cthreshhigh).
-
-
-    else if(cbv <= cthreshlow)
-    {                          //if IBV is too low, tBrkdwnV will go above
-      tBrkdwnV=tempBV;  //BV.  Clip tBrkdwnV to BV in this case (and
-    }                          //hence clip IBV to cthreshlow).
-
-
-    //If IBV is in an acceptable range, perform a Picard iteration to find
-    //tBrkdwnV, starting with an initial guess of tBrkdwnV=tempBV, and
-    //running through the iteration ITER_COUNT_MAX times.
-
-    else
-    {
-      xbv=tempBV;
-      for(iter_count=0; iter_count < ITER_COUNT_MAX; iter_count++)
-      {
-        arg2=3.0*vte/(CONSTe*xbv);
-        arg2=arg2*arg2*arg2;
-        xbv=tempBV-vte*log(cbv/(tSatCur*IRFactor))+vte *
-            log(1-arg2);
-      }
-      tBrkdwnV=xbv;
-    }
-
-//Note that, not only is tBrkdwnV adjusted using this method, but the effective
-//value of Is (tSatCur) is adjusted as well.  The code used to use Is before,
-//but now it will use Is*IRFactor*(1-(3*N*Vt/(e*tBrkdwnV))^3) instead.  This is
-//reflected in changes made to Instance::updateIntermediateVars
-//(for "normal" level 1 and 2 diode models) for the reverse breakdown region.
-//Changes have not been made to the associated LambertW functions as of yet
-//since there seem to be other issues involved with those functions independent
-// of this change.
-  }
-#endif
-
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
@@ -1632,213 +1373,8 @@ bool Instance::updateTemperature( const double & temp )
     Xyce::dout() << " tVcrit  = " << tVcrit   << std::endl;
     Xyce::dout() << " tRS     = " << tRS      << std::endl;
     Xyce::dout() << " tCOND   = " << tCOND    << std::endl;
-    Xyce::dout() << " tIRF    = " << tIRF     << std::endl;
     Xyce::dout() << " tBrkdwnV= " << tBrkdwnV << std::endl;
   }
-
-  return true;
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWCurrent
-// Purpose       : Determine the diode current using Lambert-W function
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/5/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWCurrent(double Isat, double Vte, double RS)
-{
-  // with capacitor current and using LambertW accros whole model
-  /*  if (Cd != 0.0 && Icd != 0 && (lambertWFlag == 1))
-      {
-      double AA = Vte*(1.0 + RS*getSolverState().pdt*Cd);
-      double XX = Icd - getSolverState().pdt*Qd;
-      double arg1 = (Vd + RS*Isat - RS*XX)/AA;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evd = exp(arg1);
-      double lambWArg = Isat*RS/AA * evd;
-      double lambWReturn;
-      int ierr;
-      double lambWError;
-      devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-      else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-      else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-      }
-
-      double prefac = AA/RS;
-      Id = -Isat + prefac*lambWReturn;
-      Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-      Xyce::dout() << "lambWError = " << lambWError << std::endl;
-      Xyce::dout() << "Id         = " << Id << std::endl;
-      Xyce::dout() << "Gd         = " << Gd << std::endl;
-      Xyce::dout() << "Icd        = " << Icd << std::endl;
-      Xyce::dout() << "Cd         = " << Cd  << std::endl;
-      Xyce::dout() << "Qd         = " << Qd  << std::endl;
-      Xyce::dout() << "AA         = " << AA << std::endl;
-      Xyce::dout() << "XX         = " << XX << std::endl;
-      Xyce::dout() << "Using lambertwCurrent w/ capacitance" << std::endl;
-      }
-      #endif
-      }
-
-      // when capacitor current=0, there is no capacitance, or using LambertW
-      // only across the diode element
-      else
-      { */
-  double arg1 = (Vd + Isat*RS)/Vte;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-  double evd = exp(arg1);
-  double lambWArg = Isat*RS*evd/Vte;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  Id = -Isat+Vte*(lambWReturn)/RS;
-  Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-  // }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWLinearReverseBias
-// Purpose       : Function to maintain continuity between forward bias and
-//                 breakdown voltages of diode
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/30/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWLinearReverseBias(double Isat, double Vte, double RS)
-{
-  double FF1 = (Vd + tBrkdwnV)/(-3.0 * Vte + tBrkdwnV);
-  double FF2 = (1/2 - FF1)*(-2);
-  double arg = Vte/RS;
-  double arg1 = (Isat/arg - 3);
-  double arg2 = FF1*arg1;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg2);
-  double evd = exp(arg2);
-  double lambWArg = Isat*evd/arg;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-  {
-    if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-    else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-    else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-  }
-
-  Id = -Isat*FF1 + FF2*lambWReturn*arg;
-
-  double GdFF1 = 1/(-3.0*Vte + tBrkdwnV);
-  double GdFF2 = 2 * GdFF1;
-  double GdW = arg*lambWReturn*GdFF1*arg1/(1 + lambWReturn);
-  Gd = -Isat*GdFF1 + GdFF2*arg*lambWReturn + FF2*GdW;
-
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
-  {
-    Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-    Xyce::dout() << "lambWError = " << lambWError << std::endl;
-    Xyce::dout() << "lambWReturn= " << lambWReturn << std::endl;
-    Xyce::dout() << "Id         = " << Id << std::endl;
-    Xyce::dout() << "Gd         = " << Gd << std::endl;
-    Xyce::dout() << "Using lambertwReverseBias" << std::endl;
-  }
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Instance::lambertWBreakdownCurrent
-// Purpose       : Determine the diode breakdown current using Lambert-W function
-// Special Notes :
-// Scope         : public
-// Creator       : Nick Johnson, Summer Intern
-// Creation Date : 7/11/02
-//-----------------------------------------------------------------------------
-bool Instance::lambertWBreakdownCurrent(double Isat, double Vte, double RS)
-{
-  // with capacitor current and applying LambertW accros whole diode model
-  /*  if (Cd != 0.0 && Icd != 0 && (lambertWFlag == 1))
-      {
-      double AA = Vte*(1 + RS*getSolverState().pdt*Cd);
-      double XX = Icd - getSolverState().pdt*Qd;
-      double arg1 = (RS*XX - Vd)/AA - tBrkdwnV/Vte;
-      arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-      double evd = exp(arg1);
-      double lambWArg = Isat*RS*evd/AA;
-      double lambWReturn;
-      int ierr;
-      double lambWError;
-      devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      if (ierr == 0)
-      Xyce::dout() << "Safe LambertW return" << std::endl;
-      else if (ierr == 1)
-      Xyce::dout() << "LambertW argument not in domain" << std::endl;
-      else
-      Xyce::dout() << "Arithmetic problems with LambertW" << std::endl;
-      }
-      #endif
-
-      Id = -AA*lambWReturn/RS;
-      Gd = (lambWReturn / (1 + lambWReturn)) * (1/RS);
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-      Xyce::dout() << "lambWArg   = " << lambWArg << std::endl;
-      Xyce::dout() << "lambWError = " << lambWError << std::endl;
-      Xyce::dout() << "Id         = " << Id << std::endl;
-      Xyce::dout() << "Gd         = " << Gd << std::endl;
-      Xyce::dout() << "Icd        = " << Icd << std::endl;
-      Xyce::dout() << "Cd         = " << Cd  << std::endl;
-      Xyce::dout() << "Qd         = " << Qd  << std::endl;
-      Xyce::dout() << "AA         = " << AA << std::endl;
-      Xyce::dout() << "XX         = " << XX << std::endl;
-      Xyce::dout() << "Using lambertwBreakdown w/ capacitance" << std::endl;
-      }
-      #endif
-      }
-
-      // without capacitor current or applying lambertW just accros diode element
-      else
-      {*/
-  double arg1 = (-Vd - tBrkdwnV)/ Vte;
-  arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
-  double evd = exp(arg1);
-  double lambWArg = Isat*RS*evd/Vte;
-  double lambWReturn;
-  int ierr;
-  double lambWError;
-  devSupport.lambertw(lambWArg, lambWReturn, ierr, lambWError);
-
-  Id = -Vte*lambWReturn/RS;
-  Gd = lambWReturn / ((1 + lambWReturn)*RS);
-
-  // }
 
   return true;
 }
@@ -1958,40 +1494,6 @@ Model::Model(
   updateDependentParameters();
 
   // calculate dependent (ie computed) params and check for errors:
-
-  // Note: Level 2 only params are: ISR, NR, IKF, NBV, IBVL, NBVL, TIKF, TBV1, TBV2, TRS1, TRS2
-  if (getLevel() == 1)
-  {
-    std::string bad_parameters;
-
-    if (given("ISR"))
-      bad_parameters += " ISR";
-    if (given("NR"))
-      bad_parameters += " NR";
-    if (given("IKF"))
-      bad_parameters += " IKF";
-    if (given("NBV"))
-      bad_parameters += " NBV";
-    if (given("IBVL"))
-      bad_parameters += " IBVL";
-    if (given("NBVL"))
-      bad_parameters += " NBVL";
-    if (given("TIKF"))
-      bad_parameters += " TIKF";
-    if (given("TBV1"))
-      bad_parameters += " TBV1";
-    if (given("TBV2"))
-      bad_parameters += " TBV2";
-    if (given("TRS1"))
-      bad_parameters += " TRS1";
-    if (given("TRS2"))
-      bad_parameters += " TRS2";
-    if (!bad_parameters.empty())
-    {
-      UserError(*this) << "Illegal parameter(s) given for level 1 diode:" << bad_parameters;
-    }
-  }
-
   processParams ();
 }
 
@@ -2303,7 +1805,6 @@ bool updateTemperature
    ScalarT & tVcrit,
    ScalarT & tRS,
    ScalarT & tCOND,
-   ScalarT & tIRF,
    ScalarT & tIKF,
    ScalarT & tBrkdwnV,
 
@@ -2396,143 +1897,52 @@ bool updateTemperature
   tVcrit = vte*log(vte/(root2*tSatCur));
   tRS   = RS;
   tCOND = COND;
-  if (IRFGiven)
-  {
-    tIRF  = IRF*pow(fact2,1.6);
-  }
-  else
-  {
-    tIRF = IRF;
-  }
 
-  //int level = getLevel();
+  tSatCurR = ISR*exp((Temp/TNOM - 1.0)*
+                     EG/(NR*vt)+
+                     XTI/NR*log(Temp/TNOM));
+
+  tIKF = IKF*(1 + TIKF*(Temp-TNOM));
+
+  tempBV = BV*(1 + (Temp-TNOM)*
+               ( TBV1 + TBV2*(Temp-TNOM) ));
+
+  tRS = RS*(1 + (Temp-TNOM)*
+            ( TRS1 + TRS2*(Temp-TNOM) ));
+
+  tCOND = 0.0;
+  if(tRS != 0.0) tCOND = 1.0/tRS;
+
   if(level == 2)   // this section is PSPICE compatible
   {
-    tSatCurR = ISR*exp((Temp/TNOM - 1.0)*
-                         EG/(NR*vt)+
-                         XTI/NR*log(Temp/TNOM));
-
-    tIKF = IKF*(1 + TIKF*(Temp-TNOM));
-
-    tempBV = BV*(1 + (Temp-TNOM)*
-                        ( TBV1 + TBV2*(Temp-TNOM) ));
-
-    tRS = RS*(1 + (Temp-TNOM)*
-                     ( TRS1 + TRS2*(Temp-TNOM) ));
-
-    tCOND = 0.0;
-    if(tRS != 0.0) tCOND = 1.0/tRS;
-
     tJctPot = (VJ - egfet1)*fact2 - 3*vt*log(fact2) + egfet;
-
     tJctCap = CJO/(1.0 +
                           M*(4.0e-4*(Temp-TNOM) + (1-tJctPot/VJ)));
   }
-  else
-  {
-    tempBV=BV;
-  }
-
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-  //Changed 9/18/07, K. R. Santarelli.  This is the original (broken) version
-  //of the breakdown voltage computation.  It has two known issues:
-  //
-  //1.  It assumes N (the emission coefficient) is always 1 (division by
-  //    vt instead of vte).
-  //2.  While the for loop terminates due to the fact that it's implemented via
-  //    a counter, the value of xbv does not converge in many cases, so the
-  //    value of xbv upon terminating is often garbage.
-  //
-  //For consistency with old, existing simulations, this version of the
-  //breakdown voltage calculation (along with the appropriate code for
-  //computing the breakdown current in the level 1 and level 2 models---see
-  //the appropriate sections of
-  //Instance::updateIntermediateVars) can be invoked by
-  //specifiying the CPPFLAG "-DXyce_BREAKDOWN_ORIGINAL" when creating a Xyce
-  //Build.  The default, however, is the code which follows #else.
 
   double reltol = 1.0e-3;
   if( BVGiven )
   {
-    ScalarT IRfactor = tIRF;
     ScalarT cbv = IBV;
     ScalarT xbv, xcbv;
-    if( cbv < IRfactor*tSatCur*tempBV/vt )
+    if( cbv < tSatCur*tempBV/vt )
     {
-      cbv = IRfactor*tSatCur*tempBV/vt;
+      cbv = tSatCur*tempBV/vt;
       xbv = tempBV;
     }
     else
     {
       ScalarT tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(IRfactor*tSatCur));
+      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(IRfactor*tSatCur)+1.0-xbv/vt);
-        xcbv = IRfactor*tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
     tBrkdwnV = xbv;
   }
-#else
-  if( BVGiven)
-  {
-    ScalarT IRFactor=tIRF;
-    ScalarT cbv = IBV;
-    ScalarT xbv;
-    ScalarT cthreshlow; //lower threshold for IBV
-    ScalarT cthreshhigh; //high threshold for IBV
-    int iter_count;
-    const int ITER_COUNT_MAX=8;
-    ScalarT arg2;
-
-    ScalarT arg1=3.0*vte/(e*tempBV);
-    arg1=arg1*arg1*arg1;
-    cthreshlow=tSatCur*IRFactor*(1-arg1);
-    cthreshhigh=tSatCur*IRFactor*(1-1.0/(e*e*e)) *
-                exp(-1.0*(3.0*vte-tempBV)/vte);
-
-    if(cbv >= cthreshhigh)
-    {                     //if IBV is too high, tBrkdwnV will go below 3NVt.
-      tBrkdwnV=3.0*vte;   //Clip tBrkdwnV to 3*N*Vt in this case (and hence
-    }                     //clip IBV to cthreshhigh).
-
-
-    else if(cbv <= cthreshlow)
-    {                          //if IBV is too low, tBrkdwnV will go above
-      tBrkdwnV=tempBV;  //BV.  Clip tBrkdwnV to BV in this case (and
-    }                          //hence clip IBV to cthreshlow).
-
-
-    //If IBV is in an acceptable range, perform a Picard iteration to find
-    //tBrkdwnV, starting with an initial guess of tBrkdwnV=tempBV, and
-    //running through the iteration ITER_COUNT_MAX times.
-
-    else
-    {
-      xbv=tempBV;
-      for(iter_count=0; iter_count < ITER_COUNT_MAX; iter_count++)
-      {
-        arg2=3.0*vte/(e*xbv);
-        arg2=arg2*arg2*arg2;
-        xbv=tempBV-vte*log(cbv/(tSatCur*IRFactor))+vte *
-            log(1-arg2);
-      }
-      tBrkdwnV=xbv;
-    }
-
-//Note that, not only is tBrkdwnV adjusted using this method, but the effective
-//value of Is (tSatCur) is adjusted as well.  The code used to use Is before,
-//but now it will use Is*IRFactor*(1-(3*N*Vt/(e*tBrkdwnV))^3) instead.  This is
-//reflected in changes made to Instance::updateIntermediateVars
-//(for "normal" level 1 and 2 diode models) for the reverse breakdown region.
-//Changes have not been made to the associated LambertW functions as of yet
-//since there seem to be other issues involved with those functions independent
-// of this change.
-  }
-#endif
-
   return true;
 }
 
@@ -2565,14 +1975,12 @@ bool updateIntermediateVars (
    const ScalarT & tVcrit,
    const ScalarT & tRS,
    const ScalarT & tCOND,
-   const ScalarT & tIRF,
    const ScalarT & tIKF,
    const ScalarT & tBrkdwnV,
 
    // instance variables:
    const ScalarT & Area,
    const ScalarT & multiplicityFactor,
-   const int & lambertWFlag,
    const double & gmin,
 
   // model params:
@@ -2626,125 +2034,58 @@ bool updateIntermediateVars (
   // Current and Conductivity
   //----------------------------------------------
 
-  if(level == 1)
+  if (Vd >= -3.0 * Vte)
   {
-    // Adjustment for linear portion of reverse current
-    ScalarT IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;  //error?  shouldn't this be Vd>=-3*Vte????
-    if(Vd >= -3.0 * Vte) IRfactor = 1.0;  //changing this to be consistent
-    else IRfactor = tIRF;                 //with model in reference guide.
-    Isat *= IRfactor;
+    ScalarT arg1 = Vd / Vte;
+    arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
+    ScalarT evd = exp(arg1);
+    Inorm = Isat * (evd - 1.0) + gmin * Vd;
+    Gd1 = Isat*evd/Vte + gmin;
 
-    if (Vd >= -3.0 * Vte)
-    {
-      ScalarT arg1 = Vd / Vte;
-      arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
-      ScalarT evd = exp(arg1);
+    arg1 = Vd / VteR;
+    arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
+    evd  = exp(arg1);
+    Irec = IsatR * (evd - 1.0);
+    Gd2  = IsatR*evd/VteR;
 
-      Id = Isat * (evd - 1.0) + gmin * Vd;
-      Gd = Isat * evd / Vte + gmin;
-    }
-    // Linear reverse bias
-    else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
+    Khi = 1;
+    DKhi = 0;
+    if(tIKF > 0)
     {
-      ScalarT arg = 3.0 * Vte / (Vd * CONSTe);
-      arg = arg * arg * arg;
-      Id = -Isat * (1.0 + arg) + gmin * Vd;
-      Gd = Isat * 3.0 * arg / Vd + gmin;
+      Khi = sqrt(tIKF/(tIKF+Inorm));
+      DKhi = 0.5*Khi*Gd1/(tIKF+Inorm);
     }
-    // Reverse breakdown
-    else
+    Kgen = 0;
+    DKgen = 0;
+    if(Irec != 0)
     {
-      ScalarT arg1 = -(tBrkdwnV + Vd) / Vte;
-      arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
-      ScalarT evrev = exp(arg1);
+      Kgen = sqrt( pow(((1-Vd/tJctPot)*(1-Vd/tJctPot) + 0.005),M) );
+      DKgen = -M*(1-Vd/tJctPot)/(tJctPot*Kgen);
+    }
 
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-      Id = -Isat * evrev + gmin * Vd;
-      Gd = Isat * evrev / Vte + gmin;
-#else
-      //added by K. Santarelli 9/18/07 to account for change in tBrkdwnV
-      //calculation.
-      ScalarT arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      ScalarT Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + gmin;
-#endif
-    }
-    Vc = Vd;
+    Id = Inorm*Khi + Irec*Kgen;
+    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
   }
-  else if(level == 2)
+  // Linear reverse bias
+  else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
   {
-    // Adjustment for linear portion of reverse current
-    ScalarT IRfactor;
-    //if(Vd >= 0) IRfactor = 1.0;    //error?  Shouldn't this be Vd >= -3*Vte?
-    if(Vd >= -3.0*Vte) IRfactor=1.0; //changing it to be consistent with model
-    else IRfactor = tIRF;            //in the reference manual.
-    Isat *= IRfactor;
+    ScalarT arg = 3.0 * Vte / (Vd * CONSTe);
+    arg = arg * arg * arg;
+    Id = -Isat * (1.0 + arg) + gmin * Vd;
+    Gd = Isat * 3.0 * arg / Vd + gmin;
+  }
+  // Reverse breakdown
+  else
+  {
+    ScalarT arg1 = -(tBrkdwnV + Vd) / Vte;
+    arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
+    ScalarT evrev = exp(arg1);
 
-    if (Vd >= -3.0 * Vte)
-    {
-      ScalarT arg1 = Vd / Vte;
-      arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
-      ScalarT evd = exp(arg1);
-      Inorm = Isat * (evd - 1.0) + gmin * Vd;
-      Gd1 = Isat*evd/Vte + gmin;
+    Id = -Isat * evrev + gmin * Vd;
+    Gd = Isat * evrev / Vte + gmin;
+  }
+  Vc = Vd;
 
-      arg1 = Vd / VteR;
-      arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
-      evd  = exp(arg1);
-      Irec = IsatR * (evd - 1.0);
-      Gd2  = IsatR*evd/VteR;
-
-      Khi = 1;
-      DKhi = 0;
-      if(tIKF > 0)
-      {
-        Khi = sqrt(tIKF/(tIKF+Inorm));
-        DKhi = 0.5*Khi*Gd1/(tIKF+Inorm);
-      }
-      Kgen = 0;
-      DKgen = 0;
-      if(Irec != 0)
-      {
-        Kgen = sqrt( pow(((1-Vd/tJctPot)*(1-Vd/tJctPot) + 0.005),M) );
-        DKgen = -M*(1-Vd/tJctPot)/(tJctPot*Kgen);
-      }
-
-      Id = Inorm*Khi + Irec*Kgen;
-      Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
-    }
-    // Linear reverse bias
-    else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
-    {
-      ScalarT arg = 3.0 * Vte / (Vd * CONSTe);
-      arg = arg * arg * arg;
-      Id = -Isat * (1.0 + arg) + gmin * Vd;
-      Gd = Isat * 3.0 * arg / Vd + gmin;
-    }
-    // Reverse breakdown
-    else
-    {
-      ScalarT arg1 = -(tBrkdwnV + Vd) / Vte;
-      arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
-      ScalarT evrev = exp(arg1);
-
-#ifdef Xyce_BREAKDOWN_ORIGINAL
-      Id = -Isat * evrev + gmin * Vd;
-      Gd = Isat * evrev / Vte + gmin;
-#else
-      //added 9/18/07 by K. Santarelli to account for change in tBrkdwnV
-      //calculation.
-      ScalarT arg2=3.0*Vte/(CONSTe*tBrkdwnV);
-      arg2=arg2*arg2*arg2;
-      ScalarT Isat_tBrkdwnV=Isat*(1-arg2);
-      Id = -Isat_tBrkdwnV * evrev + gmin * Vd;
-      Gd = Isat_tBrkdwnV * evrev / Vte + gmin;
-#endif
-    }
-    Vc = Vd;
-  }  // level
 
   // Only compute if Capacitance is non-zero
   //---------------------------------------
@@ -3021,7 +2362,6 @@ void diodeSensitivity::operator()(
     fadType tVcrit = 0.0;
     fadType tRS = 0.0;
     fadType tCOND = 0.0;
-    fadType tIRF = 0.0;
     fadType tIKF = 0.0;
     fadType tBrkdwnV = 0.0;
 
@@ -3033,7 +2373,7 @@ void diodeSensitivity::operator()(
     updateTemperature(
        (*in)->Temp,
        Temp, tJctCap, tJctPot, tDepCap, tF1, tSatCur, tSatCurR, 
-       tVcrit, tRS, tCOND, tIRF, tIKF, tBrkdwnV,
+       tVcrit, tRS, tCOND, tIKF, tBrkdwnV,
        TNOM, VJ, CJO, M, N, IS, EG, XTI, RS, COND, IRF, 
        NR, IKF, TIKF, ISR, IBV, BV,
        mod.BVGiven,
@@ -3054,9 +2394,9 @@ void diodeSensitivity::operator()(
       // instance params:
       Temp, tJctCap, tJctPot, tDepCap, tF1,
       tSatCur, tSatCurR, tVcrit, tRS, tCOND,
-      tIRF, tIKF, tBrkdwnV,
+      tIKF, tBrkdwnV,
       // instance variables:
-      Area, multiplicityFactor, (*in)->lambertWFlag, (*in)->getDeviceOptions().gmin,
+      Area, multiplicityFactor, (*in)->getDeviceOptions().gmin,
       // model params:
       M, BV, IBV, NBV, IBVL, NBVL, N, NR, TT, F2, F3,
       mod.getLevel(),

@@ -62,6 +62,38 @@ None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
 in Xyce were correctly applying the multiplicity factor (``M='') to
 noise terms.  They do now. \\ \hline
 
+\textbf{Xyce Backlog Bugs/19}: Error in the failure history output by Xyce in
+parallel &  A runtime error was observed in the failure history output when
+the node name string was not available on the processor accessing the string.
+The character string is now being broadcast from the processor that owns the
+character string to all other processors. \\ \hline
+
+\textbf{Xyce Project Backlog/474}: Remove spice-incompatible breakdown parameter algorithm from level 1 and 2 diode &
+When a user specifies both \texttt{IBV} and \texttt{BV} to the diode,
+an iterative technique is employed to assure that the forward and
+reverse regions match, which can adjust the breakdown voltage if
+necessary.  The SPICE3F5 algorithm may or may not converge, and can
+sometimes produce unreasonable solutions to the matching problem.  In
+2007 an improved algorithm was devised and implemented in the \Xyce{}
+diode, but this broke strict SPICE compatibility.  This algorithm has
+been reverted to the SPICE-compatible method.  Some small differences
+in simulation results as compared to prior versions of \Xyce{} may
+result from this change, but the changes will make the results more
+compatible with those from other simulators.  \\ \hline
+
+\textbf{Xyce Project Backlog/471}: Removal of spice-incompatible IRF parameter from diode &
+The \Xyce{} diode has, since 2005, supported a Xyce-specific, SPICE3F5
+incompatible parameter called \texttt{IRF} that purported to allow a
+user to fudge the reverse current expression to match experimental
+data.  Though the original implementation was intended to fall back to
+strict SPICE3F5 compliance when \texttt{IRF} was not specified, later
+development broke it and led to non-physical, temperature-dependent
+discontinuities in the diode formulation even when \texttt{IRF} was
+not specified.  In \Xyce{} 6.11 we fixed the fall-back behavior, but
+marked the parameter as deprecated and had \Xyce{} report a warning if
+it was specified.  As of \Xyce{} 7.6 this feature has been completely
+removed, restoring strict SPICE3F5 compatibility. \\ \hline
+
 \textbf{Xyce Project Backlog/260}: Fix version string in CMake development builds &
 Xyce reports its version using \texttt{Xyce -v}.  With development versions of
 Xyce, the reported version should include the Git SHA against which the code
@@ -109,8 +141,26 @@ exit with a fatal error, but with an incomprehensible error message.
 This has been corrected.
 \\ \hline
 
-\textbf{repo/issue number}: Short description placeholder &
-Description placeholder \\ \hline
+\textbf{Xyce Project Backlog/bugs/23}: 
+Fix the Philips mobility model for the TCAD devices & 
+The Philips mobility model had a bug in it that resulted in NaNs 
+being produced during an intermediate calculation.   
+The model would discard these NaNs under most circumstances. 
+However, they were computed inside of a while loop, and on some compilers 
+these NaNs prevented the while loop from exiting.  This model has 
+been completely rewritten and this behavior will no longer occur.
+\\ \hline
+
+\textbf{Xyce Project Backlog/264}:  Modify Xyce CMake to use the modern CMake in Trilinos &
+Trilinos 13.5 introduces support for modern CMake targets. As part of the 
+transition to CMake targets, several Trilinos defined CMake variables have been 
+marked as deprecated (including some variables containing library names, library 
+paths, and include directories). When building Xyce from source with CMake, 
+dependencies in Trilinos are now referenced through Trilinos provided CMake 
+targets (instead of explicitly using library names and paths). These CMake build 
+system changes are not backwards compatible; the CMake scripts require Trilinos 
+13.5 or greater to build Xyce.
+\\ \hline
 
 \end{longtable}
 }

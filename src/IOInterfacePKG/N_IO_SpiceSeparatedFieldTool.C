@@ -476,7 +476,7 @@ int SpiceSeparatedFieldTool::getLine(std::vector<StringToken>& line,
           line.clear(); 
           if (!endOfLine)
           { 
-            char lineType;
+            char lineType = ' ';
             skipToEndOfLine();
             int eof = peekAtNextLine( lineType );
             while ( lineType == '+' && !eof )

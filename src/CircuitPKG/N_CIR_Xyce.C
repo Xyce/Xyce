@@ -2267,12 +2267,12 @@ void report_handler(
   // to backlog.
   if (report_mask & Report::MSG_SYMMETRIC)
   {
-    Xyce::lout() << oss.str();
+    Xyce::lout() << oss.str() << std::flush;
     asymmetric=false;
   }
   else
   {
-    pout() << oss.str();
+    pout() << oss.str() << std::flush;
     asymmetric=true;
   }
 

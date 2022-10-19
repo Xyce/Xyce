@@ -123,7 +123,6 @@ bool updateTemperature
    ScalarT & tVcrit,
    ScalarT & tRS,
    ScalarT & tCOND,
-   ScalarT & tIRF,
    ScalarT & tIKF,
    ScalarT & tBrkdwnV,
 
@@ -176,14 +175,12 @@ bool updateIntermediateVars
    const ScalarT & tVcrit,
    const ScalarT & tRS,
    const ScalarT & tCOND,
-   const ScalarT & tIRF,
    const ScalarT & tIKF,
    const ScalarT & tBrkdwnV,
   
    // instance variables:
    const ScalarT & Area,
    const ScalarT & multiplicityFactor,
-   const int & lambertWFlag,
    const double & gmin,
 
   // model params:
@@ -299,9 +296,6 @@ public:
 
   bool processParams ();
   bool updateTemperature ( const double & temp = -999.0 );
-  bool lambertWCurrent (double Isat, double Vte, double RS);
-  bool lambertWBreakdownCurrent (double Isat, double Vte, double RS);
-  bool lambertWLinearReverseBias (double Isat, double Vte, double RS);
 
   bool updateIntermediateVars ();
   bool updatePrimaryState ();
@@ -346,7 +340,6 @@ private:
   double multiplicityFactor;
   double InitCond;
   double Temp;
-  int lambertWFlag;
   bool InitCondGiven;
 
   double tJctPot;
@@ -360,7 +353,6 @@ private:
   double tIKF;
   double tRS;
   double tCOND;
-  double tIRF;
 
   double Id;     //diode current
   double Gd;     //diode conductivity

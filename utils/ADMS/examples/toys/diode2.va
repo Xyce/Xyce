@@ -1,10 +1,9 @@
 `include "discipline.h"
 
 //adms specific definitions
-`define attr(txt) (*txt*)
 `define CONSTroot2 1.41421356237309504880
 
-`attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D" xyceLevelNumber="1002002")
+(*xyceModelGroup="Diode", xyceSpiceDeviceName="D", xyceLevelNumber="1002002"*)
 module diode2(anode,cathode);
    inout anode,cathode;
    electrical anode,cathode;

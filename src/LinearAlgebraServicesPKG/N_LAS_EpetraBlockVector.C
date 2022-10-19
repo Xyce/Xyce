@@ -159,15 +159,19 @@ EpetraBlockVector::EpetraBlockVector( int blockSize,
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                globalMap->indexBase(), globalMap->pdsComm() ) );
 
-  // Determine where these blocks start and end in the grand scheme of things.
-  startBlock_ = (int) std::floor( (double)(globalMap->minMyGlobalEntity() + 1) / (double)blockSize );
-  endBlock_ = (int) std::floor( (double)(globalMap->maxMyGlobalEntity() + 1) / (double)blockSize );
-
-  // Check for the augmented rows
-  // Assume they are being placed on one processor.
-  if (augmentRows && (globalMap->numLocalEntities() % blockSize))
+  // The start block and end block will be different in parallel
+  if ( !(globalMap->pdsComm()).isSerial() )
   {
-    endBlock_ = (int) std::floor( (double)(globalMap->maxMyGlobalEntity()-augmentRows + 1) / (double)blockSize );
+    // Determine where these blocks start and end in the grand scheme of things.
+    startBlock_ = (globalMap->minMyGlobalEntity() + 1) / blockSize;
+    endBlock_ = (globalMap->maxMyGlobalEntity() + 1) / blockSize;
+
+    // Check for the augmented rows
+    // Assume they are being placed on one processor.
+    if (augmentRows && (globalMap->numLocalEntities() % blockSize))
+    {
+      endBlock_ = (globalMap->maxMyGlobalEntity()-augmentRows + 1) / blockSize;
+    }
   }
 
   //Setup Views of blocks using Block Map
@@ -297,14 +301,18 @@ EpetraBlockVector::EpetraBlockVector( const Vector * right, int blockSize )
   newBlockMap_ = Teuchos::rcp( Parallel::createPDSParMap( blockSize, blockSize, 
                                aMultiVector_->Map().IndexBase(), *right->pdsComm() ) );
 
-  // Determine where these blocks start and end in the grand scheme of things.
-  int minMyGID = (aMultiVector_->Map()).MinMyGID();
-  int maxMyGID = (aMultiVector_->Map()).MaxMyGID();
-  if ( localAugmentCount )
-    maxMyGID -= localAugmentCount;
+  // The start block and end block will be different in parallel
+  if ( !(right->pdsComm())->isSerial() )
+  {
+    // Determine where these blocks start and end in the grand scheme of things.
+    int minMyGID = (aMultiVector_->Map()).MinMyGID();
+    int maxMyGID = (aMultiVector_->Map()).MaxMyGID();
+    if ( localAugmentCount )
+      maxMyGID -= localAugmentCount;
 
-  startBlock_ = (int) std::floor( (double)(minMyGID + 1) / (double)blockSize );
-  endBlock_ = (int) std::floor( (double)(maxMyGID + 1) / (double)blockSize );
+    startBlock_ = (minMyGID + 1) / blockSize;
+    endBlock_ = (maxMyGID + 1) / blockSize;
+  }
 
   //Setup Views of blocks using Block Map
   double ** Ptrs;

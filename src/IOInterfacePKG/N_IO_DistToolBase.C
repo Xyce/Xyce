@@ -439,7 +439,7 @@ bool DistToolBase::getLine( TokenVector &line,
 
   while (!eof)
   {
-    char lineType;
+    char lineType = ' ';
 
     // Determine if we need the line fully tokenized for the second pass.
     // Tokenize the line if it is a device, or certain types of "." lines:

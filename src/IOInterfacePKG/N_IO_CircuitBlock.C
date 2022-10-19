@@ -129,6 +129,10 @@ CircuitBlock::CircuitBlock(
   fileEndPosition_(0),
   lineStartPosition_(1),
   lineEndPosition_(1),
+  devicePosition_(0),
+  deviceLine_(1),
+  numDevices_(0),
+  simpleSingleDevice_(true),
   mainCircuitPtr_(mainCircPtr),
   parentCircuitPtr_(parentCircPtr),
   ssfMap_(ssfm),
@@ -197,6 +201,10 @@ CircuitBlock::CircuitBlock(
   fileEndPosition_(0),
   lineStartPosition_(1),
   lineEndPosition_(1),
+  devicePosition_(0),
+  deviceLine_(1),
+  numDevices_(0),
+  simpleSingleDevice_(true),
   mainCircuitPtr_(this),
   parentCircuitPtr_(NULL),
   ssfMap_(ssfm),
@@ -1120,6 +1128,20 @@ bool CircuitBlock::handleLinePass1(
   if (eof)
     return !eof;
 
+  // Bookmark file location if this is the first device in the subcircuit
+  if (lineType >= 'A' && lineType <= 'Z')
+  {
+    numDevices_++;
+    if (numDevices_ == 1)
+    {
+      setDevicePosition();
+    }
+    else
+    {
+      simpleSingleDevice_ = false;
+    }
+  }
+
   // If we are removing redundant devices, or this isn't a device line, get the line.
   if (remove_any_redundant_ || lineType < 'A' || lineType > 'Z' 
       || lineType == 'X' || lineType == 'K' || lineType == 'U' || lineType == 'Y')
@@ -1169,10 +1191,11 @@ bool CircuitBlock::handleLinePass1(
   bool removecomponent = false;
   if (lineType >= 'A' && lineType <= 'Z')
   {
-    if (lineType == 'C' || lineType == 'D' || lineType == 'I' ||
-        lineType == 'L' || lineType == 'R' || lineType == 'V')
+    if (remove_any_redundant_ && 
+        (lineType == 'C' || lineType == 'D' || lineType == 'I' ||
+        lineType == 'L' || lineType == 'R' || lineType == 'V'))
     {
-      if (line.size() > 2 && remove_any_redundant_) //make sure that there are two nodes to check!
+      if (line.size() > 2) //make sure that there are two nodes to check!
       {
         ExtendedString node1 ( line[1].string_ );
         ExtendedString node2 ( line[2].string_ );
@@ -1182,9 +1205,9 @@ bool CircuitBlock::handleLinePass1(
         removecomponent = IO::removeTwoTerminalDevice(preprocessFilter_, lineType, node1, node2);
       }
     }
-    else if (lineType == 'M' || lineType == 'Q')
+    else if (remove_any_redundant_ && (lineType == 'M' || lineType == 'Q'))
     {
-      if (line.size() > 3 && remove_any_redundant_) //make sure that there are three nodes to check!
+      if (line.size() > 3) //make sure that there are three nodes to check!
       {
         ExtendedString node1 ( line[1].string_ );
         ExtendedString node2 ( line[2].string_ );
@@ -1223,12 +1246,18 @@ bool CircuitBlock::handleLinePass1(
       } 
       if (lineType == 'X')
       {
+        // This is not a simple single device circuit block
+        simpleSingleDevice_ = false;
+
         std::string modelName;
         Xyce::IO::extractSubcircuitModelName( line, modelName ); 
         circuitContext_.addInstance(modelName,ES1,netlistFilename_,line[0].lineNumber_);
       }
       if (lineType == 'K')
       {
+        // This is not a simple single device circuit block
+        simpleSingleDevice_ = false;
+
         circuitContext_.incrementDeviceCount( ES2 );
         DeviceBlock device(circuitContext_, metadata_, netlistFilename_, line);
 
@@ -1270,12 +1299,17 @@ bool CircuitBlock::handleLinePass1(
         }
       }
     }
-
-    else if (DEBUG_IO)
+    else
     {
-      Xyce::dout() << "Netlist Parse 1:  ";
-      Xyce::dout() << "removing component " << ES1 << ".  All nodes on the device";
-      Xyce::dout() << " are the same."  << std::endl;
+      // We are not keeping this device, decrement the count
+      numDevices_--;
+
+      if (DEBUG_IO)
+      {
+        Xyce::dout() << "Netlist Parse 1:  ";
+        Xyce::dout() << "removing component " << ES1 << ".  All nodes on the device";
+        Xyce::dout() << " are the same."  << std::endl;
+      }
     }
   }
 
@@ -1339,6 +1373,12 @@ bool CircuitBlock::handleLinePass1(
 
     else if (ES1 == ".ENDS")
     {
+      // Check if this subcircuit has any devices.  If not it isn't a simple single-device subcircuit.
+      if (!numDevices_)
+      {
+        simpleSingleDevice_ = false;
+      }
+
       // End the current subcircuit context.
       if (circuitContext_.endSubcircuitContext()) {
         setEndPosition();
@@ -1887,6 +1927,9 @@ bool CircuitBlock::parseIncludeFile(
   std::map<std::string, int> &  fun,
   ModelMap &                    modMap)
 {
+  // If there is a file hierarchy, then it's not a simple single device circuit
+  simpleSingleDevice_ = false;
+
   // Save current ssfPtr_ and netlistFilename_.
   SpiceSeparatedFieldTool* oldssfPtr = ssfPtr_;
 
