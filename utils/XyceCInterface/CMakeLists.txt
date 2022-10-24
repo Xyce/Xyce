@@ -22,8 +22,9 @@ endif()
 
 
 install( TARGETS xycecinterface DESTINATION lib OPTIONAL)
+configure_file(xyce_interface.py.cmake xyce_interface.py @ONLY )
 install( FILES N_CIR_XyceCInterface.h DESTINATION include OPTIONAL)
-install( FILES xyce_interface.py DESTINATION share OPTIONAL)
+install( FILES ${CMAKE_CURRENT_BINARY_DIR}/xyce_interface.py DESTINATION share OPTIONAL)
 install( FILES XyceRest.py DESTINATION share OPTIONAL)
 
 

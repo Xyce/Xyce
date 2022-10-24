@@ -6,9 +6,10 @@ import sys,traceback,types
 #import ctypes 
 from ctypes import *
 from ctypes.util import *
+import os.path
 
 class xyce_interface:
-  def __init__(self,libdir="",name="",cmdargs=None):
+  def __init__(self,libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib"),name="",cmdargs=None):
     try:
       libName=find_library('xycecinterface')
       if( libName != None ):
@@ -19,11 +20,11 @@ class xyce_interface:
         # library wasn't found on normal system paths so 
         # try appending libdir to the name
         if sys.platform.startswith('darwin'):
-          libName=libdir + "/" + "libxycecinterface.dylib"
+          libName=os.path.join(libdir, "libxycecinterface.dylib" )
           print("Trying to load " + libName )
           self.lib = CDLL(libName,RTLD_GLOBAL)
         else:
-          libName=libdir + "/" + "libxycecinterface.so"
+          libName=os.path.join(libdir, "libxycecinterface.so" )
           print("Trying to load " + libName )
           self.lib = CDLL(libName,RTLD_GLOBAL)
     except:

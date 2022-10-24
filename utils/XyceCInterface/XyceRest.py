@@ -67,22 +67,25 @@ def test_response():
 @app.route("/status")
 def status():
   print(XyceObjectsDict)
-  # probably need to return this as a json object
-  return list(XyceObjectsDict.keys())
+  # just return the number of allocated Xyce objects.
+  return dict({'numInstance':len(XyceObjectsDict.keys())})
   
 @app.route("/xyce_open", methods=['POST'])  
 def open():
   args=request.get_json()
-  if ('libdir' not in args):
-  	return 'libdir not specified.',400
-  print(args)
+  
   # use a random 16 digit ID as a session ID
   # convert it to a string for easier rep. in json
   uuid = str(os.urandom(16))[2:-1].replace('\\','').replace('"','').replace('\'','')
-  libDirectory=args['libdir']
-  #print(libDirectory)
-  xyceObj = xyce_interface(libdir=libDirectory)
-  print(xyceObj)
+  xycdObj = None
+  libDirectory = None
+  if ('libdir' not in args):
+    # use the interface's default lib directory.
+  	xyceObj = xyce_interface()
+  else:
+    libDirectory=args['libdir']
+    xyceObj = xyce_interface(libdir=libDirectory)
+  
   XyceObjectsDict[uuid] = {'libdir': libDirectory, 'xyceObj': xyceObj}
   return uuid
   
