@@ -6,7 +6,7 @@ dnl ********************************************************************
 dnl Autoconf boilerplate
 dnl Initialize the macros, define the package name, version number and 
 dnl bug reporting address
-AC_INIT(Xyce,R:D:7.6,xyce@sandia.gov)
+AC_INIT(Xyce,R:Q:7.6,xyce@sandia.gov)
 
 dnl This is a FILTHY HACK designed to get rid of the troublesome space that
 dnl AC_INIT stuffs into PACKAGE_STRING, and which buggers MPILAM's "hcp" 
