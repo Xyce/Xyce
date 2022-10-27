@@ -162,21 +162,21 @@ contain only the libraries needed by Xyce. For the parallel version, be sure to
 understand the serial build process prior to reading the [Building Trilinos
 with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 
-First, download Trilinos from the [Trilinos GitHub
-Page](https://github.com/trilinos/trilinos), or use this [direct
-link](https://github.com/trilinos/Trilinos/tree/b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5).
-After following the directly link click on the Code button and then download a ZIP 
-archive.  At this time we require a version of Trilions near their development head.  The 
-specific SHA is b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5.  The link just provided will
-take you to that version of Trilinos.  Earlier versions may not work with Xyce's
-Cmake build system.
-
-If you wish to use git clone, you can obtain just the files by running:
+For building Trilinos on Windows, see the Windows section under
+[System-Specific Modifications](#system-specific-modifications).
+First, download Trilinos version from the [Trilinos GitHub
+Page](https://github.com/trilinos/trilinos) and checkout `b91cc3dcd9`, or use this [direct
+link](https://github.com/trilinos/Trilinos/archive/b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5.tar.gz).
+If you wish to use a git clone, you can obtain just the `b91cc3dcd9` files
+(and a faster download) by running:
 ```sh
-git clone https://github.com/trilinos/Trilinos.git
-cd Trilinos
-git checkout b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5
+git clone --shallow-since 2022-09-15 --branch develop https://github.com/trilinos/Trilinos.git
+(cd Trilinos ; git checkout b91cc3dcd9)
 ```
+At this time we require a version of Trilions near their development head. The 
+specific SHA we test is `b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5`.
+The link just provided will take you to that version of Trilinos.
+Earlier versions may not work with Xyce's Cmake build system.
 
 After checking out the specific SHA above, you will get a warning from git about
 being in a detached HEAD state.  This is ok as we are just building the code.
@@ -450,6 +450,43 @@ Note that the oneAPI toolkit requires
 [Microsoft C++ BuildTools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 to be installed first to provide required system libraries. The Microsoft
 Build Tools will also supply CMake and the NMAKE build tool. 
+
+When building Trilinos on Windows, cloning and configuring take a few extra
+steps. To clone on Windows, it may be necessary to to do a sparse checkout;
+for a brief period of time in Trilinos, there were a few files of the form
+`aux.*` which causes an issue in Windows. To work around this issue,
+
+```
+git clone ^
+    --branch develop ^
+    --single-branch ^
+    --no-checkout ^
+    --sparse ^
+    --config core.protectNTFS=false ^
+    --shallow-since 2022-09-15 ^
+    https://github.com/trilinos/Trilinos.git ^
+    source/Trilinos
+
+pushd source\Trilinos
+git sparse-checkout init
+git sparse-checkout set --no-cone "/*" "!/packages/muelu/research"
+git checkout b91cc3dcd9
+popd
+```
+
+Trilinos does not test their code on Windows. The initial configuration file
+for Trilinos in `path/to/Xyce/cmake/trilinos/trilinos-config.cmake` may
+require a few extra options:
+```
+cmake ^
+    -C path\to\Xyce\cmake\trilinos\trilinos-config.cmake ^
+    -D HAVE_TEUCHOS_LAPACKLARND=OFF ^
+    -D Trilinos_ENABLE_Stokhos=OFF ^
+    -D Trilinos_ENABLE_Sacado=OFF ^
+    -D Trilinos_ENABLE_Amesos2=OFF ^
+    ...
+    path\to\Trilinos
+```
 
 On Windows, Bison and flex are available via the
 [WinFlexBison](https://github.com/lexxmark/winflexbison) package, leaving
