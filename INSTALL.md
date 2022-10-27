@@ -1,13 +1,19 @@
 # Xyce Configure, Build and Installation Guide Using CMake
 
-__IMPORTANT NOTE: THE CMAKE SYSTEM IS ACTIVELY BEING DEVELOPED__\
-This means these instructions are quickly becoming out-of-date. For example,
-the CMake system will currently build only against the develop branch of
-Trilinos. If you need the latest Xyce capabilities, it is recommended to use
-the Autotools build, as documented on the
-[Xyce Building Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
+__IMPORTANT NOTE: THE CMAKE SYSTEM IS ACTIVELY BEING DEVELOPED__
 
-_We will update these instructions before the next release._
+This means, if you are reading these instructions from a non-release
+branch/tag, they could be out-of-date. If you need the latest Xyce
+capabilities, it is recommended to use the Autotools build, as documented on
+the [Xyce Building
+Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
+
+At the time of this writing, the CMake system will build only against the
+develop branch of Trilinos. We are targeting the Trilinos 14 release, which
+will have a rewritten CMake system that requires changes in the Xyce CMake
+system.
+
+------------------------------------------------------------------------
 
 This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
@@ -156,16 +162,24 @@ contain only the libraries needed by Xyce. For the parallel version, be sure to
 understand the serial build process prior to reading the [Building Trilinos
 with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 
-First, download Trilinos version 12.12.1 from the [Trilinos GitHub
+First, download Trilinos from the [Trilinos GitHub
 Page](https://github.com/trilinos/trilinos), or use this [direct
-link](https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-12-12-1.tar.gz).
-If you wish to use a git clone, you can obtain just the 12.12.1 files (and a
-faster download) by running:
+link](https://github.com/trilinos/Trilinos/tree/b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5).
+After following the directly link click on the Code button and then download a ZIP 
+archive.  At this time we require a version of Trilions near their development head.  The 
+specific SHA is b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5.  The link just provided will
+take you to that version of Trilinos.  Earlier versions may not work with Xyce's
+Cmake build system.
+
+If you wish to use git clone, you can obtain just the files by running:
 ```sh
-git clone --depth 1 --branch trilinos-release-12-12-1 https://github.com/trilinos/Trilinos.git
+git clone https://github.com/trilinos/Trilinos.git
+cd Trilinos
+git checkout b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5
 ```
-Again, be sure to compile version 12.12.1. Other versions will not work with
-the following process, as they require slightly different build options.
+
+After checking out the specific SHA above, you will get a warning from git about
+being in a detached HEAD state.  This is ok as we are just building the code.
 
 In order to build Trilinos, first create a "build" directory in a convenient
 location. (The name does not matter, and can be something simple like
@@ -222,7 +236,20 @@ the compilers by adding the following flags to the CMake invocation:
 ```
 You may need to use a full path if they are not visible in your default paths.
 
-Similarly, if the third-party libraries (AMD, BLAS and LAPACK) are not visible
+If no Fortran compiler is available you can use:
+```
+-DTrilinos_ENABLE_Fortran=OFF \
+```
+to disable any fortran dependent code in Trilinos. 
+
+On some systems it may be necessary to add the following to your cmake
+invocation if the installed C compiler treats implicitly defined functions
+as errors, such as Apple's clang.
+```
+-DCMAKE_C_FLAGS="-Wno-error=implicit-function-declaration" \
+```
+
+Finally, if the third-party libraries (AMD, BLAS and LAPACK) are not visible
 in your default paths, use the following flags to help CMake find the
 libraries:
 ```sh
@@ -310,6 +337,8 @@ there are some differences from the website:
   library will be called, "libtoys.dylib", not "toys.so").
 
 ## Using the Superbuild
+
+__DUE TO THE CMake REWRITE, THE SUPERBUILD DOES NOT WORK__
 
 While easy, this approach has not been thoroughly tested, so should be
 considered a "beta" capability. Also, it currently installs everything into an
