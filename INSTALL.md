@@ -77,7 +77,7 @@ your system:
   + Xyce, itself, does not use Fortran.
 - Build system (e.g., [Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom))
-- [CMake](https://cmake.org) (3.13 or later)
+- [CMake](https://cmake.org) (3.17 or later)
 - [Bison](https://www.gnu.org/software/bison) (3.0.4 or later)
 - [flex](https://github.com/westes/flex) (2.5.34 or later)
 
@@ -440,17 +440,16 @@ Library](https://software.intel.com/content/www/us/en/develop/tools/oneapi/compo
 (MKL). The MKL provides the BLAS, LAPACK and FFT capabilities (removing the need
 for FFTW). At the beginning of 2021, Intel rebranded their tool chains as the
 [oneAPI](https://software.intel.com/content/www/us/en/develop/tools/oneapi.html)
-Toolkits, and now make them available for free.
+Toolkits, and now make them available for free. The [oneAPI Base
+Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html)
+is sufficient for building Xyce and Trilinos. Running the setvars.bat script 
+that installs with oneAPI can help ensure that the necessary environment 
+variables and paths are set for building.
 
-We have not yet tried using oneAPI, so we cannot give advice on how to use it.
-One should be able to use the [oneAPI Base
-Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html),
-which supplies C, C++ and Fortran compilers, along with the MKL. Installing the
-standalone [Microsoft C++ Build
-Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) first (as
-required by oneAPI) should provide the needed system libraries. The Microsoft
-Build Tools will also supply CMake and the NMAKE build tool. If you decide to
-try compiling with oneAPI, we welcome feedback on your experience.
+Note that the oneAPI toolkit requires 
+[Microsoft C++ BuildTools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+to be installed first to provide required system libraries. The Microsoft
+Build Tools will also supply CMake and the NMAKE build tool. 
 
 On Windows, Bison and flex are available via the
 [WinFlexBison](https://github.com/lexxmark/winflexbison) package, leaving
@@ -463,6 +462,13 @@ The Xyce regression suite must be run in a Unix-like environment with Perl.
 Therefore, to use it in Windows, you will need to install Cygwin. It might also
 be possible to use the Windows Subsystem for Linux (WSL), but we have no
 experience with it.
+
+To compile Xyce on Windows, there are additional CMake options that must be 
+added in generating the build configuration.
+```sh
+-D Xyce_USE_FFT=TRUE
+-D Xyce_USE_INTEL_FFT=TRUE
+```
 
 ### Cygwin
 
