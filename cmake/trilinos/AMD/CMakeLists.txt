@@ -9,7 +9,7 @@
 #    git clone --depth 1 https://github.com/DrTimothyAldenDavis/SuiteSparse.git
 #
 # Next, use the following invocation from a build directory, making the install
-# directory the *same one* as the Trilinos installation target:
+# directory the *same* as the Trilinos installation target:
 #    cmake \
 #    -D SuiteSparsePath=path/to/SuiteSparse \
 #    -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
