@@ -19,6 +19,9 @@
   \color{white}\bf Issue & 
   \color{white}\bf Comment \\ \hline \endfirsthead
   \label{Incompat_PS}
+  
+\texttt{$log()$} & \Xyce{} interprets $\log()$ in an expression as a base-10 $\log()$ 
+  while PSpice interprets $\log()$ as a natural $\log()$ function. \\ \hline
 
 \texttt{.VECTOR}, \texttt{.WATCH}, and \texttt{.PLOT}  output 
 control analysis are not supported. & \Xyce{} does 

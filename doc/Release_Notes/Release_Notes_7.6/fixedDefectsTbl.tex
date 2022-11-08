@@ -37,25 +37,27 @@
      \endhead
 
 \textbf{Xyce Backlog Bugs/1}: Mutual inductor jacobian error &
-A jacobian term in the nonlinear mutual inductor was wrong when the bias was changing 
-across the primary inductor.  This jacobian error could lead to slower nonlinear 
-convergence in transient simulations.  It has been fixed. \\ \hline
+A jacobian term in the nonlinear mutual inductor was wrong when the
+bias was changing across the primary inductor.  This jacobian error
+could lead to slower nonlinear convergence in transient simulations.
+It has been fixed. \\ \hline
 
 \textbf{Xyce Backlog Bugs/2}: Mutual inductors have a bad device connectivity map &
->>>>>>> 38619b588 (Document fix of the CMake version reporting)
-The device connectivity map is used to determine the path to ground for error checking.  
-The linear and nonlinear mutual inductors were not correctly setting up 
-the device connectivity map and this resulted in false warnings that some circuit 
-nodes did not have a path to ground.  The warning was invalid and this issue did 
-not effect Xyce's calculations.  But the warning was incorrect and could cause 
-confusion.  The code has been fixed and this warning should no longer appear under
-false conditions. \\ \hline
+The device connectivity map is used to determine the path to ground
+for error checking.  The linear and nonlinear mutual inductors were
+not correctly setting up the device connectivity map and this resulted
+in false warnings that some circuit nodes did not have a path to
+ground.  The warning was invalid and this issue did not effect Xyce's
+calculations.  But the warning was incorrect and could cause
+confusion.  The code has been fixed and this warning should no longer
+appear under false conditions. \\ \hline
 
 \textbf{Xyce Backlog Bugs/7}: Infinite loop results when ".ends" is missing from netlist &
-If a netlist ended without closing a subcircuit with ".ends" and ".end" was not used
-to signify the end of the netlist, then Xyce would either execute an infinite loop or
-seg fault.  The parser now identifies this error and cleanly exits the simulation with
-an informative message. \\ \hline
+If a netlist ended without closing a subcircuit with ".ends" and
+".end" was not used to signify the end of the netlist, then Xyce would
+either execute an infinite loop or seg fault.  The parser now
+identifies this error and cleanly exits the simulation with an
+informative message. \\ \hline
 
 \textbf{Xyce Backlog Bugs/8}: MOSFET multiplicity not applied to noise &
 None of the legacy MOSFETs (level 1,2,3, 6, 9(BSIM3) and 14 (BSIM4))
@@ -128,38 +130,39 @@ currently the only device in Xyce that supports multiple versions in
 this manner. \\ \hline
 
 
-\textbf{Xyce Project Backlog/448}:  Auger recombination function used by 
-the TCAD (PDE) devices is scaled incorrectly & The Auger recombination term 
-used by the TCAD devices in Xyce was scaled incorrectly, and this resulted 
-in that term being nearly zero.  This has been corrected.
+\textbf{Xyce Project Backlog/448}:  Auger recombination function used by
+the TCAD (PDE) devices is scaled incorrectly & The Auger recombination
+term used by the TCAD devices in Xyce was scaled incorrectly, and this
+resulted in that term being nearly zero.  This has been corrected.
 \\ \hline
 
-\textbf{Xyce Project Backlog/455}:  Xyce gives a bad error message for 
-malformed voltage source & Under some circumstances, a grammar mistake 
-in the netlist specification of an independent source caused Xyce to 
-exit with a fatal error, but with an incomprehensible error message.  
+\textbf{Xyce Project Backlog/455}:  Xyce gives a bad error message for
+malformed voltage source & Under some circumstances, a grammar mistake
+in the netlist specification of an independent source caused Xyce to
+exit with a fatal error, but with an incomprehensible error message.
 This has been corrected.
 \\ \hline
 
-\textbf{Xyce Project Backlog/bugs/23}: 
-Fix the Philips mobility model for the TCAD devices & 
-The Philips mobility model had a bug in it that resulted in NaNs 
-being produced during an intermediate calculation.   
-The model would discard these NaNs under most circumstances. 
-However, they were computed inside of a while loop, and on some compilers 
-these NaNs prevented the while loop from exiting.  This model has 
-been completely rewritten and this behavior will no longer occur.
+\textbf{Xyce Project Backlog/bugs/23}:
+Fix the Philips mobility model for the TCAD devices & The Philips
+mobility model had a bug in it that resulted in NaNs being produced
+during an intermediate calculation.  The model would discard these
+NaNs under most circumstances.  However, they were computed inside of
+a while loop, and on some compilers these NaNs prevented the while
+loop from exiting.  This model has been completely rewritten and this
+behavior will no longer occur.
 \\ \hline
 
 \textbf{Xyce Project Backlog/264}:  Modify Xyce CMake to use the modern CMake in Trilinos &
-Trilinos 13.5 introduces support for modern CMake targets. As part of the 
-transition to CMake targets, several Trilinos defined CMake variables have been 
-marked as deprecated (including some variables containing library names, library 
-paths, and include directories). When building Xyce from source with CMake, 
-dependencies in Trilinos are now referenced through Trilinos provided CMake 
-targets (instead of explicitly using library names and paths). These CMake build 
-system changes are not backwards compatible; the CMake scripts require Trilinos 
-13.5 or greater to build Xyce.
+Trilinos 13.5 introduces support for modern CMake targets. As part of
+the transition to CMake targets, several Trilinos defined CMake
+variables have been marked as deprecated (including some variables
+containing library names, library paths, and include
+directories). When building Xyce from source with CMake, dependencies
+in Trilinos are now referenced through Trilinos provided CMake targets
+(instead of explicitly using library names and paths). These CMake
+build system changes are not backwards compatible; the CMake scripts
+require Trilinos 13.5 or greater to build Xyce.
 \\ \hline
 
 \end{longtable}
