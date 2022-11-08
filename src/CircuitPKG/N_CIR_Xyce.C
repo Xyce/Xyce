@@ -1886,78 +1886,82 @@ bool Simulator::simulateUntil(
 //---------------------------------------------------------------------------
 Simulator::RunStatus Simulator::finalize()
 {
-  Xyce::lout() << "\n***** Solution Summary *****"  << std::endl;
+  // If the Xyce object was created but never initialized, then there won't be a
+  // need to call finalize.  
+  if( analysisManager_ != NULL)
+  { 
+    Xyce::lout() << "\n***** Solution Summary *****"  << std::endl;
+ 
+    analysisManager_->printLoopInfo(0, 0);
 
-  analysisManager_->printLoopInfo(0, 0);
+	// The Stats will replace this bit of ugliness.  But for now I'll write a function to just get the value.
+	Analysis::StatCounts analysis_stat_counts = analysisManager_->getAnalysisObject().getStatCounts() - analysisManager_->getAnalysisObject().getStatCounts(0);
 
-  // The Stats will replace this bit of ugliness.  But for now I'll write a function to just get the value.
-  Analysis::StatCounts analysis_stat_counts = analysisManager_->getAnalysisObject().getStatCounts() - analysisManager_->getAnalysisObject().getStatCounts(0);
+	IO::outputMacroResults(comm_,
+						   *measureManager_,
+						   *fourierManager_,
+						   *fftManager_,
+						   outputManager_->getNetlistFilename(),
+						   outputResponse_->getResponseFunctions(),
+						   outputResponse_->getResponseFilename(),
+						   outputManager_->getStepLoopNumber(),
+						   analysisManager_->getFinalTime());
 
-  IO::outputMacroResults(comm_,
-                         *measureManager_,
-                         *fourierManager_,
-                         *fftManager_,
-                         outputManager_->getNetlistFilename(),
-                         outputResponse_->getResponseFunctions(),
-                         outputResponse_->getResponseFilename(),
-                         outputManager_->getStepLoopNumber(),
-                         analysisManager_->getFinalTime());
+	rootStat_.stop();
 
-  rootStat_.stop();
+	Xyce::lout() << std::endl
+				 << "***** Total Simulation Solvers Run Time: " << XyceTimerPtr_->elapsedTime() << " seconds" << std::endl
+				 << "***** Total Elapsed Run Time:            " << ElapsedTimerPtr_->elapsedTime() << " seconds" << std::endl
+				 << "*****" << std::endl
+				 << "***** End of Xyce(TM) Simulation" << std::endl
+				 << "*****" << std::endl;
 
-  Xyce::lout() << std::endl
-               << "***** Total Simulation Solvers Run Time: " << XyceTimerPtr_->elapsedTime() << " seconds" << std::endl
-               << "***** Total Elapsed Run Time:            " << ElapsedTimerPtr_->elapsedTime() << " seconds" << std::endl
-               << "*****" << std::endl
-               << "***** End of Xyce(TM) Simulation" << std::endl
-               << "*****" << std::endl;
+	const char *xyce_no_tracking = ::getenv("XYCE_NO_TRACKING");
+	if (Parallel::rank(comm_) == 0 && trackingURL && !xyce_no_tracking)
+	{
+	  const time_t now=time(NULL);
+	  char timeDate[40];
 
-  const char *xyce_no_tracking = ::getenv("XYCE_NO_TRACKING");
-  if (Parallel::rank(comm_) == 0 && trackingURL && !xyce_no_tracking)
-  {
-    const time_t now=time(NULL);
-    char timeDate[40];
-
-//For whatever reason, Windows only allows two format specifiers, otherwise it won't return the time and date
+      //For whatever reason, Windows only allows two format specifiers, otherwise it won't return the time and date
 #ifdef HAVE_WINDOWS_H
-    strftime(timeDate,40,"%x %X",localtime(&now));
+	  strftime(timeDate,40,"%x %X",localtime(&now));
 #else
-    strftime(timeDate,40,"%x %X %Z",localtime(&now));
+	  strftime(timeDate,40,"%x %X %Z",localtime(&now));
 #endif
 
-    auditJSON_ << Util::JSON::sep
-               << Util::nameValuePair("Hostname", hostname()) << Util::JSON::sep
-               << Util::nameValuePair("Domainname", domainname()) << Util::JSON::sep
-               << Util::nameValuePair("Username", username()) << Util::JSON::sep
-               << Util::nameValuePair("Hardware", hardware()) << Util::JSON::sep
-               << Util::nameValuePair("OSname", osname()) << Util::JSON::sep
-               << Util::nameValuePair("OSversion", osversion()) << Util::JSON::sep
-               << Util::nameValuePair("Version", Util::Version::getFullVersionString()) << Util::JSON::sep
-               << Util::nameValuePair("Processors", Parallel::size(comm_)) << Util::JSON::sep
-               << Util::nameValuePair("PrimaryAnalysis", Analysis::analysisModeName(analysisManager_->getAnalysisMode())) << Util::JSON::sep
-               << Util::nameValuePair("EndTime", timeDate) << Util::JSON::sep
-               << Util::nameValuePair("RuntimeStats", analysis_stat_counts);
-    Util::JSON json;
-    json << Util::nameValuePair("audit", auditJSON_);
+	  auditJSON_ << Util::JSON::sep
+				 << Util::nameValuePair("Hostname", hostname()) << Util::JSON::sep
+				 << Util::nameValuePair("Domainname", domainname()) << Util::JSON::sep
+				 << Util::nameValuePair("Username", username()) << Util::JSON::sep
+				 << Util::nameValuePair("Hardware", hardware()) << Util::JSON::sep
+				 << Util::nameValuePair("OSname", osname()) << Util::JSON::sep
+				 << Util::nameValuePair("OSversion", osversion()) << Util::JSON::sep
+				 << Util::nameValuePair("Version", Util::Version::getFullVersionString()) << Util::JSON::sep
+				 << Util::nameValuePair("Processors", Parallel::size(comm_)) << Util::JSON::sep
+				 << Util::nameValuePair("PrimaryAnalysis", Analysis::analysisModeName(analysisManager_->getAnalysisMode())) << Util::JSON::sep
+				 << Util::nameValuePair("EndTime", timeDate) << Util::JSON::sep
+				 << Util::nameValuePair("RuntimeStats", analysis_stat_counts);
+	  Util::JSON json;
+	  json << Util::nameValuePair("audit", auditJSON_);
 
-    const std::string &json_string = json.str();
+	  const std::string &json_string = json.str();
 
-    Util::sendTrackingData(trackingURL, 0, json_string);
+	  Util::sendTrackingData(trackingURL, 0, json_string);
+	}
+
+	if (Parallel::rank(comm_) == 0 && Parallel::size(comm_) > 1) {
+	  pout() << std::endl
+			 << "Timing summary of processor " << Parallel::rank(comm_) << std::endl;
+	  Stats::printStatsTable(pout(), rootStat_, Stats::METRICS_ALL, false);
+	}
+
+	Xyce::lout() << std::endl
+				 << "Timing summary of " << Parallel::size(comm_) << " processor" << (Parallel::size(comm_) == 1 ? "" : "s") << std::endl;
+	Stats::printStatsTable(Xyce::lout(), rootStat_, Stats::METRICS_ALL, false, comm_);
+
+	// Close the output stream:
+	closeLogFile();
   }
-
-  if (Parallel::rank(comm_) == 0 && Parallel::size(comm_) > 1) {
-    pout() << std::endl
-           << "Timing summary of processor " << Parallel::rank(comm_) << std::endl;
-    Stats::printStatsTable(pout(), rootStat_, Stats::METRICS_ALL, false);
-  }
-
-  Xyce::lout() << std::endl
-               << "Timing summary of " << Parallel::size(comm_) << " processor" << (Parallel::size(comm_) == 1 ? "" : "s") << std::endl;
-  Stats::printStatsTable(Xyce::lout(), rootStat_, Stats::METRICS_ALL, false, comm_);
-
-  // Close the output stream:
-  closeLogFile();
-
   return SUCCESS;
 }
 

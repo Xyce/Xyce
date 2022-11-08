@@ -162,6 +162,70 @@ int xyce_simulateUntil(  void **ptr, double requestedUntilTime, double* complete
   return 0;
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_simulationComplete
+// Purpose       : Call the Xyce::Circuit::Simulator::simulationComplete()
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 9/28/2022
+//-----------------------------------------------------------------------------
+bool xyce_simulationComplete( void ** ptr)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  bool simCompleteFlag = xycePtr->simulationComplete();
+  return simCompleteFlag;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_checkCircuitParameterExists
+// Purpose       : Call the Xyce::Circuit::Simulator::checkCircuitParameterExists()
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 9/28/2022
+//-----------------------------------------------------------------------------
+bool xyce_checkCircuitParameterExists(void **ptr, char * paramName )
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  std::string sParamName( paramName );
+  bool result = xycePtr->checkCircuitParameterExists( sParamName);
+  return result;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getTime
+// Purpose       : Call the Xyce::Circuit::Simulator::getTime()
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 9/28/2022
+//-----------------------------------------------------------------------------
+double xyce_getTime(void ** ptr)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  double simulatorTime = xycePtr->getTime();
+  return simulatorTime;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getFinalTime
+// Purpose       : Call the Xyce::Circuit::Simulator::getFinalTime()
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 9/28/2022
+//-----------------------------------------------------------------------------
+double xyce_getFinalTime(void ** ptr)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  double finalTime = xycePtr->getFinalTime();
+  return finalTime;
+}
+
+
 //-----------------------------------------------------------------------------
 // Function      : xyce_getNumDevices
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
@@ -871,6 +935,52 @@ int xyce_getADCWidths(void ** ptr, int numADCnames, char ** ADCnames, int *  wid
   }
 
   return status;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getCircuitValue
+// Purpose       : Call the Xyce::Circuit::Simulator::getCircuitValue
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. 
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 09/28/2022
+//-----------------------------------------------------------------------------
+double xyce_getCircuitValue( void **ptr, char * paramName)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  std::string sParamName( paramName );
+  double value = 0.0;
+  bool result = xycePtr->getCircuitValue(sParamName, value);
+  if( ! result )
+  {
+    std::cerr << "xyce_getCircuitValue with paramName = " << sParamName << " returned false" << std::endl;
+    value = 0.0;
+  }
+  return value;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_setCircuitParameter
+// Purpose       : Call the Xyce::Circuit::Simulator::setCircuitParameter
+//                 function via a pointer to an Xyce::Circuit::GenCouplingSimulator object. 
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL, Electrical Models and Simulation
+// Creation Date : 09/28/2022
+//-----------------------------------------------------------------------------
+bool xyce_setCircuitParameter( void **ptr, char * paramName, double value)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  std::string sParamName( paramName );
+  bool result = xycePtr->setCircuitParameter( sParamName, value);
+  if( ! result )
+  {
+    std::cerr << "xyce_setCircuitParameter with paramName = " << sParamName << " returned false" << std::endl;
+  }
+  return result;
 }
 
 //-----------------------------------------------------------------------------

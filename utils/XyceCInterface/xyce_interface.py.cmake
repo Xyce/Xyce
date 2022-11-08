@@ -6,9 +6,10 @@ import sys,traceback,types
 #import ctypes 
 from ctypes import *
 from ctypes.util import *
+import os.path
 
 class xyce_interface:
-  def __init__(self,libdir="",name="",cmdargs=None):
+  def __init__(self,libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib"),name="",cmdargs=None):
     try:
       libName=find_library('xycecinterface')
       if( libName != None ):
@@ -19,11 +20,11 @@ class xyce_interface:
         # library wasn't found on normal system paths so 
         # try appending libdir to the name
         if sys.platform.startswith('darwin'):
-          libName=libdir + "/" + "libxycecinterface.dylib"
+          libName=os.path.join(libdir, "libxycecinterface.dylib" )
           print("Trying to load " + libName )
           self.lib = CDLL(libName,RTLD_GLOBAL)
         else:
-          libName=libdir + "/" + "libxycecinterface.so"
+          libName=os.path.join(libdir, "libxycecinterface.so" )
           print("Trying to load " + libName )
           self.lib = CDLL(libName,RTLD_GLOBAL)
     except:
@@ -538,40 +539,34 @@ class xyce_interface:
       width.insert(i,cADCwidths[i])
     return (status,width)     
 
-
-#   def file(self,file):
-#     self.lib.spparks_file(self.xycePtr,file)
-# 
-#   def command(self,cmd):
-#     self.lib.spparks_command(self.xycePtr,cmd)
-# 
-#   def extract(self,name,type):
-#     if type == 0:
-#       self.lib.spparks_extract.restype = POINTER(c_int)
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr[0]
-#     if type == 1:
-#       self.lib.spparks_extract.restype = POINTER(c_int)
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr
-#     if type == 2:
-#       self.lib.spparks_extract.restype = POINTER(POINTER(c_int))
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr
-#     if type == 3:
-#       self.lib.spparks_extract.restype = POINTER(c_double)
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr[0]
-#     if type == 4:
-#       self.lib.spparks_extract.restype = POINTER(c_double)
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr
-#     if type == 5:
-#       self.lib.spparks_extract.restype = POINTER(POINTER(c_double))
-#       ptr = self.lib.spparks_extract(self.xycePtr,name)
-#       return ptr
-#     return None
-# 
-#   def energy(self):
-#     self.lib.spparks_energy.restype = c_double
-#     return self.lib.spparks_energy(self.xycePtr)
+  def getSimTime( self ):
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getTime.restype = c_double
+    simTime = self.lib.xyce_getTime(byref(self.xycePtr))
+    return simTime
+    
+  def getFinalTime( self ):
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getFinalTime.restype = c_double
+    finalSimTime = self.lib.xyce_getFinalTime(byref(self.xycePtr))
+    return finalSimTime
+    
+  def checkCircuitParameterExists( self, paramName ):
+    cvarName = c_char_p(paramName.encode('utf-8'))
+    status = self.lib.xyce_checkCircuitParameterExists( byref(self.xycePtr), cvarName )
+    return status
+    
+  def getCircuitValue( self, paramName):
+    cvarName = c_char_p(paramName.encode('utf-8'))
+    # need to let python know that the return type is double and not an int
+    self.lib.xyce_getCircuitValue.restype = c_double
+    paramValue = self.lib.xyce_getCircuitValue( byref(self.xycePtr), cvarName )
+    return paramValue
+    
+  def setCircuitParameter( self, paramName, paramValue):
+    cvarName = c_char_p(paramName.encode('utf-8'))
+    status = self.lib.xyce_setCircuitParameter(byref(self.xycePtr), cvarName, c_double(paramValue))
+    return status
+    
+    
+    
