@@ -36,6 +36,8 @@
  simple class file for Xyce interface
 */
 
+#include <math.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
