@@ -22,4 +22,12 @@ The following modifications to the original have been made:
 
 - module attributes have been added to allow HICUM to plug in to Xyce as
   BJT level 234.
-  
+
+- While Xyce/ADMS does support operating point variables, it does not
+  support port currents such as "I(<B>)" and in fact generates
+  incorrect code when they are used.  Hicum attempts to use these
+  things to provide three output variables for base, collector, and
+  emitter currents.  These had to be ifdeffed out.  The same
+  information can be obtained using the IC(instance), IB(instance),
+  and IE(instance) accessors on a Xyce print line.
+
