@@ -1067,7 +1067,15 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         if (tmp == "M") 
         { 
           currentContextPtr_->setMultiplierSet(true); 
-          double value = parameter.getImmutableValue<double>();
+          double value=0.0;
+          if (parameter.hasExpressionValue())
+          {
+            value = parameter.getMutableValue<double>();
+          }
+          else
+          { // if not an expression, do things the old-fashioned way
+            value = parameter.getImmutableValue<double>();
+          }
           currentContextPtr_->setMultiplierValue(value);
           continue;
         }
