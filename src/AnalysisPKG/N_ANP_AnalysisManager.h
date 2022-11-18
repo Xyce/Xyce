@@ -279,6 +279,9 @@ public:
 
   // Sets the NOISE Analysis options.
   bool setNOISEAnalysisParams(const Util::OptionBlock & OB);
+  
+  // Set diagnostic mode
+  bool setDiagnosticMode(const Util::OptionBlock & OB);
 
   // sets a time at which to pause the simulation
   void setPauseTime(double pauseTime, double initial_time);
@@ -361,6 +364,11 @@ public:
   bool getSensFlag() const
   {
     return sensFlag_;
+  }
+  
+  bool getDiagnosticModeFlag() const 
+  {
+    return diagnosticMode_;
   }
 
   void addAnalysis(Util::Factory<AnalysisBase, void> *factory)
@@ -573,6 +581,7 @@ private:
   bool                  sensFlag_;
   bool                  sweepSourceResetFlag_;
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
+  bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
 
   Util::Timer           xyceTranTimerPtr_;              /// Xyce timing utility for timing the transient simulation CPU time.
   Util::Timer *         elapsedTimerPtr_;               /// Xyce timing utility for timing elapsed run time

@@ -209,6 +209,7 @@ AnalysisManager::AnalysisManager(
     sensFlag_(false),
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
+    diagnosticMode_(false),
     xyceTranTimerPtr_(),
     elapsedTimerPtr_(0),
     solverStartTime_(0.0),
@@ -709,6 +710,23 @@ bool AnalysisManager::setSensOptions(const Util::OptionBlock & OB)
   sensFlag_ = true;
   return true;
 }
+
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::setDiagnosticMode
+// Purpose       : Set the Analysis Manager to gather diagnostic info for 
+//                 user circuit debugging.
+// Special Notes :
+// Scope         : public
+// Creator       : Richard Schiek, Sandia
+// Creation Date : 11/17/22
+//-----------------------------------------------------------------------------
+bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
+{
+  diagnosticMode_ = true;
+  return true;  
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::completeOPStartStep
@@ -1527,11 +1545,18 @@ bool registerPkgOptionsMgr(
     AnalysisManager &analysis_manager, 
     IO::PkgOptionsMgr &options_manager)
 {
+  Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
+  parameters.insert(Util::ParamMap::value_type("extrema", Util::Param("extrema", 0)));
+  
   options_manager.addCommandProcessor("OP", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setOPAnalysisParams));
 
   options_manager.addCommandProcessor("SENS", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setSensOptions));
+    
+  options_manager.addOptionsProcessor("DIAGNOSTIC",
+    IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setDiagnosticMode));
+  Xyce::dout() << "Registered DIAGNOSTIC" << std::endl;
 
   return true;
 }
