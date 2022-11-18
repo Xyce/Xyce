@@ -210,6 +210,9 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
+    diagnosticModeExtrema_(false),
+    diagnosticFileName_("XyceDiag.out"),
+    diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
     elapsedTimerPtr_(0),
     solverStartTime_(0.0),
@@ -243,6 +246,12 @@ AnalysisManager::~AnalysisManager()
   for (std::vector<ProcessorBase *>::iterator it = analysisVector_.begin(), end = analysisVector_.end(); it != end; ++it)
   {
     delete (*it);
+  }
+  if( diagnosticOutputStreamPtr_ != NULL)
+  {
+    diagnosticOutputStreamPtr_->close();
+    delete diagnosticOutputStreamPtr_;
+    diagnosticOutputStreamPtr_ = NULL;
   }
 }
 
@@ -291,8 +300,17 @@ void AnalysisManager::notify(
 //-----------------------------------------------------------------------------
 void AnalysisManager::notify(
   const AnalysisEvent &     analysis_event)
-{
-//  Xyce::dout() << Dump<AnalysisEvent>(analysis_event) << std::endl;
+{  
+  if( diagnosticMode_ )
+  {
+    if(diagnosticOutputStreamPtr_ == NULL)
+    {
+      //open the output file
+      diagnosticOutputStreamPtr_ = new std::ofstream();
+      diagnosticOutputStreamPtr_->open(diagnosticFileName_);
+    }
+    (*diagnosticOutputStreamPtr_) << "Test output" << std::endl;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -724,7 +742,16 @@ bool AnalysisManager::setSensOptions(const Util::OptionBlock & OB)
 bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 {
   diagnosticMode_ = true;
-  return true;  
+  Xyce::dout() << OB << std::endl;
+  bool result = false;
+  for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
+  {
+    const Util::Param &param = *it;
+    
+    result = Util::setValue( param, "EXTREMA", diagnosticModeExtrema_) 
+      || Util::setValue( param, "FILENAME", diagnosticFileName_);
+  }
+  return result;  
 }
 
 
@@ -1547,6 +1574,7 @@ bool registerPkgOptionsMgr(
 {
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
   parameters.insert(Util::ParamMap::value_type("extrema", Util::Param("extrema", 0)));
+  parameters.insert(Util::ParamMap::value_type("filename", Util::Param("filename", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setOPAnalysisParams));
@@ -1556,7 +1584,6 @@ bool registerPkgOptionsMgr(
     
   options_manager.addOptionsProcessor("DIAGNOSTIC",
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setDiagnosticMode));
-  Xyce::dout() << "Registered DIAGNOSTIC" << std::endl;
 
   return true;
 }
