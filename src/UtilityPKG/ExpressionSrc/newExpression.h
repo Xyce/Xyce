@@ -580,6 +580,8 @@ public:
   bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type=DOT_GLOBAL_PARAM);
 
+  bool multiplyByExternalExpression (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 
   bool parsed() const { return parsed_; };

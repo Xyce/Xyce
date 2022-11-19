@@ -2530,7 +2530,7 @@ class iNoiseOp: public astNode<ScalarT>
 //
 //internal to this AST:
 // 10      = handled elsewhere in this AST tree as a numval node
-// *       = handled elsewhere in this AST tree as a binyarMultOp node
+// *       = handled elsewhere in this AST tree as a binaryMultOp node
 //
 //-------------------------------------------------------------------------------
 template <typename ScalarT>
