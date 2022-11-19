@@ -380,14 +380,6 @@ public:
     return retval;
   }
 
-#if 0
-  double getContextMultiplierValue() 
-  {
-    double retval=1.0;
-    if (currentContextPtr_) { retval = currentContextPtr_->getMultiplierValue(); }
-    return retval;
-  }
-#else
   Util::Param getContextMultiplierParam () 
   {
     Util::Param parameter("","");
@@ -403,18 +395,12 @@ public:
     }
     return parameter;
   }
-#endif
 
   void setMultiplierSet(bool tmp)  { multiplierSet_ = tmp; }
   bool getMultiplierSet() { return multiplierSet_; }
 
-#if 0
-  void setMultiplierValue(double val) { multiplierValue_ = val; }
-  double getMultiplierValue() { return multiplierValue_; }
-#else
   void setMultiplierParam (Util::Param & param) { multiplierParameter_ = param; }
   Util::Param getMultiplierParam () { return multiplierParameter_; }
-#endif
 
   // Traverse the CircuitContext table and remove all subcircuit instances except for
   // the ones with the names provided.
