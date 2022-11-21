@@ -38,6 +38,7 @@
 
 #include <N_ANP_AnalysisManager.h>
 
+#include <N_ANP_Transient.h>
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_HB.h>
 #include <N_ANP_MPDE.h>
@@ -77,6 +78,10 @@
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_Manager.h>
+
+#include <N_TOP_Topology.h>
+#include <N_LAS_Builder.h>
+#include <N_PDS_ParMap.h>
 
 #include <expressionGroup.h>
 
@@ -303,13 +308,7 @@ void AnalysisManager::notify(
 {  
   if( diagnosticMode_ )
   {
-    if(diagnosticOutputStreamPtr_ == NULL)
-    {
-      //open the output file
-      diagnosticOutputStreamPtr_ = new std::ofstream();
-      diagnosticOutputStreamPtr_->open(diagnosticFileName_);
-    }
-    (*diagnosticOutputStreamPtr_) << "Test output" << std::endl;
+    this->OutputDiagnosticInfo();
   }
 }
 
@@ -742,13 +741,14 @@ bool AnalysisManager::setSensOptions(const Util::OptionBlock & OB)
 bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 {
   diagnosticMode_ = true;
-  Xyce::dout() << OB << std::endl;
   bool result = false;
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
     
     result = Util::setValue( param, "EXTREMA", diagnosticModeExtrema_) 
+      || Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
+      || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_)
       || Util::setValue( param, "FILENAME", diagnosticFileName_);
   }
   return result;  
@@ -1561,6 +1561,103 @@ void AnalysisManager::setRFParamsRequested(const std::string & type)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeNameFromIndex
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
+{
+  std::string node_name = "N/A";
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<const std::string *> &name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
+
+    // Get the node name, communicate it in parallel.
+    if ( pdsComm.isSerial() )
+    {
+      if ((varIndex > -1) && (varIndex < name_vec.size()))
+        node_name = *name_vec[varIndex];
+    }
+    else
+    {
+      // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+      // Also, if this failure is being printed for a block analysis type, there isn't a
+      // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+      //Teuchos::RCP<Parallel::ParMap> solnMap = (dataStore_->builder_).getSolutionMap();
+      int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
+
+      // Now determine which processor owns this solution node
+      int proc, tmp_proc = -1;
+      if ((varIndex_LID > -1) && (varIndex_LID < name_vec.size()))
+      {
+        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        node_name = *name_vec[varIndex_LID];
+      }
+      pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+      // Make sure someone owns this GID, otherwise proc will be -1.
+      if (proc != -1)
+      {
+        // Communicate the node name length and character string from the processor that owns it
+        int length = node_name.length();
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (varIndex_LID > -1)
+          strcpy( buffer, node_name.c_str() );
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_name = std::string( buffer );
+        free( buffer );
+      }
+    }
+  }
+  return node_name; 
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::OutputDiagnosticInfo
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+
+void AnalysisManager::OutputDiagnosticInfo()
+{
+  
+  if(diagnosticOutputStreamPtr_ == NULL)
+  {
+    //open the output file
+    diagnosticOutputStreamPtr_ = new std::ofstream();
+    diagnosticOutputStreamPtr_->open(diagnosticFileName_);
+  }
+
+  if( diagnosticModeExtrema_)
+  {
+    // get largest absolute value from solution vector
+    double value = 0.0;
+    int localId = 0;
+    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
+    
+    if( value > diagnosticExtremaLimit_)
+    {
+      std::string nodeName = this->getNodeNameFromIndex( localId ); 
+      (*diagnosticOutputStreamPtr_) << "Max value at index " << localId << ", " << nodeName << ", " << value << std::endl;
+    }
+
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::registerPkgOptionsMgr
 // Purpose       :
 // Special Notes :
@@ -1573,8 +1670,9 @@ bool registerPkgOptionsMgr(
     IO::PkgOptionsMgr &options_manager)
 {
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
-  parameters.insert(Util::ParamMap::value_type("extrema", Util::Param("extrema", 0)));
-  parameters.insert(Util::ParamMap::value_type("filename", Util::Param("filename", "XyceDiag.out")));
+  parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
+  parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 1.0e6)));
+  parameters.insert(Util::ParamMap::value_type("FILENAME", Util::Param("FILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setOPAnalysisParams));

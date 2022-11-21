@@ -547,12 +547,16 @@ public:
   {
     return expressionGroup_;
   }
+  
+  std::string getNodeNameFromIndex( const int varIndex ) const;
 
 protected:
   AnalysisBase * getAnalysisObjectPtr() 
   {
     return primaryAnalysisObject_;
   }
+  
+  void OutputDiagnosticInfo();
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object
@@ -584,8 +588,9 @@ private:
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
   bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
   bool                  diagnosticModeExtrema_;
+  double                diagnosticExtremaLimit_;
   std::string           diagnosticFileName_;
-  std::ofstream*         diagnosticOutputStreamPtr_;
+  std::ofstream*        diagnosticOutputStreamPtr_;
 
   Util::Timer           xyceTranTimerPtr_;              /// Xyce timing utility for timing the transient simulation CPU time.
   Util::Timer *         elapsedTimerPtr_;               /// Xyce timing utility for timing elapsed run time
