@@ -215,7 +215,8 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
-    diagnosticModeExtrema_(false),
+    diagnosticModeExtrema_(true),
+    diagnosticExtremaLimit_(0.0),
     diagnosticFileName_("XyceDiag.out"),
     diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
@@ -1650,8 +1651,18 @@ void AnalysisManager::OutputDiagnosticInfo()
     
     if( value > diagnosticExtremaLimit_)
     {
+      
+      (*diagnosticOutputStreamPtr_) << "Extreme value found at ";
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
-      (*diagnosticOutputStreamPtr_) << "Max value at index " << localId << ", " << nodeName << ", " << value << std::endl;
+      if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+      {
+        (*diagnosticOutputStreamPtr_) << "time=" << this->getTime();
+      }
+      else
+      {
+        (*diagnosticOutputStreamPtr_) << "Step=" << this->getStepNumber();
+      }
+      (*diagnosticOutputStreamPtr_) << " index=" << localId << ", name=" << nodeName << ", value=" << value << std::endl;
     }
 
   }
@@ -1671,7 +1682,7 @@ bool registerPkgOptionsMgr(
 {
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
   parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
-  parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 1.0e6)));
+  parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("FILENAME", Util::Param("FILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 
