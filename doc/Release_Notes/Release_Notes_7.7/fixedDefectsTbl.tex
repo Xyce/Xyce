@@ -39,6 +39,7 @@
 \textbf{Xyce Project Backlog or Bugs/1}: short text &  Descriptive text  \\ \hline
 
 
+  \textbf{Xyce Project Backlog or Bugs/494}: Remove parser error trap for using \texttt{.global\_param} on the implicit subcircuit multiplier parameter (M) &  The subcircuit multiplier parameter, \texttt{M}, is treated as a special case in the \Xyce{} parser.  Due to its special treatment, the use case of setting this parameter via a mutable parameter (i.e.  \texttt{.global\_param} ) did not work correctly.  This has been fixed. This issue did not apply to device multipliers, just to subcircuit multipliers.  \\ \hline
 
 \end{longtable}
 }
