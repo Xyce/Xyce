@@ -1929,25 +1929,35 @@ Simulator::RunStatus Simulator::finalize()
 	  strftime(timeDate,40,"%x %X %Z",localtime(&now));
 #endif
 
-	  auditJSON_ << Util::JSON::sep
-				 << Util::nameValuePair("Hostname", hostname()) << Util::JSON::sep
-				 << Util::nameValuePair("Domainname", domainname()) << Util::JSON::sep
-				 << Util::nameValuePair("Username", username()) << Util::JSON::sep
-				 << Util::nameValuePair("Hardware", hardware()) << Util::JSON::sep
-				 << Util::nameValuePair("OSname", osname()) << Util::JSON::sep
-				 << Util::nameValuePair("OSversion", osversion()) << Util::JSON::sep
-				 << Util::nameValuePair("Version", Util::Version::getFullVersionString()) << Util::JSON::sep
-				 << Util::nameValuePair("Processors", Parallel::size(comm_)) << Util::JSON::sep
-				 << Util::nameValuePair("PrimaryAnalysis", Analysis::analysisModeName(analysisManager_->getAnalysisMode())) << Util::JSON::sep
-				 << Util::nameValuePair("EndTime", timeDate) << Util::JSON::sep
-				 << Util::nameValuePair("RuntimeStats", analysis_stat_counts);
-	  Util::JSON json;
-	  json << Util::nameValuePair("audit", auditJSON_);
+    std::vector<std::string> errorMessages;
+    std::string errMsg;
+    auditJSON_ << Util::JSON::sep;
+    auditJSON_ << Util::nameValuePair("Hostname", hostname(errMsg));
+    if(!errMsg.empty()) {  errorMessages.push_back(errMsg); } 
+    errMsg.clear();
 
-	  const std::string &json_string = json.str();
+    auditJSON_  << Util::JSON::sep;
+    auditJSON_  << Util::nameValuePair("Domainname", domainname()) << Util::JSON::sep
+                << Util::nameValuePair("Username", username()) << Util::JSON::sep
+                << Util::nameValuePair("Hardware", hardware()) << Util::JSON::sep
+                << Util::nameValuePair("OSname", osname()) << Util::JSON::sep
+                << Util::nameValuePair("OSversion", osversion()) << Util::JSON::sep
+                << Util::nameValuePair("Version", Util::Version::getFullVersionString()) << Util::JSON::sep
+                << Util::nameValuePair("Processors", Parallel::size(comm_)) << Util::JSON::sep
+                << Util::nameValuePair("PrimaryAnalysis", Analysis::analysisModeName(analysisManager_->getAnalysisMode())) << Util::JSON::sep
+                << Util::nameValuePair("EndTime", timeDate) << Util::JSON::sep
+                << Util::nameValuePair("RuntimeStats", analysis_stat_counts);
+    Util::JSON json;
+   json << Util::nameValuePair("audit", auditJSON_);
+    if(!errorMessages.empty())
+    {
+      json << Util::JSON::sep << Util::nameValuePair("ErrorMessages", errorMessages);
+    }
 
-	  Util::sendTrackingData(trackingURL, 0, json_string);
-	}
+    const std::string &json_string = json.str();
+
+    Util::sendTrackingData(trackingURL, 0, json_string);
+  }
 
 	if (Parallel::rank(comm_) == 0 && Parallel::size(comm_) > 1) {
 	  pout() << std::endl

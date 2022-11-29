@@ -49,8 +49,8 @@
 #if defined(HAVE_WINDOWS_H)
 #include <Windows.h>
 #include <LmCons.h>
-#endif
 
+#else
 #if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
 #include <sys/types.h>
 #include <pwd.h>
@@ -68,6 +68,8 @@
 #include <sys/utsname.h>
 #endif
 
+#endif
+
 namespace Xyce {
 
 #if defined(HAVE_WINDOWS_H)
@@ -83,25 +85,44 @@ std::string windowsVersionName();
 // Creation Date : Mon Apr  6 10:40:15 2015
 //-----------------------------------------------------------------------------
 std::string
-hostname()
+hostname(std::string &errMsg)
 {
-#if defined(HAVE_GETHOSTNAME)
-  char buf[255];
+#if defined(HAVE_WINDOWS_H)
+  TCHAR computerNameBuffer[255] = {0};
+  DWORD nSize = sizeof(computerNameBuffer);
+
+  auto getNameResult = ::GetComputerNameEx(ComputerNameDnsHostname, computerNameBuffer, &nSize);
+  if (getNameResult)
+  {
+    return std::string(computerNameBuffer);
+  }
+  auto errorCode = ::GetLastError();
+  errMsg = std::string("hostname: There was an error retriving the local DNS hostname, the function GetComputerNameEx set Last Error to ") + std::to_string(errorCode);
+
+#elif defined(HAVE_GETHOSTNAME)
+  char buf[255] = {0};
 
   if (::gethostname(buf, sizeof(buf)) == 0)
+  {
     return std::string(buf);
+  }
+  errMsg = "hostname: The function gethostname() failed with errno " + std::to_string(errno);
 
-#elif defined(HAVE_WINDOWS_H)
-  TCHAR buf[MAX_COMPUTERNAME_LENGTH + 1];
-  DWORD size;
-
-  if (::GetComputerName(buf, &size) != 0)
-    return std::string(buf);
 #endif
+
+  if(errMsg.empty())
+  {
+    errMsg = "hostname: No platform specification defined to retrieve the local hostname";
+  }
 
   return "";
 }
-
+std::string
+hostname()
+{
+  std::string sink;
+  return hostname(sink);
+}
 
 //-----------------------------------------------------------------------------
 // Function      : domainname
@@ -114,20 +135,24 @@ hostname()
 std::string
 domainname()
 {
-#if defined(HAVE_GETDOMAINNAME)
-  char buf[255];
-
-  if (::getdomainname(buf, sizeof(buf)) == 0)
-    return std::string(buf);
-
-#elif defined(HAVE_WINDOWS_H)
-  TCHAR buf[MAX_COMPUTERNAME_LENGTH + 1];
+#if defined(HAVE_WINDOWS_H)
+  TCHAR buf[255] = {0};
   DWORD size = sizeof(buf);
 
   if (::GetComputerNameEx(ComputerNameDnsDomain, buf, &size) != 0)
+  {
     return std::string(buf);
-#endif
+  }
 
+#elif defined(HAVE_GETDOMAINNAME)
+  char buf[255];
+
+  if (::getdomainname(buf, sizeof(buf)) == 0)
+  {
+    return std::string(buf);
+  }
+
+#endif
   return "";
 }
 
@@ -143,19 +168,22 @@ domainname()
 std::string
 username()
 {
-#if defined(HAVE_GETPWUID)
-  struct passwd *user_info = ::getpwuid(::geteuid());
-
-  if (user_info)
-    return user_info->pw_name;
-
-#elif defined(HAVE_WINDOWS_H)
-  TCHAR buf[UNLEN + 1];
+#if defined(HAVE_WINDOWS_H)
+  TCHAR buf[UNLEN + 1] = { 0 };
   DWORD size = sizeof(buf);
 
   if (::GetUserName(buf, &size) != 0)
+  {
     return std::string(buf);
+  }
 
+#elif defined(HAVE_GETPWUID)
+  struct passwd *user_info = ::getpwuid(::geteuid());
+
+  if (user_info)
+  {
+    return user_info->pw_name;
+  }
 #endif
   return "unknown";
 }
@@ -172,17 +200,20 @@ username()
 std::string
 hardware()
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_WINDOWS_H)
+  auto getEnvResult = ::getenv("PROCESSOR_ARCHITECTURE");
+
+  if (getEnvResult != nullptr)
+  {
+    return std::string(getEnvResult);
+  }
+
+#elif defined(HAVE_UNAME)
   struct utsname	uts_name;
 
   ::uname(&uts_name);
 
   return uts_name.machine;
-
-#elif defined(HAVE_WINDOWS_H)
-
-  return ::getenv("PROCESSOR_ARCHITECTURE");
-
 #else
   return "";
 #endif
@@ -200,16 +231,16 @@ hardware()
 std::string
 osname()
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_WINDOWS_H)
+  return "Windows";
+
+#elif defined(HAVE_UNAME)
   struct utsname	uts_name;
 
   if (::uname(&uts_name) != -1)
     return uts_name.sysname;
   else
     return "";
-
-#elif defined(HAVE_WINDOWS_H)
-  return "Windows";
 
 #else
   return "";
@@ -228,15 +259,15 @@ osname()
 std::string
 osversion()
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_WINDOWS_H)
+  return windowsVersionName();
+
+#elif defined(HAVE_UNAME)
   struct utsname	uts_name;
 
   ::uname(&uts_name);
 
   return uts_name.release;
-
-#elif defined(HAVE_WINDOWS_H)
-  return windowsVersionName();
 
 #else
   return "";
@@ -434,7 +465,7 @@ windowsVersionName()
 
   os << " " << osvi.szCSDVersion;
 
-  os << " (build " << osvi.dwBuildNumber << L")"; if ( osvi.dwMajorVersion >= 6 ) {
+  os << " (build " << osvi.dwBuildNumber << ")"; if ( osvi.dwMajorVersion >= 6 ) {
     if ( si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64 )
       os <<  ", 64-bit";
     else if (si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL )
