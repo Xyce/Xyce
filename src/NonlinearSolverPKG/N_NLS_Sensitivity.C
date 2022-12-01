@@ -1120,6 +1120,14 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
 
   // copy it over....
   dOdpAdjVec = ds.dOdpAdjVec_;
+  ds.scaled_dOdpAdjVec_ = ds.dOdpAdjVec_;
+  for (int iparam=0; iparam< numSensParams_; ++iparam)
+  {
+    // get scaled value.  dO/dp*(p/100)
+    double normalize = ds.paramOrigVals_[iparam]/100.0;
+    ds.scaled_dOdpAdjVec_[iparam] *= normalize;
+  }
+  scaled_dOdpAdjVec = ds.scaled_dOdpAdjVec_;
 
   // restore the useTranspose flag to the original setting. (false, probably)
   jacobianMatrixPtr_->setUseTranspose (useTran);
