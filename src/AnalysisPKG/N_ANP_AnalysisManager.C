@@ -1714,9 +1714,10 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     {
       (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
         << analysis_event.outputType_ 
-        << " at " 
+        << " analysis at " 
         << analysis_event.state_;
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
+      char varType = this->getNodeTypeFromIndex( localId ); 
       if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
       {
         (*diagnosticOutputStreamPtr_) << " time=" << this->getTime();
@@ -1727,7 +1728,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           << " Step=" << analysis_event.step_ ;
       }
       (*diagnosticOutputStreamPtr_) 
-        << " index=" << localId << ", name=" << nodeName << ", value=" << value << std::endl;
+        << " " << varType << "(" << nodeName << ")=" << value << std::endl;
     }
 
   }
