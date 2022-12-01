@@ -41,7 +41,7 @@
 #include <list>
 #include <set>
 #include <vector>
-#include <fstream>
+#include <iosfwd>
 
 // trilinos includes
 #include <Teuchos_RCP.hpp>
@@ -549,6 +549,7 @@ public:
   }
   
   std::string getNodeNameFromIndex( const int varIndex ) const;
+  char getNodeTypeFromIndex( const int varIndex ) const;
 
 protected:
   AnalysisBase * getAnalysisObjectPtr() 
@@ -556,7 +557,7 @@ protected:
     return primaryAnalysisObject_;
   }
   
-  void OutputDiagnosticInfo();
+  void OutputDiagnosticInfo(const AnalysisEvent & analysis_event);
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object

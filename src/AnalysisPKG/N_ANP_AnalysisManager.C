@@ -309,7 +309,7 @@ void AnalysisManager::notify(
 {  
   if( diagnosticMode_ )
   {
-    this->OutputDiagnosticInfo();
+    this->OutputDiagnosticInfo(analysis_event);
   }
 }
 
@@ -746,11 +746,10 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
-    
-    result = Util::setValue( param, "EXTREMA", diagnosticModeExtrema_) 
-      || Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
+    bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
       || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_)
-      || Util::setValue( param, "FILENAME", diagnosticFileName_);
+      || Util::setValue( param, "DIAGFILENAME", diagnosticFileName_);
+    result = result || subResult;
   }
   return result;  
 }
@@ -1575,7 +1574,7 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
-    const std::vector<const std::string *> &name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1624,6 +1623,68 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeTypeFromIndex
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
+{
+  char node_type = 'N';
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
+
+    // Get the node name, communicate it in parallel.
+    if ( pdsComm.isSerial() )
+    {
+      if ((varIndex > -1) && (varIndex < type_vec.size()))
+        node_type = type_vec[varIndex];
+    }
+    else
+    {
+      // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+      // Also, if this failure is being printed for a block analysis type, there isn't a
+      // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+      //Teuchos::RCP<Parallel::ParMap> solnMap = (dataStore_->builder_).getSolutionMap();
+      int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
+
+      // Now determine which processor owns this solution node
+      int proc, tmp_proc = -1;
+      if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
+      {
+        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        node_type = type_vec[varIndex_LID];
+      }
+      pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+      // Make sure someone owns this GID, otherwise proc will be -1.
+      if (proc != -1)
+      {
+        // Communicate the node name length and character string from the processor that owns it
+        int length = 1;
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (varIndex_LID > -1)
+          *buffer = node_type;
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_type = *buffer;
+        free( buffer );
+      }
+    }
+  }
+  return node_type; 
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::OutputDiagnosticInfo
 // Purpose       :
 // Special Notes :
@@ -1632,7 +1693,7 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 // Creation Date : 11/21/2022
 //-----------------------------------------------------------------------------
 
-void AnalysisManager::OutputDiagnosticInfo()
+void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
 {
   
   if(diagnosticOutputStreamPtr_ == NULL)
@@ -1651,18 +1712,22 @@ void AnalysisManager::OutputDiagnosticInfo()
     
     if( value > diagnosticExtremaLimit_)
     {
-      
-      (*diagnosticOutputStreamPtr_) << "Extreme value found at ";
+      (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+        << analysis_event.outputType_ 
+        << " at " 
+        << analysis_event.state_;
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
       if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
       {
-        (*diagnosticOutputStreamPtr_) << "time=" << this->getTime();
+        (*diagnosticOutputStreamPtr_) << " time=" << this->getTime();
       }
       else
       {
-        (*diagnosticOutputStreamPtr_) << "Step=" << this->getStepNumber();
+        (*diagnosticOutputStreamPtr_) 
+          << " Step=" << analysis_event.step_ ;
       }
-      (*diagnosticOutputStreamPtr_) << " index=" << localId << ", name=" << nodeName << ", value=" << value << std::endl;
+      (*diagnosticOutputStreamPtr_) 
+        << " index=" << localId << ", name=" << nodeName << ", value=" << value << std::endl;
     }
 
   }
@@ -1683,7 +1748,7 @@ bool registerPkgOptionsMgr(
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
   parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
   parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
-  parameters.insert(Util::ParamMap::value_type("FILENAME", Util::Param("FILENAME", "XyceDiag.out")));
+  parameters.insert(Util::ParamMap::value_type("DIAGFILENAME", Util::Param("DIAGFILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setOPAnalysisParams));
