@@ -92,6 +92,10 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
+\item Subcircuit multipliers (\texttt{M=}) previously had to have a fixed value.  
+  Now, they can be treated like any other parameter, and can change during a simulation 
+  using commands such as \texttt{.STEP}. 
+
 \item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in 
 debugging of user circuits.  This option can be used to output nodes with extreme 
 solution values during a simulation.  See the Reference Guide for more details.
