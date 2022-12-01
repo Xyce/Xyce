@@ -15,7 +15,7 @@
 // BOOL GetComputerNameEx(COMPUTER_NAME_FORMAT NameType, LPSTR lpBuffer, LPDWORD nSize);
 
 #elif defined(HAVE_GETHOSTNAME)
-int gethostname(char *__name, size_t __length) throw()
+int gethostname(char *__name, size_t __length)
 {
   errno = EFAULT;
   return -1;
