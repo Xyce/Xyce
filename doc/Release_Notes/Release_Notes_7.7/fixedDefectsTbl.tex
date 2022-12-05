@@ -55,6 +55,17 @@
   This has been fixed. This issue did not apply to device multipliers,
   just to subcircuit multipliers.  \\ \hline
 
+  \textbf{Xyce Project Bugs/36}: Xyce/ADMS aborts when an analog
+  function calls \$strobe, \$bound\_step, or other ``callfunction'' &
+  Due to the way Xyce/ADMS implements \$strobe, \$bound\_step, and
+  other statements that look like function calls and how it implements
+  analog functions themselves, these ``callfunctions'' cannot be used
+  inside analog functions.  Until this release, trying to
+  call \$strobe from inside an analog function would cause ADMS to
+  abort with a fatal error about a missing template.  Now it will emit
+  a warning that the usage is not implemented, but will simply ignore
+  the callfunction and generate otherwise functional code. \\ \hline
+
   \textbf{Xyce Project Bugs/35}: Xyce/ADMS does not allow ceil and
   floor in analog functions & A mistake in the code for generating
   analog function derivatives caused any analog function that used

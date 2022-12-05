@@ -6740,49 +6740,57 @@ other variables does not get propagated into a variable's
 <!-- callfunction: handle $strobe and $bound_step-->
 <admst:template match="callfunction">
   <admst:choose>
-    <admst:when test="function[name='\$strobe' or name='\$write'  or name='\$display']">
-      <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
-      <admst:variable name="skipFunctionPrecomp" select="y"/>
+    <admst:when test="[$globalCurrentScope != 'AF']">
       <admst:choose>
-        <admst:when test="[$globalCurrentScope ='sensitivity']">
-          <admst:text format="UserInfo(theInstance) "/>
+        <admst:when test="function[name='\$strobe' or name='\$write'  or name='\$display']">
+          <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+          <admst:variable name="skipFunctionPrecomp" select="y"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope ='sensitivity']">
+              <admst:text format="UserInfo(theInstance) "/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format="UserInfo(*this) "/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:for-each select="function/arguments">
+            <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
+          </admst:for-each>
+          <admst:if test="[function/name='\$strobe' or function/name='\$display']">
+            <admst:text format=" &lt;&lt;  std::endl"/>
+          </admst:if>
+          <admst:text format="; \n"/>
+          <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
+        </admst:when>
+        <admst:when test="function[name='\$finish']">
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope ='sensitivity']">
+              <admst:text format=" UserError(theInstance) &lt;&lt; &quot;%(function/name) called.&quot; &lt;&lt; std::endl; \n"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format=" UserError(*this) &lt;&lt; &quot;%(function/name) called.&quot; &lt;&lt; std::endl; \n"/>
+            </admst:otherwise>
+          </admst:choose>
+        </admst:when>
+        <admst:when test="function[name='\$bound_step']">
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope ='sensitivity']">
+              <!-- do absolutely nothing -->
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format=" maxTimeStep_ = %(printTerm(function/arguments[1]));\n"/>
+            </admst:otherwise>
+          </admst:choose>
         </admst:when>
         <admst:otherwise>
-          <admst:text format="UserInfo(*this) "/>
-        </admst:otherwise>
-      </admst:choose>
-      <admst:for-each select="function/arguments">
-      <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
-      </admst:for-each>
-      <admst:if test="[function/name='\$strobe' or function/name='\$display']">
-        <admst:text format=" &lt;&lt;  std::endl"/>
-      </admst:if>
-      <admst:text format="; \n"/>
-      <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
-    </admst:when>
-    <admst:when test="function[name='\$finish']">
-      <admst:choose>
-        <admst:when test="[$globalCurrentScope ='sensitivity']">
-          <admst:text format=" UserError(theInstance) &lt;&lt; &quot;%(function/name) called.&quot; &lt;&lt; std::endl; \n"/>
-        </admst:when>
-        <admst:otherwise>
-          <admst:text format=" UserError(*this) &lt;&lt; &quot;%(function/name) called.&quot; &lt;&lt; std::endl; \n"/>
-        </admst:otherwise>
-      </admst:choose>
-    </admst:when>
-    <admst:when test="function[name='\$bound_step']">
-      <admst:choose>
-        <admst:when test="[$globalCurrentScope ='sensitivity']">
-          <!-- do absolutely nothing -->
-        </admst:when>
-        <admst:otherwise>
-          <admst:text format=" maxTimeStep_ = %(printTerm(function/arguments[1]));\n"/>
+          <admst:value-of select="function/name"/>
+          <admst:text format="// %s: not supported by this interface\n"/>
         </admst:otherwise>
       </admst:choose>
     </admst:when>
     <admst:otherwise>
-      <admst:value-of select="function/name"/>
-      <admst:text format="%s: not supported by this interface\n"/>
+      <admst:text format="// %(function/name): not supported in analog functions\n"/>
+      <admst:warning format="%(function/name) not supported in analog functions, ignored.\n"/>
     </admst:otherwise>
   </admst:choose>
 </admst:template>

@@ -1140,6 +1140,11 @@ subordinate template returned.
   </admst:for-each>
   <admst:return name="returnedString" value="$returnedString"/>
 </admst:template>
+<!-- these should never get called, and if they do, it's a warning -->
+<admst:template match="xyceAnalogFunctions:callfunction">
+  <admst:warning format="callfunctions cannot be accessed inside analog functions, ignoring %(function/name)\n"/>
+  <admst:return name="returnedString" value=""/>
+</admst:template>
 
 <!-- these should never get called, and if they do, it's an error -->
 <admst:template match="xyceAnalogFunctions:probe">
