@@ -12087,6 +12087,36 @@ TEST ( Complex_Parser_Random, agauss1)
 }
 
 //-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss2)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); 
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss3)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, agauss1_func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -12109,9 +12139,36 @@ TEST ( Complex_Parser_Random, agauss1_func)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss_func)
+  OUTPUT_MACRO(Complex_Parser_Random, agauss1_func)
 }
 
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss2_func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {A*agauss(1.0,0.1,1.0)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("A*agauss(1.0,0.1)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); 
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss2_func)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, gauss0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -12124,6 +12181,19 @@ TEST ( Complex_Parser_Random, gauss0)
   OUTPUT_MACRO(Complex_Parser_Random, gauss0)
 }
 
+TEST ( Complex_Parser_Random, gauss1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, gauss1)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, aunif0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );

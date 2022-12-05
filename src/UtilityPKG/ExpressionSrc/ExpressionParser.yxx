@@ -1664,30 +1664,30 @@ exp:
     {
       $$ = Teuchos::RCP<astNode<usedType> >(new ddxOp<usedType>($2,$4));
     }
-  | TOK_AGAUSS exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+  | TOK_AGAUSS two_or_more_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<agaussOp<usedType> > agaussPtr = Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> ($2,$4,$6));
+      Teuchos::RCP<agaussOp<usedType> > agaussPtr = Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> (*$2));
       $$ = Teuchos::RCP<astNode<usedType> >(agaussPtr);
       newExp.getAgaussOpVec ().push_back(agaussPtr);
       newExp.getLocalAgaussOpVec ().push_back(agaussPtr);
     }
-  | TOK_GAUSS exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+  | TOK_GAUSS two_or_more_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<gaussOp<usedType> > gaussPtr = Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>($2,$4,$6));
+      Teuchos::RCP<gaussOp<usedType> > gaussPtr = Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>(*$2));
       $$ = Teuchos::RCP<astNode<usedType> >(gaussPtr);
       newExp.getGaussOpVec ().push_back(gaussPtr);
       newExp.getLocalGaussOpVec ().push_back(gaussPtr);
     }
-  | TOK_AUNIF exp TOK_COMMA exp  TOK_RIGHTPAREN
+  | TOK_AUNIF two_or_more_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<aunifOp<usedType> > aunifPtr = Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>($2,$4));
+      Teuchos::RCP<aunifOp<usedType> > aunifPtr = Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>(*$2));
       $$ = Teuchos::RCP<astNode<usedType> >(aunifPtr);
       newExp.getAunifOpVec ().push_back(aunifPtr);
       newExp.getLocalAunifOpVec ().push_back(aunifPtr);
     }
-  | TOK_UNIF exp TOK_COMMA exp TOK_RIGHTPAREN
+  | TOK_UNIF two_or_more_arglist TOK_RIGHTPAREN
     {
-      Teuchos::RCP<unifOp<usedType> > unifPtr = Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>($2,$4));
+      Teuchos::RCP<unifOp<usedType> > unifPtr = Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>(*$2));
       $$ = Teuchos::RCP<astNode<usedType> >(unifPtr);
       newExp.getUnifOpVec ().push_back(unifPtr);
       newExp.getLocalUnifOpVec ().push_back(unifPtr);
