@@ -36,15 +36,38 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-  \textbf{Xyce Project Backlog/492}: Subcircuit multiliplier parameters (\texttt{M}) need to be handled as an AST (enabling .STEP to be applied to subcircuit \texttt{M}) &  This task was related to backlog isssue 494.  In the initial implementation of subcircuit multipliers, they were constrained to have fixed values.  However, in some cases a user may wish to change multiplier values during a simulation.  To enable this feature, the subcircuit multiplier parameters had to be part of the same abstract syntax tree (AST) as other parameters from the netlist.  This has been fixed.
-  \\ \hline
+  \textbf{Xyce Project Backlog/492}: Subcircuit multiliplier
+  parameters (\texttt{M}) need to be handled as an AST (enabling .STEP
+  to be applied to subcircuit \texttt{M}) & This task was related to
+  backlog isssue 494.  In the initial implementation of subcircuit
+  multipliers, they were constrained to have fixed values.  However,
+  in some cases a user may wish to change multiplier values during a
+  simulation.  To enable this feature, the subcircuit multiplier
+  parameters had to be part of the same abstract syntax tree (AST) as
+  other parameters from the netlist.  This has been fixed.  \\ \hline
 
-  \textbf{Xyce Project Backlog/494}: Remove parser error trap for using \texttt{.global\_param} on the implicit subcircuit multiplier parameter (M) &  The subcircuit multiplier parameter, \texttt{M}, is treated as a special case in the \Xyce{} parser.  Due to its special treatment, the use case of setting this parameter via a mutable parameter (i.e.  \texttt{.global\_param} ) did not work correctly.  This has been fixed. This issue did not apply to device multipliers, just to subcircuit multipliers.  \\ \hline
+  \textbf{Xyce Project Backlog/494}: Remove parser error trap for
+  using \texttt{.global\_param} on the implicit subcircuit multiplier
+  parameter (M) & The subcircuit multiplier parameter, \texttt{M}, is
+  treated as a special case in the \Xyce{} parser.  Due to its special
+  treatment, the use case of setting this parameter via a mutable
+  parameter (i.e.  \texttt{.global\_param} ) did not work correctly.
+  This has been fixed. This issue did not apply to device multipliers,
+  just to subcircuit multipliers.  \\ \hline
 
+  \textbf{Xyce Project Bugs/35}: Xyce/ADMS does not allow ceil and
+  floor in analog functions & A mistake in the code for generating
+  analog function derivatives caused any analog function that used
+  ceil or floor to abort processing of an entire Verilog-A model.
+  This mistake has been fixed and now ceil and floor can be used
+  inside analog functions \\ \hline
 
-  \textbf{Xyce Project Bugs/27}: Transient adjoint sensitivity doesn't correctly handle scaling &  
-  Sensitivity analysis in \Xyce{} can optionally scale sensitivity values by \texttt{p/100}, where \texttt{p} is the original value of the sensitivity parameter.  This particular capability was never implemented for transient adjoints, which was an oversight.   This has been fixed.
-  \\ \hline
+  \textbf{Xyce Project Bugs/27}: Transient adjoint sensitivity doesn't
+  correctly handle scaling & Sensitivity analysis in \Xyce{} can
+  optionally scale sensitivity values by \texttt{p/100},
+  where \texttt{p} is the original value of the sensitivity parameter.
+  This particular capability was never implemented for transient
+  adjoints, which was an oversight.  This has been fixed.  \\ \hline
 
 \end{longtable}
 }
