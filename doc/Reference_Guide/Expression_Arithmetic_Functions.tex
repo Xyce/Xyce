@@ -211,26 +211,22 @@
     %AGAUSS($\mu$,$\alpha$,$n$) & $\mu-\alpha < result < \mu+\alpha$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
     AGAUSS($\mu$,$\alpha$,$n$) &  & Random number sampled from normal distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
     %& & The number returned will differ from the mean by at most $\alpha$ \\
-    & & A deviation $\alpha$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
+    & & A deviation $\alpha$ will be $n$ standard deviations from the mean. The argument $n$ is optional, and defaults to 1.\footnotemark[1]  \\\hline 
 
     %GAUSS($\mu$,$\alpha$,$n$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from normal distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     GAUSS($\mu$,$\alpha$,$n$) &  & Random number sampled from normal distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     %& & The number returned will differ from the mean by at most $\alpha*\mu$ \\
-    & & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.\footnotemark[1]  \\\hline 
-
+    & & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.  The argument $n$ is optional, and defaults to 1.\footnotemark[1]  \\\hline 
 
     %AUNIF($\mu$,$\alpha$) & $\mu-\alpha < result < \mu+\alpha$ & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
     AUNIF($\mu$,$\alpha$) &  & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $\alpha/n$ \\ 
     & & The number returned will differ from the mean by at most $\alpha$ \footnotemark[1]  \\\hline 
-   % & & A deviation $\alpha$ will be $n$ standard deviations from the mean.
 
     %UNIF($\mu$,$\alpha$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     UNIF($\mu$,$\alpha$) &  & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     & & The number returned will differ from the mean by at most $\alpha*\mu$ \footnotemark[1]  \\\hline 
-    %& & A deviation $\alpha*\mu$ will be $n$ standard deviations from the mean.
 
     RAND() & & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
-    %& $0 < result < 1$ & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
 
   \end{longtable}
 \footnotetext[1]{The default behavior of the random number functions \texttt{RAND}, \texttt{GAUSS},
