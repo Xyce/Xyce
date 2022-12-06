@@ -57,11 +57,19 @@ class agaussOp : public astNode<ScalarT>
     {
       if (args.size() < 2)
       {
-        std::vector<std::string> errStr(1,std::string("AST node (agauss) needs at least 2 argument.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (agauss) needs at least 2 arguments.")); yyerror(errStr);
       }
 
       if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
-      if (args.size() > 3) { multAst_ = args[3]; } else { multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 3) 
+      { 
+        multAst_ = args[3]; 
+        std::vector<std::string> errStr(1,std::string("AST node (agauss) accepts at most 3 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -184,11 +192,19 @@ class gaussOp : public astNode<ScalarT>
     {
       if (args.size() < 2)
       {
-        std::vector<std::string> errStr(1,std::string("AST node (gauss) needs at least 2 argument.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (gauss) needs at least 2 arguments.")); yyerror(errStr);
       }
 
       if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
-      if (args.size() > 3) { multAst_ = args[3]; } else { multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 3) 
+      { 
+        multAst_ = args[3]; 
+        std::vector<std::string> errStr(1,std::string("AST node (gauss) accepts at most 3 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
@@ -313,7 +329,15 @@ class aunifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (aunif) needs at least 2 argument.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) { multAst_ = args[2]; } else { multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 2) 
+      { 
+        multAst_ = args[2]; 
+        std::vector<std::string> errStr(1,std::string("AST node (aunif) accepts at most 2 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
 
       // should check to make sure that mu, alpha are simple constant numbers
       value_ = mu_->val();
@@ -433,7 +457,15 @@ class unifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (unif) needs at least 2 argument.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) { multAst_ = args[2]; } else { multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 2) 
+      { 
+        multAst_ = args[2]; 
+        std::vector<std::string> errStr(1,std::string("AST node (unif) accepts at most 2 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
