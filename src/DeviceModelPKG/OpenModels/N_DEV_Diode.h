@@ -100,12 +100,16 @@ struct Traits : public DeviceTraits<Model, Instance>
 template <typename ScalarT> 
 bool processParams (
     ScalarT & M,
+    ScalarT & MJSW,
     ScalarT & EG,
     ScalarT & FC,
+    ScalarT & FCS,
     const ScalarT & RS,
     ScalarT & COND,
     ScalarT & F2,
-    ScalarT & F3
+    ScalarT & F3,
+    ScalarT & F2SW,
+    ScalarT & F3SW
     );
 
 template <typename ScalarT> 
@@ -117,8 +121,12 @@ bool updateTemperature
    ScalarT & tJctCap,
    ScalarT & tJctPot,
    ScalarT & tDepCap,
+   ScalarT & tJctSWCap,
+   ScalarT & tJctSWPot,
+   ScalarT & tDepSWCap,
    ScalarT & tF1,
    ScalarT & tSatCur,
+   ScalarT & tSatSWCur,
    ScalarT & tSatCurR,
    ScalarT & tVcrit,
    ScalarT & tRS,
@@ -129,10 +137,15 @@ bool updateTemperature
    // model variables/params:
    const ScalarT & TNOM,
    const ScalarT & VJ,
+   const ScalarT & VJSW,
    const ScalarT & CJO,
+   const ScalarT & CJSW,
    const ScalarT & M,
    const ScalarT & N,
+   const ScalarT & MJSW,
+   const ScalarT & NS,
    const ScalarT & IS,
+   const ScalarT & JSW,
    const ScalarT & EG,
    const ScalarT & XTI,
    const ScalarT & RS,
@@ -144,6 +157,7 @@ bool updateTemperature
    const ScalarT & ISR,
    const ScalarT & IBV,
    const ScalarT & BV,
+   const ScalarT & NBV,
    const bool & BVGiven,
    const bool & IRFGiven,
    const ScalarT & TBV1,
@@ -151,6 +165,7 @@ bool updateTemperature
    const ScalarT & TRS1,
    const ScalarT & TRS2,
    const ScalarT & FC,
+   const ScalarT & FCS,
    const int  level
 
  );
@@ -169,8 +184,12 @@ bool updateIntermediateVars
    const ScalarT & tJctCap,
    const ScalarT & tJctPot,
    const ScalarT & tDepCap,
+   const ScalarT & tJctSWCap,
+   const ScalarT & tJctSWPot,
+   const ScalarT & tDepSWCap,
    const ScalarT & tF1,
    const ScalarT & tSatCur,
+   const ScalarT & tSatSWCur,
    const ScalarT & tSatCurR,
    const ScalarT & tVcrit,
    const ScalarT & tRS,
@@ -180,21 +199,29 @@ bool updateIntermediateVars
   
    // instance variables:
    const ScalarT & Area,
+   const ScalarT & PJ,
    const ScalarT & multiplicityFactor,
    const double & gmin,
 
   // model params:
   const ScalarT M   , // grading parameter
+  const ScalarT MJSW   , // sidewall grading parameter
   const ScalarT BV  , // breakdown voltage
   const ScalarT IBV , // reverse breakdown current
   const ScalarT NBV , // reverse breakdown ideality factor
   const ScalarT IBVL, // low-level reverse breakdown current
   const ScalarT NBVL, // low-level reverse breakdown ideality factor
   const ScalarT N   , // non-ideality factor.
+  const ScalarT NS   , // Sidewal emission coefficient
   const ScalarT NR  , // emission coeff. for ISR.
   const ScalarT TT  , // transit time.
   const ScalarT F2  , // capacitive polynomial factor
   const ScalarT F3  , // capacitive polynomial factor
+  const ScalarT F2SW  , // sidewall capacitive polynomial factor
+  const ScalarT F3SW  , // sidewall capacitive polynomial factor
+
+  const bool JSWGiven,
+  const bool NSGiven,
 
   const int  level,
 
@@ -337,6 +364,7 @@ private:
 
   int  off;
   double Area;
+  double PJ;
   double multiplicityFactor;
   double InitCond;
   double Temp;
@@ -344,8 +372,12 @@ private:
 
   double tJctPot;
   double tJctCap;
+  double tJctSWPot;
+  double tJctSWCap;
   double tDepCap;
   double tSatCur;
+  double tDepSWCap;
+  double tSatSWCur;
   double tVcrit;
   double tF1;
   double tBrkdwnV;
@@ -383,6 +415,10 @@ private:
 
   // for voltage limiting
   int li_storevd;
+
+  // for output variables
+  int li_storeqd;
+  int li_storecd;
 
   // for lead current
   int li_branch_data;         ///< Index for Lead Current and junction voltage (for power calculations)
@@ -484,9 +520,11 @@ private:
 private:
 
   double IS;   // saturation current (A)
+  double JSW;  // sidewall saturation current (A)
   double RS;   // ohmic resistance (ohms)
   double COND; // corresponding conductance
   double N;    // emission coefficient
+  double NS;   // sidewall emission coefficient
   double ISR;  // recombination saturation current (A)
   double NR;   // emission coefficient for ISR
   double IKF;  // high-injection knee current (A)
@@ -494,6 +532,9 @@ private:
   double CJO;  // zero-bias junction capacitance (F)
   double VJ;   // built-in junction potential (V)
   double M;    // grading coefficient
+  double CJSW;  // sidewal junction capacitance
+  double VJSW;  // sidewall junction potential
+  double MJSW;  // sidewall grading coefficient
   double EG;   // activation  energy (eV).
   //    For Si, EG = 1.11
   //        Ge, EG = 0.67
@@ -506,6 +547,7 @@ private:
   double TRS2; // RS quadratic temperature coeff.
   double FC;   // coefficient for forward-bias depletion capacitance
   // formula
+  double FCS;   // coefficient for sidewall depletion capacitance
   double BV;   // reverse breakdown voltage
   double IBV;  // current at  breakdown voltage (A)
   double IRF;  // adjustment for linear portion of reverse current
@@ -514,12 +556,16 @@ private:
   double NBVL; // low-level reverse breakdown ideality factor
   double F2;
   double F3;
+  double F2SW;
+  double F3SW;
   double TNOM; // parameter measurement temperature (C)
   double KF;   // flicker noise coefficient
   double AF;   // flicker noise exponent
 
   bool BVGiven;
   bool IRFGiven;
+  bool JSWGiven;
+  bool NSGiven;
 };
 
 //-----------------------------------------------------------------------------

@@ -68,6 +68,10 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Area scaling value (scales IS, ISR, IKF, RS, CJ0, and IBV)");
 
+  p.addPar ("PJ",  0.0, &Diode::Instance::PJ)
+    .setCategory(CAT_GEOMETRY)
+    .setDescription("Perimeter scaling value");
+
   p.addPar ("M",  1.0, &Diode::Instance::multiplicityFactor)
     .setCategory(CAT_GEOMETRY)
     .setDescription("multiplicity factor");
@@ -103,6 +107,14 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
+  p.addPar ("JSW", 0.0, &Diode::Model::JSW)
+    .setGivenMember(&Diode::Model::JSWGiven)
+    .setUnit(U_AMP)
+    .setCategory(CAT_CURRENT)
+    .setDescription("Sidewall Saturation current")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
   p.addPar ("RS",  0.0, &Diode::Model::RS)
     .setExpressionAccess(ParameterType::MIN_RES)
     .setUnit(U_OHM)
@@ -117,6 +129,15 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setDescription("Emission coefficient")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("NS",  1.0, &Diode::Model::NS)
+    .setGivenMember(&Diode::Model::NSGiven)
+    .setCategory(CAT_PROCESS)
+    .setOriginalValueStored(true)
+    .setDescription("Sidewall emission coefficient")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
 
   p.addPar ("ISR", 0.0, &Diode::Model::ISR)
     .setUnit(U_AMP)
@@ -183,6 +204,42 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
+  p.addPar ("CJSW", 0.0, &Diode::Model::CJSW)
+    .setExpressionAccess(ParameterType::MIN_CAP)
+    .setUnit(U_FARAD)
+    .setCategory(CAT_CAP)
+    .setDescription("Sidewall junction capacitance")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("CJP", 0.0, &Diode::Model::CJSW)
+    .setExpressionAccess(ParameterType::MIN_CAP)
+    .setUnit(U_FARAD)
+    .setCategory(CAT_CAP)
+    .setDescription("Sidewall junction capacitance (alias for CJSW)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("PHP", 1.0, &Diode::Model::VJSW)
+    .setUnit(U_VOLT)
+    .setCategory(CAT_VOLT)
+    .setDescription("Potential for sidewall junction")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("VJSW", 1.0, &Diode::Model::VJSW)
+    .setUnit(U_VOLT)
+    .setCategory(CAT_VOLT)
+    .setDescription("Potential for sidewall junction (alias for PHP)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("MJSW", 0.33, &Diode::Model::MJSW)
+    .setCategory(CAT_PROCESS)
+    .setDescription("Grading parameter for sidewall junction")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
   p.addPar ("EG", 1.11, &Diode::Model::EG)
     .setUnit(U_EV)
     .setCategory(CAT_PROCESS)
@@ -216,16 +273,33 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
   p.addPar ("TRS1", 0.0, &Diode::Model::TRS1)
     .setUnit(U_DEGCM1)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (linear)");
+    .setDescription("RS temperature coefficient (linear)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("TRS", 0.0, &Diode::Model::TRS1)
+    .setUnit(U_DEGCM1)
+    .setCategory(CAT_TEMP)
+    .setDescription("RS temperature coefficient (linear) (alias for TRS1)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("TRS2", 0.0, &Diode::Model::TRS2)
     .setUnit(U_DEGCM2)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (quadratic)");
+    .setDescription("RS temperature coefficient (quadratic)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
 ////
   p.addPar ("FC", 0.5, &Diode::Model::FC)
     .setCategory(CAT_CAP)
     .setDescription("Forward-bias depletion capacitance coefficient")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("FCS", 0.5, &Diode::Model::FCS)
+    .setCategory(CAT_CAP)
+    .setDescription("Forward-bias sidewall depletion capacitance coefficient")
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&diodeSens);
 
@@ -343,8 +417,12 @@ Instance::Instance(
     InitCondGiven(false),
     tJctPot(0.0),
     tJctCap(0.0),
+    tJctSWPot(0.0),
+    tJctSWCap(0.0),
     tDepCap(0.0),
     tSatCur(0.0),
+    tDepSWCap(0.0),
+    tSatSWCur(0.0),
     tVcrit(0.0),
     tF1(0.0),
     tBrkdwnV(0.0),
@@ -366,6 +444,8 @@ Instance::Instance(
     Vd_old(0.0),
     Vd_orig(0.0),
     li_storevd(-1),
+    li_storeqd(-1),
+    li_storecd(-1),
     li_branch_data(-1),
     li_Pos(-1),
     li_Neg(-1),
@@ -398,7 +478,7 @@ Instance::Instance(
   numIntVars   = 1;
   numExtVars   = 2;
   numStateVars = 0;
-  setNumStoreVars(1);
+  setNumStoreVars(3);
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 1;    // this is the space to allocate if lead current or power is needed.
 
@@ -535,6 +615,8 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_Pri, getName(), "internal");
 
   addStoreNode(symbol_table, li_storevd, getName(), "vd");
+  addStoreNode(symbol_table, li_storeqd, getName().getEncodedName()+":qd");
+  addStoreNode(symbol_table, li_storecd, getName().getEncodedName()+":cd");
 
   if (loadLeadCurrent)
   {
@@ -574,10 +656,14 @@ void Instance::registerStoreLIDs(
 // copy over the global ID lists:
   stoLIDVec = stoLIDVecRef;
   li_storevd = stoLIDVec[0];
+  li_storeqd = stoLIDVec[1];
+  li_storecd = stoLIDVec[2];
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << "li_storevd = " << li_storevd;
+    Xyce::dout() << "li_storeqd = " << li_storeqd;
+    Xyce::dout() << "li_storecd = " << li_storevd;
   }
 
 }
@@ -877,6 +963,8 @@ bool Instance::updatePrimaryState ()
   double * stoVec = extData.nextStoVectorRawPtr;
   bool bsuccess = updateIntermediateVars ();
   stoVec[li_storevd] = Vd;
+  stoVec[li_storeqd] = Qd;
+  stoVec[li_storecd] = Cd;
   return bsuccess;
 }
 
@@ -970,16 +1058,20 @@ bool Instance::updateIntermediateVars ()
 
   //diode parameters
   double M;       // grading parameter
+  double MJSW;    // sidewall grading parameter
   double BV;      // breakdown voltage
   double IBV;     // reverse breakdown current
   double NBV;     // reverse breakdown ideality factor
   double IBVL;    // low-level reverse breakdown current
   double NBVL;    // low-level reverse breakdown ideality factor
   double N;       // non-ideality factor.
+  double NS;      // sidewall emission coefficient
   double NR;      // emission coeff. for ISR.
   double TT;      // transit time.
   double F2;      // capacitive polynomial factor
   double F3;      // capacitive polynomial factor
+  double F2SW;    // Sidewall capacitive polynomial factor
+  double F3SW;    // Sidewall capacitive polynomial factor
   double Inorm;   // normal diffusion current
   double Irec;    // recombination current
   double Kgen;    // generation factor
@@ -989,16 +1081,20 @@ bool Instance::updateIntermediateVars ()
 
   //Model Diode parameters
   M    = model_.M;
+  MJSW = model_.MJSW;
   BV   = model_.BV;
   IBV  = model_.IBV;
   NBV  = model_.NBV;
   IBVL = model_.IBVL;
   NBVL = model_.NBVL;
   N    = model_.N;
+  NS   = model_.NS;
   NR   = model_.NR;
   TT   = model_.TT;
   F2   = model_.F2;
   F3   = model_.F3;
+  F2SW = model_.F2SW;
+  F3SW = model_.F3SW;
 
   // obtain voltage drop accross the capacitor:
   Vp  = Vn = Vpp = 0.0;
@@ -1010,10 +1106,16 @@ bool Instance::updateIntermediateVars ()
   Vd = Vpp - Vn;
 
   double Isat  = tSatCur * Area;
+  double IsatSW  = tSatSWCur * PJ;
   double IsatR = tSatCurR * Area;
   double Vt    = CONSTKoverQ * Temp;
   double Vte   = N * Vt;
   double VteR  = NR * Vt;
+  double VteSW   = NS * Vt;
+  double VteBRK = NBV*Vt;
+
+  double IdSW=0.0;
+  double GdSW=0.0;
 
   Gspr = tCOND * Area;
 
@@ -1102,6 +1204,43 @@ bool Instance::updateIntermediateVars ()
 
   // Current and Conductivity
   //----------------------------------------------
+  if (model_.JSWGiven)    // consider sidewall currents
+  {
+    if (model_.NSGiven)   // sidewall currents with own characteristic
+    {
+      if (Vd >= -3*VteSW) // sidewall forward
+      {
+        double arg1 = Vd / VteSW;
+        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+        double evd = exp(arg1);
+
+        IdSW = IsatSW * (evd - 1.0);
+        GdSW = IsatSW * evd / VteSW;
+      }
+      else if (!tBrkdwnV || (Vd >= -tBrkdwnV))  // sidewall reverse
+      {
+        double argsw = 3 * VteSW / (Vd * CONSTe);
+        argsw = argsw * argsw * argsw;
+
+        IdSW = -IsatSW * (1 + argsw);
+        GdSW = IsatSW * 3 * argsw / Vd;
+      }
+      else                   // sidewall breakdown
+      {
+        double arg1 = -(tBrkdwnV + Vd) / VteBRK;
+        arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
+        double evrev = exp(arg1);
+
+        IdSW = -IsatSW * evrev;
+        GdSW = IsatSW * evrev / VteBRK;
+      }
+    }
+    else
+    {
+      // merge the current densities and use same characteristic as bottom diode
+      Isat = Isat + IsatSW;
+    }
+  }
 
   if (Vd >= -3.0 * Vte)
   {
@@ -1132,8 +1271,8 @@ bool Instance::updateIntermediateVars ()
       DKgen = -M*(1-Vd/tJctPot)*Kgen/(tJctPot*((1-Vd/tJctPot)*(1-Vd/tJctPot)+0.005));
     }
 
-    Id = Inorm*Khi + Irec*Kgen;
-    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
+    Id = Inorm*Khi + Irec*Kgen + IdSW;
+    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen + GdSW;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout()  << "Normal exponential regime." << std::endl;
@@ -1155,8 +1294,8 @@ bool Instance::updateIntermediateVars ()
   {
     double arg = 3.0 * Vte / (Vd * CONSTe);
     arg = arg * arg * arg;
-    Id = -Isat * (1.0 + arg) + getDeviceOptions().gmin * Vd;
-    Gd = Isat * 3.0 * arg / Vd + getDeviceOptions().gmin;
+    Id = -Isat * (1.0 + arg) + IdSW +  getDeviceOptions().gmin * Vd;
+    Gd = Isat * 3.0 * arg / Vd + GdSW + getDeviceOptions().gmin;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout()  << "Linear reverse bias regime." << std::endl;
@@ -1174,8 +1313,8 @@ bool Instance::updateIntermediateVars ()
     arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
     double evrev = exp(arg1);
 
-    Id = -Isat * evrev + getDeviceOptions().gmin * Vd;
-    Gd = Isat * evrev / Vte + getDeviceOptions().gmin;
+    Id = -Isat * evrev + IdSW + getDeviceOptions().gmin * Vd;
+    Gd = Isat * evrev / Vte + GdSW + getDeviceOptions().gmin;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout()  << "Reverse breakdown regime." << std::endl;
@@ -1218,6 +1357,29 @@ bool Instance::updateIntermediateVars ()
       //Cd = TT*Gd + Czof2*(F3+M*Vd/VJ);
       Cd = TT * Gd + Czof2 * (F3 + MotJctPot * Vc);
     }
+
+    double CzeroSW = tJctSWCap * PJ;
+    if (Vc < tDepSWCap)
+    {
+      double argSW = 1.0 - Vc / tJctSWPot;
+      double argSW1 = -MJSW * log(argSW);
+      argSW1 = Xycemin(CONSTMAX_EXP_ARG, argSW1);
+      double sargSW = exp(argSW1);
+
+      Qd += tJctSWPot * CzeroSW * (1.0 - argSW * sargSW) / (1.0 - MJSW);
+      Cd += CzeroSW * sargSW;
+    }
+    else
+    {
+      double Czof2SW = CzeroSW / F2SW;
+      double MotJctSWPot = MJSW / tJctSWPot;
+
+      Qd += CzeroSW * tF1 +
+            Czof2SW * (F3SW * (Vc - tDepSWCap) + (0.5 * MotJctSWPot) *
+                       (Vc * Vc - tDepSWCap * tDepSWCap));
+      Cd += Czof2SW * (F3SW + MotJctSWPot * Vc);
+    }
+
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout() << "Qd = " << Qd << std::endl;
@@ -1285,9 +1447,29 @@ bool Instance::updateTemperature( const double & temp )
                           model_.EG/(model_.N*vt)+
                           model_.XTI/model_.N*log(Temp/model_.TNOM));
 
+  // Sidewall version of above:
+  double pboSW = (model_.VJSW-pbfact1)/fact1;
+  double gmaSWold = (model_.VJSW-pboSW)/pboSW;
+
+  tJctSWCap = model_.CJSW/
+              (1.0+model_.MJSW*(4.0e-4*(model_.TNOM-CONSTREFTEMP)-gmaSWold));
+
+  tJctSWPot = pbfact+fact2*pboSW;
+
+  double gmaSWnew = (tJctSWPot-pboSW)/pboSW;
+
+  tJctSWCap *= 1.0+model_.MJSW*(4.0e-4*(Temp-CONSTREFTEMP)-gmaSWnew);
+
+  tSatSWCur = model_.JSW*exp(((Temp/model_.TNOM)-1.0)*
+                             model_.EG/(model_.NS*vt)+
+                             model_.XTI/model_.NS*log(Temp/model_.TNOM));
+
   tF1 = tJctPot*(1.0-exp((1.0-model_.M)*xfc))/(1.0-model_.M);
 
   tDepCap = model_.FC*tJctPot;
+
+  tDepSWCap = model_.FCS*tJctSWPot;
+
 
   double vte = model_.N*vt;
   double tempBV;
@@ -1332,11 +1514,11 @@ bool Instance::updateTemperature( const double & temp )
     else
     {
       double tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
+      xbv = tempBV-model_.NBV*vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
-        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-model_.NBV*vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/(model_.NBV*vt))-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -1347,7 +1529,8 @@ bool Instance::updateTemperature( const double & temp )
   {
     Xyce::dout() << Xyce::section_divider << std::endl;
     Xyce::dout() << "Instance::UpdateTemperature" << getName() <<std::endl;
-    Xyce::dout() << " IS = " << model_.IS << std::endl;
+    Xyce::dout() << " IS      = " << model_.IS << std::endl;
+    Xyce::dout() << " JSW     = " << model_.JSW << std::endl;
     Xyce::dout() << " vtnom   = " << vtnom << std::endl;
     Xyce::dout() << " xfc     = " << xfc << std::endl;
     Xyce::dout() << " TNOM    = " << TNOM << std::endl;
@@ -1366,8 +1549,12 @@ bool Instance::updateTemperature( const double & temp )
     Xyce::dout() << " tJctCap = " << tJctCap  << std::endl;
     Xyce::dout() << " tJctPot = " << tJctPot  << std::endl;
     Xyce::dout() << " tSatCur = " << tSatCur  << std::endl;
+    Xyce::dout() << " tJctSWCap = " << tJctSWCap  << std::endl;
+    Xyce::dout() << " tJctSWPot = " << tJctSWPot  << std::endl;
+    Xyce::dout() << " tSatSWCur = " << tSatSWCur  << std::endl;
     Xyce::dout() << " tF1     = " << tF1      << std::endl;
     Xyce::dout() << " tDepCap = " << tDepCap  << std::endl;
+    Xyce::dout() << " tDepSWCap = " << tDepSWCap  << std::endl;
     Xyce::dout() << " vte     = " << vte      << std::endl;
     Xyce::dout() << " tempBV  = " << tempBV   << std::endl;
     Xyce::dout() << " tVcrit  = " << tVcrit   << std::endl;
@@ -1404,8 +1591,11 @@ bool Model::processParams ()
     COND = 1.0/RS;
 
   double xfc = log(1.0-FC);
+  double xfcs = log(1.0-FCS);
   F2 = exp((1.0+M)*xfc);
   F3 = 1.0-FC*(1.0+M);
+  F2SW = exp((1.0+MJSW)*xfcs);
+  F3SW = 1.0-FCS*(1.0+MJSW);
 
   return true;
 }
@@ -1447,9 +1637,11 @@ Model::Model(
   const FactoryBlock &  factory_block)
   : DeviceModel(MB, configuration.getModelParameters(), factory_block),
     IS(1.0e-14),
+    JSW(0),
     RS(0.0),
     COND(0.0),
     N(1.0),
+    NS(1.0),
     ISR(0.0),
     NR(2.0),
     IKF(0.0),
@@ -1457,6 +1649,9 @@ Model::Model(
     CJO(0.0),
     VJ(1.0),
     M(0.5),
+    CJSW(0.0),
+    VJSW(1.0),
+    MJSW(0.33),
     EG(1.11),
     XTI(3.0),
     TIKF(0.0),
@@ -1473,11 +1668,15 @@ Model::Model(
     NBVL(1.0),
     F2(0.0),
     F3(0.0),
+    F2SW(0.0),
+    F3SW(0.0),
     TNOM(27),
     KF(0.0),
     AF(1.0),
     BVGiven(false),
-    IRFGiven(false)
+    IRFGiven(false),
+    JSWGiven(false),
+    NSGiven(false)
 {
 
   // Set params to constant default values:
@@ -1544,6 +1743,7 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
 
     os << std::endl;
     os << "AREA   = " << (*iter)->Area << std::endl;
+    os << "  PJ   = " << (*iter)->PJ << std::endl;
     os << "  IC   = " << (*iter)->InitCond   << std::endl;
     os << "TEMP   = " << (*iter)->Temp << std::endl;
     os << " off   = " << (*iter)->off  << std::endl;
@@ -1598,6 +1798,8 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     Instance & di = *(*it);
     bool btmp = di.updateIntermediateVars ();
     stoVec[di.li_storevd] = di.Vd;
+    stoVec[di.li_storeqd] = di.Qd;
+    stoVec[di.li_storecd] = di.Cd;
     bsuccess = bsuccess && btmp;
   }
 
@@ -1752,12 +1954,16 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 template <typename ScalarT> 
 bool processParams (
     ScalarT & M,
+    ScalarT & MJSW,
     ScalarT & EG,
     ScalarT & FC,
+    ScalarT & FCS,
     const ScalarT & RS,
     ScalarT & COND,
     ScalarT & F2,
-    ScalarT & F3
+    ScalarT & F3,
+    ScalarT & F2SW,
+    ScalarT & F3SW
     )
 {
   //limit grading coeff
@@ -1775,8 +1981,11 @@ bool processParams (
     COND = 1.0/RS;
 
   ScalarT xfc = log(1.0-FC);
+  ScalarT xfcs = log(1.0-FCS);
   F2 = exp((1.0+M)*xfc);
   F3 = 1.0-FC*(1.0+M);
+  F2SW = exp((1.0+MJSW)*xfcs);
+  F3SW = 1.0-FCS*(1.0+MJSW);
 
   return true;
 }
@@ -1799,8 +2008,12 @@ bool updateTemperature
    ScalarT & tJctCap,
    ScalarT & tJctPot,
    ScalarT & tDepCap,
+   ScalarT & tJctSWCap,
+   ScalarT & tJctSWPot,
+   ScalarT & tDepSWCap,
    ScalarT & tF1,
    ScalarT & tSatCur,
+   ScalarT & tSatSWCur,
    ScalarT & tSatCurR,
    ScalarT & tVcrit,
    ScalarT & tRS,
@@ -1811,10 +2024,15 @@ bool updateTemperature
    // model variables/params:
    const ScalarT & TNOM,
    const ScalarT & VJ,
+   const ScalarT & VJSW,
    const ScalarT & CJO,
+   const ScalarT & CJSW,
    const ScalarT & M,
    const ScalarT & N,
+   const ScalarT & MJSW,
+   const ScalarT & NS,
    const ScalarT & IS,
+   const ScalarT & JSW,
    const ScalarT & EG,
    const ScalarT & XTI,
    const ScalarT & RS,
@@ -1826,6 +2044,7 @@ bool updateTemperature
    const ScalarT & ISR,
    const ScalarT & IBV,
    const ScalarT & BV,
+   const ScalarT & NBV,
 
    const bool & BVGiven,
    const bool & IRFGiven,
@@ -1835,6 +2054,7 @@ bool updateTemperature
    const ScalarT & TRS1,
    const ScalarT & TRS2,
    const ScalarT & FC,
+   const ScalarT & FCS,
 
    const int  level
 
@@ -1887,9 +2107,28 @@ bool updateTemperature
                           EG/(N*vt)+
                           XTI/N*log(Temp/TNOM));
 
+  // Sidewall version of above:
+  ScalarT pboSW = (VJSW-pbfact1)/fact1;
+  ScalarT gmaSWold = (VJSW-pboSW)/pboSW;
+
+  tJctSWCap = CJSW/
+              (1.0+MJSW*(4.0e-4*(TNOM-CONSTREFTEMP)-gmaSWold));
+
+  tJctSWPot = pbfact+fact2*pboSW;
+
+  ScalarT gmaSWnew = (tJctSWPot-pboSW)/pboSW;
+
+  tJctSWCap *= 1.0+MJSW*(4.0e-4*(Temp-CONSTREFTEMP)-gmaSWnew);
+
+  tSatSWCur = JSW*exp(((Temp/TNOM)-1.0)*
+                             EG/(NS*vt)+
+                             XTI/NS*log(Temp/TNOM));
+
   tF1 = tJctPot*(1.0-exp((1.0-M)*xfc))/(1.0-M);
 
   tDepCap = FC*tJctPot;
+
+  tDepSWCap = FCS*tJctSWPot;
 
   ScalarT vte = N*vt;
   ScalarT tempBV;
@@ -1933,11 +2172,11 @@ bool updateTemperature
     else
     {
       ScalarT tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
+      xbv = tempBV-NBV*vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
-        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-NBV*vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/(NBV*vt))-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -1969,8 +2208,12 @@ bool updateIntermediateVars (
    const ScalarT & tJctCap,
    const ScalarT & tJctPot,
    const ScalarT & tDepCap,
+   const ScalarT & tJctSWCap,
+   const ScalarT & tJctSWPot,
+   const ScalarT & tDepSWCap,
    const ScalarT & tF1,
    const ScalarT & tSatCur,
+   const ScalarT & tSatSWCur,
    const ScalarT & tSatCurR,
    const ScalarT & tVcrit,
    const ScalarT & tRS,
@@ -1980,21 +2223,29 @@ bool updateIntermediateVars (
 
    // instance variables:
    const ScalarT & Area,
+   const ScalarT & PJ,
    const ScalarT & multiplicityFactor,
    const double & gmin,
 
   // model params:
   const ScalarT M   , // grading parameter
+  const ScalarT MJSW   , // sidewallgrading parameter
   const ScalarT BV  , // breakdown voltage
   const ScalarT IBV , // reverse breakdown current
   const ScalarT NBV , // reverse breakdown ideality factor
   const ScalarT IBVL, // low-level reverse breakdown current
   const ScalarT NBVL, // low-level reverse breakdown ideality factor
   const ScalarT N   , // non-ideality factor.
+  const ScalarT NS   , // Sidewall emission coefficient
   const ScalarT NR  , // emission coeff. for ISR.
   const ScalarT TT  , // transit time.
   const ScalarT F2  , // capacitive polynomial factor
   const ScalarT F3  , // capacitive polynomial factor
+  const ScalarT F2SW  , // sidewall capacitive polynomial factor
+  const ScalarT F3SW  , // sidewall capacitive polynomial factor
+
+  const bool JSWGiven,
+  const bool NSGiven,
 
   const int  level,
 
@@ -2023,17 +2274,60 @@ bool updateIntermediateVars (
   ScalarT Icd = 0.0;// NOT USED, must be deprecated.
 
   ScalarT Isat  = tSatCur * Area;
+  ScalarT IsatSW  = tSatSWCur * PJ;
   ScalarT IsatR = tSatCurR * Area;
   ScalarT KoverQ = static_cast<ScalarT>(CONSTKoverQ);
   ScalarT Vt    = KoverQ * Temp;
   ScalarT Vte   = N * Vt;
   ScalarT VteR  = NR * Vt;
+  ScalarT VteSW   = NS * Vt;
+  ScalarT VteBRK = NBV*Vt;
+
+  ScalarT IdSW=0.0;
+  ScalarT GdSW=0.0;
 
   Gspr = tCOND * Area;
 
   // Current and Conductivity
   //----------------------------------------------
 
+  if (JSWGiven)    // consider sidewall currents
+  {
+    if (NSGiven)   // sidewall currents with own characteristic
+    {
+      if (Vd >= -3*VteSW) // sidewall forward
+      {
+        ScalarT arg1 = Vd / VteSW;
+        arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
+        ScalarT evd = exp(arg1);
+
+        IdSW = IsatSW * (evd - 1.0);
+        GdSW = IsatSW * evd / VteSW;
+      }
+      else if (!tBrkdwnV || (Vd >= -tBrkdwnV))  // sidewall reverse
+      {
+        ScalarT argsw = 3 * VteSW / (Vd * CONSTe);
+        argsw = argsw * argsw * argsw;
+
+        IdSW = -IsatSW * (1 + argsw);
+        GdSW = IsatSW * 3 * argsw / Vd;
+      }
+      else                   // sidewall breakdown
+      {
+        ScalarT arg1 = -(tBrkdwnV + Vd) / VteBRK;
+        arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
+        ScalarT evrev = exp(arg1);
+
+        IdSW = -IsatSW * evrev;
+        GdSW = IsatSW * evrev / VteBRK;
+      }
+    }
+    else
+    {
+      // merge the current densities and use same characteristic as bottom diode
+      Isat = Isat + IsatSW;
+    }
+  }
   if (Vd >= -3.0 * Vte)
   {
     ScalarT arg1 = Vd / Vte;
@@ -2063,16 +2357,16 @@ bool updateIntermediateVars (
       DKgen = -M*(1-Vd/tJctPot)/(tJctPot*Kgen);
     }
 
-    Id = Inorm*Khi + Irec*Kgen;
-    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen;
+    Id = Inorm*Khi + Irec*Kgen + IdSW;
+    Gd = Gd1*Khi + Inorm*DKhi + Gd2*Kgen + Irec*DKgen + GdSW;
   }
   // Linear reverse bias
   else if(!tBrkdwnV || (Vd >= -tBrkdwnV))
   {
     ScalarT arg = 3.0 * Vte / (Vd * CONSTe);
     arg = arg * arg * arg;
-    Id = -Isat * (1.0 + arg) + gmin * Vd;
-    Gd = Isat * 3.0 * arg / Vd + gmin;
+    Id = -Isat * (1.0 + arg) + IdSW + gmin * Vd;
+    Gd = Isat * 3.0 * arg / Vd + GdSW + gmin;
   }
   // Reverse breakdown
   else
@@ -2081,8 +2375,8 @@ bool updateIntermediateVars (
     arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
     ScalarT evrev = exp(arg1);
 
-    Id = -Isat * evrev + gmin * Vd;
-    Gd = Isat * evrev / Vte + gmin;
+    Id = -Isat * evrev + IdSW + gmin * Vd;
+    Gd = Isat * evrev / Vte + GdSW + gmin;
   }
   Vc = Vd;
 
@@ -2116,6 +2410,27 @@ bool updateIntermediateVars (
                     (Vc * Vc - tDepCap * tDepCap));
       //Cd = TT*Gd + Czof2*(F3+M*Vd/VJ);
       Cd = TT * Gd + Czof2 * (F3 + MotJctPot * Vc);
+    }
+    ScalarT CzeroSW = tJctSWCap * PJ;
+    if (Vc < tDepSWCap)
+    {
+      ScalarT argSW = 1.0 - Vc / tJctSWPot;
+      ScalarT argSW1 = -MJSW * log(argSW);
+      argSW1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), argSW1);
+      ScalarT sargSW = exp(argSW1);
+
+      Qd += tJctSWPot * CzeroSW * (1.0 - argSW * sargSW) / (1.0 - MJSW);
+      Cd += CzeroSW * sargSW;
+    }
+    else
+    {
+      ScalarT Czof2SW = CzeroSW / F2SW;
+      ScalarT MotJctSWPot = MJSW / tJctSWPot;
+
+      Qd += CzeroSW * tF1 +
+            Czof2SW * (F3SW * (Vc - tDepSWCap) + (0.5 * MotJctSWPot) *
+                       (Vc * Vc - tDepSWCap * tDepSWCap));
+      Cd += Czof2SW * (F3SW + MotJctSWPot * Vc);
     }
   }
   else
@@ -2272,10 +2587,15 @@ void diodeSensitivity::operator()(
   // model params:
   fadType TNOM	 = mod.TNOM;
   fadType VJ	 = mod.VJ;
+  fadType VJSW	 = mod.VJSW;
   fadType CJO	 = mod.CJO;
+  fadType CJSW	 = mod.CJSW;
   fadType M	 = mod.M;
+  fadType MJSW	 = mod.MJSW;
   fadType N	 = mod.N;
+  fadType NS	 = mod.NS;
   fadType IS	 = mod.IS;
+  fadType JSW	 = mod.JSW;
   fadType EG	 = mod.EG;
   fadType XTI	 = mod.XTI;
   fadType RS	 = mod.RS;
@@ -2293,25 +2613,35 @@ void diodeSensitivity::operator()(
   fadType TT	 = mod.TT;
   fadType F2	 = mod.F2;
   fadType F3	 = mod.F3;
+  fadType F2SW	 = mod.F2SW;
+  fadType F3SW	 = mod.F3SW;
 
   fadType TBV1 = mod.TBV1;
   fadType TBV2 = mod.TBV2;
   fadType TRS1 = mod.TRS1;
   fadType TRS2 = mod.TRS2;
   fadType FC = mod.FC;
+  fadType FCS = mod.FCS;
   fadType KF = mod.KF;
   fadType AF = mod.AF;
 
   std::string paramName = ExtendedString( name ).toUpper();
 
   if      (paramName=="VJ")   { VJ.diff(0,1);   }
+  else if (paramName=="VJSW")   { VJSW.diff(0,1);   }
+  else if (paramName=="PHP")   { VJSW.diff(0,1);   } // php is the canonical name for VJSW, go figure
   else if (paramName=="CJO")  { CJO.diff(0,1);  }
   else if (paramName=="CJ")   { CJO.diff(0,1);  } // CJ is a synonym for CJO
   else if (paramName=="CJ0")  { CJO.diff(0,1);  } // CJ0 is a synonym for CJO
+  else if (paramName=="CJSW")  { CJSW.diff(0,1);  }
+  else if (paramName=="CJP")  { CJSW.diff(0,1);  } // alias for CJSW
   else if (paramName=="M")    { M.diff(0,1);    }
+  else if (paramName=="MJSW")    { MJSW.diff(0,1);    }
   else if (paramName=="N")    { N.diff(0,1);    }
+  else if (paramName=="NS")    { NS.diff(0,1);    }
   else if (paramName=="IS")   { IS.diff(0,1);   }
   else if (paramName=="JS")   { IS.diff(0,1);   } // JS is a synonym for IS
+  else if (paramName=="JSW")   { JSW.diff(0,1);   }
   else if (paramName=="EG")   { EG.diff(0,1);   }
   else if (paramName=="XTI")  { XTI.diff(0,1);  }
   else if (paramName=="RS")   { RS.diff(0,1);   }
@@ -2329,6 +2659,7 @@ void diodeSensitivity::operator()(
   else if (paramName=="VB")   { BV.diff(0,1);   } // VB is a synonym for BV
   else if (paramName=="TT")   { TT.diff(0,1);   }
   else if (paramName=="FC")   { FC.diff(0,1);   }
+  else if (paramName=="FCS")   { FCS.diff(0,1);   }
   else if (paramName=="KF")   { KF.diff(0,1);   }
   else if (paramName=="AF")   { AF.diff(0,1);   }
   else if (paramName=="TNOM") { TNOM.diff(0,1); }
@@ -2338,7 +2669,7 @@ void diodeSensitivity::operator()(
   else if (paramName=="TRS1") { TRS1.diff(0,1); }
   else if (paramName=="TRS2") { TRS2.diff(0,1); }
 
-  processParams( M, EG, FC, RS, COND, F2, F3);
+  processParams( M, MJSW, EG, FC, FCS, RS, COND, F2, F3, F2SW, F3SW);
 
   int inst=0;
 
@@ -2356,8 +2687,12 @@ void diodeSensitivity::operator()(
     fadType tJctCap = 0.0;
     fadType tJctPot = 0.0;
     fadType tDepCap = 0.0;
+    fadType tJctSWCap = 0.0;
+    fadType tJctSWPot = 0.0;
+    fadType tDepSWCap = 0.0;
     fadType tF1 = 0.0;
     fadType tSatCur = 0.0;
+    fadType tSatSWCur = 0.0;
     fadType tSatCurR = 0.0;
     fadType tVcrit = 0.0;
     fadType tRS = 0.0;
@@ -2368,17 +2703,20 @@ void diodeSensitivity::operator()(
     // instance parameters:
     fadType Temp = (*in)->Temp;
     fadType Area = (*in)->Area;
+    fadType PJ = (*in)->PJ;
     fadType multiplicityFactor = (*in)->multiplicityFactor;
 
     updateTemperature(
        (*in)->Temp,
-       Temp, tJctCap, tJctPot, tDepCap, tF1, tSatCur, tSatCurR, 
+       Temp, tJctCap, tJctPot, tDepCap, tJctSWCap, tJctSWPot, tDepSWCap,
+       tF1, tSatCur, tSatSWCur, tSatCurR,
        tVcrit, tRS, tCOND, tIKF, tBrkdwnV,
-       TNOM, VJ, CJO, M, N, IS, EG, XTI, RS, COND, IRF, 
-       NR, IKF, TIKF, ISR, IBV, BV,
+       TNOM, VJ, VJSW, CJO, CJSW, M, N, MJSW, NS, IS, JSW,
+       EG, XTI, RS, COND, IRF,
+       NR, IKF, TIKF, ISR, IBV, BV, NBV,
        mod.BVGiven,
        mod.IRFGiven,
-       TBV1, TBV2, TRS1, TRS2, FC,
+       TBV1, TBV2, TRS1, TRS2, FC, FCS,
        mod.getLevel()
      );
 
@@ -2392,13 +2730,14 @@ void diodeSensitivity::operator()(
       // inputs:
       Vp, Vpp, Vn, Vd,
       // instance params:
-      Temp, tJctCap, tJctPot, tDepCap, tF1,
-      tSatCur, tSatCurR, tVcrit, tRS, tCOND,
+      Temp, tJctCap, tJctPot, tDepCap, tJctSWCap, tJctSWPot, tDepSWCap, tF1,
+      tSatCur, tSatSWCur, tSatCurR, tVcrit, tRS, tCOND,
       tIKF, tBrkdwnV,
       // instance variables:
-      Area, multiplicityFactor, (*in)->getDeviceOptions().gmin,
+      Area, PJ, multiplicityFactor, (*in)->getDeviceOptions().gmin,
       // model params:
-      M, BV, IBV, NBV, IBVL, NBVL, N, NR, TT, F2, F3,
+      M, MJSW, BV, IBV, NBV, IBVL, NBVL, N, NS, NR, TT, F2, F3, F2SW, F3SW,
+      mod.JSWGiven, mod.NSGiven,
       mod.getLevel(),
       // outputs:
       Id, Gd, Qd, Cd, Gspr
