@@ -415,6 +415,10 @@ private:
   // for voltage limiting
   int li_storevd;
 
+  // for output variables
+  int li_storeqd;
+  int li_storecd;
+
   // for lead current
   int li_branch_data;         ///< Index for Lead Current and junction voltage (for power calculations)
 

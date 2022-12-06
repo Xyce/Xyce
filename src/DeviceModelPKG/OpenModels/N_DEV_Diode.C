@@ -444,6 +444,8 @@ Instance::Instance(
     Vd_old(0.0),
     Vd_orig(0.0),
     li_storevd(-1),
+    li_storeqd(-1),
+    li_storecd(-1),
     li_branch_data(-1),
     li_Pos(-1),
     li_Neg(-1),
@@ -476,7 +478,7 @@ Instance::Instance(
   numIntVars   = 1;
   numExtVars   = 2;
   numStateVars = 0;
-  setNumStoreVars(1);
+  setNumStoreVars(3);
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 1;    // this is the space to allocate if lead current or power is needed.
 
@@ -613,6 +615,8 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_Pri, getName(), "internal");
 
   addStoreNode(symbol_table, li_storevd, getName(), "vd");
+  addStoreNode(symbol_table, li_storeqd, getName().getEncodedName()+":qd");
+  addStoreNode(symbol_table, li_storecd, getName().getEncodedName()+":cd");
 
   if (loadLeadCurrent)
   {
@@ -652,10 +656,14 @@ void Instance::registerStoreLIDs(
 // copy over the global ID lists:
   stoLIDVec = stoLIDVecRef;
   li_storevd = stoLIDVec[0];
+  li_storeqd = stoLIDVec[1];
+  li_storecd = stoLIDVec[2];
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << "li_storevd = " << li_storevd;
+    Xyce::dout() << "li_storeqd = " << li_storeqd;
+    Xyce::dout() << "li_storecd = " << li_storevd;
   }
 
 }
@@ -955,6 +963,8 @@ bool Instance::updatePrimaryState ()
   double * stoVec = extData.nextStoVectorRawPtr;
   bool bsuccess = updateIntermediateVars ();
   stoVec[li_storevd] = Vd;
+  stoVec[li_storeqd] = Qd;
+  stoVec[li_storecd] = Cd;
   return bsuccess;
 }
 
@@ -1788,6 +1798,8 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     Instance & di = *(*it);
     bool btmp = di.updateIntermediateVars ();
     stoVec[di.li_storevd] = di.Vd;
+    stoVec[di.li_storeqd] = di.Qd;
+    stoVec[di.li_storecd] = di.Cd;
     bsuccess = bsuccess && btmp;
   }
 
