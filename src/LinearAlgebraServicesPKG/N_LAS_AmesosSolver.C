@@ -424,13 +424,21 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
     int numrhs = prob->GetLHS()->NumVectors();
     std::vector<double> resNorm(numrhs,0.0), bNorm(numrhs,0.0);
     Epetra_MultiVector res( prob->GetLHS()->Map(), prob->GetLHS()->NumVectors() );
+    bool oldTrans = prob->GetOperator()->UseTranspose();
+    prob->GetOperator()->SetUseTranspose( transpose );
     prob->GetOperator()->Apply( *(prob->GetLHS()), res );
+    prob->GetOperator()->SetUseTranspose( oldTrans );
     res.Update( 1.0, *(prob->GetRHS()), -1.0 );
     res.Norm2( &resNorm[0] );
     prob->GetRHS()->Norm2( &bNorm[0] );
     Xyce::lout() << "Linear System Residual (AMESOS_" << type_ << "): " << std::endl;
     for (int i=0; i<numrhs; i++)
-      std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << std::endl;
+    {
+      if (bNorm[i] > 0.0)
+        std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << std::endl;
+      else
+        std::cout << "  Problem " << i << " : " << resNorm[i] << std::endl;
+    }
   }
 
   if( !Teuchos::is_null(transform_) ) transform_->rvs();

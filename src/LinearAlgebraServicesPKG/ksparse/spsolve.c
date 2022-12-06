@@ -723,7 +723,7 @@ void SolveComplexTransposedMatrix();
 #endif
 
 /* Initialize Intermediate vector. */
-    pExtOrder = &Matrix->IntToExtRowMap[Size];
+    pExtOrder = &Matrix->IntToExtColMap[Size];
     for (I = Size; I > 0; I--) {
 #if REORDER_SCALING
       if (Matrix->has_scale_factors)
