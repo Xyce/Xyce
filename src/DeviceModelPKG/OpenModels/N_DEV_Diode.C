@@ -216,12 +216,23 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
   p.addPar ("TRS1", 0.0, &Diode::Model::TRS1)
     .setUnit(U_DEGCM1)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (linear)");
+    .setDescription("RS temperature coefficient (linear)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
+
+  p.addPar ("TRS", 0.0, &Diode::Model::TRS1)
+    .setUnit(U_DEGCM1)
+    .setCategory(CAT_TEMP)
+    .setDescription("RS temperature coefficient (linear) (alias for TRS1)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("TRS2", 0.0, &Diode::Model::TRS2)
     .setUnit(U_DEGCM2)
     .setCategory(CAT_TEMP)
-    .setDescription("RS temperature coefficient (quadratic)");
+    .setDescription("RS temperature coefficient (quadratic)")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&diodeSens);
 ////
   p.addPar ("FC", 0.5, &Diode::Model::FC)
     .setCategory(CAT_CAP)
