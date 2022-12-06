@@ -157,6 +157,7 @@ bool updateTemperature
    const ScalarT & ISR,
    const ScalarT & IBV,
    const ScalarT & BV,
+   const ScalarT & NBV,
    const bool & BVGiven,
    const bool & IRFGiven,
    const ScalarT & TBV1,

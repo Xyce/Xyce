@@ -1514,11 +1514,11 @@ bool Instance::updateTemperature( const double & temp )
     else
     {
       double tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
+      xbv = tempBV-model_.NBV*vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
-        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-model_.NBV*vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/(model_.NBV*vt))-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -2044,6 +2044,7 @@ bool updateTemperature
    const ScalarT & ISR,
    const ScalarT & IBV,
    const ScalarT & BV,
+   const ScalarT & NBV,
 
    const bool & BVGiven,
    const bool & IRFGiven,
@@ -2171,11 +2172,11 @@ bool updateTemperature
     else
     {
       ScalarT tol = reltol*cbv;
-      xbv = tempBV-vt*log(1.0+cbv/(tSatCur));
+      xbv = tempBV-NBV*vt*log(1.0+cbv/(tSatCur));
       for( int i = 0; i < 25; ++i )
       {
-        xbv = tempBV-vt*log(cbv/(tSatCur)+1.0-xbv/vt);
-        xcbv = tSatCur*(exp((tempBV-xbv)/vt)-1.0+xbv/vt);
+        xbv = tempBV-NBV*vt*log(cbv/(tSatCur)+1.0-xbv/vt);
+        xcbv = tSatCur*(exp((tempBV-xbv)/(NBV*vt))-1.0+xbv/vt);
         if(fabs(xcbv-cbv)<=tol) break;
       }
     }
@@ -2712,7 +2713,7 @@ void diodeSensitivity::operator()(
        tVcrit, tRS, tCOND, tIKF, tBrkdwnV,
        TNOM, VJ, VJSW, CJO, CJSW, M, N, MJSW, NS, IS, JSW,
        EG, XTI, RS, COND, IRF,
-       NR, IKF, TIKF, ISR, IBV, BV,
+       NR, IKF, TIKF, ISR, IBV, BV, NBV,
        mod.BVGiven,
        mod.IRFGiven,
        TBV1, TBV2, TRS1, TRS2, FC, FCS,
