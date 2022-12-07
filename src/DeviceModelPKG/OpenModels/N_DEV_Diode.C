@@ -1183,10 +1183,10 @@ bool Instance::updateIntermediateVars ()
     if (getSolverState().newtonIter >= 0)
     {
       //Test if breakdown voltage given or not
-      if (model_.BVGiven && (Vd < Xycemin(0.0, -BV + 10.0 * Vte)))
+      if (model_.BVGiven && (Vd < Xycemin(0.0, -BV + 10.0 * VteBRK)))
       {
         double Vdtmp = -( BV + Vd );
-        Vdtmp = devSupport.pnjlim(Vdtmp, -(Vd_old+BV), Vte, tVcrit, &ichk);
+        Vdtmp = devSupport.pnjlim(Vdtmp, -(Vd_old+BV), VteBRK, tVcrit, &ichk);
         Vd    = -(Vdtmp + BV);
       }
       else
@@ -1309,12 +1309,12 @@ bool Instance::updateIntermediateVars ()
   // Reverse breakdown
   else
   {
-    double arg1 = -(tBrkdwnV + Vd) / Vte;
+    double arg1 = -(tBrkdwnV + Vd) / VteBRK;
     arg1 = Xycemin(CONSTMAX_EXP_ARG, arg1);
     double evrev = exp(arg1);
 
     Id = -Isat * evrev + IdSW + getDeviceOptions().gmin * Vd;
-    Gd = Isat * evrev / Vte + GdSW + getDeviceOptions().gmin;
+    Gd = Isat * evrev / VteBRK + GdSW + getDeviceOptions().gmin;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout()  << "Reverse breakdown regime." << std::endl;
@@ -1589,6 +1589,9 @@ bool Model::processParams ()
     COND = 0.0;
   else
     COND = 1.0/RS;
+
+  if (!given("NBV"))
+    NBV=N;
 
   double xfc = log(1.0-FC);
   double xfcs = log(1.0-FCS);
@@ -2371,12 +2374,12 @@ bool updateIntermediateVars (
   // Reverse breakdown
   else
   {
-    ScalarT arg1 = -(tBrkdwnV + Vd) / Vte;
+    ScalarT arg1 = -(tBrkdwnV + Vd) / VteBRK;
     arg1 = Xycemin(static_cast<fadType>(CONSTMAX_EXP_ARG), arg1);
     ScalarT evrev = exp(arg1);
 
     Id = -Isat * evrev + IdSW + gmin * Vd;
-    Gd = Isat * evrev / Vte + GdSW + gmin;
+    Gd = Isat * evrev / VteBRK + GdSW + gmin;
   }
   Vc = Vd;
 
