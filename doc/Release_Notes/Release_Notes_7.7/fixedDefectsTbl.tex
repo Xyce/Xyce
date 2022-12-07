@@ -36,6 +36,16 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+  \textbf{Xyce Project Backlog/157}: Xyce diode does not support
+  sidewall effects & The Xyce diode now supports an instance parameter
+  for the junction perimeter (\texttt{PJ}) and a number of model
+  parameters
+  (\texttt{JSW}, \texttt{NS}, \texttt{CJSW}, \texttt{PHP}, \texttt{MJSW}, \texttt{FCS})
+  supporting the effects.  Default values are such that the feature is
+  disabled.  This brings the Xyce level 1 and 2 diodes into agreement
+  with other simulators when these parameters are
+  specified.  \\ \hline
+  
   \textbf{Xyce Project Backlog/492}: Subcircuit multiliplier
   parameters (\texttt{M}) need to be handled as an AST (enabling .STEP
   to be applied to subcircuit \texttt{M}) & This task was related to
