@@ -1670,6 +1670,7 @@ exp:
       $$ = Teuchos::RCP<astNode<usedType> >(agaussPtr);
       newExp.getAgaussOpVec ().push_back(agaussPtr);
       newExp.getLocalAgaussOpVec ().push_back(agaussPtr);
+      delete $2;
     }
   | TOK_GAUSS two_or_more_arglist TOK_RIGHTPAREN
     {
@@ -1677,6 +1678,7 @@ exp:
       $$ = Teuchos::RCP<astNode<usedType> >(gaussPtr);
       newExp.getGaussOpVec ().push_back(gaussPtr);
       newExp.getLocalGaussOpVec ().push_back(gaussPtr);
+      delete $2;
     }
   | TOK_AUNIF two_or_more_arglist TOK_RIGHTPAREN
     {
@@ -1684,6 +1686,7 @@ exp:
       $$ = Teuchos::RCP<astNode<usedType> >(aunifPtr);
       newExp.getAunifOpVec ().push_back(aunifPtr);
       newExp.getLocalAunifOpVec ().push_back(aunifPtr);
+      delete $2;
     }
   | TOK_UNIF two_or_more_arglist TOK_RIGHTPAREN
     {
@@ -1691,6 +1694,7 @@ exp:
       $$ = Teuchos::RCP<astNode<usedType> >(unifPtr);
       newExp.getUnifOpVec ().push_back(unifPtr);
       newExp.getLocalUnifOpVec ().push_back(unifPtr);
+      delete $2;
     }
   | TOK_RAND TOK_RIGHTPAREN
     {
