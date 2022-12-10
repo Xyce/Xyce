@@ -104,6 +104,13 @@ please visit the \XyceTM{} web page at
 
 \item The third argument (\texttt{num\_sigma}) to the random expression operators \texttt{AGAUSS} and \texttt{GAUSS} is now optional.
 
+\item The metrics tracking and reporting feature now has an option to include 
+  error messages. When enabled, the tracking data reported by Xyce is encoded as
+  a JSON string. If certain error conditions occur, the JSON string may now
+  include a list of diagnostic messages. These error messages will be encoded as
+  an array under the tag name “ErrorMessages” next to the “audit” field 
+  (e.g. {“audit”:\{\dots\},”ErrorMessages”:[\dots]}). 
+
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

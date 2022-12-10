@@ -97,7 +97,7 @@ hostname(std::string &errMsg)
     return std::string(computerNameBuffer);
   }
   auto errorCode = ::GetLastError();
-  errMsg = std::string("hostname: There was an error retriving the local DNS hostname, the function GetComputerNameEx set Last Error to ") + std::to_string(errorCode);
+  errMsg = std::string("hostname: There was an error retrieving the local DNS hostname, the function GetComputerNameEx set Last Error to ") + std::to_string(errorCode);
 
 #elif defined(HAVE_GETHOSTNAME)
   char buf[255] = {0};
