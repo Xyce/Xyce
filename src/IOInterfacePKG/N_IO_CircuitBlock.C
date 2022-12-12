@@ -1806,6 +1806,7 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         iter->getName()=="DC" ||
         iter->getName()=="AC" ||
         iter->getName()=="HB" ||
+        iter->getName()=="MPDE" ||
         iter->getName()=="DOT_MEASURE_LINE")
     {
       Util::ParamList::iterator iterPar = iter->begin();
