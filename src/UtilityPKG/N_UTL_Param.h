@@ -607,9 +607,6 @@ bool setValue(const Param &param, const std::string &tag, T &t)
 {
   if (equal_nocase(tag, param.tag())) 
   {
-#if 0
-    t = param.getImmutableValue<T>();
-#else
     if (param.hasExpressionValue())
     {
       t = param.getMutableValue<double>();
@@ -618,7 +615,6 @@ bool setValue(const Param &param, const std::string &tag, T &t)
     { // if not an expression, do things the old-fashioned way
       t = param.getImmutableValue<double>();
     }
-#endif
     return true;
   }
 
@@ -626,10 +622,20 @@ bool setValue(const Param &param, const std::string &tag, T &t)
 }
 
 template <class T>
-bool setValue(const Param &param, const std::string &tag, T &t, bool &given) {
-  if (equal_nocase(tag, param.tag())) {
-    t = param.getImmutableValue<T>();
-    given = true;
+bool setValue(const Param &param, const std::string &tag, T &t, bool &given) 
+{
+  if (equal_nocase(tag, param.tag())) 
+  {
+    if (param.hasExpressionValue())
+    {
+      t = param.getMutableValue<double>();
+      given = true;
+    }
+    else
+    { // if not an expression, do things the old-fashioned way
+      t = param.getImmutableValue<double>();
+      given = true;
+    }
     return true;
   }
 
