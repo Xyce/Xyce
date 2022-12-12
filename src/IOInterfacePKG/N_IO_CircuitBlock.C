@@ -1801,9 +1801,11 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
 
   for ( ; iter != end; ++iter)
   {
-    // ERK.  for now, only enable this for IC and NODESET.  
-    // Fix to use a find command.
     if (iter->getName()=="IC" || iter->getName()=="NODESET" ||
+        iter->getName()=="TRAN" ||
+        iter->getName()=="DC" ||
+        iter->getName()=="AC" ||
+        iter->getName()=="HB" ||
         iter->getName()=="DOT_MEASURE_LINE")
     {
       Util::ParamList::iterator iterPar = iter->begin();

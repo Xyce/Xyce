@@ -746,9 +746,20 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
-    bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
-      || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_)
-      || Util::setValue( param, "DIAGFILENAME", diagnosticFileName_);
+    bool subResult = false;
+
+    if (param.uTag() == "DIAGFILENAME")
+    {
+      diagnosticFileName_ = it->stringValue();
+      subResult = true;
+    }
+
+    if (!subResult)
+    {
+      bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
+        || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_);
+    }
+
     result = result || subResult;
   }
   return result;  
