@@ -105,7 +105,7 @@ enddiscipline
 `define FWD 1
 `define REV -1
 // AB 040902
-`define NOT_GIVEN -1.0e21
+`define NOT_GIVEN 1.0e21
 `define DEFAULT_TNOM 25
 module ekv_va(d,g,s,b);
     // %%DEVICE_CLASS=MOS(NMOS:TYPE=1,PMOS:TYPE=-1)%%
@@ -208,10 +208,10 @@ module ekv_va(d,g,s,b);
     parameter integer TYPE = 1 from [-1:1] exclude 0; // NMOS=1, PMOS=-1
     parameter integer Noise = 1 from [0:1];     // Set to zero to prevent noise calculation
     parameter real Trise = 0.0 from [-inf:inf]; // Difference sim. temp and device temp [C deg]
-//  parameter real Temp = -`NOT_GIVEN from [`P_CELSIUS0:inf];  // Device temp [C]
+//  parameter real Temp = `NOT_GIVEN from [`P_CELSIUS0:inf];  // Device temp [C]
 //AB:  the parameter name Temp is not working for no obvious reason; changed to TEMP
-    parameter real TEMP = -`NOT_GIVEN from [`P_CELSIUS0:inf];  // Device temp [C]
-    parameter real TNOM = -`NOT_GIVEN; // Temperature [C]
+    parameter real TEMP = `NOT_GIVEN from [`P_CELSIUS0:inf];  // Device temp [C]
+    parameter real TNOM = `NOT_GIVEN; // Temperature [C]
     parameter real L = 10E-6 from [0.0:inf]; // Channel length [m]
     parameter real W = 10E-6 from [0.0:inf]; // Channel width [m]
     parameter real M = 1.0 from [0.0:inf]; // Parallel multiple device number
@@ -318,11 +318,11 @@ module ekv_va(d,g,s,b);
          */
         /* If Temp is explicitly specified, use that value
            otherwise use Tckt+Trise */
-        if (TEMP == -`NOT_GIVEN)	//AB: 040902 Temp -> TEMP
+        if (TEMP == `NOT_GIVEN)	//AB: 040902 Temp -> TEMP
             T = $temperature + Trise;
         else
             T = TEMP + `P_CELSIUS0;	//AB: 040902 Temp -> TEMP
-        if (TNOM == -`NOT_GIVEN)
+        if (TNOM == `NOT_GIVEN)
             Tnom = `DEFAULT_TNOM + `P_CELSIUS0;
         else
             Tnom = TNOM + `P_CELSIUS0;
@@ -748,8 +748,8 @@ module ekv_va(d,g,s,b);
             real S_flicker, S_thermal;
             S_thermal = 4 * `P_K * T * Gn;
             S_flicker = KF * gm * gm / (Weff * NS * Leff * COX);
-            I(ds) <+ white_noise(S_thermal, "thermal") +
-                flicker_noise(S_flicker, AF, "flicker");
+            I(ds) <+ white_noise(S_thermal, "thermal");
+            I(ds) <+ flicker_noise(S_flicker, AF, "flicker");
         end
         ///////////////////////////////////
         //EXTRINSIC PART: JUNCTION DIODES//

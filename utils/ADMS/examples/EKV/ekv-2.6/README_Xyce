@@ -1,0 +1,16 @@
+The EKV model version 2.6 provided by its authors will not process
+correctly in ADMS due to a number of minor problems.  As a result, the
+version provided here has been modified slightly.
+
+
+- The macro "NOT_GIVEN" has changed sign from -1e21 to 1e21.  That is
+  because in several places where it was used it was used as
+  "-`NOT_GIVEN", resulting in the preprocessor emitting "--1e-21", an
+  illegal expression in ADMS.
+
+- The white noise and flicker noise terms for the "ds" branch were
+  summed together in a single contribution statement.  This usage,
+  while perfectly legal Verilog-A, is incorrectly handled by the
+  Xyce/ADMS system.  The two terms have been separated out into to
+  separate contribution statements.
+
