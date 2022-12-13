@@ -588,8 +588,12 @@ private:
   bool                  sweepSourceResetFlag_;
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
   bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
-  bool                  diagnosticModeExtrema_;
+  bool                  diagnosticExtremaLimitGiven_;
+  bool                  diagnosticVoltageLimitGiven_;
+  bool                  diagnosticCurrentLimitGiven_;
   double                diagnosticExtremaLimit_;
+  double                diagnosticVoltageLimit_;
+  double                diagnosticCurrentLimit_;
   std::string           diagnosticFileName_;
   std::ofstream*        diagnosticOutputStreamPtr_;
 

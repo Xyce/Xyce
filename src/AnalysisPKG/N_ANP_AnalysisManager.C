@@ -215,8 +215,9 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
-    diagnosticModeExtrema_(true),
     diagnosticExtremaLimit_(0.0),
+    diagnosticVoltageLimit_(0.0),
+    diagnosticCurrentLimit_(0.0),
     diagnosticFileName_("XyceDiag.out"),
     diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
@@ -756,8 +757,9 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 
     if (!subResult)
     {
-      bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
-        || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_);
+      bool subResult = Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_, diagnosticExtremaLimitGiven_)
+        || Util::setValue( param, "VOLTAGELIMIT", diagnosticVoltageLimit_, diagnosticVoltageLimitGiven_)
+        || Util::setValue( param, "CURRENTLIMIT", diagnosticCurrentLimit_, diagnosticCurrentLimitGiven_);
     }
 
     result = result || subResult;
@@ -1713,11 +1715,67 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     //open the output file
     diagnosticOutputStreamPtr_ = new std::ofstream();
     diagnosticOutputStreamPtr_->open(diagnosticFileName_);
+    (*diagnosticOutputStreamPtr_) << "Xyce Diagnostic Output" << std::endl;
+    if(diagnosticExtremaLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Solution Extrema output requested with extremalimit = " << diagnosticExtremaLimit_ << std::endl;
+    }
+    if(diagnosticVoltageLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Node voltage output requested with voltagelimit = " << diagnosticVoltageLimit_ << std::endl;
+    }
+    if(diagnosticCurrentLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Lead current output requested with currentlimit = " << diagnosticCurrentLimit_ << std::endl;
+    }
   }
 
-  if( diagnosticModeExtrema_)
+  if( diagnosticExtremaLimitGiven_)
   {
     // get largest absolute value from solution vector
+    double value = 0.0;
+    int localId = 0;
+    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );      
+    if( fabs(value) > diagnosticExtremaLimit_)
+    {
+      if( outputHeaderLine )
+      {
+        (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+          << analysis_event.outputType_ 
+          << " analysis at " 
+          << analysis_event.state_;
+        if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+        {
+          (*diagnosticOutputStreamPtr_) << " time=" << this->getTime() << std::endl;
+        }
+        else
+        {
+          (*diagnosticOutputStreamPtr_) << " Step=" << analysis_event.step_ << std::endl;
+        }
+        outputHeaderLine = false;
+      }
+      std::string nodeName = this->getNodeNameFromIndex( localId ); 
+      char varType = this->getNodeTypeFromIndex( localId ); 
+    
+      (*diagnosticOutputStreamPtr_) 
+        << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
+    }
+    
+  }
+  
+  std::stringstream voltageOutput;
+  std::stringstream currentOutput;
+  voltageOutput.flush();
+  currentOutput.flush();
+  bool outputVoltageHeaderLine = true;
+  bool outputCurrentHeaderLine = true;
+  
+  if( diagnosticVoltageLimitGiven_ || diagnosticCurrentLimitGiven_)
+  {
+    // loop over the full solution vector 
     double value = 0.0;
     unsigned int localId = 0;
     //(this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
@@ -1725,32 +1783,58 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     for( localId=0 ; localId < numSolVars; localId++)
     {
       value = (*(this->getDataStore())->currSolutionPtr)[localId];
+      std::string nodeName = this->getNodeNameFromIndex( localId ); 
+      char varType = this->getNodeTypeFromIndex( localId ); 
       
-      if( fabs(value) > diagnosticExtremaLimit_)
+      if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
       {
-        if( outputHeaderLine )
+        if( outputVoltageHeaderLine )
         {
-          (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+          voltageOutput << " Voltage over limit value found in " 
             << analysis_event.outputType_ 
             << " analysis at " 
             << analysis_event.state_;
           if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
           {
-            (*diagnosticOutputStreamPtr_) << " time=" << this->getTime() << std::endl;
+            voltageOutput << " time=" << this->getTime() << std::endl;
           }
           else
           {
-            (*diagnosticOutputStreamPtr_) << " Step=" << analysis_event.step_ << std::endl;
+            voltageOutput << " Step=" << analysis_event.step_ << std::endl;
           }
-          outputHeaderLine = false;
+          outputVoltageHeaderLine = false;
         }
-        std::string nodeName = this->getNodeNameFromIndex( localId ); 
-        char varType = this->getNodeTypeFromIndex( localId ); 
-      
-        (*diagnosticOutputStreamPtr_) 
-          << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
+        voltageOutput
+          << "     V" << "(" << nodeName << ")=" << value << std::endl;
+      }
+      if( diagnosticCurrentLimitGiven_ && (varType=='I') && (fabs(value) > diagnosticCurrentLimit_))
+      {
+        if( outputCurrentHeaderLine )
+        {
+          currentOutput << " Current over limit value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            currentOutput << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            currentOutput << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputCurrentHeaderLine = false;
+        }
+        currentOutput
+          << "     I" << "(" << nodeName << ")=" << value << std::endl;
       }
     }
+    // send any accumulated output to the diagnostic file
+    std::string vOutput(voltageOutput.str() );
+    //voltageOutput >> vOutput;
+    std::string iOutput(currentOutput.str() );
+    //currentOutput >> iOutput;
+    (*diagnosticOutputStreamPtr_)  << vOutput << iOutput;
   }
 }
 
@@ -1767,8 +1851,10 @@ bool registerPkgOptionsMgr(
     IO::PkgOptionsMgr &options_manager)
 {
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
-  parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
+  
   parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("VOLTAGELIMIT", Util::Param("VOLTAGELIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("CURRENTLIMIT", Util::Param("CURRENTLIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("DIAGFILENAME", Util::Param("DIAGFILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 
