@@ -370,6 +370,30 @@ bool DeviceMgr::setDeviceOptions (const Util::OptionBlock & OB)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setDiagnosticOptions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setDiagnosticOptions (const Util::OptionBlock & OB)
+{
+  //return devOptions_.setOptions(OB);
+  bool retval = false;
+  for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
+  {
+    const Util::Param &param = *it;
+    if( param.tag() == "EXTREMA")
+    {
+      devOptions_.calculateAllLeadCurrents = true;
+      retval=true;
+    }
+  }
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::registerLeadCurrentRequests
 // Purpose       : this function is called from the output manager (through the
 //                 device interface) to inform the device package of the devices
@@ -5214,6 +5238,7 @@ bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options
   options_manager.addCommandProcessor("SAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setSamplingParams));
   options_manager.addCommandProcessor("EMBEDDEDSAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setEmbeddedSamplingParams));
   options_manager.addCommandProcessor("PCE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setPCEParams));
+  options_manager.addOptionsProcessor("DIAGNOSTIC", IO::createRegistrationOptions(device_manager, &DeviceMgr::setDiagnosticOptions));
 
   return true;
 }

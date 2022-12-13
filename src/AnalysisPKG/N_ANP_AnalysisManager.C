@@ -1706,6 +1706,7 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 
 void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
 {
+  bool outputHeaderLine = true;
   
   if(diagnosticOutputStreamPtr_ == NULL)
   {
@@ -1718,30 +1719,38 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   {
     // get largest absolute value from solution vector
     double value = 0.0;
-    int localId = 0;
-    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
-    
-    if( value > diagnosticExtremaLimit_)
+    unsigned int localId = 0;
+    //(this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
+    auto numSolVars = (this->getDataStore())->solutionSize;
+    for( localId=0 ; localId < numSolVars; localId++)
     {
-      (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
-        << analysis_event.outputType_ 
-        << " analysis at " 
-        << analysis_event.state_;
-      std::string nodeName = this->getNodeNameFromIndex( localId ); 
-      char varType = this->getNodeTypeFromIndex( localId ); 
-      if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+      value = (*(this->getDataStore())->currSolutionPtr)[localId];
+      
+      if( fabs(value) > diagnosticExtremaLimit_)
       {
-        (*diagnosticOutputStreamPtr_) << " time=" << this->getTime();
-      }
-      else
-      {
+        if( outputHeaderLine )
+        {
+          (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            (*diagnosticOutputStreamPtr_) << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            (*diagnosticOutputStreamPtr_) << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputHeaderLine = false;
+        }
+        std::string nodeName = this->getNodeNameFromIndex( localId ); 
+        char varType = this->getNodeTypeFromIndex( localId ); 
+      
         (*diagnosticOutputStreamPtr_) 
-          << " Step=" << analysis_event.step_ ;
+          << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
       }
-      (*diagnosticOutputStreamPtr_) 
-        << " " << varType << "(" << nodeName << ")=" << value << std::endl;
     }
-
   }
 }
 
