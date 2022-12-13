@@ -1,0 +1,37 @@
+The EKV model version 2.6 provided by its authors will not process
+correctly in ADMS due to a number of minor problems.  As a result, the
+version provided here has been modified slightly.
+
+
+- The macro "NOT_GIVEN" has changed sign from -1e21 to 1e21.  That is
+  because in several places where it was used it was used as
+  "-`NOT_GIVEN", resulting in the preprocessor emitting "--1e-21", an
+  illegal expression in ADMS.
+
+- The white noise and flicker noise terms for the "ds" branch were
+  summed together in a single contribution statement.  This usage,
+  while perfectly legal Verilog-A, is incorrectly handled by the
+  Xyce/ADMS system.  The two terms have been separated out into to
+  separate contribution statements.
+
+- The range for the TEMP parameter in the published version was oddly
+  set to [273.15:inf], despite supposedly being a temperature in
+  celsius.  Clearly, the intent was that it be [-273.15:inf]
+  reflecting a range of absolute zero to infinity.  The TEMP parameter
+  is later properly converted to Kelvin and stored in a T variable
+  which is clearly intended to be in Kelvin.  So in this version we have
+  changed the allowable range to [-273.15:inf].  Doing so prevents
+  Xyce from throwing meaningless warnings about reasonable Celsius
+  temperatures being out of range.
+
+- Attributes have been added to the declarations of the parameters L,
+  W, M, NS, AS, AD, PS, and PD so that they can be specified on the
+  instance line of a Xyce netlist.  All of these may also be specified
+  on the model card for compatibility with other simulators.
+
+- Module attributes have been added to allow this model to plug into
+  Xyce as the level 260 MOSFET ("M" device) with associated NMOS and
+  PMOS model cards.
+
+- Parameters LMIN, LMAX, WMIN, and WMAX have been added so that model
+  binning can work.

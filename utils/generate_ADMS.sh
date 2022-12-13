@@ -19,8 +19,8 @@
 (cd utils/ADMS/examples/hicum &&  make all-source)&
 (cd utils/ADMS/examples/hicum_l0 &&  make all-source)&
 (cd utils/ADMS/examples/L_UTSOI/L_UTSOI_102 && make all-source)&
+(cd utils/ADMS/examples/EKV/ekv-2.6 && make all-source)&
 (cd src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02 && ./make_ekv_usable.sh)&
-(cd src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6 && ./make_ekv2.6_usable.sh)&
 
 wait
 
@@ -68,7 +68,7 @@ diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMShic0_full.h utils/ADMS/example
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMShic0_full.C utils/ADMS/examples/hicum_l0/N_DEV_ADMShic0_full.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSl_utsoi.h utils/ADMS/examples/L_UTSOI/L_UTSOI_102/N_DEV_ADMSl_utsoi.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSl_utsoi.C utils/ADMS/examples/L_UTSOI/L_UTSOI_102/N_DEV_ADMSl_utsoi.C
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSekv_va.h utils/ADMS/examples/EKV/ekv-2.6/N_DEV_ADMSekv_va.h
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSekv_va.C utils/ADMS/examples/EKV/ekv-2.6/N_DEV_ADMSekv_va.C
 diff -u -w -Bb  src/DeviceModelPKG/Xyce_NonFree/N_DEV_ADMSekv3.h src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.h
 diff -u -w -Bb  src/DeviceModelPKG/Xyce_NonFree/N_DEV_ADMSekv3.C src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.C
-diff -u -w -Bb  src/DeviceModelPKG/Xyce_NonFree/N_DEV_ADMSekv_va.h src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6/N_DEV_ADMSekv_va.h
-diff -u -w -Bb  src/DeviceModelPKG/Xyce_NonFree/N_DEV_ADMSekv_va.C src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6/N_DEV_ADMSekv_va.C

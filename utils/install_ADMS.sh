@@ -58,7 +58,7 @@ cp utils/ADMS/examples/hicum_l0/Q_230_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/L_UTSOI/L_UTSOI_102/N_DEV_ADMSl_utsoi.h src/DeviceModelPKG/ADMS
 cp utils/ADMS/examples/L_UTSOI/L_UTSOI_102/N_DEV_ADMSl_utsoi.C src/DeviceModelPKG/ADMS
 cp utils/ADMS/examples/L_UTSOI/L_UTSOI_102/M_10240_OutputVars.tex doc/Reference_Guide
+cp utils/ADMS/examples/EKV/ekv-2.6/N_DEV_ADMSekv_va.h src/DeviceModelPKG/ADMS
+cp utils/ADMS/examples/EKV/ekv-2.6/N_DEV_ADMSekv_va.C src/DeviceModelPKG/ADMS
 cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.h src/DeviceModelPKG/Xyce_NonFree
 cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.C src/DeviceModelPKG/Xyce_NonFree
-cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6/N_DEV_ADMSekv_va.h src/DeviceModelPKG/Xyce_NonFree
-cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6/N_DEV_ADMSekv_va.C src/DeviceModelPKG/Xyce_NonFree
