@@ -69,6 +69,7 @@
 #include <N_TOP_Topology.h>
 #include <N_UTL_Diagnostic.h>
 #include <N_UTL_ExpressionData.h>
+#include <N_UTL_Expression.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Factory.h>
 #include <N_UTL_FeatureTest.h>
@@ -231,6 +232,7 @@ void Transient::notify(const StepEvent &event)
 bool Transient::setAnalysisParams(
   const Util::OptionBlock &     option_block)
 {
+  bool maxTimeStepExpressionStringFound=false;
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
@@ -242,20 +244,43 @@ bool Transient::setAnalysisParams(
     {
       setNOOP(true);
     }
-    else if (param.uTag() == "MAXTIMEEXPRESSION")
-    {
-      // an expression was given which should specify what
-      // max time step to use based on the current simulation
-      // time.  The expected format of this is
-      // {schedule( t0, max_del_t0, t1, max_del_t1, ...)}
-      // we'll just store the expression as a string for now
-      // as we need to make sure other classes are up and running
-      // before we can create the actual expression.  That will
-      // happen in Transient class as it will ultimately use this
-      maxTimeStepExpressionString_ = param.stringValue();
-    }
     else
+    {
       IO::ParamError(option_block, param) << "Unrecognized analysis option";
+    }
+
+    // Check for schedule-dependent expressions.  This is a bit of a kludge. 
+    //
+    // The first 2 parameters on a .TRAN line: TSTEP TSTOP are required, and 
+    // are allowed to be expressions.  But they cannot be time-dependent 
+    // (and thus cannot depend on the schedule operator).
+    //
+    // The 3rd and 4th arguments: TSTART DTMAX are also allowed to be expressions.  
+    // But only DTMAX can be time dependent.
+    //
+    // Unforuntately, the "schedule" capability was designed to 
+    // be a 3rd argument, rather than the 4th.    So, if the 3rd argument 
+    // contains "schedule" it must be the DTMAX expression, even though 
+    // it is 3rd.  If it weren't for backward compatibility, I would require 
+    // that DTMAX always be the 4th argument.
+    if ( param.uTag() == "TSTART" || param.uTag() == "DTMAX")
+    {
+      if(param.hasExpressionValue() && 
+          (param.getValue<Util::Expression>().getScheduleDependent() ||
+           param.getValue<Util::Expression>().isTimeDependent()) )
+      {
+        if (!maxTimeStepExpressionStringFound)
+        {
+          maxTimeStepExpressionString_ = param.stringValue();
+          maxTimeStepExpressionStringFound=true;
+        }
+        else
+        {
+          IO::ParamError(option_block, param) << 
+            "Two parameters on .TRAN line are time-dependent.  Only one (DTMAX) is allowed.";
+        }
+      }
+    }
   }
 
   if (tiaParams_.finalTime <= tiaParams_.initialOutputTime || tiaParams_.finalTime <= 0.0 || tiaParams_.initialOutputTime < 0.0)
@@ -4335,40 +4360,31 @@ bool extractTRANData(
       // others we need to change the value
       parameter.setTag( parsed_line[linePosition].string_ );
       parameter.setVal( parsed_line[linePosition].string_ );
-      
-      if(parameter.hasExpressionValue())
+     
+      // could be TSTART DTMAX or NOOP|UIC
+      if ( parameter.uTag() == "NOOP" || parameter.uTag() == "UIC" )
       {
-        // found a max time step schedule expression
-        parameter.setTag("MAXTIMEEXPRESSION");
+        parameter.setVal( "1" );
         option_block.addParam( parameter );
       }
       else
       {
-        // could be TSTART DTMAX or NOOP|UIC
-        if ( parameter.uTag() == "NOOP" || parameter.uTag() == "UIC" )
+        if( !tstartFound )
         {
-          parameter.setVal( "1" );
+          parameter.setTag( "TSTART" );
           option_block.addParam( parameter );
+          tstartFound=true;
+        }
+        else if( !dtmaxFound )
+        {
+          parameter.setTag( "DTMAX" );
+          option_block.addParam( parameter );
+          dtmaxFound=true;
         }
         else
         {
-          if( !tstartFound )
-          {
-            parameter.setTag( "TSTART" );
-            option_block.addParam( parameter );
-            tstartFound=true;
-          }
-          else if( !dtmaxFound )
-          {
-            parameter.setTag( "DTMAX" );
-            option_block.addParam( parameter );
-            dtmaxFound=true;
-          }
-          else
-          {
-            Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
-              << "expected NOOP/UIC field on .TRAN line but found" << parameter.usVal();
-          }
+          Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+            << "expected NOOP/UIC field on .TRAN line but found" << parameter.usVal();
         }
       }
       linePosition++;

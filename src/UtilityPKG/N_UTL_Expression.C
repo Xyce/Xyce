@@ -691,6 +691,20 @@ bool Expression::getSpecialsDependent()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getScheduleDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2022
+//-----------------------------------------------------------------------------
+bool Expression::getScheduleDependent() const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getScheduleDependent();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getIsConstant
 // Purpose       : 
 // Special Notes : 

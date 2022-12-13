@@ -131,6 +131,8 @@ public:
   bool getLeadCurrentDependentExcludeBsrc() ;
   bool getSpecialsDependent() ;
 
+  bool getScheduleDependent() const;
+
   bool getIsConstant ();
 
   bool setTemperature   (const double & temp);

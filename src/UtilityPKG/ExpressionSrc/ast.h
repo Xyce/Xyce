@@ -188,6 +188,7 @@ inline void yyerror(std::vector<std::string> & s);
   if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
   if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
   if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
+  if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
   PTR->getInterestingOps(ovc); }
 
 #define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
@@ -254,7 +255,8 @@ public:
   bool tempDep,
   bool vTDep,
   bool FreqDep,
-  bool gminDep 
+  bool gminDep,
+  bool scheduleDep
       ):
   paramOpVector(param),
     funcOpVector(func),
@@ -288,7 +290,8 @@ public:
     isTempDependent(tempDep),
     isVTDependent(vTDep),
     isFreqDependent(FreqDep),
-    isGminDependent(gminDep)
+    isGminDependent(gminDep),
+    isScheduleDependent(scheduleDep)
   {};
 
   std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
@@ -325,6 +328,7 @@ public:
   bool isVTDependent;
   bool isFreqDependent;
   bool isGminDependent;
+  bool isScheduleDependent;
 };
 
 //-------------------------------------------------------------------------------
@@ -504,6 +508,8 @@ class astNode : public staticsContainer
     virtual bool getFunctionArgType() { return false; };
     virtual void setFunctionArgType() {};
     virtual void unsetFunctionArgType() {};
+
+    virtual bool scheduleType() { return false; }
 
     virtual std::string getName () { return std::string(""); };
     //virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
@@ -4919,6 +4925,8 @@ class scheduleOp : public astNode<ScalarT>
       }
       return true;
     }
+
+    virtual bool scheduleType() { return true; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
