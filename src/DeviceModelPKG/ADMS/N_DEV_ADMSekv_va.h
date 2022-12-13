@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 13 Dec 2022 09:43:03
+// Creation Date  : Tue, 13 Dec 2022 11:08:21
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSekv_va_h
@@ -394,6 +394,18 @@ bool modelPar_given_tp_njtssw;
 double modelPar_tp_njtsswg;
 double d_modelPar_tp_njtsswg_dX;
 bool modelPar_given_tp_njtsswg;
+double modelPar_LMIN;
+double d_modelPar_LMIN_dX;
+bool modelPar_given_LMIN;
+double modelPar_LMAX;
+double d_modelPar_LMAX_dX;
+bool modelPar_given_LMAX;
+double modelPar_WMIN;
+double d_modelPar_WMIN_dX;
+bool modelPar_given_WMIN;
+double modelPar_WMAX;
+double d_modelPar_WMAX_dX;
+bool modelPar_given_WMAX;
 // non-reals (including hidden)
 int modelPar_TYPE;
 bool modelPar_given_TYPE;
@@ -822,6 +834,10 @@ public:
     double tp_njts;
     double tp_njtssw;
     double tp_njtsswg;
+    double LMIN;
+    double LMAX;
+    double WMIN;
+    double WMAX;
     //  Variables of global_model scope
     // end verilog model variables=====
 };

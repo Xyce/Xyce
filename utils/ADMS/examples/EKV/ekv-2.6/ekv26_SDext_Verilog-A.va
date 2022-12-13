@@ -307,6 +307,13 @@ module ekv_va(d,g,s,b);
     parameter real tp_njts       = 0.0           from [0.0:inf);
     parameter real tp_njtssw     = 0.0           from [0.0:inf);
     parameter real tp_njtsswg    = 0.0           from [0.0:inf);
+
+   // Dummy parameters so binning can work
+    parameter real LMIN=0 from [0.0:inf);
+    parameter real LMAX=100 from [0:inf);
+    parameter real WMIN=0 from [0.0:inf);
+    parameter real WMAX=100 from [0:inf);
+
     analog begin
         // Set constant
         EPSOX  = 3.9 * `P_EPS0;

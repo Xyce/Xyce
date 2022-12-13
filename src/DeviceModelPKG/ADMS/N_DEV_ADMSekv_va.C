@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Tue, 13 Dec 2022 09:43:03
+// Creation Date  : Tue, 13 Dec 2022 11:08:21
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -604,6 +604,30 @@ void Traits::loadModelParameters(ParametricData<ADMSekv_va::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("TP_NJTSSWG", static_cast<double>(0.0), &ADMSekv_va::Model::tp_njtsswg)
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMIN", static_cast<double>(0), &ADMSekv_va::Model::LMIN)
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMAX", static_cast<double>(100), &ADMSekv_va::Model::LMAX)
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("WMIN", static_cast<double>(0), &ADMSekv_va::Model::WMIN)
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("WMAX", static_cast<double>(100), &ADMSekv_va::Model::WMAX)
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4257,6 +4281,30 @@ if (getType() == "pmos" || getType() == "PMOS")
     UserWarning(*this) << "ADMSekv_va: Parameter tp_njtsswg value " << tp_njtsswg << " out of range [ 0.0,  (+inf) [";
   }
 
+//    Parameter LMIN : [ 0.0,  (+inf) [
+  if ( (!((LMIN >=0.0))) )
+  {
+    UserWarning(*this) << "ADMSekv_va: Parameter LMIN value " << LMIN << " out of range [ 0.0,  (+inf) [";
+  }
+
+//    Parameter LMAX : [ 0,  (+inf) [
+  if ( (!((LMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSekv_va: Parameter LMAX value " << LMAX << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter WMIN : [ 0.0,  (+inf) [
+  if ( (!((WMIN >=0.0))) )
+  {
+    UserWarning(*this) << "ADMSekv_va: Parameter WMIN value " << WMIN << " out of range [ 0.0,  (+inf) [";
+  }
+
+//    Parameter WMAX : [ 0,  (+inf) [
+  if ( (!((WMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSekv_va: Parameter WMAX value " << WMAX << " out of range [ 0,  (+inf) [";
+  }
+
   // and of course, this routine is where we should put the initial_model
   // stuff
 
@@ -4373,7 +4421,11 @@ Model::Model(
     tp_pbswg(0.0),
     tp_njts(0.0),
     tp_njtssw(0.0),
-    tp_njtsswg(0.0)
+    tp_njtsswg(0.0),
+    LMIN(0),
+    LMAX(100),
+    WMIN(0),
+    WMAX(100)
 {
   // Set params to constant default values (from parTable):
   setDefaultParams();
@@ -6539,6 +6591,18 @@ modelStruct.modelPar_given_tp_njtssw=mod.given("tp_njtssw");
 modelStruct.modelPar_tp_njtsswg=mod.tp_njtsswg;
 modelStruct.d_modelPar_tp_njtsswg_dX=0.0;
 modelStruct.modelPar_given_tp_njtsswg=mod.given("tp_njtsswg");
+modelStruct.modelPar_LMIN=mod.LMIN;
+modelStruct.d_modelPar_LMIN_dX=0.0;
+modelStruct.modelPar_given_LMIN=mod.given("LMIN");
+modelStruct.modelPar_LMAX=mod.LMAX;
+modelStruct.d_modelPar_LMAX_dX=0.0;
+modelStruct.modelPar_given_LMAX=mod.given("LMAX");
+modelStruct.modelPar_WMIN=mod.WMIN;
+modelStruct.d_modelPar_WMIN_dX=0.0;
+modelStruct.modelPar_given_WMIN=mod.given("WMIN");
+modelStruct.modelPar_WMAX=mod.WMAX;
+modelStruct.d_modelPar_WMAX_dX=0.0;
+modelStruct.modelPar_given_WMAX=mod.given("WMAX");
 
 
 // hidden reals
@@ -7025,6 +7089,22 @@ modelStruct.modelPar_tp_njtsswg=mod.tp_njtsswg;
 modelStruct.d_modelPar_tp_njtsswg_dX=0.0;
 modelStruct.modelPar_given_tp_njtsswg=mod.given("tp_njtsswg");
 modParamMap["tp_njtsswg"] = &(modelStruct.d_modelPar_tp_njtsswg_dX);
+modelStruct.modelPar_LMIN=mod.LMIN;
+modelStruct.d_modelPar_LMIN_dX=0.0;
+modelStruct.modelPar_given_LMIN=mod.given("LMIN");
+modParamMap["LMIN"] = &(modelStruct.d_modelPar_LMIN_dX);
+modelStruct.modelPar_LMAX=mod.LMAX;
+modelStruct.d_modelPar_LMAX_dX=0.0;
+modelStruct.modelPar_given_LMAX=mod.given("LMAX");
+modParamMap["LMAX"] = &(modelStruct.d_modelPar_LMAX_dX);
+modelStruct.modelPar_WMIN=mod.WMIN;
+modelStruct.d_modelPar_WMIN_dX=0.0;
+modelStruct.modelPar_given_WMIN=mod.given("WMIN");
+modParamMap["WMIN"] = &(modelStruct.d_modelPar_WMIN_dX);
+modelStruct.modelPar_WMAX=mod.WMAX;
+modelStruct.d_modelPar_WMAX_dX=0.0;
+modelStruct.modelPar_given_WMAX=mod.given("WMAX");
+modParamMap["WMAX"] = &(modelStruct.d_modelPar_WMAX_dX);
 
 
 // hidden reals

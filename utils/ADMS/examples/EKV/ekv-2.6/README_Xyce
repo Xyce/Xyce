@@ -32,3 +32,6 @@ version provided here has been modified slightly.
 - Module attributes have been added to allow this model to plug into
   Xyce as the level 260 MOSFET ("M" device) with associated NMOS and
   PMOS model cards.
+
+- Parameters LMIN, LMAX, WMIN, and WMAX have been added so that model
+  binning can work.
