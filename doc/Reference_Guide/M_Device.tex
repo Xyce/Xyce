@@ -920,6 +920,40 @@ obtained from the CMC standard models page at
 
 
 \clearpage
+\subsubsection{Level 260 MOSFET Tables (EKV version 2.6)}
+
+\Xyce{} includes the EKV MOSFET model, version 2.6 as the level 260
+MOSFET device.
+
+Official documentation of this model may be found at \url{https://www.epfl.ch/labs/iclab/wp-content/uploads/2019/02/ekv_v262.pdf}.
+
+We have implemented EKV 2.6 directly from the Verilog-A source
+published by its authors at \url{https://github.com/ekv26/model}.
+While it is a faithful implementation of the model provided there, we
+have had anecdotal evidence that other simulators have different
+implementations that contain additional parameters and possibly a
+different extrinsic model.  Model cards containing parameters
+extracted from other simulators may not result in \Xyce{} simulations
+that match those other simulators.  Watch carefully for any warnings
+from \Xyce{} regarding unrecognized model parameters, as these are a
+strong indication that the model card is not extracted using the exact
+version of EKV provided by \Xyce{}.
+
+Tables of EKV MOSFET 2.6 parameters are in
+tables~\ref{M_260_Device_Instance_Params} and
+\ref{M_260_Device_Model_Params}.
+
+Note that in the tables the device claims that the default
+\texttt{TNOM} and \texttt{TEMP} parameter values is 1e21.  This is
+merely an artifact of an unusual way the authors have defined those
+parameters in the Verilog-A source.  In fact, if not given
+\texttt{TNOM} defaults to 25 $^\circ$ C, and if not given \texttt{TEMP}
+defaults to the ambient temperature of the simulation.
+
+\input{M_260_Device_Instance_Params}
+\input{M_260_Device_Model_Params}
+
+\clearpage
 \subsubsection{Level 301 MOSFET Tables (EKV version 3.0.1)}
 \Xyce{} includes the EKV MOSFET model, version
 3.0.1~\cite{BLETK:1997}\cite{EKV:2006}\cite{EKV:2007}.  Full
