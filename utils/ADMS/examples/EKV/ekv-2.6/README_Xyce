@@ -14,3 +14,21 @@ version provided here has been modified slightly.
   Xyce/ADMS system.  The two terms have been separated out into to
   separate contribution statements.
 
+- The range for the TEMP parameter in the published version was oddly
+  set to [273.15:inf], despite supposedly being a temperature in
+  celsius.  Clearly, the intent was that it be [-273.15:inf]
+  reflecting a range of absolute zero to infinity.  The TEMP parameter
+  is later properly converted to Kelvin and stored in a T variable
+  which is clearly intended to be in Kelvin.  So in this version we have
+  changed the allowable range to [-273.15:inf].  Doing so prevents
+  Xyce from throwing meaningless warnings about reasonable Celsius
+  temperatures being out of range.
+
+- Attributes have been added to the declarations of the parameters L,
+  W, M, NS, AS, AD, PS, and PD so that they can be specified on the
+  instance line of a Xyce netlist.  All of these may also be specified
+  on the model card for compatibility with other simulators.
+
+- Module attributes have been added to allow this model to plug into
+  Xyce as the level 260 MOSFET ("M" device) with associated NMOS and
+  PMOS model cards.

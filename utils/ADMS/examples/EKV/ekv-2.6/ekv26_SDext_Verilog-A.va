@@ -1,3 +1,7 @@
+// THIS MODEL HAS BEEN MODIFIED FOR USE IN XYCE
+// See the file README_Xyce for documentation of the changes that have been
+// made from the published version.
+
 /*
 EKV MOS model version 2.6 rev.15 with documentation at: http://ekv.epfl.ch 
 Matthias Bucher, Christophe Lallement, Christian Enz, Fabien Theodoloz, Francois Krummenacher
@@ -107,6 +111,8 @@ enddiscipline
 // AB 040902
 `define NOT_GIVEN 1.0e21
 `define DEFAULT_TNOM 25
+
+(* xyceModelGroup="MOSFET", xyceLevelNumber="260", xyceDeviceName="EKV MOSFET version 2.6", xyceTypeVariable="TYPE"*)
 module ekv_va(d,g,s,b);
     // %%DEVICE_CLASS=MOS(NMOS:TYPE=1,PMOS:TYPE=-1)%%
     //  Node definitions
@@ -203,7 +209,7 @@ module ekv_va(d,g,s,b);
     real csb_d, cssw_d, csswg_d;
     real csb_s, cssw_s, csswg_s;
     real qjd, qjs;
-    
+
     // parameter definitions
     parameter integer TYPE = 1 from [-1:1] exclude 0; // NMOS=1, PMOS=-1
     parameter integer Noise = 1 from [0:1];     // Set to zero to prevent noise calculation
@@ -212,13 +218,21 @@ module ekv_va(d,g,s,b);
 //AB:  the parameter name Temp is not working for no obvious reason; changed to TEMP
     parameter real TEMP = `NOT_GIVEN from [-`P_CELSIUS0:inf];  // Device temp [C]
     parameter real TNOM = `NOT_GIVEN; // Temperature [C]
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real L = 10E-6 from [0.0:inf]; // Channel length [m]
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real W = 10E-6 from [0.0:inf]; // Channel width [m]
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real M = 1.0 from [0.0:inf]; // Parallel multiple device number
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real NS = 1.0 from [0.0:inf]; // Series multiple device number
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real AS = 0.0 from [0.0:inf]; // Source area	//AB: 040902
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real AD = 0.0 from [0.0:inf]; // Drain area	//AB: 040902
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real PS = 0.0 from [0.0:inf]; // Source perimeter	//AB: 040902
+   (* type="instance", xyceAlsoModel="yes"*)
     parameter real PD = 0.0 from [0.0:inf]; // Drain perimeter	//AB: 040902
     // *** Process related parameters
     parameter real COX = 2.0E-3 from [0.0:inf]; // Gate oxide capacitance per unit area [F]
