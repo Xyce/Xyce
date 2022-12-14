@@ -1783,7 +1783,6 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     for( localId=0 ; localId < numSolVars; localId++)
     {
       value = this->getDataStore()->currSolutionPtr->getElementByGlobalIndex(localId);
-      std::string nodeName = this->getNodeNameFromIndex( localId ); 
       char varType = this->getNodeTypeFromIndex( localId ); 
       
       if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
@@ -1804,6 +1803,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputVoltageHeaderLine = false;
         }
+        std::string nodeName = this->getNodeNameFromIndex( localId ); 
         voltageOutput
           << "     V" << "(" << nodeName << ")=" << value << std::endl;
       }
@@ -1825,6 +1825,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputCurrentHeaderLine = false;
         }
+        std::string nodeName = this->getNodeNameFromIndex( localId ); 
         currentOutput
           << "     solution I" << "(" << nodeName << ")=" << value << std::endl;
       } 
