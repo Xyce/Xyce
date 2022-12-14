@@ -96,6 +96,11 @@ public:
   {
     return outputManager_.getAliasNodeMap();
   }
+  
+  const NodeNameMap &getBranchVarsNodeMap() const
+  {
+    return outputManager_.getBranchVarsNodeMap();
+  }
 
   void setStepSweepVector(const Analysis::SweepVector &sweep_vector);
 

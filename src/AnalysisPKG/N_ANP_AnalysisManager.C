@@ -1782,7 +1782,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     auto numSolVars = (this->getDataStore())->solutionSize;
     for( localId=0 ; localId < numSolVars; localId++)
     {
-      value = (*(this->getDataStore())->currSolutionPtr)[localId];
+      value = this->getDataStore()->currSolutionPtr->getElementByGlobalIndex(localId);
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
       char varType = this->getNodeTypeFromIndex( localId ); 
       
@@ -1826,8 +1826,53 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           outputCurrentHeaderLine = false;
         }
         currentOutput
-          << "     I" << "(" << nodeName << ")=" << value << std::endl;
+          << "     solution I" << "(" << nodeName << ")=" << value << std::endl;
+      } 
+    }
+    // if current output is requested then also loop over the lead-current vector
+    if( diagnosticCurrentLimitGiven_ )
+    {
+      auto numLeadVars = (this->getDataStore())->leadCurrentSize;
+      for( localId=0 ; localId < numLeadVars; localId++)
+      {
+        value = this->getDataStore()->currLeadCurrentPtr->getElementByGlobalIndex(localId);
+        std::string nodeName("NF");
+        if( fabs(value) > diagnosticCurrentLimit_)
+        {
+          NodeNameMap branchVarMap = outputManagerAdapter_.getBranchVarsNodeMap();
+          auto mapItr = branchVarMap.begin();
+          auto endItr = branchVarMap.end();
+          bool nameFound = false;
+          while( !nameFound && (mapItr != endItr))
+          {
+            if( mapItr->second == localId)
+            {
+              nodeName = mapItr->first;
+              nameFound = true;
+            }
+            mapItr++;
+          }
+          if( outputCurrentHeaderLine )
+          {
+            currentOutput << " Current over limit value found in " 
+              << analysis_event.outputType_ 
+              << " analysis at " 
+              << analysis_event.state_;
+            if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+            {
+              currentOutput << " time=" << this->getTime() << std::endl;
+            }
+            else
+            {
+              currentOutput << " Step=" << analysis_event.step_ << std::endl;
+            }
+            outputCurrentHeaderLine = false;
+          }
+          currentOutput
+            << "     lead I" << "(" << nodeName << ")=" << value << std::endl;
+        } 
       }
+    
     }
     // send any accumulated output to the diagnostic file
     std::string vOutput(voltageOutput.str() );

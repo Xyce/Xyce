@@ -384,7 +384,7 @@ bool DeviceMgr::setDiagnosticOptions (const Util::OptionBlock & OB)
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
-    if( param.tag() == "EXTREMA")
+    if( param.tag() == "CURRENTLIMIT")
     {
       devOptions_.calculateAllLeadCurrents = true;
       retval=true;
