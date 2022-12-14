@@ -1766,24 +1766,27 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     
   }
   
-  std::stringstream voltageOutput;
-  std::stringstream currentOutput;
-  voltageOutput.flush();
-  currentOutput.flush();
-  bool outputVoltageHeaderLine = true;
-  bool outputCurrentHeaderLine = true;
+  
   
   if( diagnosticVoltageLimitGiven_ || diagnosticCurrentLimitGiven_)
   {
+    // stream buffers for the output to keep it organized.
+    std::stringstream voltageOutput;
+    std::stringstream currentOutput;
+    voltageOutput.flush();
+    currentOutput.flush();
+    bool outputVoltageHeaderLine = true;
+    bool outputCurrentHeaderLine = true;
+    
     // loop over the full solution vector 
     double value = 0.0;
-    unsigned int localId = 0;
-    //(this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
+    unsigned int globalID = 0;
+    //(this->getDataStore())->currSolutionPtr->infNorm( &value, &globalID );
     auto numSolVars = (this->getDataStore())->solutionSize;
-    for( localId=0 ; localId < numSolVars; localId++)
+    for( globalID=0 ; globalID < numSolVars; globalID++)
     {
-      value = this->getDataStore()->currSolutionPtr->getElementByGlobalIndex(localId);
-      char varType = this->getNodeTypeFromIndex( localId ); 
+      value = this->getDataStore()->currSolutionPtr->getElementByGlobalIndex(globalID);
+      char varType = this->getNodeTypeFromIndex( globalID ); 
       
       if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
       {
@@ -1803,7 +1806,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputVoltageHeaderLine = false;
         }
-        std::string nodeName = this->getNodeNameFromIndex( localId ); 
+        std::string nodeName = this->getNodeNameFromIndex( globalID ); 
         voltageOutput
           << "     V" << "(" << nodeName << ")=" << value << std::endl;
       }
@@ -1825,7 +1828,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputCurrentHeaderLine = false;
         }
-        std::string nodeName = this->getNodeNameFromIndex( localId ); 
+        std::string nodeName = this->getNodeNameFromIndex( globalID ); 
         currentOutput
           << "     solution I" << "(" << nodeName << ")=" << value << std::endl;
       } 
@@ -1834,9 +1837,9 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     if( diagnosticCurrentLimitGiven_ )
     {
       auto numLeadVars = (this->getDataStore())->leadCurrentSize;
-      for( localId=0 ; localId < numLeadVars; localId++)
+      for( globalID=0 ; globalID < numLeadVars; globalID++)
       {
-        value = this->getDataStore()->currLeadCurrentPtr->getElementByGlobalIndex(localId);
+        value = this->getDataStore()->currLeadCurrentPtr->getElementByGlobalIndex(globalID);
         std::string nodeName("NF");
         if( fabs(value) > diagnosticCurrentLimit_)
         {
@@ -1846,7 +1849,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           bool nameFound = false;
           while( !nameFound && (mapItr != endItr))
           {
-            if( mapItr->second == localId)
+            if( mapItr->second == globalID)
             {
               nodeName = mapItr->first;
               nameFound = true;
