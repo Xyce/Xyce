@@ -2682,6 +2682,20 @@ struct ACAnalysisReg : public IO::PkgOptionsReg
   ACFactory &         factory_;
 };
 
+namespace {
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+struct isTokenString 
+{
+  isTokenString (std::string & test) : testString(test) {};
+  bool operator() (const IO::StringToken & t1)
+  {
+    return compare_nocase(t1.string_.c_str(), testString.c_str()) == 0;
+  }
+  std::string & testString;
+};
+}
+
 //-----------------------------------------------------------------------------
 // Function      : extractACData
 // Purpose       : Extract the parameters from a netlist .AC line held in
@@ -2697,32 +2711,20 @@ bool extractACData(
   const std::string &           netlist_filename,
   const IO::TokenVector &       parsed_line)
 {
-  Util::OptionBlock option_block("AC", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+  Util::OptionBlock option_block("AC", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
   int numFields = parsed_line.size();
   int linePosition = 1;   // Start of parameters on .param line.
   Util::Param parameter("", "");
 
   // check for "DATA" first.  If DATA is found, then skip everything else ----
-  bool dataFound=false;
-  int pos1=1;
-  int dataPos=1;
-  while ( pos1 < numFields )
+  std::string tmp = std::string("DATA");
+  IO::TokenVector::const_iterator startPL = parsed_line.begin();  startPL++;
+  IO::TokenVector::const_iterator endPL = parsed_line.end();
+  IO::TokenVector::const_iterator iter = std::find_if(startPL, endPL, isTokenString(tmp)); 
+  if (iter != parsed_line.end())
   {
-    ExtendedString stringVal ( parsed_line[pos1].string_ );
-    stringVal.toUpper ();
-
-    if (stringVal == "DATA")
-    {
-      dataPos=pos1;
-      dataFound=true;
-      break;
-    }
-    ++pos1;
-  }
-
-  if (dataFound)
-  {
+    int dataPos = std::distance(parsed_line.begin(),iter);
     if (numFields != 4)
     {
       Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
@@ -2730,17 +2732,9 @@ bool extractACData(
       return false;
     }
 
-    Util::Param parameter("", "");
-    parameter.setTag( "TYPE" );
-    parameter.setVal( "DATA" );
-    option_block.addParam( parameter );
-
-    parameter.setTag( "DATASET" );
-    parameter.setVal( parsed_line[ dataPos+2 ].string_ );
-    option_block.addParam( parameter );
-
+    option_block.addParam( Util::Param("TYPE", "DATA"));
+    option_block.addParam( Util::Param( "DATASET", parsed_line[ dataPos+2 ].string_ ));
     circuit_block.addOptions(option_block);
-
     return true;
   }
   // End of the DATA block

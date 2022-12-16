@@ -1113,15 +1113,8 @@ extractDCDataInternals(
     }
 
     Util::OptionBlock option_block(name, Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
-    Util::Param parameter("", "");
-    parameter.setTag( "TYPE" );
-    parameter.setVal( "DATA" );
-    option_block.addParam( parameter );
-
-    parameter.setTag( "DATASET" );
-    parameter.setVal( parsed_line[ dataPos+2 ].string_ );
-    option_block.addParam( parameter );
-
+    option_block.addParam( Util::Param("TYPE", "DATA"));
+    option_block.addParam( Util::Param( "DATASET", parsed_line[ dataPos+2 ].string_ ));
     option_block_vec.push_back( option_block );
 
     return option_block_vec;
