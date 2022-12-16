@@ -1178,8 +1178,8 @@ extractDCDataInternals(
         option_block.addParam(Util::Param("PARAM", parsed_line[linePosition++].string_));
         option_block.addParam(Util::Param("START", parsed_line[linePosition++].string_));
         option_block.addParam(Util::Param("STOP", parsed_line[linePosition++].string_));
+        option_block.addParam(Util::Param("STEP", parsed_line[linePosition++].string_));
       }
-      option_block.addParam(Util::Param("STEP", parsed_line[linePosition++].string_));
     }
 
     option_block_vec.push_back( option_block );
