@@ -898,16 +898,22 @@ if test "$USING_DEC_CXX" != "no"; then
 fi
 
 # Only after ALL libraries are added to the link line, check if it'll work:
+# for years we used a blank AC_LANG_PROGRAM, which did basically nothing but
+# recheck that all the libraries can be found.  But there exist conditions
+# where we could experience link failures at the very end of the build process,
+# most often because the compiler being used here has a different ABI than
+# the one used to compile Trilinos.  So let's try actually linking a program
+# that needs functions in a Trilinos library
 echo $LIBS
 
 AC_MSG_CHECKING(whether libraries (${LIBS}) will link)
 AC_LANG_PUSH(C++)
 AC_LINK_IFELSE(
-             [AC_LANG_PROGRAM([[]],[[]])],
+             [AC_LANG_PROGRAM([[#include <Teuchos_RCP.hpp>]],[[double foo; Teuchos::RCP<double> theRCP=Teuchos::rcp(&foo);]])],
 [AC_MSG_RESULT([yes])],
 [
 AC_MSG_RESULT([no])
-AC_MSG_ERROR([FATAL: cannot link with ${LIBS}... check paths, fix with --with-package options.   See config.log for failure message.])
+AC_MSG_ERROR([FATAL: cannot link with the libraries detected so far... It may be that your compiler is incompatible with the one that was used to build Trilinos.  See config.log for failure message.])
 ]
 )
 
