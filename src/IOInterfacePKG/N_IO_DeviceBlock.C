@@ -1206,17 +1206,17 @@ bool DeviceBlock::extractUDeviceData( const TokenVector & parsedInputLine )
         // found possible (N) syntax
         numInputs = parsedLine_[3].string_;
         if (!Util::isInt(numInputs))
-	{
+        {
           Report::UserError().at(getNetlistFilename(), parsedLine_[0].lineNumber_)
             << "Found (N) syntax in U device " << getInstanceName() << " but N not an integer";
           noError = false;
         }
         else
-	{
+        {
           // found valid (N) syntax.  Remove (N) from parsed line so that
           // extractBasicDeviceData() function works correctly
           parsedLine_.erase(parsedLine_.begin()+2,parsedLine_.begin()+5);
-	}
+        }
       }
       else
       {
@@ -2309,24 +2309,55 @@ bool DeviceBlock::setParameterValues()
 
   if (circuitContext_.getContextMultiplierSet())
   {
-    double value = circuitContext_.getContextMultiplierValue();
+    Util::Param multiplierPar = circuitContext_.getContextMultiplierParam ();
 
     std::vector<Xyce::Device::Param> & params = deviceData_.getDevBlock().params;
 
     std::vector<Xyce::Device::Param>::iterator paramIter = 
-    std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("M")));
+      std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("M")));
 
     if (paramIter != params.end())
     {
       if ( paramIter->given() ) 
       {
-        double origValue = paramIter->getImmutableValue<double>() ;
-        double newValue = origValue*value;
-        paramIter->setVal(newValue);
+        if (multiplierPar.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & multiplierExp = multiplierPar.getValue<Util::Expression>();
+          if (paramIter->getType() != Xyce::Util::EXPR) // if the device instance parameter is NOT of EXPR type, then convert it
+          {
+            double value = paramIter->getImmutableValue<double>();
+            std::string expressionString = std::to_string(value);
+            Teuchos::RCP<Xyce::Util::baseExpressionGroup> group = multiplierExp.getGroup();
+            Util::Expression expression(group, expressionString);
+            expression.multiplyByExternalExpression(multiplierExp);
+            paramIter->setVal(expression);
+          }
+          else
+          {
+            Util::Expression & originalExp = paramIter->getValue<Util::Expression>();
+            originalExp.multiplyByExternalExpression(multiplierExp);
+          }
+        }
+        else
+        {
+          double value = multiplierPar.getImmutableValue<double>();
+          double origValue = paramIter->getImmutableValue<double>() ;
+          double newValue = origValue*value;
+          paramIter->setVal(newValue);
+        }
       }
       else
       {
-        paramIter->setVal(value);
+        if (multiplierPar.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & multiplierExp = multiplierPar.getValue<Util::Expression>();
+          paramIter->setVal(multiplierExp);
+        }
+        else
+        {
+          double value = multiplierPar.getImmutableValue<double>();
+          paramIter->setVal(value);
+        }
         paramIter->setGiven( true );
       }
     }
@@ -2561,22 +2592,53 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
 
   if (circuitContext_.getContextMultiplierSet())
   {
-    double value = circuitContext_.getContextMultiplierValue();
+    Util::Param multiplierPar = circuitContext_.getContextMultiplierParam ();
 
     std::vector<Xyce::Device::Param>::iterator paramIter = 
-    std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam( std::string("M")));
+      std::find_if( subckt_x_params.begin(), subckt_x_params.end(), Util::EqualParam( std::string("M")));
 
     if (paramIter != subckt_x_params.end())
     {
-      double origValue = paramIter->getImmutableValue<double>() ;
-      double newValue = origValue*value;
-      paramIter->setVal(newValue);
+      if (multiplierPar.getType() == Xyce::Util::EXPR)
+      {
+        Util::Expression & multiplierExp = multiplierPar.getValue<Util::Expression>();
+        if (paramIter->getType() != Xyce::Util::EXPR) // if the parameter is NOT of EXPR type, then convert it
+        {
+          double value = paramIter->getImmutableValue<double>();
+          std::string expressionString = std::to_string(value);
+          Teuchos::RCP<Xyce::Util::baseExpressionGroup> group = multiplierExp.getGroup();
+          Util::Expression expression(group, expressionString);
+          expression.multiplyByExternalExpression(multiplierExp);
+          paramIter->setVal(expression);
+        }
+        else
+        {
+          Util::Expression & originalExp = paramIter->getValue<Util::Expression>();
+          originalExp.multiplyByExternalExpression(multiplierExp);
+        }
+      }
+      else
+      {
+        double value = multiplierPar.getImmutableValue<double>();
+        double origValue = paramIter->getImmutableValue<double>() ;
+        double newValue = origValue*value;
+        paramIter->setVal(newValue);
+      }
     }
     else
     {
       Device::Param param;
       param.setTag(std::string("M"));
-      param.setVal(value);
+      if (multiplierPar.getType() == Xyce::Util::EXPR)
+      {
+        Util::Expression & multiplierExp = multiplierPar.getValue<Util::Expression>();
+        param.setVal(multiplierExp);
+      }
+      else
+      {
+        double value = multiplierPar.getImmutableValue<double>();
+        param.setVal(value);
+      }
       param.setGiven( true );
       subckt_x_params.push_back( param ); // should be equiv to addInstanceParameter
     }

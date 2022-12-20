@@ -38,6 +38,7 @@
 
 #include <N_ANP_AnalysisManager.h>
 
+#include <N_ANP_Transient.h>
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_HB.h>
 #include <N_ANP_MPDE.h>
@@ -77,6 +78,10 @@
 
 #include <N_PDS_Comm.h>
 #include <N_PDS_Manager.h>
+
+#include <N_TOP_Topology.h>
+#include <N_LAS_Builder.h>
+#include <N_PDS_ParMap.h>
 
 #include <expressionGroup.h>
 
@@ -209,6 +214,11 @@ AnalysisManager::AnalysisManager(
     sensFlag_(false),
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
+    diagnosticMode_(false),
+    diagnosticModeExtrema_(true),
+    diagnosticExtremaLimit_(0.0),
+    diagnosticFileName_("XyceDiag.out"),
+    diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
     elapsedTimerPtr_(0),
     solverStartTime_(0.0),
@@ -242,6 +252,12 @@ AnalysisManager::~AnalysisManager()
   for (std::vector<ProcessorBase *>::iterator it = analysisVector_.begin(), end = analysisVector_.end(); it != end; ++it)
   {
     delete (*it);
+  }
+  if( diagnosticOutputStreamPtr_ != NULL)
+  {
+    diagnosticOutputStreamPtr_->close();
+    delete diagnosticOutputStreamPtr_;
+    diagnosticOutputStreamPtr_ = NULL;
   }
 }
 
@@ -290,8 +306,11 @@ void AnalysisManager::notify(
 //-----------------------------------------------------------------------------
 void AnalysisManager::notify(
   const AnalysisEvent &     analysis_event)
-{
-//  Xyce::dout() << Dump<AnalysisEvent>(analysis_event) << std::endl;
+{  
+  if( diagnosticMode_ )
+  {
+    this->OutputDiagnosticInfo(analysis_event);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -709,6 +728,43 @@ bool AnalysisManager::setSensOptions(const Util::OptionBlock & OB)
   sensFlag_ = true;
   return true;
 }
+
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::setDiagnosticMode
+// Purpose       : Set the Analysis Manager to gather diagnostic info for 
+//                 user circuit debugging.
+// Special Notes :
+// Scope         : public
+// Creator       : Richard Schiek, Sandia
+// Creation Date : 11/17/22
+//-----------------------------------------------------------------------------
+bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
+{
+  diagnosticMode_ = true;
+  bool result = false;
+  for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
+  {
+    const Util::Param &param = *it;
+    bool subResult = false;
+
+    if (param.uTag() == "DIAGFILENAME")
+    {
+      diagnosticFileName_ = it->stringValue();
+      subResult = true;
+    }
+
+    if (!subResult)
+    {
+      bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
+        || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_);
+    }
+
+    result = result || subResult;
+  }
+  return result;  
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::completeOPStartStep
@@ -1516,6 +1572,180 @@ void AnalysisManager::setRFParamsRequested(const std::string & type)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeNameFromIndex
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
+{
+  std::string node_name = "N/A";
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
+
+    // Get the node name, communicate it in parallel.
+    if ( pdsComm.isSerial() )
+    {
+      if ((varIndex > -1) && (varIndex < name_vec.size()))
+        node_name = *name_vec[varIndex];
+    }
+    else
+    {
+      // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+      // Also, if this failure is being printed for a block analysis type, there isn't a
+      // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+      //Teuchos::RCP<Parallel::ParMap> solnMap = (dataStore_->builder_).getSolutionMap();
+      int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
+
+      // Now determine which processor owns this solution node
+      int proc, tmp_proc = -1;
+      if ((varIndex_LID > -1) && (varIndex_LID < name_vec.size()))
+      {
+        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        node_name = *name_vec[varIndex_LID];
+      }
+      pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+      // Make sure someone owns this GID, otherwise proc will be -1.
+      if (proc != -1)
+      {
+        // Communicate the node name length and character string from the processor that owns it
+        int length = node_name.length();
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (varIndex_LID > -1)
+          strcpy( buffer, node_name.c_str() );
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_name = std::string( buffer );
+        free( buffer );
+      }
+    }
+  }
+  return node_name; 
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeTypeFromIndex
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
+{
+  char node_type = 'N';
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
+
+    // Get the node name, communicate it in parallel.
+    if ( pdsComm.isSerial() )
+    {
+      if ((varIndex > -1) && (varIndex < type_vec.size()))
+        node_type = type_vec[varIndex];
+    }
+    else
+    {
+      // Convert outIndex from GID to LID.  If this processor does not own that solution id, it will be -1.
+      // Also, if this failure is being printed for a block analysis type, there isn't a
+      // clear way to associate the LID with the node name (HB, PCE, ES, will map this differently)
+      //Teuchos::RCP<Parallel::ParMap> solnMap = (dataStore_->builder_).getSolutionMap();
+      int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
+
+      // Now determine which processor owns this solution node
+      int proc, tmp_proc = -1;
+      if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
+      {
+        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        node_type = type_vec[varIndex_LID];
+      }
+      pdsComm.maxAll( &tmp_proc, &proc, 1 );
+
+      // Make sure someone owns this GID, otherwise proc will be -1.
+      if (proc != -1)
+      {
+        // Communicate the node name length and character string from the processor that owns it
+        int length = 1;
+        pdsComm.bcast( &length, 1, proc ); 
+        char *buffer = (char *)malloc( length+1 );
+
+        if (varIndex_LID > -1)
+          *buffer = node_type;
+
+        pdsComm.bcast( buffer, length+1, proc );
+        node_type = *buffer;
+        free( buffer );
+      }
+    }
+  }
+  return node_type; 
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::OutputDiagnosticInfo
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+
+void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
+{
+  
+  if(diagnosticOutputStreamPtr_ == NULL)
+  {
+    //open the output file
+    diagnosticOutputStreamPtr_ = new std::ofstream();
+    diagnosticOutputStreamPtr_->open(diagnosticFileName_);
+  }
+
+  if( diagnosticModeExtrema_)
+  {
+    // get largest absolute value from solution vector
+    double value = 0.0;
+    int localId = 0;
+    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
+    
+    if( value > diagnosticExtremaLimit_)
+    {
+      (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+        << analysis_event.outputType_ 
+        << " analysis at " 
+        << analysis_event.state_;
+      std::string nodeName = this->getNodeNameFromIndex( localId ); 
+      char varType = this->getNodeTypeFromIndex( localId ); 
+      if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+      {
+        (*diagnosticOutputStreamPtr_) << " time=" << this->getTime();
+      }
+      else
+      {
+        (*diagnosticOutputStreamPtr_) 
+          << " Step=" << analysis_event.step_ ;
+      }
+      (*diagnosticOutputStreamPtr_) 
+        << " " << varType << "(" << nodeName << ")=" << value << std::endl;
+    }
+
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::registerPkgOptionsMgr
 // Purpose       :
 // Special Notes :
@@ -1527,11 +1757,19 @@ bool registerPkgOptionsMgr(
     AnalysisManager &analysis_manager, 
     IO::PkgOptionsMgr &options_manager)
 {
+  Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
+  parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
+  parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("DIAGFILENAME", Util::Param("DIAGFILENAME", "XyceDiag.out")));
+  
   options_manager.addCommandProcessor("OP", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setOPAnalysisParams));
 
   options_manager.addCommandProcessor("SENS", 
     IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setSensOptions));
+    
+  options_manager.addOptionsProcessor("DIAGNOSTIC",
+    IO::createRegistrationOptions(analysis_manager, &AnalysisManager::setDiagnosticMode));
 
   return true;
 }

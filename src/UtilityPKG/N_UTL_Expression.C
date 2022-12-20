@@ -213,6 +213,19 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::multiplyByExternalExpression
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 11/18/2022
+//-----------------------------------------------------------------------------
+void Expression::multiplyByExternalExpression(const Expression & exp)
+{
+  newExpPtr_->multiplyByExternalExpression(exp.newExpPtr_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::getFunctionArgStringVec
 // Purpose       : 
 // Special Notes :
@@ -675,6 +688,20 @@ bool Expression::getSpecialsDependent()
     (newExpPtr_->getGminDependent());
 
   return retval;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getScheduleDependent
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2022
+//-----------------------------------------------------------------------------
+bool Expression::getScheduleDependent() const
+{
+  newExpPtr_->setupVariousAstArrays();
+  return newExpPtr_->getScheduleDependent();
 }
 
 //-----------------------------------------------------------------------------

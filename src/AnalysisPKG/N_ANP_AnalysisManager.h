@@ -41,6 +41,7 @@
 #include <list>
 #include <set>
 #include <vector>
+#include <iosfwd>
 
 // trilinos includes
 #include <Teuchos_RCP.hpp>
@@ -279,6 +280,9 @@ public:
 
   // Sets the NOISE Analysis options.
   bool setNOISEAnalysisParams(const Util::OptionBlock & OB);
+  
+  // Set diagnostic mode
+  bool setDiagnosticMode(const Util::OptionBlock & OB);
 
   // sets a time at which to pause the simulation
   void setPauseTime(double pauseTime, double initial_time);
@@ -361,6 +365,11 @@ public:
   bool getSensFlag() const
   {
     return sensFlag_;
+  }
+  
+  bool getDiagnosticModeFlag() const 
+  {
+    return diagnosticMode_;
   }
 
   void addAnalysis(Util::Factory<AnalysisBase, void> *factory)
@@ -538,12 +547,17 @@ public:
   {
     return expressionGroup_;
   }
+  
+  std::string getNodeNameFromIndex( const int varIndex ) const;
+  char getNodeTypeFromIndex( const int varIndex ) const;
 
 protected:
   AnalysisBase * getAnalysisObjectPtr() 
   {
     return primaryAnalysisObject_;
   }
+  
+  void OutputDiagnosticInfo(const AnalysisEvent & analysis_event);
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object
@@ -573,6 +587,11 @@ private:
   bool                  sensFlag_;
   bool                  sweepSourceResetFlag_;
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
+  bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
+  bool                  diagnosticModeExtrema_;
+  double                diagnosticExtremaLimit_;
+  std::string           diagnosticFileName_;
+  std::ofstream*        diagnosticOutputStreamPtr_;
 
   Util::Timer           xyceTranTimerPtr_;              /// Xyce timing utility for timing the transient simulation CPU time.
   Util::Timer *         elapsedTimerPtr_;               /// Xyce timing utility for timing elapsed run time

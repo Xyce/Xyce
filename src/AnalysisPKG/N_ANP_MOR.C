@@ -218,25 +218,39 @@ MOR::setMOROptions(
 {
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
-    bool value_set =
-      Util::setValue(*it, "METHOD", morMethod_)
-      || Util::setValue(*it, "SAVEREDSYS", morSaveRedSys_)
-      || Util::setValue(*it, "COMPORIGTF", morCompOrigTF_)
-      || Util::setValue(*it, "COMPREDTF", morCompRedTF_)
-      || Util::setValue(*it, "COMPTYPE", morCompType_)
-      || Util::setValue(*it, "COMPNP", morCompNP_)
-      || Util::setValue(*it, "COMPFSTART", morCompFStart_)
-      || Util::setValue(*it, "AUTOSIZE", morAutoSize_)
-      || Util::setValue(*it, "MAXSIZE", morMaxSize_)
-      || Util::setValue(*it, "MAXFREQ", morMaxFreq_)
-      || Util::setValue(*it, "SIZE", ROMsize_)
-      || Util::setValue(*it, "COMPFSTOP", morCompFStop_)
-      || Util::setValue(*it, "EXPPOINT", morExpPoint_)
-      || Util::setValue(*it, "SCALETYPE", morScaleType_)
-      || Util::setValue(*it, "SCALEFACTOR", morScaleFactor_)
-      || Util::setValue(*it, "SCALEFACTOR1", morScaleFactor1_)
-      || Util::setValue(*it, "SPARSIFICATIONTYPE", morSparsificationType_)
-      || Util::setValue(*it, "SUBCKTS", subcircuitNames_);
+    bool value_set = false;
+
+    if (it->uTag() == "METHOD")
+    {
+      morMethod_ = it->stringValue();
+      value_set = true;
+    }
+    else if (it->uTag() == "COMPTYPE")
+    {
+      morCompType_ = it->stringValue();
+      value_set = true;
+    }
+
+    if (!value_set)
+    {
+      value_set =
+        Util::setValue(*it, "SAVEREDSYS", morSaveRedSys_)
+        || Util::setValue(*it, "COMPORIGTF", morCompOrigTF_)
+        || Util::setValue(*it, "COMPREDTF", morCompRedTF_)
+        || Util::setValue(*it, "COMPNP", morCompNP_)
+        || Util::setValue(*it, "COMPFSTART", morCompFStart_)
+        || Util::setValue(*it, "AUTOSIZE", morAutoSize_)
+        || Util::setValue(*it, "MAXSIZE", morMaxSize_)
+        || Util::setValue(*it, "MAXFREQ", morMaxFreq_)
+        || Util::setValue(*it, "SIZE", ROMsize_)
+        || Util::setValue(*it, "COMPFSTOP", morCompFStop_)
+        || Util::setValue(*it, "EXPPOINT", morExpPoint_)
+        || Util::setValue(*it, "SCALETYPE", morScaleType_)
+        || Util::setValue(*it, "SCALEFACTOR", morScaleFactor_)
+        || Util::setValue(*it, "SCALEFACTOR1", morScaleFactor1_)
+        || Util::setValue(*it, "SPARSIFICATIONTYPE", morSparsificationType_)
+        || Util::setValue(*it, "SUBCKTS", subcircuitNames_);
+    }
 
     if (value_set)
       ;

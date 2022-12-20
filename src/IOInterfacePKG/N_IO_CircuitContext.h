@@ -380,17 +380,27 @@ public:
     return retval;
   }
 
-  double getContextMultiplierValue() 
+  Util::Param getContextMultiplierParam () 
   {
-    double retval=1.0;
-    if (currentContextPtr_) { retval = currentContextPtr_->getMultiplierValue(); }
-    return retval;
+    Util::Param parameter("","");
+    if (currentContextPtr_) 
+    { 
+      parameter = currentContextPtr_->getMultiplierParam (); 
+    }
+    else
+    {  // will this ever get called?  Put in error trap as a test.
+      parameter.setTag( std::string("M") ); // is this sufficient or should it be fully resolved?  check this.
+      parameter.setVal(1.0);
+      Report::DevelFatal()<< "Mistake in function getContextMultiplierParam" ;
+    }
+    return parameter;
   }
 
   void setMultiplierSet(bool tmp)  { multiplierSet_ = tmp; }
   bool getMultiplierSet() { return multiplierSet_; }
-  void setMultiplierValue(double val) { multiplierValue_ = val; }
-  double getMultiplierValue() { return multiplierValue_; }
+
+  void setMultiplierParam (Util::Param & param) { multiplierParameter_ = param; }
+  Util::Param getMultiplierParam () { return multiplierParameter_; }
 
   // Traverse the CircuitContext table and remove all subcircuit instances except for
   // the ones with the names provided.
@@ -470,7 +480,7 @@ private:
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 
   bool multiplierSet_;
-  double multiplierValue_;
+  Util::Param multiplierParameter_;
 };
 
 //----------------------------------------------------------------------------

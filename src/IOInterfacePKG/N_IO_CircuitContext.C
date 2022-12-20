@@ -125,7 +125,7 @@ CircuitContext::CircuitContext(
     resolvedParams_(),
     resolvedGlobalParams_(),
     multiplierSet_(false),
-    multiplierValue_(1.0)
+    multiplierParameter_("","")
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  exprGroup =  Teuchos::rcp(new Xyce::Util::baseExpressionGroup ());
   expressionGroup_ = exprGroup;
@@ -134,6 +134,12 @@ CircuitContext::CircuitContext(
   {
     currentContextPtr_ = this;
   }
+
+  // handle special multiplier parameter
+  std::string expressionString("1.0");
+  Util::Expression expression(expressionGroup_, expressionString);
+  multiplierParameter_.setTag(std::string("M"));
+  multiplierParameter_.setVal(expression);
 }
 
 //----------------------------------------------------------------------------
@@ -1048,8 +1054,13 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   {
     // Add subcircuitInstanceParameters (from the "X" instance line) to resolvedParams.  
     // If any of these parameters are already in the UNresolved container (meaning they were previously 
-    // set via .param or .subckt PARAMS:), then ALWAYS override.  No exceptions.  If they are not 
-    // already in the unresolved container, then just insert in resolved.  
+    // set via .param or .subckt PARAMS:), then override.  
+    //
+    // The exception to this is the subcircuit multiplier parameter, M, which is 
+    // special and needs extra handling.   Treat M in this "special" way if the 
+    // implicitMultiplierFlag is true, which is the default behavior.
+    //
+    // If a parameter is not already in the unresolved container, then insert in resolved.  
     //
     // Subcircuit instance parameters do not have to be prototyped on the .subckt line.
 
@@ -1060,15 +1071,14 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     {
       Util::Param parameter = (static_cast<const Util::Param &>(subcircuitInstanceParams[ii]));
 
-      // The "M" parameter is special.  Exclude from resolveParams, and set it aside.
+      // The "M" parameter is special.  Exclude from resolvedParams, and set it aside.
       if(parsingMgr_.getImplicitSubcktMultiplier()) 
       {
         ExtendedString tmp = parameter.tag(); tmp.toUpper();
         if (tmp == "M") 
         { 
           currentContextPtr_->setMultiplierSet(true); 
-          double value = parameter.getImmutableValue<double>();
-          currentContextPtr_->setMultiplierValue(value);
+          currentContextPtr_->setMultiplierParam (parameter); // Q?  should this param be put into "resolved" ?  
           continue;
         }
       }

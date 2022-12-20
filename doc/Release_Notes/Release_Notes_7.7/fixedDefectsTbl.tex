@@ -1,0 +1,94 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy's National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2022 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy's National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2022 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  The Xyce team has multiple issue
+     trackers, and the table below indicates fixed issues by
+     indentifying both the tracker and the issue number.  Further,
+     some issues are reported by open source users on GitHub and these
+     issues may be tracked using multiple issue numbers.} \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
+     SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endhead
+
+  \textbf{Xyce Project Backlog/157}: Xyce diode does not support
+  sidewall effects & The Xyce diode now supports an instance parameter
+  for the junction perimeter (\texttt{PJ}) and a number of model
+  parameters
+  (\texttt{JSW}, \texttt{NS}, \texttt{CJSW}, \texttt{PHP}, \texttt{MJSW}, \texttt{FCS})
+  supporting the effects.  Default values are such that the feature is
+  disabled.  This brings the Xyce level 1 and 2 diodes into agreement
+  with other simulators when these parameters are
+  specified.  \\ \hline
+  
+  \textbf{Xyce Project Backlog/492}: Subcircuit multiliplier
+  parameters (\texttt{M}) need to be handled as an AST (enabling .STEP
+  to be applied to subcircuit \texttt{M}) & This task was related to
+  backlog isssue 494.  In the initial implementation of subcircuit
+  multipliers, they were constrained to have fixed values.  However,
+  in some cases a user may wish to change multiplier values during a
+  simulation.  To enable this feature, the subcircuit multiplier
+  parameters had to be part of the same abstract syntax tree (AST) as
+  other parameters from the netlist.  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Backlog/494}: Remove parser error trap for
+  using \texttt{.global\_param} on the implicit subcircuit multiplier
+  parameter (M) & The subcircuit multiplier parameter, \texttt{M}, is
+  treated as a special case in the \Xyce{} parser.  Due to its special
+  treatment, the use case of setting this parameter via a mutable
+  parameter (i.e.  \texttt{.global\_param} ) did not work correctly.
+  This has been fixed. This issue did not apply to device multipliers,
+  just to subcircuit multipliers.  \\ \hline
+
+  \textbf{Xyce Project Bugs/36}: Xyce/ADMS aborts when an analog
+  function calls \$strobe, \$bound\_step, or other ``callfunction'' &
+  Due to the way Xyce/ADMS implements \$strobe, \$bound\_step, and
+  other statements that look like function calls and how it implements
+  analog functions themselves, these ``callfunctions'' cannot be used
+  inside analog functions.  Until this release, trying to
+  call \$strobe from inside an analog function would cause ADMS to
+  abort with a fatal error about a missing template.  Now it will emit
+  a warning that the usage is not implemented, but will simply ignore
+  the callfunction and generate otherwise functional code. \\ \hline
+
+  \textbf{Xyce Project Bugs/35}: Xyce/ADMS does not allow ceil and
+  floor in analog functions & A mistake in the code for generating
+  analog function derivatives caused any analog function that used
+  ceil or floor to abort processing of an entire Verilog-A model.
+  This mistake has been fixed and now ceil and floor can be used
+  inside analog functions \\ \hline
+
+  \textbf{Xyce Project Bugs/27}: Transient adjoint sensitivity doesn't
+  correctly handle scaling & Sensitivity analysis in \Xyce{} can
+  optionally scale sensitivity values by \texttt{p/100},
+  where \texttt{p} is the original value of the sensitivity parameter.
+  This particular capability was never implemented for transient
+  adjoints, which was an oversight.  This has been fixed.  \\ \hline
+
+\end{longtable}
+}

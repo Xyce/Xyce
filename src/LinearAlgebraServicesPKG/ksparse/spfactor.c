@@ -399,6 +399,7 @@ FILE *fmat;
     Matrix->Error = spOKAY;
     Matrix->Format = FORMAT_SPARSE;
     Matrix->Updated = 0;
+    Matrix->NeedsScale = YES; 
     Size = Matrix->Size;
 
 #ifdef WRITE_MAT

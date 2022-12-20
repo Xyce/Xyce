@@ -110,10 +110,6 @@ class OptionBlock
       return params_.end();
     }
 
-    bool getExpressionsAllowed() const {
-      return expressionsAllowed_ == ALLOW_EXPRESSIONS;
-    }
-
     ParamList::const_iterator begin() const
     {
       return params_.begin();

@@ -30,6 +30,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMShicumL2va.C \
   N_DEV_ADMShic0_full.C \
   N_DEV_ADMSl_utsoi.C \
+  N_DEV_ADMSekv_va.C \
   N_DEV_RegisterADMSDevices.h \
   N_DEV_ADMSDIODE_CMC.h \
   N_DEV_ADMSHBT_X.h \
@@ -52,7 +53,8 @@ libADMS_la_SOURCES = \
   N_DEV_ADMSmvsg_cmc.h \
   N_DEV_ADMShicumL2va.h \
   N_DEV_ADMShic0_full.h \
-  N_DEV_ADMSl_utsoi.h
+  N_DEV_ADMSl_utsoi.h \
+  N_DEV_ADMSekv_va.h
 
 
 

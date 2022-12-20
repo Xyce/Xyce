@@ -42,21 +42,35 @@
 // Random number sampled from normal distribution with
 // mean μ and standard deviation (α)/n
 // This uses absolute variation
-//
-// ERK.  Need to make the "n" parameter optional!  
+// The "n" argument, AKA num_sigmas is optional
+// The 4th argument, "multiplier" is not supported 
 template <typename ScalarT>
 class agaussOp : public astNode<ScalarT>
 {
   public:
-    agaussOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst, Teuchos::RCP<astNode<ScalarT> > &nAst):
-      astNode<ScalarT>(xAst,yAst),
-      nAst_(nAst),
-      mu_(xAst),
-      alpha_(yAst),
-      n_(nAst_),
+    agaussOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(args[0],args[1]),
+      mu_(args[0]),
+      alpha_(args[1]),
       value_(0.0),
       setValueCalledBefore_(false)
     {
+      if (args.size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (agauss) needs at least 2 arguments.")); yyerror(errStr);
+      }
+
+      if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 3) 
+      { 
+        multAst_ = args[3]; 
+        std::vector<std::string> errStr(1,std::string("AST node (agauss) accepts at most 3 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
     };
@@ -101,6 +115,7 @@ class agaussOp : public astNode<ScalarT>
     ScalarT getMu ()    { return (this->leftAst_->val()); };
     ScalarT getAlpha () { return (this->rightAst_->val()); };
     ScalarT getN ()     { return nAst_->val() ; };
+    ScalarT getMult ()  { return multAst_->val() ; };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
 
@@ -149,10 +164,10 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
+    Teuchos::RCP<astNode<ScalarT> > multAst_;
 
     Teuchos::RCP<astNode<ScalarT> > & mu_;
     Teuchos::RCP<astNode<ScalarT> > & alpha_;
-    Teuchos::RCP<astNode<ScalarT> > & n_;
 
     ScalarT value_;
     bool setValueCalledBefore_;
@@ -162,21 +177,35 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 // Random number sampled from normal distribution with
 // mean μ and standard deviation (α ∗ μ )/n
 // This uses relative variation
-//
-// ERK.  Need to make the "n" parameter optional!  
+// The "n" argument, AKA num_sigmas is optional
+// The 4th argument, "multiplier" is not supported 
 template <typename ScalarT>
 class gaussOp : public astNode<ScalarT>
 {
   public:
-    gaussOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst, Teuchos::RCP<astNode<ScalarT> > &nAst):
-      astNode<ScalarT>(xAst,yAst),
-      nAst_(nAst),
-      mu_(xAst),
-      alpha_(yAst),
-      n_(nAst_),
+    gaussOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(args[0],args[1]),
+      mu_(args[0]),
+      alpha_(args[1]),
       value_(0.0),
       setValueCalledBefore_(false)
     {
+      if (args.size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (gauss) needs at least 2 arguments.")); yyerror(errStr);
+      }
+
+      if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      if (args.size() > 3) 
+      { 
+        multAst_ = args[3]; 
+        std::vector<std::string> errStr(1,std::string("AST node (gauss) accepts at most 3 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
     };
@@ -221,6 +250,7 @@ class gaussOp : public astNode<ScalarT>
     ScalarT getMu ()    { return (this->leftAst_->val()); };
     ScalarT getAlpha () { return (this->rightAst_->val()); };
     ScalarT getN ()     { return nAst_->val() ; };
+    ScalarT getMult ()  { return multAst_->val() ; };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
 
@@ -269,10 +299,10 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > nAst_;
+    Teuchos::RCP<astNode<ScalarT> > multAst_;
 
     Teuchos::RCP<astNode<ScalarT> > & mu_;
     Teuchos::RCP<astNode<ScalarT> > & alpha_;
-    Teuchos::RCP<astNode<ScalarT> > & n_;
 
     ScalarT value_;
     bool setValueCalledBefore_;
@@ -282,20 +312,34 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α)/n
 // This uses absolute variation
-//
-// ERK.  Need to make the "n" parameter optional!    (currently excluded)
+// The 3rd argument, "multiplier" is not supported 
 template <typename ScalarT>
 class aunifOp : public astNode<ScalarT>
 {
   public:
-    aunifOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
-      astNode<ScalarT>(xAst,yAst),
-      mu_(xAst),
-      alpha_(yAst),
+    aunifOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(args[0],args[1]),
+      mu_(args[0]),
+      alpha_(args[1]),
       value_(0.0),
       setValueCalledBefore_(false)
     {
-      // should check to make sure that mu, alpha and n are simple constant numbers
+      if (args.size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (aunif) needs at least 2 argument.")); yyerror(errStr);
+      }
+
+      if (args.size() > 2) 
+      { 
+        multAst_ = args[2]; 
+        std::vector<std::string> errStr(1,std::string("AST node (aunif) accepts at most 2 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+
+      // should check to make sure that mu, alpha are simple constant numbers
       value_ = mu_->val();
     };
 
@@ -337,6 +381,7 @@ class aunifOp : public astNode<ScalarT>
 
     ScalarT getMu ()    { return (this->leftAst_->val()); };
     ScalarT getAlpha () { return (this->rightAst_->val()); };
+    ScalarT getMult ()  { return multAst_->val() ; };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
     ScalarT getValue() { return value_; }
@@ -383,9 +428,10 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     }
 
   private:
+    Teuchos::RCP<astNode<ScalarT> > multAst_;
+
     Teuchos::RCP<astNode<ScalarT> > & mu_;
     Teuchos::RCP<astNode<ScalarT> > & alpha_;
-    //Teuchos::RCP<astNode<ScalarT> > & n_;
 
     ScalarT value_;
     bool setValueCalledBefore_;
@@ -395,19 +441,32 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α ∗ μ )/n
 // This uses relative variation
-//
-// ERK.  Need to make the "n" parameter optional!    (currently excluded)
 template <typename ScalarT>
 class unifOp : public astNode<ScalarT>
 {
   public:
-    unifOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
-      astNode<ScalarT>(xAst,yAst),
-      mu_(xAst),
-      alpha_(yAst),
+    unifOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      astNode<ScalarT>(args[0],args[1]),
+      mu_(args[0]),
+      alpha_(args[1]),
       value_(0.0),
       setValueCalledBefore_(false)
     {
+      if (args.size() < 2)
+      {
+        std::vector<std::string> errStr(1,std::string("AST node (unif) needs at least 2 argument.")); yyerror(errStr);
+      }
+
+      if (args.size() > 2) 
+      { 
+        multAst_ = args[2]; 
+        std::vector<std::string> errStr(1,std::string("AST node (unif) accepts at most 2 arguments.")); yyerror(errStr);
+      } 
+      else 
+      { 
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+
       // should check to make sure that mu, alpha and n are simple constant numbers
       value_ = mu_->val();
     };
@@ -496,9 +555,10 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     }
 
   private:
+    Teuchos::RCP<astNode<ScalarT> > multAst_;
+
     Teuchos::RCP<astNode<ScalarT> > & mu_;
     Teuchos::RCP<astNode<ScalarT> > & alpha_;
-    //Teuchos::RCP<astNode<ScalarT> > & n_;
 
     ScalarT value_;
     bool setValueCalledBefore_;
@@ -559,9 +619,6 @@ class randOp : public astNode<ScalarT>
 //-------------------------------------------------------------------------------
 // Hspice version of limit
 //
-// The old expression library didn't support that, but returned limit(x,y)=x+y.
-// That was incorrect for the non sampling case.
-//
 // This is specified in an expression as: LIMIT(nominal_val, abs_variation)
 //
 // If running sampling, it will return either 
@@ -574,6 +631,11 @@ class randOp : public astNode<ScalarT>
 //
 // If not running sampling, it returns the nominal value.
 //
+// In Hspice, limit has an optional 3rd argument, which specifies a 
+// multiplier.  This multiplier serves the same function as it does in 
+// every other random operator.  Currently, Xyce doesn't support it.
+// Also, in Xyce a 3-argument limit will invoke the Pspice version of 
+// limit. (see limitOp in the ast.h file).
 template <typename ScalarT>
 class twoArgLimitOp : public astNode<ScalarT>
 {

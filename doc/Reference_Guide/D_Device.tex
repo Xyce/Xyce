@@ -37,6 +37,11 @@ The anode and the cathode.
 Scales IS, ISR, IKF, RS, CJO, and IBV, and has a default value of 1.
 IBV and BV are both specified as positive values.
 
+\param {PJ value}
+
+Used in computing the junction sidewall effects, and has a default
+value of zero (no sidewall effects).
+
 \end{Parameters}
 
 \comments
@@ -220,6 +225,43 @@ capacitance) is
 C_{dif} = \mathbf{TT}G_d = \mathbf{TT}\frac{dI_D}{dV_{di}}
 \]
 where $G_d$ is the junction conductance.
+
+\subparagraph{Sidewall currents and capacitances}
+When the instance parameter \texttt{PJ} (perimeter scaling value) is
+specified, the diode currents become the sum of the currents above
+(the ``bottom'' of the junction) and those of the periphery (sidewall).
+
+In normal forward and reverse bias regions, the sidewall currents are given by:
+$$
+I_{D,SW} = \left\{ \begin{array}{ll}
+\mathbf{ISatSW}\cdot\left[\exp \left(\frac{V_{di}}{\mathbf{NS}V_{th}}\right) - 1
+\right], & V_{di} > -3.0\cdot\mathbf{NS}V_{th} \\
+-\mathbf{ISatSW}\cdot\left[1.0 + \left(\frac{3.0\cdot\mathbf{NS}V_{th}}{V_{di}\cdot
+e}\right)^3\right], & V_{di} < -3.0\cdot\mathbf{NS}V_{th}
+\end{array}
+\right.
+$$
+
+where $\mathbf{ISatSW}$ is the temperature-adjusted value of JSW multiplied
+by the perimeter $\mathbf{PJ}$.
+
+When the breakdown voltage \texttt{BV} has been given and the diode voltage is below $-\mathbf{BV}$, the sidewall current is:
+\[
+I_{D,sw} = -\mathbf{ISatSW}\cdot\exp \left(-\frac{\mathbf{BVeff} + V_{di}}{\mathbf{NS}V_{th}}
+\right), \hspace*{0.5in} V_{di} \leq \mathbf{BVeff},
+\]
+
+The sidewall capacitances are computed as:
+\[
+C_{d,sw} = \left\{ \begin{array}{ll}
+\mathbf{CJSW}\cdot\mathbf{PJ} \left(1-\frac{V_{di}}{\mathbf{PHP}} \right)^{-\mathbf{M}}, &
+V_{di} \leq \mathbf{FCS \cdot PHP} \\
+\frac{\mathbf{CJSW}\cdot\mathbf{PJ}}{\mathbf{F2SW}}\left(\mathbf{F3SW}+\mathbf{MJSW}\frac{V_{di}}{\mathbf{PHP}}\right),
+& V_{di} > \mathbf{FCS \cdot PHP}
+\end{array}
+\right.
+\]
+
 
 \subparagraph{Temperature Effects (Level=1)}
 The diode model contains explicit temperature dependencies in the ideal diode

@@ -316,14 +316,23 @@ N_MPDE_Manager::setMPDEOptions(
   //MOST OF THIS SHOULD BE PUSHED TO INITCOND AND PROBLEM CLASSES
   for (Xyce::Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
-    bool value_set =
-      Xyce::Util::setValue(*it, "N2", size_)
+    bool value_set = false;
+
+    if (it->uTag() == "OSCOUT")
+    {
+      oscOut_ = it->stringValue();
+      oscOutGiven_ = true;
+      value_set = true;
+    }
+
+    if (!value_set)
+    {
+      value_set = Xyce::Util::setValue(*it, "N2", size_)
       || Xyce::Util::setValue(*it, "AUTON2", tranRunForSize_)
       || Xyce::Util::setValue(*it, "AUTON2MAX", maxCalcSize_, maxCalcSizeGiven_)
       || Xyce::Util::setValue(*it, "NONLTESTEPS", nonLteSteps_, nonLteStepsGiven_)
       || Xyce::Util::setValue(*it, "STARTUPPERIODS", startUpPeriods_, startUpPeriodsGiven_)
       || Xyce::Util::setValue(*it, "SAVEICDATA", saveIcData_)
-      || Xyce::Util::setValue(*it, "OSCOUT", oscOut_, oscOutGiven_)
       || Xyce::Util::setValue(*it, "PHASE", warpPhase_, warpPhaseGiven_)
       || Xyce::Util::setValue(*it, "PHASECOEFF", warpPhaseCoeff_, warpPhaseCoeffGiven_)
       || Xyce::Util::setValue(*it, "TEST", test_)
@@ -340,6 +349,7 @@ N_MPDE_Manager::setMPDEOptions(
       || Xyce::Util::setValue(*it, "OSCKICKOFF", warpMPDEICFlag_)
       || Xyce::Util::setValue(*it, "DEBUGLEVEL", Xyce::setMPDEDebugLevel)
       || Xyce::Util::setValue(*it, "OSCSRC", srcVec_, fastSrcGiven_);
+    }
 
     if (value_set)
       ;

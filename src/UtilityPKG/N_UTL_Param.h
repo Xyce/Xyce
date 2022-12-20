@@ -603,9 +603,18 @@ typedef unordered_map<std::string, ParamMap, HashNoCase, EqualNoCase> OptionsMet
 bool isVectorParam(const Xyce::Util::Param &param, std::string &name, int &index);
 
 template <class T>
-bool setValue(const Param &param, const std::string &tag, T &t) {
-  if (equal_nocase(tag, param.tag())) {
-    t = param.getImmutableValue<T>();
+bool setValue(const Param &param, const std::string &tag, T &t) 
+{
+  if (equal_nocase(tag, param.tag())) 
+  {
+    if (param.hasExpressionValue())
+    {
+      t = param.getMutableValue<double>();
+    }
+    else
+    { // if not an expression, do things the old-fashioned way
+      t = param.getImmutableValue<double>();
+    }
     return true;
   }
 
@@ -613,10 +622,20 @@ bool setValue(const Param &param, const std::string &tag, T &t) {
 }
 
 template <class T>
-bool setValue(const Param &param, const std::string &tag, T &t, bool &given) {
-  if (equal_nocase(tag, param.tag())) {
-    t = param.getImmutableValue<T>();
-    given = true;
+bool setValue(const Param &param, const std::string &tag, T &t, bool &given) 
+{
+  if (equal_nocase(tag, param.tag())) 
+  {
+    if (param.hasExpressionValue())
+    {
+      t = param.getMutableValue<double>();
+      given = true;
+    }
+    else
+    { // if not an expression, do things the old-fashioned way
+      t = param.getImmutableValue<double>();
+      given = true;
+    }
     return true;
   }
 

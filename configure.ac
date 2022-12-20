@@ -533,10 +533,16 @@ fi
 
 dnl If the user enabled AMD, let's try to add it here:
 if test "x$AMD" = "xyes"; then
-  # Newer suitesparse sub-libraries may depend on suitesparseconfig.  If we
-  # find it, add it.
-  AC_CHECK_LIB(suitesparseconfig,SuiteSparse_time,[],[])
-  AC_CHECK_LIB(amd,amd_valid,[],[AC_MSG_ERROR([FATAL: AMD  requested but AMD library not found or does not contain amd_valid])])
+  # try to find amd without suitesparseconfig.  Older versions of amd
+  # don't require this.  If it works without suitesparseconfig, don't bother
+  # looking for suitesparseconfig
+  AC_CHECK_LIB(amd,amd_valid,[],
+    # but that might not work, because we've got a new libamd.
+    # Newer suitesparse sub-libraries may depend on suitesparseconfig.  If we
+    # find it, add it, then try to link libamd again.
+           [AC_CHECK_LIB(suitesparseconfig,SuiteSparse_time,[],[])
+            AC_CHECK_LIB(amd,amd_valid,[],[AC_MSG_ERROR([FATAL: AMD  requested but AMD library not found or does not contain amd_valid])])
+            ])
 fi
 
 # Make sure we have a version of Trilinos newer than 11.2.3

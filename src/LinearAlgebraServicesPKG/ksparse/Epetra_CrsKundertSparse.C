@@ -154,34 +154,34 @@ int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor, const bool Transpos
     solution = solutionptrs[0];
     rhs--; solution--; // adjust for 1-based indexing
 
-    if (FirstSolve_) {
-      orderStatus = spOrderAndFactor (Matrix_, rhs, RelThreshold_, AbsThreshold_, DiagPivoting_, FirstSolve_);
-      solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
-      FirstSolve_ = 0;
-    }
-    else if (ComputeFactor && !Transpose) {
-      *X = *B; // Copy B to X
-      solveStatus = spFactorAndSolve (Matrix_, solution);
-    }
-    else if (ComputeFactor && Transpose) {
-      factorStatus = spFactor (Matrix_);
-      solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
-    }
-    else if (Transpose)
+    if (ComputeFactor)
+      orderStatus = spOrderAndFactor (Matrix_, NULL, RelThreshold_, AbsThreshold_, DiagPivoting_, FirstSolve_);
+
+    if (!orderStatus)
     {
-      solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
+      if (Transpose)
+        solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
+      else
+        solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
     }
-    else {
-      solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
+    else
+    {
+      solveStatus = orderStatus;
     }
-  
+
+    if (FirstSolve_)
+      FirstSolve_ = 0;
+
     // Check if there are more RHS to solve
     if (B->NumVectors()>1) {
       for (int i=1; i<B->NumVectors();i++) {
         rhs = rhsptrs[i];
         solution = solutionptrs[i];
         rhs--; solution--; // adjust for 1-based indexing
-        solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
+        if (Transpose)
+          solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
+        else
+          solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
       }
     }
   }

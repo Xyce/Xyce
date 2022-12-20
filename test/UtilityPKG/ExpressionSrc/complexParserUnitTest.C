@@ -1535,6 +1535,38 @@ TEST ( Complex_Parser_SourceFunc_Test, sin)
 }
 
 //-------------------------------------------------------------------------------
+TEST ( Complex_Parser_SourceFunc_Test, sin_3arg)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("spice_sin(1.65,1.65,10000)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  int numpoints=100;
+  std::complex<double> v0(1.65), va(1.65); 
+  double freq(10000), td(0.0), theta(0.0), phase(0.0),time(0.0);
+  double dt=(1.0/freq)*(1.0/static_cast<double>(numpoints));
+  std::vector<std::complex<double>> refRes(numpoints), result(numpoints);
+  std::vector<std::complex<double>> copyResult(numpoints), assignResult(numpoints);
+
+  for (int ii=0;ii<numpoints;ii++,time+=dt)
+  {
+    timeDepGroup->setTime(time); 
+    testExpression.evaluateFunction(result[ii]);
+    copyExpression.evaluateFunction(copyResult[ii]);
+    assignExpression.evaluateFunction(assignResult[ii]);
+    refRes[ii] = v0 + va * std::sin(2.0*M_PI*((freq)*time + (phase)/360)) * std::exp( -(time*(theta)));
+  }
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( copyResult, refRes);
+  EXPECT_EQ( assignResult, refRes);
+}
+
+//-------------------------------------------------------------------------------
 // same as sin test, but thru a .func
 //-------------------------------------------------------------------------------
 TEST ( Complex_Parser_SourceFunc_Test, sin_func)
@@ -12087,6 +12119,36 @@ TEST ( Complex_Parser_Random, agauss1)
 }
 
 //-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss2)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); 
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss3)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, agauss1_func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -12109,9 +12171,36 @@ TEST ( Complex_Parser_Random, agauss1_func)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss_func)
+  OUTPUT_MACRO(Complex_Parser_Random, agauss1_func)
 }
 
+//-------------------------------------------------------------------------------
+TEST ( Complex_Parser_Random, agauss2_func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // .func F1(A) {A*agauss(1.0,0.1,1.0)}
+  std::string f1Name;
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression;
+  std::string lhs=std::string("F1(A)");
+  std::string rhs=std::string("A*agauss(1.0,0.1)");
+  createFunc(lhs,rhs,testGroup, f1Name,f1Expression);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> result1(0.0);
+  std::complex<double> result2(0.0);
+  testExpression.evaluateFunction(result1);
+  testExpression.evaluateFunction(result2);
+
+  ASSERT_EQ( result1, result2); 
+
+  OUTPUT_MACRO(Complex_Parser_Random, agauss2_func)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, gauss0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -12124,6 +12213,19 @@ TEST ( Complex_Parser_Random, gauss0)
   OUTPUT_MACRO(Complex_Parser_Random, gauss0)
 }
 
+TEST ( Complex_Parser_Random, gauss1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  ASSERT_EQ( result, 1.0);
+
+  OUTPUT_MACRO(Complex_Parser_Random, gauss1)
+}
+
+//-------------------------------------------------------------------------------
 TEST ( Complex_Parser_Random, aunif0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );

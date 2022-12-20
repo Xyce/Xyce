@@ -142,9 +142,9 @@ bool KSparseSolver::setOptions( const Util::OptionBlock & OB )
   options_->addParam( Util::Param( "TR_partition", 0 ) );
   options_->addParam( Util::Param( "TR_amd", 0 ) );
 #endif
-
+/*
   if( Teuchos::is_null(transform_) ) transform_ = TransformTool()( *options_ );
-
+*/
   return true;
 }
 
@@ -166,7 +166,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
   // The Epetra_LinearProblem, prob, is the linear system being solved.
   // It will point to either the original linear system or transformed system.
   Epetra_LinearProblem * prob = problem_;
-
+/*
   if( !Teuchos::is_null(transform_) )
   {
     if( !tProblem_ )
@@ -174,7 +174,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
     prob = tProblem_;
     transform_->fwd();
   }
-
+*/
   // Output the linear system to a Matrix Market file every outputLS_ calls if outputLS_ > 0
   static int failure_number = 0, file_number = 1, base_file_number = 1;
   if (outputLS_) {
@@ -183,7 +183,6 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
         Xyce::Linear::writeToFile( *prob, "Transformed", file_number, (file_number == 1) );
       }
     } 
-    file_number++;
   }
   if (outputBaseLS_) {
     if (!(base_file_number % outputBaseLS_)) {
@@ -191,9 +190,10 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
         Xyce::Linear::writeToFile( *problem_, "Base", base_file_number, (base_file_number == 1) );
       }
     } 
-    base_file_number++;
   }
- 
+
+  //std::cout << "transpose = " << transpose << ", reuse_factors = " << reuse_factors << std::endl;
+
   // Set the traceback mode in Epetra so it prints out warnings
   if (DEBUG_LINEAR)
     dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix())->SetTracebackMode( 2 );
@@ -206,7 +206,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
   // Create solver if one doesn't exist.
   if (solver_ == Teuchos::null)
     solver_ = Teuchos::rcp( new Epetra_CrsKundertSparse( prob ) );
-
+ 
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
 
@@ -271,21 +271,48 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
 
   if (DEBUG_LINEAR)
   {
-    double resNorm = 0.0, bNorm = 0.0;
+    int numrhs = prob->GetLHS()->NumVectors();
+    std::vector<double> resNorm(numrhs,0.0), bNorm(numrhs,0.0);
     Epetra_MultiVector res( prob->GetLHS()->Map(), prob->GetLHS()->NumVectors() );
     bool oldTrans = prob->GetOperator()->UseTranspose();
     prob->GetOperator()->SetUseTranspose( transpose );
     prob->GetOperator()->Apply( *(prob->GetLHS()), res );
     prob->GetOperator()->SetUseTranspose( oldTrans );
     res.Update( 1.0, *(prob->GetRHS()), -1.0 );
-    res.Norm2( &resNorm );
-    prob->GetRHS()->Norm2( &bNorm );
-    if (bNorm > 0.0)
-      Xyce::lout() << "Linear System Residual (KSparse) : " << (resNorm/bNorm) << std::endl;
+    res.Norm2( &resNorm[0] );
+    prob->GetRHS()->Norm2( &bNorm[0] );
+    Xyce::lout() << "Linear System Residual (KSparse): " << std::endl;
+    for (int i=0; i<numrhs; i++)
+    {
+      if (bNorm[i] > 0.0)
+        std::cout << "  Problem " << i << " : " << (resNorm[i]/bNorm[i]) << std::endl;
+      else
+        std::cout << "  Problem " << i << " : " << resNorm[i] << std::endl;
+    }
+  }
+/*
+  if( !Teuchos::is_null(transform_) ) transform_->rvs();
+*/ 
+
+  // Output computed solution vectors, if requested.
+  if (outputLS_) {
+    if (!(file_number % outputLS_)) {
+      Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
+      char file_name[40];
+      sprintf( file_name, "Transformed_Soln%d.mm", file_number );
+      las_prob->getLHS()->writeToFile( file_name, false, true );
+    }
+    file_number++;
+  }
+  if (outputBaseLS_) {
+    if (!(base_file_number % outputBaseLS_)) {
+      char file_name[40];
+      sprintf( file_name, "Base_Soln%d.mm", base_file_number );
+      lasProblem_.getLHS()->writeToFile( file_name, false, true );
+    }
+    base_file_number++;
   }
 
-  if( !Teuchos::is_null(transform_) ) transform_->rvs();
-  
   // Update the total solution time
   solutionTime_ = timer_->elapsedTime();
 

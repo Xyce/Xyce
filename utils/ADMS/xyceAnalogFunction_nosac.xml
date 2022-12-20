@@ -71,9 +71,15 @@ respect to all input variables of the function.
 This template does little more than farm out the real work to
 templates specific to the datatype of the node passed in.
 
-See "expression", "variable", "mapply_unary", etc. for specifics
-of what's getting done at lower level.  Each level returns the
-value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens.
+See "xyceAnalogFunctions:expression", "xyceAnalogFunctions:variable",
+"xyceAnalogFunctions:wmapply_unary", etc. for specifics of what's
+getting done at lower level.  Each level returns the value of the
+expression and its derivatives with respect to its input variables in
+"returned" variables such as returnedExpression and 'd_exp_d_X' for
+each X that is an input variable of the function.
+
+This template returns the same set of return variables that the
+subordinate template returned.
 -->
 
 <admst:template match="xyceAnalogFunctions:processTerm">
@@ -709,7 +715,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:when test="[name='\$vt']">
       <admst:variable name="d_f_d0" value="CONSTKoverQ"/>
     </admst:when>
-    <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
+    <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='ceil' or name='floor']">
       <!-- functions of one argument, set "d_f_d0" to the expression for
            the derivative of f(x)/dx where x is the argument -->
       <admst:choose>
@@ -766,6 +772,9 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:when>
         <admst:when test="[name='limexp']">
           <admst:variable name="d_f_d0" select="(((%($arg0))&lt;80)?(limexp(%($arg0))):exp(80.0))"/>
+        </admst:when>
+        <admst:when  test="[name='ceil' or name='floor']">
+          <admst:variable name="d_f_d0" select="0.0"/>
         </admst:when>
         <admst:otherwise>
           <admst:variable name="d_f_d0" select="0.0"/>
@@ -1130,6 +1139,11 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     </admst:choose>
   </admst:for-each>
   <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+<!-- these should never get called, and if they do, it's a warning -->
+<admst:template match="xyceAnalogFunctions:callfunction">
+  <admst:warning format="callfunctions cannot be accessed inside analog functions, ignoring %(function/name)\n"/>
+  <admst:return name="returnedString" value=""/>
 </admst:template>
 
 <!-- these should never get called, and if they do, it's an error -->

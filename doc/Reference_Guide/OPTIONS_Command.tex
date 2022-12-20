@@ -33,6 +33,7 @@ and output parameters.  In general, they use the following format:
     \desclabelwidth{1.5in}
     \renewcommand{\makelabel}[1]{\tt #1\hfill}}
   \item[\tt DEVICE]       Device Model
+  \item[\tt DIAGNOSTIC]   Diagnostic Simulation Output
   \item[\tt TIMEINT]      Time Integration
   \item[\tt NONLIN]       Nonlinear Solver
   \item[\tt NONLIN-TRAN]  Transient Nonlinear Solver
@@ -82,6 +83,23 @@ Parameters specific to a particular device instance or model are
 specified in section~\ref{Analog_Devices}.
 
 \input{devtbl}
+
+\subsubsection{\texttt{.OPTIONS DIAGNOSTIC} (Diagnostic Simulation Output)}
+\index{diagnostic!options}\index{\texttt{.OPTIONS}!\texttt{DIAGNOSTIC}}
+
+This option enables the output of diagnostic data during a simulation to aid
+in debugging circuit problems.  Currently the only diagnostic information 
+available is the absolute value of the largest unknown in the solution vector.  
+One can use the diagnostic option, \texttt{EXTREMALIMIT}, to set a limit above
+which output will be sent to the diagnostic file set by \texttt{DIAGFILENAME}.  
+Both the extrema and the circuit node associated with the extrema are 
+written to the diagnostic file along with step information (time step in 
+transient simulation and step number otherwise). A user can examine the 
+extrema found in the solution vector to infer if the circuit simulation 
+is performing as expected.
+
+\input{diagnosticTbl.tex}
+
 
 \subsubsection{\texttt{.OPTIONS TIMEINT} (Time Integration Options)}
 \index{solvers!time integration!options}

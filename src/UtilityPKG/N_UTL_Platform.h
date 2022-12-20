@@ -67,6 +67,7 @@ namespace Xyce {
 /// 			the operating system.
 /// 
 std::string hostname();
+std::string hostname(std::string &errMsg);
 
 
 //-----------------------------------------------------------------------------

@@ -485,6 +485,45 @@ bool newExpression::attachParameterNode(
 }
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::multiplyByExternalExpression
+// Purpose       : Modify the AST so that it is multiplied by a provided parameter.
+// Special Notes : The main use case for this is handling subcircuit multipliers.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 11/18/2022
+//-------------------------------------------------------------------------------
+bool newExpression::multiplyByExternalExpression 
+  (const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  bool retval=false;
+
+  if ( !(Teuchos::is_null(expPtr)) )
+  {
+    externalExpressions_.push_back(expPtr);
+    externalDependencies_ = true;
+    astArraysSetup_ = false;
+    retval=true;
+
+    Teuchos::RCP<astNode<usedType> > newTopPtr = 
+      Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (astNodePtr_, expPtr->getAst() ));
+    setAstPtr(newTopPtr);
+
+    isVariableDependent_      = isVariableDependent_ || expPtr->getVariableDependent();
+    isVoltageNodeDependent_   = isVoltageNodeDependent_ || expPtr->getVoltageNodeDependent();
+    isDeviceCurrentDependent_ = isDeviceCurrentDependent_ || expPtr->getDeviceCurrentDependent();
+    isLeadCurrentDependent_   = isLeadCurrentDependent_ || expPtr->getLeadCurrentDependent();
+    isLeadCurrentDependentExcludeBsrc_ = isLeadCurrentDependentExcludeBsrc_ || expPtr->getLeadCurrentDependentExcludeBsrc();
+
+    isTimeDependent_ = isTimeDependent_ || expPtr->getTimeDependent();
+    isTempDependent_ = isTempDependent_ || expPtr->getTempDependent();
+    isVTDependent_ = isVTDependent_ || expPtr->getVTDependent();
+    isFreqDependent_ = isFreqDependent_ || expPtr->getFreqDependent();
+  }
+
+  return retval;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::clear
 //
 // Purpose       : Empties/resets out everything in the newExpression class,

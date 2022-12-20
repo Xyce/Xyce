@@ -59,6 +59,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_Factory.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_NoCase.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_ERH_Message.h>
 
@@ -1017,6 +1018,54 @@ extractOPData(
 
 } // namespace <unnamed>
 
+
+namespace {
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+struct isTokenString 
+{
+  isTokenString (std::string & test) : testString(test) {};
+  bool operator() (const IO::StringToken & t1)
+  {
+    return compare_nocase(t1.string_.c_str(), testString.c_str()) == 0;
+  }
+  std::string & testString;
+};
+}
+
+//-----------------------------------------------------------------------------
+// Function      : processDCblock
+// Purpose       : helper function for extractDCDataInternals
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 12/14/2022
+//-----------------------------------------------------------------------------
+void processDCblock(
+    int & linePosition,
+    int numFields,
+    Util::OptionBlock & option_block,
+    const std::string & type,
+    const std::string & nextStr,
+    const std::string & currStr,
+    const std::string & netlist_filename,
+    const IO::TokenVector & parsed_line)
+{
+  option_block.addParam(Util::Param("TYPE", type));
+  option_block.addParam(Util::Param("PARAM", currStr == type ? nextStr : currStr)); linePosition+=2;
+  if( numFields <= linePosition + 2 )
+  {
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_) << 
+      ".DC line not formatted correctly, found unexpected number of fields";
+    linePosition = numFields;
+  }
+  else 
+  {
+    option_block.addParam(Util::Param("START", parsed_line[linePosition++].string_));
+    option_block.addParam(Util::Param("STOP", parsed_line[linePosition++].string_));
+    option_block.addParam(Util::Param("NUMSTEPS", parsed_line[linePosition++].string_));
+  }
+}
+
 //-----------------------------------------------------------------------------
 // Function      : extractDCDataInternals
 // Purpose       : Determine number of sweep variables on this DC line
@@ -1049,25 +1098,13 @@ extractDCDataInternals(
   int linePosition = 1;
 
   // check for "DATA" first.  If DATA is found, then skip everything else ----
-  bool dataFound=false;
-  int pos1=1;
-  int dataPos=1;
-  while ( pos1 < numFields )
+  std::string tmp = std::string("DATA");
+  IO::TokenVector::const_iterator startPL = parsed_line.begin();  startPL++;
+  IO::TokenVector::const_iterator endPL = parsed_line.end();
+  IO::TokenVector::const_iterator iter = std::find_if(startPL, endPL, isTokenString(tmp)); 
+  if (iter != parsed_line.end())
   {
-    ExtendedString stringVal ( parsed_line[pos1].string_ );
-    stringVal.toUpper ();
-
-    if (stringVal == "DATA")
-    {
-      dataPos=pos1;
-      dataFound=true;
-      break;
-    }
-    ++pos1;
-  }
-
-  if (dataFound)
-  {
+    int dataPos = std::distance(parsed_line.begin(),iter);
     if (numFields != 4)
     {
       Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
@@ -1076,20 +1113,13 @@ extractDCDataInternals(
     }
 
     Util::OptionBlock option_block(name, Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);
-    Util::Param parameter("", "");
-    parameter.setTag( "TYPE" );
-    parameter.setVal( "DATA" );
-    option_block.addParam( parameter );
-
-    parameter.setTag( "DATASET" );
-    parameter.setVal( parsed_line[ dataPos+2 ].string_ );
-    option_block.addParam( parameter );
-
+    option_block.addParam( Util::Param("TYPE", "DATA"));
+    option_block.addParam( Util::Param( "DATASET", parsed_line[ dataPos+2 ].string_ ));
     option_block_vec.push_back( option_block );
 
     return option_block_vec;
   }
-  // End of the DATA block
+  // End of the DATA block ----
 
   // line can be variable in length, with muliple sources to a line
   linePosition = 1;
@@ -1102,60 +1132,53 @@ extractDCDataInternals(
       break;
     }
 
-    std::string stringVal = parsed_line[linePosition + 1].string_;
-    Util::toUpper(stringVal);
+    std::string currStr = parsed_line[linePosition].string_;
+    Util::toUpper(currStr);
 
-    std::string curr = parsed_line[linePosition].string_;
-    Util::toUpper(curr);
+    std::string nextStr = parsed_line[linePosition + 1].string_;
+    Util::toUpper(nextStr);
 
-    if ("LIST" == stringVal || "LIST" == curr)
+    if ( (nextStr == "LIST" || currStr == "LIST") )
     {
       // sweep type is LIST, get sweep variable name and move to just before beginning of list
       option_block.addParam(Util::Param("TYPE", "LIST"));
-      option_block.addParam(Util::Param("PARAM", curr == "LIST" ? stringVal : curr));
+      option_block.addParam(Util::Param("PARAM", currStr == "LIST" ? nextStr : currStr));
       ++linePosition;
 
       // collect values in this list until next sweep variable name is found
-      while (++linePosition < numFields && Util::isValue(parsed_line[linePosition].string_))
+      while (++linePosition < numFields
+          && (Util::isValue(parsed_line[linePosition].string_) || parsed_line[linePosition].string_[0]=='{') )
+      {
         option_block.addParam(Util::Param("VAL", parsed_line[linePosition].string_));
+      }
     }
-    else
+    else if ( (nextStr == "DEC" || currStr == "DEC") )
     {
-      std::string sweepStepTag;
-
-      // check for non-LIST default (LINear sweep)
-      if (Util::isValue(stringVal))
-      {
-        sweepStepTag = "STEP";
-        stringVal = "LIN";
-      }
-
-      // non-LIST sweep type is given
-      else
-      {
-        // get sweep type name and move to sweep variable name
-        stringVal = parsed_line[linePosition++].string_;
-        Util::toUpper(stringVal);
-
-        // change sweep step tag
-        sweepStepTag = "NUMSTEPS";
-      }
-
-      // Add the type (which was determined above) to the parameter list.
-      option_block.addParam(Util::Param("TYPE", stringVal));
-
-      // simple check for expected four items; semantic errors pass through
+      processDCblock( linePosition, numFields, option_block,"DEC",nextStr,currStr, netlist_filename, parsed_line);
+    }
+    else if ( (nextStr == "OCT" || currStr == "OCT") )
+    {
+      processDCblock( linePosition, numFields, option_block,"OCT",nextStr,currStr, netlist_filename, parsed_line);
+    }
+    else if ( (nextStr == "LIN" || currStr == "LIN") )
+    {
+      processDCblock( linePosition, numFields, option_block,"LIN",nextStr,currStr, netlist_filename, parsed_line);
+    }
+    else // no explicit type given, meaning LIN:
+    {
+      option_block.addParam(Util::Param("TYPE", "LIN"));
       if( numFields <= linePosition + 3 )
       {
-        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-          << ".DC line not formatted correctly, found unexpected number of fields";
+        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_) << 
+          ".DC line not formatted correctly, found unexpected number of fields";
         linePosition = numFields;
       }
-      else {
+      else 
+      {
         option_block.addParam(Util::Param("PARAM", parsed_line[linePosition++].string_));
         option_block.addParam(Util::Param("START", parsed_line[linePosition++].string_));
         option_block.addParam(Util::Param("STOP", parsed_line[linePosition++].string_));
-        option_block.addParam(Util::Param(sweepStepTag, parsed_line[linePosition++].string_));
+        option_block.addParam(Util::Param("STEP", parsed_line[linePosition++].string_));
       }
     }
 

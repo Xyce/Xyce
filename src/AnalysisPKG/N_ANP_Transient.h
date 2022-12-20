@@ -178,6 +178,16 @@ public:
   {
     saveTimeStepsFlag = save_time_steps;
   }
+  
+  const Topo::Topology & getTopology() const
+  {
+    return topology_;
+  }
+  
+  const Parallel::Machine & getParallelMachine() const
+  {
+    return comm_;
+  }
 
 private:
   void preMixedSignalStepDetails(double maxTimeStepFromHabanero);

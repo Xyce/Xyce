@@ -430,6 +430,20 @@ struct StepAnalysisReg : public IO::PkgOptionsReg
   StepFactory &               factory_;
 };
 
+namespace {
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+struct isTokenString 
+{
+  isTokenString (std::string & test) : testString(test) {};
+  bool operator() (const IO::StringToken & t1)
+  {
+    return compare_nocase(t1.string_.c_str(), testString.c_str()) == 0;
+  }
+  std::string & testString;
+};
+}
+
 //-----------------------------------------------------------------------------
 // Function      : extractSTEPData
 // Purpose       : Extract the parameters from a netlist .STEP line held in
@@ -466,21 +480,16 @@ bool extractSTEPData(
   std::string type("LIN");
 
   // check for "DATA" first, as data set names could be "TABLE".
-  bool dataFound=false;
-  while ( pos1 < numFields )
+  std::string tmp = std::string("DATA");
+  IO::TokenVector::const_iterator startPL = parsed_line.begin();  startPL++;
+  IO::TokenVector::const_iterator endPL = parsed_line.end();
+  IO::TokenVector::const_iterator iter = std::find_if(startPL, endPL, isTokenString(tmp)); 
+  bool dataFound = (iter != parsed_line.end());
+  if (dataFound)
   {
-    ExtendedString stringVal ( parsed_line[pos1].string_ );
-    stringVal.toUpper ();
-
-    if (stringVal == "DATA")
-    {
-      type = stringVal;
-      typeExplicitSetList = true;
-      dataPos=pos1;
-      dataFound=true;
-      break;
-    }
-    ++pos1;
+    type = tmp;
+    dataPos = std::distance(parsed_line.begin(),iter);
+    typeExplicitSetList = true;
   }
 
   // check for everything else: LIN, DEC, OCT, LIST, TABLE

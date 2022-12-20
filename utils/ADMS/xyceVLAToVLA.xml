@@ -51,6 +51,13 @@
 
 <!-- handling of device: starting point -->
 <admst:for-each select="/module">
+  <admst:if test="attribute">
+    <admst:text format=" (* "/>
+    <admst:join select="attribute" separator=", ">
+      <admst:text format="%(name)=&quot;%(value)&quot;"/>
+    </admst:join>
+    <admst:text format=" *)\n"/>
+  </admst:if>
   <admst:text format="module %(name)"/>
   <admst:if test="node[location='external']">
     <admst:text format="("/>
@@ -58,11 +65,6 @@
       <admst:text format="%(name)"/>
     </admst:join>
     <admst:text format=")"/>
-  </admst:if>
-  <admst:if test="attribute">
-    <admst:text format=" (*"/>
-    <admst:apply-templates select="attribute" match="doattribute"/>
-    <admst:text format="*) "/>
   </admst:if>
   <admst:text format=";\n"/>
 
@@ -77,17 +79,26 @@
     </admst:if>
     <admst:text format="electrical "/>
     <admst:join select="node[grounded='no']" separator=", ">
-      <admst:text format="%(name)"/>
       <admst:if test="attribute">
         <admst:text format=" (* "/>
-        <admst:apply-templates select="attribute" match="doattribute"/>
-        <admst:text format=" *)"/>
+        <admst:join select="attribute" separator=", ">
+          <admst:text format="%(name)=&quot;%(value)&quot;"/>
+        </admst:join>
+        <admst:text format=" *) "/>
       </admst:if>
+      <admst:text format="%(name)"/>
     </admst:join>
     <admst:text format=";\n"/>
   </admst:if>
   <!-- variables -->
   <admst:for-each select="variable">
+    <admst:if test="attribute">
+      <admst:text format=" (* "/>
+      <admst:join select="attribute" separator=", ">
+        <admst:text format="%(name)=&quot;%(value)&quot;"/>
+      </admst:join>
+      <admst:text format=" *)\n"/>
+    </admst:if>
     <admst:if test="[input='yes']">
       <admst:text format="parameter "/>
     </admst:if>
@@ -95,13 +106,6 @@
     <admst:if test="[input='yes']">
       <admst:text format="="/>
       <admst:apply-templates select="default" match="doexpression"/>
-    </admst:if>
-    <admst:if test="attribute">
-      <admst:text format=" (* "/>
-      <admst:for-each select="attribute">
-        <admst:text format="%(name)=&quot;%(value)&quot; "/>
-      </admst:for-each>
-      <admst:text format=" *)"/>
     </admst:if>
     <admst:text format="; "/>
     <admst:text format="/*insource=%(insource) static=%(static) dynamic=%(dynamic) scope=%(scope)*/\n"/>
@@ -288,11 +292,6 @@
     <admst:if test="branch/nnode[grounded='no']">
       <admst:text format="%(nature/access)(%(branch/pnode/name),%(branch/nnode/name))"/>
     </admst:if>
-  </admst:template>
-
-  <!-- handling of attributes -->
-  <admst:template match="doattribute">
-    <admst:text format="%(name)=&quot;%(value)&quot; "/>
   </admst:template>
 
   <!-- handling of block -->
