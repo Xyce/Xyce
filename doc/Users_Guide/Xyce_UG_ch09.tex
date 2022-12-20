@@ -105,7 +105,9 @@ To specify a \verb|.DC| analysis, include a \verb|.DC| line in the netlist.  Som
 \texttt{ .DC OCT V0 0.125 64 2 } \\
 \texttt{ .DC DEC R1 100 10000 3 } \\
 \texttt{ .DC TEMP LIST 10.0 15.0 18.0 27.0 33.0 }\\
-\texttt{ .DC data=table }
+\texttt{ .DC data=table } \\
+\texttt{ .param init=7m, final=5m, step=-1m } \\
+\texttt{ .DC V1  \{init\} \{final\} \{step\} } 
 }
 
 The examples include several types of sweep --- linear, octave,
@@ -235,7 +237,7 @@ is written, though not specified on the \texttt{.PRINT} line.
 % -------------------------------------------------------------------------
 % Transient Analysis Section ----------------------------------------------
 % -------------------------------------------------------------------------
-%\clearpage
+\clearpage
 \section{Transient Analysis}
 \label{Trans_Overview}
 \label{Transient_Analysis}
@@ -262,6 +264,10 @@ To run a transient simulation, the circuit netlist file must contain a
 \Example{\\
 \texttt{ .TRAN 100us 300ms } \\
 \texttt{ .TRAN 100p 12.05u 9.95u }
+}
+\Example{\\
+\texttt{.param tstep=100us, final=300ms } \\
+\texttt{.TRAN \{tstep\} \{final\} } 
 }
 
 The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed
@@ -1101,7 +1107,9 @@ netlist.  Some examples of typical \verb|.AC| lines include:
 \texttt{.AC DEC 10 1K 100MEG}  \\
 \texttt{.AC DEC 10 1 10K}  \\
 \texttt{.AC LIN 100 1 100HZ } \\
-\texttt{.AC DATA=table }
+\texttt{.AC DATA=table } \\
+\texttt{.param init=10, final=1K, step=100MEG } \\
+\texttt{.AC DEC \{init\} \{final\} \{step\} } 
 }
 
 These examples include some types of sweep (linear, decade and data).
