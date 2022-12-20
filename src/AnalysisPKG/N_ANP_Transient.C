@@ -185,6 +185,8 @@ void Transient::notify(const StepEvent &event)
   {
     AnalysisBase::resetForStepAnalysis();
 
+    tiaParams_.updateAnalysisOptions();
+
     if (resetForStepCalledBefore_)
     {
       analysisManager_.getStepErrorControl().resetAll(tiaParams_);

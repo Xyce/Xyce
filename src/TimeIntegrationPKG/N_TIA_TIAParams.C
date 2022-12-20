@@ -268,7 +268,7 @@ TIAParams::setMaxOrder(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : setTimeIntegratorOptions
+// Function      : setTimeIntegratorOption
 // Purpose       :
 // Special Notes : These are from '.options timeint'
 // Scope         : public
@@ -340,9 +340,9 @@ bool TIAParams::setTimeIntegratorOption(
 
 
 //-----------------------------------------------------------------------------
-// Function      : setAnalysisOptions
+// Function      : setAnalysisOption
 // Purpose       :
-// Special Notes : These are from '.options timeint'
+// Special Notes : These are from '.tran'
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 04/18/02
@@ -355,6 +355,31 @@ bool TIAParams::setAnalysisOption(
     || Util::setValue(param, "TSTOP", finalTime)
     || Util::setValue(param, "TSTEP", initialTimeStep)
     || Util::setValue(param, "DTMAX", maxTimeStep, maxTimeStepGiven);
+
+  // extra bookkeeping for options that might change with .STEP iterations
+  if (param.hasExpressionValue())
+  {
+    if (equal_nocase("TSTART", param.tag())) 
+    {
+      std::pair< Util::Param, double * > tmpPair(param, &initialOutputTime);
+      dependentOptions.push_back(tmpPair);
+    }
+    else if (equal_nocase("TSTOP", param.tag())) 
+    {
+      std::pair< Util::Param, double * > tmpPair(param, &finalTime);
+      dependentOptions.push_back(tmpPair);
+    }
+    else if (equal_nocase("TSTEP", param.tag())) 
+    {
+      std::pair< Util::Param, double * > tmpPair(param, &initialTimeStep);
+      dependentOptions.push_back(tmpPair);
+    }
+    else if (equal_nocase("DTMAX", param.tag())) 
+    {
+      std::pair< Util::Param, double * > tmpPair(param, &maxTimeStep);
+      dependentOptions.push_back(tmpPair);
+    }
+  }
 
   if (value_set)
     ;
@@ -371,9 +396,25 @@ bool TIAParams::setAnalysisOption(
   return true;
 }
 
-void
-TIAParams::populateMetadata(
-  IO::PkgOptionsMgr &options_manager)
+//-----------------------------------------------------------------------------
+// Function      : TIAParams::updateAnalysisOptions()
+// Purpose       : Updates .TRAN options that depend on variable expressions
+// Special Notes : Call at the beginning of .STEP iterations from notify function
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 12/19/22
+//-----------------------------------------------------------------------------
+bool TIAParams::updateAnalysisOptions()
+{
+  for (int ii=0;ii<dependentOptions.size();ii++)
+  {
+    *(dependentOptions[ii].second) = dependentOptions[ii].first.getMutableValue<double>();
+  }
+
+  return true;
+}
+
+void TIAParams::populateMetadata(IO::PkgOptionsMgr &options_manager)
 {
   {
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("TIMEINT");
