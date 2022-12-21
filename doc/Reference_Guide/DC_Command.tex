@@ -32,6 +32,9 @@ octave logarithmic sweep, a list of values, or a data table of multivariate valu
 .DC LIN V1 5 25 5
 .DC VIN -10 15 1
 .DC R1 0 3.5 0.05 C1 0 3.5 0.5
+
+.param start=5, stop=25, points=5
+.DC \{start\} \{stop\} \{points\} 
 \end{alltt}
 
 \comments
@@ -62,6 +65,9 @@ warning will be emitted.
 \begin{alltt}
 .DC DEC VIN 1 100 2 
 .DC DEC R1 100 10000 3 DEC VGS 0.001 1.0 2
+
+.param start=1, stop=100, points=2
+.DC DEC VIN \{start\} \{stop\} \{points\}
 \end{alltt}
 
 \comments
@@ -86,6 +92,9 @@ points value must be an integer.
 \begin{alltt}
 .DC OCT VIN 0.125 64 2 
 .DC OCT R1 0.015625 512 3 OCT C1 512 4096 1
+
+.param start=0.125, stop=64, points=2
+.DC OCT VIN \{start\} \{stop\} \{points\}
 \end{alltt}
 
 \comments
@@ -111,6 +120,9 @@ points value must be an integer.
 .DC VIN LIST 1.0 2.0 5.0 6.0 10.0 
 .DC VDS LIST 0 3.5 0.05 VGS LIST 0 3.5 0.5
 .DC TEMP LIST 10.0 15.0 18.0 27.0 33.0
+
+.param val1=0, val2=3.5, val3=0.5
+.DC VDS LIST \{val1\} \{val2\} \{val3\} 
 \end{alltt}
 
 \end{Command}
