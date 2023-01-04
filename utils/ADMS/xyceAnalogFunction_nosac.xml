@@ -169,12 +169,15 @@ subordinate template returned.
 
 <!-- variable -->
 <admst:template match="xyceAnalogFunctions:variable">
+  <admst:variable name="theVar" select="%(.)"/>
   <admst:variable name="variable" select="%(name)"/>
   <admst:return name="returnedExpression" value="$variable"/>
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-    <admst:value-of select="name"/>
-    <admst:variable name="wrt" select="%s"/>
+    <admst:variable name="wrt" select="%(name)"/>
     <admst:choose>
+      <admst:when test="[$theVar/type != 'real']">
+        <admst:return name="d_exp_d_$wrt" value="0.0"/>
+      </admst:when>
       <admst:when test="[$variable='$wrt']">
         <admst:return name="d_exp_d_$wrt" value="1.0"/>
       </admst:when>
