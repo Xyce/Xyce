@@ -36,6 +36,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+  \textbf{Xyce Project Backlog/106}: Xyce/ADMS generates incorrect
+  derivative code for integer variables & Xyce/ADMS would emit code
+  that would not compile if a Verilog-A module tried to assign a
+  probe-dependent expression into an integer variable.  \\\hline
+
   \textbf{Xyce Project Backlog/157}: Xyce diode does not support
   sidewall effects & The Xyce diode now supports an instance parameter
   for the junction perimeter (\texttt{PJ}) and a number of model
