@@ -549,7 +549,9 @@ public:
   }
   
   std::string getNodeNameFromIndex( const int varIndex ) const;
+  std::string getNodeNameFromLocalIndex( const int varIndex ) const;
   char getNodeTypeFromIndex( const int varIndex ) const;
+  char getNodeTypeFromLocalIndex( const int varIndex ) const;
 
 protected:
   AnalysisBase * getAnalysisObjectPtr() 

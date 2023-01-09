@@ -1634,6 +1634,31 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
   return node_name; 
 }
 
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeNameFromLocalIndex
+// Purpose       :
+// Special Notes : No parallel communication used in this routine.
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+std::string AnalysisManager::getNodeNameFromLocalIndex( const int varIndex ) const
+{
+  std::string node_name = "N/A";
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    
+    if ((varIndex > -1) && (varIndex < name_vec.size()))
+    {
+        node_name = *name_vec[varIndex];
+    }
+  }
+  return node_name; 
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::getNodeTypeFromIndex
@@ -1685,6 +1710,31 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
       pdsComm.maxAll( &nodeTypeAsInt, &nodeAsInt, 1 );
       node_type_found = (char) nodeAsInt;
       node_type = node_type_found;
+    }
+  }
+  return node_type; 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeTypeFromLocalIndex
+// Purpose       :
+// Special Notes : No parallel communication if index is not local
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+char AnalysisManager::getNodeTypeFromLocalIndex( const int varIndex ) const
+{
+  char node_type = '\0';
+
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    if ((varIndex > -1) && (varIndex < type_vec.size()))
+    {
+        node_type = type_vec[varIndex];
     }
   }
   return node_type; 
@@ -1764,6 +1814,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   
   if( diagnosticVoltageLimitGiven_ || diagnosticCurrentLimitGiven_)
   {
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
     // stream buffers for the output to keep it organized.
     std::stringstream voltageOutput;
     std::stringstream currentOutput;
@@ -1774,13 +1825,13 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     
     // loop over the full solution vector 
     double value = 0.0;
-    unsigned int localID = 0;
+    //auto numSolVars = (this->getDataStore())->solutionSize;
     auto numSolVars = (this->getDataStore())->currSolutionPtr->localLength();
-    for( localID=0 ; localID < numSolVars; localID++)
+    for( auto localID=0 ; localID < numSolVars; localID++)
     {
       value =(*(this->getDataStore()->currSolutionPtr))[localID];
       auto globalID = ((dataStore_->builder_).getSolutionMap())->localToGlobalIndex( localID );
-      char varType = this->getNodeTypeFromIndex( globalID ); 
+      char varType = this->getNodeTypeFromLocalIndex( localID ); 
       
       if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
       {
@@ -1800,7 +1851,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputVoltageHeaderLine = false;
         }
-        std::string nodeName = this->getNodeNameFromIndex( globalID ); 
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
         voltageOutput
           << "     V" << "(" << nodeName << ")=" << value << std::endl;
       }
@@ -1822,16 +1873,18 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           }
           outputCurrentHeaderLine = false;
         }
-        std::string nodeName = this->getNodeNameFromIndex( globalID ); 
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
         currentOutput
           << "     solution I" << "(" << nodeName << ")=" << value << std::endl;
       } 
     }
+    
+    pdsComm.barrier();
     // if current output is requested then also loop over the lead-current vector
     if( diagnosticCurrentLimitGiven_ )
     {
       auto numLeadVars = (this->getDataStore())->leadCurrentSize;
-      for( localID=0 ; localID < numLeadVars; localID++)
+      for( auto localID=0 ; localID < numLeadVars; localID++)
       {
         value = (*(this->getDataStore()->currLeadCurrentPtr))[localID];
         std::string nodeName("NF");
