@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jan 2023 08:58:52
+// Creation Date  : Mon, 09 Jan 2023 12:09:36
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSPSP103TVA_h
@@ -132,7 +132,7 @@ static ModelSensitivity modSens;
 
 // general purpose free functions
 // thermal voltage at kelvin temperature temp)
-template <typename T> static inline T adms_vt(const T temp) {return(CONSTKoverQ*temp);};
+static inline double adms_vt(const double temp) {return(CONSTKoverQ*temp);};
 
 
 #ifdef Xyce_ADMS_SENSITIVITIES

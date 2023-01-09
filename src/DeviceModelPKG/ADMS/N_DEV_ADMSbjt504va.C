@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jan 2023 08:58:27
+// Creation Date  : Mon, 09 Jan 2023 12:53:30
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -123,10 +123,10 @@ double d_trunc_ev(double Val , double Vprev , double Vmin , double Vmax  , doubl
 double trunc_ev;
 double d_trunc_ev;
 // Derivatives of return value w.r.t input vars
-double d_trunc_ev_d_Val;
-double d_trunc_ev_d_Vprev;
-double d_trunc_ev_d_Vmin;
-double d_trunc_ev_d_Vmax;
+double d_trunc_ev_d_Val=0;
+double d_trunc_ev_d_Vprev=0;
+double d_trunc_ev_d_Vmin=0;
+double d_trunc_ev_d_Vmax=0;
 double result;
 double d_result_d_Val;
 double d_result_d_Vprev;
@@ -234,16 +234,16 @@ return(d_trunc_ev);
   double trunc_ev;
   trunc_evEvaluator::returnType trunc_evReturn;
   // Derivatives of return value w.r.t input vars
-  double d_trunc_ev_d_Val;
-  double d_trunc_ev_d_Vprev;
-  double d_trunc_ev_d_Vmin;
-  double d_trunc_ev_d_Vmax;
+  double d_trunc_ev_d_Val=0;
+  double d_trunc_ev_d_Vprev=0;
+  double d_trunc_ev_d_Vmin=0;
+  double d_trunc_ev_d_Vmax=0;
   // declared local variables
   double result;
-  double d_result_d_Val;
-  double d_result_d_Vprev;
-  double d_result_d_Vmin;
-  double d_result_d_Vmax;
+  double d_result_d_Val=0;
+  double d_result_d_Vprev=0;
+  double d_result_d_Vmin=0;
+  double d_result_d_Vmax=0;
 {
 d_result_d_Val=1.0;
 d_result_d_Vprev=0.0;

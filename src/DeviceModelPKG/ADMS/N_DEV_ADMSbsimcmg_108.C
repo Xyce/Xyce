@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jan 2023 08:58:21
+// Creation Date  : Mon, 09 Jan 2023 12:53:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -104,7 +104,7 @@ double d_lexp(double x  , double d_x )
 double lexp;
 double d_lexp;
 // Derivatives of return value w.r.t input vars
-double d_lexp_d_x;
+double d_lexp_d_x=0;
 {
 if((x>80.0))
 {
@@ -162,7 +162,7 @@ return(d_lexp);
   double lexp;
   lexpEvaluator::returnType lexpReturn;
   // Derivatives of return value w.r.t input vars
-  double d_lexp_d_x;
+  double d_lexp_d_x=0;
   // declared local variables
 {
 if((x>80.0))
@@ -205,7 +205,7 @@ double d_lln(double x  , double d_x )
 double lln;
 double d_lln;
 // Derivatives of return value w.r.t input vars
-double d_lln_d_x;
+double d_lln_d_x=0;
 {
 d_lln_d_x=(1.0/std::max( static_cast<double>(x), static_cast<double>(1.0e-38)))*((x>=1.0e-38)?1.0:0.0);
 lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
@@ -247,7 +247,7 @@ return(d_lln);
   double lln;
   llnEvaluator::returnType llnReturn;
   // Derivatives of return value w.r.t input vars
-  double d_lln_d_x;
+  double d_lln_d_x=0;
   // declared local variables
 {
 d_lln_d_x=(1.0/std::max( static_cast<double>(x), static_cast<double>(1.0e-38)))*((x>=1.0e-38)?1.0:0.0);
@@ -274,8 +274,8 @@ double d_hypsmooth(double x , double c  , double d_x , double d_c )
 double hypsmooth;
 double d_hypsmooth;
 // Derivatives of return value w.r.t input vars
-double d_hypsmooth_d_x;
-double d_hypsmooth_d_c;
+double d_hypsmooth_d_x=0;
+double d_hypsmooth_d_c=0;
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4*c)*c))))*(x+x)));
 d_hypsmooth_d_c=(0.5*(0.5/sqrt(((x*x)+((4*c)*c))))*((4*c)+c*(4)));
@@ -320,8 +320,8 @@ return(d_hypsmooth);
   double hypsmooth;
   hypsmoothEvaluator::returnType hypsmoothReturn;
   // Derivatives of return value w.r.t input vars
-  double d_hypsmooth_d_x;
-  double d_hypsmooth_d_c;
+  double d_hypsmooth_d_x=0;
+  double d_hypsmooth_d_c=0;
   // declared local variables
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4*c)*c))))*(x+x)));
@@ -350,9 +350,9 @@ double d_hypmax(double x , double xmin , double c  , double d_x , double d_xmin 
 double hypmax;
 double d_hypmax;
 // Derivatives of return value w.r.t input vars
-double d_hypmax_d_x;
-double d_hypmax_d_xmin;
-double d_hypmax_d_c;
+double d_hypmax_d_x=0;
+double d_hypmax_d_xmin=0;
+double d_hypmax_d_c=0;
 {
 d_hypmax_d_x=(0.5*(1.0+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((x-xmin)-c)+((x-xmin)-c))));
 d_hypmax_d_xmin=(1.0+(0.5*((-1.0)+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((((x-xmin)-c)*(-1.0))+((-1.0)*((x-xmin)-c)))-((4)*c)))));
@@ -400,9 +400,9 @@ return(d_hypmax);
   double hypmax;
   hypmaxEvaluator::returnType hypmaxReturn;
   // Derivatives of return value w.r.t input vars
-  double d_hypmax_d_x;
-  double d_hypmax_d_xmin;
-  double d_hypmax_d_c;
+  double d_hypmax_d_x=0;
+  double d_hypmax_d_xmin=0;
+  double d_hypmax_d_c=0;
   // declared local variables
 {
 d_hypmax_d_x=(0.5*(1.0+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((x-xmin)-c)+((x-xmin)-c))));
@@ -424,11 +424,11 @@ double Tempdep;
 {
 if ((TEMPMOD!=0))
 {
-Tempdep = (PARAML+AnalogFunctions::hypmax((PARAMT*DELTEMP),(-PARAML),1.0e-6));
+Tempdep = (PARAML+hypmax((PARAMT*DELTEMP),(-PARAML),1.0e-6));
 }
 else
 {
-Tempdep = (PARAML*AnalogFunctions::hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0E-6),1.0E-3));
+Tempdep = (PARAML*hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0E-6),1.0E-3));
 }
 }
 return(Tempdep);
@@ -440,10 +440,10 @@ double d_Tempdep(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD
 double Tempdep;
 double d_Tempdep;
 // Derivatives of return value w.r.t input vars
-double d_Tempdep_d_PARAML;
-double d_Tempdep_d_PARAMT;
-double d_Tempdep_d_DELTEMP;
-double d_Tempdep_d_TEMPMOD;
+double d_Tempdep_d_PARAML=0;
+double d_Tempdep_d_PARAMT=0;
+double d_Tempdep_d_DELTEMP=0;
+double d_Tempdep_d_TEMPMOD=0;
 {
 if((TEMPMOD!=0))
 {
@@ -505,10 +505,10 @@ return(d_Tempdep);
   double Tempdep;
   TempdepEvaluator::returnType TempdepReturn;
   // Derivatives of return value w.r.t input vars
-  double d_Tempdep_d_PARAML;
-  double d_Tempdep_d_PARAMT;
-  double d_Tempdep_d_DELTEMP;
-  double d_Tempdep_d_TEMPMOD;
+  double d_Tempdep_d_PARAML=0;
+  double d_Tempdep_d_PARAMT=0;
+  double d_Tempdep_d_DELTEMP=0;
+  double d_Tempdep_d_TEMPMOD=0;
   // declared local variables
 {
 if((TEMPMOD!=0))

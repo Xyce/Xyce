@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jan 2023 08:58:21
+// Creation Date  : Mon, 09 Jan 2023 12:53:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -100,7 +100,7 @@ double d_exp_soft(double x  , double d_x )
   double exp_soft;
   double d_exp_soft;
   // Derivatives of return value w.r.t input vars
-  double d_exp_soft_d_x;
+  double d_exp_soft_d_x=0;
   double maxexp;
   double d_maxexp_d_x;
   double maxarg;
@@ -158,12 +158,12 @@ exp_softEvaluator::returnType exp_softEvaluator::evaluator_(double x)
   double exp_soft;
   exp_softEvaluator::returnType exp_softReturn;
   // Derivatives of return value w.r.t input vars
-  double d_exp_soft_d_x;
+  double d_exp_soft_d_x=0;
   // declared local variables
   double maxexp;
-  double d_maxexp_d_x;
+  double d_maxexp_d_x=0;
   double maxarg;
-  double d_maxarg_d_x;
+  double d_maxarg_d_x=0;
   {
     d_maxexp_d_x=0.0;
     maxexp=1.0e25;
@@ -212,8 +212,8 @@ double d_Vt(double U , double Ud  , double d_U , double d_Ud )
   double Vt;
   double d_Vt;
   // Derivatives of return value w.r.t input vars
-  double d_Vt_d_U;
-  double d_Vt_d_Ud;
+  double d_Vt_d_U=0;
+  double d_Vt_d_Ud=0;
   double Vch;
   double d_Vch_d_U;
   double d_Vch_d_Ud;
@@ -279,15 +279,15 @@ VtEvaluator::returnType VtEvaluator::evaluator_(double U, double Ud)
   double Vt;
   VtEvaluator::returnType VtReturn;
   // Derivatives of return value w.r.t input vars
-  double d_Vt_d_U;
-  double d_Vt_d_Ud;
+  double d_Vt_d_U=0;
+  double d_Vt_d_Ud=0;
   // declared local variables
   double Vch;
-  double d_Vch_d_U;
-  double d_Vch_d_Ud;
+  double d_Vch_d_U=0;
+  double d_Vch_d_Ud=0;
   double VF;
-  double d_VF_d_U;
-  double d_VF_d_Ud;
+  double d_VF_d_U=0;
+  double d_VF_d_Ud=0;
   {
     d_Vch_d_U=0.0;
     d_Vch_d_Ud=(0.1);
@@ -335,7 +335,7 @@ double diode(double U, double Is, double Ug, double N, double AREA, double TJ, d
     if (((maxi<(Ug/VTHNOM))&&(U<0.0)))
     {
       Tmax = (((Ug*VTHNOM)/((Ug-(maxi*VTHNOM))*KDURCHQ))-273.15);
-      TJM = AnalogFunctions::Vt(TJ,Tmax);
+      TJM = Vt(TJ,Tmax);
     }
     else
     {
@@ -344,11 +344,11 @@ double diode(double U, double Is, double Ug, double N, double AREA, double TJ, d
     VTHJ = adms_vt((TJM+273.15));
     if ((Ug>0.0))
     {
-      diode = (AnalogFunctions::exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs))-AnalogFunctions::exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs)));
+      diode = (exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs))-exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs)));
     }
     else
     {
-      diode = (AnalogFunctions::exp_soft(((U/(N*VTH0))+lnIs))-(Is*AREA));
+      diode = (exp_soft(((U/(N*VTH0))+lnIs))-(Is*AREA));
     }
   }
   return(diode);
@@ -360,13 +360,13 @@ double d_diode(double U , double Is , double Ug , double N , double AREA , doubl
   double diode;
   double d_diode;
   // Derivatives of return value w.r.t input vars
-  double d_diode_d_U;
-  double d_diode_d_Is;
-  double d_diode_d_Ug;
-  double d_diode_d_N;
-  double d_diode_d_AREA;
-  double d_diode_d_TJ;
-  double d_diode_d_TNOM;
+  double d_diode_d_U=0;
+  double d_diode_d_Is=0;
+  double d_diode_d_Ug=0;
+  double d_diode_d_N=0;
+  double d_diode_d_AREA=0;
+  double d_diode_d_TJ=0;
+  double d_diode_d_TNOM=0;
   double VTH0;
   double d_VTH0_d_U;
   double d_VTH0_d_Is;
@@ -582,78 +582,78 @@ diodeEvaluator::returnType diodeEvaluator::evaluator_(double U, double Is, doubl
   double diode;
   diodeEvaluator::returnType diodeReturn;
   // Derivatives of return value w.r.t input vars
-  double d_diode_d_U;
-  double d_diode_d_Is;
-  double d_diode_d_Ug;
-  double d_diode_d_N;
-  double d_diode_d_AREA;
-  double d_diode_d_TJ;
-  double d_diode_d_TNOM;
+  double d_diode_d_U=0;
+  double d_diode_d_Is=0;
+  double d_diode_d_Ug=0;
+  double d_diode_d_N=0;
+  double d_diode_d_AREA=0;
+  double d_diode_d_TJ=0;
+  double d_diode_d_TNOM=0;
   // declared local variables
   double VTH0;
-  double d_VTH0_d_U;
-  double d_VTH0_d_Is;
-  double d_VTH0_d_Ug;
-  double d_VTH0_d_N;
-  double d_VTH0_d_AREA;
-  double d_VTH0_d_TJ;
-  double d_VTH0_d_TNOM;
+  double d_VTH0_d_U=0;
+  double d_VTH0_d_Is=0;
+  double d_VTH0_d_Ug=0;
+  double d_VTH0_d_N=0;
+  double d_VTH0_d_AREA=0;
+  double d_VTH0_d_TJ=0;
+  double d_VTH0_d_TNOM=0;
   double VTHJ;
-  double d_VTHJ_d_U;
-  double d_VTHJ_d_Is;
-  double d_VTHJ_d_Ug;
-  double d_VTHJ_d_N;
-  double d_VTHJ_d_AREA;
-  double d_VTHJ_d_TJ;
-  double d_VTHJ_d_TNOM;
+  double d_VTHJ_d_U=0;
+  double d_VTHJ_d_Is=0;
+  double d_VTHJ_d_Ug=0;
+  double d_VTHJ_d_N=0;
+  double d_VTHJ_d_AREA=0;
+  double d_VTHJ_d_TJ=0;
+  double d_VTHJ_d_TNOM=0;
   double VTHNOM;
-  double d_VTHNOM_d_U;
-  double d_VTHNOM_d_Is;
-  double d_VTHNOM_d_Ug;
-  double d_VTHNOM_d_N;
-  double d_VTHNOM_d_AREA;
-  double d_VTHNOM_d_TJ;
-  double d_VTHNOM_d_TNOM;
+  double d_VTHNOM_d_U=0;
+  double d_VTHNOM_d_Is=0;
+  double d_VTHNOM_d_Ug=0;
+  double d_VTHNOM_d_N=0;
+  double d_VTHNOM_d_AREA=0;
+  double d_VTHNOM_d_TJ=0;
+  double d_VTHNOM_d_TNOM=0;
   double maxi;
-  double d_maxi_d_U;
-  double d_maxi_d_Is;
-  double d_maxi_d_Ug;
-  double d_maxi_d_N;
-  double d_maxi_d_AREA;
-  double d_maxi_d_TJ;
-  double d_maxi_d_TNOM;
+  double d_maxi_d_U=0;
+  double d_maxi_d_Is=0;
+  double d_maxi_d_Ug=0;
+  double d_maxi_d_N=0;
+  double d_maxi_d_AREA=0;
+  double d_maxi_d_TJ=0;
+  double d_maxi_d_TNOM=0;
   double Tmax;
-  double d_Tmax_d_U;
-  double d_Tmax_d_Is;
-  double d_Tmax_d_Ug;
-  double d_Tmax_d_N;
-  double d_Tmax_d_AREA;
-  double d_Tmax_d_TJ;
-  double d_Tmax_d_TNOM;
+  double d_Tmax_d_U=0;
+  double d_Tmax_d_Is=0;
+  double d_Tmax_d_Ug=0;
+  double d_Tmax_d_N=0;
+  double d_Tmax_d_AREA=0;
+  double d_Tmax_d_TJ=0;
+  double d_Tmax_d_TNOM=0;
   double TJM;
-  double d_TJM_d_U;
-  double d_TJM_d_Is;
-  double d_TJM_d_Ug;
-  double d_TJM_d_N;
-  double d_TJM_d_AREA;
-  double d_TJM_d_TJ;
-  double d_TJM_d_TNOM;
+  double d_TJM_d_U=0;
+  double d_TJM_d_Is=0;
+  double d_TJM_d_Ug=0;
+  double d_TJM_d_N=0;
+  double d_TJM_d_AREA=0;
+  double d_TJM_d_TJ=0;
+  double d_TJM_d_TNOM=0;
   double KDURCHQ;
-  double d_KDURCHQ_d_U;
-  double d_KDURCHQ_d_Is;
-  double d_KDURCHQ_d_Ug;
-  double d_KDURCHQ_d_N;
-  double d_KDURCHQ_d_AREA;
-  double d_KDURCHQ_d_TJ;
-  double d_KDURCHQ_d_TNOM;
+  double d_KDURCHQ_d_U=0;
+  double d_KDURCHQ_d_Is=0;
+  double d_KDURCHQ_d_Ug=0;
+  double d_KDURCHQ_d_N=0;
+  double d_KDURCHQ_d_AREA=0;
+  double d_KDURCHQ_d_TJ=0;
+  double d_KDURCHQ_d_TNOM=0;
   double lnIs;
-  double d_lnIs_d_U;
-  double d_lnIs_d_Is;
-  double d_lnIs_d_Ug;
-  double d_lnIs_d_N;
-  double d_lnIs_d_AREA;
-  double d_lnIs_d_TJ;
-  double d_lnIs_d_TNOM;
+  double d_lnIs_d_U=0;
+  double d_lnIs_d_Is=0;
+  double d_lnIs_d_Ug=0;
+  double d_lnIs_d_N=0;
+  double d_lnIs_d_AREA=0;
+  double d_lnIs_d_TJ=0;
+  double d_lnIs_d_TNOM=0;
   {
     d_VTH0_d_U=0.0;
     d_VTH0_d_Is=0.0;
@@ -825,12 +825,12 @@ double d_MM(double VBCI , double VCBO , double MC , double VCBLIN , double BF , 
   double MM;
   double d_MM;
   // Derivatives of return value w.r.t input vars
-  double d_MM_d_VBCI;
-  double d_MM_d_VCBO;
-  double d_MM_d_MC;
-  double d_MM_d_VCBLIN;
-  double d_MM_d_BF;
-  double d_MM_d_KC;
+  double d_MM_d_VBCI=0;
+  double d_MM_d_VCBO=0;
+  double d_MM_d_MC=0;
+  double d_MM_d_VCBLIN=0;
+  double d_MM_d_BF=0;
+  double d_MM_d_KC=0;
   double FBD;
   double d_FBD_d_VBCI;
   double d_FBD_d_VCBO;
@@ -983,27 +983,27 @@ MMEvaluator::returnType MMEvaluator::evaluator_(double VBCI, double VCBO, double
   double MM;
   MMEvaluator::returnType MMReturn;
   // Derivatives of return value w.r.t input vars
-  double d_MM_d_VBCI;
-  double d_MM_d_VCBO;
-  double d_MM_d_MC;
-  double d_MM_d_VCBLIN;
-  double d_MM_d_BF;
-  double d_MM_d_KC;
+  double d_MM_d_VBCI=0;
+  double d_MM_d_VCBO=0;
+  double d_MM_d_MC=0;
+  double d_MM_d_VCBLIN=0;
+  double d_MM_d_BF=0;
+  double d_MM_d_KC=0;
   // declared local variables
   double FBD;
-  double d_FBD_d_VBCI;
-  double d_FBD_d_VCBO;
-  double d_FBD_d_MC;
-  double d_FBD_d_VCBLIN;
-  double d_FBD_d_BF;
-  double d_FBD_d_KC;
+  double d_FBD_d_VBCI=0;
+  double d_FBD_d_VCBO=0;
+  double d_FBD_d_MC=0;
+  double d_FBD_d_VCBLIN=0;
+  double d_FBD_d_BF=0;
+  double d_FBD_d_KC=0;
   double vcbi;
-  double d_vcbi_d_VBCI;
-  double d_vcbi_d_VCBO;
-  double d_vcbi_d_MC;
-  double d_vcbi_d_VCBLIN;
-  double d_vcbi_d_BF;
-  double d_vcbi_d_KC;
+  double d_vcbi_d_VBCI=0;
+  double d_vcbi_d_VCBO=0;
+  double d_vcbi_d_MC=0;
+  double d_vcbi_d_VCBLIN=0;
+  double d_vcbi_d_BF=0;
+  double d_vcbi_d_KC=0;
   {
     if((((KC>0.0)&&(MC>0.0))&&(VCBO>0.0)))
     {
@@ -1113,8 +1113,8 @@ double charge(double U, double C0, double Ud, double m, double Area)
   double Vjo;
   double VF;
   {
-    Vj = AnalogFunctions::Vt(U,Ud);
-    Vjo = AnalogFunctions::Vt(0.0,Ud);
+    Vj = Vt(U,Ud);
+    Vjo = Vt(0.0,Ud);
     VF = (0.9*Ud);
     if ((m==1.0))
     {
@@ -1134,11 +1134,11 @@ double d_charge(double U , double C0 , double Ud , double m , double Area  , dou
   double charge;
   double d_charge;
   // Derivatives of return value w.r.t input vars
-  double d_charge_d_U;
-  double d_charge_d_C0;
-  double d_charge_d_Ud;
-  double d_charge_d_m;
-  double d_charge_d_Area;
+  double d_charge_d_U=0;
+  double d_charge_d_C0=0;
+  double d_charge_d_Ud=0;
+  double d_charge_d_m=0;
+  double d_charge_d_Area=0;
   double Vj;
   double d_Vj_d_U;
   double d_Vj_d_C0;
@@ -1240,30 +1240,30 @@ chargeEvaluator::returnType chargeEvaluator::evaluator_(double U, double C0, dou
   double charge;
   chargeEvaluator::returnType chargeReturn;
   // Derivatives of return value w.r.t input vars
-  double d_charge_d_U;
-  double d_charge_d_C0;
-  double d_charge_d_Ud;
-  double d_charge_d_m;
-  double d_charge_d_Area;
+  double d_charge_d_U=0;
+  double d_charge_d_C0=0;
+  double d_charge_d_Ud=0;
+  double d_charge_d_m=0;
+  double d_charge_d_Area=0;
   // declared local variables
   double Vj;
-  double d_Vj_d_U;
-  double d_Vj_d_C0;
-  double d_Vj_d_Ud;
-  double d_Vj_d_m;
-  double d_Vj_d_Area;
+  double d_Vj_d_U=0;
+  double d_Vj_d_C0=0;
+  double d_Vj_d_Ud=0;
+  double d_Vj_d_m=0;
+  double d_Vj_d_Area=0;
   double Vjo;
-  double d_Vjo_d_U;
-  double d_Vjo_d_C0;
-  double d_Vjo_d_Ud;
-  double d_Vjo_d_m;
-  double d_Vjo_d_Area;
+  double d_Vjo_d_U=0;
+  double d_Vjo_d_C0=0;
+  double d_Vjo_d_Ud=0;
+  double d_Vjo_d_m=0;
+  double d_Vjo_d_Area=0;
   double VF;
-  double d_VF_d_U;
-  double d_VF_d_C0;
-  double d_VF_d_Ud;
-  double d_VF_d_m;
-  double d_VF_d_Area;
+  double d_VF_d_U=0;
+  double d_VF_d_C0=0;
+  double d_VF_d_Ud=0;
+  double d_VF_d_m=0;
+  double d_VF_d_Area=0;
   {
     d_Vj_d_U=d_Vt(U,Ud,1.0,0.0);
     d_Vj_d_C0=0.0;
@@ -1336,8 +1336,8 @@ double d_Vceff(double U , double VCES  , double d_U , double d_VCES )
   double Vceff;
   double d_Vceff;
   // Derivatives of return value w.r.t input vars
-  double d_Vceff_d_U;
-  double d_Vceff_d_VCES;
+  double d_Vceff_d_U=0;
+  double d_Vceff_d_VCES=0;
   double Vth0;
   double d_Vth0_d_U;
   double d_Vth0_d_VCES;
@@ -1397,12 +1397,12 @@ VceffEvaluator::returnType VceffEvaluator::evaluator_(double U, double VCES)
   double Vceff;
   VceffEvaluator::returnType VceffReturn;
   // Derivatives of return value w.r.t input vars
-  double d_Vceff_d_U;
-  double d_Vceff_d_VCES;
+  double d_Vceff_d_U=0;
+  double d_Vceff_d_VCES=0;
   // declared local variables
   double Vth0;
-  double d_Vth0_d_U;
-  double d_Vth0_d_VCES;
+  double d_Vth0_d_U=0;
+  double d_Vth0_d_VCES=0;
   {
     d_Vth0_d_U=0.0;
     d_Vth0_d_VCES=0.0;
@@ -1433,7 +1433,7 @@ double ICK(double U, double RCI0, double VLIM, double InvVPT, double VCES)
   double VC;
   double x;
   {
-    VC = AnalogFunctions::Vceff(U,VCES);
+    VC = Vceff(U,VCES);
     x = ((VC-VLIM)*InvVPT);
     ICK = (((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0)));
   }
@@ -1446,11 +1446,11 @@ double d_ICK(double U , double RCI0 , double VLIM , double InvVPT , double VCES 
   double ICK;
   double d_ICK;
   // Derivatives of return value w.r.t input vars
-  double d_ICK_d_U;
-  double d_ICK_d_RCI0;
-  double d_ICK_d_VLIM;
-  double d_ICK_d_InvVPT;
-  double d_ICK_d_VCES;
+  double d_ICK_d_U=0;
+  double d_ICK_d_RCI0=0;
+  double d_ICK_d_VLIM=0;
+  double d_ICK_d_InvVPT=0;
+  double d_ICK_d_VCES=0;
   double VC;
   double d_VC_d_U;
   double d_VC_d_RCI0;
@@ -1528,24 +1528,24 @@ ICKEvaluator::returnType ICKEvaluator::evaluator_(double U, double RCI0, double 
   double ICK;
   ICKEvaluator::returnType ICKReturn;
   // Derivatives of return value w.r.t input vars
-  double d_ICK_d_U;
-  double d_ICK_d_RCI0;
-  double d_ICK_d_VLIM;
-  double d_ICK_d_InvVPT;
-  double d_ICK_d_VCES;
+  double d_ICK_d_U=0;
+  double d_ICK_d_RCI0=0;
+  double d_ICK_d_VLIM=0;
+  double d_ICK_d_InvVPT=0;
+  double d_ICK_d_VCES=0;
   // declared local variables
   double VC;
-  double d_VC_d_U;
-  double d_VC_d_RCI0;
-  double d_VC_d_VLIM;
-  double d_VC_d_InvVPT;
-  double d_VC_d_VCES;
+  double d_VC_d_U=0;
+  double d_VC_d_RCI0=0;
+  double d_VC_d_VLIM=0;
+  double d_VC_d_InvVPT=0;
+  double d_VC_d_VCES=0;
   double x;
-  double d_x_d_U;
-  double d_x_d_RCI0;
-  double d_x_d_VLIM;
-  double d_x_d_InvVPT;
-  double d_x_d_VCES;
+  double d_x_d_U=0;
+  double d_x_d_RCI0=0;
+  double d_x_d_VLIM=0;
+  double d_x_d_InvVPT=0;
+  double d_x_d_VCES=0;
   {
     d_VC_d_U=d_Vceff(U,VCES,1.0,0.0);
     d_VC_d_RCI0=0.0;
