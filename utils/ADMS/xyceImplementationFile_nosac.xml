@@ -218,7 +218,9 @@ namespace %($nameSpace) {
 <admst:if test="[exists(analogfunction)]">
 <admst:text format="namespace AnalogFunctions {\n"/>
     <admst:for-each select="analogfunction">
+      <admst:variable name="globalCurrentScope" select="AF"/>
       <admst:apply-templates select="." match="xyceAnalogFunctionDefinition"/>
+      <admst:variable name="globalCurrentScope" select="instance"/>
       <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
       <admst:apply-templates select="." match="xyceAnalogFunctions:ClassImplementations"/>
     </admst:for-each>

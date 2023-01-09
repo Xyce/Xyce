@@ -213,7 +213,7 @@ static ModelSensitivity modSens;
 
 // general purpose free functions
 // thermal voltage at kelvin temperature temp)
-template &lt;typename T&gt; static inline T adms_vt(const T temp) {return(CONSTKoverQ*temp);};
+static inline double adms_vt(const double temp) {return(CONSTKoverQ*temp);};
 
 
 #ifdef Xyce_ADMS_SENSITIVITIES
