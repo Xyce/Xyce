@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:17
+// Creation Date  : Mon, 09 Jan 2023 12:53:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,31 @@ namespace Xyce {
 namespace Device {
 namespace ADMSvbic13 {
 namespace AnalogFunctions {
+double limRTH(double orig, double old)
+{
+double limRTH;
+double t0;
+double t1;
+double retval;
+{
+t0 = (orig-old);
+t1 = fabs(t0);
+retval = orig;
+if ((t1>5.0))
+{
+if ((t0>0))
+{
+retval = (old+5.0);
+}
+else
+{
+retval = (old-5.0);
+}
+}
+limRTH = retval;
+}
+return(limRTH);
+}
 // Derivative of Analog Function limRTH
 double d_limRTH(double orig , double old  , double d_orig , double d_old )
 {
@@ -82,8 +107,8 @@ double d_limRTH(double orig , double old  , double d_orig , double d_old )
 double limRTH;
 double d_limRTH;
 // Derivatives of return value w.r.t input vars
-double d_limRTH_d_orig;
-double d_limRTH_d_old;
+double d_limRTH_d_orig=0;
+double d_limRTH_d_old=0;
 double t0;
 double d_t0_d_orig;
 double d_t0_d_old;
@@ -161,18 +186,18 @@ return(d_limRTH);
   double limRTH;
   limRTHEvaluator::returnType limRTHReturn;
   // Derivatives of return value w.r.t input vars
-  double d_limRTH_d_orig;
-  double d_limRTH_d_old;
+  double d_limRTH_d_orig=0;
+  double d_limRTH_d_old=0;
   // declared local variables
   double t0;
-  double d_t0_d_orig;
-  double d_t0_d_old;
+  double d_t0_d_orig=0;
+  double d_t0_d_old=0;
   double t1;
-  double d_t1_d_orig;
-  double d_t1_d_old;
+  double d_t1_d_orig=0;
+  double d_t1_d_old=0;
   double retval;
-  double d_retval_d_orig;
-  double d_retval_d_old;
+  double d_retval_d_orig=0;
+  double d_retval_d_old=0;
 {
 d_t0_d_orig=1.0;
 d_t0_d_old=(-1.0);

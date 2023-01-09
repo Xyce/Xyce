@@ -1369,10 +1369,6 @@ struct Traits: public DeviceTraits&lt;Model, Instance
    xyceAnalogFunctionDeclaration
     Given an analog function, return a declaration for putting in
     the header file.
-    Unlike the way "analogfunction.xml" from the ADMS source does,
-    we do NOT prefix the function with the module name, because
-    we're going to make it a member function of the class, and the
-    prefix will be redundant
    =================================================================-
   -->
   <admst:template match="xyceAnalogFunctionDeclaration">
@@ -1383,68 +1379,54 @@ struct Traits: public DeviceTraits&lt;Model, Instance
        match="verilog2CXXtype"/>
     <admst:text format=" $function("/>
     <admst:join
-       select="variable[input='yes']"
+       select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]"
        separator=", ">
-      <admst:value-of select="name"/>
       <admst:apply-templates select="." match="verilog2CXXtype"/>
-      <admst:text format=" %s"/>
+      <admst:if test="[output='yes']">
+        <admst:text format="&amp; "/>
+      </admst:if>
+      <admst:text format=" %(name)"/>
     </admst:join>
     <admst:text format=");\n"/>
   </admst:template>
 
   <!--
    =================================================================-
-   xyceTemplatedAnalogFunctionDeclaration
-    Given an analog function, return a declaration for putting in
-    the header file.
-   Unlike xyceAnalogFunctionDeclaration, we don't actually declare
-   the function as it's declared in the verilog source, but rather
-   as a templated function whose return type is assumed to be the
-   type of all its arguments, which are assumed to be all of
-   exactly the same type.  We'll simply puke with an error if this
-   condition isn't met.
-    Unlike the way "analogfunction.xml" from the ADMS source does,
-    we do NOT prefix the function with the module name, because
-    we're going to make it a member function of the class, and the
-    prefix will be redundant
+   xyceAnalogFunctionDefinition
+   Given an analog function, return a non-templated definition of
+   the function (not just a declaration)
    =================================================================-
   -->
-  <admst:template match="xyceTemplatedAnalogFunctionDeclaration">
-    <admst:value-of select="name"/>
-    <admst:variable name="function" select="%s"/>
+  <admst:template match="xyceAnalogFunctionDefinition">
+    <admst:variable name="function" select="%(name)"/>
     <!-- save the return type -->
-    <admst:value-of select="type"/>
-    <admst:variable name="returnType" select="%s"/>
+    <admst:variable name="returnType" select="%(type)"/>
 
-    <!-- puke if any variable fails to match type -->
-    <admst:for-each select="variable[input='yes' and
-                            type!='$returnType']">
-      <admst:fatal format="Variable %(name) of type %(type) is not of same type as return
-                      type of function $function, which is of type$returnType\n"/>
-    </admst:for-each>
 
-    <!-- if we get here, all's good. Just churn out the declaration -->
     <!-- must output variables defined as input, output, or inout, but not
          the one that has the same name as the function -->
-    <admst:text format="template&lt;typename ScalarT&gt; ScalarT $function("/>
+    <admst:apply-templates
+       select="."
+       match="verilog2CXXtype"/>
+    <admst:text format=" $function("/>
     <admst:join
        select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]"
        separator=", ">
-      <admst:text format="ScalarT "/>
+      <admst:apply-templates select="." match="verilog2CXXtype"/>
       <!-- only pass by reference if it's an output variable. -->
       <admst:if test="[output='yes']">
         <admst:text format="&amp; "/>
       </admst:if>
-      <admst:text format="%(name)"/>
+      <admst:text format=" %(name)"/>
     </admst:join>
     <admst:text format=")\n"/>
     <admst:text format="{\n"/>
 
-    ScalarT %($function);
+    <admst:apply-templates select="." match="verilog2CXXtype"/>
+    <admst:text format=" %($function);\n"/>
 
     <admst:for-each select="variable[input='no' and output='no']">
-      <admst:text select="[type='$returnType']" format="ScalarT "/>
-      <admst:text select="[type!='$returnType']" format="%(verilog2CXXtype(.)) "/>
+      <admst:text format="%(verilog2CXXtype(.)) "/>
       <admst:text format="%(name);\n"/>
     </admst:for-each>
     <admst:apply-templates select="tree" match="%(adms/datatypename)"/>
@@ -5418,7 +5400,7 @@ other variables does not get propagated into a variable's
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:choose>
                 <admst:when test="[$globalCurrentScope='AF']">
-                  <admst:variable name="expression" select="adms_vt&lt;ScalarT&gt;(%(returned('returnedExpression')/value))"/>
+                  <admst:variable name="expression" select="adms_vt(%(returned('returnedExpression')/value))"/>
                 </admst:when>
                 <admst:otherwise>
                   <admst:variable name="expression" select="adms_vt(%(returned('returnedExpression')/value))"/>
@@ -6538,14 +6520,12 @@ other variables does not get propagated into a variable's
                       <admst:variable name="expression" select="evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.)).getValues"/>
                     </admst:when>
                     <admst:otherwise>
-                      <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
+                      <admst:variable name="expression" select="AnalogFunctions::%(name)"/>
                     </admst:otherwise>
                   </admst:choose>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='AF']">
-                  <!-- If we call an analog function from within another,
-                       make sure to force the same instantiation? -->
-                  <admst:variable name="expression" select="%(name)&lt;ScalarT&gt;"/>
+                  <admst:variable name="expression" select="%(name)"/>
                 </admst:when>
               </admst:choose>
             </admst:when>

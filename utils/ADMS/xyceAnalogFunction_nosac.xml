@@ -1309,7 +1309,7 @@ subordinate template returned.
   <admst:text format="// Derivatives of return value w.r.t input vars\n"/>
   <!-- derivatives of the return value w.r.t. all input vars -->
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-    <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
+    <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name)=0;\n"/>
   </admst:for-each>
   <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
     <admst:text format="// Derivatives of additional output vars w.r.t input vars\n"/>
@@ -1318,7 +1318,7 @@ subordinate template returned.
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
     <admst:variable name="wrt" select="%(name)"/>
     <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
-      <admst:text format="%(verilog2CXXtype(.)) d_%(name)_d_$(wrt);\n"/>
+      <admst:text format="%(verilog2CXXtype(.)) d_%(name)_d_$(wrt)=0;\n"/>
     </admst:for-each>
   </admst:for-each>
   <admst:for-each select="variable[input='no' and output='no']">
@@ -1482,7 +1482,7 @@ subordinate template returned.
   <admst:text format="  // Derivatives of return value w.r.t input vars\n"/>
   <!-- derivatives of the return value w.r.t. all input vars -->
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-    <admst:text format="  %(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
+    <admst:text format="  %(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name)=0;\n"/>
   </admst:for-each>
   <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
     <admst:text format="  // additional output vars  and derivs w.r.t input vars\n"/>
@@ -1492,7 +1492,7 @@ subordinate template returned.
     <admst:variable name="ovar" select="%(name)"/>
     <admst:text format="  %(verilog2CXXtype(.)) $(ovar);\n"/>
     <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-      <admst:text format="  %(verilog2CXXtype(.)) d_$(ovar)_d_%(name);\n"/>
+      <admst:text format="  %(verilog2CXXtype(.)) d_$(ovar)_d_%(name)=0;\n"/>
     </admst:for-each>
   </admst:for-each>
   <!-- and now the remaining local variables -->
@@ -1503,7 +1503,7 @@ subordinate template returned.
     <admst:text format="  %(verilog2CXXtype($theVar)) $varname;\n"/>
     <admst:if test="[$theVar/type='real']">
       <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-        <admst:text format="  %(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
+        <admst:text format="  %(verilog2CXXtype($theVar)) d_$(varname)_d_%(name)=0;\n"/>
       </admst:for-each>
     </admst:if>
   </admst:for-each>

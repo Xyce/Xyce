@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:17
+// Creation Date  : Mon, 09 Jan 2023 12:53:29
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSvbic13_h
@@ -132,7 +132,7 @@ static ModelSensitivity modSens;
 
 // general purpose free functions
 // thermal voltage at kelvin temperature temp)
-template <typename T> static inline T adms_vt(const T temp) {return(CONSTKoverQ*temp);};
+static inline double adms_vt(const double temp) {return(CONSTKoverQ*temp);};
 
 
 #ifdef Xyce_ADMS_SENSITIVITIES
@@ -1299,33 +1299,7 @@ namespace AnalogFunctions
 {
 
       // Analog Function limRTH
-template<typename ScalarT> ScalarT limRTH(ScalarT orig, ScalarT old)
-{
-
-
-    ScalarT limRTH;
-ScalarT t0;
-ScalarT t1;
-ScalarT retval;
-{
-t0 = (orig-old);
-t1 = fabs(t0);
-retval = orig;
-if ((t1>5.0))
-{
-if ((t0>0))
-{
-retval = (old+5.0);
-}
-else
-{
-retval = (old-5.0);
-}
-}
-limRTH = retval;
-}
-return(limRTH);
-}
+double limRTH(double orig, double old);
 // Derivative of Analog Function limRTH
 double d_limRTH(double orig , double old  , double d_orig  , double d_old  );
 // Evaluator class for Analog Function limRTH

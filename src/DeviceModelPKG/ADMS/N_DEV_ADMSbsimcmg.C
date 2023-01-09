@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 12:53:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,28 @@ namespace Xyce {
 namespace Device {
 namespace ADMSbsimcmg {
 namespace AnalogFunctions {
+double lexp(double x)
+{
+double lexp;
+{
+if ((x>80.0))
+{
+lexp = (5.540622384e+34*((1.0+x)-80.0));
+}
+else
+{
+if ((x<(-80.0)))
+{
+lexp = 1.804851387e-35;
+}
+else
+{
+lexp = exp(x);
+}
+}
+}
+return(lexp);
+}
 // Derivative of Analog Function lexp
 double d_lexp(double x  , double d_x )
 {
@@ -82,7 +104,7 @@ double d_lexp(double x  , double d_x )
 double lexp;
 double d_lexp;
 // Derivatives of return value w.r.t input vars
-double d_lexp_d_x;
+double d_lexp_d_x=0;
 {
 if((x>80.0))
 {
@@ -140,7 +162,7 @@ return(d_lexp);
   double lexp;
   lexpEvaluator::returnType lexpReturn;
   // Derivatives of return value w.r.t input vars
-  double d_lexp_d_x;
+  double d_lexp_d_x=0;
   // declared local variables
 {
 if((x>80.0))
@@ -168,6 +190,14 @@ lexp=exp(x);
   return(lexpReturn);
   }
 
+double lln(double x)
+{
+double lln;
+{
+lln = log(std::max(x,static_cast<double>(1.0e-38)));
+}
+return(lln);
+}
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x )
 {
@@ -175,7 +205,7 @@ double d_lln(double x  , double d_x )
 double lln;
 double d_lln;
 // Derivatives of return value w.r.t input vars
-double d_lln_d_x;
+double d_lln_d_x=0;
 {
 d_lln_d_x=(1.0/std::max( static_cast<double>(x), static_cast<double>(1.0e-38)))*((x>=1.0e-38)?1.0:0.0);
 lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
@@ -217,7 +247,7 @@ return(d_lln);
   double lln;
   llnEvaluator::returnType llnReturn;
   // Derivatives of return value w.r.t input vars
-  double d_lln_d_x;
+  double d_lln_d_x=0;
   // declared local variables
 {
 d_lln_d_x=(1.0/std::max( static_cast<double>(x), static_cast<double>(1.0e-38)))*((x>=1.0e-38)?1.0:0.0);
@@ -229,6 +259,14 @@ lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
   return(llnReturn);
   }
 
+double hypsmooth(double x, double c)
+{
+double hypsmooth;
+{
+hypsmooth = (0.5*(x+sqrt(((x*x)+((4*c)*c)))));
+}
+return(hypsmooth);
+}
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x , double d_c )
 {
@@ -236,8 +274,8 @@ double d_hypsmooth(double x , double c  , double d_x , double d_c )
 double hypsmooth;
 double d_hypsmooth;
 // Derivatives of return value w.r.t input vars
-double d_hypsmooth_d_x;
-double d_hypsmooth_d_c;
+double d_hypsmooth_d_x=0;
+double d_hypsmooth_d_c=0;
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4*c)*c))))*(x+x)));
 d_hypsmooth_d_c=(0.5*(0.5/sqrt(((x*x)+((4*c)*c))))*((4*c)+c*(4)));
@@ -282,8 +320,8 @@ return(d_hypsmooth);
   double hypsmooth;
   hypsmoothEvaluator::returnType hypsmoothReturn;
   // Derivatives of return value w.r.t input vars
-  double d_hypsmooth_d_x;
-  double d_hypsmooth_d_c;
+  double d_hypsmooth_d_x=0;
+  double d_hypsmooth_d_c=0;
   // declared local variables
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4*c)*c))))*(x+x)));
@@ -297,6 +335,14 @@ hypsmooth=(0.5*(x+sqrt(((x*x)+((4*c)*c)))));
   return(hypsmoothReturn);
   }
 
+double hypmax(double x, double xmin, double c)
+{
+double hypmax;
+{
+hypmax = (xmin+(0.5*(((x-xmin)-c)+sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))));
+}
+return(hypmax);
+}
 // Derivative of Analog Function hypmax
 double d_hypmax(double x , double xmin , double c  , double d_x , double d_xmin , double d_c )
 {
@@ -304,9 +350,9 @@ double d_hypmax(double x , double xmin , double c  , double d_x , double d_xmin 
 double hypmax;
 double d_hypmax;
 // Derivatives of return value w.r.t input vars
-double d_hypmax_d_x;
-double d_hypmax_d_xmin;
-double d_hypmax_d_c;
+double d_hypmax_d_x=0;
+double d_hypmax_d_xmin=0;
+double d_hypmax_d_c=0;
 {
 d_hypmax_d_x=(0.5*(1.0+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((x-xmin)-c)+((x-xmin)-c))));
 d_hypmax_d_xmin=(1.0+(0.5*((-1.0)+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((((x-xmin)-c)*(-1.0))+((-1.0)*((x-xmin)-c)))-((4)*c)))));
@@ -354,9 +400,9 @@ return(d_hypmax);
   double hypmax;
   hypmaxEvaluator::returnType hypmaxReturn;
   // Derivatives of return value w.r.t input vars
-  double d_hypmax_d_x;
-  double d_hypmax_d_xmin;
-  double d_hypmax_d_c;
+  double d_hypmax_d_x=0;
+  double d_hypmax_d_xmin=0;
+  double d_hypmax_d_c=0;
   // declared local variables
 {
 d_hypmax_d_x=(0.5*(1.0+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4*xmin)*c))))*(((x-xmin)-c)+((x-xmin)-c))));

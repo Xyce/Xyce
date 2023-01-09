@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 12:53:25
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -132,7 +132,7 @@ static ModelSensitivity modSens;
 
 // general purpose free functions
 // thermal voltage at kelvin temperature temp)
-template <typename T> static inline T adms_vt(const T temp) {return(CONSTKoverQ*temp);};
+static inline double adms_vt(const double temp) {return(CONSTKoverQ*temp);};
 
 
 #ifdef Xyce_ADMS_SENSITIVITIES
@@ -4393,30 +4393,7 @@ namespace AnalogFunctions
 {
 
       // Analog Function lexp
-template<typename ScalarT> ScalarT lexp(ScalarT x)
-{
-
-
-    ScalarT lexp;
-{
-if ((x>80.0))
-{
-lexp = (5.540622384e+34*((1.0+x)-80.0));
-}
-else
-{
-if ((x<(-80.0)))
-{
-lexp = 1.804851387e-35;
-}
-else
-{
-lexp = exp(x);
-}
-}
-}
-return(lexp);
-}
+double lexp(double x);
 // Derivative of Analog Function lexp
 double d_lexp(double x  , double d_x  );
 // Evaluator class for Analog Function lexp
@@ -4449,16 +4426,7 @@ private:
 
 
       // Analog Function lln
-template<typename ScalarT> ScalarT lln(ScalarT x)
-{
-
-
-    ScalarT lln;
-{
-lln = log(std::max(x,static_cast<double>(1.0e-38)));
-}
-return(lln);
-}
+double lln(double x);
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x  );
 // Evaluator class for Analog Function lln
@@ -4491,16 +4459,7 @@ private:
 
 
       // Analog Function hypsmooth
-template<typename ScalarT> ScalarT hypsmooth(ScalarT x, ScalarT c)
-{
-
-
-    ScalarT hypsmooth;
-{
-hypsmooth = (0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
-}
-return(hypsmooth);
-}
+double hypsmooth(double x, double c);
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x  , double d_c  );
 // Evaluator class for Analog Function hypsmooth

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 12:53:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,14 @@ namespace Xyce {
 namespace Device {
 namespace ADMSbsimsoi450 {
 namespace AnalogFunctions {
+double hypsmooth(double x, double c)
+{
+double hypsmooth;
+{
+hypsmooth = (0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
+}
+return(hypsmooth);
+}
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x , double d_c )
 {
@@ -82,8 +90,8 @@ double d_hypsmooth(double x , double c  , double d_x , double d_c )
 double hypsmooth;
 double d_hypsmooth;
 // Derivatives of return value w.r.t input vars
-double d_hypsmooth_d_x;
-double d_hypsmooth_d_c;
+double d_hypsmooth_d_x=0;
+double d_hypsmooth_d_c=0;
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4.0*c)*c))))*(x+x)));
 d_hypsmooth_d_c=(0.5*(0.5/sqrt(((x*x)+((4.0*c)*c))))*((4.0*c)+c*(4.0)));
@@ -128,8 +136,8 @@ return(d_hypsmooth);
   double hypsmooth;
   hypsmoothEvaluator::returnType hypsmoothReturn;
   // Derivatives of return value w.r.t input vars
-  double d_hypsmooth_d_x;
-  double d_hypsmooth_d_c;
+  double d_hypsmooth_d_x=0;
+  double d_hypsmooth_d_c=0;
   // declared local variables
 {
 d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4.0*c)*c))))*(x+x)));
