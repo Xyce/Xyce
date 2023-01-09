@@ -1645,11 +1645,16 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 //-----------------------------------------------------------------------------
 char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 {
-  char node_type = 'N';
+  char node_type = '\0';
+  char node_type_found = '\0';
+  int nodeAsInt = 0;
+  int nodeTypeAsInt = 0;
+
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
     const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1668,29 +1673,18 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
       int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
 
       // Now determine which processor owns this solution node
-      int proc, tmp_proc = -1;
+      int proc = 0;
+      int tmp_proc = -1;
+      tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
       if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
       {
-        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
         node_type = type_vec[varIndex_LID];
       }
-      pdsComm.maxAll( &tmp_proc, &proc, 1 );
-
-      // Make sure someone owns this GID, otherwise proc will be -1.
-      if (proc != -1)
-      {
-        // Communicate the node name length and character string from the processor that owns it
-        int length = 1;
-        pdsComm.bcast( &length, 1, proc ); 
-        char *buffer = (char *)malloc( length+1 );
-
-        if (varIndex_LID > -1)
-          *buffer = node_type;
-
-        pdsComm.bcast( buffer, length+1, proc );
-        node_type = *buffer;
-        free( buffer );
-      }
+      //pdsComm.maxAll( &tmp_proc, &proc, 1 );
+      nodeTypeAsInt = (int) node_type;
+      pdsComm.maxAll( &nodeTypeAsInt, &nodeAsInt, 1 );
+      node_type_found = (char) nodeAsInt;
+      node_type = node_type_found;
     }
   }
   return node_type; 
@@ -1780,12 +1774,12 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     
     // loop over the full solution vector 
     double value = 0.0;
-    unsigned int globalID = 0;
-    //(this->getDataStore())->currSolutionPtr->infNorm( &value, &globalID );
-    auto numSolVars = (this->getDataStore())->solutionSize;
-    for( globalID=0 ; globalID < numSolVars; globalID++)
+    unsigned int localID = 0;
+    auto numSolVars = (this->getDataStore())->currSolutionPtr->localLength();
+    for( localID=0 ; localID < numSolVars; localID++)
     {
-      value = this->getDataStore()->currSolutionPtr->getElementByGlobalIndex(globalID);
+      value =(*(this->getDataStore()->currSolutionPtr))[localID];
+      auto globalID = ((dataStore_->builder_).getSolutionMap())->localToGlobalIndex( localID );
       char varType = this->getNodeTypeFromIndex( globalID ); 
       
       if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
@@ -1837,9 +1831,9 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     if( diagnosticCurrentLimitGiven_ )
     {
       auto numLeadVars = (this->getDataStore())->leadCurrentSize;
-      for( globalID=0 ; globalID < numLeadVars; globalID++)
+      for( localID=0 ; localID < numLeadVars; localID++)
       {
-        value = this->getDataStore()->currLeadCurrentPtr->getElementByGlobalIndex(globalID);
+        value = (*(this->getDataStore()->currLeadCurrentPtr))[localID];
         std::string nodeName("NF");
         if( fabs(value) > diagnosticCurrentLimit_)
         {
@@ -1849,7 +1843,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
           bool nameFound = false;
           while( !nameFound && (mapItr != endItr))
           {
-            if( mapItr->second == globalID)
+            if( mapItr->second == localID)
             {
               nodeName = mapItr->first;
               nameFound = true;
@@ -1883,6 +1877,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     //voltageOutput >> vOutput;
     std::string iOutput(currentOutput.str() );
     //currentOutput >> iOutput;
+    Xyce::lout() << vOutput << iOutput;
     (*diagnosticOutputStreamPtr_)  << vOutput << iOutput;
   }
 }
