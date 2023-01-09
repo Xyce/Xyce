@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:06:12
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSJUNCAP200_h

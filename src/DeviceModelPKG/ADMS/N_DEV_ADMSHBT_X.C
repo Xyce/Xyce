@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -74,6 +74,25 @@ namespace Xyce {
 namespace Device {
 namespace ADMSHBT_X {
 namespace AnalogFunctions {
+double exp_soft(double x)
+{
+  double exp_soft;
+  double maxexp;
+  double maxarg;
+  {
+    maxexp = 1.0e25;
+    maxarg = log(maxexp);
+    if ((x<maxarg))
+    {
+      exp_soft = exp(x);
+    }
+    else
+    {
+      exp_soft = (((x+1.0)-maxarg)*maxexp);
+    }
+  }
+  return(exp_soft);
+}
 // Derivative of Analog Function exp_soft
 double d_exp_soft(double x  , double d_x )
 {
@@ -167,6 +186,25 @@ exp_softEvaluator::returnType exp_softEvaluator::evaluator_(double x)
   return(exp_softReturn);
 }
 
+double Vt(double U, double Ud)
+{
+  double Vt;
+  double Vch;
+  double VF;
+  {
+    Vch = (0.1*Ud);
+    VF = (0.9*Ud);
+    if ((U<VF))
+    {
+      Vt = (U-(Vch*log((1.0+exp(((U-VF)/Vch))))));
+    }
+    else
+    {
+      Vt = (VF-(Vch*log((1.0+exp(((VF-U)/Vch))))));
+    }
+  }
+  return(Vt);
+}
 // Derivative of Analog Function Vt
 double d_Vt(double U , double Ud  , double d_U , double d_Ud )
 {
@@ -277,6 +315,44 @@ VtEvaluator::returnType VtEvaluator::evaluator_(double U, double Ud)
   return(VtReturn);
 }
 
+double diode(double U, double Is, double Ug, double N, double AREA, double TJ, double TNOM)
+{
+  double diode;
+  double VTH0;
+  double VTHJ;
+  double VTHNOM;
+  double maxi;
+  double Tmax;
+  double TJM;
+  double KDURCHQ;
+  double lnIs;
+  {
+    VTH0 = adms_vt((20.0+273.15));
+    VTHNOM = adms_vt((TNOM+273.15));
+    KDURCHQ = 0.861708692e-4;
+    lnIs = log((Is*AREA));
+    maxi = log(static_cast<double>(1e6));
+    if (((maxi<(Ug/VTHNOM))&&(U<0.0)))
+    {
+      Tmax = (((Ug*VTHNOM)/((Ug-(maxi*VTHNOM))*KDURCHQ))-273.15);
+      TJM = AnalogFunctions::Vt(TJ,Tmax);
+    }
+    else
+    {
+      TJM = TJ;
+    }
+    VTHJ = adms_vt((TJM+273.15));
+    if ((Ug>0.0))
+    {
+      diode = (AnalogFunctions::exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs))-AnalogFunctions::exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs)));
+    }
+    else
+    {
+      diode = (AnalogFunctions::exp_soft(((U/(N*VTH0))+lnIs))-(Is*AREA));
+    }
+  }
+  return(diode);
+}
 // Derivative of Analog Function diode
 double d_diode(double U , double Is , double Ug , double N , double AREA , double TJ , double TNOM  , double d_U , double d_Is , double d_Ug , double d_N , double d_AREA , double d_TJ , double d_TNOM )
 {
@@ -692,6 +768,56 @@ diodeEvaluator::returnType diodeEvaluator::evaluator_(double U, double Is, doubl
   return(diodeReturn);
 }
 
+double MM(double VBCI, double VCBO, double MC, double VCBLIN, double BF, double KC)
+{
+  double MM;
+  double FBD;
+  double vcbi;
+  {
+    if ((((KC>0.0)&&(MC>0.0))&&(VCBO>0.0)))
+    {
+      vcbi = VBCI;
+      FBD = (VCBLIN/VCBO);
+      if ((VBCI>0.0))
+      {
+        MM = 1.0;
+      }
+      else
+      {
+        if ((VBCI>(-VCBLIN)))
+        {
+          if ((MC==1))
+          {
+            MM = (1.0/(1.0-(vcbi/(-VCBO))));
+          }
+          else
+          {
+            MM = (1.0/(1.0-pow((vcbi/(-VCBO)),MC)));
+          }
+        }
+        else
+        {
+          if ((VBCI<=(-VCBLIN)))
+          {
+            if ((MC==1))
+            {
+              MM = ((1.0/(1.0-FBD))-((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO))));
+            }
+            else
+            {
+              MM = ((1.0/(1.0-pow(FBD,MC)))-((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO))));
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      MM = 1.0;
+    }
+  }
+  return(MM);
+}
 // Derivative of Analog Function MM
 double d_MM(double VBCI , double VCBO , double MC , double VCBLIN , double BF , double KC  , double d_VBCI , double d_VCBO , double d_MC , double d_VCBLIN , double d_BF , double d_KC )
 {
@@ -980,6 +1106,27 @@ MMEvaluator::returnType MMEvaluator::evaluator_(double VBCI, double VCBO, double
   return(MMReturn);
 }
 
+double charge(double U, double C0, double Ud, double m, double Area)
+{
+  double charge;
+  double Vj;
+  double Vjo;
+  double VF;
+  {
+    Vj = AnalogFunctions::Vt(U,Ud);
+    Vjo = AnalogFunctions::Vt(0.0,Ud);
+    VF = (0.9*Ud);
+    if ((m==1.0))
+    {
+      charge = ((Area*C0)*((Ud*(log((1.0-(Vjo/Ud)))-log((1.0-(Vj/Ud)))))+((1.0/(1.0-(VF/Ud)))*((U-Vj)+Vjo))));
+    }
+    else
+    {
+      charge = ((Area*C0)*((((Ud/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m))))+(pow((1.0-(VF/Ud)),(-m))*((U-Vj)+Vjo)))-(Ud*(1.0/(1.0-m)))));
+    }
+  }
+  return(charge);
+}
 // Derivative of Analog Function charge
 double d_charge(double U , double C0 , double Ud , double m , double Area  , double d_U , double d_C0 , double d_Ud , double d_m , double d_Area )
 {
@@ -1165,6 +1312,23 @@ chargeEvaluator::returnType chargeEvaluator::evaluator_(double U, double C0, dou
   return(chargeReturn);
 }
 
+double Vceff(double U, double VCES)
+{
+  double Vceff;
+  double Vth0;
+  {
+    Vth0 = 0.025;
+    if ((U<VCES))
+    {
+      Vceff = (Vth0+(Vth0*log((1.0+exp((((U-VCES)/Vth0)-1.0))))));
+    }
+    else
+    {
+      Vceff = ((U-VCES)+(Vth0*log((1.0+exp((1.0-((U-VCES)/Vth0)))))));
+    }
+  }
+  return(Vceff);
+}
 // Derivative of Analog Function Vceff
 double d_Vceff(double U , double VCES  , double d_U , double d_VCES )
 {
@@ -1263,6 +1427,18 @@ VceffEvaluator::returnType VceffEvaluator::evaluator_(double U, double VCES)
   return(VceffReturn);
 }
 
+double ICK(double U, double RCI0, double VLIM, double InvVPT, double VCES)
+{
+  double ICK;
+  double VC;
+  double x;
+  {
+    VC = AnalogFunctions::Vceff(U,VCES);
+    x = ((VC-VLIM)*InvVPT);
+    ICK = (((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0)));
+  }
+  return(ICK);
+}
 // Derivative of Analog Function ICK
 double d_ICK(double U , double RCI0 , double VLIM , double InvVPT , double VCES  , double d_U , double d_RCI0 , double d_VLIM , double d_InvVPT , double d_VCES )
 {

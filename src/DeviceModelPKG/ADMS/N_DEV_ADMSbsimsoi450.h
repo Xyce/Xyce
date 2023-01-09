@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi450_h
@@ -5402,16 +5402,7 @@ namespace AnalogFunctions
 {
 
       // Analog Function hypsmooth
-template<typename ScalarT> ScalarT hypsmooth(ScalarT x, ScalarT c)
-{
-
-
-    ScalarT hypsmooth;
-{
-hypsmooth = (0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
-}
-return(hypsmooth);
-}
+double hypsmooth(double x, double c);
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x  , double d_c  );
 // Evaluator class for Analog Function hypsmooth

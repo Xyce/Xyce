@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,28 @@ namespace Xyce {
 namespace Device {
 namespace ADMSbsimcmg_110 {
 namespace AnalogFunctions {
+double lexp(double x)
+{
+double lexp;
+{
+if ((x>80.0))
+{
+lexp = (5.540622384e34*((1.0+x)-80.0));
+}
+else
+{
+if ((x<(-80.0)))
+{
+lexp = 1.804851387e-35;
+}
+else
+{
+lexp = exp(x);
+}
+}
+}
+return(lexp);
+}
 // Derivative of Analog Function lexp
 double d_lexp(double x  , double d_x )
 {
@@ -168,6 +190,14 @@ lexp=exp(x);
   return(lexpReturn);
   }
 
+double lln(double x)
+{
+double lln;
+{
+lln = log(std::max(x,static_cast<double>(1.0e-38)));
+}
+return(lln);
+}
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x )
 {
@@ -229,6 +259,14 @@ lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
   return(llnReturn);
   }
 
+double hypsmooth(double x, double c)
+{
+double hypsmooth;
+{
+hypsmooth = (0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
+}
+return(hypsmooth);
+}
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x , double d_c )
 {
@@ -297,6 +335,14 @@ hypsmooth=(0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
   return(hypsmoothReturn);
   }
 
+double hypmax(double x, double xmin, double c)
+{
+double hypmax;
+{
+hypmax = (xmin+(0.5*(((x-xmin)-c)+sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c))))));
+}
+return(hypmax);
+}
 // Derivative of Analog Function hypmax
 double d_hypmax(double x , double xmin , double c  , double d_x , double d_xmin , double d_c )
 {
@@ -372,6 +418,21 @@ hypmax=(xmin+(0.5*(((x-xmin)-c)+sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c)
   return(hypmaxReturn);
   }
 
+double Tempdep(double PARAML, double PARAMT, double DELTEMP, double TEMPMOD)
+{
+double Tempdep;
+{
+if ((TEMPMOD!=0))
+{
+Tempdep = (PARAML+AnalogFunctions::hypmax((PARAMT*DELTEMP),(-PARAML),1.0e-6));
+}
+else
+{
+Tempdep = (PARAML*AnalogFunctions::hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6),1.0e-3));
+}
+}
+return(Tempdep);
+}
 // Derivative of Analog Function Tempdep
 double d_Tempdep(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD  , double d_PARAML , double d_PARAMT , double d_DELTEMP , double d_TEMPMOD )
 {

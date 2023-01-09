@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:18
+// Creation Date  : Mon, 09 Jan 2023 08:58:27
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504va_h
@@ -1438,49 +1438,7 @@ namespace AnalogFunctions
 {
 
       // Analog Function trunc_ev
-template<typename ScalarT> ScalarT trunc_ev(ScalarT Val, ScalarT Vprev, ScalarT Vmin, ScalarT Vmax)
-{
-
-
-    ScalarT trunc_ev;
-ScalarT result;
-{
-result = Val;
-if ((Val>Vmax))
-{
-if ((Vprev>(Vmax-0.05)))
-{
-if (((Val-Vprev)>0.05))
-{
-result = (Vprev+0.05);
-}
-}
-else
-{
-result = Vmax;
-}
-}
-else
-{
-if ((Val<Vmin))
-{
-if ((Vprev<(0.9*Vmin)))
-{
-if ((Val<((1.5*Vprev)+(0.10*Vmin))))
-{
-result = ((1.5*Vprev)+(0.10*Vmin));
-}
-}
-else
-{
-result = Vmin;
-}
-}
-}
-trunc_ev = result;
-}
-return(trunc_ev);
-}
+double trunc_ev(double Val, double Vprev, double Vmin, double Vmax);
 // Derivative of Analog Function trunc_ev
 double d_trunc_ev(double Val , double Vprev , double Vmin , double Vmax  , double d_Val  , double d_Vprev  , double d_Vmin  , double d_Vmax  );
 // Evaluator class for Analog Function trunc_ev

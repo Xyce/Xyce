@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,14 @@ namespace Xyce {
 namespace Device {
 namespace ADMSbsimsoi {
 namespace AnalogFunctions {
+double lln(double x)
+{
+double lln;
+{
+lln = ((x>1.0e-38)?log(x):(-87.498233533773742465));
+}
+return(lln);
+}
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x )
 {
@@ -136,6 +144,14 @@ lln=((x>1.0e-38)?log(x):(-87.498233533773742465));
   return(llnReturn);
   }
 
+double hypsmooth(double x, double c)
+{
+double hypsmooth;
+{
+hypsmooth = (0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
+}
+return(hypsmooth);
+}
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x , double d_c )
 {

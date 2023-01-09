@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:13
+// Creation Date  : Mon, 09 Jan 2023 08:58:21
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -74,6 +74,14 @@ namespace Xyce {
 namespace Device {
 namespace ADMSmvsg_cmc {
 namespace AnalogFunctions {
+double absfunc(double x)
+{
+double absfunc;
+{
+absfunc = sqrt(((x*x)+(4.0*1e-5)));
+}
+return(absfunc);
+}
 // Derivative of Analog Function absfunc
 double d_absfunc(double x  , double d_x )
 {
@@ -135,6 +143,14 @@ absfunc=sqrt(((x*x)+(4.0*1e-5)));
   return(absfuncReturn);
   }
 
+double mmax(double x, double y)
+{
+double mmax;
+{
+mmax = (0.5*((x+y)+sqrt((((x-y)*(x-y))+(4.0*1e-5)))));
+}
+return(mmax);
+}
 // Derivative of Analog Function mmax
 double d_mmax(double x , double y  , double d_x , double d_y )
 {
@@ -203,6 +219,28 @@ mmax=(0.5*((x+y)+sqrt((((x-y)*(x-y))+(4.0*1e-5)))));
   return(mmaxReturn);
   }
 
+double explim(double x)
+{
+double explim;
+{
+if ((x>50.0))
+{
+explim = (exp(50.0)*(1.0+(x-50.0)));
+}
+else
+{
+if ((x<(-50.0)))
+{
+explim = exp((-50.0));
+}
+else
+{
+explim = exp(x);
+}
+}
+}
+return(explim);
+}
 // Derivative of Analog Function explim
 double d_explim(double x  , double d_x )
 {
@@ -296,6 +334,398 @@ explim=exp(x);
   return(explimReturn);
   }
 
+double calc_iq(double&  idsout, double&  qgsout, double&  qgdout, double&  qcout, double&  qbout, double&  qsout, double&  vtdibl, double&  vdsat1, double vgsin, double vdsin, double qcbflag, double vcin, double vbin, double qgsflag, double tambin, double tnomin, double phitin, double w, double lin, double cgin, double cs, double cc, double cb, double vto, double ss, double delta1, double delta2, double nd, double alpha, double vel0, double mu0, double beta, double mtheta, double vtheta, double vtzeta, double dibsat, double epsilon, double vzeta, double lambda, double ngf, double type)
+{
+double calc_iq;
+double alpha_phit;
+double delta;
+double n;
+double vtof;
+double vsatdibl;
+double ffs;
+double two_n_phit;
+double qref;
+double etas;
+double qinvs;
+double muf;
+double vx;
+double vxf;
+double n0;
+double ffs0;
+double two_n_phit0;
+double qref0;
+double etas0;
+double qinvs0;
+double muf0;
+double vx0;
+double ff;
+double eta;
+double qinvv;
+double ff0;
+double eta0;
+double qinvv0;
+double vdsats;
+double vdsats1;
+double vdsat;
+double fsd;
+double vdx;
+double fds;
+double vsx;
+double ffd;
+double etad;
+double qinvd;
+double vdsc;
+double fsat;
+double vel;
+double vdsats0;
+double vdsats10;
+double vdsat10;
+double fsd0;
+double vdx0;
+double fds0;
+double vsx0;
+double ffd0;
+double etad0;
+double qinvd0;
+double qs2;
+double qs3;
+double qd2;
+double qd3;
+double qsqd;
+double qinvdd;
+double qd1;
+double qs;
+double qd;
+double etac;
+double etab;
+double etags;
+double exparg;
+double myarg;
+double absvdsin;
+double vgdin;
+double exparg0;
+double myarg0;
+{
+absvdsin = AnalogFunctions::absfunc(vdsin);
+vgdin = (vgsin-vdsin);
+alpha_phit = (alpha*phitin);
+n = ((ss/(2.30258509299404568401*phitin))+(nd*absvdsin));
+vtof = (vto+(vtzeta*(tambin-tnomin)));
+if ((dibsat!=0))
+{
+vsatdibl = (absvdsin/pow((1.0+pow((absvdsin/dibsat),beta)),(1.0/beta)));
+}
+else
+{
+vsatdibl = 0;
+}
+delta = ((delta1-(vsatdibl*delta2))*absvdsin);
+vtdibl = (vtof-delta);
+two_n_phit = ((2.0*n)*phitin);
+qref = (cgin*two_n_phit);
+myarg = (vtdibl-(alpha_phit/2.0));
+exparg = ((AnalogFunctions::mmax(vgsin,vgdin)-myarg)/alpha_phit);
+if ((exparg>50.0))
+{
+ff = 0.0;
+}
+else
+{
+if ((exparg<(-50.0)))
+{
+ff = 1.0;
+}
+else
+{
+ff = (1.0/(1.0+exp(exparg)));
+}
+}
+eta = ((AnalogFunctions::mmax(vgsin,vgdin)-(vtdibl-((0.1*alpha_phit)*ff)))/two_n_phit);
+if ((eta>50.0))
+{
+qinvv = (qref*eta);
+}
+else
+{
+if ((eta<(-50.0)))
+{
+qinvv = 0;
+}
+else
+{
+qinvv = (qref*log((1.0+exp(eta))));
+}
+}
+muf = (mu0/(pow((tambin/tnomin),epsilon)*(1.0+((mtheta*qinvv)/cgin))));
+vx = (((vel0*((1.0+(vzeta*tnomin))/(1.0+(vzeta*tambin))))*(1.0+((lambda*absvdsin)/lin)))/(1.0+((vtheta*qinvv)/cgin)));
+vxf = (((((2.0*ff)*phitin)*muf)/lin)+((1.0-ff)*vx));
+vdsats = ((vx*lin)/muf);
+vdsats1 = ((vdsats*sqrt((1.0+(((2.0*qinvv)/cgin)/vdsats))))-vdsats);
+vdsat = ((vdsats*(1.0-ff))+(two_n_phit*ff));
+vdsat1 = ((vdsats1*(1.0-ff))+(two_n_phit*ff));
+fsd = (1.0/pow((1.0+pow(AnalogFunctions::mmax(0,(vdsin/vdsat1)),beta)),(1.0/beta)));
+vdx = (vdsin*fsd);
+fds = (1.0/pow((1.0+pow(AnalogFunctions::mmax(0,((-vdsin)/vdsat1)),beta)),(1.0/beta)));
+vsx = ((-vdsin)*fds);
+exparg = ((vgsin-myarg)/alpha_phit);
+if ((exparg>50.0))
+{
+ffs = 0.0;
+}
+else
+{
+if ((exparg<(-50.0)))
+{
+ffs = 1.0;
+}
+else
+{
+ffs = (1.0/(1.0+exp(exparg)));
+}
+}
+etas = (((vgdin-vsx)-(vtdibl-((0.1*alpha_phit)*ffs)))/two_n_phit);
+if ((etas>50.0))
+{
+qinvs = (qref*etas);
+}
+else
+{
+if ((etas<(-50.0)))
+{
+qinvs = 0;
+}
+else
+{
+qinvs = (qref*log((1.0+exp(etas))));
+}
+}
+exparg = ((vgdin-myarg)/alpha_phit);
+if ((exparg>50.0))
+{
+ffd = 0.0;
+}
+else
+{
+if ((exparg<(-50.0)))
+{
+ffd = 1.0;
+}
+else
+{
+ffd = (1.0/(1.0+exp(exparg)));
+}
+}
+etad = (((vgsin-vdx)-(vtdibl-((0.1*alpha_phit)*ffd)))/two_n_phit);
+if ((etad>50.0))
+{
+qinvd = (qref*etad);
+}
+else
+{
+if ((etad<(-50.0)))
+{
+qinvd = 0;
+}
+else
+{
+qinvd = (qref*log((1.0+exp(etad))));
+}
+}
+vdsc = ((qinvs-qinvd)/cgin);
+myarg = (vdsc/vdsat);
+fsat = (myarg/pow((1.0+pow(AnalogFunctions::absfunc(myarg),beta)),(1.0/beta)));
+vel = (vxf*fsat);
+idsout = (((((type*w)*ngf)*0.5)*(qinvs+qinvd))*vel);
+n0 = (ss/(2.30258509299404568401*phitin));
+two_n_phit0 = ((2.0*n0)*phitin);
+qref0 = (cgin*two_n_phit0);
+myarg0 = (vtof-(alpha_phit/2.0));
+exparg0 = ((AnalogFunctions::mmax(vgsin,vgdin)-myarg0)/alpha_phit);
+if ((exparg0>50.0))
+{
+ff0 = 0.0;
+}
+else
+{
+if ((exparg0<(-50.0)))
+{
+ff0 = 1.0;
+}
+else
+{
+ff0 = (1.0/(1.0+exp(exparg0)));
+}
+}
+eta0 = ((AnalogFunctions::mmax(vgsin,vgdin)-(vtof-((0.1*alpha_phit)*ff0)))/two_n_phit0);
+if ((eta0>50.0))
+{
+qinvv0 = (qref0*eta0);
+}
+else
+{
+if ((eta0<(-50.0)))
+{
+qinvv0 = 0;
+}
+else
+{
+qinvv0 = (qref0*log((1.0+exp(eta0))));
+}
+}
+muf0 = (mu0/pow((tambin/tnomin),epsilon));
+vx0 = (vel0*((1.0+(vzeta*tnomin))/(1.0+(vzeta*tambin))));
+vdsats0 = ((vx0*lin)/muf0);
+vdsats10 = ((vdsats0*sqrt((1.0+(((2.0*qinvv0)/cgin)/vdsats0))))-vdsats0);
+vdsat10 = ((vdsats10*(1.0-ff0))+(two_n_phit0*ff0));
+fsd0 = (1.0/pow((1.0+pow(AnalogFunctions::mmax(0,(vdsin/vdsat10)),beta)),(1.0/beta)));
+vdx0 = (vdsin*fsd0);
+fds0 = (1.0/pow((1.0+pow(AnalogFunctions::mmax(0,((-vdsin)/vdsat10)),beta)),(1.0/beta)));
+vsx0 = ((-vdsin)*fds0);
+exparg0 = ((vgsin-myarg0)/alpha_phit);
+if ((exparg0>50.0))
+{
+ffs0 = 0.0;
+}
+else
+{
+if ((exparg0<(-50.0)))
+{
+ffs0 = 1.0;
+}
+else
+{
+ffs0 = (1.0/(1.0+exp(exparg0)));
+}
+}
+etas0 = (((vgdin-vsx0)-(vtof-((0.1*alpha_phit)*ffs0)))/two_n_phit0);
+if ((etas0>50.0))
+{
+qinvs0 = (qref0*etas0);
+}
+else
+{
+if ((etas0<(-50.0)))
+{
+qinvs0 = 0;
+}
+else
+{
+qinvs0 = (qref0*log((1.0+exp(etas0))));
+}
+}
+exparg0 = ((vgdin-myarg0)/alpha_phit);
+if ((exparg0>50.0))
+{
+ffd0 = 0.0;
+}
+else
+{
+if ((exparg0<(-50.0)))
+{
+ffd0 = 1.0;
+}
+else
+{
+ffd0 = (1.0/(1.0+exp(exparg0)));
+}
+}
+etad0 = (((vgsin-vdx0)-(vtof-((0.1*alpha_phit)*ffd0)))/two_n_phit0);
+if ((etad0>50.0))
+{
+qinvd0 = (qref0*etad0);
+}
+else
+{
+if ((etad0<(-50.0)))
+{
+qinvd0 = 0;
+}
+else
+{
+qinvd0 = (qref0*log((1.0+exp(etad0))));
+}
+}
+qs2 = ((qinvs0*qinvs0)+1e-38);
+qs3 = ((qs2*qinvs0)+1e-57);
+qd2 = ((qinvd0*qinvd0)+1e-38);
+qd3 = ((qd2*qinvd0)+1e-57);
+qsqd = ((qinvs0*qinvd0)+1e-38);
+qinvdd = (((2.0/3.0)*((qs2+qd2)+qsqd))/((qinvs0+qinvd0)+2e-19));
+qd1 = ((2.0*((((2.0*qs3)+(3.0*qd3))+((4.0*qs2)*qinvd0))+((6.0*qd2)*qinvs0)))/(15.0*((qs2+qd2)+(2.0*qsqd))));
+qs = (qinvdd-qd1);
+qd = qd1;
+qgsout = ((((w*ngf)*lin)*type)*qs);
+qgdout = ((((w*ngf)*lin)*type)*qd);
+if ((qcbflag==1))
+{
+etac = ((vcin-(vtof-(0.5*alpha_phit)))/two_n_phit0);
+if ((etac>50.0))
+{
+exparg = etac;
+}
+else
+{
+if ((etac<(-50.0)))
+{
+exparg = 0;
+}
+else
+{
+exparg = log((1.0+exp(etac)));
+}
+}
+qcout = (((((w*ngf)*type)*cc)*two_n_phit0)*exparg);
+etab = ((vbin-(vtof-(0.5*alpha_phit)))/two_n_phit0);
+if ((etab>50.0))
+{
+exparg = etab;
+}
+else
+{
+if ((etab<(-50.0)))
+{
+exparg = 0;
+}
+else
+{
+exparg = log((1.0+exp(etab)));
+}
+}
+qbout = (((((w*ngf)*type)*cb)*two_n_phit0)*exparg);
+}
+else
+{
+qcout = 0;
+qbout = 0;
+}
+if ((qgsflag==1))
+{
+etags = ((vgsin-(vtof-(0.5*alpha_phit)))/two_n_phit0);
+if ((etags>50.0))
+{
+exparg = etags;
+}
+else
+{
+if ((etags<(-50.0)))
+{
+exparg = 0;
+}
+else
+{
+exparg = log((1.0+exp(etags)));
+}
+}
+qsout = (((((w*ngf)*type)*cs)*two_n_phit0)*exparg);
+}
+else
+{
+qsout = 0;
+}
+calc_iq = idsout;
+}
+return(calc_iq);
+}
 // Derivative of Analog Function calc_iq
 double d_calc_iq(double idsout , double qgsout , double qgdout , double qcout , double qbout , double qsout , double vtdibl , double vdsat1 , double vgsin , double vdsin , double qcbflag , double vcin , double vbin , double qgsflag , double tambin , double tnomin , double phitin , double w , double lin , double cgin , double cs , double cc , double cb , double vto , double ss , double delta1 , double delta2 , double nd , double alpha , double vel0 , double mu0 , double beta , double mtheta , double vtheta , double vtzeta , double dibsat , double epsilon , double vzeta , double lambda , double ngf , double type  , double & d_idsout , double & d_qgsout , double & d_qgdout , double & d_qcout , double & d_qbout , double & d_qsout , double & d_vtdibl , double & d_vdsat1 , double d_vgsin , double d_vdsin , double d_qcbflag , double d_vcin , double d_vbin , double d_qgsflag , double d_tambin , double d_tnomin , double d_phitin , double d_w , double d_lin , double d_cgin , double d_cs , double d_cc , double d_cb , double d_vto , double d_ss , double d_delta1 , double d_delta2 , double d_nd , double d_alpha , double d_vel0 , double d_mu0 , double d_beta , double d_mtheta , double d_vtheta , double d_vtzeta , double d_dibsat , double d_epsilon , double d_vzeta , double d_lambda , double d_ngf , double d_type )
 {
@@ -14459,6 +14889,70 @@ calc_iq=idsout;
   return(calc_iqReturn);
   }
 
+double calc_ig(double&  isdiodeout, double&  isrecout, double vgin, double phitin, double vgsatin, double alphagin, double fracin, double pg_paramin, double pbdgin, double vbdgin, double tambin, double tnomin, double w, double ngf, double ijin, double kbdgatein, double vgsatqin, double betarecin, double irecin, double pgsrecin, double pg_param1, double vjg, double type)
+{
+double calc_ig;
+double igout;
+double alpha_phit;
+double t0;
+double ffvgin;
+double pgin;
+double iginbd;
+double tfacdiode;
+double igindiode;
+double frecgin;
+double iginrec;
+double expbdarg1;
+double expbdarg2;
+double expbd1;
+double expbd2;
+double expphib;
+double expffvarg;
+double expiforarg;
+double expifor;
+double expirevarg;
+double expirev;
+{
+alpha_phit = (alphagin*phitin);
+expphib = ((pg_param1/phitin)*(-vjg));
+t0 = AnalogFunctions::explim(expphib);
+expffvarg = ((vgin-(vgsatin-((alphagin*alpha_phit)/2.0)))/(alphagin*alpha_phit));
+if ((expffvarg>50.0))
+{
+ffvgin = 0.0;
+}
+else
+{
+if ((expffvarg<(-50.0)))
+{
+ffvgin = 1.0;
+}
+else
+{
+ffvgin = (1.0/(1.0+exp(expffvarg)));
+}
+}
+pgin = ((fracin*pg_paramin)+(((1.0-fracin)*pg_paramin)*ffvgin));
+expbdarg1 = ((pbdgin*((-vgin)-vbdgin))+expphib);
+expbdarg2 = (((-pbdgin)*vbdgin)+expphib);
+expbd1 = AnalogFunctions::explim(expbdarg1);
+expbd2 = AnalogFunctions::explim(expbdarg2);
+iginbd = (expbd1-expbd2);
+tfacdiode = pow((tambin/tnomin),3.0);
+isdiodeout = ((((type*w)*ngf)*ijin)*tfacdiode);
+expiforarg = (((pgin/phitin)*vgin)+expphib);
+expifor = AnalogFunctions::explim(expiforarg);
+igindiode = (isdiodeout*((expifor-(kbdgatein*iginbd))-t0));
+frecgin = ((-vgin)/pow((1.0+pow(AnalogFunctions::absfunc((vgin/vgsatqin)),betarecin)),(1.0/betarecin)));
+isrecout = ((((((-type)*w)*ngf)*irecin)*tfacdiode)*1.0);
+expirevarg = ((pgsrecin/phitin)*frecgin);
+expirev = AnalogFunctions::explim(expirevarg);
+iginrec = (isrecout*(expirev-1.0));
+igout = (igindiode+iginrec);
+calc_ig = igout;
+}
+return(calc_ig);
+}
 // Derivative of Analog Function calc_ig
 double d_calc_ig(double isdiodeout , double isrecout , double vgin , double phitin , double vgsatin , double alphagin , double fracin , double pg_paramin , double pbdgin , double vbdgin , double tambin , double tnomin , double w , double ngf , double ijin , double kbdgatein , double vgsatqin , double betarecin , double irecin , double pgsrecin , double pg_param1 , double vjg , double type  , double & d_isdiodeout , double & d_isrecout , double d_vgin , double d_phitin , double d_vgsatin , double d_alphagin , double d_fracin , double d_pg_paramin , double d_pbdgin , double d_vbdgin , double d_tambin , double d_tnomin , double d_w , double d_ngf , double d_ijin , double d_kbdgatein , double d_vgsatqin , double d_betarecin , double d_irecin , double d_pgsrecin , double d_pg_param1 , double d_vjg , double d_type )
 {

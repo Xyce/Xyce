@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 04 Jan 2023 10:19:18
+// Creation Date  : Mon, 09 Jan 2023 08:58:27
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -75,6 +75,47 @@ namespace Xyce {
 namespace Device {
 namespace ADMSbjt504va {
 namespace AnalogFunctions {
+double trunc_ev(double Val, double Vprev, double Vmin, double Vmax)
+{
+double trunc_ev;
+double result;
+{
+result = Val;
+if ((Val>Vmax))
+{
+if ((Vprev>(Vmax-0.05)))
+{
+if (((Val-Vprev)>0.05))
+{
+result = (Vprev+0.05);
+}
+}
+else
+{
+result = Vmax;
+}
+}
+else
+{
+if ((Val<Vmin))
+{
+if ((Vprev<(0.9*Vmin)))
+{
+if ((Val<((1.5*Vprev)+(0.10*Vmin))))
+{
+result = ((1.5*Vprev)+(0.10*Vmin));
+}
+}
+else
+{
+result = Vmin;
+}
+}
+}
+trunc_ev = result;
+}
+return(trunc_ev);
+}
 // Derivative of Analog Function trunc_ev
 double d_trunc_ev(double Val , double Vprev , double Vmin , double Vmax  , double d_Val , double d_Vprev , double d_Vmin , double d_Vmax )
 {
