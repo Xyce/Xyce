@@ -1814,7 +1814,6 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   
   if( diagnosticVoltageLimitGiven_ || diagnosticCurrentLimitGiven_)
   {
-    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
     // stream buffers for the output to keep it organized.
     std::stringstream voltageOutput;
     std::stringstream currentOutput;
@@ -1879,7 +1878,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
       } 
     }
     
-    pdsComm.barrier();
+    //pdsComm.barrier();
     // if current output is requested then also loop over the lead-current vector
     if( diagnosticCurrentLimitGiven_ )
     {
@@ -1930,8 +1929,43 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     //voltageOutput >> vOutput;
     std::string iOutput(currentOutput.str() );
     //currentOutput >> iOutput;
-    Xyce::lout() << vOutput << iOutput;
-    (*diagnosticOutputStreamPtr_)  << vOutput << iOutput;
+    std::string viOutput = vOutput + iOutput;
+    Xyce::lout() << viOutput;
+    // each process will have a different value for viOutput.  For clear output 
+    // to the user we need to collect these strings on the lead processor 
+    //
+    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
+    int numProc = pdsComm.numProc();
+    int thisProc = pdsComm.procID();
+    int stringLenPerProcPreCom[ numProc ];
+    int stringLenPerProc[ numProc ];
+    for( int p=0; p<numProc; p++) 
+    {
+      stringLenPerProcPreCom[p] = 0;
+      stringLenPerProc[p] = 0;
+    }
+    stringLenPerProcPreCom[thisProc] = viOutput.length();
+    pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
+    std::stringstream combinedOutput;
+    combinedOutput.flush();
+    // now we know the length of a diagnostic message on each processor.  So, accumulate them   
+    for( int p=0; p<numProc; p++) 
+    {
+      if( stringLenPerProc[p] > 0 )
+      {
+        char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
+        if( stringLenPerProcPreCom[p] > 0 )
+        {
+          strcpy( buffer, viOutput.c_str() );
+        }
+        pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
+        combinedOutput << std::string(buffer);
+        free(buffer);
+      }
+    }
+
+    (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
+    //<< vOutput << iOutput;
   }
 }
 
