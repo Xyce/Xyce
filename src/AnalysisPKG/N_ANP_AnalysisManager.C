@@ -1930,11 +1930,8 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     }
     // send any accumulated output to the diagnostic file
     std::string vOutput(voltageOutput.str() );
-    //voltageOutput >> vOutput;
     std::string iOutput(currentOutput.str() );
-    //currentOutput >> iOutput;
     std::string viOutput = vOutput + iOutput;
-    Xyce::lout() << viOutput;
     std::stringstream combinedOutput;
     combinedOutput.flush();
     //
