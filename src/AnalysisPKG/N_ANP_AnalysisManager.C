@@ -1753,8 +1753,9 @@ char AnalysisManager::getNodeTypeFromLocalIndex( const int varIndex ) const
 void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
 {
   bool outputHeaderLine = true;
+  Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
   
-  if(diagnosticOutputStreamPtr_ == NULL)
+  if((diagnosticOutputStreamPtr_ == NULL) && (pdsComm.isSerial() || (pdsComm.procID() == 0)))
   {
     //open the output file
     diagnosticOutputStreamPtr_ = new std::ofstream();
@@ -1785,7 +1786,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );      
     if( fabs(value) > diagnosticExtremaLimit_)
     {
-      if( outputHeaderLine )
+      if( (diagnosticOutputStreamPtr_ != NULL) &&  outputHeaderLine )
       {
         (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
           << analysis_event.outputType_ 
@@ -1804,8 +1805,11 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
       char varType = this->getNodeTypeFromIndex( localId ); 
     
-      (*diagnosticOutputStreamPtr_) 
-        << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
+      if(diagnosticOutputStreamPtr_ != NULL) 
+      {
+        (*diagnosticOutputStreamPtr_) 
+          << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
+      }
     }
     
   }
@@ -1931,41 +1935,52 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     //currentOutput >> iOutput;
     std::string viOutput = vOutput + iOutput;
     Xyce::lout() << viOutput;
+    std::stringstream combinedOutput;
+    combinedOutput.flush();
+    //
     // each process will have a different value for viOutput.  For clear output 
     // to the user we need to collect these strings on the lead processor 
     //
-    Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
-    int numProc = pdsComm.numProc();
-    int thisProc = pdsComm.procID();
-    int stringLenPerProcPreCom[ numProc ];
-    int stringLenPerProc[ numProc ];
-    for( int p=0; p<numProc; p++) 
+    if( pdsComm.isSerial() )
     {
-      stringLenPerProcPreCom[p] = 0;
-      stringLenPerProc[p] = 0;
+      combinedOutput << viOutput;
     }
-    stringLenPerProcPreCom[thisProc] = viOutput.length();
-    pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
-    std::stringstream combinedOutput;
-    combinedOutput.flush();
-    // now we know the length of a diagnostic message on each processor.  So, accumulate them   
-    for( int p=0; p<numProc; p++) 
+    else
     {
-      if( stringLenPerProc[p] > 0 )
+      int numProc = pdsComm.numProc();
+      int thisProc = pdsComm.procID();
+      int stringLenPerProcPreCom[ numProc ];
+      int stringLenPerProc[ numProc ];
+      for( int p=0; p<numProc; p++) 
       {
-        char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
-        if( stringLenPerProcPreCom[p] > 0 )
+        stringLenPerProcPreCom[p] = 0;
+        stringLenPerProc[p] = 0;
+      }
+      stringLenPerProcPreCom[thisProc] = viOutput.length();
+      pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
+    
+      // now we know the length of a diagnostic message on each processor.  So, accumulate them   
+      for( int p=0; p<numProc; p++) 
+      {
+        if( stringLenPerProc[p] > 0 )
         {
-          strcpy( buffer, viOutput.c_str() );
+          char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
+          if( stringLenPerProcPreCom[p] > 0 )
+          {
+            strcpy( buffer, viOutput.c_str() );
+          }
+          pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
+          combinedOutput << std::string(buffer);
+          free(buffer);
         }
-        pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
-        combinedOutput << std::string(buffer);
-        free(buffer);
       }
     }
-
-    (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
-    //<< vOutput << iOutput;
+    
+    // only output if the stream is open
+    if(diagnosticOutputStreamPtr_ != NULL)
+    {
+      (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
+    }
   }
 }
 
