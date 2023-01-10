@@ -15,7 +15,9 @@
 \begin{OptionTable}{Options for Diagnostic Output}
 \label{DiagnosticOptions}%
 EXTREMA & Output extreme values occurring in the solution vector & true \\ \hline
-EXTREMALIMIT & Only output extrema that exceed EXTREMALIMIT & 0.0 \\ \hline 
+EXTREMALIMIT & Output the absolute value of extrema that exceed EXTREMALIMIT & 0.0 \\ \hline 
+VOLTAGELIMIT & Output voltages that exceed $\pm$VOLTAGELIMIT & 0.0 \\ \hline 
+CURRENTLIMIT & Output branch and lead currents that  that exceed $\pm$CURRENTLIMIT & 0.0 \\ \hline 
 DIAGFILENAME & Save diagnostic data to a file named by DIAFILENAME & \texttt{XyceDiag.out} \\ \hline
 
 \end{OptionTable}
