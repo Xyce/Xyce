@@ -744,10 +744,12 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 {
   diagnosticMode_ = true;
   bool result = false;
+  bool subResult = false;
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
-    bool subResult = false;
+    // reset flag on if a parameter was set each time through the loop
+    subResult = false; 
 
     if (param.uTag() == "DIAGFILENAME")
     {
@@ -762,6 +764,7 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
         || Util::setValue( param, "CURRENTLIMIT", diagnosticCurrentLimit_, diagnosticCurrentLimitGiven_);
     }
 
+    // need to or in successive results of parameter setting 
     result = result || subResult;
   }
   return result;  
