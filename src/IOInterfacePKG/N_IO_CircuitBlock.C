@@ -413,6 +413,31 @@ bool CircuitBlock::parseNetlistFilePass1(
 
   if ( parentCircuitPtr_ == NULL )
   {
+    // Categorize the top-level context parameters
+    // (.param or .global_param)
+    //
+    // This call was added to address issue #167, "Make globally-scoped .params
+    // available to the device package, so globally scoped normal params
+    // will be equivalent to .global_param"
+    //
+    // For this categorization to work,  it is necessary for all the
+    // globals and normal params from netlist to already have been
+    // passed into the context and for various "dot" commands
+    // such as .STEP to have been added to the optionsTable_.
+    // This will have happened during the "handleLinePass1" function
+    // call, above.
+    //
+    // This categorization must happen before the resolve(params) function is called, below.
+    circuitContext_.categorizeParams(optionsTable_);
+
+    // Resolve current context parameters.
+    std::vector<Device::Param> params;
+    result = circuitContext_.resolve(params);
+    if (!result)
+    {
+      return result;
+    }
+
     // Finish resolving Mutual Inductances if necessary
     // This means finding all the assoc. inductors and including their inductance in MI.
 
@@ -452,31 +477,6 @@ bool CircuitBlock::parseNetlistFilePass1(
       getICNodesetList( usedSubcircuits, icNodesetOB );
 
       optionsTable_.insert( optionsTable_.end(), icNodesetOB.begin(), icNodesetOB.end() );
-    }
-
-    // ERK. Categorize the top-level context parameters
-    // (.param or .global_param)
-    //
-    // This call was added to address issue #167, "Make globally-scoped .params
-    // available to the device package, so globally scoped normal params
-    // will be equivalent to .global_param"
-    //
-    // For this categorization to work,  it is necessary for all the
-    // globals and normal params from netlist to already have been
-    // passed into the context and for various "dot" commands
-    // such as .STEP to have been added to the optionsTable_.
-    // This will have happened during the "handleLinePass1" function
-    // call, above.
-    //
-    // This categorization must happen before the resolve(params) function is called, below.
-    circuitContext_.categorizeParams(optionsTable_);
-
-    // Resolve current context parameters.
-    std::vector<Device::Param> params;
-    result = circuitContext_.resolve(params);
-    if (!result)
-    {
-      return result;
     }
 
     // resolve any functions and parameters in expression on the print line
