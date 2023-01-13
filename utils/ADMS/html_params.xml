@@ -298,6 +298,7 @@
                     <admst:text format="&nbsp;"/>
                      <admst:if test="[input='yes']"> <admst:text format="input,"/> </admst:if>
                      <admst:if test="[setininstance='yes']"> <admst:text format="instance,"/> </admst:if>
+                     <admst:if test="[setininitial_step='yes']"> <admst:text format="initial_step,"/> </admst:if>
                      <admst:if test="[setinmodel='yes']"> <admst:text format="model,"/> </admst:if>
                      <admst:if test="[setinevaluate='yes']"> <admst:text format="evaluate,"/> </admst:if>
                      <admst:if       test="[(input='yes' and parametertype='instance') or
