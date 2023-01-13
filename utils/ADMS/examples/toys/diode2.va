@@ -27,7 +27,7 @@ module diode2(anode,cathode);
 
    analog
      begin
-        @(initial_instance)
+        @(initial_step)
           begin
              f1 = (phi/(1 - m))*(1 - pow((1 - fc), m));
              f2 = pow((1 - fc), (1 + m));
