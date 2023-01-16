@@ -33,6 +33,8 @@
 
 #include <Xyce_config.h>
 
+#include <N_ANP_AnalysisBase.h>
+
 #ifndef FD_HESSIAN
 #define FD_HESSIAN 0 // 0 to set all hessvec to zero (Gauss-Newton Hessian); else FD Hessian
 #endif
@@ -97,14 +99,6 @@ class ROL_Objective;
 
 namespace Xyce {
 namespace Analysis {
-
-enum sensDiffMode
-{
-  SENS_FWD,
-  SENS_REV,
-  SENS_CNT,
-  NUM_DIFF_MODES
-};
 
 //-------------------------------------------------------------------------
 // Class         : ROL_DC
@@ -235,24 +229,28 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
 
   bool rhs_()
   {
-    Stats::StatTop _residualStat("Residual");
-    Stats::TimeBlock _residualTimer(_residualStat);
+    {
+      Stats::StatTop _residualStat("Residual");
+      Stats::TimeBlock _residualTimer(_residualStat);
 
-    nEqLoader_.loadRHS();
-    ++numResidualLoads_;
-    totalResidualLoadTime_ += nEqLoader_.getResidualTime();
+      nEqLoader_.loadRHS();
+    }
+    rolDCCounts_.residualEvaluations_++;
+    rolDCCounts_.residualLoadTime_ += nEqLoader_.getResidualTime();
 
     return true;
   }
 
   bool jacobian_()
   {
-    Stats::StatTop _jacobianStat("Jacobian");
-    Stats::TimeBlock _jacobianTimer(_jacobianStat);
+    {
+      Stats::StatTop _jacobianStat("Jacobian");
+      Stats::TimeBlock _jacobianTimer(_jacobianStat);
 
-    nEqLoader_.loadJacobian();
-    ++numJacobianLoads_;
-    totalJacobianLoadTime_ += nEqLoader_.getJacobianTime();
+      nEqLoader_.loadJacobian();
+    }
+    rolDCCounts_.jacobiansEvaluated_++;
+    rolDCCounts_.jacobianLoadTime_ += nEqLoader_.getJacobianTime();
  
     return true;
   }
@@ -262,8 +260,9 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
   AnalysisManager &                     analysisManager_;
       
  public:
-  int numResidualLoads_, numJacobianLoads_;
-  double totalResidualLoadTime_, totalJacobianLoadTime_;
+
+  // ROL DC constraint statistics
+  StatCounts         rolDCCounts_;
 
   EqualityConstraint_ROL_DC(
     Real                                nu, // # of solution variables
@@ -291,10 +290,6 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       origBVectorPtr_(0),
       pertBVectorPtr_(0),
       paramValue_(nz, 0.0),
-      numResidualLoads_(0),
-      numJacobianLoads_(0),
-      totalResidualLoadTime_(0.0),
-      totalJacobianLoadTime_(0.0),
       areParamsChanged_(true)
   {}
 
@@ -480,11 +475,15 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
       nls_.setRHSVector( *(*vp)[i], -1.0 );  // solver expects negative rhs
 
       int status = nls_.getLinearSolver()->solve(false);
+  
       if (status!=0)
       {
         std::string msg("Sensitivity::solveAdjoint.  Solver failed\n");
         Report::DevelFatal() << msg;
       }
+
+      rolDCCounts_.linearSolves_++;
+      rolDCCounts_.linearSolutionTime_ += nls_.getLinearSolver()->solutionTime();
 
       *((*jvp)[i]) = nls_.getNewtonVector();
 
@@ -556,6 +555,9 @@ class EqualityConstraint_ROL_DC : public ::ROL::Constraint_SimOpt<Real>
         Report::DevelFatal() << msg;
       }
       
+      rolDCCounts_.linearSolves_++;
+      rolDCCounts_.linearSolutionTime_ += nls_.getLinearSolver()->solutionTime();
+
       *((*jvp)[i]) = nls_.getNewtonVector();
     }
 

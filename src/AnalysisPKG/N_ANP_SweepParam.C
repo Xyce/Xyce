@@ -148,10 +148,9 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
     Report::DevelFatal0().in("SweepParam::updateCurrentVal") << "Unsupported type " << type << " specified";
   }
 
-
   if (DEBUG_TIME)
   {
-    Xyce::dout() << "  " << name << "  "<< outerStepNumber << "  "<< localStepNumber << "  "<< lastLocalStepNumber_ << std::endl;
+    Xyce::dout() << "  " << name << "  "<< outerStepNumber << "  "<< localStepNumber << "  "<< lastLocalStepNumber_ << "  " << currentVal << std::endl;
   }
 
   lastLocalStepNumber_=localStepNumber;
@@ -540,10 +539,11 @@ bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<Sweep
     if (setParamFlag)
     {
       loader.setParam((*it).name, (*it).currentVal, overrideOriginal);
-    }
-    if (DEBUG_ANALYSIS)
-    {
-      Xyce::dout() << "Updating parameter " << (*it).name << " to " << (*it).currentVal << std::endl;
+
+      if (DEBUG_ANALYSIS)
+      {
+        Xyce::dout() << "Updating parameter " << (*it).name << " to " << (*it).currentVal << std::endl;
+      }
     }
   }
 

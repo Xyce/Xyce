@@ -4317,7 +4317,27 @@ bool extractTRANData(
   const IO::TokenVector &       parsed_line)
 {
   Util::OptionBlock option_block("TRAN");
+  bool ret = extractTRANDataInternals(option_block, options_manager, netlist_filename, parsed_line);
+   
+  if (ret) 
+    circuit_block.addOptions(option_block);
 
+  return ret;
+}
+
+} // namespace <unnamed>
+
+//-----------------------------------------------------------------------------
+// Function      : extractTRANDataInternals
+// Purpose       : Extract the parameters from a netlist .TRAN line
+//-----------------------------------------------------------------------------
+bool
+extractTRANDataInternals(
+  Util::OptionBlock &           option_block,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line)
+{
   int numFields = parsed_line.size();
 
   // Check that the minimum required number of fields are on the line.
@@ -4331,20 +4351,20 @@ bool extractTRANData(
   {
     int linePosition = 1;   // Start of parameters on .param line.
     int endPosition = numFields;
-    
+
     Util::Param parameter("", "");
-    
+
     // TSTEP and TSTOP are required, get them now.
     parameter.setTag( "TSTEP" );
     parameter.setVal( parsed_line[linePosition].string_ );
     option_block.addParam( parameter );
     ++linePosition;     // Advance to next parameter.
-    
+
     parameter.setTag( "TSTOP" );
     parameter.setVal( parsed_line[linePosition].string_ );
     option_block.addParam( parameter );
     ++linePosition;     // Advance to next parameter.
-    
+
     // at this point we can have
     // [ <TSTART> [<DTMAX>] ] [NOOP|UIC] [{expression for time step schedule}]
     //
@@ -4391,15 +4411,10 @@ bool extractTRANData(
       }
       linePosition++;
     }
-    
-    circuit_block.addOptions(option_block);
-    
-    return true; // Only get here on success.
   }
+
+  return true;
 }
-
-} // namespace <unnamed>
-
 
 //-----------------------------------------------------------------------------
 // Function      : registerTransientFactory

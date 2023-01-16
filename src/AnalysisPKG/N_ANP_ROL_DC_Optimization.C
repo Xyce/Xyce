@@ -60,8 +60,9 @@ void ROL_DC::setSweepValue(int step)
 bool ROL_DC::doInit()
 { 
   bool ret = DCSweep::doInit();
-  
-  nonlinearManager_.resetAll(Nonlinear::DC_OP);
+ 
+  analysisManager_.setAnalysisMode(ANP_MODE_DC_SWEEP); 
+  //nonlinearManager_.resetAll(Nonlinear::DC_SWEEP);
   
   return ret;
 }
@@ -74,6 +75,9 @@ bool ROL_DC::doProcessSuccessfulStep()
 
   TimeIntg::DataStore & ds = *(analysisManager_.getDataStore());
   *(solutionPtrVector_[currentStep]) = *(ds.currSolutionPtr);
+  double norm = 0.0;
+  //ds.currSolutionPtr->lpNorm(2,&norm);
+  //std::cout << "Solution norm " << currentStep << " : " << norm << std::endl;    
 
   return ret;
 }
