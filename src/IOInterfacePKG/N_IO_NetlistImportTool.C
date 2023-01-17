@@ -1329,8 +1329,12 @@ void getWildCardLeadCurrentDevices(
     {"PRINT", 3}
   };
 
-struct Sorter : public std::binary_function<Util::OptionBlock, Util::OptionBlock, bool>
+struct Sorter
 {
+  using result_type = bool;
+  using first_argument_type = Util::OptionBlock;
+  using second_argument_type = Util::OptionBlock;
+
   bool operator()(const Util::OptionBlock &s0, const Util::OptionBlock &s1) const 
   {
     int s0_order = 0;

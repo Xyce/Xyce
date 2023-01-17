@@ -64,8 +64,12 @@ namespace Linear {
 
 namespace {
 
-struct valComp : public std::binary_function<std::pair<double,int>, std::pair<double,int>, bool>
+struct valComp
 {
+  using result_type = bool;
+  using first_argument_type = std::pair<double,int>;
+  using second_argument_type = std::pair<double,int>;
+
   bool operator()(const std::pair<double,int>& a, const std::pair<double,int>& b) const
   {
     return std::abs(a.first) > std::abs(b.first); 

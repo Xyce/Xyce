@@ -197,8 +197,12 @@ inline bool less_nocase(const std::string &s0, const std::string &s1)
 ///
 /// @return true if s0 is less than s1, case insensitively
 ///
-struct LessNoCase : public std::binary_function<std::string,std::string,bool>
+struct LessNoCase 
 {
+  using result_type = bool;
+  using first_argument_type = std::string;
+  using second_argument_type = std::string;
+
   bool operator()(const std::string &s0, const std::string &s1 ) const
   {
     return less_nocase(s0, s1);
@@ -247,8 +251,11 @@ inline bool equal_nocasechar(char c0, char c1)
 ///
 /// @return true if s0 is equal to s1, case insensitively
 ///
-struct HashNoCase : public std::unary_function<std::string, size_t>
+struct HashNoCase
 {
+  using result_type = size_t;
+  using first_argument_type = std::string;
+
    size_t operator()(const std::string &s) const
   {
     size_t seed = 0;
@@ -269,8 +276,12 @@ struct HashNoCase : public std::unary_function<std::string, size_t>
 ///
 /// @return true if s0 is equal to s1, case insensitively
 ///
-struct EqualNoCase : public std::binary_function<std::string,std::string,bool>
- {
+struct EqualNoCase
+{
+  using result_type = bool;
+  using first_argument_type = std::string;
+  using second_argument_type = std::string;
+
   bool operator()(const std::string &s0, const std::string &s1 ) const
   {
     return equal_nocase(s0, s1);
@@ -287,8 +298,12 @@ struct EqualNoCase : public std::binary_function<std::string,std::string,bool>
 ///
 /// @return true if predicate string is equal to s, case insensitively
 ///
-struct EqualNoCasePred : public std::binary_function<std::string,std::string,bool>
+struct EqualNoCasePred 
 {
+  using result_type = bool;
+  using first_argument_type = std::string;
+  using second_argument_type = std::string;
+
   EqualNoCasePred(const std::string &s)
     : s_(s)
   {}

@@ -64,8 +64,12 @@ namespace Device {
 
 namespace {
 
-struct DeviceInstanceCmp : public std::binary_function<DeviceInstance, DeviceInstance, bool>
+struct DeviceInstanceCmp
 {
+  using result_type = bool;
+  using first_argument_type = DeviceInstance;
+  using second_argument_type = DeviceInstance;
+
   bool operator()(const DeviceInstance &entity_0, const DeviceInstance &entity_1) const 
   {
     return less_nocase(entity_0.getName().getEncodedName(), entity_1.getName().getEncodedName());

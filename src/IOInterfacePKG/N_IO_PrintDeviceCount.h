@@ -51,8 +51,12 @@ namespace IO {
 
 typedef Device::DeviceCountMap DeviceCountMap;
 
-struct DeviceCountMapSum : public std::binary_function<DeviceCountMap::mapped_type, DeviceCountMap::value_type, DeviceCountMap::mapped_type>
+struct DeviceCountMapSum
 {
+  using result_type = int;
+  using first_argument_type = DeviceCountMap::value_type;
+  using second_argument_type = int;
+
   int operator()(int &s0, const DeviceCountMap::value_type &s1) const
   {
     return s0 + s1.second;

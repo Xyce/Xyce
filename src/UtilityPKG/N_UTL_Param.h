@@ -509,15 +509,23 @@ private:
   ParamData<void> *   data_;
 };
 
-struct LessParam : public std::binary_function<Param, std::string, bool>
+struct LessParam
 {
+  using result_type = bool;
+  using first_argument_type = Param;
+  using second_argument_type = std::string;
+
   bool operator()(const Param &param, const std::string &tag) const {
     return compare_nocase(param.tag().c_str(), tag.c_str()) < 0;
   }
 };
 
-struct EqualParam : public std::binary_function<Param, std::string, bool>
+struct EqualParam 
 {
+  using result_type = bool;
+  using first_argument_type = Param;
+  using second_argument_type = std::string;
+
   EqualParam(const std::string &tag = "")
     : tag_(tag)
   {}

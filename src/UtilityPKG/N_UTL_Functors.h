@@ -52,8 +52,11 @@
 // Creation Date : 7/16/01
 //-----------------------------------------------------------------------------
 template < typename T >
-struct DeletePtr : public std::unary_function < const T *, void >
+struct DeletePtr
 {
+  using result_type = void;
+  using first_argument_type = const T*;
+
   void operator() (const T * ptr) const { delete ptr; }
 };
 
@@ -65,8 +68,11 @@ struct DeletePtr : public std::unary_function < const T *, void >
 // Creation Date : 7/16/01
 //-----------------------------------------------------------------------------
 template < typename T, typename U >
-struct FirstOfPair : public std::unary_function < const T &, const U & >
+struct FirstOfPair
 {
+  using result_type = U;
+  using first_argument_type = T;
+
   const U & operator() (const T & ref) const { return ref.first; }
 };
 

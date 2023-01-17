@@ -54,8 +54,12 @@ struct NameLevelKey : public std::pair<std::string, int>
   {}
 };
 
-struct NameLevelKeyLess : public std::binary_function<NameLevelKey, NameLevelKey, bool>
+struct NameLevelKeyLess
 {
+  using result_type = bool;
+  using first_argument_type = NameLevelKey;
+  using second_argument_type = NameLevelKey;
+
   bool operator()( const NameLevelKey &lhs , const NameLevelKey &rhs ) const
   {
     int i = compare_nocase(lhs.first.c_str(), rhs.first.c_str());
@@ -74,23 +78,13 @@ std::ostream &operator<<(std::ostream &os, const NameLevelKey &device_level_key)
 
 namespace std {
 
-// template<>
-// struct less<Xyce::NameLevelKey> : public std::binary_function<Xyce::NameLevelKey, Xyce::NameLevelKey, bool>
-// {
-//   bool operator()(const Xyce::NameLevelKey &lhs, const Xyce::NameLevelKey &rhs) const
-//   {
-//     int i = Xyce::compare_nocase(lhs.first.c_str(), rhs.first.c_str());
-
-//     if (i == 0)
-//       return lhs.second < rhs.second;
-//     else
-//       return i < 0;
-//   }
-// };
-
 template<>
-struct equal_to<Xyce::NameLevelKey> : public std::binary_function<Xyce::NameLevelKey, Xyce::NameLevelKey, bool>
+struct equal_to<Xyce::NameLevelKey>
 {
+  using result_type = bool;
+  using first_argument_type = Xyce::NameLevelKey;
+  using second_argument_type = Xyce::NameLevelKey;
+
   bool operator()(const Xyce::NameLevelKey &lhs, const Xyce::NameLevelKey &rhs) const
   {
     Xyce::EqualNoCase x0;
@@ -101,8 +95,11 @@ struct equal_to<Xyce::NameLevelKey> : public std::binary_function<Xyce::NameLeve
 };
 
 template<>
-struct hash<Xyce::NameLevelKey> : public std::unary_function<Xyce::NameLevelKey, size_t>
+struct hash<Xyce::NameLevelKey>
 {
+  using result_type = size_t;
+  using first_argument_type = Xyce::NameLevelKey;
+
   size_t operator()(const Xyce::NameLevelKey &node_id) const
   {
     Xyce::HashNoCase x0;
