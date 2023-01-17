@@ -4180,17 +4180,50 @@ class tableOp : public astNode<ScalarT>
             double value;
             ta_.clear();
             ya_.clear();
-            while ( dataIn >> time )
+            std::string lineOfFile;
+            while(!std::getline(dataIn, lineOfFile).eof())
             {
-              if ( dataIn >> value )
-              {
-                ta_.push_back(time);
-                ya_.push_back(value);
+              // eliminate comments (anything to the right of the # symbol, inclusive)
+              std::size_t found = lineOfFile.find_first_of("#");
+              if (found!=std::string::npos)
+              { 
+                lineOfFile.erase(found);
               }
-              else
+
+              // eliminate comments (anything to the right of the * symbol, inclusive)
+              found = lineOfFile.find_first_of("*");
+              if (found!=std::string::npos)
+              { 
+                lineOfFile.erase(found);
+              }
+
+              // eliminate comments (anything to the right of the ; symbol, inclusive)
+              found = lineOfFile.find_first_of(";");
+              if (found!=std::string::npos)
+              { 
+                lineOfFile.erase(found);
+              }
+
+              if (!lineOfFile.empty())
               {
-                std::vector<std::string> errStr(1,std::string("Reached end of file in " + filename + " while expecting another value"));
-                yyerror(errStr);
+                std::istringstream iss (lineOfFile,std::istringstream::in);
+                std::vector<double> rowDoubles;
+
+                while ( iss >> value )
+                {
+                  rowDoubles.push_back(value);
+                }
+                if (rowDoubles.size()==2)
+                {
+                  ta_.push_back(rowDoubles[0]);
+                  ya_.push_back(rowDoubles[1]);
+                  rowDoubles.clear();
+                }
+                else
+                {
+                  std::vector<std::string> errStr(1,std::string("Data file format error. " + filename));
+                  yyerror(errStr);
+                }
               }
             }
           }
