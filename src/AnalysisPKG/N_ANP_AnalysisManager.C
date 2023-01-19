@@ -218,9 +218,11 @@ AnalysisManager::AnalysisManager(
     diagnosticExtremaLimitGiven_(false),
     diagnosticVoltageLimitGiven_(false),
     diagnosticCurrentLimitGiven_(false),
+    diagnosticDiscontinuityLimitGiven_(false),
     diagnosticExtremaLimit_(0.0),
     diagnosticVoltageLimit_(0.0),
     diagnosticCurrentLimit_(0.0),
+    diagnosticDiscontinuityLimit_(0.0),
     diagnosticFileName_("XyceDiag.out"),
     diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
@@ -764,7 +766,8 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
     {
       bool subResult = Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_, diagnosticExtremaLimitGiven_)
         || Util::setValue( param, "VOLTAGELIMIT", diagnosticVoltageLimit_, diagnosticVoltageLimitGiven_)
-        || Util::setValue( param, "CURRENTLIMIT", diagnosticCurrentLimit_, diagnosticCurrentLimitGiven_);
+        || Util::setValue( param, "CURRENTLIMIT", diagnosticCurrentLimit_, diagnosticCurrentLimitGiven_)
+        || Util::setValue( param, "DISCLIMIT", diagnosticDiscontinuityLimit_, diagnosticDiscontinuityLimitGiven_);
     }
 
     // need to or in successive results of parameter setting 
@@ -1782,6 +1785,11 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
       (*diagnosticOutputStreamPtr_) 
         << " Lead current output requested with currentlimit = " << diagnosticCurrentLimit_ << std::endl;
     }
+    if(diagnosticDiscontinuityLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Discontinuity output requested with disclimit = " << diagnosticDiscontinuityLimit_ << std::endl;
+    }
   }
 
   if( diagnosticExtremaLimitGiven_)
@@ -1888,7 +1896,6 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
       } 
     }
     
-    //pdsComm.barrier();
     // if current output is requested then also loop over the lead-current vector
     if( diagnosticCurrentLimitGiven_ )
     {
@@ -1985,6 +1992,113 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
       (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
     }
   }
+  
+  if(diagnosticDiscontinuityLimitGiven_)
+  {
+    // loop over the predictor vector compared to the solution vector and output any
+    // values with an absolute difference greater than diagnosticDiscontinuityLimit_
+    
+    // stream buffers for the output to keep it organized.
+    std::stringstream discOutput;
+    discOutput.flush();
+    bool outputDiscHeaderLine = true;
+
+    // loop over the full solution vector 
+    double value = 0.0;
+    double xPredictor = 0.0;
+    double qPredictor = 0.0;
+    //auto numSolVars = (this->getDataStore())->solutionSize;
+    auto numSolVars = (this->getDataStore())->currSolutionPtr->localLength();
+    for( auto localID=0 ; localID < numSolVars; localID++)
+    {
+      value =(*(this->getDataStore()->currSolutionPtr))[localID];
+      xPredictor =(*(this->getDataStore()->xn0Ptr))[localID];
+      qPredictor =(*(this->getDataStore()->qn0Ptr))[localID];
+      // Can't just look at the difference between the solution value and the 
+      // xPredictor and qPredictor.  Most values will have all of their contribution
+      // from x or q.  Thus if the difference between value and x is significant 
+      // then q is likely zero and will be a false positive for a discontinuity.
+      // So, get the absolute maximum of the x and q predictors and then use that
+      // to compare with the solution value.
+      double maxPredictor = std::max( fabs(xPredictor), fabs(qPredictor));
+      auto globalID = ((dataStore_->builder_).getSolutionMap())->localToGlobalIndex( localID );
+      char varType = this->getNodeTypeFromLocalIndex( localID ); 
+
+      if( fabs(fabs(value)-maxPredictor) > diagnosticDiscontinuityLimit_) 
+      {
+        if( outputDiscHeaderLine )
+        {
+          discOutput << " Discontinuity over limit value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            discOutput << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            discOutput << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputDiscHeaderLine = false;
+        }
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
+        discOutput
+          << "     " << varType << "(" << nodeName << ")=" << value
+          << " xPredictor  = " << xPredictor
+          << " qPredictor  = " << qPredictor 
+          << " |diff| = " <<  fabs(fabs(value)-maxPredictor)<< std::endl;
+      }
+    }
+
+    std::string discStringOutput = discOutput.str();
+    std::stringstream combinedOutput;
+    combinedOutput.flush();
+    //
+    // each process will have a different value for discStringOutput.  For clear output 
+    // to the user we need to collect these strings on the lead processor 
+    //
+    if( pdsComm.isSerial() )
+    {
+      combinedOutput << discStringOutput;
+    }
+    else
+    {
+      int numProc = pdsComm.numProc();
+      int thisProc = pdsComm.procID();
+      int stringLenPerProcPreCom[ numProc ];
+      int stringLenPerProc[ numProc ];
+      for( int p=0; p<numProc; p++) 
+      {
+        stringLenPerProcPreCom[p] = 0;
+        stringLenPerProc[p] = 0;
+      }
+      stringLenPerProcPreCom[thisProc] = discStringOutput.length();
+      pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
+    
+      // now we know the length of a diagnostic message on each processor.  So, accumulate them   
+      for( int p=0; p<numProc; p++) 
+      {
+        if( stringLenPerProc[p] > 0 )
+        {
+          char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
+          if( stringLenPerProcPreCom[p] > 0 )
+          {
+            strcpy( buffer, discStringOutput.c_str() );
+          }
+          pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
+          combinedOutput << std::string(buffer);
+          free(buffer);
+        }
+      }
+    }
+    // only output if the stream is open
+    if(diagnosticOutputStreamPtr_ != NULL)
+    {
+      (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
+      diagnosticOutputStreamPtr_->flush();
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2004,6 +2118,7 @@ bool registerPkgOptionsMgr(
   parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("VOLTAGELIMIT", Util::Param("VOLTAGELIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("CURRENTLIMIT", Util::Param("CURRENTLIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("DISCLIMIT", Util::Param("DISCLIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("DIAGFILENAME", Util::Param("DIAGFILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 

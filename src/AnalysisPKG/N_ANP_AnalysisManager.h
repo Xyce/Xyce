@@ -593,9 +593,11 @@ private:
   bool                  diagnosticExtremaLimitGiven_;
   bool                  diagnosticVoltageLimitGiven_;
   bool                  diagnosticCurrentLimitGiven_;
+  bool                  diagnosticDiscontinuityLimitGiven_;
   double                diagnosticExtremaLimit_;
   double                diagnosticVoltageLimit_;
   double                diagnosticCurrentLimit_;
+  double                diagnosticDiscontinuityLimit_;
   std::string           diagnosticFileName_;
   std::ofstream*        diagnosticOutputStreamPtr_;
 
