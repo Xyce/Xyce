@@ -53,6 +53,7 @@ if(GTest_FOUND)
           ${CMAKE_CURRENT_SOURCE_DIR}/SubDir1
           ${CMAKE_CURRENT_SOURCE_DIR}/Sub_Dir
           ${CMAKE_CURRENT_SOURCE_DIR}/SubDir1/test1.dat
+          ${CMAKE_CURRENT_SOURCE_DIR}/test1-1.dat
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
@@ -182,6 +183,7 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR}/SubDir1
           ${CMAKE_SOURCE_DIR}/Sub_Dir
           ${CMAKE_SOURCE_DIR}/SubDir1/test1.dat
+          ${CMAKE_SOURCE_DIR}/test1-1.dat
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
