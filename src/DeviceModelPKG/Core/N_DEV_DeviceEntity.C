@@ -1759,7 +1759,6 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
           if (descriptor.isType<double>())
           {
             double val = setDependentParameter(param, &(descriptor.value<double>(*this)), descriptor.getExpressionAccess());
-            param.setVal(val);
             if (descriptor.hasOriginalValueStored())
               Xyce::Device::setOriginalValue(*this,descriptor.getSerialNumber(), val);
           }
@@ -1774,7 +1773,6 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
             if (descriptor.getMutableInteger()) // only *some* integer parameters can be modified in this manner
             {
               int val = setDependentParameter(param, &(descriptor.value<int>(*this)), descriptor.getExpressionAccess());
-              param.setVal(val);
               if (descriptor.hasOriginalValueStored())
                 Xyce::Device::setOriginalValue(*this,descriptor.getSerialNumber(), val);
             }
