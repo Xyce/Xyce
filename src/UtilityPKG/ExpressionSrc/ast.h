@@ -434,7 +434,6 @@ class astNode : public staticsContainer
 
     virtual void setFuncArgs(const std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec ) {};
 
-    virtual void setupBreakPoints() { return; }
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes) { return true;}
     virtual void setBreakPointTol(double tol){return;};
     virtual void setStartingTimeStep(double timeStep){return;};
@@ -4637,7 +4636,6 @@ class tableOp : public astNode<ScalarT>
       os << "TABLE";
     }
 
-    virtual void setupBreakPoints() {};
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       if (useBreakPoints_)

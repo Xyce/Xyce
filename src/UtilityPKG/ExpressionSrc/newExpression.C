@@ -1722,39 +1722,6 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
 }
 
 //-------------------------------------------------------------------------------
-// Function      : newExpression::setupBreakPoints
-//
-// Purpose       : This is called when doing something
-//                 like a .step around a transient simulation, at the beginning
-//                 of each .step iteration.
-//
-// Special Notes : The tableOp class has a meaningful setupBreakPoints function.
-//
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 8/25/2020
-//-------------------------------------------------------------------------------
-void newExpression::setupBreakPoints ()
-{
-  if(isTimeDependent_)
-  {
-    int srcSize = srcAstNodeVec_.size();
-    for (int ii=0;ii< srcSize; ii++)
-    { (srcAstNodeVec_[ii])->setupBreakPoints(); }
-
-    //int stpSize = stpAstNodeVec_.size();
-    //for (int ii=0;ii< stpSize; ii++)
-    //{ (stpAstNodeVec_[ii])->setupBreakPoints(); }
-
-    //int compSize = compAstNodeVec_.size();
-    //for (int ii=0;ii< compSize; ii++)
-    //{ (compAstNodeVec_[ii])->setupBreakPoints(); }
-  }
-
-  return;
-}
-
-//-------------------------------------------------------------------------------
 // Function      : newExpression::getBreakPoints
 // Purpose       :
 // Special Notes : do not need to be sorted; other parts of Xyce will sort them

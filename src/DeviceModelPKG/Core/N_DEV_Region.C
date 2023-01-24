@@ -862,19 +862,6 @@ bool Region::getDoNothingFlag ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Region::setupBreakPoints
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2020
-//-----------------------------------------------------------------------------
-void Region::setupBreakPoints()
-{
-  return theReactions.setupBreakPoints();
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Region::getBreakPoints
 // Purpose       : 
 // Special Notes :
