@@ -286,7 +286,6 @@ std::ostream& operator<<(std::ostream & os, const SolverState & ss)
 //
 //                 At some point I hope to refactor this.
 //
-// Scope         : private
 // Creator       : Eric R. Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 7/30/01
 //-----------------------------------------------------------------------------
@@ -456,6 +455,45 @@ bool setupSolverInfo(
   }
 
   return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : updateTimeInfo
+//
+// Purpose       : Updates the solver state variables related to time variables.
+//
+// Special Notes : This function is needed to ensure that breakpoints from expressions
+//                 are correct at the beginning of each .STEP iteration.  This function
+//                 must be called before any expressions are updated via the setParam
+//                 or setParamRandomExpressionTerms functions.
+//
+//                 Normally, .STEP related updates are handled in the various notify
+//                 functions, but that isn't possible for this  function, as the
+//                 notify functions happen in the wrong order. The Transient::notify
+//                 function is called after the DeviceMgr::notify function.
+//
+//                 So, this must be called after all the notifies are done, but before
+//                 (or at the beginning) of the setParam calls.
+//
+//                 Also, while the setupSolverInfo function also updates these variables, it
+//                 updates many, many things and is overkill for this .STEP/breakpoints issue.
+//                 Also, it depends on pointers in the time integrator (particularly the
+//                 method pointer) that are often NULL when the setParam functions are
+//                 called.
+//
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 1/25/2023
+//-----------------------------------------------------------------------------
+bool updateTimeInfo (SolverState & solver_state, const Analysis::AnalysisManager & analysis_manager)
+{
+  solver_state.currTimeStep_        = analysis_manager.getStepErrorControl().currentTimeStep;                   // system_state.nextTimeStep;
+  solver_state.lastTimeStep_        = analysis_manager.getStepErrorControl().lastTimeStep;                      // system_state.currTimeStep;
+  solver_state.oldeTimeStep_        = analysis_manager.getStepErrorControl().oldeTimeStep;                      // 
+  solver_state.currTime_            = analysis_manager.getStepErrorControl().nextTime;                          // system_state.nextTime;
+  solver_state.finalTime_           = analysis_manager.getStepErrorControl().finalTime;                         // system_state.finalTime;
+  solver_state.startingTimeStep_    = analysis_manager.getStepErrorControl().startingTimeStep;                  // system_state.startingTimeStep;
+
+  return true;
 }
 
 } // namespace Device

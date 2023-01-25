@@ -211,6 +211,8 @@ public:
   expressionGroupWrapper * groupWrapperPtr_; /// < required for expressions.  Hides an RCP.
 };
 
+bool updateTimeInfo (SolverState & solver_state, const Analysis::AnalysisManager &     analysis_manager);
+
 bool setupSolverInfo(
   SolverState &                         solver_state,
   const Analysis::AnalysisManager &     analysis_manager,
