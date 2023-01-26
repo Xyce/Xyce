@@ -110,5 +110,14 @@
   features in C++17, like std::binary\_function() and std::unary\_function(). &
   These features have been replaced with C++17 compliant features. \\ \hline
 
+  \textbf{Xyce Project Backlog/565}: Fix VPWL/IPWL independent sources to work 
+  with \texttt{.STEP} & Piecewise-linear sources were not instrumented to be 
+  updated during \texttt{.STEP} loops.  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Backlog/566}:  Expression library breakpoint handling has 
+  a problem with \texttt{.STEP} & The breakpoint functions in the expression 
+  library were not properly reset at the beginning of each \texttt{.STEP} 
+  iteration.  This was causing breakpoints to be overlooked early in the transient.
+  This has been fixed.  \\ \hline
 \end{longtable}
 }

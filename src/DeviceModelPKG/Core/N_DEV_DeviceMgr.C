@@ -2102,6 +2102,11 @@ bool DeviceMgr::setParam(
   double                val,
   bool                  overrideOriginal)
 {
+  // The call to updateTimeInfo is necessary for expresssion breaktpoints.
+  // It cannot be called from the DeviceMgr::notify
+  // function, as the notify functions happen in the wrong order.
+  // (device gets "notified" before the time integrator)
+  updateTimeInfo (solState_, *analysisManager_); 
   return setParameter(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
                       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, val, overrideOriginal);
 }
@@ -2111,7 +2116,7 @@ bool DeviceMgr::setParam(
 //
 // Purpose       : 
 // 
-// Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+// Special Notes : Handles AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
 //
 // Scope         : public
 // Creator       : Eric Keiter, SNL
@@ -2121,6 +2126,11 @@ bool DeviceMgr::setParamRandomExpressionTerms2(
       const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
       bool overrideOriginal)
 {
+  // The call to updateTimeInfo is necessary for expresssion breaktpoints.
+  // It cannot be called from the DeviceMgr::notify
+  // function, as the notify functions happen in the wrong order.
+  // (device gets "notified" before the time integrator)
+  updateTimeInfo (solState_, *analysisManager_);
   return setParameterRandomExpressionTerms2(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), 
       SamplingParams,
@@ -2654,7 +2664,6 @@ bool DeviceMgr::updateState(
   bool tmpBool = true;
 
   bool all_devices_converged = allDevicesConverged(comm_);
-
   tmpBool = setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
   bsuccess = bsuccess && tmpBool;
 
