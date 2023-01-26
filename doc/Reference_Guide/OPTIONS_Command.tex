@@ -89,8 +89,8 @@ specified in section~\ref{Analog_Devices}.
 
 This option enables the output of diagnostic data during a simulation to aid
 in debugging circuit problems.  There are three optional diagnostics that one 
-can specify, Extrema Limit, Voltage Limit and Current Limit.  Their behavior 
-is as follows:
+can specify, Extrema Limit, Voltage Limit, Current Limit and a Discontinuity
+limit.  Their behavior is as follows:
 \begin{itemize}
   \item \texttt{EXTREMALIMIT}={\em value}  If {\em value} is given then Xyce will output 
   the node name and absolute value of the solution vector extrema  when it exceeds 
@@ -99,14 +99,17 @@ is as follows:
   the voltage node names and values that exceed {\em $\pm$value} at each step.
   \item \texttt{CURRENTLIMIT}={\em value} If {\em value} is given then Xyce will output
   the branch and lead current names and values that exceed {\em $\pm$value} at each step.
+  \item \texttt{DISCLIMIT}={\em value} If {\em value} is given then Xyce will output
+  solution variables where the absolute value of the difference between the solution
+  and the predictor (from transient history) exceed {\em value}.
 \end{itemize}
 
 Note that \texttt{EXTREMALIMIT} will only output one name and value per step while
-\texttt{VOLTAGELIMIT} and \texttt{CURRENTLIMIT} can output many names and values 
-per step.  Xyce's diagnostic output will be sent to the diagnostic file set by 
-\texttt{DIAGFILENAME} along with step information (time step in transient simulation 
-and step number otherwise). A user can examine the output to infer if the circuit 
-simulation is performing as expected.
+\texttt{VOLTAGELIMIT}, \texttt{CURRENTLIMIT} and \texttt{DISCLIMIT} can output many 
+names and values per step.  Xyce's diagnostic output will be sent to the diagnostic 
+file set by \texttt{DIAGFILENAME} along with step information (time step in transient 
+simulation and step number otherwise). A user can examine the output to infer if the 
+circuit simulation is performing as expected.
 
 \input{diagnosticTbl.tex}
 
