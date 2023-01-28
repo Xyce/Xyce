@@ -686,6 +686,11 @@ LEAD I[SDGBEC1-9]
     return XyceExpression::ExpressionParser::token::TOK_TABLEFILE_END; 
   }
 
+<tablefilename>"\""[ \t]*"," {
+    BEGIN(INITIAL);
+    return XyceExpression::ExpressionParser::token::TOK_COMMA;
+  }
+
 <INITIAL>"schedule"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_SCHEDULE; }
 <INITIAL>"uramp"[ \t]*"("  {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 

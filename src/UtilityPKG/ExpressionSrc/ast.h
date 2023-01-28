@@ -4074,6 +4074,394 @@ inline bool isLeftParen(char c) { return (c=='('); }
 
 inline bool isQuoteSymbol(char c) { return (c=='"'); }
 
+
+//-----------------------------------------------------------------------------
+// Function      : checkAndFixPulse
+//
+// Purpose       : This function checks for and if possible, fixes various 
+//                 issues with input pulse.
+//
+//                 If it finds duplicate points, it uses only the first.
+//
+//                 If the times are not monotonically increasing, it exits with
+//                 a fatal error.
+//
+//                 If the removeZeros boolean has been set to true, then it
+//                 will exclude any zero points in the pulse.  This is mainly 
+//                 a problem for splined pulses.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 8/23/2017
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+inline void checkAndFixPulse (
+    bool removeZeros,
+    std::vector<ScalarT> & timeVec,
+    std::vector<ScalarT> & pulseVec)
+{
+  std::vector<ScalarT> tmpTime;
+  std::vector<ScalarT> tmpPulse;
+
+  int size = timeVec.size();
+
+  bool badPointsRemoved=false;
+  bool monotonic=true;
+  if (size > 0)
+  {
+    tmpTime.reserve(timeVec.size());
+    tmpPulse.reserve(timeVec.size());
+
+    for (int i=1;i<size;++i)
+    {
+      if (std::real(timeVec[i]) < std::real(timeVec[i-1])) { monotonic=false; }
+    }
+
+    if (!monotonic)
+    {
+      std::vector<std::string> errStr(1,std::string("Time points in the pulse file are not monotonically increasing"));
+      yyerror(errStr);
+    }
+    else
+    {
+      int firstNonzero=0;
+      if (removeZeros)
+      {
+        for (int ii=0;ii<timeVec.size();ii++)
+        {
+          if (std::real(pulseVec[ii]) > 0.0)
+          {
+            tmpTime.push_back(timeVec[ii]);
+            tmpPulse.push_back(pulseVec[ii]);
+            firstNonzero=ii;
+            break;
+          }
+          else { badPointsRemoved=true; }
+        }
+      }
+      else
+      {
+        tmpTime.push_back(timeVec[0]);
+        tmpPulse.push_back(pulseVec[0]);
+      }
+
+      for (int i=(firstNonzero+1);i<size;++i)
+      {
+        if (std::real(timeVec[i]) != std::real(timeVec[i-1])
+           &&
+          (std::real(pulseVec[i]) > 0.0)
+            )
+        {
+          tmpTime.push_back(timeVec[i]);
+          tmpPulse.push_back(pulseVec[i]);
+        }
+        else { badPointsRemoved=true; }
+      }
+    }
+  }
+
+  if (badPointsRemoved)
+  {
+    timeVec.clear();
+    pulseVec.clear();
+    timeVec = tmpTime;
+    pulseVec = tmpPulse;
+  }
+
+  if (timeVec.size() < 1)
+  {
+    std::vector<std::string> errStr(1,std::string("After fixes, the specified pulse has size < 1, which is not valid."));
+    yyerror(errStr);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Removes pulse points that are Nan or Inf (usually done after spline)
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+inline void removePulseNaNs (
+    std::vector<ScalarT> & timeVec,
+    std::vector<ScalarT> & pulseVec)
+{
+  std::vector<ScalarT> tmpTime;
+  std::vector<ScalarT> tmpPulse;
+  int size = timeVec.size();
+
+  bool badFound=false;
+  tmpTime.clear();
+  tmpPulse.clear();
+
+  for (int i=0;i<size;++i)
+  {
+    if (  !(std::isnan(std::real( pulseVec[i]))) 
+       && !(std::isinf(std::real( pulseVec[i])))
+        )
+    {
+      badFound=true;
+      tmpTime.push_back(timeVec[i]);
+      tmpPulse.push_back(pulseVec[i]);
+    }
+  }
+
+  if (badFound)
+  {
+    pulseVec.clear();
+    timeVec = tmpTime;
+    pulseVec = tmpPulse;
+  }
+
+  if (timeVec.size() < 1)
+  {
+    std::vector<std::string> errStr(1,std::string("After fixes, the specified pulse has size < 1, which is not valid."));
+    yyerror(errStr);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : trapezoidIntegral
+// Purpose       : 
+// Special Notes : used by downSampleVector to normalize the pulse
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+inline void trapezoidIntegral (
+   const std::vector<ScalarT> & times,
+   const std::vector<ScalarT> & values,
+   std::vector<ScalarT> & testIntegral,
+   ScalarT & integral)
+{
+  int cpSize = times.size();
+  int midIndex = cpSize-1;
+  integral=0.0;
+
+  testIntegral.resize(cpSize,0.0);
+
+  for (int is=0;is<cpSize-1;++is)
+  {
+    ScalarT deltaT = times[is+1]-times[is];
+    ScalarT pulse1 = values[is];
+    ScalarT pulse2 = values[is+1];
+    ScalarT Tau1 = times[is];
+    ScalarT Tau2 = times[is+1];
+    ScalarT deltaI = 0.5*(pulse1+pulse2)*deltaT;
+    integral += deltaI;
+    testIntegral[is+1] = integral;
+  }
+}
+
+//------------------------------------------------------------------------------- 
+// Function      : downSampleVector
+// Purpose       : reduce size of a table to a specified length. 
+// Special Notes : 
+//
+// Reducing the size of a table (or pulse file) can significantly reduce runtime,
+// partly because the default behavior of tables is to create a breakpoint for 
+// every point in the table.
+//
+// This is only used for tables that have been specified via files, partly 
+// because that use case was much easier to parse, and partly because most 
+// really large tables are specified that way.
+//
+// This function does time sampling based on the ideas in these papers:
+//
+// Yiming Zhao and Panagiotis Tsiotras. 
+// "Mesh Refinement Using Density Function for Solving Optimal Control Problems", 
+// AIAA Infotech@Aerospace Conference, Infotech@Aerospace Conferences, ()
+// http://dx.doi.org/10.2514/6.2009-2019 
+//
+// Yiming Zhao and Panagiotis Tsiotras.  
+// "Density Functions for Mesh Refinement in Numerical Optimal Control", 
+// Journal of Guidance, Control, and Dynamics, Vol. 34, No. 1 (2011), pp. 271-277.
+// http://dx.doi.org/10.2514/1.45852
+//
+// The general idea is very simple:
+//
+// (1) Using the spline functions obtain the derivative array of the pulse file. 
+//     Call it dfdt, where "f" is the values in the pulse file, and "t" is time.
+// (2) Take absolute value of dfdt, so always >= 0.  Let dfdt be the "density function" 
+//     to be used in refining the mesh.
+// (3) Create a new array that is the integral of dfdt.  Kind of like a CDF.  
+//     Call it F, where F(t_i) = \int_t_0^t_i dfdt dt
+// (4) since dfdt is always >=0, the array/function F(t) is monotonically increasing.
+// (5) Min of F is at F(t_0), Max of F is at F(t_N) where N=number of sample points.
+// (6) Let the integral from F(t_i) to F(t_{i+1}) be a constant DF = (1/N)* F(t_N)
+// (7) Set up a spline function, but with the purpose to provide F^{-1}.  
+//     In other words, let the F array be "x" and the time array be "y".  
+//     That way, for any given F, the spline will return time.
+// (8) Loop i from 1 to N.   At each i, F = i*DF.  Use the F^{-1} spline to obtain time[i].  
+//     At the end of the loop, the gradient-based time points will be set up.
+//
+//  This can be done with either the original pulse, or with the log10 
+//  of the original pulse.
+//
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 1/27/2023
+//------------------------------------------------------------------------------- 
+template <typename ScalarT>
+inline void downSampleVector(
+    const int numSamples, 
+    bool logSpacing,
+    std::vector<ScalarT> & ta_,
+    std::vector<ScalarT> & ya_
+    )
+{
+  std::vector<ScalarT> pulseTimes = ta_;
+  std::vector<ScalarT> pulseValues = ya_;
+
+  std::vector<ScalarT> pulseValuesLog;
+  std::vector<ScalarT> pulseIntegral;
+
+  bool removeZeros=true;
+  checkAndFixPulse (removeZeros, pulseTimes, pulseValues);
+
+  // prepare to normalize the reduced data set by integrating original pulse.
+  ScalarT originalIntegral=0.0;
+  trapezoidIntegral( pulseTimes, pulseValues, pulseIntegral, originalIntegral);
+
+  // redo the pulse times and the pulse values, by splining the
+  // pulse data file.
+  int pulseSize = pulseTimes.size();
+
+  Xyce::Util::interpolator<ScalarT> * pulseInterpolator;
+  pulseInterpolator = new Xyce::Util::akima<ScalarT>();
+  pulseInterpolator->clear();
+  pulseInterpolator->init(pulseTimes, pulseValues);
+
+  ScalarT tstart = pulseTimes[0];
+  ScalarT tstop = pulseTimes[pulseSize-1];
+
+
+  Xyce::Util::interpolator<ScalarT> * pulseInterpolatorLog;
+  if ( logSpacing )
+  {
+    pulseValuesLog.resize(pulseSize,0.0);
+    for (int ip=0;ip<pulseSize;++ip)
+    {
+      pulseValuesLog[ip] = log10(pulseValues[ip]);
+    }
+
+    checkAndFixPulse (removeZeros, pulseTimes, pulseValuesLog);
+
+    if (pulseValuesLog.size() != pulseValuesLog.size())
+    {
+      pulseSize = pulseValuesLog.size();
+      pulseValues.clear();
+      pulseValues.resize(pulseValuesLog.size());
+      for (int ii=0;ii<pulseSize;ii++)
+      {
+        pulseValues[ii] = std::pow(10.0,pulseValuesLog[ii]);
+      }
+    }
+
+    pulseInterpolatorLog = new Xyce::Util::akima<ScalarT>();
+    pulseInterpolatorLog->clear();
+    pulseInterpolatorLog->init(pulseTimes, pulseValuesLog);
+  }
+
+  std::vector<ScalarT> pulseValues_dfdtFabs(pulseSize,0.0);
+  std::vector<ScalarT> pulseValues_F(pulseSize,0.0);
+
+  for (int ic=0;ic<pulseSize;++ic)
+  {
+    ScalarT tmp=0.0;
+    ScalarT time=pulseTimes[ic];
+
+    if ( logSpacing )
+    {
+      pulseInterpolatorLog->evalDeriv( pulseTimes, pulseValuesLog, time, tmp);
+    }
+    else
+    {
+      pulseInterpolator->evalDeriv( pulseTimes, pulseValues, time, tmp);
+    }
+
+    pulseValues_dfdtFabs[ic] = fabs(std::real(tmp));
+  }
+
+  Xyce::Util::akima<ScalarT> newInterp;
+  newInterp.clear();
+  newInterp.init(pulseTimes, pulseValues_dfdtFabs);
+
+  for (int ic=0;ic<pulseSize;++ic)
+  {
+    ScalarT tmp=0.0;
+    ScalarT time0=tstart;
+    ScalarT time=pulseTimes[ic];
+    newInterp.evalInteg( pulseTimes, pulseValues_dfdtFabs, time0, time, tmp);
+    pulseValues_F[ic] = tmp;
+  }
+  ScalarT F_N = pulseValues_F[pulseSize-1];
+  ScalarT one_over_F_N = 1.0/pulseValues_F[pulseSize-1];
+
+  // normalize F array:
+  std::for_each(pulseValues_F.begin(), pulseValues_F.end(), [&one_over_F_N](ScalarT &el) { el *= one_over_F_N; } );
+
+  Xyce::Util::akima<ScalarT> inverseFInterp;
+  inverseFInterp.clear();
+  inverseFInterp.init( pulseValues_F, pulseTimes);
+
+  // Create a sparsified mesh based on gradients.
+  ScalarT dF=1.0/static_cast<ScalarT>(numSamples-1);
+  ScalarT F=0.0;
+
+  ta_.clear();
+  ya_.clear();
+  ta_.resize(numSamples,0.0);
+  ya_.resize(numSamples,0.0);
+
+  for (int ic=0;ic<numSamples;++ic)
+  {
+    ScalarT t=0.0;
+    inverseFInterp.eval(  pulseValues_F, pulseTimes, F, t);
+
+    F += dF;
+    ta_[ic]=t;
+
+    ScalarT v=0.0;    
+    pulseInterpolator->eval( pulseTimes, pulseValues, t, v);
+    ya_[ic]=v;
+  }
+  
+  removePulseNaNs ( ta_, ya_ );
+
+  int size = ya_.size();
+
+  if ( logSpacing )
+  {
+    pulseInterpolatorLog->clear();
+    delete pulseInterpolatorLog;
+  }
+
+  // complete the normalization:
+  ScalarT newIntegral=0.0;
+  std::vector<ScalarT> testIntegral;
+  trapezoidIntegral(ta_,
+    ya_,
+    testIntegral,
+    newIntegral);
+
+  if (std::real(newIntegral)!=0.0)
+  {
+    ScalarT normalization=originalIntegral/newIntegral;
+
+    int size = ya_.size();
+    for (int ic=0;ic<size;ic++)
+    {
+      ya_[ic] *= normalization;
+    }
+  }
+
+  pulseInterpolator->clear();
+  delete pulseInterpolator;
+
+  pulseTimes.clear();
+  pulseValues.clear();
+}
+
 //------------------------------------------------------------------------------- 
 // This is an interpolation operator. 
 //
@@ -4152,11 +4540,21 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // special constructor for values read in from a file, in which the file IO is 
     // handled directly in this constructor.
-    tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > &input, const std::string & filename):
+    tableOp (
+        const std::string & kw, 
+        Teuchos::RCP<astNode<ScalarT> > &input, 
+        const std::string & filename,
+        Teuchos::RCP<astNode<ScalarT> > & numSamplesAst,
+        Teuchos::RCP<astNode<ScalarT> > & logSpacingAst
+        ):
       astNode<ScalarT>(), allNumVal_(true), input_(input),
       useBreakPoints_(true),
       keyword_(kw)
       {
+        int numDownSamples = 
+          static_cast<int>( std::real(numSamplesAst->val()));
+        bool logSpacing = ((static_cast<int>( std::real(logSpacingAst->val())))>0);
+  
         allocateInterpolators();
 
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
@@ -4227,6 +4625,12 @@ class tableOp : public astNode<ScalarT>
             }
           }
           dataIn.close();
+
+          // now downsample if necessary
+          if (numDownSamples>0 )
+          { 
+            downSampleVector(numDownSamples, logSpacing, ta_, ya_);
+          } // downsample if-statement
         }
 
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is

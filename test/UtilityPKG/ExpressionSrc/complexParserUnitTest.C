@@ -9376,6 +9376,7 @@ TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }
 
 
+#if 0
 template <typename ScalarT>
 inline void trapezoidIntegral (
    const std::vector<double> & times,
@@ -9401,6 +9402,7 @@ inline void trapezoidIntegral (
     testIntegral[is+1] = integral;
   }
 }
+#endif
 
 //-------------------------------------------------------------------------------
 // SDT tests
