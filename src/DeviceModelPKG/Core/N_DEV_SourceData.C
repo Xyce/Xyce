@@ -1554,7 +1554,7 @@ void PWLinData::setParams (double *params)
   }
   if (REPEATTIME != params[7])
   {
-    REPEATTIME = params[1];
+    REPEATTIME = params[7];
     reset = true;
   }
 
