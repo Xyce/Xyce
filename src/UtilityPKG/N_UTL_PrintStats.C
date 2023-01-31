@@ -275,8 +275,11 @@ ParallelStats::getMetric<HeapAlloc>() const {
   return m_heapAlloc;
 }
 
-class finder : public std::unary_function<ParallelStats, bool>
+class finder
 {
+  using result_type = bool;
+  using first_argument_type = ParallelStats;
+
 public:
   finder(const std::string &name)
     : m_name(name)

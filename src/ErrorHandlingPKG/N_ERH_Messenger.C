@@ -104,8 +104,12 @@ struct DeferredMessage
 
 typedef std::vector<DeferredMessage> DeferredMessageVector;
 
-struct DeferredMessageLess : public std::binary_function<DeferredMessage, DeferredMessage, bool>
+struct DeferredMessageLess
 {
+  using result_type = bool;
+  using first_argument_type = DeferredMessage;
+  using second_argument_type = DeferredMessage;
+
   bool operator()(const DeferredMessage &key_1, const DeferredMessage &key_2) const
   {
     return (key_1.m_type < key_2.m_type)

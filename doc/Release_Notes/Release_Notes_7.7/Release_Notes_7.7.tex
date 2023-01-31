@@ -104,7 +104,8 @@ please visit the \XyceTM{} web page at
 
 \item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in 
   debugging of user circuits.  This option can be used to output nodes with extreme 
-  solution values during a simulation.  See the Reference Guide for more details.
+  solution values, voltages, currents and discontinuities during a simulation.  
+  See the Reference Guide section 2.1.25.2 for more details.
 
 \item The third argument (\texttt{num\_sigma}) to the random expression operators \texttt{AGAUSS} and \texttt{GAUSS} is now optional.
 
@@ -114,6 +115,12 @@ please visit the \XyceTM{} web page at
   include a list of diagnostic messages. These error messages will be encoded as
   an array under the tag name “ErrorMessages” next to the “audit” field 
   (e.g. {“audit”:\{\dots\},”ErrorMessages”:[\dots]}). 
+
+\item Expressions are now allowed on the following analysis lines: \texttt{.TRAN}, \texttt{.DC} and \texttt{.AC}.
+
+\item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now contain comments.
+
+\item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now include dashes in the filename.
 
 \end{XyceItemize}
 
@@ -130,7 +137,7 @@ please visit the \XyceTM{} web page at
 \section{Supported Platforms}
 \subsection*{Certified Support}
 The following platforms have been subject to certification testing for the
-\Xyce{} version 7.6 release.
+\Xyce{} version 7.7 release.
 \begin{XyceItemize}
   \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
   \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)

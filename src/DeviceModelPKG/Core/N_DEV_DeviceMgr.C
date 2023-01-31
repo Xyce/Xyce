@@ -370,6 +370,30 @@ bool DeviceMgr::setDeviceOptions (const Util::OptionBlock & OB)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setDiagnosticOptions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool DeviceMgr::setDiagnosticOptions (const Util::OptionBlock & OB)
+{
+  //return devOptions_.setOptions(OB);
+  bool retval = false;
+  for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
+  {
+    const Util::Param &param = *it;
+    if( param.tag() == "CURRENTLIMIT")
+    {
+      devOptions_.calculateAllLeadCurrents = true;
+      retval=true;
+    }
+  }
+  return retval;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::registerLeadCurrentRequests
 // Purpose       : this function is called from the output manager (through the
 //                 device interface) to inform the device package of the devices
@@ -962,26 +986,6 @@ void DeviceMgr::notify(const Analysis::StepEvent &event)
       solState_.ltraTimeHistorySize_ = 10;
       solState_.ltraTimePoints_.resize(solState_.ltraTimeHistorySize_);
     }
-  }
-
-  // Breakpoint management
-  InstanceVector::iterator iterI;
-  ModelVector::iterator iterM;
-  for (iterM = modelVector_.begin() ; iterM != modelVector_.end() ; ++iterM)
-  {
-    if (!(*iterM)->getDependentParams().empty()) { (*iterM)->setupParamBreakpoints(); }
-  }
-
-  for (iterI = instancePtrVec_.begin() ; iterI != instancePtrVec_.end() ; ++iterI)
-  {
-    if (!(*iterI)->getDependentParams().empty()) { (*iterI)->setupParamBreakpoints(); }
-  }
-
-  std::vector<Util::Expression>::iterator globalExp_i = globals_.expressionVec.begin();
-  std::vector<Util::Expression>::iterator globalExp_end = globals_.expressionVec.end();
-  for (; globalExp_i != globalExp_end; ++globalExp_i)
-  {
-    globalExp_i->setupBreakPoints();
   }
 
   InstanceVector::iterator iter = instancePtrVec_.begin();
@@ -2098,6 +2102,11 @@ bool DeviceMgr::setParam(
   double                val,
   bool                  overrideOriginal)
 {
+  // The call to updateTimeInfo is necessary for expresssion breaktpoints.
+  // It cannot be called from the DeviceMgr::notify
+  // function, as the notify functions happen in the wrong order.
+  // (device gets "notified" before the time integrator)
+  updateTimeInfo (solState_, *analysisManager_); 
   return setParameter(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
                       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), name, val, overrideOriginal);
 }
@@ -2107,7 +2116,7 @@ bool DeviceMgr::setParam(
 //
 // Purpose       : 
 // 
-// Special Notes : AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
+// Special Notes : Handles AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
 //
 // Scope         : public
 // Creator       : Eric Keiter, SNL
@@ -2117,6 +2126,11 @@ bool DeviceMgr::setParamRandomExpressionTerms2(
       const std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
       bool overrideOriginal)
 {
+  // The call to updateTimeInfo is necessary for expresssion breaktpoints.
+  // It cannot be called from the DeviceMgr::notify
+  // function, as the notify functions happen in the wrong order.
+  // (device gets "notified" before the time integrator)
+  updateTimeInfo (solState_, *analysisManager_);
   return setParameterRandomExpressionTerms2(comm_, artificialParameterMap_, passthroughParameterSet_, globals_, *this,
       dependentPtrVec_, getDevices(ExternDevice::Traits::modelType()), 
       SamplingParams,
@@ -2650,7 +2664,6 @@ bool DeviceMgr::updateState(
   bool tmpBool = true;
 
   bool all_devices_converged = allDevicesConverged(comm_);
-
   tmpBool = setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
   bsuccess = bsuccess && tmpBool;
 
@@ -3908,13 +3921,6 @@ void DeviceMgr::setGlobalFlags()
 //-----------------------------------------------------------------------------
 void DeviceMgr::resetBreakPoints()
 {
-  std::vector<Util::Expression>::iterator globalExp_i = globals_.expressionVec.begin();
-  std::vector<Util::Expression>::iterator globalExp_end = globals_.expressionVec.end();
-  for (; globalExp_i != globalExp_end; ++globalExp_i)
-  {
-    globalExp_i->setupBreakPoints();
-  }
-
   InstanceVector::iterator iter = instancePtrVec_.begin();
   InstanceVector::iterator end = instancePtrVec_.end();
   for (; iter!= end; iter++)
@@ -5214,6 +5220,7 @@ bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options
   options_manager.addCommandProcessor("SAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setSamplingParams));
   options_manager.addCommandProcessor("EMBEDDEDSAMPLING", IO::createRegistrationOptions(device_manager, &DeviceMgr::setEmbeddedSamplingParams));
   options_manager.addCommandProcessor("PCE", IO::createRegistrationOptions(device_manager, &DeviceMgr::setPCEParams));
+  options_manager.addOptionsProcessor("DIAGNOSTIC", IO::createRegistrationOptions(device_manager, &DeviceMgr::setDiagnosticOptions));
 
   return true;
 }

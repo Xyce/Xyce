@@ -52,6 +52,7 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Math.h>
+#include <N_UTL_Expression.h>
 
 namespace Xyce {
 namespace Device {
@@ -340,12 +341,12 @@ SinData::SinData(
   {
     const std::string & tmpname = iter->tag();
 
-    if (tmpname == "V0")    { V0    = iter->getImmutableValue<double>(); V0given = iter->given();}
-    if (tmpname == "VA")    { VA    = iter->getImmutableValue<double>(); VAgiven = iter->given();}
-    if (tmpname == "FREQ")  { FREQ  = iter->getImmutableValue<double>(); FREQgiven = iter->given();}
-    if (tmpname == "TD")    { TD    = iter->getImmutableValue<double>(); TDgiven = iter->given();}
-    if (tmpname == "THETA") { THETA = iter->getImmutableValue<double>(); THETAgiven = iter->given();}
-    if (tmpname == "PHASE") { PHASE = iter->getImmutableValue<double>(); PHASEgiven = iter->given();}
+    if (tmpname == "V0")    { V0    = iter->getMutableValue<double>(); V0given = iter->given();}
+    if (tmpname == "VA")    { VA    = iter->getMutableValue<double>(); VAgiven = iter->given();}
+    if (tmpname == "FREQ")  { FREQ  = iter->getMutableValue<double>(); FREQgiven = iter->given();}
+    if (tmpname == "TD")    { TD    = iter->getMutableValue<double>(); TDgiven = iter->given();}
+    if (tmpname == "THETA") { THETA = iter->getMutableValue<double>(); THETAgiven = iter->given();}
+    if (tmpname == "PHASE") { PHASE = iter->getMutableValue<double>(); PHASEgiven = iter->given();}
   }
 
   if (!(V0given && VAgiven && FREQgiven))
@@ -556,12 +557,12 @@ ExpData::ExpData(
   {
     const std::string & tmpname = iter->tag();
 
-    if (tmpname == "V1")    { V1    = iter->getImmutableValue<double>(); V1given   = iter->given();}
-    if (tmpname == "V2")    { V2    = iter->getImmutableValue<double>(); V2given   = iter->given();}
-    if (tmpname == "TD1")   { TD1   = iter->getImmutableValue<double>(); TD1given  = iter->given();}
-    if (tmpname == "TAU1")  { TAU1  = iter->getImmutableValue<double>(); TAU1given = iter->given();}
-    if (tmpname == "TD2")   { TD2   = iter->getImmutableValue<double>(); TD2given  = iter->given();}
-    if (tmpname == "TAU2")  { TAU2  = iter->getImmutableValue<double>(); TAU2given = iter->given();}
+    if (tmpname == "V1")    { V1    = iter->getMutableValue<double>(); V1given   = iter->given();}
+    if (tmpname == "V2")    { V2    = iter->getMutableValue<double>(); V2given   = iter->given();}
+    if (tmpname == "TD1")   { TD1   = iter->getMutableValue<double>(); TD1given  = iter->given();}
+    if (tmpname == "TAU1")  { TAU1  = iter->getMutableValue<double>(); TAU1given = iter->given();}
+    if (tmpname == "TD2")   { TD2   = iter->getMutableValue<double>(); TD2given  = iter->given();}
+    if (tmpname == "TAU2")  { TAU2  = iter->getMutableValue<double>(); TAU2given = iter->given();}
   }
 
   if (!(V1given && V2given))
@@ -776,13 +777,13 @@ PulseData::PulseData(
   {
     const std::string & tmpname = iter->tag();
 
-    if (tmpname == "V1")  { V1    = iter->getImmutableValue<double>(); V1given = iter->given();}
-    if (tmpname == "V2")  { V2    = iter->getImmutableValue<double>(); V2given = iter->given();}
-    if (tmpname == "TD")  { TD    = iter->getImmutableValue<double>(); TDgiven = iter->given();}
-    if (tmpname == "TR")  { TR    = iter->getImmutableValue<double>(); TRgiven = iter->given();}
-    if (tmpname == "TF")  { TF    = iter->getImmutableValue<double>(); TFgiven = iter->given();}
-    if (tmpname == "PW")  { PW    = iter->getImmutableValue<double>(); PWgiven = iter->given();}
-    if (tmpname == "PER") { PER   = iter->getImmutableValue<double>(); PERgiven = iter->given();}
+    if (tmpname == "V1")  { V1    = iter->getMutableValue<double>(); V1given = iter->given();}
+    if (tmpname == "V2")  { V2    = iter->getMutableValue<double>(); V2given = iter->given();}
+    if (tmpname == "TD")  { TD    = iter->getMutableValue<double>(); TDgiven = iter->given();}
+    if (tmpname == "TR")  { TR    = iter->getMutableValue<double>(); TRgiven = iter->given();}
+    if (tmpname == "TF")  { TF    = iter->getMutableValue<double>(); TFgiven = iter->given();}
+    if (tmpname == "PW")  { PW    = iter->getMutableValue<double>(); PWgiven = iter->given();}
+    if (tmpname == "PER") { PER   = iter->getMutableValue<double>(); PERgiven = iter->given();}
   }
 
   // For HSpice compatibility, at least V1 must be given.  Note: that in
@@ -1131,6 +1132,59 @@ double PulseData::getMaxTimeStepSize ()
 }
 
 // Class PWLinData
+//-----------------------------------------------------------------------------
+// Function      : debugOutput1
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/22/2023
+//-----------------------------------------------------------------------------
+void debugOutput1( const std::string funcName, const Param & param)
+{
+    const std::string & tmpname = param.tag();
+    const bool & tmpgiven = param.given();
+
+    if (tmpgiven)
+    {
+      std::cout << funcName;
+
+      switch (param.getType()) 
+      {
+        case Xyce::Util::STR:
+          std::cout<<" "<<param.uTag()<<" is STR type; value =  "<< param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::DBLE:
+          std::cout<<" "<<param.uTag()<<" is DBLE type; value =  "<< param.getMutableValue<double>()<<std::endl;
+          break;
+        case Xyce::Util::EXPR:
+          std::cout<<" "<<param.uTag()<<" is EXPR type; value =  "<<param.getValue<Util::Expression>().get_expression()<<std::endl;
+          break;
+        case Xyce::Util::BOOL:
+          std::cout<<" "<<param.uTag()<<" is BOOL type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::STR_VEC:
+          std::cout<<" "<<param.uTag()<<" is STR_VEC type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::INT_VEC:
+          std::cout<<" "<<param.uTag()<<" is INT_VEC type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::DBLE_VEC:
+          std::cout<<" "<<param.uTag()<<" is DBLE_VEC type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::DBLE_VEC_IND:
+          std::cout<<" "<<param.uTag()<<" is DBLE_VEC_IND type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        case Xyce::Util::COMPOSITE:
+          std::cout<<" "<<param.uTag()<<" is COMPOSITE type; value =  "<<param.stringValue()<<std::endl;
+          break;
+        default:
+          std::cout<<" "<<param.uTag()<<" is default type (whatever that is) value = : "<<param.stringValue()<<std::endl;
+      }
+
+      std::cout << std::endl;
+    }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : PWLinData::PWLinData
@@ -1151,7 +1205,6 @@ PWLinData::PWLinData(
   REPEATTIME(0.0),
   TD(0.0),
   loc_(0),
-  starttime_(0.0),
   preComputedBreakpointsDone(false)
 {
   std::vector<Param>::const_iterator iter = paramRef.begin();
@@ -1162,17 +1215,25 @@ PWLinData::PWLinData(
     const std::string & tmpname = iter->tag();
     const bool & tmpgiven = iter->given();
 
-    if (tmpname == "NUM")        NUM        = iter->getImmutableValue<int>();
+    if (tmpname == "NUM")        NUM        = iter->getMutableValue<int>();
     if (tmpname == "R" && tmpgiven == true)
     {
       REPEAT = true;
-      REPEATTIME = iter->getImmutableValue<double>();
+      REPEATTIME = iter->getMutableValue<double>();
     }
-    if (tmpname == "TD")         TD         = iter->getImmutableValue<double>();
+    if (tmpname == "TD")         TD         = iter->getMutableValue<double>();
 
     if ( tmpname == "T" && iter->given() )
     {
-      time = iter->getImmutableValue<double>();
+      time = iter->getMutableValue<double>();
+
+      if (iter->getType() == Xyce::Util::EXPR)
+      {
+        Util::Expression expression = iter->getValue<Util::Expression>();
+        int index = TVVEC.size();
+        timeExprList.push_back(std::pair<int,Util::Expression> (index,expression));
+      }
+
       ++iter;
 
       // The if statement handles the case where the first time-value pair is not (0,0).
@@ -1182,11 +1243,24 @@ PWLinData::PWLinData(
       // incremented by 1, if that time-voltage pair at time=0 needs to be inserted.
       if ( TVVEC.empty() && time > 0.0 )
       {
-        TVVEC.push_back(std::pair<double,double>(0.0,iter->getImmutableValue<double>()));
+        if (iter->getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression expression = iter->getValue<Util::Expression>();
+          int index = TVVEC.size();
+          valExprList.push_back(std::pair<int,Util::Expression> (index,expression));
+        }
+
+        TVVEC.push_back(std::pair<double,double>(0.0,iter->getMutableValue<double>()));
         NUM++;
       }
 
-      TVVEC.push_back(std::pair<double,double>(time, iter->getImmutableValue<double>()));
+      if (iter->getType() == Xyce::Util::EXPR)
+      {
+        Util::Expression expression = iter->getValue<Util::Expression>();
+        int index = TVVEC.size();
+        valExprList.push_back(std::pair<int,Util::Expression> (index,expression));
+      }
+      TVVEC.push_back(std::pair<double,double>(time, iter->getMutableValue<double>()));
     }
   }
 
@@ -1211,7 +1285,10 @@ PWLinData::PWLinData(
 // Creation Date : 3/16/00
 //-----------------------------------------------------------------------------
 PWLinData::~PWLinData()
-{}
+{
+  timeExprList.clear();
+  valExprList.clear();
+}
 
 //-----------------------------------------------------------------------------
 // Function      : PWLinData::printOutParams
@@ -1229,7 +1306,6 @@ void PWLinData::printOutParams()
   Xyce::dout() << "  REPEATTIME  = "    << REPEATTIME << std::endl;
   Xyce::dout() << "  TD  = "    << TD << std::endl;
   Xyce::dout() << "  loc_  = "    << loc_ << std::endl;
-  Xyce::dout() << "  starttime_  = "    << starttime_ << std::endl;
 
   Xyce::dout() << "  Time    Voltage" << std::endl;
   for( int i = 0; i < NUM; ++i )
@@ -1443,6 +1519,111 @@ bool PWLinData::getBreakPoints
   return bsuccess;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : PWLinData::getParams
+// Purpose       : Pass back the PWL source params.
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/22/2023
+//-----------------------------------------------------------------------------
+void PWLinData::getParams (double *params)
+{
+// TD is par2
+// R or REPEATTIME is not part of the "par" array.  However, it is right after par6.
+// T and V are weird, so not part of double *
+  params[2] = TD;
+  params[7] = REPEATTIME;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PWLinData::getParams
+// Purpose       : Set the PWL source params.
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/22/2023
+//-----------------------------------------------------------------------------
+void PWLinData::setParams (double *params)
+{
+  bool reset=false;
+  if (TD != params[2])
+  {
+    TD = params[2];
+    reset = true;
+  }
+  if (REPEATTIME != params[7])
+  {
+    REPEATTIME = params[7];
+    reset = true;
+  }
+
+  // now handle the vector of T,V pairs.  
+  //
+  // ERK. 1/23/2023.  The T,V pairs cannot be updated via the params argument to this 
+  // function. The reason is that the params argument, while it is a double* and thus 
+  // can represent an array is not conveniently set up to handle arrays of arbitrary 
+  // length. It is assuming that we have a fixed set of variables to potentially updated,
+  // and they are in a certain order in the N_DEV_Vsrc and/or N_DEV_ISRC classes.  The
+  // relevant variables in the N_DEV_Vsrc are double T and double V, which are not arrays 
+  // or vectors.    They have historically just served as placeholders.  When the user
+  // specifies a PWL list of numbers, you wind up with an arbibrary number of 
+  // parameters, all named either "T" or "V".  Unlike some vector variables, these are not
+  // given unique names.  Thus, even if there are a lot of them, they only map to a 
+  // single double-precision variable.
+  //
+  // With enough hacking it could be made to work, by change T and V to be true vectors, and 
+  // giving them unique names, but I've chosen a different, less cumbersome approach.
+  //
+  // The approach is this.  If any of the entries in the PWL source are EXPR type, 
+  // then store a copy of their expression, as well as their index into the T,V array.  
+  // Since these expressions are now stored, they can be re-evaluated whenever this 
+  // function is called.  The external dependencies for expressions are handled automatically, 
+  // so this update should work.  If the re-evaluated expression produces a different
+  // number than the one already stored in the T,V vector, then the T,V vector is updated.
+  {
+    std::vector< std::pair<int,Util::Expression> >::iterator iter = timeExprList.begin();
+    std::vector< std::pair<int,Util::Expression> >::iterator end = timeExprList.end();
+    for (;iter!=end;iter++)
+    {
+      Util::Expression & expr = iter->second;
+      double time;
+      expr.evaluateFunction(time);
+      if( time != TVVEC[iter->first].first )
+      {
+        TVVEC[iter->first].first = time;
+        reset = true;
+      }
+    }
+  }
+
+  {
+    std::vector< std::pair<int,Util::Expression> >::iterator iter = valExprList.begin();
+    std::vector< std::pair<int,Util::Expression> >::iterator end = valExprList.end();
+    for (;iter!=end;iter++)
+    {
+      Util::Expression & expr = iter->second;
+      double val;
+      expr.evaluateFunction(val);
+      if( val != TVVEC[iter->first].second)
+      {
+        TVVEC[iter->first].second = val;
+      }
+    }
+  }
+
+  // reset is only true when the timing of the PWL source has changed.
+  // changes to the "V" part of the TV pairs doesn' require anything to be
+  // re-set.
+  //
+  // need to reset some things like breakpoints if times have changed.
+  if (reset)
+  {
+    setupBreakPoints() ;
+  }
+}
+
+
 // Class PatData
 
 //-----------------------------------------------------------------------------
@@ -1471,7 +1652,7 @@ PatData::PatData(
   PATREPEATTIME(0),
   NUMDATA(0),
   NUMBP(0),
-  loc_(0),
+  loc_(0), 
   starttime_(0.0)
 {
   std::vector<Param>::const_iterator iter = paramRef.begin();
@@ -1482,22 +1663,22 @@ PatData::PatData(
     const std::string & tmpname = iter->tag();
 
     // required parameters
-    if (tmpname == "VHI")     { VHI = iter->getImmutableValue<double>(); VHIgiven = iter->given(); }
-    if (tmpname == "VLO")     { VLO = iter->getImmutableValue<double>(); VLOgiven = iter->given(); }
-    if (tmpname == "TD")      { TD = iter->getImmutableValue<double>(); TDgiven = iter->given(); }
-    if (tmpname == "TR")      { TR = iter->getImmutableValue<double>(); TRgiven = iter->given(); }
-    if (tmpname == "TF")      { TF = iter->getImmutableValue<double>(); TFgiven = iter->given(); }
-    if (tmpname == "TSAMPLE") { TSAMPLE = iter->getImmutableValue<double>(); TSAMPLEgiven = iter->given(); }
+    if (tmpname == "VHI")     { VHI = iter->getMutableValue<double>(); VHIgiven = iter->given(); }
+    if (tmpname == "VLO")     { VLO = iter->getMutableValue<double>(); VLOgiven = iter->given(); }
+    if (tmpname == "TD")      { TD = iter->getMutableValue<double>(); TDgiven = iter->given(); }
+    if (tmpname == "TR")      { TR = iter->getMutableValue<double>(); TRgiven = iter->given(); }
+    if (tmpname == "TF")      { TF = iter->getMutableValue<double>(); TFgiven = iter->given(); }
+    if (tmpname == "TSAMPLE") { TSAMPLE = iter->getMutableValue<double>(); TSAMPLEgiven = iter->given(); }
 
     if (tmpname == "DATA")
     {
-      DATA = iter->getImmutableValue<std::string>();
+      DATA = iter->getMutableValue<std::string>();
       DATAgiven = iter->given();
     }
 
     // optional parameters
-    if (tmpname == "RB")      { RB = iter->getImmutableValue<int>(); }
-    if (tmpname == "R")       { R = iter->getImmutableValue<int>(); }
+    if (tmpname == "RB")      { RB = iter->getMutableValue<int>(); }
+    if (tmpname == "R")       { R = iter->getMutableValue<int>(); }
   }
 
   // check for required parameters
@@ -1809,7 +1990,7 @@ void PatData::updateTVVEC()
 
 //-----------------------------------------------------------------------------
 // Function      : PatData::getParams
-// Purpose       : Pass back the pulse source params.
+// Purpose       : Pass back the pat source params.
 // Special Notes :
 //
 // Scope         : public
@@ -1827,8 +2008,8 @@ void PatData::getParams(double *params)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : PulseData::setParams
-// Purpose       : Update the pulse source params.
+// Function      : PatData::setParams
+// Purpose       : Update the pat source params.
 // Special Notes :
 //
 // Scope         : public
@@ -1977,11 +2158,11 @@ SFFMData::SFFMData(
   {
     const std::string & tmpname = iter->tag();
 
-    if (tmpname == "V0")  { V0    = iter->getImmutableValue<double>(); V0given = iter->given(); }
-    if (tmpname == "VA")  { VA    = iter->getImmutableValue<double>(); VAgiven = iter->given(); }
-    if (tmpname == "FC")  { FC    = iter->getImmutableValue<double>(); FCgiven = iter->given(); }
-    if (tmpname == "MDI") { MDI   = iter->getImmutableValue<double>(); MDIgiven = iter->given(); }
-    if (tmpname == "FS")  { FS    = iter->getImmutableValue<double>(); FSgiven = iter->given(); }
+    if (tmpname == "V0")  { V0    = iter->getMutableValue<double>(); V0given = iter->given(); }
+    if (tmpname == "VA")  { VA    = iter->getMutableValue<double>(); VAgiven = iter->given(); }
+    if (tmpname == "FC")  { FC    = iter->getMutableValue<double>(); FCgiven = iter->given(); }
+    if (tmpname == "MDI") { MDI   = iter->getMutableValue<double>(); MDIgiven = iter->given(); }
+    if (tmpname == "FS")  { FS    = iter->getMutableValue<double>(); FSgiven = iter->given(); }
   }
 
   if (!(V0given && VAgiven))
@@ -2162,8 +2343,8 @@ ACData::ACData(
   {
     const std::string & tmpname = iter->tag();
 
-    if (tmpname == "ACMAG")    { ACMAG    = iter->getImmutableValue<double>(); ACMAGgiven = iter->given();}
-    if (tmpname == "ACPHASE") { ACPHASE = iter->getImmutableValue<double>(); ACPHASEgiven = iter->given();}
+    if (tmpname == "ACMAG")    { ACMAG    = iter->getMutableValue<double>(); ACMAGgiven = iter->given();}
+    if (tmpname == "ACPHASE") { ACPHASE = iter->getMutableValue<double>(); ACPHASEgiven = iter->given();}
   }
 
   typeName_ = "AC";
@@ -2308,7 +2489,7 @@ ConstData::ConstData(
     const std::string & tmpname = iter->tag();
     if (tmpname == "DCV0")
     {
-      V0 = iter->getImmutableValue<double>();
+      V0 = iter->getMutableValue<double>();
     }
   }
 

@@ -435,6 +435,7 @@ public:
 
   // functions related to options registration
   bool setDeviceOptions(const Util::OptionBlock & option_block);
+  bool setDiagnosticOptions(const Util::OptionBlock & option_block);
   bool registerSensParams(const Util::OptionBlock & option_block);
   bool setOPAnalysisParams(const Util::OptionBlock & option_block);
   bool setHBAnalysisParams(const Util::OptionBlock & option_block);

@@ -549,7 +549,9 @@ public:
   }
   
   std::string getNodeNameFromIndex( const int varIndex ) const;
+  std::string getNodeNameFromLocalIndex( const int varIndex ) const;
   char getNodeTypeFromIndex( const int varIndex ) const;
+  char getNodeTypeFromLocalIndex( const int varIndex ) const;
 
 protected:
   AnalysisBase * getAnalysisObjectPtr() 
@@ -588,8 +590,14 @@ private:
   bool                  sweepSourceResetFlag_;
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
   bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
-  bool                  diagnosticModeExtrema_;
+  bool                  diagnosticExtremaLimitGiven_;
+  bool                  diagnosticVoltageLimitGiven_;
+  bool                  diagnosticCurrentLimitGiven_;
+  bool                  diagnosticDiscontinuityLimitGiven_;
   double                diagnosticExtremaLimit_;
+  double                diagnosticVoltageLimit_;
+  double                diagnosticCurrentLimit_;
+  double                diagnosticDiscontinuityLimit_;
   std::string           diagnosticFileName_;
   std::ofstream*        diagnosticOutputStreamPtr_;
 

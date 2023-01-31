@@ -22,6 +22,8 @@ target_sources(XyceLib PRIVATE
       N_ANP_OutputMgrAdapter.C
       N_ANP_ROL.C
       N_ANP_ROL_DC_Optimization.C
+      N_ANP_ROL_AC_Optimization.C
+      N_ANP_ROL_TRAN_Optimization.C
       N_ANP_Report.C
       N_ANP_RegisterAnalysis.C
       N_ANP_Sampling.C

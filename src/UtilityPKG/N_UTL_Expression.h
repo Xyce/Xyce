@@ -147,7 +147,6 @@ public:
 
   void clearOldResult ();
 
-  void setupBreakPoints();
   bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
 
   const std::string & get_input (void) const;

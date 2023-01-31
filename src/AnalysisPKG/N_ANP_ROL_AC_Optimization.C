@@ -22,60 +22,44 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Generate global id structures and proc maps
-//                  and distribute nodes to processors
+// Purpose        : ROL AC analysis classes
 //
-// Special Notes  :
+// Special Notes  : Specify any "hidden" or subtle details of the class here.
+//                  Portability details, error handling information, etc.
 //
-// Creator        : Robert J. Hoekstra, SNL, Parallel Computational Sciences
+// Creator        : Heidi Thornquist, SNL
 //
-// Creation Date  : 10/10/00
-//
-//
-//
+// Creation Date  : 01/24/08
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_PrintDeviceCounts_h
-#define Xyce_N_IO_PrintDeviceCounts_h
+#include <Xyce_config.h>
 
-#include <iosfwd>
-#include <map>
-#include <string>
-
-#include <N_PDS_fwd.h>
-#include <N_DEV_fwd.h>
+#include <N_ANP_ROL_AC_Optimization.h>
+#include <N_ANP_ROL.h>
 
 namespace Xyce {
-namespace IO {
+namespace Analysis {
 
-typedef Device::DeviceCountMap DeviceCountMap;
+#ifdef Xyce_ROL
 
-struct DeviceCountMapSum
-{
-  using result_type = int;
-  using first_argument_type = DeviceCountMap::value_type;
-  using second_argument_type = int;
+bool ROL_AC::doInit()
+{ 
+  bool ret = AC::doInit();
 
-  int operator()(int &s0, const DeviceCountMap::value_type &s1) const
-  {
-    return s0 + s1.second;
-  }
-};
+  analysisManager_.setAnalysisMode(ANP_MODE_AC);
+  
+  return ret;
+}
 
-void
-gatherGlobalDeviceCount(
-  Parallel::Machine             comm,
-  DeviceCountMap &              globalDeviceMap,
-  const DeviceCountMap &        localDeviceMap);
+bool ROL_AC::doProcessSuccessfulStep()
+{ 
+  bool ret = AC::doProcessSuccessfulStep();
 
-// Print device count.
-std::ostream &
-printDeviceCount(
-  std::ostream &                os,
-  const DeviceCountMap &        device_count_map);
+  return ret;
+}
 
-} // namespace IO
+#endif
+
+} // namespace Analysis
 } // namespace Xyce
-
-#endif // Xyce_N_IO_PrintDeviceCounts_h

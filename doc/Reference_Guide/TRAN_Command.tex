@@ -26,6 +26,9 @@ Calculates the time-domain response of a circuit for a specified duration.
 .TRAN 1us 100ms
 .TRAN 1ms 100ms 0ms .1ms
 .TRAN 0 2.0e-3  \{schedule( 0.5e-3, 0, 1.0e-3, 1.0e-6, 2.0e-3, 0 )\}
+
+.param initialStep=1ms, tstop=100ms, tstart=0ms, dtmax=0.1ms
+.TRAN \{initialStep\} \{tstop\} \{tstart\} \{dtmax\}
 \end{alltt}
 
 \arguments

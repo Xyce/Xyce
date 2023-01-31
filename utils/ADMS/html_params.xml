@@ -298,6 +298,7 @@
                     <admst:text format="&nbsp;"/>
                      <admst:if test="[input='yes']"> <admst:text format="input,"/> </admst:if>
                      <admst:if test="[setininstance='yes']"> <admst:text format="instance,"/> </admst:if>
+                     <admst:if test="[setininitial_step='yes']"> <admst:text format="initial_step,"/> </admst:if>
                      <admst:if test="[setinmodel='yes']"> <admst:text format="model,"/> </admst:if>
                      <admst:if test="[setinevaluate='yes']"> <admst:text format="evaluate,"/> </admst:if>
                      <admst:if       test="[(input='yes' and parametertype='instance') or
@@ -1105,7 +1106,7 @@
         <table border="1">
           <tbody>
             <tr><th colspan="3" align="center">Analog Functions</th></tr>
-            <tr><th>Type</th><th>Name</th><th>Arguments</th><th>Declaration</th><th>Templated Declaration</th></tr>
+            <tr><th>Type</th><th>Name</th><th>Arguments</th><th>Declaration</th><th>definition</th></tr>
             <admst:for-each select="/module/analogfunction">
               <tr>
                 <td><admst:text format="%(type)"/></td>
@@ -1122,7 +1123,7 @@
                 <td>
                   <pre>
                   <admst:apply-templates select="."
-                                        match="xyceTemplatedAnalogFunctionDeclaration"/>
+                                        match="xyceAnalogFunctionDefinition"/>
                   </pre>
                 </td>
               </tr>

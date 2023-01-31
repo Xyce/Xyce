@@ -52,16 +52,21 @@
 namespace Xyce {
 namespace Device {
 
-struct DeviceModelOp: public std::unary_function<DeviceModel *, bool>
+struct DeviceModelOp
 {
+  using result_type = bool;
+  using first_argument_type = DeviceModel*;
+
   virtual ~DeviceModelOp()
   {}
 
   virtual bool operator()(DeviceModel *model) = 0;
 };
 
-struct DeviceInstanceOp: public std::unary_function<DeviceInstance *, bool>
+struct DeviceInstanceOp
 {
+  using result_type = bool;
+  using first_argument_type = DeviceInstance*;
 
   virtual ~DeviceInstanceOp()
   {}

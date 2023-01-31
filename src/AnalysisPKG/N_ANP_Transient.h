@@ -124,13 +124,14 @@ public:
   void finalExpressionBasedSetup();
 
 protected:
-  bool doRun();
-  bool doInit();
+  virtual bool doRun();
+  virtual bool doInit();
+  virtual bool doLoopProcess();
+  virtual bool doProcessSuccessfulStep();
+  virtual bool doProcessFailedStep();
+
   bool resuming();
-  bool doLoopProcess();
   bool doTranOP ();
-  bool doProcessSuccessfulStep();
-  bool doProcessFailedStep();
   bool doFinish();
   bool doHandlePredictor();
 
@@ -365,6 +366,13 @@ bool testRestartSaveTime(
   double &                      next_restart_save_time);
 
 bool registerTransientFactory(FactoryBlock &factory_block);
+
+bool
+extractTRANDataInternals(
+  Util::OptionBlock &           option_block,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line);
 
 } // namespace Analysis
 } // namespace Xyce

@@ -215,8 +215,14 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
-    diagnosticModeExtrema_(true),
+    diagnosticExtremaLimitGiven_(false),
+    diagnosticVoltageLimitGiven_(false),
+    diagnosticCurrentLimitGiven_(false),
+    diagnosticDiscontinuityLimitGiven_(false),
     diagnosticExtremaLimit_(0.0),
+    diagnosticVoltageLimit_(0.0),
+    diagnosticCurrentLimit_(0.0),
+    diagnosticDiscontinuityLimit_(0.0),
     diagnosticFileName_("XyceDiag.out"),
     diagnosticOutputStreamPtr_(NULL),
     xyceTranTimerPtr_(),
@@ -743,10 +749,12 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 {
   diagnosticMode_ = true;
   bool result = false;
+  bool subResult = false;
   for (Util::ParamList::const_iterator it = OB.begin(), end = OB.end(); it != end; ++it)
   {
     const Util::Param &param = *it;
-    bool subResult = false;
+    // reset flag on if a parameter was set each time through the loop
+    subResult = false; 
 
     if (param.uTag() == "DIAGFILENAME")
     {
@@ -756,10 +764,13 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 
     if (!subResult)
     {
-      bool subResult =  Util::setValue( param, "EXTREMA", diagnosticModeExtrema_)
-        || Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_);
+      bool subResult = Util::setValue( param, "EXTREMALIMIT", diagnosticExtremaLimit_, diagnosticExtremaLimitGiven_)
+        || Util::setValue( param, "VOLTAGELIMIT", diagnosticVoltageLimit_, diagnosticVoltageLimitGiven_)
+        || Util::setValue( param, "CURRENTLIMIT", diagnosticCurrentLimit_, diagnosticCurrentLimitGiven_)
+        || Util::setValue( param, "DISCLIMIT", diagnosticDiscontinuityLimit_, diagnosticDiscontinuityLimitGiven_);
     }
 
+    // need to or in successive results of parameter setting 
     result = result || subResult;
   }
   return result;  
@@ -1632,6 +1643,31 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
   return node_name; 
 }
 
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeNameFromLocalIndex
+// Purpose       :
+// Special Notes : No parallel communication used in this routine.
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+std::string AnalysisManager::getNodeNameFromLocalIndex( const int varIndex ) const
+{
+  std::string node_name = "N/A";
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    
+    if ((varIndex > -1) && (varIndex < name_vec.size()))
+    {
+        node_name = *name_vec[varIndex];
+    }
+  }
+  return node_name; 
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Function      : AnalysisManager::getNodeTypeFromIndex
@@ -1643,11 +1679,16 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 //-----------------------------------------------------------------------------
 char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 {
-  char node_type = 'N';
+  char node_type = '\0';
+  char node_type_found = '\0';
+  int nodeAsInt = 0;
+  int nodeTypeAsInt = 0;
+
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
     const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1666,29 +1707,43 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
       int varIndex_LID = ((dataStore_->builder_).getSolutionMap())->globalToLocalIndex( varIndex ); 
 
       // Now determine which processor owns this solution node
-      int proc, tmp_proc = -1;
+      int proc = 0;
+      int tmp_proc = -1;
+      tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
       if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
       {
-        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
         node_type = type_vec[varIndex_LID];
       }
-      pdsComm.maxAll( &tmp_proc, &proc, 1 );
+      //pdsComm.maxAll( &tmp_proc, &proc, 1 );
+      nodeTypeAsInt = (int) node_type;
+      pdsComm.maxAll( &nodeTypeAsInt, &nodeAsInt, 1 );
+      node_type_found = (char) nodeAsInt;
+      node_type = node_type_found;
+    }
+  }
+  return node_type; 
+}
 
-      // Make sure someone owns this GID, otherwise proc will be -1.
-      if (proc != -1)
-      {
-        // Communicate the node name length and character string from the processor that owns it
-        int length = 1;
-        pdsComm.bcast( &length, 1, proc ); 
-        char *buffer = (char *)malloc( length+1 );
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getNodeTypeFromLocalIndex
+// Purpose       :
+// Special Notes : No parallel communication if index is not local
+// Scope         : public
+// Creator       : Rich Schiek, SNL
+// Creation Date : 11/21/2022
+//-----------------------------------------------------------------------------
+char AnalysisManager::getNodeTypeFromLocalIndex( const int varIndex ) const
+{
+  char node_type = '\0';
 
-        if (varIndex_LID > -1)
-          *buffer = node_type;
-
-        pdsComm.bcast( buffer, length+1, proc );
-        node_type = *buffer;
-        free( buffer );
-      }
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( transientAnalysisObj != NULL)
+  {
+    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    if ((varIndex > -1) && (varIndex < type_vec.size()))
+    {
+        node_type = type_vec[varIndex];
     }
   }
   return node_type; 
@@ -1706,42 +1761,343 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 
 void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
 {
+  bool outputHeaderLine = true;
+  Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
   
-  if(diagnosticOutputStreamPtr_ == NULL)
+  if((diagnosticOutputStreamPtr_ == NULL) && (pdsComm.isSerial() || (pdsComm.procID() == 0)))
   {
     //open the output file
     diagnosticOutputStreamPtr_ = new std::ofstream();
     diagnosticOutputStreamPtr_->open(diagnosticFileName_);
+    (*diagnosticOutputStreamPtr_) << "Xyce Diagnostic Output" << std::endl;
+    if(diagnosticExtremaLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Solution Extrema output requested with extremalimit = " << diagnosticExtremaLimit_ << std::endl;
+    }
+    if(diagnosticVoltageLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Node voltage output requested with voltagelimit = " << diagnosticVoltageLimit_ << std::endl;
+    }
+    if(diagnosticCurrentLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Lead current output requested with currentlimit = " << diagnosticCurrentLimit_ << std::endl;
+    }
+    if(diagnosticDiscontinuityLimitGiven_)
+    {
+      (*diagnosticOutputStreamPtr_) 
+        << " Discontinuity output requested with disclimit = " << diagnosticDiscontinuityLimit_ << std::endl;
+    }
   }
 
-  if( diagnosticModeExtrema_)
+  if( diagnosticExtremaLimitGiven_)
   {
     // get largest absolute value from solution vector
     double value = 0.0;
     int localId = 0;
-    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
-    
-    if( value > diagnosticExtremaLimit_)
+    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );      
+    if( fabs(value) > diagnosticExtremaLimit_)
     {
-      (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
-        << analysis_event.outputType_ 
-        << " analysis at " 
-        << analysis_event.state_;
+      if( (diagnosticOutputStreamPtr_ != NULL) &&  outputHeaderLine )
+      {
+        (*diagnosticOutputStreamPtr_) << " Extreme value found in " 
+          << analysis_event.outputType_ 
+          << " analysis at " 
+          << analysis_event.state_;
+        if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+        {
+          (*diagnosticOutputStreamPtr_) << " time=" << this->getTime() << std::endl;
+        }
+        else
+        {
+          (*diagnosticOutputStreamPtr_) << " Step=" << analysis_event.step_ << std::endl;
+        }
+        outputHeaderLine = false;
+      }
       std::string nodeName = this->getNodeNameFromIndex( localId ); 
       char varType = this->getNodeTypeFromIndex( localId ); 
-      if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
-      {
-        (*diagnosticOutputStreamPtr_) << " time=" << this->getTime();
-      }
-      else
+    
+      if(diagnosticOutputStreamPtr_ != NULL) 
       {
         (*diagnosticOutputStreamPtr_) 
-          << " Step=" << analysis_event.step_ ;
+          << "     " << varType << "(" << nodeName << ")=" << value << std::endl;
       }
-      (*diagnosticOutputStreamPtr_) 
-        << " " << varType << "(" << nodeName << ")=" << value << std::endl;
+    }
+    
+  }
+  
+  
+  
+  if( diagnosticVoltageLimitGiven_ || diagnosticCurrentLimitGiven_)
+  {
+    // stream buffers for the output to keep it organized.
+    std::stringstream voltageOutput;
+    std::stringstream currentOutput;
+    voltageOutput.flush();
+    currentOutput.flush();
+    bool outputVoltageHeaderLine = true;
+    bool outputCurrentHeaderLine = true;
+    
+    // loop over the full solution vector 
+    double value = 0.0;
+    //auto numSolVars = (this->getDataStore())->solutionSize;
+    auto numSolVars = (this->getDataStore())->currSolutionPtr->localLength();
+    for( auto localID=0 ; localID < numSolVars; localID++)
+    {
+      value =(*(this->getDataStore()->currSolutionPtr))[localID];
+      auto globalID = ((dataStore_->builder_).getSolutionMap())->localToGlobalIndex( localID );
+      char varType = this->getNodeTypeFromLocalIndex( localID ); 
+      
+      if( diagnosticVoltageLimitGiven_ && (varType=='V') && (fabs(value) > diagnosticVoltageLimit_))
+      {
+        if( outputVoltageHeaderLine )
+        {
+          voltageOutput << " Voltage over limit value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            voltageOutput << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            voltageOutput << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputVoltageHeaderLine = false;
+        }
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
+        voltageOutput
+          << "     V" << "(" << nodeName << ")=" << value << std::endl;
+      }
+      if( diagnosticCurrentLimitGiven_ && (varType=='I') && (fabs(value) > diagnosticCurrentLimit_))
+      {
+        if( outputCurrentHeaderLine )
+        {
+          currentOutput << " Current over limit value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            currentOutput << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            currentOutput << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputCurrentHeaderLine = false;
+        }
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
+        currentOutput
+          << "     solution I" << "(" << nodeName << ")=" << value << std::endl;
+      } 
+    }
+    
+    // if current output is requested then also loop over the lead-current vector
+    if( diagnosticCurrentLimitGiven_ )
+    {
+      auto numLeadVars = (this->getDataStore())->leadCurrentSize;
+      for( auto localID=0 ; localID < numLeadVars; localID++)
+      {
+        value = (*(this->getDataStore()->currLeadCurrentPtr))[localID];
+        std::string nodeName("NF");
+        if( fabs(value) > diagnosticCurrentLimit_)
+        {
+          NodeNameMap branchVarMap = outputManagerAdapter_.getBranchVarsNodeMap();
+          auto mapItr = branchVarMap.begin();
+          auto endItr = branchVarMap.end();
+          bool nameFound = false;
+          while( !nameFound && (mapItr != endItr))
+          {
+            if( mapItr->second == localID)
+            {
+              nodeName = mapItr->first;
+              nameFound = true;
+            }
+            mapItr++;
+          }
+          if( outputCurrentHeaderLine )
+          {
+            currentOutput << " Current over limit value found in " 
+              << analysis_event.outputType_ 
+              << " analysis at " 
+              << analysis_event.state_;
+            if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+            {
+              currentOutput << " time=" << this->getTime() << std::endl;
+            }
+            else
+            {
+              currentOutput << " Step=" << analysis_event.step_ << std::endl;
+            }
+            outputCurrentHeaderLine = false;
+          }
+          currentOutput
+            << "     lead I" << "(" << nodeName << ")=" << value << std::endl;
+        } 
+      }
+    
+    }
+    // send any accumulated output to the diagnostic file
+    std::string vOutput(voltageOutput.str() );
+    std::string iOutput(currentOutput.str() );
+    std::string viOutput = vOutput + iOutput;
+    std::stringstream combinedOutput;
+    combinedOutput.flush();
+    //
+    // each process will have a different value for viOutput.  For clear output 
+    // to the user we need to collect these strings on the lead processor 
+    //
+    if( pdsComm.isSerial() )
+    {
+      combinedOutput << viOutput;
+    }
+    else
+    {
+      int numProc = pdsComm.numProc();
+      int thisProc = pdsComm.procID();
+      int stringLenPerProcPreCom[ numProc ];
+      int stringLenPerProc[ numProc ];
+      for( int p=0; p<numProc; p++) 
+      {
+        stringLenPerProcPreCom[p] = 0;
+        stringLenPerProc[p] = 0;
+      }
+      stringLenPerProcPreCom[thisProc] = viOutput.length();
+      pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
+    
+      // now we know the length of a diagnostic message on each processor.  So, accumulate them   
+      for( int p=0; p<numProc; p++) 
+      {
+        if( stringLenPerProc[p] > 0 )
+        {
+          char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
+          if( stringLenPerProcPreCom[p] > 0 )
+          {
+            strcpy( buffer, viOutput.c_str() );
+          }
+          pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
+          combinedOutput << std::string(buffer);
+          free(buffer);
+        }
+      }
+    }
+    
+    // only output if the stream is open
+    if(diagnosticOutputStreamPtr_ != NULL)
+    {
+      (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
+    }
+  }
+  
+  if(diagnosticDiscontinuityLimitGiven_)
+  {
+    // loop over the predictor vector compared to the solution vector and output any
+    // values with an absolute difference greater than diagnosticDiscontinuityLimit_
+    
+    // stream buffers for the output to keep it organized.
+    std::stringstream discOutput;
+    discOutput.flush();
+    bool outputDiscHeaderLine = true;
+
+    // loop over the full solution vector 
+    double value = 0.0;
+    double xPredictor = 0.0;
+    double qPredictor = 0.0;
+    //auto numSolVars = (this->getDataStore())->solutionSize;
+    auto numSolVars = (this->getDataStore())->currSolutionPtr->localLength();
+    for( auto localID=0 ; localID < numSolVars; localID++)
+    {
+      value =(*(this->getDataStore()->currSolutionPtr))[localID];
+      xPredictor =(*(this->getDataStore()->xn0Ptr))[localID];
+      qPredictor =(*(this->getDataStore()->qn0Ptr))[localID];
+      // Can't just look at the difference between the solution value and the 
+      // xPredictor and qPredictor.  Most values will have all of their contribution
+      // from x or q.  Thus if the difference between value and x is significant 
+      // then q is likely zero and will be a false positive for a discontinuity.
+      // So, get the absolute maximum of the x and q predictors and then use that
+      // to compare with the solution value.
+      double maxPredictor = std::max( fabs(xPredictor), fabs(qPredictor));
+      auto globalID = ((dataStore_->builder_).getSolutionMap())->localToGlobalIndex( localID );
+      char varType = this->getNodeTypeFromLocalIndex( localID ); 
+
+      if( fabs(fabs(value)-maxPredictor) > diagnosticDiscontinuityLimit_) 
+      {
+        if( outputDiscHeaderLine )
+        {
+          discOutput << " Discontinuity over limit value found in " 
+            << analysis_event.outputType_ 
+            << " analysis at " 
+            << analysis_event.state_;
+          if (this->getAnalysisMode() == ANP_MODE_TRANSIENT)
+          {
+            discOutput << " time=" << this->getTime() << std::endl;
+          }
+          else
+          {
+            discOutput << " Step=" << analysis_event.step_ << std::endl;
+          }
+          outputDiscHeaderLine = false;
+        }
+        std::string nodeName = this->getNodeNameFromLocalIndex( localID ); 
+        discOutput
+          << "     " << varType << "(" << nodeName << ")=" << value
+          << " xPredictor  = " << xPredictor
+          << " qPredictor  = " << qPredictor 
+          << " |diff| = " <<  fabs(fabs(value)-maxPredictor)<< std::endl;
+      }
     }
 
+    std::string discStringOutput = discOutput.str();
+    std::stringstream combinedOutput;
+    combinedOutput.flush();
+    //
+    // each process will have a different value for discStringOutput.  For clear output 
+    // to the user we need to collect these strings on the lead processor 
+    //
+    if( pdsComm.isSerial() )
+    {
+      combinedOutput << discStringOutput;
+    }
+    else
+    {
+      int numProc = pdsComm.numProc();
+      int thisProc = pdsComm.procID();
+      int stringLenPerProcPreCom[ numProc ];
+      int stringLenPerProc[ numProc ];
+      for( int p=0; p<numProc; p++) 
+      {
+        stringLenPerProcPreCom[p] = 0;
+        stringLenPerProc[p] = 0;
+      }
+      stringLenPerProcPreCom[thisProc] = discStringOutput.length();
+      pdsComm.maxAll(stringLenPerProcPreCom, stringLenPerProc, numProc);
+    
+      // now we know the length of a diagnostic message on each processor.  So, accumulate them   
+      for( int p=0; p<numProc; p++) 
+      {
+        if( stringLenPerProc[p] > 0 )
+        {
+          char *buffer = (char *)malloc( stringLenPerProc[p]+1 );
+          if( stringLenPerProcPreCom[p] > 0 )
+          {
+            strcpy( buffer, discStringOutput.c_str() );
+          }
+          pdsComm.bcast( buffer, stringLenPerProc[p]+1, p );
+          combinedOutput << std::string(buffer);
+          free(buffer);
+        }
+      }
+    }
+    // only output if the stream is open
+    if(diagnosticOutputStreamPtr_ != NULL)
+    {
+      (*diagnosticOutputStreamPtr_)  << combinedOutput.str(); 
+      diagnosticOutputStreamPtr_->flush();
+    }
   }
 }
 
@@ -1758,8 +2114,11 @@ bool registerPkgOptionsMgr(
     IO::PkgOptionsMgr &options_manager)
 {
   Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("DIAGNOSTIC");
-  parameters.insert(Util::ParamMap::value_type("EXTREMA", Util::Param("EXTREMA", true)));
+  
   parameters.insert(Util::ParamMap::value_type("EXTREMALIMIT", Util::Param("EXTREMALIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("VOLTAGELIMIT", Util::Param("VOLTAGELIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("CURRENTLIMIT", Util::Param("CURRENTLIMIT", 0.0)));
+  parameters.insert(Util::ParamMap::value_type("DISCLIMIT", Util::Param("DISCLIMIT", 0.0)));
   parameters.insert(Util::ParamMap::value_type("DIAGFILENAME", Util::Param("DIAGFILENAME", "XyceDiag.out")));
   
   options_manager.addCommandProcessor("OP", 

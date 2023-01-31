@@ -143,8 +143,12 @@ public:
 namespace std {
 
 template<>
-struct equal_to<Xyce::NodeID> : public std::binary_function<Xyce::NodeID, Xyce::NodeID, bool>
+struct equal_to<Xyce::NodeID>
 {
+  using result_type = bool;
+  using first_argument_type = Xyce::NodeID;
+  using second_argument_type = Xyce::NodeID;
+
   bool operator()(const Xyce::NodeID &lhs, const Xyce::NodeID &rhs) const
   {
     equal_to<std::string> x0;
@@ -155,8 +159,11 @@ struct equal_to<Xyce::NodeID> : public std::binary_function<Xyce::NodeID, Xyce::
 };
 
 template<>
-struct hash<Xyce::NodeID> : public std::unary_function<Xyce::NodeID, size_t>
+struct hash<Xyce::NodeID>
 {
+  using result_type = size_t;
+  using first_argument_type = Xyce::NodeID;
+
   size_t operator()(const Xyce::NodeID &node_id) const
   {
     hash<std::string> x0;

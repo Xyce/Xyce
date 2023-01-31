@@ -1549,21 +1549,6 @@ void DeviceEntity::applyDepSolnLIDs()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceEntity::setupParamBreakpoints
-// Purpose       :
-// Special Notes :
-// Scope         : protected
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2020
-//-----------------------------------------------------------------------------
-void DeviceEntity::setupParamBreakpoints()
-{
-  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
-  std::vector<Depend>::iterator end = dependentParams_.end();
-  for ( ; dpIter != end; ++dpIter) { dpIter->expr->setupBreakPoints(); }
-}
-
-//-----------------------------------------------------------------------------
 // Function      : DeviceEntity::getParamBreakpoints
 // Purpose       : Add breakpoints caused by discontinuities in computed params
 // Special Notes :
@@ -1759,7 +1744,6 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
           if (descriptor.isType<double>())
           {
             double val = setDependentParameter(param, &(descriptor.value<double>(*this)), descriptor.getExpressionAccess());
-            param.setVal(val);
             if (descriptor.hasOriginalValueStored())
               Xyce::Device::setOriginalValue(*this,descriptor.getSerialNumber(), val);
           }
@@ -1774,7 +1758,6 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
             if (descriptor.getMutableInteger()) // only *some* integer parameters can be modified in this manner
             {
               int val = setDependentParameter(param, &(descriptor.value<int>(*this)), descriptor.getExpressionAccess());
-              param.setVal(val);
               if (descriptor.hasOriginalValueStored())
                 Xyce::Device::setOriginalValue(*this,descriptor.getSerialNumber(), val);
             }

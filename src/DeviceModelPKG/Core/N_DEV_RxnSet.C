@@ -2148,21 +2148,6 @@ bool Instance::updateIntermediateVars()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::setupBreakPoints
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 08/25/2020
-//-----------------------------------------------------------------------------
-void Instance::setupBreakPoints()
-{
-  int numRegions = regVec.size();
-  for (int ireg=0;ireg<numRegions;++ireg) { regVec[ireg]->setupBreakPoints(); }
-  return;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Instance::getInstanceBreakPoints
 // Purpose       :
 // Special Notes :

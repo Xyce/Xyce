@@ -1565,7 +1565,26 @@ exp:
   | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
     {
       Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
-      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2)); 
+      Teuchos::RCP<astNode<usedType> > numSamplesNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(-1.0));
+      Teuchos::RCP<astNode<usedType> > logBoolNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,numSamplesNode,logBoolNode)); 
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true); 
+      delete $2;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > logBoolNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,$4,logBoolNode)); 
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true); 
+      delete $2;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,$4,$6)); 
       newExp.getSrcNodeVec().push_back($$);
       newExp.setTimeDependent(true); 
       delete $2;

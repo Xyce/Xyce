@@ -614,7 +614,6 @@ public:
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
-  void setupBreakPoints ();
   bool getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes );
 
   Teuchos::RCP<astNode<usedType> > & getAst() {return astNodePtr_;}

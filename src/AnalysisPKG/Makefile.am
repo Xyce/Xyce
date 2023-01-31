@@ -23,6 +23,8 @@ libAnalysis_la_SOURCES = \
   N_ANP_OutputMgrAdapter.C \
   N_ANP_ROL.C \
   N_ANP_ROL_DC_Optimization.C \
+  N_ANP_ROL_AC_Optimization.C \
+  N_ANP_ROL_TRAN_Optimization.C \
   N_ANP_RegisterAnalysis.C \
   N_ANP_Report.C \
   N_ANP_SecondLevelManager.C \
@@ -53,6 +55,8 @@ libAnalysis_la_SOURCES = \
   N_ANP_OutputConductanceFile.h \
   N_ANP_ROL.h \
   N_ANP_ROL_DC_Optimization.h \
+  N_ANP_ROL_AC_Optimization.h \
+  N_ANP_ROL_TRAN_Optimization.h \
   N_ANP_RegisterAnalysis.h \
   N_ANP_Report.h \
   N_ANP_SecondLevelManager.h \

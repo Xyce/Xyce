@@ -36,12 +36,15 @@
 #include <N_ANP_DCSweep.h>
 #include <N_ANP_SweepParam.h>
 #include <N_ANP_SweepParamFreeFunctions.h>
+#include <N_ANP_Transient.h>
+#include <N_ANP_AC.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
 #include <N_IO_InitialConditions.h>
 #include <N_IO_OptionBlock.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_LOA_Loader.h>
+#include <N_DEV_DeviceMgr.h>
 #include <N_NLS_Manager.h> // TT: was not included
 #include <N_NLS_ObjectiveFunctions.h>
 #include <N_TIA_DataStore.h>
@@ -87,6 +90,8 @@
 
 #include "ROL_XyceVector.hpp"
 #include <N_ANP_ROL_DC_Optimization.h>
+#include <N_ANP_ROL_TRAN_Optimization.h>
+#include <N_ANP_ROL_AC_Optimization.h>
 
 #endif
 
@@ -101,12 +106,14 @@ namespace Analysis {
 // Purpose       :
 //-----------------------------------------------------------------------------
 ROL::ROL(
-   AnalysisManager &analysis_manager, 
-   Nonlinear::Manager &nonlinear_manager, // TT
-   Loader::Loader &loader, 
-   Linear::System & linear_system,
-   Topo::Topology & topology,
-   IO::InitialConditionsManager & initial_conditions_manager)
+   AnalysisManager &                     analysis_manager, 
+   Nonlinear::Manager &                  nonlinear_manager, // TT
+   Loader::Loader &                      loader, 
+   Linear::System &                      linear_system,
+   Topo::Topology &                      topology,
+   Device::DeviceMgr &                   device_manager,
+   IO::InitialConditionsManager &        initial_conditions_manager,
+   IO::RestartMgr &                      restart_manager)
   : AnalysisBase(analysis_manager, "ROL"),
     analysisManager_(analysis_manager),
     nonlinearManager_(nonlinear_manager), // TT
@@ -114,8 +121,9 @@ ROL::ROL(
     topology_(topology),
     initialConditionsManager_(initial_conditions_manager),
     linearSystem_(linear_system),
+    deviceManager_(device_manager),
+    restartManager_(restart_manager),
     outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
-    stepLoopSize_(0),
     sensFlag_(analysis_manager.getSensFlag()),
     numParams_(0),
     numSensParams_(0),
@@ -213,6 +221,44 @@ bool ROL::setOptParams()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ROL::getDCOPFlag
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 3/24/2014
+//-----------------------------------------------------------------------------
+bool ROL::getDCOPFlag() const
+{
+  if (currentAnalysisObject_)
+    return currentAnalysisObject_->getDCOPFlag();
+  else
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ROL::twoLevelStep
+//
+// Purpose       : Used by 2-level Newton solves to execute a single DC sweep
+//                 step.
+//
+// Special Notes : This is mostly what happens on the inner loop of
+//                 dcSweepLoop, except that DC parameters are not updated,
+//                 and success/failure of the step is not determined.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/10/06
+//-----------------------------------------------------------------------------
+bool ROL::twoLevelStep()
+{
+  if (currentAnalysisObject_)
+    return currentAnalysisObject_->twoLevelStep();
+  else
+    return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ROL::run()
 // Purpose       : This is the main controlling loop for ROL analysis.
 //
@@ -265,41 +311,19 @@ bool ROL::doInit()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ROL::getDCOPFlag
+// Function      : ROL::doFinish()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 3/24/2014
+// Creator       :
+// Creation Date : 06/02/2015
 //-----------------------------------------------------------------------------
-bool ROL::getDCOPFlag() const
+bool ROL::doFinish()
 {
-  if (currentAnalysisObject_)
-    return currentAnalysisObject_->getDCOPFlag();
-  else
-    return false;
-}
+  // This should be moved to doFinish at some point.
+  lout() << "***** Problem read in and set up time: " << analysisManager_.getSolverStartTime() << " seconds" << std::endl;
 
-//-----------------------------------------------------------------------------
-// Function      : ROL::twoLevelStep
-//
-// Purpose       : Used by 2-level Newton solves to execute a single DC sweep
-//                 step.
-//
-// Special Notes : This is mostly what happens on the inner loop of
-//                 dcSweepLoop, except that DC parameters are not updated,
-//                 and success/failure of the step is not determined.
-//
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/10/06
-//-----------------------------------------------------------------------------
-bool ROL::twoLevelStep()
-{
-  if (currentAnalysisObject_)
-    return currentAnalysisObject_->twoLevelStep();
-  else
-    return true;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -315,177 +339,270 @@ bool ROL::doLoopProcess()
   std::string msg;
   bool status = true;
   int errorFlag = 0;
+  int printInfo = 0;
 
 #ifdef Xyce_ROL
   try
-  { 
+  {
+    // Sanity check the provided objectives and options from the user.
+    if ((rolDCObjVec_.size() || saved_dcSweepOB_.size()) && !(rolDCObjVec_.size() && saved_dcSweepOB_.size()))
+      Report::UserWarning0() << "DC optimization does not specify both objectives and analysis options.  It will be ignored." << std::endl;    
+    if ((rolACObjVec_.size() || saved_acSweepOB_.size()) && !(rolACObjVec_.size() && saved_acSweepOB_.size()))
+      Report::UserWarning0() << "AC optimization does not specify both objectives and analysis options.  It will be ignored." << std::endl;    
+    if ((rolTranObjVec_.size() || saved_tranOB_.size()) && !(rolTranObjVec_.size() && saved_tranOB_.size()))
+      Report::UserWarning0() << "Transient optimization does not specify both objectives and analysis options.  It will be ignored." << std::endl;    
+
+    Teuchos::RCP<ROL_DC> dc_sweep;
+    Teuchos::RCP<ROL_AC> ac_sweep;
+    Teuchos::RCP<ROL_TRAN> tran;
+
+    if (rolACObjVec_.size())
+    {
+      ac_sweep = Teuchos::rcp(new ROL_AC(analysisManager_, linearSystem_, nonlinearManager_, deviceManager_, 
+                                         loader_, topology_, initialConditionsManager_));
+
+      // Set the first ac analysis statement, multiple might be provided.
+      ac_sweep->setACLinSolOptions(saved_lsOB_);
+      ac_sweep->setDCLinSolOptions(saved_lsOB_);
+      ac_sweep->setAnalysisParams(saved_acSweepOB_[0]);
+      ac_sweep->setTimeIntegratorOptions(saved_timeIntOB_);
+    }
+
+    if (rolTranObjVec_.size())
+    {
+      tran = Teuchos::rcp(new ROL_TRAN(analysisManager_, nonlinearManager_, loader_, linearSystem_, 
+                                       topology_, initialConditionsManager_, restartManager_));
+
+      // Set the first transient analysis statement, multiple might be provided.
+      tran->setAnalysisParams(saved_tranOB_[0]);
+      tran->setTimeIntegratorOptions(saved_timeIntOB_);
+    }
+
     // Create ROL_DC analysis object.
-    ROL_DC dc_sweep(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
-    currentAnalysisObject_ = &dc_sweep;
-    analysisManager_.pushActiveAnalysis(&dc_sweep);
-
-    dc_sweep.setAnalysisParams(saved_sweepOB_);
-    dc_sweep.setTimeIntegratorOptions(saved_timeIntOB_);
-    for (std::vector<Util::OptionBlock>::const_iterator it = saved_dataOB_.begin(), end = saved_dataOB_.end(); it != end; ++it)
+    if (rolDCObjVec_.size())
     {
-      dc_sweep.setDataStatements(*it);
-    }
-    dc_sweep.doInit();
-    stepLoopSize_ = dc_sweep.getLoopSize();
+      dc_sweep = Teuchos::rcp(new ROL_DC(analysisManager_, nonlinearManager_, loader_, 
+                                         linearSystem_, topology_, initialConditionsManager_));
 
-    // Number of simulation variables
-    int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
-    int nc = stepLoopSize_;  // Number of constraints.
+      currentAnalysisObject_ = dc_sweep.get();
+      analysisManager_.pushActiveAnalysis(dc_sweep.get());
 
-    RealT tol = 1.e-12;
+      dc_sweep->setAnalysisParams(saved_dcSweepOB_);
+      dc_sweep->setTimeIntegratorOptions(saved_timeIntOB_);
+      for (std::vector<Util::OptionBlock>::const_iterator it = saved_dataOB_.begin(), end = saved_dataOB_.end(); it != end; ++it)
+      {
+        dc_sweep->setDataStatements(*it);
+      }
+      dc_sweep->doInit();
+
+      // Number of simulation variables
+      int nu = analysisManager_.getDataStore()->nextSolutionPtr->globalLength();
+      int nc = dc_sweep->getLoopSize();  // Number of constraints.
+
+      RealT tol = 1.e-12;
   
-    // STEP 1A: Initialize vectors.  //////////////////////////////////////////
+      // STEP 1A: Initialize vectors.  //////////////////////////////////////////
 
-    // Set the parameter bounds.
-    setOptParams();
+      // Set the parameter bounds.
+      setOptParams();
 
-    // Configure the optimization vector.
-    int nz = numParams_;     // Number of optimization variables                                           
-    auto p = ::ROL::makePtr<  std::vector   <RealT>>(zInitValue_);
-    auto z = ::ROL::makePtr<::ROL::StdVector<RealT>>(p);
-    // p := pointer to a standard vector representing z
+      // Configure the optimization vector.
+      int nz = numParams_;     // Number of optimization variables                                           
+      auto p = ::ROL::makePtr<  std::vector   <RealT>>(zInitValue_);
+      auto z = ::ROL::makePtr<::ROL::StdVector<RealT>>(p);
+      // p := pointer to a standard vector representing z
 
-    // Configure the state and constraint vectors.
-    status = dc_sweep.doAllocations(nc, nz);
-    auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep.statePtrVector_);
-    auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep.constraintPtrVector_);
+      // Configure the state and constraint vectors.
+      status = dc_sweep->doAllocations(nc, nz);
+      auto u = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep->statePtrVector_);
+      auto l = ::ROL::makePtr<Linear::ROL_XyceVector<RealT>>(dc_sweep->constraintPtrVector_);
 
-    // STEP 1B: Initialize parameters.  ///////////////////////////////////////
+      // STEP 1B: Initialize parameters.  ///////////////////////////////////////
 
-    // Load parameters.
-    ::ROL::Ptr<::ROL::ParameterList> parlist 
-      = ::ROL::getParametersFromXmlFile(rolParamFile_);
-    std::string outName     = parlist->get("Output File", outputFile_);
-    bool useBoundConstraint = parlist->get("Use Bound Constraints", true);
-    bool useScale           = parlist->get("Use Scaling For Epsilon-Active Sets", true);
-    // TODO (asjavee): Remove hardwired code. Eventually we shouldn't need the 
-    //                 subsequent lines in this code block.
-    // bool doChecks           = parlist->get("Do Checks",true);
-    // bool useSQP             = parlist->get("Use SQP", true);
-    // bool useLineSearch      = parlist->get("Use Line Search", true);    
-    // bool useTrustRegion     = parlist->get("Use Trust Region", true);
-    // bool useBundleMethod    = parlist->get("Use Bundle Method", true);
-    // Parameters for the amplifier problem. 
-    int ptype               = parlist->get("Penalty Type", 1);
-    RealT alpha             = parlist->get("Penalty Parameter", 1.0e-4);
-    RealT ampl              = parlist->get("Amplifier Gain", 4.0);
+      // Load parameters.
+      ::ROL::Ptr<::ROL::ParameterList> parlist 
+        = ::ROL::getParametersFromXmlFile(rolParamFile_);
+      std::string outName     = parlist->get("Output File", outputFile_);
+      bool useBoundConstraint = parlist->get("Use Bound Constraints", true);
+      bool useScale           = parlist->get("Use Scaling For Epsilon-Active Sets", true);
+      // TODO (asjavee): Remove hardwired code. Eventually we shouldn't need the 
+      //                 subsequent lines in this code block.
+      // bool doChecks           = parlist->get("Do Checks",true);
+      // bool useSQP             = parlist->get("Use SQP", true);
+      // bool useLineSearch      = parlist->get("Use Line Search", true);    
+      // bool useTrustRegion     = parlist->get("Use Trust Region", true);
+      // bool useBundleMethod    = parlist->get("Use Bundle Method", true);
+      // Parameters for the amplifier problem. 
+      int ptype               = parlist->get("Penalty Type", 1);
+      RealT alpha             = parlist->get("Penalty Parameter", 1.0e-4);
+      RealT ampl              = parlist->get("Amplifier Gain", 4.0);
 
-    // Configure the output stream.
-    std::ofstream out(outName.c_str());
-    // TODO (asjavee): I don't think we need the line below; ofstream inherits 
-    //                 from ostream.
-    // Teuchos::RCP<std::ostream> outStream = Teuchos::rcp(&out,false);
+      // Configure the output stream.
+      std::ofstream out(outName.c_str());
 
-    // STEP 2: Create the SimOpt equality constraint.  ////////////////////////
+      // STEP 2: Create the SimOpt equality constraint.  ////////////////////////
 
-    auto con = ::ROL::makePtr<EqualityConstraint_ROL_DC<RealT>>
-               (
-                 nu, nc, nz, 
-                 analysisManager_, 
-                 nonlinearManager_.getNonlinearSolver(),
-                 linearSystem_,
-                 paramNameVec_,
-                 dc_sweep
-               );
-    // Here, con is the constraint c(u, z) = 0. Its solve member function 
-    // specifies u as a function of z (u = S(z)); see slide 26 of
-    //   <https://trilinos.github.io/pdfs/ROL.pdf>.
+      auto con = ::ROL::makePtr<EqualityConstraint_ROL_DC<RealT>>
+                 (
+                   nu, nc, nz, 
+                   analysisManager_, 
+                   nonlinearManager_.getNonlinearSolver(),
+                   linearSystem_,
+                   paramNameVec_,
+                   *dc_sweep
+                 );
+      // Here, con is the constraint c(u, z) = 0. Its solve member function 
+      // specifies u as a function of z (u = S(z)); see slide 26 of
+      //   <https://trilinos.github.io/pdfs/ROL.pdf>.
 
-    con->solve(*l, *u, *z, tol);
+      con->solve(*l, *u, *z, tol);
 
-    // STEP 3: Build our objective.  /////////////////////////////////////////
+      // STEP 3: Build our objective.  /////////////////////////////////////////
 
-    dc_sweep.createObjectives( rolDCObjVec_ );
+      dc_sweep->createObjectives( rolDCObjVec_ );
+
+      // Get the objective from dc_sweep object
+      Teuchos::RCP<::ROL::Objective_SimOpt<RealT> > obj, pen;
+      obj = dc_sweep->obj_;
+
+      // Create a reduced objective (and penalty) from the full space counterpart.
+      auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l, false);
+
+      // TODO (asjavee): Once ROL is modified, remove "false" in the 
+      //   initialization of robj above.
+
+      // // Create the (possibly penalized) objective that we wish to optimize.
+      // std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
+      // if (objType_ == 1)
+      // {
+      //   pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
+      //   auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
+      //   objVec.push_back(rpen);
+      // }
+      // std::vector<bool> types(objVec.size(), true);
+      // auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
+
+      // STEP 4: Create z's BoundConstraint.  ///////////////////////////////////
     
-    // Get the objective from dc_sweep object
-    Teuchos::RCP<::ROL::Objective_SimOpt<RealT> > obj, pen;
-    obj = dc_sweep.obj_;
+      RealT scale = 1.0;
+      if (useScale)
+      {
+        // Evaluate the reduced objective gradient at the initial value of z.
+        auto g0P = ::ROL::makePtr<  std::vector   <RealT>>(nz, 0.0);
+        auto g0  = ::ROL::makePtr<::ROL::StdVector<RealT>>(g0P);
+        robj->gradient(*g0, *z, tol);
 
-    // Create a reduced objective (and penalty) from the full space counterpart.
-    auto robj = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(obj, con, u, z, l, false);
-
-    // TODO (asjavee): Once ROL is modified, remove "false" in the 
-    //   initialization of robj above.
-
-    // // Create the (possibly penalized) objective that we wish to optimize.
-    // std::vector<Teuchos::RCP<::ROL::Objective<RealT>>> objVec(1, robj);
-    // if (objType_ == 1)
-    // {
-    //   pen = ::ROL::makePtr<Penalty_DC_AMP  <RealT>>(ptype, alpha, ampl, nc, nz);
-    //   auto rpen = ::ROL::makePtr<::ROL::Reduced_Objective_SimOpt<RealT>>(pen, con, u, z, l);
-    //   objVec.push_back(rpen);
-    // }
-    // std::vector<bool> types(objVec.size(), true);
-    // auto pobj = ::ROL::makePtr<SumObjective<RealT>>(objVec, types);
-
-    // STEP 4: Create z's BoundConstraint.  ///////////////////////////////////
+        // std::cout << std::scientific << "Norm of initial gradient = " << g0->norm() << "\n";
     
-    RealT scale = 1.0;
-    if(useScale)
-    {
-      // Evaluate the reduced objective gradient at the initial value of z.
-      auto g0P = ::ROL::makePtr<  std::vector   <RealT>>(nz, 0.0);
-      auto g0  = ::ROL::makePtr<::ROL::StdVector<RealT>>(g0P);
-      robj->gradient(*g0, *z, tol);
+        scale = 1.0e-2/(g0->norm());
+      }
 
-      // std::cout << std::scientific << "Norm of initial gradient = " << g0->norm() << "\n";
+      // std::cout << std::scientific << "Scaling: " << scale << "\n";
     
-      scale = 1.0e-2/(g0->norm());
-    }
+      auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector_, zUpperBoundVector_);
+    
+      // STEP 5A: Define the optimization problem.  /////////////////////////////
 
-    // std::cout << std::scientific << "Scaling: " << scale << "\n";
-    
-    auto bnd = ::ROL::makePtr<BoundConstraint_ROL_DC<RealT>>(scale, zLowerBoundVector_, zUpperBoundVector_);
-    
-    // STEP 5A: Define the optimization problem.  /////////////////////////////
+      auto problem = ::ROL::makePtr<::ROL::Problem<RealT>>(robj, z);
+      if (useBoundConstraint)
+        problem->addBoundConstraint(bnd);
+      // problem->check(true);
 
-    auto problem = ::ROL::makePtr<::ROL::Problem<RealT>>(robj, z);
-    if (useBoundConstraint)
-      problem->addBoundConstraint(bnd);
-    // problem->check(true);
-
-    // STEP 5B: Define the optimization solver.  //////////////////////////////
+      // STEP 5B: Define the optimization solver.  //////////////////////////////
     
-    parlist->sublist("General").set("Output Level", 1);    
-    parlist->sublist("Status Test").set("Gradient Tolerance", 1.e-10);
-    parlist->sublist("Status Test").set("Step Tolerance", 1.e-30); 
+      parlist->sublist("General").set("Output Level", 1);    
+      parlist->sublist("Status Test").set("Gradient Tolerance", 1.e-10);
+      parlist->sublist("Status Test").set("Step Tolerance", 1.e-30); 
  
-    ::ROL::Solver<RealT> solver(problem, *parlist);
+      ::ROL::Solver<RealT> solver(problem, *parlist);
 
-    // STEP 6: Solve.  ////////////////////////////////////////////////////////
+      // STEP 6: Solve.  ////////////////////////////////////////////////////////
     
-    // Print initial guess.
-    out << "\nInitial guess " << std::endl;
-    for (int i = 0; i < nz; i++)
-      out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
+      // Print initial guess.
+      out << "\nInitial guess " << std::endl;
+      for (int i = 0; i < nz; i++)
+        out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
 
-    // TODO (asjavee): Manage the default below by setting them in parlist.
-    // int maxit  = parlist->get("Maximum Number of Iterations", 100);
+      // TODO (asjavee): Manage the default below by setting them in parlist.
+      // int maxit  = parlist->get("Maximum Number of Iterations", 100);
     
-    std::clock_t timer_bm = std::clock();
+      std::clock_t timer_bm = std::clock();
    
-    solver.solve(std::cout);
-    con->solve(*l, *u, *z, tol);
+      solver.solve(std::cout);
+      con->solve(*l, *u, *z, tol);
 
-    // Print results.
-    out << "\nSolution " << std::endl;
-    for (int i = 0; i < nz; i++)
+      // Print results.
+      out << "\nSolution " << std::endl;
+      for (int i = 0; i < nz; i++)
+      {
+        out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
+      }
+      out << "Solve required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
+           << " seconds.\n";
+
+      // Archive timings for the initial DC Sweep and DC Optimization
+      stats_ += dc_sweep->stats_;
+      saveLoopInfo();
+
+      stats_ += con->rolDCCounts_;
+      saveLoopInfo();
+
+      Xyce::lout() << std::endl << " ***** DC Sweep Summary *****" << std::endl;
+      printLoopInfo( printInfo, printInfo+1 );
+      printInfo++;
+
+      Xyce::lout() << " ***** ROL DC Optimization Summary *****" << std::endl;
+      printLoopInfo( printInfo, printInfo+1 );
+      printInfo++;
+
+      // Remove DC analysis object from active analysis stack.
+      analysisManager_.popActiveAnalysis();
+      currentAnalysisObject_ = 0;
+
+    }  // End ROL DC optimization loop
+
+    // Run the ac analysis
+    if (ac_sweep != Teuchos::null)
     {
-      out << paramNameVec_[i] << " = " << (*p)[i] << std::endl;
+      currentAnalysisObject_ = ac_sweep.get();
+      analysisManager_.pushActiveAnalysis(ac_sweep.get());
+      bool success = ac_sweep->doRun();
+
+      stats_ += ac_sweep->stats_;
+      saveLoopInfo();
+
+      Xyce::lout() << std::endl << " ***** AC Sweep Summary *****" << std::endl;
+      printLoopInfo( printInfo, printInfo+1 );
+      printInfo++;
     }
-    out << "Solve required " << (std::clock()-timer_bm)/(RealT)CLOCKS_PER_SEC
-         << " seconds.\n";
 
+    // Run the transient analysis
+    if (tran != Teuchos::null)
+    {
+      analysisManager_.setAnalysisMode(ANP_MODE_TRANSIENT);
+      tran->resetForHB();
 
-    // Remove DC analysis object from active analysis stack.
-    stats_ += currentAnalysisObject_->stats_;
-    analysisManager_.popActiveAnalysis();
-    currentAnalysisObject_ = 0;
+      nonlinearManager_.resetAll(Nonlinear::DC_OP);
+      nonlinearManager_.setMatrixFreeFlag( false );
+      nonlinearManager_.setLinSolOptions( saved_lsOB_ );
+
+      TimeIntg::TIAParams& new_tia_params = tran->getTIAParams();
+      analysisManager_.getStepErrorControl().resetAll(new_tia_params);
+      analysisManager_.getDataStore()->resetAll(new_tia_params.absErrorTol, new_tia_params.relErrorTol);
+      analysisManager_.setNextOutputTime(0.0);
+
+      currentAnalysisObject_ = tran.get();
+      analysisManager_.pushActiveAnalysis(tran.get());
+      bool success = tran->doRun();
+
+      stats_ += tran->stats_;
+      saveLoopInfo();
+
+      Xyce::lout() << std::endl << " ***** Transient Summary *****" << std::endl;
+      printLoopInfo( printInfo, printInfo+1 );
+      printInfo++;
+    }
+
   } 
   catch (std::logic_error err) 
   {
@@ -512,7 +629,22 @@ bool ROL::doLoopProcess()
 //-----------------------------------------------------------------------------
 bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 {
-  saved_sweepOB_ = OB;
+  saved_dcSweepOB_ = OB;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ROL::setROLACSweep
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setROLACSweep(const std::vector<Util::OptionBlock>& OB)
+{
+  saved_acSweepOB_ = OB;
 
   return true;
 }
@@ -528,6 +660,21 @@ bool ROL::setROLDCSweep(const std::vector<Util::OptionBlock>& OB)
 bool ROL::setROLDataOptionBlock(const std::vector<Util::OptionBlock>& OB)
 {
   saved_dataOB_ = OB;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ROL::setROLTransient
+// Purpose       : this is needed for ROL
+// Special Notes :
+// Scope         : public
+// Creator       : Eric R. Keiter
+// Creation Date : 7/12/2013
+//-----------------------------------------------------------------------------
+bool ROL::setROLTransient(const std::vector<Util::OptionBlock>& OB)
+{
+  saved_tranOB_ = OB;
 
   return true;
 }
@@ -585,6 +732,10 @@ bool ROL::setROLObjectives(const std::vector<Util::OptionBlock>& OB)
     // Associate objective with respective analysis
     if (analysisType == "DC")
       rolDCObjVec_.push_back( new_obj );
+    else if (analysisType == "AC")
+      rolACObjVec_.push_back( new_obj );
+    else if (analysisType == "TRAN")
+      rolTranObjVec_.push_back( new_obj );
     else
       Report::UserError0() << "ROL does not recognize objectives for " << analysisType << " analysis.";
   }
@@ -667,14 +818,18 @@ public:
      Nonlinear::Manager &                nonlinear_manager,
      Loader::Loader &                    loader,
      Topo::Topology &                    topology,
-     IO::InitialConditionsManager &      initial_conditions_manager)
+     Device::DeviceMgr &                 device_manager,
+     IO::InitialConditionsManager &      initial_conditions_manager,
+     IO::RestartMgr &                    restart_manager)
     : Util::Factory<AnalysisBase, ROL>(),
     analysisManager_(analysis_manager),
     linearSystem_(linear_system),
     nonlinearManager_(nonlinear_manager),
     loader_(loader),
     topology_(topology),
-    initialConditionsManager_(initial_conditions_manager)
+    deviceManager_(device_manager),
+    initialConditionsManager_(initial_conditions_manager),
+    restartManager_(restart_manager)
   {}
 
   virtual ~ROLFactory()
@@ -695,15 +850,17 @@ public:
   ///
   ROL *create() const
   {
-    ROL *rol = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, initialConditionsManager_);
+    ROL *rol = new ROL(analysisManager_, nonlinearManager_, loader_, linearSystem_, topology_, deviceManager_, initialConditionsManager_, restartManager_);
 
     rol->setTimeInt(timeIntegratorOptionBlock_);
     rol->setLinSol(linSolOptionBlock_);
 
     rol->setROLOptions(rolOptionBlock_);
     rol->setROLDCSweep(rolDCSweepBlock_);
-    rol->setROLObjectives(rolObjBlock_);
+    rol->setROLACSweep(rolACSweepBlock_);
+    rol->setROLTransient(rolTransientBlock_);
     rol->setROLDataOptionBlock(dataOptionBlockVec_);
+    rol->setROLObjectives(rolObjBlock_);
 
     return rol;
   }
@@ -722,6 +879,42 @@ public:
     // save the new one.
     if (!found)
       rolDCSweepBlock_.push_back( option_block );
+    
+    return true;
+  }
+
+  bool setROLACBlock(const Util::OptionBlock &option_block)
+  {
+    bool found = false; 
+    std::vector<Util::OptionBlock>::iterator it = rolACSweepBlock_.begin();
+    std::vector<Util::OptionBlock>::iterator end = rolACSweepBlock_.end();
+    for ( ; it != end; ++it )
+    { 
+      if (Util::compareParamLists(option_block, *it))
+        found = true;
+    }
+    
+    // save the new one.
+    if (!found)
+      rolACSweepBlock_.push_back( option_block );
+    
+    return true;
+  }
+
+  bool setROLTranBlock(const Util::OptionBlock &option_block)
+  {
+    bool found = false; 
+    std::vector<Util::OptionBlock>::iterator it = rolTransientBlock_.begin();
+    std::vector<Util::OptionBlock>::iterator end = rolTransientBlock_.end();
+    for ( ; it != end; ++it )
+    { 
+      if (Util::compareParamLists(option_block, *it))
+        found = true;
+    }
+    
+    // save the new one.
+    if (!found)
+      rolTransientBlock_.push_back( option_block );
     
     return true;
   }
@@ -774,11 +967,15 @@ public:
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;
   Topo::Topology &                      topology_;
+  Device::DeviceMgr &                   deviceManager_;
   IO::InitialConditionsManager &        initialConditionsManager_;
+  IO::RestartMgr &                      restartManager_;
 
 private:
   std::vector<Util::OptionBlock>        stepSweepAnalysisOptionBlock_;
   std::vector<Util::OptionBlock>        rolDCSweepBlock_;
+  std::vector<Util::OptionBlock>        rolACSweepBlock_;
+  std::vector<Util::OptionBlock>        rolTransientBlock_;
   std::vector<Util::OptionBlock>        rolObjBlock_;
   std::vector<Util::OptionBlock>        dataOptionBlockVec_;
   Util::OptionBlock                     timeIntegratorOptionBlock_; 
@@ -893,6 +1090,56 @@ bool extractROLDCData(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : extractROLACData
+// Purpose       : Extract the parameters from a netlist .ROL_AC line held in
+//                 parsedLine.
+// Special Notes : This calls the extractACData method to avoid duplication of
+//                 line parsing for .AC lines
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 10/30/2003
+//-----------------------------------------------------------------------------
+bool extractROLACData(
+   IO::PkgOptionsMgr &           options_manager,
+   IO::CircuitBlock &            circuit_block,
+   const std::string &           netlist_filename,
+   const IO::TokenVector &       parsed_line)
+{
+  Util::OptionBlock option_block("ROL_AC");
+  bool ret = Xyce::Analysis::extractACDataInternals(option_block, options_manager, netlist_filename, parsed_line);
+
+  if (ret)
+    circuit_block.addOptions( option_block );
+  
+  return ret;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : extractROLTranData
+// Purpose       : Extract the parameters from a netlist .ROL_TRAN line held in
+//                 parsedLine.
+// Special Notes : This calls the extractTranData method to avoid duplication of
+//                 line parsing for .TRAN lines
+// Scope         : public
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 10/30/2003
+//-----------------------------------------------------------------------------
+bool extractROLTranData(
+   IO::PkgOptionsMgr &           options_manager,
+   IO::CircuitBlock &            circuit_block,
+   const std::string &           netlist_filename,
+   const IO::TokenVector &       parsed_line)
+{
+  Util::OptionBlock option_block("ROL_TRAN");
+  bool ret = Xyce::Analysis::extractTRANDataInternals(option_block, options_manager, netlist_filename, parsed_line);
+
+  if (ret)
+    circuit_block.addOptions( option_block );
+  
+  return ret;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : extractROLObjData
 // Purpose       : Extract the objective parameters from a .ROL_OBJ line held in
 //                 parsedLine.
@@ -957,7 +1204,7 @@ bool extractROLObjData(
 bool registerROLFactory(
    FactoryBlock &        factory_block)
 {
-  ROLFactory *factory = new ROLFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.initialConditionsManager_);
+  ROLFactory *factory = new ROLFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.deviceManager_, factory_block.initialConditionsManager_, factory_block.restartManager_);
 
   addAnalysisFactory(factory_block, factory);
 
@@ -968,6 +1215,14 @@ bool registerROLFactory(
   factory_block.optionsManager_.addCommandParser(".ROL_DC", extractROLDCData);
 
   factory_block.optionsManager_.addCommandProcessor("ROL_DC", IO::createRegistrationOptions(*factory, &ROLFactory::setROLDCBlock));
+  
+  factory_block.optionsManager_.addCommandParser(".ROL_AC", extractROLACData);
+  
+  factory_block.optionsManager_.addCommandProcessor("ROL_AC", IO::createRegistrationOptions(*factory, &ROLFactory::setROLACBlock));
+
+  factory_block.optionsManager_.addCommandParser(".ROL_TRAN", extractROLTranData);
+
+  factory_block.optionsManager_.addCommandProcessor("ROL_TRAN", IO::createRegistrationOptions(*factory, &ROLFactory::setROLTranBlock));
 
   factory_block.optionsManager_.addCommandParser(".ROL_OBJ", extractROLObjData);
 

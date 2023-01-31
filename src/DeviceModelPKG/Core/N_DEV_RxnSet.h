@@ -122,7 +122,6 @@ public:
   bool processParams ();
   bool updateTemperature (const double & temp = -999.0 );
 
-  virtual void setupBreakPoints();
   bool getInstanceBreakPoints( std::vector<Util::BreakPoint> &breakPointTimes);
 
   bool updateIntermediateVars ();

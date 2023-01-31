@@ -79,6 +79,7 @@ public:
 
   bool setTimeIntegratorOption(const Util::Param &param);
   bool setAnalysisOption(const Util::Param &param);
+  bool updateAnalysisOptions();
 
   // Print out time-integration parameters.
   void printParams(std::ostream &os, int analysis) const;
@@ -152,6 +153,8 @@ public:
     int minTimeStepRecoveryCounter;
 
     bool bpPrune;
+
+    std::vector< std::pair< Util::Param, double * > > dependentOptions;
 };
 
 // To be moved??

@@ -180,11 +180,11 @@ public:
   void finalExpressionBasedSetup();
 
 protected:
-  bool doRun();
-  bool doInit();
-  bool doLoopProcess();
-  bool doProcessSuccessfulStep();
-  bool doProcessFailedStep();
+  virtual bool doRun();
+  virtual bool doInit();
+  virtual bool doLoopProcess();
+  virtual bool doProcessSuccessfulStep();
+  virtual bool doProcessFailedStep();
   bool doFinish();
   bool doHandlePredictor();
 
@@ -372,6 +372,13 @@ private:
 };
 
 bool registerACFactory(FactoryBlock &factory_block);
+
+bool
+extractACDataInternals(
+  Util::OptionBlock &           option_block,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line);
 
 } // namespace Analysis
 } // namespace Xyce

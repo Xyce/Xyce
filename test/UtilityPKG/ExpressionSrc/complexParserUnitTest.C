@@ -5320,6 +5320,39 @@ TEST ( Complex_Parser_table_Test, tablefile_break1)
   EXPECT_EQ(refRes,assignResult);
 }
 
+// This test is for :
+// (1) making sure filenames can include dashes 
+// (2) making sure table files can include comments.  
+// The file, test1-1.dat includes comments in it.
+TEST ( Complex_Parser_table_Test, tablefile_dash_comment)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp_dynamic_cast<timeDepExpressionGroup>(grp);
+  Xyce::Util::newExpression tableExpression(std::string("tablefile(\"test1-1.dat\")"), grp);
+  tableExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_tableExpression(tableExpression); 
+  Xyce::Util::newExpression assign_tableExpression; 
+  assign_tableExpression = tableExpression; 
+
+  std::vector<double> times = { 0, 0.3, 0.301, 0.302, 0.6, 1 };
+  std::vector<std::complex<double> > refRes = { 0, 0, 2, 2, 1, 1 };
+  std::vector<std::complex<double> > result(times.size(),0.0);
+  std::vector<std::complex<double> > copyResult(times.size(),0.0);
+  std::vector<std::complex<double> > assignResult(times.size(),0.0);
+
+  for (int ii=0;ii<times.size();ii++)  
+  { 
+    timeGroup->setTime(times[ii]); 
+    tableExpression.evaluateFunction(result[ii]); 
+    copy_tableExpression.evaluateFunction(copyResult[ii]); 
+    assign_tableExpression.evaluateFunction(assignResult[ii]); 
+  }
+  EXPECT_EQ(refRes,result);
+  EXPECT_EQ(refRes,copyResult);
+  EXPECT_EQ(refRes,assignResult);
+}
+
 TEST ( Complex_Parser_table_Test, tablefile_break1b)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -9343,6 +9376,7 @@ TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }
 
 
+#if 0
 template <typename ScalarT>
 inline void trapezoidIntegral (
    const std::vector<double> & times,
@@ -9368,6 +9402,7 @@ inline void trapezoidIntegral (
     testIntegral[is+1] = integral;
   }
 }
+#endif
 
 //-------------------------------------------------------------------------------
 // SDT tests

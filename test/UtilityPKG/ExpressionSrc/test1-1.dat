@@ -1,0 +1,9 @@
+* this is a comment
+0 0.0  * another comment
+; this is a comment
+0.3 0.0 ; another comment
+0.301 2.0
+0.302 2.0
+# this is a comment
+0.6 1.0 # another comment
+1 1.0

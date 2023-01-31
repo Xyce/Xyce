@@ -207,6 +207,9 @@ bool Step::doLoopProcess()
 
   for (int i = 0; i < stepLoopSize_; ++i)
   {
+    StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, i);
+    Util::publish<StepEvent>(analysisManager_, step_event); // must be called BEFORE updateSweepParams
+
     // Tell the manager if any of our sweeps are being reset in this loop iteration.
     bool reset = updateSweepParams(loader_, i, stepSweepVector_.begin(), stepSweepVector_.end(), false);
 
@@ -222,9 +225,6 @@ bool Step::doLoopProcess()
         Xyce::dout() << (*it);
       }
     }
-
-    StepEvent step_event(StepEvent::STEP_STARTED, stepSweepVector_, i);
-    Util::publish<StepEvent>(analysisManager_, step_event);
 
     // solve the loop.
     integration_status = childAnalysis_.run();

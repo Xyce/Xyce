@@ -54,6 +54,14 @@ class objectiveFunctionData;
 namespace Xyce {
 namespace Analysis {
 
+enum sensDiffMode
+{
+  SENS_FWD,
+  SENS_REV,
+  SENS_CNT,
+  NUM_DIFF_MODES
+};
+
 class ROL_Objective;
 
 typedef double RealT;
@@ -71,12 +79,14 @@ class ROL : public AnalysisBase
 {
 public:
   ROL(
-      AnalysisManager &analysis_manager, 
-      Nonlinear::Manager &nonlinear_manager,
-      Loader::Loader &loader, 
-      Linear::System & linear_system,
-      Topo::Topology & topology,
-      IO::InitialConditionsManager & initial_conditions_manager); 
+      AnalysisManager &                   analysis_manager, 
+      Nonlinear::Manager &                nonlinear_manager,
+      Loader::Loader &                    loader, 
+      Linear::System &                    linear_system,
+      Topo::Topology &                    topology,
+      Device::DeviceMgr &                 device_manager,
+      IO::InitialConditionsManager &      initial_conditions_manager, 
+      IO::RestartMgr &                    restart_manager);
    
   virtual ~ROL();
 
@@ -102,6 +112,14 @@ public:
 
   // Method to set ROL DC description
   bool setROLDCSweep(const std::vector<Util::OptionBlock>& option_block);
+
+  // Method to set ROL AC description
+  bool setROLACSweep(const std::vector<Util::OptionBlock>& option_block);
+
+  // Method to set ROL TRAN description
+  bool setROLTransient(const std::vector<Util::OptionBlock>& option_block);
+  
+  // Method to set ROL data description
   bool setROLDataOptionBlock(const std::vector<Util::OptionBlock>& option_block);
 
   // Method to set non-HB linear solver / preconditioning options (needed for .STEP)
@@ -120,7 +138,7 @@ protected:
   bool doProcessSuccessfulStep() { return false; }
   bool doProcessFailedStep() { return false; }
   bool doHandlePredictor() { return true; }
-  bool doFinish() { return true; }
+  bool doFinish();
 
 public:
   // Two Level specific
@@ -133,9 +151,10 @@ private:
   Topo::Topology &                      topology_;
   IO::InitialConditionsManager &        initialConditionsManager_;
   Linear::System &                      linearSystem_;
+  Device::DeviceMgr &                   deviceManager_;
+  IO::RestartMgr &                      restartManager_;
   OutputMgrAdapter &                    outputManagerAdapter_;
   TimeIntg::TIAParams                   tiaParams_;
-  int                                   stepLoopSize_;
   bool                                  sensFlag_;
   std::vector<std::string>              paramNameVec_; // TT: vector of optimization parameters
   int                                   numParams_; // TT: number of optimization parameters
@@ -147,6 +166,8 @@ private:
   AnalysisBase *                        currentAnalysisObject_;
 
   std::vector<ROL_Objective>            rolDCObjVec_;
+  std::vector<ROL_Objective>            rolACObjVec_;
+  std::vector<ROL_Objective>            rolTranObjVec_;
 
   std::vector<RealT>                    zInitValue_;
   std::vector<RealT>                    zLowerBoundVector_;
@@ -160,7 +181,9 @@ private:
 
   Util::OptionBlock                     saved_lsOB_;  // Linear solver options
   Util::OptionBlock                     saved_timeIntOB_;  // Time integrator options
-  std::vector<Util::OptionBlock>        saved_sweepOB_;  // DCSweep options
+  std::vector<Util::OptionBlock>        saved_dcSweepOB_;  // DCSweep options
+  std::vector<Util::OptionBlock>        saved_acSweepOB_;  // AC options
+  std::vector<Util::OptionBlock>        saved_tranOB_;  // Transient data
   std::vector<Util::OptionBlock>        saved_dataOB_;  // DCSweep data
   std::vector<Util::OptionBlock>        saved_rolObjOB_;  // ROL objectives
 };

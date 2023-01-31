@@ -177,8 +177,11 @@ private:
   /// Note that the subordinate stat is an unsorted list as there are very few stats
   /// created and should rarely be looked up by name.
   ///
-  class finder : private std::unary_function<Stat, bool>
+  class finder
   {
+    using result_type = bool;
+    using first_argument_type = Stat;
+
   public:
     explicit finder(const std::string &name)
       : m_name(name)

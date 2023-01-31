@@ -52,7 +52,6 @@
 #include <N_LAS_Matrix.h>
 
 #include <N_UTL_Expression.h>
-#include <N_UTL_BreakPoint.h>
 #include <N_UTL_FeatureTest.h>
 
 namespace Xyce {

@@ -2712,7 +2712,27 @@ bool extractACData(
   const IO::TokenVector &       parsed_line)
 {
   Util::OptionBlock option_block("AC", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+  bool ret = extractACDataInternals(option_block, options_manager, netlist_filename, parsed_line);
 
+  if (ret)
+    circuit_block.addOptions(option_block);
+
+  return ret;
+}
+
+} // namespace <unnamed>
+
+//-----------------------------------------------------------------------------
+// Function      : extractACDataInternals
+// Purpose       : Extract the parameters from a netlist .AC line
+//-----------------------------------------------------------------------------
+bool
+extractACDataInternals(
+  Util::OptionBlock &           option_block,
+  IO::PkgOptionsMgr &           options_manager,
+  const std::string &           netlist_filename,
+  const IO::TokenVector &       parsed_line)
+{
   int numFields = parsed_line.size();
   int linePosition = 1;   // Start of parameters on .param line.
   Util::Param parameter("", "");
@@ -2734,7 +2754,7 @@ bool extractACData(
 
     option_block.addParam( Util::Param("TYPE", "DATA"));
     option_block.addParam( Util::Param( "DATASET", parsed_line[ dataPos+2 ].string_ ));
-    circuit_block.addOptions(option_block);
+
     return true;
   }
   // End of the DATA block
@@ -2749,7 +2769,6 @@ bool extractACData(
 
   // type is required
   parameter.setTag( "TYPE" );
-//  parameter.setVal( parsed_line[linePosition].string_ );
   ExtendedString stringVal ( parsed_line[linePosition].string_ );
   stringVal.toUpper();
   parameter.setVal(std::string(stringVal));
@@ -2774,14 +2793,9 @@ bool extractACData(
   parameter.setTag( "FSTOP" );
   parameter.setVal( parsed_line[linePosition].string_ );
   option_block.addParam( parameter );
-//  ++linePosition;     // Advance to next parameter.
-
-  circuit_block.addOptions(option_block);
 
   return true;
 }
-
-} // namespace <unnamed>
 
 
 void

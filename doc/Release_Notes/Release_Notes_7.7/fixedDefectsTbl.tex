@@ -36,6 +36,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+  \textbf{Xyce Project Backlog/106}: Xyce/ADMS generates incorrect
+  derivative code for integer variables & Xyce/ADMS would emit code
+  that would not compile if a Verilog-A module tried to assign a
+  probe-dependent expression into an integer variable.  \\\hline
+
   \textbf{Xyce Project Backlog/157}: Xyce diode does not support
   sidewall effects & The Xyce diode now supports an instance parameter
   for the junction perimeter (\texttt{PJ}) and a number of model
@@ -65,6 +70,17 @@
   This has been fixed. This issue did not apply to device multipliers,
   just to subcircuit multipliers.  \\ \hline
 
+  \textbf{Xyce Project Backlog/527}: Xyce/ADMS aborts on analog
+  functions that have arguments of a type different from their return
+  types & When Xyce/ADMS was refactored to remove use of Sacado, a bit
+  of templated code was not rewritten because it appeared to be good
+  enough for the new implementation.  But that version had a
+  restriction that all arguments of an analog function must have the
+  same type as the return value.  This code has now been
+  rewritten. Analog functions can now return either reals or integers,
+  and may have arguments of either type irrespective of their return
+  type.  \\ \hline
+
   \textbf{Xyce Project Bugs/36}: Xyce/ADMS aborts when an analog
   function calls \$strobe, \$bound\_step, or other ``callfunction'' &
   Due to the way Xyce/ADMS implements \$strobe, \$bound\_step, and
@@ -90,5 +106,18 @@
   This particular capability was never implemented for transient
   adjoints, which was an oversight.  This has been fixed.  \\ \hline
 
+  \textbf{Xyce Project Backlog/534}: Xyce needs to remove deprecated
+  features in C++17, like std::binary\_function() and std::unary\_function(). &
+  These features have been replaced with C++17 compliant features. \\ \hline
+
+  \textbf{Xyce Project Backlog/565}: Fix VPWL/IPWL independent sources to work 
+  with \texttt{.STEP} & Piecewise-linear sources were not instrumented to be 
+  updated during \texttt{.STEP} loops.  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Backlog/566}:  Expression library breakpoint handling has 
+  a problem with \texttt{.STEP} & The breakpoint functions in the expression 
+  library were not properly reset at the beginning of each \texttt{.STEP} 
+  iteration.  This was causing breakpoints to be overlooked early in the transient.
+  This has been fixed.  \\ \hline
 \end{longtable}
 }

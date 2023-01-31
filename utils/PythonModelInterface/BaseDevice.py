@@ -20,14 +20,17 @@ class BaseDevice(object):
         # gives priority to existing values in b,d,i, and s 
         # since these were specified in the netlist by the user
         for item in p_params.items():
-            if (item[0] not in d_params.keys()):
-                if isinstance(item[1], bool):
+            if isinstance(item[1], bool):
+                if (item[0] not in b_params.keys()):
                     b_params[item[0]] = 1 if item[1] else 0
-                elif isinstance(item[1], float):
+            elif isinstance(item[1], float):
+                if (item[0] not in d_params.keys()):
                     d_params[item[0]] = item[1]
-                elif isinstance(item[1], int): 
+            elif isinstance(item[1], int): 
+                if (item[0] not in i_params.keys()):
                     i_params[item[0]] = item[1]
-                elif isinstance(item[1], str): 
+            elif isinstance(item[1], str): 
+                if (item[0] not in s_params.keys()):
                     s_params[item[0]] = item[1]
 
     # do not override, only called from Xyce-PyMi

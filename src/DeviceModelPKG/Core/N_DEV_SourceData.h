@@ -420,6 +420,8 @@ public:
   virtual bool updateSource() /* override */ ;
   virtual void setupBreakPoints() { preComputedBreakpointsDone = false; }
   bool getBreakPoints( std::vector<Util::BreakPoint> & breakPointTimes);
+  void getParams (double *);
+  void setParams (double *);
   void printOutParams ();
 
 private:
@@ -430,10 +432,10 @@ private:
   double TD; //time delay
   std::vector< std::pair<double,double> > TVVEC;  // Array (time,voltage)
 
+  std::vector< std::pair<int,Util::Expression> >  valExprList;
+  std::vector< std::pair<int,Util::Expression> >  timeExprList;
+
   int loc_; //current location in time vector
-  double starttime_; //absolute start time of current cycle
-
-
   bool preComputedBreakpointsDone;
 };
 

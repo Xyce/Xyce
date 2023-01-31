@@ -137,7 +137,6 @@ public:
   std::pair<std::string,double> getInitialCondition(int i);
   int getNumInitialConditions();
 
-  void setupBreakPoints();
   bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
   inline void setSourceScaleFac(double scf) {sourceScaleFac=scf;};
   inline void setMasterSourceValue(double msv) {masterSourceValue=msv;};
