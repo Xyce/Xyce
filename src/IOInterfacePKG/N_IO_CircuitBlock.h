@@ -133,6 +133,12 @@ public:
     return name_;
   }
 
+  // Set the name of the subcircuit, if this is a subcircuit
+  void setName(std::string const& name)
+  {
+    name_ = name;
+  }
+
   // Get the name of the netlist file
   const std::string& getNetlistFilename() const
   {
@@ -328,7 +334,7 @@ public:
   {
     return levelSet_;
   }
-  
+
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup() { return expressionGroup_; }
 
 public:
@@ -454,10 +460,6 @@ private:
 
   // Post process analysis commands.
   bool handleAnalysis();
-
-  // Extract subcircuit data from parsedLine.
-  bool extractSubcircuitData(std::string fileName,
-                             TokenVector const& parsedLine);
 
   // Parse the given include file adding the contents
   // to the current CircuitBlock.

@@ -152,6 +152,15 @@ CircuitContext::CircuitContext(
 //----------------------------------------------------------------------------
 CircuitContext::~CircuitContext()
 {
+  // Output any messages for this circuit block that haven't
+  // been output before as a warning.  Clear messages to keep
+  // them from being output again.
+  for (std::vector<std::string>::iterator it = errorMsg_.begin(); it != errorMsg_.end(); ++it )
+  {
+    Report::UserWarning().at(location_) << *it;
+  }
+  errorMsg_.clear();
+
   // Delete each subcircuit context in this context.
   unordered_map< std::string, CircuitContext * >::iterator itsc = circuitContextTable_.begin();
   unordered_map< std::string, CircuitContext * >::const_iterator itsc_end = circuitContextTable_.end();
@@ -162,7 +171,6 @@ CircuitContext::~CircuitContext()
   }
 
   circuitContextTable_.clear();
-
 
   // We delete all our own stored model pointers.  Because we also
   // delete all our subcircuit contexts, *their* destructors take care of
@@ -233,6 +241,11 @@ bool CircuitContext::beginSubcircuitContext(
     }
   }
 
+  bool result = true;
+
+  // Collect the error messages for output later if subcircuit is used.
+  std::vector<std::string> errorMsg;
+
   // Create a new circuit context for the subcircuit.
   CircuitContext* subcircuitContextPtr =
     new CircuitContext(opBuilderManager_, parsingMgr_, contextList_, currentContextPtr_);
@@ -257,12 +270,10 @@ bool CircuitContext::beginSubcircuitContext(
     return false;
   }
 
-  if (numFields < 3)
-  {
-    Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-      << "At least one node required for subcircuit " << subcircuitLine[1].string_;
-    return false;
-  }
+  // Extract and set the subcircuit name.
+  ExtendedString field ( subcircuitLine[1].string_ );
+  field.toUpper();
+  subcircuitContextPtr->setName(field);
 
   if (DEBUG_IO)
   {
@@ -270,10 +281,12 @@ bool CircuitContext::beginSubcircuitContext(
                  << "  Number of fields on subckt line = " << numFields << std::endl;
   }
 
-  // Extract and set the subcircuit name.
-  ExtendedString field ( subcircuitLine[1].string_ );
-  field.toUpper();
-  subcircuitContextPtr->setName(field);
+  if (numFields < 3)
+  {
+    std::stringstream subcktMsg;
+    subcktMsg << "At least one node required for subcircuit " << subcircuitLine[1].string_;
+    errorMsg.push_back( subcktMsg.str() );
+  }
 
   // Extract the subcircuit external nodes.
   int i;
@@ -293,8 +306,9 @@ bool CircuitContext::beginSubcircuitContext(
     }
     if (fieldES == "0")
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_) 
-        << "Ground node '0' appears in .SUBCKT line";
+      std::stringstream subcktMsg;
+      subcktMsg << "Ground node '0' appears in .SUBCKT line";
+      errorMsg.push_back( subcktMsg.str() );
     }
     subcircuitContextPtr->nodeList_.push_back(fieldES);
   }
@@ -302,7 +316,6 @@ bool CircuitContext::beginSubcircuitContext(
   // Extract the subcircuit parameters.
   Util::Param parameter("","");
 
-  bool result = true;
   ++i; // Advance to start of parameters.
   while (i+2 < numFields)
   {
@@ -310,26 +323,26 @@ bool CircuitContext::beginSubcircuitContext(
     fieldES.toUpper();
     if (!fieldES.possibleParam())
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[i].lineNumber_)
-        << "Parameter name " << subcircuitLine[i].string_ <<  " contains illegal character(s)";
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Parameter name " << subcircuitLine[i].string_ <<  " contains illegal character(s)";
+      errorMsg.push_back( subcktMsg.str() );
     }
     parameter.setTag( fieldES );
 
     if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
          (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") )
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[i].lineNumber_)
-        << "Parameter name " << parameter.uTag() << " not allowed in subcircuit parameter list for subcircuit "
-        << getName();
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Parameter name " << parameter.uTag() << " not allowed in subcircuit parameter list for subcircuit "
+                << getName();
+      errorMsg.push_back( subcktMsg.str() );
     }
 
     if ( subcircuitLine[i+1].string_ != "=" )
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-        << "Equal sign required between parameter and value in PARAM list for subcircuit " << getName();
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Equal sign required between parameter and value in PARAM list for subcircuit " << getName();
+      errorMsg.push_back( subcktMsg.str() );
     }
 
     else {
@@ -348,11 +361,11 @@ bool CircuitContext::beginSubcircuitContext(
   }
 
   // check for truncated params: list
-  if ( result && i < numFields )
+  if ( errorMsg_.empty() && i < numFields )
   {
-    Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-      << "Parameter list error in subcircuit " << getName();
-    result = false;
+    std::stringstream subcktMsg;
+    subcktMsg << "Parameter list error in subcircuit " << getName();
+    errorMsg.push_back( subcktMsg.str() );
   }
 
   if (DEBUG_IO)
@@ -361,7 +374,30 @@ bool CircuitContext::beginSubcircuitContext(
                  << "*******************************************" << std::endl;
   }
 
-  return result;
+  // Set the error message with the new subcircuit context
+  subcircuitContextPtr->setErrorMsg( errorMsg );
+
+  return result; 
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::printErrorMsg
+// Purpose        : print any error messages generated by this subcircuit
+// Special Notes  :
+// Scope          :
+// Creator        : Heidi Thornquist
+// Creation Date  : 01/31/2023
+//----------------------------------------------------------------------------
+void CircuitContext::printErrorMsg()
+{
+  // Output any messages for this circuit block that haven't
+  // been output before as a warning.  Clear messages to keep
+  // them from being output again.
+  for (std::vector<std::string>::iterator it = errorMsg_.begin(); it != errorMsg_.end(); ++it )
+  {
+    Report::UserError().at(location_) << *it;
+  }
+  errorMsg_.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -2689,6 +2725,8 @@ void CircuitContext::pruneContexts( std::vector<std::string>& keepContexts )
     }
     else
     {
+      // Check that the circuit context is without errors before proceeding.
+      itsc->second->printErrorMsg();
       itsc++;
     }
   }

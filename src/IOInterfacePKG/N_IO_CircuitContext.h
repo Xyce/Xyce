@@ -479,6 +479,10 @@ private:
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 
+  std::vector<std::string> errorMsg_;
+  void setErrorMsg(const std::vector<std::string>& errorMsg) { errorMsg_ = errorMsg; }
+  void printErrorMsg();
+
   bool multiplierSet_;
   Util::Param multiplierParameter_;
 };
