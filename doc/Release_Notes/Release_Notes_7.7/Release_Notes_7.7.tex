@@ -102,6 +102,11 @@ please visit the \XyceTM{} web page at
   Now, they can be treated like any other parameter, and can change during a simulation 
   using commands such as \texttt{.STEP}. 
 
+\item Formatting errors in unused subcircuit definitions (\texttt{.SUBCKT}) will no
+  longer emit errors, only warnings.  This is limited to issues in the (\texttt{.SUBCKT})
+  line of the netlist.  If additional parsing issues are found within the subcircuit
+  definition, they may still result in an error being emitted from the simulator.
+ 
 \item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in 
   debugging of user circuits.  This option can be used to output nodes with extreme 
   solution values, voltages, currents and discontinuities during a simulation.  
