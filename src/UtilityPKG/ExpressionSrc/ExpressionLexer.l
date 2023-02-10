@@ -252,6 +252,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>";" { return XyceExpression::ExpressionParser::token::TOK_SEMICOLON; }
 <INITIAL>":" { return XyceExpression::ExpressionParser::token::TOK_COLON; }
 <INITIAL>"?" { return XyceExpression::ExpressionParser::token::TOK_QUESTION_MARK; }
+<INITIAL>"'" { return XyceExpression::ExpressionParser::token::TOK_SINGLEQUOTE; }
 
 
 <INITIAL>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }

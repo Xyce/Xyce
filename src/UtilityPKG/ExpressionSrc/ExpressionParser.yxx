@@ -735,6 +735,8 @@ void createCurrentOp(
 %token TOK_RIGHTCURLYBRACE "rightcurlybrace"
 %token TOK_LEFTCURLYBRACE  "leftcurlybrace"
 
+%token TOK_SINGLEQUOTE "singlequote"
+
 // types for nonterminal operators
 %type  <Teuchos::RCP<astNode<usedType> > >   exp
 %type  <Teuchos::RCP<astNode<usedType> > >   expression
@@ -949,6 +951,10 @@ exp:
        $$ = $2;
     }
   | TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_SINGLEQUOTE exp TOK_SINGLEQUOTE
     {
        $$ = $2;
     }
