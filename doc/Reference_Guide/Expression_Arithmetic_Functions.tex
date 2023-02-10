@@ -25,7 +25,6 @@
 
     ABS(x) & $|x|$ & absolute value of $x$ \\ \hline
 
-
     CEIL(x) & $\lceil x \rceil$ & least integer greater or equal to variable $x$  \\ \hline
 
     DDT(x)
@@ -49,21 +48,7 @@
     LIMIT(x,y,z)
     & $y$ if $x < y$ & \\
     & $x$ if $y < x < z$  & $x$ limited to range $y$ to $z$ \\
-    & $z$ if $x > z$ & \\ \hline
-    
-%% ----- COMMENTED OUT LIMIT
-%% NOTE:  LIMIT is indeed defined in Xyce as described below, but this is
-%% completely useless and completely incompatible with the intended use of
-%% that feature.  LIMIT is supposed to be a random number generator that 
-%% generates numbers from the probability function described in the 
-%% right-hand column, but as implemented in Xyce, returns just the sum of the 
-%% two arguments.  The intended application is Monte Carlo simulation, and as 
-%% implemented, this is useless.
-%% ----------------------------
-%%    LIMIT(x,y) & $x+y$ & upper limit of the random variable $x$ with 
-%%    probability mass function $p(z)$ given by: \\ 
-%%    & & \hspace*{1in}${p(z=x+y) = 1/2}$ \\
-%%    & & \hspace*{1in}${p(z=x-y) = 1/2}$ \\ \hline
+    & $z$ if $x > z$ & Note: The two-argument version of limit, documented below, is a random operator. \\ \hline
     
     M(x) & $|x|$ & absolute value or magnitude of $x$ \\ \hline
 
@@ -168,6 +153,8 @@
 
     RE(x) &      & real part of variable $x$ \\ \hline
 
+    M(x) & $|x|$ & absolute value or magnitude of $x$ \\ \hline
+
     \category{Exponential, logarithmic, and trigonometric functions} \\ \hline
 
     ACOS(x) & $\arccos(x)$ & result in radians \\ \hline
@@ -225,6 +212,9 @@
     %UNIF($\mu$,$\alpha$) & $\mu*(1-\alpha) < result < \mu*(1+\alpha)$ & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     UNIF($\mu$,$\alpha$) &  & Random number sampled from uniform distribution with mean $\mu$ and standard deviation $(\alpha*\mu)/n$ \\ 
     & & The number returned will differ from the mean by at most $\alpha*\mu$ \footnotemark[1]  \\\hline 
+
+    LIMIT(x,y) &  & where $x$ is the nominal value and $y$ is the absolute variation.  It will return x+y or x-y, depending on a random number between -1 and +1. \\
+    & & Note: The three-argument version of limit, documented above, is not a random operator. \\ \hline
 
     RAND() & & random number between 0 and 1 sampled from a uniform distribution\footnotemark[1] \\ \hline
 
