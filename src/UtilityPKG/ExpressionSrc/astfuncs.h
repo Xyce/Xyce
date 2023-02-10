@@ -77,6 +77,8 @@ class NAME ## Op : public astNode<ScalarT>                                      
       }                                                                                \
     }                                                                                  \
                                                                                        \
+    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant() ); }        \
+                                                                                       \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \

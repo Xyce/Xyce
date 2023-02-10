@@ -615,6 +615,7 @@ class numval : public astNode<ScalarT>
       os << number;
     }
 
+    virtual bool getIsConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
 
@@ -653,6 +654,7 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
       os << "std::complex<double>" << number;
     }
 
+    virtual bool getIsConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
 
@@ -852,6 +854,9 @@ class powOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() 
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+   
   private:
     bool rightConst_;
     bool leftConst_;
@@ -953,6 +958,9 @@ class atan2Op : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() 
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+
   private:
     bool rightConst_;
     bool leftConst_;
@@ -1018,6 +1026,9 @@ class phaseOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
+
+  private:
     bool phaseOutputUsesRadians_;
 };
 
@@ -1070,6 +1081,7 @@ class realOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1121,6 +1133,7 @@ class imagOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1183,6 +1196,9 @@ class maxOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
+
+    virtual bool getIsConstant() 
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1242,6 +1258,8 @@ class minOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
+    virtual bool getIsConstant() 
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1285,6 +1303,7 @@ class unaryNotOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1328,6 +1347,7 @@ class unaryMinusOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
@@ -1368,6 +1388,7 @@ class unaryPlusOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
@@ -1477,6 +1498,8 @@ AST_GET_TIME_OPS(paramNode_)
     {
       paramNode_->processSuccessfulTimeStep ();
     };
+
+    virtual bool getIsConstant() { return (paramNode_->getIsConstant()); }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > paramNode_;
@@ -1759,6 +1782,8 @@ class voltageOp: public astNode<ScalarT>
 
     virtual std::string getName () { return voltageNode_; }
 
+    virtual bool getIsConstant() { return false; }
+
   private:
     std::string voltageNode_;
     ScalarT voltageVal_;
@@ -1830,6 +1855,8 @@ class currentOp: public astNode<ScalarT>
     bool getBsrcFlag   () { return bsrcFlag_; }
     void setBsrcFlag  () { bsrcFlag_ = true; }
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
+
+    virtual bool getIsConstant() { return false; }
 
   private:
     ScalarT number_;
@@ -1904,6 +1931,7 @@ class sparamOp: public astNode<ScalarT>
 
     std::vector<int> & getSparamArgs () { return sparamArgs_; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool sparamType() { return true; };
 
   private:
@@ -1979,6 +2007,7 @@ class yparamOp: public astNode<ScalarT>
 
     std::vector<int> & getYparamArgs () { return yparamArgs_; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool yparamType() { return true; };
 
   private:
@@ -2054,6 +2083,7 @@ class zparamOp: public astNode<ScalarT>
 
     std::vector<int> & getZparamArgs () { return zparamArgs_; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool zparamType() { return true; };
 
   private:
@@ -2123,6 +2153,7 @@ class leadCurrentOp: public astNode<ScalarT>
     ScalarT & getLeadCurrentVar () { return number_; }
     void setLeadCurrentVar (ScalarT n) { number_ = n; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool leadCurrentType() { return true; };
 
     virtual std::string getName () { return leadCurrentDevice_; }
@@ -2191,6 +2222,7 @@ class powerOp: public astNode<ScalarT>
     ScalarT & getPowerVal () { return number_; }
     void setPowerVal (ScalarT n) { number_ = n; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool powerType() { return true; };
 
     virtual std::string getName () { return powerDevice_; }
@@ -2257,6 +2289,7 @@ class internalDevVarOp: public astNode<ScalarT>
     ScalarT & getInternalDeviceVar () { return number_; }
     void setInternalDeviceVar (ScalarT n) { number_ = n; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool internalDeviceVarType()  { return true; };
 
     virtual std::string getName () { return internalDevVarDevice_; }
@@ -2335,6 +2368,7 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool dnoNoiseVarType()  { return true; };
 
     //virtual std::string getName () { return noiseDevice_; }
@@ -2409,6 +2443,7 @@ class dniNoiseVarOp: public astNode<ScalarT>
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
+    virtual bool getIsConstant() { return false; }
     virtual bool dniNoiseVarType()  { return true; };
 
     //virtual std::string getName () { return noiseDevice_; }
@@ -2456,6 +2491,7 @@ class oNoiseOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
+    virtual bool getIsConstant() { return false; }
     virtual bool oNoiseType()  { return true; };
 
   private:
@@ -2499,6 +2535,7 @@ class iNoiseOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
+    virtual bool getIsConstant() { return false; }
     virtual bool iNoiseType()  { return true; };
 
   private:
@@ -2989,6 +3026,20 @@ AST_GET_TIME_OPS(functionNode_)
 
     virtual unsigned long int getNodeId () { return functionNode_->getNodeId(); }
 
+    virtual bool getIsConstant() 
+    { 
+
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+
+      bool isConstant = functionNode_->getIsConstant();
+
+      if(dummyFuncArgs_.size() == funcArgs_.size())
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+
+      return isConstant;
+    }
+
   private:
 // data:
     std::string funcName_;
@@ -3198,6 +3249,9 @@ class pwrsOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant()
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+
   private:
     bool rightConst_;
     bool leftConst_;
@@ -3254,6 +3308,8 @@ class sgnOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+
+    virtual bool getIsConstant() { return this->leftAst_->getIsConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3336,6 +3392,9 @@ class signOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+
+    virtual bool getIsConstant()
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3473,6 +3532,9 @@ class fmodOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual bool getIsConstant()
+    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+
   private:
     bool rightConst_;
     bool leftConst_;
@@ -3519,6 +3581,9 @@ class roundOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3559,6 +3624,8 @@ class ceilOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3599,6 +3666,8 @@ class floorOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3644,6 +3713,8 @@ class intOp : public astNode<ScalarT>
       os << "))";
     }
 
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3774,6 +3845,13 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
+    }
+
+    virtual bool getIsConstant()
+    { return 
+      (this->leftAst_->getIsConstant() &&
+       this->rightAst_->getIsConstant() &&
+       this->zAst_->getIsConstant() ) ;
     }
 
   private:
@@ -3934,6 +4012,13 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_) 
     }
 
+    virtual bool getIsConstant()
+    { return 
+      (this->leftAst_->getIsConstant() &&
+       this->rightAst_->getIsConstant() &&
+       this->zAst_->getIsConstant() ) ;
+    }
+
     virtual bool limitType() { return true; }
 
   private:
@@ -4005,6 +4090,9 @@ class stpOp : public astNode<ScalarT>
       os << "STP";
     }
 
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
+
     virtual bool stpType() { return true; }
 
   private:
@@ -4066,6 +4154,9 @@ class urampOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")):0.0)";
     }
+
+    virtual bool getIsConstant()
+    { return this->leftAst_->getIsConstant(); }
 };
 
 inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
@@ -4485,7 +4576,7 @@ class tableOp : public astNode<ScalarT>
     // functions:
     tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
       astNode<ScalarT>(), tableArgs_(args), 
-      allNumVal_(true), 
+      allConst_(true), 
       input_(input),
       useBreakPoints_(true),
       keyword_(kw)
@@ -4499,40 +4590,19 @@ class tableOp : public astNode<ScalarT>
         }
         else
         {
-          allNumVal_=true; ta_.resize(size/2); ya_.resize(size/2); dya_.resize(size/2,0.0);
+          allConst_=true; ta_.resize(size/2); ya_.resize(size/2); dya_.resize(size/2,0.0);
+          evaluatedAndConstant_.resize(size,0); // cannot know status yet, so initialize to 0.
           for (int ii=0,jj=0;ii<size;ii+=2,jj++)
           {
             ta_[jj] = (tableArgs_)[ii]->val();
             ya_[jj] = (tableArgs_)[ii+1]->val();
-            if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allNumVal_ = false; }
+            if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allConst_ = false; }
           }
           yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
           if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
           {
-            // create derivative table
-            // this code mimics the old expression library.   It uses finite differencing
-            // to set up a new table of derivatives.  The new table is based on the midpoints of
-            // the original table, so it has one extra entry.
-            int ya_size = ya_.size();
-            ta2_.resize(ya_size+1);
-            dya_.resize(ya_size+1);
-            ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-            dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-            for (int ii=1;ii<ya_size;++ii)
-            {
-              ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-              ScalarT h = ( ta_[ii]- ta_[ii-1]);
-              if (std::real(h) != 0.0)
-              {
-                dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-              }
-              else
-              {
-                dya_[ii] = 0.0;
-              }
-            }
-            dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+            createOldStyleDerivativeTable ();
           }
         }
       };
@@ -4547,7 +4617,7 @@ class tableOp : public astNode<ScalarT>
         Teuchos::RCP<astNode<ScalarT> > & numSamplesAst,
         Teuchos::RCP<astNode<ScalarT> > & logSpacingAst
         ):
-      astNode<ScalarT>(), allNumVal_(true), input_(input),
+      astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
       keyword_(kw)
       {
@@ -4633,33 +4703,13 @@ class tableOp : public astNode<ScalarT>
           } // downsample if-statement
         }
 
+        evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
+
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
         if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
         {
-          // create derivative table
-          // this code mimics the old expression library.   It uses finite differencing
-          // to set up a new table of derivatives.  The new table is based on the midpoints of
-          // the original table, so it has one extra entry.
-          int ya_size = ya_.size();
-          ta2_.resize(ya_size+1);
-          dya_.resize(ya_size+1);
-          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-          for (int ii=1;ii<ya_size;++ii)
-          {
-            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-            ScalarT h = ( ta_[ii]- ta_[ii-1]);
-            if (std::real(h) != 0.0)
-            {
-              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-            }
-            else
-            {
-              dya_[ii] = 0.0;
-            }
-          }
-          dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+          createOldStyleDerivativeTable ();
         }
       };
 
@@ -4668,18 +4718,19 @@ class tableOp : public astNode<ScalarT>
     // ERK.  Currently, Xyce doesn't use this function, but it should, as it is more reliable than 
     // the above numvalType test in the first constructor.
     tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
-      astNode<ScalarT>(), allNumVal_(true), input_(input),
+      astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
       keyword_(kw)
       {
         allocateInterpolators();
 
-        allNumVal_=true; int size = xvals.size(); int size2=yvals.size();
+        allConst_=true; int size = xvals.size(); int size2=yvals.size();
         if (size != size2)
         {
           std::vector<std::string> errStr(1,std::string("AST node (table) needs x and y vectors to be the same size.")); yyerror(errStr);
         }
         ta_.resize(size); ya_.resize(size); dya_.resize(size,0.0);
+        evaluatedAndConstant_.resize(2*size,1); // tables from files are always pure numbers, so initialize to 1
 
         for (int ii=0;ii<size;ii++)
         {
@@ -4691,32 +4742,46 @@ class tableOp : public astNode<ScalarT>
 
         if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
         {
-          // create derivative table
-          // this code mimics the old expression library.   It uses finite differencing
-          // to set up a new table of derivatives.  The new table is based on the midpoints of
-          // the original table, so it has one extra entry.
-          int ya_size = ya_.size();
-          ta2_.resize(ya_size+1);
-          dya_.resize(ya_size+1);
-          ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-          dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-          for (int ii=1;ii<ya_size;++ii)
-          {
-            ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-            ScalarT h = ( ta_[ii]- ta_[ii-1]);
-            if (std::real(h) != 0.0)
-            {
-              dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-            }
-            else
-            {
-              dya_[ii] = 0.0;
-            }
-          }
-          dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+          createOldStyleDerivativeTable ();
         }
       };
 
+    //-------------------------------------------------------------------------------
+    void createOldStyleDerivativeTable ()
+    {
+      // create derivative table
+      //
+      // this code mimics the old expression library.   It uses finite differencing
+      // to set up a new table of derivatives.  The new table is based on the midpoints of
+      // the original table, so it has one extra entry.
+      //
+      // I initially tried to use the evalDeriv function in the yInterpolator object.
+      // That method doen't use midpoints, it just differentiates the the linear
+      // interpolation device.  That approach failed at least one regression test.
+      //
+      // This should only be called if using the linear option, i.e. TABLE or TABLEFILE
+      int ya_size = ya_.size();
+      ta2_.resize(ya_size+1);
+      dya_.resize(ya_size+1);
+      ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
+      dya_[0] = 0.0;    dya_[ya_size] = 0.0;
+      for (int ii=1;ii<ya_size;++ii)
+      {
+        ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
+        ScalarT h = ( ta_[ii]- ta_[ii-1]);
+        if (std::real(h) != 0.0)
+        {
+          dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
+        }
+        else
+        {
+          dya_[ii] = 0.0;
+        }
+      }
+      dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+
+      return;
+    }
 
     //-------------------------------------------------------------------------------
     void allocateInterpolators()
@@ -4790,7 +4855,8 @@ class tableOp : public astNode<ScalarT>
     {
       ScalarT y = 0.0;
 
-      if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+#if 0
+      if (!allConst_)  // if not all pure numbers, then initialize the arrays again
       {
         if(!(tableArgs_.empty()))
         {
@@ -4803,6 +4869,64 @@ class tableOp : public astNode<ScalarT>
           yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
         }
       }
+#else
+      // if the table was specified as pure numbers, then the allConst_ flag was "true"
+      // in the constructor.  If the table contains expressions, then it might turn out to
+      // be allConst_, or it might not.  But we can't know for sure at construction if 
+      // some expression-based entries are const or not.  If they depend on .params, then
+      // that isn't known until later.
+      //
+      if (!allConst_)  // if not all constants, then might need to reinitialize the arrays 
+      {
+        if(!(tableArgs_.empty()))
+        {
+          bool tmpAllConst=true;
+          int size = tableArgs_.size();
+          bool updated=false;
+
+          // If the table depends on a .param, then the construction of the table happened 
+          // before it was determined if the .param was constant or not.  So, the 
+          // "getIsConstant" status of the tableArg that deepends on that parameter 
+          // may have changed between construction and the first call to val().  If it 
+          // has changed, it must be re-evaluated at least once, since the function 
+          // that sets a parameter to be constant (make_constant) also sets the value.
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            if ( evaluatedAndConstant_[ii] == 0 )
+            {
+              bool tIsConstant = (tableArgs_)[ii]->getIsConstant();
+              if ( !tIsConstant ) { tmpAllConst = false; }
+
+              evaluatedAndConstant_[ii] = tIsConstant?1:0;
+              updated = true;
+              ta_[jj] = (tableArgs_)[ii]->val();
+            }
+
+            if ( evaluatedAndConstant_[ii+1] == 0)
+            {
+              bool yIsConstant = (tableArgs_)[ii+1]->getIsConstant();
+              if ( !yIsConstant ) { tmpAllConst = false; }
+              
+              evaluatedAndConstant_[ii+1] = yIsConstant?1:0;
+              updated = true;
+              ya_[jj] = (tableArgs_)[ii+1]->val();
+            }
+          }
+          allConst_ = tmpAllConst;
+
+
+          if ( keyword_!=std::string("TABLE") && keyword_!=std::string("FASTTABLE") && updated )
+          {
+            yInterpolator_->init(ta_,ya_); 
+          }
+       
+          if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) && updated )
+          {
+            createOldStyleDerivativeTable ();
+          } 
+        } // tableArgs_.empty()
+      } // !allConst_
+#endif
 
    
       if ( !(ta_.empty()) )
@@ -4855,23 +4979,15 @@ class tableOp : public astNode<ScalarT>
       }
     }
 
+    // see the comments in the function "createOldStyleDerivativeTable" 
+    // for motivation for this func.
     ScalarT dx_linear(int i)
     {
       ScalarT dydx = 0.0;
       ScalarT dinput_dx = std::real(this->input_->dx(i));
       if (std::real(dinput_dx) != 0.0)
       {
-        // derivative w.r.t. input
-        //
-        // this code mimics the old expression library.   It uses finite differencing
-        // to set up a new table of derivatives.  The new table is based on the midpoints of
-        // the original table, so it has one extra entry.
-        //
-        // I initially tried to use the evalDeriv function in the yInterpolator object.
-        // That method doen't use midpoints, it just differentiates the the linear
-        // interpolation device.  That approach failed at least one regression test.
-        //
-        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+        if (!allConst_)  // if not all pure numbers, then initialize the arrays again
         {
           if (!(tableArgs_.empty()))
           {
@@ -4883,27 +4999,9 @@ class tableOp : public astNode<ScalarT>
             }
             yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
-            int ya_size = ya_.size();
-            if (ya_size > 2)
+            if (ya_.size() > 2)
             {
-              ta2_.resize(ya_size+1);
-              dya_.resize(ya_size+1);
-              ta2_[0] = ta_[0]; ta2_[ya_size] = ta_[ya_size-1];
-              dya_[0] = 0.0;    dya_[ya_size] = 0.0;
-              for (int ii=1;ii<ya_size;++ii)
-              {
-                ta2_[ii] = 0.5* (ta_[ii-1]+ta_[ii]);
-                ScalarT h = ( ta_[ii]- ta_[ii-1]);
-                if (std::real(h) != 0.0)
-                {
-                  dya_[ii] = ( ya_[ii]- ya_[ii-1])/ h;
-                }
-                else
-                {
-                  dya_[ii] = 0.0;
-                }
-              }
-              dyInterpolator_->init(ta2_,dya_); // for linear, this isn't necessary, but for others it is
+              createOldStyleDerivativeTable ();
             }
           }
         }
@@ -4952,7 +5050,7 @@ class tableOp : public astNode<ScalarT>
       {
         // derivative w.r.t. table y values
         //
-        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again.  
+        if (!allConst_)  // if not all pure numbers, then initialize the arrays again.  
         {
           for (int ii=0,jj=0;ii<size;ii+=2,jj++)
           {
@@ -4996,7 +5094,7 @@ class tableOp : public astNode<ScalarT>
         // derivative w.r.t. input, using the "evalDeriv" function
         // The higher-order interpolators should produce smooth derivatives, so this
         // approach is much cleaner than what we do for the linear interpolator.
-        if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
+        if (!allConst_)  // if not all pure numbers, then initialize the arrays again
         {
           if (!(tableArgs_.empty()))
           {
@@ -5082,7 +5180,7 @@ class tableOp : public astNode<ScalarT>
 
 AST_GET_INTERESTING_OPS(input_)
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5100,7 +5198,7 @@ AST_GET_INTERESTING_OPS(tableArgs_[ii])
 
 AST_GET_STATE_OPS(input_)
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5117,7 +5215,7 @@ AST_GET_STATE_OPS(tableArgs_[ii])
     {
 AST_GET_PARAM_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5134,7 +5232,7 @@ AST_GET_PARAM_OPS(tableArgs_[ii])
     {
 AST_GET_FUNC_ARG_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5151,7 +5249,7 @@ AST_GET_FUNC_ARG_OPS(tableArgs_[ii])
     {
 AST_GET_FUNC_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5168,7 +5266,7 @@ AST_GET_FUNC_OPS(tableArgs_[ii])
     {
 AST_GET_VOLT_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5185,7 +5283,7 @@ AST_GET_VOLT_OPS(tableArgs_[ii] )
     {
 AST_GET_CURRENT_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5202,7 +5300,7 @@ AST_GET_CURRENT_OPS(tableArgs_[ii])
     {
 AST_GET_TIME_OPS(input_) 
 
-      if (!allNumVal_)
+      if (!allConst_)
       {
         if (!(tableArgs_.empty()))
         {
@@ -5215,13 +5313,16 @@ AST_GET_TIME_OPS(tableArgs_[ii])
       }
     }
 
+    virtual bool getIsConstant() { return allConst_; }
+
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
-    bool allNumVal_;
+    bool allConst_;
     std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> ya_;
     std::vector<ScalarT> ta2_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> dya_;
+    std::vector<int> evaluatedAndConstant_;
 
     Teuchos::RCP<Xyce::Util::interpolator<ScalarT> > yInterpolator_;
     Teuchos::RCP<Xyce::Util::interpolator<ScalarT> > dyInterpolator_;
@@ -5477,6 +5578,8 @@ AST_GET_TIME_OPS(tableArgs_[ii])
       }
     }
 
+    virtual bool getIsConstant() { return allNumVal_; } 
+
   private:
     Teuchos::RCP<astNode<ScalarT> > time_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
@@ -5634,6 +5737,8 @@ class sdtOp : public astNode<ScalarT>
     virtual bool sdtType() { return true; }
 
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
+
+    virtual bool getIsConstant() { return false; }  // time dependent can't be constant
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -5807,6 +5912,8 @@ class ddtOp : public astNode<ScalarT>
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
 
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
+
+    virtual bool getIsConstant() { return false; }  // time dependent can't be constant
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -5997,6 +6104,8 @@ class ddxOp : public astNode<ScalarT>
       // fix this
       os << "DDX";
     }
+ 
+    virtual bool getIsConstant() { return false; }
 
   private:
     bool foundX_;
@@ -6059,6 +6168,8 @@ class specialsOp : public astNode<ScalarT>
     virtual bool freqSpecialType() { return (type_ == std::string("FREQ")); }
     virtual bool gminSpecialType() { return (type_ == std::string("GMIN")); }
 
+    virtual bool getIsConstant() { return false; } // sometimes constant, sometimes not, so be conservative
+
   private:
     std::string type_;
     ScalarT value_;
@@ -6088,6 +6199,8 @@ class piConstOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(M_PI); }
 
+    virtual bool getIsConstant() { return true; }
+
   private:
 };
 
@@ -6113,6 +6226,8 @@ class CtoKConstOp : public astNode<ScalarT>
     virtual void compactOutput(std::ostream & os) { output(os,0); }
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
+
+    virtual bool getIsConstant() { return true; }
 
   private:
 };
