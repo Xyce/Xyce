@@ -14,11 +14,12 @@
 
 \chapteroverview{Chapter Overview}
 {
-This chapter provides guidance on using \Xyce{}'s diagnostic outut to understance simulation performance and aid in correcting
+This chapter provides guidance on using \Xyce{}'s diagnostic outut 
+to understand simulation performance and aid in correcting
 circuit problems.
 \begin{XyceItemize}
 \item Section~\ref{DiagnosticOutput}, {\em Diagnostic Output}
-\item Section~\ref{SimulationIssues}, {\em Simulation Issues}
+%\item Section~\ref{SimulationIssues}, {\em Simulation Issues}
 \end{XyceItemize}
 }
 
@@ -38,7 +39,8 @@ present examples of using diagnostic output in a circuit.
 \subsection{Enabling Diagnostic Output}
 To enable diagnostic output in a simulation add the line
 \begin{NetlistFigure}{Basic diagnostic option line}
-.options diagnostic <diagnostic mode> diagfilename=<output file name>
+.options diagnostic <diagnostic mode> 
++ diagfilename=<output file name>
 \end{NetlistFigure}
 where \texttt{<diagnostic mode>} can be any of the following modes
 \begin{itemize}
@@ -66,7 +68,7 @@ limit, use the \texttt{EXTREMALIMIT} option.
 In this simple \Xyce{} input netlist, \texttt{EXTREMALIMIT} is used to output values over 6.0 Volts
 
 \begin{NetlistFigure}{Sample use of the diagnostic EXTREMALIMIT}
-4049 Circuit
+* 4049 Circuit
 
 X2 node3 node8 node2 0 CD4049UB
 V1 node2 0 5
@@ -75,16 +77,13 @@ R1 node3 node5 46.5K
 R2 node1 node5 98.6K
 X1 node1 node3 node2 0 CD4049UB
 
-*
-* NOOP used to forego the operating point
-* This circuit does not perform as an oscillator if an operating point
-* calculation is done --- the transient solution simply has to start from
-* an all-0 initial condition.
-*
 .tran .05U 500U NOOP
 
-.options timeint method=gear abstol=1.0e-7 reltol=1.0e-6
-.options diagnostic EXTREMALIMIT=6.0 diagfilename=ExtremaCheck1.dia
+.options timeint method=gear abstol=1.0e-7 
++ reltol=1.0e-6
+
+.options diagnostic EXTREMALIMIT=6.0 
++ diagfilename=ExtremaCheck1.dia
 
 .print tran V(node8) v(node5) V(node1) V(node3)
 
@@ -93,12 +92,14 @@ X1 node1 node3 node2 0 CD4049UB
 *HEX BUFFER    IN OUT VCC VSS
 M1 2 1 3 3 CD4049P
 M2 2 1 4 4 CD4049N
-.MODEL CD4049P PMOS (LEVEL=1 VTO=-2.9 KP=2M GAMMA=3.97U
-+ PHI=.75 LAMBDA=1.87M RD=28.2 RS=45.2 IS=31.2F PB=.8 MJ=.46
-+ CBD=148P CBS=177P CGSO=218N CGDO=182N CGBO=299N)
-.MODEL CD4049N NMOS (LEVEL=1 VTO=2.1 KP=5M GAMMA=3.97U
-+ PHI=.75 LAMBDA=1.87M RD=4.2 RS=4.2 IS=31.2F PB=.8 MJ=.46
-+ CBD=105P CBS=127P CGSO=156N CGDO=130N CGBO=214N)
+.MODEL CD4049P PMOS (LEVEL=1 VTO=-2.9 KP=2M 
++ GAMMA=3.97U PHI=.75 LAMBDA=1.87M RD=28.2 
++ RS=45.2 IS=31.2F PB=.8 MJ=.46 CBD=148P 
++ CBS=177P CGSO=218N CGDO=182N CGBO=299N)
+.MODEL CD4049N NMOS (LEVEL=1 VTO=2.1 KP=5M 
++ GAMMA=3.97U PHI=.75 LAMBDA=1.87M RD=4.2 
++ RS=4.2 IS=31.2F PB=.8 MJ=.46 CBD=105P 
++ CBS=127P CGSO=156N CGDO=130N CGBO=214N)
 .ENDS
 
 .END
@@ -188,12 +189,14 @@ Vin 1 0 pulse 0 5 1e-7 1e-6 1e-6 1e-3 2e-3
 rload 1 0 10
 
 
-bsrc 3 0 v = {if(v(1)>1, 1,0)}
+bsrc 3 0 v = \{if(v(1)>1, 1,0)\}
 rload3 3 0 100
 
 
 .options timeint erroption=1
-.options diagnostic DISCLIMIT=1e-2 diagfilename=DisconCheck2.dia
+
+.options diagnostic DISCLIMIT=1e-2 
++ diagfilename=DisconCheck2.dia
 .print tran v(1) v(3)
 
 .tran 0 1e-2
@@ -240,6 +243,6 @@ where the problem is.
 Thus for best use of discontinuity one may need to try turning step error control on and
 off in a set of simulations.
 
-\section{Simulation Issues}
+%\section{Simulation Issues}
 \label{SimulationIssues}
 
