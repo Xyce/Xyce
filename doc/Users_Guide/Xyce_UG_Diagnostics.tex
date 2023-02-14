@@ -53,6 +53,8 @@ where \texttt{<diagnostic mode>} can be any of the following modes
   \item \texttt{DISCLIMIT=<value>}  Output all solution variables where the absolute value
     of the predicted minus solution value is greater than \texttt{value}
 \end{itemize}
+Mulitple modes can be sepcified and the results will be grouped by diagostic mode for 
+each step within the diagnostic output file.
 
 Finally, the \texttt{.options diagnostic diagfilename} is optional.  If it is not given then 
 the diagnostic output will be saved in a file called \texttt{XyceDiag.out}.  Wether it 
@@ -120,15 +122,15 @@ and then points in the solution when this limit was reached.  In this case, the
 voltage node \texttt{NODE5} exceeded the limit of 6 with a value of 6.0347 at the 
 simulation time of 0.00017 seconds.
 
-The extrema output diagnostic can be useful to determin the largest values encountered
-during a simulation.  Once that is know it can be useful to know when voltages or 
-currents exceed a set value.  That will be examined in the next section.
+The extrema output diagnostic can be useful to determine the largest values encountered
+during a simulation.  Once the extrema are known it can be useful to focus on when 
+voltages or currents exceed a set value.  That will be examined in the next section.
 
 \subsection{Voltage and Current Output}
 Similar to \texttt{EXTREMALIMIT}, the diagnostic output options, \texttt{VOLTAGELIMIT} and
 \texttt{CURRENTLIMIT} allow reporting on voltages and currents at different limits.  Additionally,
 unlike \texttt{EXTREMALIMIT}, \texttt{VOLTAGELIMIT} and \texttt{CURRENTLIMIT} report all 
-voltages and currents that are over a given limit.  
+voltages and currents that are over a given limit at each step.
 
 Thus, the line
 \begin{verbatim}
@@ -173,7 +175,7 @@ discontinuity in it, smaller time steps will not make the discontinuity smaller 
 time integration may fail.
 
 The following example circuit has discontinuous behavior in the output from 
-the device \texttt{bsrc} changes from 0 to 1 when the voltage on node 1 goes 
+the device \texttt{bsrc} which changes from 0 to 1 when the voltage on node 1 goes 
 above 1.  Normally this would cause an error in transient simulation, but this netlist
 also instructs the time integrator ignore predictor-corrector error and just 
 accept steps where the nonlinear solver converges.  This is just for illustrative 
@@ -197,8 +199,8 @@ rload3 3 0 100
 
 .options diagnostic DISCLIMIT=1e-2 
 + diagfilename=DisconCheck2.dia
-.print tran v(1) v(3)
 
+.print tran v(1) v(3)
 .tran 0 1e-2
 
 .end
@@ -235,13 +237,17 @@ Xyce Diagnostic Output
 We see that at the start of a transient step \texttt{V(1)=0.990008} and the predicted 
 value for the end of that step would be 1.06201.  That would trigger \texttt{V(3)} to jump
 from 0 to 1 and thus the step fails.  When running the time integration with the default 
-step-error control, the actual discontinuity at node 3 is harder to see because it's effect
+step-error control, the actual discontinuity at node 3 is harder to see because its effect
 is limiting the change on node 1.  However, once one sees that the simulation is having 
-problems when node 1 is trying to cross the voltage threshold 1.0 it's not too hard to see
+problems when node 1 is trying to cross the voltage threshold 1.0, it's not too hard to see
 where the problem is. 
 
-Thus for best use of discontinuity one may need to try turning step error control on and
-off in a set of simulations.
+Thus, for best use of discontinuity output, one may need to try turning step error control on and
+off in a set of simulations.  
+
+Finally, it is recommened that one not set \texttt{DISCLIMIT} 
+too small, i.e. below the time integrators \texttt{ABSTOL}, as this will cause most of the 
+solution variables to be reported as discontinuous. 
 
 %\section{Simulation Issues}
 \label{SimulationIssues}
