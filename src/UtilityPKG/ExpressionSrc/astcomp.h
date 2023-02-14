@@ -84,8 +84,8 @@ class NAME : public astNode<ScalarT>                                            
     virtual void compactOutput(std::ostream & os)                                           \
     { os << FCTQUOTE " operator id = " << this->id_ << std::endl; }                         \
                                                                                             \
-    virtual bool getIsConstant() { return                                                   \
-     (this->leftAst_->getIsConstant() && this->leftAst_->getIsConstant()); }                \
+    virtual bool getIsTreeConstant() { return                                               \
+     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
     virtual bool compType() { return true; }                                                \
                                                                                             \
     virtual void codeGen (std::ostream & os )                                               \
@@ -119,8 +119,8 @@ class NAME : public astNode<ScalarT>                                            
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }             \
     }                                                                                       \
                                                                                             \
-    virtual bool getIsConstant() { return                                                   \
-     (this->leftAst_->getIsConstant() && this->leftAst_->getIsConstant()); }                \
+    virtual bool getIsTreeConstant() { return                                               \
+     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
                                                                                             \
     virtual void output(std::ostream & os, int indent=0)                                    \
     {                                                                                       \

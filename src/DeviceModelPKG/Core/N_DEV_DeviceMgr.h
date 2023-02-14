@@ -243,6 +243,10 @@ public:
   bool analyticBVecSensAvailable(const std::string & name);
   bool numericalBVecSensAvailable(const std::string & name);
 //
+  
+ 
+  void setupDependentEntities ();
+
   bool setParam(const std::string & name, double val, bool overrideOriginal = false);
 
   bool setParamRandomExpressionTerms(

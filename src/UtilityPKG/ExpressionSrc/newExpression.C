@@ -1523,8 +1523,31 @@ void newExpression::setValue(usedType val)
 }
 
 //-------------------------------------------------------------------------------
-// these two functions return int error codes in the original expression library
+// Function      : newExpression::updateForStep
+//
+// Purpose       : Updates parts of the expression that only need updating when
+//                 otherwise static parameters change due to things like a .STEP
+//                 iteration.
+// 
+// Special Notes : returns "true" if anything meaningful is updated, otherwise false.
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 2/10/2023
 //-------------------------------------------------------------------------------
+bool newExpression::updateForStep()
+{
+  bool updated=false;
+
+  if(isTimeDependent_)
+  {
+    int srcSize = srcAstNodeVec_.size();
+    for (int ii=0;ii< srcSize; ii++)
+    { (srcAstNodeVec_[ii])->updateForStep(); }
+  }
+
+  return updated;
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::evaluate

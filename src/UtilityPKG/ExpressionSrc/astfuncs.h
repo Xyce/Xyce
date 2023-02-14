@@ -77,7 +77,7 @@ class NAME ## Op : public astNode<ScalarT>                                      
       }                                                                                \
     }                                                                                  \
                                                                                        \
-    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant() ); }        \
+    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant() ); } \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \

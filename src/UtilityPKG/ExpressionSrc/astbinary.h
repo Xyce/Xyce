@@ -103,8 +103,8 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                    \
       os << ")";                                                                       \
     }                                                                                  \
-    virtual bool getIsConstant() { return                                              \
-     (this->leftAst_->getIsConstant() && this->leftAst_->getIsConstant()); }            \
+    virtual bool getIsTreeConstant() { return                                          \
+     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }   \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
 };

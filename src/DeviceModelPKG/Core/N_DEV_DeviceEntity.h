@@ -204,6 +204,11 @@ public:
       bool timeChanged, 
       bool freqChanged);
 
+  bool updateGlobalAndDependentParametersForStep (
+      bool globalParameterChanged,
+      bool timeChanged, 
+      bool freqChanged);
+
   bool updateGlobalAndDependentParameters (
       bool globalParameterChanged,
       bool timeChanged, 

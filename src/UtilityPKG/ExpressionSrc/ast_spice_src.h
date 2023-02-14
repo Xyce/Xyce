@@ -251,7 +251,7 @@ class spicePulseOp : public astNode<ScalarT>
       os << "// spice_pulse codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
@@ -501,7 +501,7 @@ class spiceSinOp : public astNode<ScalarT>
       os << "// spice_sin codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
@@ -690,7 +690,7 @@ class spiceExpOp : public astNode<ScalarT>
       os << "// spice_exp codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
@@ -840,7 +840,7 @@ class spiceSffmOp : public astNode<ScalarT>
       os << "// spice_sffm codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)

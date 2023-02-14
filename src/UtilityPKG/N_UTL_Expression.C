@@ -775,6 +775,28 @@ std::string Expression::get_expression () const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::update
+// Purpose       : Update expression for .STEP, etc.
+//
+// Special Notes : This is for efficiency, so that some aspects of updating
+//                 an expression don't have to happen during "evaluate" or
+//                 "evaluateFunction" calls, which have to happen every Newton step.
+//                 Some updates only happen at the beginning of .STEP
+//                 iterations.
+//
+//                 This returns a "true" if anything was meaningfully
+//                 updated, otherwise false.
+//
+// Scope         : private
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 02/10/2023
+//-----------------------------------------------------------------------------
+bool Expression::updateForStep ()
+{
+  return newExpPtr_->updateForStep();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::evaluate
 // Purpose       : Evaluate expression and derivatives using stored input values
 // Special Notes : 

@@ -417,6 +417,8 @@ class astNode : public staticsContainer
       ddtState_.val1 = ddtState_.val2;
     };
 
+    virtual bool updateForStep() { return false; }
+
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
 
@@ -451,18 +453,26 @@ class astNode : public staticsContainer
     virtual void unsetIsVar() {};
     virtual bool getIsVar() { return false; }
 
+    // these 3 only apply to paramOp
     virtual void setIsConstant() {};
     virtual void unsetIsConstant() {};
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsConstant() { return false; }  
 
+    // this applies to any node.  Use to determine if the AST (or part of it) is constant.
+    virtual bool getIsTreeConstant() { return false; }
+
+    // these 3 only apply to paramOp
     virtual void setIsAttached() {};
     virtual void unsetIsAttached() {};
     virtual bool getIsAttached() { return false; }
 
+#if 0
     virtual void setIsDotParam() {};
     virtual void unsetIsDotParam() {};
     virtual bool getIsDotParam() { return false; }
+#endif
 
+    // various "getType" functions.  There is a cleaner way to do this, but I haven't had the time
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
     virtual bool funcType()        { return false; };
@@ -615,7 +625,7 @@ class numval : public astNode<ScalarT>
       os << number;
     }
 
-    virtual bool getIsConstant() { return true; }
+    virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
 
@@ -654,7 +664,7 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
       os << "std::complex<double>" << number;
     }
 
-    virtual bool getIsConstant() { return true; }
+    virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
 
@@ -854,8 +864,8 @@ class powOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() 
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
    
   private:
     bool rightConst_;
@@ -958,8 +968,8 @@ class atan2Op : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() 
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
   private:
     bool rightConst_;
@@ -1026,7 +1036,7 @@ class phaseOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
+    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
 
   private:
     bool phaseOutputUsesRadians_;
@@ -1081,7 +1091,7 @@ class realOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
+    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1133,7 +1143,7 @@ class imagOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return this->leftAst_->getIsConstant() ; }
+    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1197,8 +1207,8 @@ class maxOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() 
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1258,8 +1268,8 @@ class minOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
-    virtual bool getIsConstant() 
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1303,7 +1313,7 @@ class unaryNotOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1347,7 +1357,7 @@ class unaryMinusOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
@@ -1388,7 +1398,7 @@ class unaryPlusOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return (this->leftAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
 
@@ -1499,7 +1509,7 @@ AST_GET_TIME_OPS(paramNode_)
       paramNode_->processSuccessfulTimeStep ();
     };
 
-    virtual bool getIsConstant() { return (paramNode_->getIsConstant()); }
+    virtual bool getIsTreeConstant() { return (paramNode_->getIsTreeConstant()); }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > paramNode_;
@@ -1662,10 +1672,22 @@ AST_GET_TIME_OPS(paramNode_)
     void unsetIsVar() { isVar_ = false; }
     bool getIsVar() { return isVar_; }
 
-    // this flag checks if this parameter is just a simple constant.
+    // this flag checks if this parameter is just a simple constant.  
+    // This is specific to the parameter operator and is different from "getIsTreeConstant"
+    // Thus, it is not a derived function.  The class much be casted to paramOp for this to work.
     void setIsConstant() { isConstant_ = true; }
     void unsetIsConstant() { isConstant_ = false; }
     bool getIsConstant() { return isConstant_; }
+
+    // getIsTreeConstant checks if the subordinate tree represents a constant expression.
+    // If this parameter is a "global", meaning a parameter that is allowed to change via .STEP/.DC/.SAMPLING,
+    // then it isn't constant and returns false.
+    // If not a global, it might be constant, or it might not, depending on next node in tree.
+    bool getIsTreeConstant()
+    { 
+      if ( paramType_ == DOT_GLOBAL_PARAM ) { return false; }
+      else { return paramNode_->getIsTreeConstant(); }
+    }
 
     // this flag indicates if an external AST has been attached
     // to this class
@@ -1676,7 +1698,9 @@ AST_GET_TIME_OPS(paramNode_)
     // the param type can be .param, .global_param or a subcircuit argument
     // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUBCKT_ARG_PARAM}
     void setParamType(enumParamType type) { paramType_ = type; }
-    void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }
+#if 0
+    void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }a
+#endif
     enumParamType getParamType() { return paramType_; }
 
     virtual void processSuccessfulTimeStep () 
@@ -1782,7 +1806,7 @@ class voltageOp: public astNode<ScalarT>
 
     virtual std::string getName () { return voltageNode_; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
 
   private:
     std::string voltageNode_;
@@ -1856,7 +1880,7 @@ class currentOp: public astNode<ScalarT>
     void setBsrcFlag  () { bsrcFlag_ = true; }
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
 
   private:
     ScalarT number_;
@@ -1931,7 +1955,7 @@ class sparamOp: public astNode<ScalarT>
 
     std::vector<int> & getSparamArgs () { return sparamArgs_; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool sparamType() { return true; };
 
   private:
@@ -2007,7 +2031,7 @@ class yparamOp: public astNode<ScalarT>
 
     std::vector<int> & getYparamArgs () { return yparamArgs_; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool yparamType() { return true; };
 
   private:
@@ -2083,7 +2107,7 @@ class zparamOp: public astNode<ScalarT>
 
     std::vector<int> & getZparamArgs () { return zparamArgs_; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool zparamType() { return true; };
 
   private:
@@ -2153,7 +2177,7 @@ class leadCurrentOp: public astNode<ScalarT>
     ScalarT & getLeadCurrentVar () { return number_; }
     void setLeadCurrentVar (ScalarT n) { number_ = n; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool leadCurrentType() { return true; };
 
     virtual std::string getName () { return leadCurrentDevice_; }
@@ -2222,7 +2246,7 @@ class powerOp: public astNode<ScalarT>
     ScalarT & getPowerVal () { return number_; }
     void setPowerVal (ScalarT n) { number_ = n; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool powerType() { return true; };
 
     virtual std::string getName () { return powerDevice_; }
@@ -2289,7 +2313,7 @@ class internalDevVarOp: public astNode<ScalarT>
     ScalarT & getInternalDeviceVar () { return number_; }
     void setInternalDeviceVar (ScalarT n) { number_ = n; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool internalDeviceVarType()  { return true; };
 
     virtual std::string getName () { return internalDevVarDevice_; }
@@ -2368,7 +2392,7 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool dnoNoiseVarType()  { return true; };
 
     //virtual std::string getName () { return noiseDevice_; }
@@ -2443,7 +2467,7 @@ class dniNoiseVarOp: public astNode<ScalarT>
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
 
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool dniNoiseVarType()  { return true; };
 
     //virtual std::string getName () { return noiseDevice_; }
@@ -2491,7 +2515,7 @@ class oNoiseOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool oNoiseType()  { return true; };
 
   private:
@@ -2535,7 +2559,7 @@ class iNoiseOp: public astNode<ScalarT>
     virtual void unsetDerivIndex() {derivIndex_=-1;};
     ScalarT & getNoiseVar () { return number_; }
     void setNoiseVar (ScalarT n) { number_ = n; }
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
     virtual bool iNoiseType()  { return true; };
 
   private:
@@ -3026,13 +3050,12 @@ AST_GET_TIME_OPS(functionNode_)
 
     virtual unsigned long int getNodeId () { return functionNode_->getNodeId(); }
 
-    virtual bool getIsConstant() 
+    virtual bool getIsTreeConstant()
     { 
-
       if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 
-      bool isConstant = functionNode_->getIsConstant();
+      bool isConstant = functionNode_->getIsTreeConstant();
 
       if(dummyFuncArgs_.size() == funcArgs_.size())
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
@@ -3249,8 +3272,8 @@ class pwrsOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant()
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
   private:
     bool rightConst_;
@@ -3309,7 +3332,7 @@ class sgnOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant() { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3393,8 +3416,8 @@ class signOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant()
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3532,8 +3555,8 @@ class fmodOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant()
-    { return (this->leftAst_->getIsConstant() && this->rightAst_->getIsConstant()); }
+    virtual bool getIsTreeConstant()
+    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
   private:
     bool rightConst_;
@@ -3582,8 +3605,8 @@ class roundOp : public astNode<ScalarT>
       os << ")";
     }
 
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3624,8 +3647,8 @@ class ceilOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3666,8 +3689,8 @@ class floorOp : public astNode<ScalarT>
       this->leftAst_->codeGen(os);
       os << ")";
     }
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3713,8 +3736,8 @@ class intOp : public astNode<ScalarT>
       os << "))";
     }
 
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 };
 
 //-------------------------------------------------------------------------------
@@ -3847,11 +3870,11 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
     }
 
-    virtual bool getIsConstant()
+    virtual bool getIsTreeConstant()
     { return 
-      (this->leftAst_->getIsConstant() &&
-       this->rightAst_->getIsConstant() &&
-       this->zAst_->getIsConstant() ) ;
+      (this->leftAst_->getIsTreeConstant() &&
+       this->rightAst_->getIsTreeConstant() &&
+       this->zAst_->getIsTreeConstant() ) ;
     }
 
   private:
@@ -4012,11 +4035,11 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS
 AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_) 
     }
 
-    virtual bool getIsConstant()
+    virtual bool getIsTreeConstant()
     { return 
-      (this->leftAst_->getIsConstant() &&
-       this->rightAst_->getIsConstant() &&
-       this->zAst_->getIsConstant() ) ;
+      (this->leftAst_->getIsTreeConstant() &&
+       this->rightAst_->getIsTreeConstant() &&
+       this->zAst_->getIsTreeConstant() ) ;
     }
 
     virtual bool limitType() { return true; }
@@ -4090,8 +4113,8 @@ class stpOp : public astNode<ScalarT>
       os << "STP";
     }
 
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 
     virtual bool stpType() { return true; }
 
@@ -4155,8 +4178,8 @@ class urampOp : public astNode<ScalarT>
       os << ")):0.0)";
     }
 
-    virtual bool getIsConstant()
-    { return this->leftAst_->getIsConstant(); }
+    virtual bool getIsTreeConstant()
+    { return this->leftAst_->getIsTreeConstant(); }
 };
 
 inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
@@ -4747,6 +4770,86 @@ class tableOp : public astNode<ScalarT>
       };
 
     //-------------------------------------------------------------------------------
+    // The interpolation functions use std::vector<double> objects.  However, the
+    // table was first set up as an array of AST nodes, which could be pure numbers,
+    // or could be expressions.  This function re-populates the std::vector<double>
+    // objects by evaluating the AST node expressions.  The expectation is that these
+    // expressions will NOT depend on solution variables (voltages or currents) and
+    // also will not depend on time.  So, for table entries that aren't numbers,
+    // they should just depend on .params and/or .global_params.
+    //
+    // This function should only be called when parameter values can change,
+    // such as .STEP iterations.  For large tables with many expressions, it can
+    // be expensive to set up.
+    //
+    // This function also attempts to be efficient and only update entries which 
+    // are non-constant.  So, numerical entries should not be re-evaluated, and 
+    // constant expressions should not be re-evaluated.  This aspect of the function
+    // may be more trouble than it is worth.
+    //-------------------------------------------------------------------------------
+    virtual bool updateForStep ()
+    {
+      bool updated=false;
+
+      // if the table was specified as pure numbers, then the allConst_ flag was "true"
+      // in the constructor.  If the table contains expressions, then it might turn out to
+      // be allConst_, or it might not.  But we can't know for sure at construction if 
+      // some expression-based entries are const or not.  If they depend on .params, then
+      // that isn't known until later.
+      //
+      if (!allConst_)  // if not all constants, then might need to reinitialize the arrays 
+      {
+        if(!(tableArgs_.empty()))
+        {
+          bool tmpAllConst=true;
+          int size = tableArgs_.size();
+
+          // If the table depends on a .param, then the construction of the table happened 
+          // before it was determined if the .param was constant or not.  So, the 
+          // "getIsTreeConstant" status of the tableArg that depends on that parameter 
+          // may have changed between construction and the first call to val().  If it 
+          // has changed, it must be re-evaluated at least once, since the function 
+          // that sets a parameter to be constant (make_constant) also sets the value.
+          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
+          {
+            if ( evaluatedAndConstant_[ii] == 0 )
+            {
+              bool tIsConstant = (tableArgs_)[ii]->getIsTreeConstant();
+              if ( !tIsConstant ) { tmpAllConst = false; }
+
+              evaluatedAndConstant_[ii] = tIsConstant?1:0;
+              updated = true;
+              ta_[jj] = (tableArgs_)[ii]->val();
+            }
+
+            if ( evaluatedAndConstant_[ii+1] == 0)
+            {
+              bool yIsConstant = (tableArgs_)[ii+1]->getIsTreeConstant();
+              if ( !yIsConstant ) { tmpAllConst = false; }
+              
+              evaluatedAndConstant_[ii+1] = yIsConstant?1:0;
+              updated = true;
+              ya_[jj] = (tableArgs_)[ii+1]->val();
+            }
+          }
+          allConst_ = tmpAllConst;
+
+          if ( keyword_!=std::string("TABLE") && keyword_!=std::string("FASTTABLE") && updated )
+          {
+            yInterpolator_->init(ta_,ya_); 
+          }
+       
+          if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) && updated )
+          {
+            createOldStyleDerivativeTable ();
+          } 
+        } // tableArgs_.empty()
+      } // !allConst_
+
+      return updated;
+    }
+
+    //-------------------------------------------------------------------------------
     void createOldStyleDerivativeTable ()
     {
       // create derivative table
@@ -4855,80 +4958,6 @@ class tableOp : public astNode<ScalarT>
     {
       ScalarT y = 0.0;
 
-#if 0
-      if (!allConst_)  // if not all pure numbers, then initialize the arrays again
-      {
-        if(!(tableArgs_.empty()))
-        {
-          int size = tableArgs_.size();
-          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
-          {
-            ta_[jj] = (tableArgs_)[ii]->val();
-            ya_[jj] = (tableArgs_)[ii+1]->val();
-          }
-          yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
-        }
-      }
-#else
-      // if the table was specified as pure numbers, then the allConst_ flag was "true"
-      // in the constructor.  If the table contains expressions, then it might turn out to
-      // be allConst_, or it might not.  But we can't know for sure at construction if 
-      // some expression-based entries are const or not.  If they depend on .params, then
-      // that isn't known until later.
-      //
-      if (!allConst_)  // if not all constants, then might need to reinitialize the arrays 
-      {
-        if(!(tableArgs_.empty()))
-        {
-          bool tmpAllConst=true;
-          int size = tableArgs_.size();
-          bool updated=false;
-
-          // If the table depends on a .param, then the construction of the table happened 
-          // before it was determined if the .param was constant or not.  So, the 
-          // "getIsConstant" status of the tableArg that deepends on that parameter 
-          // may have changed between construction and the first call to val().  If it 
-          // has changed, it must be re-evaluated at least once, since the function 
-          // that sets a parameter to be constant (make_constant) also sets the value.
-          for (int ii=0,jj=0;ii<size;ii+=2,jj++)
-          {
-            if ( evaluatedAndConstant_[ii] == 0 )
-            {
-              bool tIsConstant = (tableArgs_)[ii]->getIsConstant();
-              if ( !tIsConstant ) { tmpAllConst = false; }
-
-              evaluatedAndConstant_[ii] = tIsConstant?1:0;
-              updated = true;
-              ta_[jj] = (tableArgs_)[ii]->val();
-            }
-
-            if ( evaluatedAndConstant_[ii+1] == 0)
-            {
-              bool yIsConstant = (tableArgs_)[ii+1]->getIsConstant();
-              if ( !yIsConstant ) { tmpAllConst = false; }
-              
-              evaluatedAndConstant_[ii+1] = yIsConstant?1:0;
-              updated = true;
-              ya_[jj] = (tableArgs_)[ii+1]->val();
-            }
-          }
-          allConst_ = tmpAllConst;
-
-
-          if ( keyword_!=std::string("TABLE") && keyword_!=std::string("FASTTABLE") && updated )
-          {
-            yInterpolator_->init(ta_,ya_); 
-          }
-       
-          if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) && updated )
-          {
-            createOldStyleDerivativeTable ();
-          } 
-        } // tableArgs_.empty()
-      } // !allConst_
-#endif
-
-   
       if ( !(ta_.empty()) )
       {
         ScalarT input = std::real(this->input_->val());
@@ -5313,7 +5342,7 @@ AST_GET_TIME_OPS(tableArgs_[ii])
       }
     }
 
-    virtual bool getIsConstant() { return allConst_; }
+    virtual bool getIsTreeConstant() { return allConst_; } 
 
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
@@ -5578,7 +5607,7 @@ AST_GET_TIME_OPS(tableArgs_[ii])
       }
     }
 
-    virtual bool getIsConstant() { return allNumVal_; } 
+    virtual bool getIsTreeConstant() { return allNumVal_; } 
 
   private:
     Teuchos::RCP<astNode<ScalarT> > time_;
@@ -5738,7 +5767,7 @@ class sdtOp : public astNode<ScalarT>
 
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
 
-    virtual bool getIsConstant() { return false; }  // time dependent can't be constant
+    virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -5913,7 +5942,7 @@ class ddtOp : public astNode<ScalarT>
 
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
 
-    virtual bool getIsConstant() { return false; }  // time dependent can't be constant
+    virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -6105,7 +6134,7 @@ class ddxOp : public astNode<ScalarT>
       os << "DDX";
     }
  
-    virtual bool getIsConstant() { return false; }
+    virtual bool getIsTreeConstant() { return false; }
 
   private:
     bool foundX_;
@@ -6168,7 +6197,7 @@ class specialsOp : public astNode<ScalarT>
     virtual bool freqSpecialType() { return (type_ == std::string("FREQ")); }
     virtual bool gminSpecialType() { return (type_ == std::string("GMIN")); }
 
-    virtual bool getIsConstant() { return false; } // sometimes constant, sometimes not, so be conservative
+    virtual bool getIsTreeConstant() { return false; } // sometimes constant, sometimes not, so be conservative
 
   private:
     std::string type_;
@@ -6199,7 +6228,7 @@ class piConstOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(M_PI); }
 
-    virtual bool getIsConstant() { return true; }
+    virtual bool getIsTreeConstant() { return true; }
 
   private:
 };
@@ -6227,7 +6256,7 @@ class CtoKConstOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
 
-    virtual bool getIsConstant() { return true; }
+    virtual bool getIsTreeConstant() { return true; }
 
   private:
 };

@@ -602,6 +602,7 @@ public:
   void setAsGlobal();
   void setValue(usedType val);
 
+  bool updateForStep ();
   bool evaluate (usedType &result, std::vector< usedType > &derivs);
   bool evaluateFunction (usedType &result, bool efficiencyOn=false);
 
@@ -982,7 +983,7 @@ private:
   unsigned int stepNumber_;
 
   // vector of independent sources, but only those with breakpoints.  This
-  // vector is ONLY used for obtaining breakpoints.
+  // vector is used for obtaining breakpoints, and also calling updateForStep.
   std::vector< Teuchos::RCP<astNode<usedType> > > srcAstNodeVec_;
 
   // vector of STP objects.  Needed for breakpoints.  

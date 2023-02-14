@@ -139,6 +139,8 @@ public:
 
   std::string get_expression (void) const;
 
+  bool updateForStep ();
+
   bool evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
   bool evaluateFunction (std::complex<double> &result, bool efficiencyOn=false);
 

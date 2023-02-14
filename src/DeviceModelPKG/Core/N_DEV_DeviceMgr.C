@@ -2079,6 +2079,45 @@ void DeviceMgr::getNumericalMatrixSensitivities
 //
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setupDependentEntities
+// Purpose       : This function sets up ...
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/13/2023
+//-----------------------------------------------------------------------------
+void DeviceMgr::setupDependentEntities ()
+{
+  dependentPtrVec_.clear();
+
+  // do the models:
+  ModelVector::iterator iterM;
+  ModelVector::iterator beginM =modelVector_.begin();
+  ModelVector::iterator endM =modelVector_.end();
+  for (iterM=beginM; iterM!=endM;++iterM)
+  {
+    if (!(*iterM)->getDependentParams().empty())
+    {
+      dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
+    }
+  }
+
+  // do the instances
+  InstanceVector::iterator iter;
+  InstanceVector::iterator begin =instancePtrVec_.begin();
+  InstanceVector::iterator end =instancePtrVec_.end();
+  for (iter=begin; iter!=end;++iter)
+  {
+    if (!(*iter)->getDependentParams().empty())
+    {
+      dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
+    }
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setParam
 //
 // Purpose       : This function sets named parameters (name) to a
@@ -2102,6 +2141,12 @@ bool DeviceMgr::setParam(
   double                val,
   bool                  overrideOriginal)
 {
+  if (firstDependent_)
+  {
+    firstDependent_ = false;
+    setupDependentEntities();
+  }
+
   // The call to updateTimeInfo is necessary for expresssion breaktpoints.
   // It cannot be called from the DeviceMgr::notify
   // function, as the notify functions happen in the wrong order.
@@ -3370,37 +3415,16 @@ void DeviceMgr::updateDependentParameters_()
   if (firstDependent_)
   {
     firstDependent_ = false;
+    setupDependentEntities();
 
-    dependentPtrVec_.clear();
-
-    ModelVector::iterator iterM;
-    ModelVector::iterator beginM =modelVector_.begin();
-    ModelVector::iterator endM =modelVector_.end();
-    for (iterM=beginM; iterM!=endM;++iterM)
-    {
-      if (!(*iterM)->getDependentParams().empty())
-      {
-        dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
-        bool globalParamChangedLocal=true, timeChangedLocal=true, freqChangedLocal=true; // local to this if-stement
-        bool tmpBool = (*iterM)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal);
-        (*iterM)->processParams();
-        (*iterM)->processInstanceParams();
-      }
-    }
-
-    // do the instances
-    InstanceVector::iterator iter;
-    InstanceVector::iterator begin =instancePtrVec_.begin();
-    InstanceVector::iterator end =instancePtrVec_.end();
+    EntityVector::iterator iter;
+    EntityVector::iterator begin = dependentPtrVec_.begin();
+    EntityVector::iterator end = dependentPtrVec_.end();
     for (iter=begin; iter!=end;++iter)
     {
-      if (!(*iter)->getDependentParams().empty())
-      {
-        dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
-        bool globalParamChangedLocal=true, timeChangedLocal=true, freqChangedLocal=true; // local to this if-stement
-        bool tmpBool = (*iter)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal);
-        (*iter)->processParams();
-      }
+      bool changed = (*iter)->updateGlobalAndDependentParametersForStep(globalParamChanged, timeChanged, freqChanged);
+      (*iter)->processParams(); // for first call, don't care if "changed" is true or not
+      (*iter)->processInstanceParams();
     }
   }
   else
@@ -3410,8 +3434,7 @@ void DeviceMgr::updateDependentParameters_()
     EntityVector::iterator end = dependentPtrVec_.end();
     for (iter=begin; iter!=end;++iter)
     {
-      bool changed = false;
-      changed = (*iter)->updateGlobalAndDependentParameters(globalParamChanged, timeChanged, freqChanged);
+      bool changed = (*iter)->updateGlobalAndDependentParameters(globalParamChanged, timeChanged, freqChanged);
 
       if (changed)
       {
@@ -5372,7 +5395,7 @@ bool setParameter(
             bool globalParamChangedLocal=true;
             bool timeChangedLocal=false;
             bool freqChangedLocal=false;
-            if ((*it)->updateGlobalAndDependentParameters(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
+            if ((*it)->updateGlobalAndDependentParametersForStep(globalParamChangedLocal,timeChangedLocal,freqChangedLocal))
             {
               (*it)->processParams();
               (*it)->processInstanceParams();
