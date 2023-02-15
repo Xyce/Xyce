@@ -43,7 +43,7 @@
 // mean μ and standard deviation (α)/n
 // This uses absolute variation
 // The "n" argument, AKA num_sigmas is optional
-// The 4th argument, "multiplier" is not supported 
+// The 4th argument, "multiplier" is not supported
 template <typename ScalarT>
 class agaussOp : public astNode<ScalarT>
 {
@@ -61,14 +61,14 @@ class agaussOp : public astNode<ScalarT>
       }
 
       if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
-      if (args.size() > 3) 
-      { 
-        multAst_ = args[3]; 
+      if (args.size() > 3)
+      {
+        multAst_ = args[3];
         std::vector<std::string> errStr(1,std::string("AST node (agauss) accepts at most 3 arguments.")); yyerror(errStr);
-      } 
-      else 
-      { 
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+      else
+      {
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
       }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
@@ -83,11 +83,15 @@ class agaussOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -178,7 +182,7 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 // mean μ and standard deviation (α ∗ μ )/n
 // This uses relative variation
 // The "n" argument, AKA num_sigmas is optional
-// The 4th argument, "multiplier" is not supported 
+// The 4th argument, "multiplier" is not supported
 template <typename ScalarT>
 class gaussOp : public astNode<ScalarT>
 {
@@ -196,14 +200,14 @@ class gaussOp : public astNode<ScalarT>
       }
 
       if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
-      if (args.size() > 3) 
-      { 
-        multAst_ = args[3]; 
+      if (args.size() > 3)
+      {
+        multAst_ = args[3];
         std::vector<std::string> errStr(1,std::string("AST node (gauss) accepts at most 3 arguments.")); yyerror(errStr);
-      } 
-      else 
-      { 
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+      else
+      {
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
       }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
@@ -218,11 +222,15 @@ class gaussOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -312,7 +320,7 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_)
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α)/n
 // This uses absolute variation
-// The 3rd argument, "multiplier" is not supported 
+// The 3rd argument, "multiplier" is not supported
 template <typename ScalarT>
 class aunifOp : public astNode<ScalarT>
 {
@@ -329,14 +337,14 @@ class aunifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (aunif) needs at least 2 argument.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) 
-      { 
-        multAst_ = args[2]; 
+      if (args.size() > 2)
+      {
+        multAst_ = args[2];
         std::vector<std::string> errStr(1,std::string("AST node (aunif) accepts at most 2 arguments.")); yyerror(errStr);
-      } 
-      else 
-      { 
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+      else
+      {
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
       }
 
       // should check to make sure that mu, alpha are simple constant numbers
@@ -351,11 +359,15 @@ class aunifOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -389,42 +401,42 @@ class aunifOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
     }
 
     virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
     {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) 
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) 
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) 
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) 
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
     }
 
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     }
 
   private:
@@ -457,14 +469,14 @@ class unifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (unif) needs at least 2 argument.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) 
-      { 
-        multAst_ = args[2]; 
+      if (args.size() > 2)
+      {
+        multAst_ = args[2];
         std::vector<std::string> errStr(1,std::string("AST node (unif) accepts at most 2 arguments.")); yyerror(errStr);
-      } 
-      else 
-      { 
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); 
+      }
+      else
+      {
+        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
       }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
@@ -479,11 +491,15 @@ class unifOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -516,42 +532,42 @@ class unifOp : public astNode<ScalarT>
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) 
+AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
     }
 
     virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
     {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) 
+AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_)
     }
 
     virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
     {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) 
+AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
     }
 
     virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
     {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) 
+AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
     }
 
     virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) 
+AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
     }
 
     virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
     {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) 
+AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
     }
 
     virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
     {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) 
+AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
     }
 
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     }
 
   private:
@@ -575,8 +591,8 @@ class randOp : public astNode<ScalarT>
       setValueCalledBefore_(false)
     {
       value_ = 0.5;
-    };    
-    
+    };
+
     virtual ScalarT val() { return value_; };
 
     virtual ScalarT dx (int i)
@@ -585,11 +601,15 @@ class randOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -621,20 +641,20 @@ class randOp : public astNode<ScalarT>
 //
 // This is specified in an expression as: LIMIT(nominal_val, abs_variation)
 //
-// If running sampling, it will return either 
-// (nominal_val + abs_variation) or (nominal_val - abs_variation).  
+// If running sampling, it will return either
+// (nominal_val + abs_variation) or (nominal_val - abs_variation).
 //
-// Which of those two values are returned depends on a random number 
-// between -1 and +1.  If that random number is > 0 then it returns 
-// (nominal_val + abs_variation).  
+// Which of those two values are returned depends on a random number
+// between -1 and +1.  If that random number is > 0 then it returns
+// (nominal_val + abs_variation).
 // Otherwise it returns (nominal_val - abs_variation).
 //
 // If not running sampling, it returns the nominal value.
 //
-// In Hspice, limit has an optional 3rd argument, which specifies a 
-// multiplier.  This multiplier serves the same function as it does in 
+// In Hspice, limit has an optional 3rd argument, which specifies a
+// multiplier.  This multiplier serves the same function as it does in
 // every other random operator.  Currently, Xyce doesn't support it.
-// Also, in Xyce a 3-argument limit will invoke the Pspice version of 
+// Also, in Xyce a 3-argument limit will invoke the Pspice version of
 // limit. (see limitOp in the ast.h file).
 template <typename ScalarT>
 class twoArgLimitOp : public astNode<ScalarT>
@@ -648,7 +668,7 @@ class twoArgLimitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & nominal = (this->leftAst_);
       Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->rightAst_);
       value_ = (nominal->val());
-    };    
+    };
 
     virtual ScalarT val() { return value_; };
 
@@ -660,11 +680,15 @@ class twoArgLimitOp : public astNode<ScalarT>
     };
 
     // ERK check this
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  
-    { 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    {
       result = value_;
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, the random operators are all applied to real-valued .params.
+    // update this if it changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -731,7 +755,7 @@ AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
 
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) 
+AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     }
 
   private:

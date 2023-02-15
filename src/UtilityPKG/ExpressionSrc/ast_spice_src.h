@@ -172,6 +172,9 @@ class spicePulseOp : public astNode<ScalarT>
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
 
+    // in practice, only used for transient. update if this changes.
+    virtual bool getIsComplex () { return false; }
+
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       ScalarT time = std::real(this->time_->val());
@@ -341,7 +344,7 @@ class spiceSinOp : public astNode<ScalarT>
       if (args.size() > 6)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sin) has too many arguments")); yyerror(errStr);
-      } 
+      }
     
       if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
@@ -464,6 +467,9 @@ class spiceSinOp : public astNode<ScalarT>
       }
     }
 
+    // in practice, only used for transient. update if this changes.
+    virtual bool getIsComplex () { return false; }
+
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       if (tdGiven_)
@@ -581,14 +587,14 @@ class spiceExpOp : public astNode<ScalarT>
       if (args.size() > 6)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_exp) has too many arguments")); yyerror(errStr);
-      } 
+      }
     
       if (args.size() >= 1) { v1_    = args[0]; v1Given_=true;    } else { v1_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 2) { v2_    = args[1]; v2Given_=true;    } else { v2_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 3) { td1_   = args[2]; td1Given_=true;   } else { td1_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 4) { tau1_  = args[3]; tau1Given_=true;  } else { tau1_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 5) { td2_   = args[4]; td2Given_=true;   } else { td2_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 6) { tau2_  = args[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); } 
+      if (args.size() >= 6) { tau2_  = args[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
@@ -645,6 +651,9 @@ class spiceExpOp : public astNode<ScalarT>
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, only used for transient. update if this changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
@@ -770,7 +779,7 @@ class spiceSffmOp : public astNode<ScalarT>
       if (args.size() > 5)
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) has too many arguments")); yyerror(errStr);
-      } 
+      }
     
       if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
       if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
@@ -807,13 +816,16 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual ScalarT dx (int i)
     {
       return 0.0;
-    } 
+    }
  
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
     }
+
+    // in practice, only used for transient. update if this changes.
+    virtual bool getIsComplex () { return false; }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 

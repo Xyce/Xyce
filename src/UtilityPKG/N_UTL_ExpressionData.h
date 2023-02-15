@@ -131,6 +131,8 @@ public:
       std::vector< std::complex<double> > &derivs 
       ) const;
 
+   bool getIsComplex () const;
+
 private:
   Expression *                  expression_;                    ///< Compiled Expression
   std::string                   expressionString_;              ///< Original expression string

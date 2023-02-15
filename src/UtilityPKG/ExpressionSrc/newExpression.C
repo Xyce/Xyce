@@ -1936,6 +1936,25 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
 };
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::getIsComplex
+// Purpose       : returns true if the expression will produce a complex-valued result.
+// Special Notes : mostly used for outputs in the IO package.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 2/14/2023
+//-------------------------------------------------------------------------------
+bool newExpression::getIsComplex ()
+{
+  bool isComplex=true; // check this
+
+  if( !(Teuchos::is_null(astNodePtr_)) )
+  {
+    isComplex = astNodePtr_->getIsComplex();
+  }
+  return isComplex;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::treatAsTempAndConvert()
 // Purpose       : This function is used when both of the following are true:
 //

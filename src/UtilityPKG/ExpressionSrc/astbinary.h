@@ -79,9 +79,12 @@ class NAME : public astNode<ScalarT>                                            
       result=VAL;                                                                      \
       for (int i=0;i<numDerivs;i++) {                                                  \
         if (!leftConst_)  { leftDx = lefDerivs_[i]; }                                  \
-        if (!rightConst_) { rightDx = rigDerivs_[i]; }                                \
+        if (!rightConst_) { rightDx = rigDerivs_[i]; }                                 \
         derivs[i] = DX; }                                                              \
     }                                                                                  \
+                                                                                       \
+    virtual bool getIsComplex ()                                                       \
+    { return (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex()); }    \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \

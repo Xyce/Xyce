@@ -73,6 +73,7 @@ class NAME : public astNode<ScalarT>                                            
       return true;                                                                          \
     }                                                                                       \
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }                             \
+    virtual bool getIsComplex () { return false; }                                          \
     virtual void output(std::ostream & os, int indent=0)                                    \
     {                                                                                       \
       os << std::setw(indent) << " ";                                                       \
@@ -101,6 +102,72 @@ class NAME : public astNode<ScalarT>                                            
     std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
 };       
 
+
+#define AST_CMP_OP_MACRO(NAME,FCTQUOTE,VAL,DX)                                              \
+template <typename ScalarT>                                                                 \
+class NAME : public astNode<ScalarT>                                                        \
+{                                                                                           \
+  public:                                                                                   \
+    NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
+        astNode<ScalarT>(left,right), bpTol_(0.0) {};                                       \
+                                                                                            \
+    virtual ScalarT val()                                                                   \
+    {                                                                                       \
+      bpTimes_.clear();                                                                     \
+      computeBreakPoint ( this->leftAst_, this->rightAst_, timeOpVec_, bpTol_, bpTimes_);   \
+      return VAL;                                                                           \
+    }                                                                                       \
+                                                                                            \
+    virtual ScalarT dx(int i) { return DX; }                                                \
+                                                                                            \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  \
+    { \
+      result = val(); \
+      std::fill(derivs.begin(),derivs.end(),0.0); \
+    } \
+                                                                                            \
+    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)      \
+    {                                                                                       \
+      if(!(bpTimes_.empty()))                                                               \
+      {                                                                                     \
+        for (int ii=0;ii<bpTimes_.size();ii++)                                              \
+        {                                                                                   \
+          breakPointTimes.push_back(bpTimes_[ii]);                                          \
+        }                                                                                   \
+      }                                                                                     \
+      return true;                                                                          \
+    }                                                                                       \
+    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }                             \
+    virtual bool getIsComplex () { return false; }                                          \
+    virtual void output(std::ostream & os, int indent=0)                                    \
+    {                                                                                       \
+      os << std::setw(indent) << " ";                                                       \
+      os << FCTQUOTE " operator id = " << this->id_ << std::endl;                           \
+      ++indent;                                                                             \
+      this->leftAst_->output(os,indent+1);                                                  \
+      this->rightAst_->output(os,indent+1);                                                 \
+    }                                                                                       \
+    virtual void compactOutput(std::ostream & os)                                           \
+    { os << FCTQUOTE " operator id = " << this->id_ << std::endl; }                         \
+                                                                                            \
+    virtual bool getIsTreeConstant() { return                                               \
+     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
+    virtual bool compType() { return true; }                                                \
+                                                                                            \
+    virtual void codeGen (std::ostream & os )                                               \
+    {                                                                                       \
+      os << "(";                                                                            \
+      this->leftAst_->codeGen(os);                                                          \
+      os << FCTQUOTE;                                                                       \
+      this->rightAst_->codeGen(os);                                                         \
+      os << ")";                                                                            \
+    }                                                                                       \
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;                               \
+    double bpTol_;                                                                          \
+    std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
+};
+
+
 #define AST_CMP_OP_MACRO2(NAME,FCTQUOTE,VAL,DX)                                             \
 template <typename ScalarT>                                                                 \
 class NAME : public astNode<ScalarT>                                                        \
@@ -121,6 +188,8 @@ class NAME : public astNode<ScalarT>                                            
                                                                                             \
     virtual bool getIsTreeConstant() { return                                               \
      (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
+                                                                                            \
+    virtual bool getIsComplex () { return false; }                                          \
                                                                                             \
     virtual void output(std::ostream & os, int indent=0)                                    \
     {                                                                                       \

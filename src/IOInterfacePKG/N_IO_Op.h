@@ -1667,6 +1667,8 @@ public:
 
   static complex get(const ExpressionOp &op, const Util::Op::OpData &op_data);
 
+  bool getIsComplex () const;
+
   mutable Util::ExpressionData          expressionData_;
   Parallel::Machine                     comm_;
   const OutputMgr &                     outputMgr_;

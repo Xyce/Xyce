@@ -11923,6 +11923,26 @@ TEST ( Double_Parser_Random, limit0)
   OUTPUT_MACRO(Double_Parser_Random, limit0)
 }
 
+// testing the "getIsComplex" function
+TEST ( Double_Parser_Test_cmplxBoolean, isComplex1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("1.0"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {

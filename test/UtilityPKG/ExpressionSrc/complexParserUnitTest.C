@@ -12905,6 +12905,135 @@ TEST ( Complex_Parser_Zparam_Test, zparam2)
   //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam2)
 }
 
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("1.0+2.0J"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Re(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Img(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex4)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex5)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("2.0"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+
+// testing the "getIsComplex" function
+// this expression is complex because while Ph(1.0+2.0J) is real, par1 is complex.
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex6)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)*par1"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup the parameter
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0-3.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+}
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

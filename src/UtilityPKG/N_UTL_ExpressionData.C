@@ -285,6 +285,18 @@ void ExpressionData::evaluate(
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool ExpressionData::getIsComplex () const
+{
+  bool isComplex=true;
+  if (expression_)
+  {
+    isComplex = expression_->getIsComplex();
+  }
+  return isComplex;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ExpressionData::setup
 //
 // Purpose       : Manages all the basic setup for this class.

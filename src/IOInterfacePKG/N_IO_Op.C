@@ -1861,6 +1861,19 @@ complex ExpressionOp::get(const ExpressionOp &op, const Util::Op::OpData &op_dat
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ExpressionOp::
+// Purpose       : evaluate an expression
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/14/2023
+//-----------------------------------------------------------------------------
+bool ExpressionOp::getIsComplex() const
+{
+  return expressionData_.getIsComplex();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ExpressionRealOp::ExpressionRealOp
 // Purpose       : Constructor for expression Op
 // Special Notes : Takes string as second argument.  expressionData_

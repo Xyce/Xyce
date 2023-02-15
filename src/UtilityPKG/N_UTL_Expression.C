@@ -718,6 +718,19 @@ bool Expression::getIsConstant ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getIsComplex
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2/14/2023
+//-----------------------------------------------------------------------------
+bool Expression::getIsComplex ()
+{
+  return newExpPtr_->getIsComplex ();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::setTemperature
 // Purpose       :
 // Special Notes : This is ONLY called when you want to override the

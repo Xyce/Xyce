@@ -365,6 +365,24 @@ createOps(
       *inserter++ = new RFparamsRealOp("Re(" + RFparamsName + ")", type, index1, index2);
       *inserter++ = new RFparamsImaginaryOp("Im(" + RFparamsName + ")", type, index1, index2);
     }
+    else if (expandComplexTypes && (*it)->id() == Util::Op::identifier<ExpressionOp>())
+    {
+      const ExpressionOp *op = dynamic_cast<const ExpressionOp *>(*it);
+
+      if (op)
+      {
+        if ( op->getIsComplex() )
+        {
+          *inserter++ = new ExpressionRealOp( *op );
+          *inserter++ = new ExpressionImaginaryOp( *op );
+          delete *it;
+        }
+        else
+        {
+          *inserter++ = *it;
+        }
+      }
+    }
     else
       *inserter++ = *it;
   }

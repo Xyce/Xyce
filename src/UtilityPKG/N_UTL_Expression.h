@@ -135,6 +135,8 @@ public:
 
   bool getIsConstant ();
 
+  bool getIsComplex ();
+
   bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;

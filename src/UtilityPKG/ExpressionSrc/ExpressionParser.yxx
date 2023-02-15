@@ -1269,7 +1269,8 @@ exp:
       Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
       Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
       Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
-      $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      Teuchos::RCP<astNode<usedType> > multPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      $$ = Teuchos::RCP<astNode<usedType> >(new realOp <usedType>  (multPtr)); // using realOp forces the getIsComplex to return false
     }
   | TOK_SQRT exp TOK_RIGHTPAREN
     {
@@ -1334,7 +1335,8 @@ exp:
       {
         usedType tmp = std::abs($2->val());
         Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
-        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(numvalPtr)); // using realOp forces the getIsComplex to return false
       }
       else
       {

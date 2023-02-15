@@ -864,6 +864,8 @@ public:
     return isConstant_; 
   }
 
+  bool getIsComplex ();
+
   void treatAsTempAndConvert();
 
   bool setTemperature (const double & temp);
