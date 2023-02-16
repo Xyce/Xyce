@@ -1299,9 +1299,10 @@ template<>
 void
 Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, Parallel::Communicator * comm )
 {
-
   int length = 0;
   int vector_size = 0;
+  double real = 0.0;
+  double imag = 0.0;
 
   //unpack tag
   comm->unpack( pB, bsize, pos, &length, 1 );
@@ -1336,9 +1337,6 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
 
     case Util::CMPLX: 
     {
-      double real = 0.0;
-      double imag = 0.0;
-      
       comm->unpack( pB, bsize, pos, &real, 1 );
       comm->unpack( pB, bsize, pos, &imag, 1 );
       param.setVal( std::complex<double> (real,imag) );
@@ -1398,7 +1396,6 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
         pos += length;
       }
     }
-
     break;
 
     case Util::DBLE_VEC:
@@ -1409,6 +1406,7 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
       x.resize(vector_size, 0.0);
       comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
     }
+    break;
 
     case Util::CMPLX_VEC:
     {
@@ -1425,7 +1423,6 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
         x[ii] = std::complex<double> (real_vector[ii],imag_vector[ii]);
       }
     }
-
     break;
 
     default:
@@ -1510,6 +1507,8 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
 {
   int length;
   std::string tmp;
+  double real;
+  double imag;
 
   //pack tag
   length = param.tag_.length();
@@ -1539,8 +1538,8 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
 
     case Util::CMPLX:
       {
-      double real = std::real(param.getValue< std::complex<double> >());
-      double imag = std::imag(param.getValue< std::complex<double> >());
+      real = std::real(param.getValue< std::complex<double> >());
+      imag = std::imag(param.getValue< std::complex<double> >());
       comm->pack( &real, 1, buf, bsize, pos );
       comm->pack( &imag, 1, buf, bsize, pos );
       }
