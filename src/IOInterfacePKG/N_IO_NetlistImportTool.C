@@ -692,7 +692,9 @@ void printLineDiagnostics(
             parameter.getValue<Util::Expression>().getUnresolvedParams(strings);
             parameter.getValue<Util::Expression>().getSpecials(special);
           }
-          else if ( ((parameter.getType()) == Util::DBLE) || ((parameter.getType()) == Util::INT) )
+          else if ( ((parameter.getType()) == Util::DBLE) || 
+                    ((parameter.getType()) == Util::INT) || 
+                    ((parameter.getType()) == Util::CMPLX) )
           {
           }
           instances.insert(instances.end(), leads.begin(), leads.end());  // and lead currents to instances

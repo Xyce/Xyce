@@ -145,6 +145,7 @@ double IBISValue(const std::string &tmpStr)
 }
 
 
+//-----------------------------------------------------------------------------
 bool isValue(const std::string & tmpStr)
 {
   int stringPos = 0;

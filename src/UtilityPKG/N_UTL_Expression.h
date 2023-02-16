@@ -97,6 +97,8 @@ public:
 
   bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
+  bool make_constant (std::string const & var, std::complex<double> const & val, enumParamType type=DOT_GLOBAL_PARAM);
+
   void setAsGlobal();
   void setValue(double val);
   void setValue(std::complex<double> val);

@@ -151,6 +151,10 @@ std::string Param::stringValue() const
   {
     oss << getValue<double>();
   }
+  else if (data_->enumType() == CMPLX)
+  {
+    oss << getValue< std::complex<double> >();
+  }
   else if (data_->enumType() == BOOL)
   {
     oss << (getValue<bool>() ? "TRUE" : "FALSE");
@@ -162,6 +166,10 @@ std::string Param::stringValue() const
   else if (data_->enumType() == DBLE_VEC)
   {
     oss << "DBLE_VEC";
+  }
+  else if (data_->enumType() == CMPLX_VEC)
+  {
+    oss << "CMPLX_VEC";
   }
   else if (data_->enumType() == INT_VEC)
   {
@@ -192,7 +200,7 @@ std::string Param::getMutableValue<std::string>() const
 //
 // Purpose       : This function checks if a expression has any dependencies 
 //                 that would render it unsuitable for being made into an 
-//                 immutable data type such as DBLE or INT.
+//                 immutable data type such as DBLE, CMPLX or INT.
 // Special Notes : 
 // Scope         :
 // Creator       : Eric Keiter, SNL
@@ -237,6 +245,10 @@ double Param::getImmutableValue<double>() const
         }
       }
     }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = std::real (getValue< std::complex<double> >());
+    }
     else if (data_->enumType() == INT)
     {
       val = getValue<int>();
@@ -276,7 +288,83 @@ double Param::getImmutableValue<double>() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Param::iVal
+// Function      : Param::getImmutableValue< std::complex<double> >
+// Purpose       :
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/15/2023
+//-----------------------------------------------------------------------------
+template<>
+std::complex<double> Param::getImmutableValue< std::complex<double> >() const
+{
+  std::complex<double> val;
+
+  if (data_->enumType() != CMPLX)
+  {
+    if (data_->enumType() == STR)
+    {
+      const std::string & tmp = getValue<std::string>();
+      if (isValue(tmp)) // check this to see if "isValue" can handle complex numbers
+      {
+        val = Value(tmp);
+      }
+      else
+      {
+        if (Util::isBool(tmp))
+        {
+          val = (Bval(tmp))?1.0:0.0;
+        }
+        else
+        {
+          Report::UserError() << "Cannot convert '" << tmp << "' to std::complex<double> for expression " <<  tag_;
+        }
+      }
+    }
+    else if (data_->enumType() == DBLE)
+    {
+      val = getValue<double>();
+    }
+    else if (data_->enumType() == INT)
+    {
+      val = getValue<int>();
+    }
+    else if (data_->enumType() == LNG)
+    {
+      val = getValue<long>();
+    }
+    else if (data_->enumType() == BOOL)
+    {
+      Report::UserError() << "Cannot convert boolean to double for expression " <<  tag_;
+    }
+    else if (data_->enumType() == EXPR)
+    {
+      // Only if this param expression is truely constant can it be converted to a double
+      // else it is a fatal error, in the parser most likely
+      Expression &expression = const_cast<Expression &>(getValue<Expression>());
+
+      if ( isExpressionConstant(expression) )
+      {
+        expression.evaluateFunction(val);
+      }
+      else
+      {
+        Report::UserError() << "Attempt to evaluate expression " << expression.get_expression() << ", which contains unknowns";
+      }
+    }
+    else
+    {
+      val = 0;
+    }
+
+    const_cast<Param &>(*this).setVal(val);
+  }
+  
+  return getValue< std::complex<double> >();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getImmutableValue<int>
 // Purpose       :
 // Special Notes :
 // Scope         :
@@ -318,6 +406,10 @@ int Param::getImmutableValue<int>() const
     {
       val = static_cast<int> (getValue<double>());
     }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = static_cast<int> (std::real (getValue< std::complex<double> >()));
+    }
     else if (data_->enumType() == LNG)
     {
       val = static_cast<int> (getValue<long>());
@@ -350,7 +442,7 @@ int Param::getImmutableValue<int>() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Param::lVal
+// Function      : Param::getImmutableValue<long>
 // Purpose       :
 // Special Notes :
 // Scope         :
@@ -392,6 +484,10 @@ long Param::getImmutableValue<long>() const
     {
       val = static_cast<long> (getValue<double>());
     }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = std::real (getValue< std::complex<double> >());
+    }
     else if (data_->enumType() == INT)
     {
       val = static_cast<long> (getValue<int>());
@@ -424,7 +520,7 @@ long Param::getImmutableValue<long>() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Param::bVal
+// Function      : Param::getImmutableValue<bool>
 // Purpose       : Return booleen value of param
 // Special Notes :
 // Scope         :
@@ -438,6 +534,10 @@ bool Param::getImmutableValue<bool>() const
   if (data_->enumType() == DBLE)
   {
     rVal = (getValue<double>() != 0.0);
+  }
+  if (data_->enumType() == CMPLX)
+  {
+    rVal = (std::real(getValue< std::complex<double> >()) != 0.0);
   }
   else if (data_->enumType() == INT)
   {
@@ -518,6 +618,10 @@ double Param::getMutableValue<double>() const
         }
       }
     }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = std::real(getValue< std::complex<double> >());
+    }
     else if (data_->enumType() == INT)
     {
       val = getValue<int>();
@@ -549,6 +653,83 @@ double Param::getMutableValue<double>() const
   else
   {
     val = getValue<double>();
+  }
+  
+  return val;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Param::getMutableValue< std::complex<double> >
+// Purpose       : Alternative functions to getImmutableValue
+//
+// Special Notes : This function is very similar to getImmutableValue, except 
+//                 that it will not set the type, and it will not exit with
+//                 error when it depends on a non-constant expression.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 04/08/2021
+//-----------------------------------------------------------------------------
+template<>
+std::complex<double> Param::getMutableValue< std::complex<double> >() const
+{
+  std::complex<double> val;
+
+  if (data_->enumType() != CMPLX)
+  {
+    if (data_->enumType() == STR)
+    {
+      const std::string & tmp = getValue<std::string>();
+      if (isValue(tmp))
+      {
+        val = Value(tmp);
+      }
+      else
+      {
+        if (Util::isBool(tmp))
+        {
+          val = (Bval(tmp))?1.0:0.0;
+        }
+        else
+        {
+          Report::UserError() << "Cannot convert '" << tmp << "' to double for expression " <<  tag_;
+        }
+      }
+    }
+    else if (data_->enumType() == DBLE)
+    {
+      val = getValue< double>();
+    }
+    else if (data_->enumType() == INT)
+    {
+      val = getValue<int>();
+    }
+    else if (data_->enumType() == LNG)
+    {
+      val = getValue<long>();
+    }
+    else if (data_->enumType() == BOOL)
+    {
+      Report::UserError() << "Cannot convert boolean to double for expression " <<  tag_;
+    }
+    else if (data_->enumType() == EXPR) 
+    {
+      // unlike the "getImmutableValue" version of this function, 
+      // here we don't care if the expression is constant
+      Expression &expression = const_cast<Expression &>(getValue<Expression>());
+      expression.evaluateFunction(val);
+    }
+    else
+    {
+      val = 0;
+    }
+
+    // unlike the "getImmutableValue" version of this function, 
+    // we don't want to force this param to have a different type
+    //const_cast<Param &>(*this).setVal(val);
+  }
+  else
+  {
+    val = getValue< std::complex<double> >();
   }
   
   return val;
@@ -599,6 +780,10 @@ int Param::getMutableValue<int>() const
     else if (data_->enumType() == DBLE)
     {
       val = static_cast<int> (getValue<double>());
+    }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = static_cast<int> ( std::real(getValue< std::complex<double> >()) );
     }
     else if (data_->enumType() == LNG)
     {
@@ -677,6 +862,10 @@ long Param::getMutableValue<long>() const
     {
       val = static_cast<long> (getValue<double>());
     }
+    else if (data_->enumType() == CMPLX)
+    {
+      val = static_cast<long> (std::real(getValue< std::complex<double> >()));
+    }
     else if (data_->enumType() == INT)
     {
       val = static_cast<long> (getValue<int>());
@@ -726,6 +915,10 @@ bool Param::getMutableValue<bool>() const
   if (data_->enumType() == DBLE)
   {
     rVal = (getValue<double>() != 0.0);
+  }
+  if (data_->enumType() == CMPLX)
+  {
+    rVal = ( std::real(getValue< std::complex<double> >()) != 0.0);
   }
   else if (data_->enumType() == INT)
   {
@@ -881,7 +1074,7 @@ bool Param::isNumeric() const
 {
   // Only do the checking if the parameter is string valued, return true
   // if it is already real or integer valued.
-  if ( data_->enumType() == DBLE || data_->enumType() == INT || data_->enumType() == LNG )
+  if ( data_->enumType() == DBLE || data_->enumType() == INT || data_->enumType() == LNG || data_->enumType() == CMPLX)
     return true;
   if ( data_->enumType() == EXPR || data_->enumType() == BOOL)
     return false;
@@ -913,6 +1106,8 @@ bool Param::isInteger() const
     return false;
   else if ( data_->enumType() == DBLE)
     return true;
+  else if ( data_->enumType() == CMPLX)
+    return true;
   else if ( data_->enumType() == STR)
     return isInt(getValue<std::string>());
   else
@@ -935,7 +1130,9 @@ bool Param::isBool() const
 {
   // Only do the checking if the parameter is string valued, return true
   // if it is already real or integer valued.
-  if ( data_->enumType() == DBLE || data_->enumType() == INT || data_->enumType() == LNG || data_->enumType() == BOOL)
+  if ( data_->enumType() == DBLE || data_->enumType() == INT || 
+       data_->enumType() == CMPLX ||
+       data_->enumType() == LNG || data_->enumType() == BOOL)
     return true;
   if ( data_->enumType() == EXPR)
     return false;
@@ -995,8 +1192,9 @@ bool Param::isTimeDependent() const
   return data_->enumType() == EXPR;
 }
 
-bool
-isVectorParam(
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+bool isVectorParam(
   const Xyce::Util::Param &     param,
   std::string &                 name,
   int &                         index)
@@ -1037,6 +1235,9 @@ std::ostream &operator<<(std::ostream & os, const Param & p)
     case DBLE:
       os << "DBLE\t"<< p.getValue<double>();
       break;
+    case CMPLX:
+      os << "CMPLX\t"<< p.getValue<double>();
+      break;
     case INT:
       os << " INT\t" << p.getValue<int>();
       break;
@@ -1066,6 +1267,9 @@ std::ostream &operator<<(std::ostream & os, const Param & p)
       break;
     case DBLE_VEC:
       os << "DBLE_VEC\t";
+      break;
+    case CMPLX_VEC:
+      os << "CMPLX_VEC\t";
       break;
     case DBLE_VEC_IND:
       os << "DBLE_VEC_IND\t";
@@ -1109,6 +1313,7 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
   int enum_type = -1;
   comm->unpack( pB, bsize, pos, &enum_type, 1 );
 
+  //unpack value
   switch (enum_type)
   {
     case -1:
@@ -1126,6 +1331,17 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
       
       comm->unpack( pB, bsize, pos, &d, 1 );
       param.setVal(d);
+    }
+    break;
+
+    case Util::CMPLX: 
+    {
+      double real = 0.0;
+      double imag = 0.0;
+      
+      comm->unpack( pB, bsize, pos, &real, 1 );
+      comm->unpack( pB, bsize, pos, &imag, 1 );
+      param.setVal( std::complex<double> (real,imag) );
     }
     break;
 
@@ -1158,7 +1374,7 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
 
     case Util::EXPR:
       comm->unpack( pB, bsize, pos, &length, 1 );
-      // ERK.  This expression is allocated iwth the base group, which is easy 
+      // ERK.  This expression is allocated with the base group, which is easy 
       // to create, but doesn't do anything.  But, this doesn't matter.  .param 
       // and .global_param are not usually evaluated stand-alone, as they are 
       // usually attached to other expressions. The expressions they are 
@@ -1192,6 +1408,22 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
       std::vector<double> &x = param.getValue<std::vector<double> >();
       x.resize(vector_size, 0.0);
       comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
+    }
+
+    case Util::CMPLX_VEC:
+    {
+      comm->unpack( pB, bsize, pos, &vector_size, 1 );
+      param.setVal(std::vector< std::complex<double> >());
+      std::vector< std::complex<double> > &x = param.getValue<std::vector< std::complex<double> > >();
+      x.resize(vector_size, 0.0);
+      std::vector<double> real_vector(vector_size,0.0);
+      std::vector<double> imag_vector(vector_size,0.0);
+      comm->unpack( pB, bsize, pos, &(real_vector[0]), vector_size );
+      comm->unpack( pB, bsize, pos, &(imag_vector[0]), vector_size );
+      for (int ii=0;ii<vector_size;ii++)
+      {
+        x[ii] = std::complex<double> (real_vector[ii],imag_vector[ii]);
+      }
     }
 
     break;
@@ -1233,6 +1465,9 @@ Pack<Util::Param>::packedByteCount(const Util::Param &param)
     case Util::DBLE:
       byteCount += sizeof(double);
       break;
+    case Util::CMPLX:
+      byteCount += sizeof(double)*2;
+      break;
     case Util::BOOL:
     case Util::INT:
       byteCount += sizeof(int);
@@ -1251,6 +1486,9 @@ Pack<Util::Param>::packedByteCount(const Util::Param &param)
       break;
     case Util::DBLE_VEC:
       byteCount += ( sizeof(int) + param.getValue<std::vector<double> >().size() * sizeof(double) );
+      break;
+    case Util::CMPLX_VEC:
+      byteCount += ( sizeof(int) + param.getValue<std::vector< std::complex<double> > >().size() * sizeof(double)*2 );
       break;
   }
 
@@ -1299,6 +1537,15 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
       comm->pack( &(param.getValue<double>()), 1, buf, bsize, pos );
       break;
 
+    case Util::CMPLX:
+      {
+      double real = std::real(param.getValue< std::complex<double> >());
+      double imag = std::imag(param.getValue< std::complex<double> >());
+      comm->pack( &real, 1, buf, bsize, pos );
+      comm->pack( &imag, 1, buf, bsize, pos );
+      }
+      break;
+
     case Util::INT:
       comm->pack( &(param.getValue<int>()), 1, buf, bsize, pos );
       break;
@@ -1337,7 +1584,6 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
         comm->pack( string_vector[i].c_str(), length, buf, bsize, pos );
       }
     }
-
       break;
 
     case Util::DBLE_VEC:
@@ -1347,7 +1593,23 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
       comm->pack( &length, 1, buf, bsize, pos );
       comm->pack( &double_vector[0], length, buf, bsize, pos );
     }
+      break;
 
+    case Util::CMPLX_VEC:
+    {
+      const std::vector< std::complex<double> > &complex_vector = param.getValue<std::vector< std::complex<double> > >();
+      length = (int) complex_vector.size();
+      std::vector<double> real_vector(length,0.0);
+      std::vector<double> imag_vector(length,0.0);
+      for (int ii=0;ii<length;ii++)
+      {
+        real_vector[ii] = std::real(complex_vector[ii]);
+        imag_vector[ii] = std::imag(complex_vector[ii]);
+      }
+      comm->pack( &length, 1, buf, bsize, pos );
+      comm->pack( &real_vector[0], length, buf, bsize, pos );
+      comm->pack( &imag_vector[0], length, buf, bsize, pos );
+    }
       break;
 
     default:   Report::DevelFatal() << "Param::pack: unknown type " << param.data_->enumType();

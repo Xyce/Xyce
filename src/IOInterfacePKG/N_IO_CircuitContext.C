@@ -70,6 +70,9 @@ std::string returnType(const Util::Param & parameter)
     case Xyce::Util::DBLE:
       type = std::string("DBLE");
       break;
+    case Xyce::Util::CMPLX:
+      type = std::string("CMPLX");
+      break;
     case Xyce::Util::EXPR:
       type = std::string("EXPR");
       break;
@@ -84,6 +87,9 @@ std::string returnType(const Util::Param & parameter)
       break;
     case Xyce::Util::DBLE_VEC:
       type = std::string("DBLE_VEC");
+      break;
+    case Xyce::Util::CMPLX_VEC:
+      type = std::string("CMPLX_VEC");
       break;
     case Xyce::Util::DBLE_VEC_IND:
       type = std::string("DBLE_VEC_IND");
@@ -1607,7 +1613,10 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       Xyce::dout()<<" "<<parameter.uTag()<<" is STR type; value =  "<< parameter.stringValue()<<std::endl;
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE type; value =  "<< parameter.getImmutableValue<double>()<<std::endl;
+      Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE type; value =  "<< parameter.getMutableValue<double>()<<std::endl;
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout()<<" "<<parameter.uTag()<<" is CMPLX type; value =  "<< parameter.getMutableValue< std::complex<double> >()<<std::endl;
       break;
     case Xyce::Util::EXPR:
       Xyce::dout()<<" "<<parameter.uTag()<<" is EXPR type; value =  "<<parameter.getValue<Util::Expression>().get_expression()<<std::endl;
@@ -1623,6 +1632,9 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       break;
     case Xyce::Util::DBLE_VEC:
       Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE_VEC type; value =  "<<parameter.stringValue()<<std::endl;
+      break;
+    case Xyce::Util::CMPLX_VEC:
+      Xyce::dout()<<" "<<parameter.uTag()<<" is CMPLX_VEC type; value =  "<<parameter.stringValue()<<std::endl;
       break;
     case Xyce::Util::DBLE_VEC_IND:
       Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE_VEC_IND type; value =  "<<parameter.stringValue()<<std::endl;
@@ -1640,7 +1652,10 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       Xyce::dout()<<parameter.stringValue();
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout()<<parameter.getImmutableValue<double>();
+      Xyce::dout()<<parameter.getMutableValue<double>();
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout()<<parameter.getMutableValue< std::complex<double> >();
       break;
     case Xyce::Util::EXPR:
       Xyce::dout()<<parameter.getValue<Util::Expression>().get_expression();
@@ -1796,9 +1811,16 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       else
       {
         // Reset the parameter value to the value of the expression.
-        double value(0.0);
+        std::complex<double> value(0.0);
         expression.evaluateFunction ( value );
-        parameter.setVal( value );
+        if (expression.getIsComplex())
+        {
+          parameter.setVal( value );
+        }
+        else
+        {
+          parameter.setVal( std::real(value) );
+        }
         // we have resolved the context so set it and the constant value to 
         // make later look ups easier.
         // parameter.addOp(Util::CONSTANT, new IO::ConstantOp(parameter.tag(), value));
@@ -1960,7 +1982,10 @@ void debugResolveStringsOutput(const Util::Param & expressionParameter, const st
       Xyce::dout() << expressionParameter.stringValue();
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout() << expressionParameter.getImmutableValue<double>();
+      Xyce::dout() << expressionParameter.getMutableValue<double>();
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout() << expressionParameter.getMutableValue< std::complex<double> >();
       break;
     case Xyce::Util::EXPR:
       Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
@@ -2035,11 +2060,22 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
       {
         if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], false); }
 
-        if ( expressionParameter.getType() == Xyce::Util::STR ||
-             expressionParameter.getType() == Xyce::Util::DBLE )
+        if ( expressionParameter.getType() == Xyce::Util::STR ||  
+             expressionParameter.getType() == Xyce::Util::DBLE)
         {
+            // ERK. "string" will be tested vs. the isValue function, which doesn't detect complex numbers yet;  
+            // so, if it is a pure number, then it must be a real. (for now).  For now, complex valued parameters 
+            // must be set as expressions, inside of braces.
           enumParamType paramType=DOT_PARAM;
           if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>(),paramType))
+          {
+            Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
+          }
+        }
+        else if ( expressionParameter.getType() == Xyce::Util::CMPLX)
+        {
+          enumParamType paramType=DOT_PARAM;
+          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue< std::complex<double> >(),paramType))
           {
             Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
           }

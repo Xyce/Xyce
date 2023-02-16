@@ -5294,39 +5294,41 @@ bool getParamAndReduce(
   Util::Op::Operator *op = device_manager.getOp(comm, name);
   value = op ? (*op)(comm, Util::Op::OpData()).real() : 0.0;
 
+  if (!op)
+  {
+    if (DEBUG_DEVICE) { Report::DevelWarning() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name; }
+    else { Report::UserError() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name; }
+  }
+
   return op;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getParamAndReduce
 // Purpose       : Returns the current value of a named parameter.
-// Special Notes :
+//
+// Special Notes : This works in parallel.
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 7/26/03
+// Creation Date : 2/26/23
 //-----------------------------------------------------------------------------
-double getParamAndReduce(
+bool getParamAndReduce(
   Parallel::Machine     comm,
   const DeviceMgr &     device_manager,
-  const std::string &   name)
+  const std::string &   name,
+  std::complex<double> &  value)
 {
-  double value = 0.0;
-  bool found = getParamAndReduce(comm, device_manager, name, value);
+  Util::Op::Operator *op = device_manager.getOp(comm, name);
+  value = op ? (*op)(comm, Util::Op::OpData()) : 0.0;
 
-  if (!found)
+  if (!op)
   {
-    if (DEBUG_DEVICE)
-    {
-      Report::DevelWarning() <<
-        "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name;
-    }
-    else
-    {
-      Report::UserError() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name;
-    }
+    if (DEBUG_DEVICE) { Report::DevelWarning() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name; }
+    else { Report::UserError() << "Xyce::Device::getParamAndReduce.  Unable to find parameter " << name; }
   }
 
-  return value;
+  return op;
 }
 
 namespace {

@@ -251,6 +251,21 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
   return newExpPtr_->make_constant (var,val, type);
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::make_constant
+// Purpose       : Convert a 'string' placeholder into a complex constant
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 02/15/2023
+//-----------------------------------------------------------------------------
+bool Expression::make_constant (const std::string & var, const std::complex<double> & val, enumParamType type)
+{
+  return newExpPtr_->make_constant (var,val, type);
+}
+
+
 //-----------------------------------------------------------------------------
 // Function      : Expression::setAsGlobal
 //

@@ -3106,13 +3106,18 @@ AST_GET_TIME_OPS(functionNode_)
 
     virtual bool getIsComplex ()
     {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+      bool isComplex = (typeid(ScalarT) == typeid(std::complex<double>));
 
-      bool isComplex = functionNode_->getIsComplex();
+      if( !(Teuchos::is_null( functionNode_)))
+      {
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
 
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+        isComplex = functionNode_->getIsComplex();
+
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+      }
 
       return isComplex ;
     }

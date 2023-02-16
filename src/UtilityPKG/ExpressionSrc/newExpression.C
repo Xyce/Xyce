@@ -705,6 +705,12 @@ bool newExpression::make_constant (
       << " in expression: " << expressionString_ <<std::endl;
   }
 
+    if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
+    {
+      Xyce::dout() << "newExpression::make_constant for " << var << ". Expression tree for " << expressionString_ << std::endl;
+      dumpParseTree(Xyce::dout());
+    }
+
   return retval;
 }
 

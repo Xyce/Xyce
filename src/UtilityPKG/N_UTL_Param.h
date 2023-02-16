@@ -64,7 +64,7 @@ class Expression;
  * @date   Tue Dec 17 15:02:32 2013
  */
 
-enum { STR, DBLE, INT, LNG, EXPR, BOOL, STR_VEC, INT_VEC, DBLE_VEC, DBLE_VEC_IND, COMPOSITE };
+enum { STR, DBLE, INT, LNG, EXPR, BOOL, STR_VEC, INT_VEC, DBLE_VEC, DBLE_VEC_IND, COMPOSITE, CMPLX, CMPLX_VEC };
 
 }
 
@@ -85,6 +85,12 @@ template<>
 struct DataTypeTrait<double>
 {
   enum {type = Util::DBLE};
+};
+
+template<>
+struct DataTypeTrait< std::complex<double> >
+{
+  enum {type = Util::CMPLX};
 };
 
 template<>
@@ -123,6 +129,11 @@ struct DataTypeTrait<std::vector<double> >
   enum {type = Util::DBLE_VEC};
 };
 
+template<>
+struct DataTypeTrait<std::vector< std::complex<double> > >
+{
+  enum {type = Util::CMPLX_VEC};
+};
 
 template<>
 struct DataTypeTrait<Util::Expression>
@@ -610,6 +621,17 @@ typedef unordered_map<std::string, ParamMap, HashNoCase, EqualNoCase> OptionsMet
 
 bool isVectorParam(const Xyce::Util::Param &param, std::string &name, int &index);
 
+//----------------------------------------------------------------------------
+// setValue functions
+//----------------------------------------------------------------------------
+// ERK.  these various setValue functions call getImmutableValue/getMutableValue
+// of the passed Util::Param object and assign the value returned by that call 
+// to the passed variable t.  I'm not sure they add much beyond that; it is 
+// mostly decoration.  The calling code could just as easily call getImmutable 
+// (or getMutable) value directly, as needed.
+//
+// These are mostly called from the "options" setup functions.  
+//----------------------------------------------------------------------------
 template <class T>
 bool setValue(const Param &param, const std::string &tag, T &t) 
 {
@@ -617,11 +639,11 @@ bool setValue(const Param &param, const std::string &tag, T &t)
   {
     if (param.hasExpressionValue())
     {
-      t = param.getMutableValue<double>();
+      t = param.getMutableValue<T>();
     }
     else
     { // if not an expression, do things the old-fashioned way
-      t = param.getImmutableValue<double>();
+      t = param.getImmutableValue<T>();
     }
     return true;
   }
@@ -629,6 +651,7 @@ bool setValue(const Param &param, const std::string &tag, T &t)
   return false;
 }
 
+//----------------------------------------------------------------------------
 template <class T>
 bool setValue(const Param &param, const std::string &tag, T &t, bool &given) 
 {
@@ -636,12 +659,12 @@ bool setValue(const Param &param, const std::string &tag, T &t, bool &given)
   {
     if (param.hasExpressionValue())
     {
-      t = param.getMutableValue<double>();
+      t = param.getMutableValue<T>();
       given = true;
     }
     else
     { // if not an expression, do things the old-fashioned way
-      t = param.getImmutableValue<double>();
+      t = param.getImmutableValue<T>();
       given = true;
     }
     return true;
@@ -650,6 +673,7 @@ bool setValue(const Param &param, const std::string &tag, T &t, bool &given)
   return false;
 }
 
+//----------------------------------------------------------------------------
 template <class T>
 bool setValue(const Param &param, const std::string &tag, void (&f)(T)) {
   if (equal_nocase(tag, param.tag())) {
@@ -660,7 +684,7 @@ bool setValue(const Param &param, const std::string &tag, void (&f)(T)) {
   return false;
 }
 
-
+//----------------------------------------------------------------------------
 template<class T>
 bool setValue(const Xyce::Util::Param &param, const char *tag, std::vector<T> &value) {
   std::string name;
@@ -676,6 +700,7 @@ bool setValue(const Xyce::Util::Param &param, const char *tag, std::vector<T> &v
   return false;
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 bool setValue(const Xyce::Util::Param &param, const char *tag, std::vector<T> &value, bool &given) {
   std::string name;

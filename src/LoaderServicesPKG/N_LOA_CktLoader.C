@@ -354,7 +354,9 @@ double CktLoader::getParamAndReduce(
   Parallel::Machine     comm,
   const std::string &   name) const
 {
-  return Device::getParamAndReduce(comm, deviceManager_, name);
+  double val=0.0;
+  Device::getParamAndReduce(comm, deviceManager_, name, val);
+  return val;
 }
 
 //-----------------------------------------------------------------------------

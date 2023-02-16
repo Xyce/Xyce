@@ -76,12 +76,17 @@ class SweepParam;
 namespace Xyce {
 namespace Device {
 
-bool
-getParamAndReduce(
+bool getParamAndReduce(
   Parallel::Machine     comm,
   const DeviceMgr &     device_manager,
   const std::string &   name,
   double &              val);
+
+bool getParamAndReduce(
+  Parallel::Machine     comm,
+  const DeviceMgr &     device_manager,
+  const std::string &   name,
+  std::complex<double> & val);
 
 //-----------------------------------------------------------------------------
 // Class         : DeviceMgr
@@ -94,6 +99,7 @@ class DeviceMgr : public Util::Listener<Analysis::StepEvent>
 {
   friend struct ArtificialParameters::ArtificialParameter;
   friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, double &value);
+  friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, std::complex<double> &value);
 
 public:
   typedef std::vector<Device *> DeviceVector;
@@ -717,12 +723,6 @@ inline void DeviceMgr::setVoltageLimiterFlag ( bool flagVal )
 
 bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options_manager);
 void registerOpBuilders(Util::Op::BuilderManager &builder_manager, Parallel::Machine comm, DeviceMgr &device_manager);
-
-double
-getParamAndReduce(
-  Parallel::Machine     comm,
-  const DeviceMgr &     device_manager,
-  const std::string &   name);
 
 void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);

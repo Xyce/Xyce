@@ -388,6 +388,9 @@ ExpressionData::setup(
           case Xyce::Util::DBLE:
             Xyce::dout()  <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
             break;
+          case Xyce::Util::CMPLX:
+            Xyce::dout()  <<"It is CMPLX type: " <<  functionParameter.getImmutableValue< std::complex<double> >();
+            break;
           case Xyce::Util::EXPR:
             Xyce::dout()  <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
             break;
@@ -414,6 +417,14 @@ ExpressionData::setup(
       {
         enumParamType paramType=DOT_PARAM;
         if (!expression_->make_constant(varName, replacement_param.getImmutableValue<double>(),paramType)  )
+        {
+          Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
+        }
+      }
+      else if ( replacement_param.getType() == Xyce::Util::CMPLX)
+      {
+        enumParamType paramType=DOT_PARAM;
+        if (!expression_->make_constant(varName, replacement_param.getImmutableValue< std::complex<double> >(),paramType)  )
         {
           Report::UserWarning0() << "Problem converting parameter " << varName << " to its value.";
         }
