@@ -52,24 +52,27 @@ namespace Device {
 ///
 struct Depend
 {
-  std::string                 name;      ///< parameter name
-  Util::Expression *          expr;      ///< expression used comput value
+  std::string                    name;      ///< parameter name
+  Util::Expression *             expr;      ///< expression used comput value
   union resUnion
   {
-    int *                  iresult;
-    double *                result;
-    std::vector<double> *   resVec;
+    int *                     iresult;
+    double *                   result;
+    std::vector<double> *      resVec;
   } resultU;                            ///< Holds a pointer to where the
                                         ///< parameter is stored.
-  int                         vectorIndex; ///< Used if parameter is in a vector
+  int                     vectorIndex; ///< Used if parameter is in a vector
 
-  int                         n_vars, lo_var, n_global; 
-  bool                     storeOriginal;    ///< true if original value stored
-  int                      serialNumber;     ///< used if original value stored
+  int                         numVars;  ///< number of solution variables this param depends on 
+  int                     lowVarIndex;  ///< first local index for solution variables
+  int                      numGlobals;  ///< number of global parameters this param depends on 
+
+  bool                  storeOriginal;    ///< true if original value stored
+  int                    serialNumber;     ///< used if original value stored
 
   // Constructor
   Depend()
-    : vectorIndex(-1), n_vars(0), lo_var(0), n_global(0)
+    : vectorIndex(-1), numVars(0), lowVarIndex(0), numGlobals(0)
   {};
 
 };

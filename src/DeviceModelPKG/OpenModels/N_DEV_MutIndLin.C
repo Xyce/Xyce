@@ -529,10 +529,10 @@ Instance::Instance(
     {
       // sanity check, they should all have the first two conditions,
       // and the next means we actually have work to do
-      if (d->n_vars >0)
+      if (d->numVars >0)
       {
         // Keep track of the number of variables this coefficient depends on:
-        numCoupDepVars[d->vectorIndex] = d->n_vars;
+        numCoupDepVars[d->vectorIndex] = d->numVars;
 
         // Save the pointer to the expresison, we need to be able to evaluate it.
         expPtrs[d->vectorIndex] = d->expr;
@@ -547,15 +547,15 @@ Instance::Instance(
         int inductorTwoBranchSize = jacStamp[2*numInductors+
                                              indexInductorTwo].size();
         jacStamp[2*numInductors+indexInductorOne].resize(inductorOneBranchSize+
-                                                         d->n_vars);
+                                                         d->numVars);
         jacStamp[2*numInductors+indexInductorTwo].resize(inductorTwoBranchSize+
-                                                         d->n_vars);
-        for (int i=0; i<d->n_vars; i++)
+                                                         d->numVars);
+        for (int i=0; i<d->numVars; i++)
         {
           jacStamp[2*numInductors+indexInductorOne][inductorOneBranchSize+i]
-            = d->lo_var+i+3*numInductors;
+            = d->lowVarIndex+i+3*numInductors;
           jacStamp[2*numInductors+indexInductorTwo][inductorTwoBranchSize+i]
-            = d->lo_var+i+3*numInductors;
+            = d->lowVarIndex+i+3*numInductors;
 
           // We need to be able to determine which of our dependent var
           // indices map onto which variable of what coupling coefficient

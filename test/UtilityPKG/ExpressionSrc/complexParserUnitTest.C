@@ -13034,6 +13034,114 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex6)
   ASSERT_TRUE (isComplex);
 }
 
+
+
+// testing the "getVoltNameVec" function
+TEST ( Complex_Parser_Test_getVoltNames, voltNames1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(B) + V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  int correctNumberNodes=2;
+
+  {
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression copyExpression(testExpression);
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+
+// testing the "getVoltNameVec" function
+TEST ( Complex_Parser_Test_getVoltNames, voltNames2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(0) + V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  int correctNumberNodes=1;
+
+  {
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression copyExpression(testExpression);
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+
+#if 0
+// disabling this test until it works
+TEST ( Complex_Parser_Test_getVoltNames, voltNames3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  int correctNumberNodes=1;
+
+  {
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression copyExpression(testExpression);
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+#endif
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

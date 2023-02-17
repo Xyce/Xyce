@@ -104,6 +104,7 @@ int XyceExpressionlex(
 %code {
 
 
+#if 0
 //-------------------------------------------------------------------------
 // Function      : checkGroundName
 // Purpose       : checks if the name of a voltage node is a synonym for ground
@@ -146,6 +147,7 @@ bool checkGroundNodeName(std::string & name)
 
   return thisIsGround;
 }
+#endif
 
 //-------------------------------------------------------------------------
 // Function      : setupCoords
@@ -368,7 +370,7 @@ void createVoltageOp(
 
   if (voltageNodes.size() == 1)
   {
-    if ( !checkGroundNodeName(voltageNodes[0]) )
+    if ( !Xyce::Util::checkGroundNodeName(voltageNodes[0]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
@@ -402,7 +404,7 @@ void createVoltageOp(
     Teuchos::RCP<astNode<usedType> > tmp1Ptr;
     Teuchos::RCP<astNode<usedType> > tmp2Ptr;
 
-    if ( !checkGroundNodeName( voltageNodes[0]) )
+    if ( !Xyce::Util::checkGroundNodeName( voltageNodes[0]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
@@ -427,7 +429,7 @@ void createVoltageOp(
       tmp1Ptr = Teuchos::RCP<astNode<usedType> >(voltPtr);
     }
 
-    if ( !checkGroundNodeName( voltageNodes[1]) )
+    if ( !Xyce::Util::checkGroundNodeName( voltageNodes[1]) )
     {
       // ensure that each voltage has a single, unique astNode allocated for it
       if ( voltOpMap.find( voltageNodes[1] ) == voltOpMap.end() )
