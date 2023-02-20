@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2022 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2023 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 \chapter{Circuit Diagnostics and Troubleshooting}
@@ -14,7 +14,7 @@
 
 \chapteroverview{Chapter Overview}
 {
-This chapter provides guidance on using \Xyce{}'s diagnostic outut 
+This chapter provides guidance on using \Xyce{}'s diagnostic output 
 to understand simulation performance and aid in correcting
 circuit problems.
 \begin{XyceItemize}
@@ -53,7 +53,7 @@ where \texttt{<diagnostic mode>} can be any of the following modes
   \item \texttt{DISCLIMIT=<value>}  Output all solution variables where the absolute value
     of the predicted minus solution value is greater than \texttt{value}
 \end{itemize}
-Mulitple modes can be sepcified and the results will be grouped by diagostic mode for 
+Multiple modes can be specified and the results will be grouped by diagnostic mode for 
 each step within the diagnostic output file.
 
 Finally, the \texttt{.options diagnostic diagfilename} is optional.  If it is not given then 
@@ -69,7 +69,7 @@ limit, use the \texttt{EXTREMALIMIT} option.
 
 In this simple \Xyce{} input netlist, \texttt{EXTREMALIMIT} is used to output values over 6.0 Volts
 
-\begin{NetlistFigure}{Sample use of the diagnostic EXTREMALIMIT}
+\begin{NetlistFigure}{Sample use of the diagnostic EXTREMALIMIT}{extremaExample}
 * 4049 Circuit
 
 X2 node3 node8 node2 0 CD4049UB
@@ -181,7 +181,7 @@ also instructs the time integrator ignore predictor-corrector error and just
 accept steps where the nonlinear solver converges.  This is just for illustrative 
 purposes of this feature.  
 
-\begin{NetlistFigure}{Example circuit with an intentional discontinuity}
+\begin{NetlistFigure}{Example circuit with an intentional discontinuity}{DiscExample}
 *
 * circuit with an intentional discontinuity 
 *
@@ -245,7 +245,7 @@ where the problem is.
 Thus, for best use of discontinuity output, one may need to try turning step error control on and
 off in a set of simulations.  
 
-Finally, it is recommened that one not set \texttt{DISCLIMIT} 
+Finally, it is recommended that one not set \texttt{DISCLIMIT} 
 too small, i.e. below the time integrators \texttt{ABSTOL}, as this will cause most of the 
 solution variables to be reported as discontinuous. 
 
