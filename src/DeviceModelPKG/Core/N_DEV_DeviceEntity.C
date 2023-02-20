@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -848,6 +848,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   double rval;
+  dependentParam.expr->updateForStep();
   dependentParam.expr->evaluateFunction (rval);
   dependentParam.expr->clearOldResult();
 
@@ -924,6 +925,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   double rval;
+  dependentParam.expr->updateForStep();
   dependentParam.expr->evaluateFunction (rval);
   dependentParam.expr->clearOldResult();
 
@@ -961,6 +963,7 @@ int DeviceEntity::setDependentParameter (Util::Param & par,
   }
 
   double dval;
+  dependentParam.expr->updateForStep();
   dependentParam.expr->evaluateFunction (dval);
   dependentParam.expr->clearOldResult();
 
@@ -1199,6 +1202,7 @@ bool DeviceEntity::setParameterRandomExpressionTerms(
         break;
     }
     double paramValue=0.0;
+    expression.updateForStep();
     expression.evaluateFunction(paramValue);
     setParam(tmpName,paramValue,override_original);
   }
@@ -1209,13 +1213,13 @@ bool DeviceEntity::setParameterRandomExpressionTerms(
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::updateGlobalAndDependentParameters
 //
-// Purpose       : Updates expressions, as needed, that depend on various things 
-//                 including global params, special variables like "TIME" and 
+// Purpose       : Updates expressions, as needed, that depend on various things
+//                 including global params, special variables like "TIME" and
 //                 solution variables.   For expressions that are updated and
 //                 produce a different value, apply new value to the param(s)
 //                 that depend on that expression.
 //
-// Special Notes : 
+// Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 9/6/2020
@@ -1234,13 +1238,13 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
   for ( ; dpIter != end ; ++dpIter)
   {
     // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
-    if ( !(dependentParamExcludeMap_.empty()) ) 
+    if ( !(dependentParamExcludeMap_.empty()) )
     {
       // check for a setParam call
       if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
+    if ( !(dependentScaleParamExcludeMap_.empty()) )
     {
       // check for a scaleParam call
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
@@ -1251,9 +1255,9 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
            dpIter->expr->isSolutionDependent()  // can't easily know at this point if solution has changed. fix later?
-        ) 
+        )
     { 
-      if (dpIter->expr->evaluateFunction (rval)) 
+      if (dpIter->expr->evaluateFunction (rval))
       {
         changed = true; 
 
@@ -1325,6 +1329,143 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceEntity::updateGlobalAndDependentParametersForStep
+//
+// Purpose       : Updates expressions, as needed, that depend on various things
+//                 including global params, special variables like "TIME" and
+//                 solution variables.   For expressions that are updated and
+//                 produce a different value, apply new value to the param(s)
+//                 that depend on that expression.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/10/2023
+//-----------------------------------------------------------------------------
+bool DeviceEntity::updateGlobalAndDependentParametersForStep(
+    bool globalParameterChanged,
+    bool timeChanged,
+    bool freqChanged)
+{
+  std::vector<Depend>::iterator dpIter = dependentParams_.begin();
+  std::vector<Depend>::iterator end = dependentParams_.end();
+  double rval;
+  int i, hi;
+  bool changed = false;
+
+  for ( ; dpIter != end ; ++dpIter)
+  {
+    // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
+    if ( !(dependentParamExcludeMap_.empty()) )
+    {
+      // check for a setParam call
+      if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( !(dependentScaleParamExcludeMap_.empty()) )
+    {
+      // check for a scaleParam call
+      if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
+    }
+
+    if ( ((dpIter->n_global > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
+        // ERK: check if the time and freq booleans are reliable.
+           (dpIter->expr->isTimeDependent() && timeChanged) ||
+           (dpIter->expr->isFreqDependent() && freqChanged) ||
+           dpIter->expr->isSolutionDependent()  // can't easily know at this point if solution has changed. fix later?
+        )
+    { 
+      bool change1 = dpIter->expr->updateForStep(); // this line is the difference vs updateGlobalAndDependentParameters.
+                                                    // Some udpates are expensive, & only happen if they have to.
+      bool change2 = dpIter->expr->evaluateFunction (rval);
+      if (change1 || change2)
+      {
+        changed = true;
+
+        if (devOptions_.lengthScaleGiven)
+        {
+          ParameterMap::const_iterator p_i = getParameterMap().find(dpIter->name);
+          if (p_i != getParameterMap().end())
+          {
+            double scalar = devOptions_.lengthScale;
+            const Descriptor &param = *(*p_i).second;
+            if (param.getLengthScaling())  { rval *= scalar; }
+            else if (param.getAreaScaling()) { rval *= scalar*scalar; }
+          }
+        }
+
+        // apply the expression result to parameters, if it has changed.
+        if (dpIter->vectorIndex==-2)
+        {
+          *(dpIter->resultU.iresult) = static_cast<int>(rval);
+        }
+        else if (dpIter->vectorIndex==-1)
+        {
+          *(dpIter->resultU.result) = rval;
+        }
+        else
+        {
+          (*(dpIter->resultU.resVec))[dpIter->vectorIndex] = rval;
+        }
+
+        if (dpIter->storeOriginal)
+          Xyce::Device::setOriginalValue(*this,dpIter->serialNumber,rval);
+      }
+
+      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+      {
+        const std::string & expr = dpIter->expr->get_expression();
+
+        if (expr.size() <= 100)
+        {
+          std::cout << "just evaluated " << dpIter->expr->get_expression() << " val = " << rval;
+        }
+        else
+        {
+          std::string shortExpr (expr,0,100);
+          std::cout << "just evaluated " << shortExpr << " ... " << " val = " << rval;
+        }
+
+        if (changed==true) { std::cout << " changed=true"; }
+        else { std::cout << " changed=false"; }
+
+        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        else { std::cout << " globalParDep=false"; }
+
+        if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
+        else { std::cout << " timeDep=false"; }
+
+        if ( (dpIter->expr->isFreqDependent() && freqChanged) ) { std::cout << " freqDep=true"; }
+        else { std::cout << " freqDep=false"; }
+
+        if ( (dpIter->expr->isSolutionDependent() ) ) { std::cout << " solutionDep=true"; }
+        else { std::cout << " solutionDep=false"; }
+
+        std::cout << std::endl;
+      }
+    }
+  }
+
+  return changed;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceEntity::updateGlobalAndDependentParameters
+//
+// Purpose       : Updates expressions, as needed, that depend on various things 
+//                 including global params, special variables like "TIME" and 
+//                 solution variables.   
+//
+// Special Notes : This version is mostly used for SAMPLING, in which many 
+//                 paramters might be updated at the same time.  It differs
+//                 from the original "upadteGlobalAndDependentParameters" in
+//                 that it takes a vector of dependent parameters as an 
+//                 argument.  This function loops over ONLY those entries,
+//                 rather than *all* the dependent parameters for efficiency.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
 //-----------------------------------------------------------------------------
 bool DeviceEntity::updateGlobalAndDependentParameters(
     bool globalParameterChanged,
@@ -1340,14 +1481,15 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
 
   for ( ; dpIter != end ; ++dpIter)
   {
-    // Don't re-evaluate if this parameter has been overridden by a setParam call or if this is the "I" or "V" parameter of a Bsrc.
-    if ( !(dependentParamExcludeMap_.empty()) ) 
+    // Don't re-evaluate if this parameter has been overridden by a setParam call 
+    // or if this is the "I" or "V" parameter of a Bsrc.
+    if ( !(dependentParamExcludeMap_.empty()) )
     {
       // check for a setParam call
       if ( dependentParamExcludeMap_.find( dpIter->name ) != dependentParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( !(dependentScaleParamExcludeMap_.empty()) ) 
+    if ( !(dependentScaleParamExcludeMap_.empty()) )
     {
       // check for a scaleParam call
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
@@ -1357,9 +1499,11 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
            dpIter->expr->isSolutionDependent()  
-        ) 
+        )
     {
-      if (dpIter->expr->evaluateFunction (rval)) 
+      bool change1 = dpIter->expr->updateForStep();
+      bool change2 = dpIter->expr->evaluateFunction (rval);
+      if (change1 || change2)
       {
         changed = true; 
 
@@ -1530,7 +1674,7 @@ void DeviceEntity::applyDepSolnLIDs()
 {
   std::vector<Depend>::iterator dpIter = dependentParams_.begin();
   std::vector<Depend>::iterator end = dependentParams_.end();
-  for (int ii=0 ; dpIter != end; ++dpIter, ++ii) 
+  for (int ii=0 ; dpIter != end; ++dpIter, ++ii)
   { 
     int lo = dpIter->lo_var;
     int hi = dpIter->lo_var+dpIter->n_vars;

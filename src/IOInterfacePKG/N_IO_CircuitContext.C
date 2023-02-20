@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -70,6 +70,9 @@ std::string returnType(const Util::Param & parameter)
     case Xyce::Util::DBLE:
       type = std::string("DBLE");
       break;
+    case Xyce::Util::CMPLX:
+      type = std::string("CMPLX");
+      break;
     case Xyce::Util::EXPR:
       type = std::string("EXPR");
       break;
@@ -84,6 +87,9 @@ std::string returnType(const Util::Param & parameter)
       break;
     case Xyce::Util::DBLE_VEC:
       type = std::string("DBLE_VEC");
+      break;
+    case Xyce::Util::CMPLX_VEC:
+      type = std::string("CMPLX_VEC");
       break;
     case Xyce::Util::DBLE_VEC_IND:
       type = std::string("DBLE_VEC_IND");
@@ -152,6 +158,15 @@ CircuitContext::CircuitContext(
 //----------------------------------------------------------------------------
 CircuitContext::~CircuitContext()
 {
+  // Output any messages for this circuit block that haven't
+  // been output before as a warning.  Clear messages to keep
+  // them from being output again.
+  for (std::vector<std::string>::iterator it = errorMsg_.begin(); it != errorMsg_.end(); ++it )
+  {
+    Report::UserWarning().at(location_) << *it;
+  }
+  errorMsg_.clear();
+
   // Delete each subcircuit context in this context.
   unordered_map< std::string, CircuitContext * >::iterator itsc = circuitContextTable_.begin();
   unordered_map< std::string, CircuitContext * >::const_iterator itsc_end = circuitContextTable_.end();
@@ -162,7 +177,6 @@ CircuitContext::~CircuitContext()
   }
 
   circuitContextTable_.clear();
-
 
   // We delete all our own stored model pointers.  Because we also
   // delete all our subcircuit contexts, *their* destructors take care of
@@ -233,6 +247,11 @@ bool CircuitContext::beginSubcircuitContext(
     }
   }
 
+  bool result = true;
+
+  // Collect the error messages for output later if subcircuit is used.
+  std::vector<std::string> errorMsg;
+
   // Create a new circuit context for the subcircuit.
   CircuitContext* subcircuitContextPtr =
     new CircuitContext(opBuilderManager_, parsingMgr_, contextList_, currentContextPtr_);
@@ -257,12 +276,10 @@ bool CircuitContext::beginSubcircuitContext(
     return false;
   }
 
-  if (numFields < 3)
-  {
-    Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-      << "At least one node required for subcircuit " << subcircuitLine[1].string_;
-    return false;
-  }
+  // Extract and set the subcircuit name.
+  ExtendedString field ( subcircuitLine[1].string_ );
+  field.toUpper();
+  subcircuitContextPtr->setName(field);
 
   if (DEBUG_IO)
   {
@@ -270,10 +287,12 @@ bool CircuitContext::beginSubcircuitContext(
                  << "  Number of fields on subckt line = " << numFields << std::endl;
   }
 
-  // Extract and set the subcircuit name.
-  ExtendedString field ( subcircuitLine[1].string_ );
-  field.toUpper();
-  subcircuitContextPtr->setName(field);
+  if (numFields < 3)
+  {
+    std::stringstream subcktMsg;
+    subcktMsg << "At least one node required for subcircuit " << subcircuitLine[1].string_;
+    errorMsg.push_back( subcktMsg.str() );
+  }
 
   // Extract the subcircuit external nodes.
   int i;
@@ -293,8 +312,9 @@ bool CircuitContext::beginSubcircuitContext(
     }
     if (fieldES == "0")
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_) 
-        << "Ground node '0' appears in .SUBCKT line";
+      std::stringstream subcktMsg;
+      subcktMsg << "Ground node '0' appears in .SUBCKT line";
+      errorMsg.push_back( subcktMsg.str() );
     }
     subcircuitContextPtr->nodeList_.push_back(fieldES);
   }
@@ -302,7 +322,6 @@ bool CircuitContext::beginSubcircuitContext(
   // Extract the subcircuit parameters.
   Util::Param parameter("","");
 
-  bool result = true;
   ++i; // Advance to start of parameters.
   while (i+2 < numFields)
   {
@@ -310,26 +329,26 @@ bool CircuitContext::beginSubcircuitContext(
     fieldES.toUpper();
     if (!fieldES.possibleParam())
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[i].lineNumber_)
-        << "Parameter name " << subcircuitLine[i].string_ <<  " contains illegal character(s)";
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Parameter name " << subcircuitLine[i].string_ <<  " contains illegal character(s)";
+      errorMsg.push_back( subcktMsg.str() );
     }
     parameter.setTag( fieldES );
 
     if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
          (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") )
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[i].lineNumber_)
-        << "Parameter name " << parameter.uTag() << " not allowed in subcircuit parameter list for subcircuit "
-        << getName();
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Parameter name " << parameter.uTag() << " not allowed in subcircuit parameter list for subcircuit "
+                << getName();
+      errorMsg.push_back( subcktMsg.str() );
     }
 
     if ( subcircuitLine[i+1].string_ != "=" )
     {
-      Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-        << "Equal sign required between parameter and value in PARAM list for subcircuit " << getName();
-      result = false;
+      std::stringstream subcktMsg;
+      subcktMsg << "Equal sign required between parameter and value in PARAM list for subcircuit " << getName();
+      errorMsg.push_back( subcktMsg.str() );
     }
 
     else {
@@ -348,11 +367,11 @@ bool CircuitContext::beginSubcircuitContext(
   }
 
   // check for truncated params: list
-  if ( result && i < numFields )
+  if ( errorMsg_.empty() && i < numFields )
   {
-    Report::UserError0().at(netlistFileName, subcircuitLine[0].lineNumber_)
-      << "Parameter list error in subcircuit " << getName();
-    result = false;
+    std::stringstream subcktMsg;
+    subcktMsg << "Parameter list error in subcircuit " << getName();
+    errorMsg.push_back( subcktMsg.str() );
   }
 
   if (DEBUG_IO)
@@ -361,7 +380,30 @@ bool CircuitContext::beginSubcircuitContext(
                  << "*******************************************" << std::endl;
   }
 
-  return result;
+  // Set the error message with the new subcircuit context
+  subcircuitContextPtr->setErrorMsg( errorMsg );
+
+  return result; 
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::printErrorMsg
+// Purpose        : print any error messages generated by this subcircuit
+// Special Notes  :
+// Scope          :
+// Creator        : Heidi Thornquist
+// Creation Date  : 01/31/2023
+//----------------------------------------------------------------------------
+void CircuitContext::printErrorMsg()
+{
+  // Output any messages for this circuit block that haven't
+  // been output before as a warning.  Clear messages to keep
+  // them from being output again.
+  for (std::vector<std::string>::iterator it = errorMsg_.begin(); it != errorMsg_.end(); ++it )
+  {
+    Report::UserError().at(location_) << *it;
+  }
+  errorMsg_.clear();
 }
 
 //----------------------------------------------------------------------------
@@ -1571,7 +1613,10 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       Xyce::dout()<<" "<<parameter.uTag()<<" is STR type; value =  "<< parameter.stringValue()<<std::endl;
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE type; value =  "<< parameter.getImmutableValue<double>()<<std::endl;
+      Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE type; value =  "<< parameter.getMutableValue<double>()<<std::endl;
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout()<<" "<<parameter.uTag()<<" is CMPLX type; value =  "<< parameter.getMutableValue< std::complex<double> >()<<std::endl;
       break;
     case Xyce::Util::EXPR:
       Xyce::dout()<<" "<<parameter.uTag()<<" is EXPR type; value =  "<<parameter.getValue<Util::Expression>().get_expression()<<std::endl;
@@ -1587,6 +1632,9 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       break;
     case Xyce::Util::DBLE_VEC:
       Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE_VEC type; value =  "<<parameter.stringValue()<<std::endl;
+      break;
+    case Xyce::Util::CMPLX_VEC:
+      Xyce::dout()<<" "<<parameter.uTag()<<" is CMPLX_VEC type; value =  "<<parameter.stringValue()<<std::endl;
       break;
     case Xyce::Util::DBLE_VEC_IND:
       Xyce::dout()<<" "<<parameter.uTag()<<" is DBLE_VEC_IND type; value =  "<<parameter.stringValue()<<std::endl;
@@ -1604,7 +1652,10 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
       Xyce::dout()<<parameter.stringValue();
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout()<<parameter.getImmutableValue<double>();
+      Xyce::dout()<<parameter.getMutableValue<double>();
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout()<<parameter.getMutableValue< std::complex<double> >();
       break;
     case Xyce::Util::EXPR:
       Xyce::dout()<<parameter.getValue<Util::Expression>().get_expression();
@@ -1760,9 +1811,16 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
       else
       {
         // Reset the parameter value to the value of the expression.
-        double value(0.0);
+        std::complex<double> value(0.0);
         expression.evaluateFunction ( value );
-        parameter.setVal( value );
+        if (expression.getIsComplex())
+        {
+          parameter.setVal( value );
+        }
+        else
+        {
+          parameter.setVal( std::real(value) );
+        }
         // we have resolved the context so set it and the constant value to 
         // make later look ups easier.
         // parameter.addOp(Util::CONSTANT, new IO::ConstantOp(parameter.tag(), value));
@@ -1924,7 +1982,10 @@ void debugResolveStringsOutput(const Util::Param & expressionParameter, const st
       Xyce::dout() << expressionParameter.stringValue();
       break;
     case Xyce::Util::DBLE:
-      Xyce::dout() << expressionParameter.getImmutableValue<double>();
+      Xyce::dout() << expressionParameter.getMutableValue<double>();
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout() << expressionParameter.getMutableValue< std::complex<double> >();
       break;
     case Xyce::Util::EXPR:
       Xyce::dout() << "EXPR("<<expressionParameter.getValue<Util::Expression>().get_expression()<< ")";
@@ -1999,11 +2060,22 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
       {
         if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], false); }
 
-        if ( expressionParameter.getType() == Xyce::Util::STR ||
-             expressionParameter.getType() == Xyce::Util::DBLE )
+        if ( expressionParameter.getType() == Xyce::Util::STR ||  
+             expressionParameter.getType() == Xyce::Util::DBLE)
         {
+            // ERK. "string" will be tested vs. the isValue function, which doesn't detect complex numbers yet;  
+            // so, if it is a pure number, then it must be a real. (for now).  For now, complex valued parameters 
+            // must be set as expressions, inside of braces.
           enumParamType paramType=DOT_PARAM;
           if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>(),paramType))
+          {
+            Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
+          }
+        }
+        else if ( expressionParameter.getType() == Xyce::Util::CMPLX)
+        {
+          enumParamType paramType=DOT_PARAM;
+          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue< std::complex<double> >(),paramType))
           {
             Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
           }
@@ -2689,6 +2761,8 @@ void CircuitContext::pruneContexts( std::vector<std::string>& keepContexts )
     }
     else
     {
+      // Check that the circuit context is without errors before proceeding.
+      itsc->second->printErrorMsg();
       itsc++;
     }
   }

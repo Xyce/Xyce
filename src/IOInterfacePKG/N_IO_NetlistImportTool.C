@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -692,7 +692,9 @@ void printLineDiagnostics(
             parameter.getValue<Util::Expression>().getUnresolvedParams(strings);
             parameter.getValue<Util::Expression>().getSpecials(special);
           }
-          else if ( ((parameter.getType()) == Util::DBLE) || ((parameter.getType()) == Util::INT) )
+          else if ( ((parameter.getType()) == Util::DBLE) || 
+                    ((parameter.getType()) == Util::INT) || 
+                    ((parameter.getType()) == Util::CMPLX) )
           {
           }
           instances.insert(instances.end(), leads.begin(), leads.end());  // and lead currents to instances

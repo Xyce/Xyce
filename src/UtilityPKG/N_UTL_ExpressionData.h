@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -130,6 +130,8 @@ public:
       std::complex<double> &result, 
       std::vector< std::complex<double> > &derivs 
       ) const;
+
+   bool getIsComplex () const;
 
 private:
   Expression *                  expression_;                    ///< Compiled Expression

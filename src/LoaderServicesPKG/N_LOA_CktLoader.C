@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -354,7 +354,9 @@ double CktLoader::getParamAndReduce(
   Parallel::Machine     comm,
   const std::string &   name) const
 {
-  return Device::getParamAndReduce(comm, deviceManager_, name);
+  double val=0.0;
+  Device::getParamAndReduce(comm, deviceManager_, name, val);
+  return val;
 }
 
 //-----------------------------------------------------------------------------

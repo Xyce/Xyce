@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -76,12 +76,17 @@ class SweepParam;
 namespace Xyce {
 namespace Device {
 
-bool
-getParamAndReduce(
+bool getParamAndReduce(
   Parallel::Machine     comm,
   const DeviceMgr &     device_manager,
   const std::string &   name,
   double &              val);
+
+bool getParamAndReduce(
+  Parallel::Machine     comm,
+  const DeviceMgr &     device_manager,
+  const std::string &   name,
+  std::complex<double> & val);
 
 //-----------------------------------------------------------------------------
 // Class         : DeviceMgr
@@ -94,6 +99,7 @@ class DeviceMgr : public Util::Listener<Analysis::StepEvent>
 {
   friend struct ArtificialParameters::ArtificialParameter;
   friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, double &value);
+  friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, std::complex<double> &value);
 
 public:
   typedef std::vector<Device *> DeviceVector;
@@ -243,6 +249,10 @@ public:
   bool analyticBVecSensAvailable(const std::string & name);
   bool numericalBVecSensAvailable(const std::string & name);
 //
+  
+ 
+  void setupDependentEntities ();
+
   bool setParam(const std::string & name, double val, bool overrideOriginal = false);
 
   bool setParamRandomExpressionTerms(
@@ -713,12 +723,6 @@ inline void DeviceMgr::setVoltageLimiterFlag ( bool flagVal )
 
 bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options_manager);
 void registerOpBuilders(Util::Op::BuilderManager &builder_manager, Parallel::Machine comm, DeviceMgr &device_manager);
-
-double
-getParamAndReduce(
-  Parallel::Machine     comm,
-  const DeviceMgr &     device_manager,
-  const std::string &   name);
 
 void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -181,6 +181,9 @@ void DeviceBlock::print()
         case Xyce::Util::DBLE:
           Xyce::dout() << " " <<"DBLE";
           break;
+        case Xyce::Util::CMPLX:
+          Xyce::dout() << " " <<"CMPLX";
+          break;
         case Xyce::Util::EXPR:
           Xyce::dout() << " " <<"EXPR";
           break;
@@ -195,6 +198,9 @@ void DeviceBlock::print()
           break;
         case Xyce::Util::DBLE_VEC:
           Xyce::dout() << " " <<"DBLE_VEC"; 
+          break;
+        case Xyce::Util::CMPLX_VEC:
+          Xyce::dout() << " " <<"CMPLX_VEC"; 
           break;
         case Xyce::Util::DBLE_VEC_IND:
           Xyce::dout() << " " <<"DBLE_VEC_IND"; 
@@ -1922,6 +1928,23 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
             parameterPtr->setVal( parsedInputLine[linePosition].string_ );
           }
         }
+        else if (parameterPtr->getType() == Xyce::Util::CMPLX)
+        {
+          const std::string & tmpStr = (parsedInputLine[linePosition].string_);
+          // check if "possibeParam" and "isValue" appropriately handle complex valued numbers.
+          if (Util::possibleParam(tmpStr))
+          {
+            parameterPtr->setVal( "{" + parsedInputLine[linePosition].string_ + "}" );
+          }
+          else if (Util::isValue(tmpStr))
+          {
+            parameterPtr->setVal( Util::Value(tmpStr) );
+          }
+          else
+          {
+            parameterPtr->setVal( parsedInputLine[linePosition].string_ );
+          }
+        }
         else if (parameterPtr->getType() == Xyce::Util::INT)
         {
           const std::string & tmpStr = (parsedInputLine[linePosition].string_);
@@ -2431,6 +2454,15 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
                 << getInstanceName() << " instance parameter " << parameter.tag() << " to its value.";
             }
           }
+          else if (paramIter->getType() == Xyce::Util::CMPLX)
+          {
+            enumParamType paramType=DOT_PARAM;
+            if (!expression.make_constant(strings[jj], paramIter->getImmutableValue< std::complex<double> >(),paramType))
+            {
+              Report::UserWarning0() << "Problem converting subcircuit " 
+                << getInstanceName() << " instance parameter " << parameter.tag() << " to its value.";
+            }
+          }
           else if (paramIter->getType() == Xyce::Util::EXPR)
           {
             enumParamType paramType=DOT_PARAM;
@@ -2495,6 +2527,9 @@ void debugSubcircuitParamOutput(Xyce::Device::Param & parameter)
       break;
     case Xyce::Util::DBLE:
       Xyce::dout() << parameter.getImmutableValue<double>();
+      break;
+    case Xyce::Util::CMPLX:
+      Xyce::dout() << parameter.getImmutableValue< std::complex<double> >();
       break;
     case Xyce::Util::EXPR:
     {

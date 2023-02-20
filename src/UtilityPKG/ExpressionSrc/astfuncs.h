@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -38,7 +38,7 @@
 #ifndef _astfuncs_h_
 #define _astfuncs_h_
 
-#define AST_OP_MACRO(NAME,DX)                                                          \
+#define AST_OP_MACRO(NAME,DX,ISCOMPLEX)                                                \
 template <typename ScalarT>                                                            \
 class NAME ## Op : public astNode<ScalarT>                                             \
 {                                                                                      \
@@ -77,6 +77,15 @@ class NAME ## Op : public astNode<ScalarT>                                      
       }                                                                                \
     }                                                                                  \
                                                                                        \
+    virtual bool getIsTreeConstant()                                                   \
+      { return (this->leftAst_->getIsTreeConstant() ); }                               \
+                                                                                       \
+    virtual bool getIsComplex ()                                                       \
+      {                                                                                \
+        if (!ISCOMPLEX) return false;                                                  \
+        return (this->leftAst_->getIsComplex());                                       \
+      }                                                                                \
+                                                                                       \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \
@@ -97,21 +106,21 @@ class NAME ## Op : public astNode<ScalarT>                                      
     bool leftConst_;                                                                   \
 };
 
-AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))))
-AST_OP_MACRO( exp, (leftDx*std::exp(leftVal)))
-AST_OP_MACRO( abs, (std::real(leftVal) >= 0 ? leftDx : ScalarT(-leftDx)))
-AST_OP_MACRO( sin, (leftDx*std::cos(leftVal)))
-AST_OP_MACRO( cos, (-leftDx*std::sin( leftVal)))
-AST_OP_MACRO( acos, ( -leftDx/std::sqrt(1.-leftVal*leftVal) ))
-AST_OP_MACRO( acosh, (leftDx/std::sqrt((leftVal-1.)*(leftVal+1.))))
-AST_OP_MACRO( asin, (leftDx/std::sqrt(1.-leftVal*leftVal)))
-AST_OP_MACRO( asinh, (leftDx/std::sqrt(1.+leftVal*leftVal)))
-AST_OP_MACRO( cosh, (leftDx*std::sinh(leftVal)))
-AST_OP_MACRO( log, (leftDx/leftVal))
-AST_OP_MACRO( log10, (leftDx/(std::log(ScalarT(10))*leftVal)))
-AST_OP_MACRO( sinh, (leftDx*std::cosh(leftVal)))
-AST_OP_MACRO( tan, (leftDx*(1.+std::tan(leftVal)*std::tan(leftVal))))
-AST_OP_MACRO( atan, (leftDx/(1.+leftVal*leftVal)))
+AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))),true)
+AST_OP_MACRO( exp, (leftDx*std::exp(leftVal)),true)
+AST_OP_MACRO( abs, (std::real(leftVal) >= 0 ? leftDx : ScalarT(-leftDx)),false)
+AST_OP_MACRO( sin, (leftDx*std::cos(leftVal)),true)
+AST_OP_MACRO( cos, (-leftDx*std::sin( leftVal)),true)
+AST_OP_MACRO( acos, ( -leftDx/std::sqrt(1.-leftVal*leftVal) ),true)
+AST_OP_MACRO( acosh, (leftDx/std::sqrt((leftVal-1.)*(leftVal+1.))),true)
+AST_OP_MACRO( asin, (leftDx/std::sqrt(1.-leftVal*leftVal)),true)
+AST_OP_MACRO( asinh, (leftDx/std::sqrt(1.+leftVal*leftVal)),true)
+AST_OP_MACRO( cosh, (leftDx*std::sinh(leftVal)),true)
+AST_OP_MACRO( log, (leftDx/leftVal),true)
+AST_OP_MACRO( log10, (leftDx/(std::log(ScalarT(10))*leftVal)),true)
+AST_OP_MACRO( sinh, (leftDx*std::cosh(leftVal)),true)
+AST_OP_MACRO( tan, (leftDx*(1.+std::tan(leftVal)*std::tan(leftVal))),true)
+AST_OP_MACRO( atan, (leftDx/(1.+leftVal*leftVal)),true)
 
 template <typename ScalarT> 
 class tanhOp : public astNode<ScalarT> 

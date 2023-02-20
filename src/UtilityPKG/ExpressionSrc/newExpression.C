@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -704,6 +704,12 @@ bool newExpression::make_constant (
       << paramNameUpper
       << " in expression: " << expressionString_ <<std::endl;
   }
+
+    if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
+    {
+      Xyce::dout() << "newExpression::make_constant for " << var << ". Expression tree for " << expressionString_ << std::endl;
+      dumpParseTree(Xyce::dout());
+    }
 
   return retval;
 }
@@ -1523,8 +1529,31 @@ void newExpression::setValue(usedType val)
 }
 
 //-------------------------------------------------------------------------------
-// these two functions return int error codes in the original expression library
+// Function      : newExpression::updateForStep
+//
+// Purpose       : Updates parts of the expression that only need updating when
+//                 otherwise static parameters change due to things like a .STEP
+//                 iteration.
+// 
+// Special Notes : returns "true" if anything meaningful is updated, otherwise false.
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 2/10/2023
 //-------------------------------------------------------------------------------
+bool newExpression::updateForStep()
+{
+  bool updated=false;
+
+  if(isTimeDependent_)
+  {
+    int srcSize = srcAstNodeVec_.size();
+    for (int ii=0;ii< srcSize; ii++)
+    { (srcAstNodeVec_[ii])->updateForStep(); }
+  }
+
+  return updated;
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::evaluate
@@ -1911,6 +1940,25 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
     Xyce::Util::toUpper(functionArgStringVec_[ii]);
   }
 };
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::getIsComplex
+// Purpose       : returns true if the expression will produce a complex-valued result.
+// Special Notes : mostly used for outputs in the IO package.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 2/14/2023
+//-------------------------------------------------------------------------------
+bool newExpression::getIsComplex ()
+{
+  bool isComplex=true; // check this
+
+  if( !(Teuchos::is_null(astNodePtr_)) )
+  {
+    isComplex = astNodePtr_->getIsComplex();
+  }
+  return isComplex;
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::treatAsTempAndConvert()

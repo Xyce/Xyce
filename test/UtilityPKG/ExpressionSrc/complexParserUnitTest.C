@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -644,7 +644,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Rop2)
 }
 
 
-// M(number) = abs of number.
+// M(number) = abs of complex number.
 TEST ( Complex_Parser_Test, singleCharacter_Mop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -652,6 +652,89 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop)
   testExpression.lexAndParseExpression();
   std::complex<double> input(1.0,2.0);
   std::complex<double> refresult(std::abs(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+
+
+// M(parameter) = abs of complex valued parameter
+TEST ( Complex_Parser_Test, singleCharacter_Mop_Param)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M(par1)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup the parameter
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// M(parameter) = abs of complex valued expression
+TEST ( Complex_Parser_Test, singleCharacter_Mop_Expr)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M(par1 + par2*4.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup parameter par1
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  // setup parameter par2
+  Teuchos::RCP<Xyce::Util::newExpression> par2Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par2Expression->lexAndParseExpression();
+  std::string par2Name = "par2";
+  testExpression.attachParameterNode(par2Name,par2Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input)*5.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// M(parameter) = abs of complex valued expression with a function
+TEST ( Complex_Parser_Test, singleCharacter_Mop_Func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M(par1 + F1(4.0))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup parameter par1
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  // setup function F1
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*(1.0+2.0J)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input)*5.0);
   std::complex<double> result(0.0);
   testExpression.evaluateFunction(result);
   EXPECT_EQ( result, refresult);
@@ -742,6 +825,90 @@ TEST ( Complex_Parser_Test, complexOps_ABSop)
   testExpression.evaluateFunction(result);
   EXPECT_EQ( result, std::abs(std::complex<double>(2.0,3.0)));
 }
+
+
+// ABS(parameter) = abs of complex valued parameter
+TEST ( Complex_Parser_Test, singleCharacter_ABSop_Param)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("ABS(par1)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup the parameter
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// ABS(parameter) = abs of complex valued expression
+TEST ( Complex_Parser_Test, singleCharacter_ABSop_Expr)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("ABS(par1 + par2*4.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup parameter par1
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  // setup parameter par2
+  Teuchos::RCP<Xyce::Util::newExpression> par2Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par2Expression->lexAndParseExpression();
+  std::string par2Name = "par2";
+  testExpression.attachParameterNode(par2Name,par2Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input)*5.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// ABS(parameter) = abs of complex valued expression with a function
+TEST ( Complex_Parser_Test, singleCharacter_ABSop_Func)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("ABS(par1 + F1(4.0))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup parameter par1
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0+2.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  // setup function F1
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*(1.0+2.0J)"), testGroup));
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->lexAndParseExpression();
+  std::string f1Name;
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  testExpression.attachFunctionNode(f1Name, f1Expression);
+
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input)*5.0);
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+
 
 TEST ( Complex_Parser_Test, complexOps_DBop)
 {
@@ -12736,6 +12903,135 @@ TEST ( Complex_Parser_Zparam_Test, zparam2)
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])));
   
   //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam2)
+}
+
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("1.0+2.0J"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Re(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Img(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex4)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+// testing the "getIsComplex" function
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex5)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("2.0"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_FALSE (isComplex);
+}
+
+
+// testing the "getIsComplex" function
+// this expression is complex because while Ph(1.0+2.0J) is real, par1 is complex.
+TEST ( Complex_Parser_Test_cmplxBoolean, isComplex6)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)*par1"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // setup the parameter
+  Teuchos::RCP<Xyce::Util::newExpression> par1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0-3.0J"), testGroup));
+  par1Expression->lexAndParseExpression();
+  std::string par1Name = "par1";
+  testExpression.attachParameterNode(par1Name,par1Expression);
+
+  bool isComplex = testExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  isComplex = copyExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
+
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  isComplex = assignExpression.getIsComplex ();
+  ASSERT_TRUE (isComplex);
 }
 
 int main (int argc, char **argv)

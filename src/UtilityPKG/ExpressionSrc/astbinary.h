@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -79,9 +79,12 @@ class NAME : public astNode<ScalarT>                                            
       result=VAL;                                                                      \
       for (int i=0;i<numDerivs;i++) {                                                  \
         if (!leftConst_)  { leftDx = lefDerivs_[i]; }                                  \
-        if (!rightConst_) { rightDx = rigDerivs_[i]; }                                \
+        if (!rightConst_) { rightDx = rigDerivs_[i]; }                                 \
         derivs[i] = DX; }                                                              \
     }                                                                                  \
+                                                                                       \
+    virtual bool getIsComplex ()                                                       \
+    { return (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex()); }    \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
@@ -103,6 +106,8 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                    \
       os << ")";                                                                       \
     }                                                                                  \
+    virtual bool getIsTreeConstant() { return                                          \
+     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }   \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
 };

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -200,6 +200,11 @@ public:
   bool setParameterRandomExpressionTerms(const std::string & paramName, int opIndex, int astType, double value, bool override_original);
 
   bool updateGlobalAndDependentParameters (
+      bool globalParameterChanged,
+      bool timeChanged, 
+      bool freqChanged);
+
+  bool updateGlobalAndDependentParametersForStep (
       bool globalParameterChanged,
       bool timeChanged, 
       bool freqChanged);

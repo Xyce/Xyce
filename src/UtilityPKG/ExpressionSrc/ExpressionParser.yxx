@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -735,6 +735,8 @@ void createCurrentOp(
 %token TOK_RIGHTCURLYBRACE "rightcurlybrace"
 %token TOK_LEFTCURLYBRACE  "leftcurlybrace"
 
+%token TOK_SINGLEQUOTE "singlequote"
+
 // types for nonterminal operators
 %type  <Teuchos::RCP<astNode<usedType> > >   exp
 %type  <Teuchos::RCP<astNode<usedType> > >   expression
@@ -949,6 +951,10 @@ exp:
        $$ = $2;
     }
   | TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_SINGLEQUOTE exp TOK_SINGLEQUOTE
     {
        $$ = $2;
     }
@@ -1263,7 +1269,8 @@ exp:
       Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
       Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
       Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
-      $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      Teuchos::RCP<astNode<usedType> > multPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      $$ = Teuchos::RCP<astNode<usedType> >(new realOp <usedType>  (multPtr)); // using realOp forces the getIsComplex to return false
     }
   | TOK_SQRT exp TOK_RIGHTPAREN
     {
@@ -1328,7 +1335,8 @@ exp:
       {
         usedType tmp = std::abs($2->val());
         Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
-        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(numvalPtr)); // using realOp forces the getIsComplex to return false
       }
       else
       {

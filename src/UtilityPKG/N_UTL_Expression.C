@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -250,6 +250,21 @@ bool Expression::make_constant (const std::string & var, const double & val, enu
 {
   return newExpPtr_->make_constant (var,val, type);
 }
+
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::make_constant
+// Purpose       : Convert a 'string' placeholder into a complex constant
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 02/15/2023
+//-----------------------------------------------------------------------------
+bool Expression::make_constant (const std::string & var, const std::complex<double> & val, enumParamType type)
+{
+  return newExpPtr_->make_constant (var,val, type);
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::setAsGlobal
@@ -718,6 +733,19 @@ bool Expression::getIsConstant ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getIsComplex
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2/14/2023
+//-----------------------------------------------------------------------------
+bool Expression::getIsComplex ()
+{
+  return newExpPtr_->getIsComplex ();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::setTemperature
 // Purpose       :
 // Special Notes : This is ONLY called when you want to override the
@@ -772,6 +800,28 @@ bool Expression::setTemperature   (const double & temp)
 std::string Expression::get_expression () const
 {
   return newExpPtr_->getExpressionString();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::update
+// Purpose       : Update expression for .STEP, etc.
+//
+// Special Notes : This is for efficiency, so that some aspects of updating
+//                 an expression don't have to happen during "evaluate" or
+//                 "evaluateFunction" calls, which have to happen every Newton step.
+//                 Some updates only happen at the beginning of .STEP
+//                 iterations.
+//
+//                 This returns a "true" if anything was meaningfully
+//                 updated, otherwise false.
+//
+// Scope         : private
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 02/10/2023
+//-----------------------------------------------------------------------------
+bool Expression::updateForStep ()
+{
+  return newExpPtr_->updateForStep();
 }
 
 //-----------------------------------------------------------------------------

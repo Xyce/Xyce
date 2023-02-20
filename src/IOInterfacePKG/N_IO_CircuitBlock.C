@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -852,39 +852,6 @@ void CircuitBlock::setLinePosition( int const& position )
   ssfPtr_->setLineNumber( position );
 }
 
-//--------------------------------------------------------------------------
-// Function      : CircuitBlock::extractSubcircuitData
-// Purpose       : Extract subcircuit data from parsedLine. The bulk of
-//                 the subcircuit data is stored in the circuit context.
-//                 A circuit block is created to represent the subcircuit
-//                 but mainly exists to help with the recursive descent
-//                 through the circuit during pass 2 to instantiate devices.
-//                 All that is needed for this is the subcircuit name.
-// Special Notes :
-// Creator       : Lon Waters
-// Creation Date : 09/21/2001
-//--------------------------------------------------------------------------
-bool CircuitBlock::extractSubcircuitData(std::string fileName, 
-                                         TokenVector const& parsedLine)
-{
-  const int numFields = parsedLine.size();
-
-  if ( numFields < 3 )
-  {
-    Report::DevelFatal0().in("CircuitBlock::extractSubcircuitData").at(fileName, parsedLine[0].lineNumber_)
-      << "This should have been detected earlier in parse";
-    return false;
-  }
-
-  // Extract the subcircuit name.
-  ExtendedString field ( parsedLine[1].string_ );
-  field.toUpper();
-  name_ = field;
-
-  return true;
-}
-
-
 //-----------------------------------------------------------------------------
 // Function      : CircuitBlock::addTableData
 // Purpose       : Add a device to the circuit.
@@ -1533,25 +1500,24 @@ bool CircuitBlock::handleLinePass1(
 
       // Extract the subcircuit data from line.
       if (result) {
-        result = subcircuitBlockPtr->extractSubcircuitData(netlistFilename_, line)
-                 && result;
+        // Extract the subcircuit data from line.
+        std::string subcircuitName = circuitContext_.getCurrentContextPtr()->getName();
 
-        ExtendedString S ( line[1].string_ );
-        S.toUpper();
-        if ( circuitBlockTable_.find( S ) != circuitBlockTable_.end() )
+        subcircuitBlockPtr->setName( subcircuitName );
+
+        if ( circuitBlockTable_.find( subcircuitName ) != circuitBlockTable_.end() )
         {
           Report::UserError().at(netlistFilename_, line[0].lineNumber_)
-            << "Duplicate subcircuit definition detected: " <<  S;
+            << "Duplicate subcircuit definition detected: " <<  subcircuitName;
           result = false;
         }
 
-        circuitBlockTable_[S] = subcircuitBlockPtr;
+        circuitBlockTable_[ subcircuitName ] = subcircuitBlockPtr;
       }
 
-      result = subcircuitBlockPtr->parseNetlistFilePass1(options_manager, libSelect, libInside)
-               && result;
+      result &= subcircuitBlockPtr->parseNetlistFilePass1(options_manager, libSelect, libInside);
 
-      // get the current context name to compare 
+      // get the current context name to compare
       CircuitContext* context = circuitContext_.getCurrentContextPtr();
       std::string name = context->getName();
 

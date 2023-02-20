@@ -1,5 +1,5 @@
 /*-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -252,6 +252,7 @@ LEAD I[SDGBEC1-9]
 <INITIAL>";" { return XyceExpression::ExpressionParser::token::TOK_SEMICOLON; }
 <INITIAL>":" { return XyceExpression::ExpressionParser::token::TOK_COLON; }
 <INITIAL>"?" { return XyceExpression::ExpressionParser::token::TOK_QUESTION_MARK; }
+<INITIAL>"'" { return XyceExpression::ExpressionParser::token::TOK_SINGLEQUOTE; }
 
 
 <INITIAL>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }

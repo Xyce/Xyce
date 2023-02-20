@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -131,6 +131,12 @@ public:
   const std::string& getName() const
   {
     return name_;
+  }
+
+  // Set the name of the subcircuit, if this is a subcircuit
+  void setName(std::string const& name)
+  {
+    name_ = name;
   }
 
   // Get the name of the netlist file
@@ -328,7 +334,7 @@ public:
   {
     return levelSet_;
   }
-  
+
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup() { return expressionGroup_; }
 
 public:
@@ -454,10 +460,6 @@ private:
 
   // Post process analysis commands.
   bool handleAnalysis();
-
-  // Extract subcircuit data from parsedLine.
-  bool extractSubcircuitData(std::string fileName,
-                             TokenVector const& parsedLine);
 
   // Parse the given include file adding the contents
   // to the current CircuitBlock.

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2022 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -97,6 +97,8 @@ public:
 
   bool make_constant (std::string const & var, double const & val, enumParamType type=DOT_GLOBAL_PARAM);
 
+  bool make_constant (std::string const & var, std::complex<double> const & val, enumParamType type=DOT_GLOBAL_PARAM);
+
   void setAsGlobal();
   void setValue(double val);
   void setValue(std::complex<double> val);
@@ -135,9 +137,13 @@ public:
 
   bool getIsConstant ();
 
+  bool getIsComplex ();
+
   bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;
+
+  bool updateForStep ();
 
   bool evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
   bool evaluateFunction (std::complex<double> &result, bool efficiencyOn=false);
