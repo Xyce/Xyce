@@ -723,7 +723,17 @@ bool newExpression::make_constant (
 //                 If they are not, then there
 //                 will be some NULL pointers in the AST tree, which will cause
 //                 seg faults.
-// Special Notes :
+//
+// Special Notes : The main goal of this function is to set up the 
+//                 derivIndexVec_ structure.  This is a vector of pairs, where
+//                 pairs are (voltOp/currOp Op, int derivative_index) pairs.  This object is
+//                 used by the newExpression::evaluate function.
+//
+//                 As it sets this up, it also will create and use 
+//                 the container derivNodeIndexMap_, 
+//                 where  first  = std::string node/current
+//                 and    second = int derivative_index
+//
 // Scope         : private
 // Creator       : Eric Keiter
 // Creation Date : 11/5/2019
@@ -750,26 +760,34 @@ void newExpression::setupDerivatives_ ()
 
         const std::string & node = voltOp->getVoltageNode();
 
-        std::string tmp = node; Xyce::Util::toUpper(tmp);
-        std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
+        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        {
+          std::string nodeUpperCase = node; Xyce::Util::toUpper(nodeUpperCase);
+          std::unordered_map<std::string, int>::iterator mapIter;
+          mapIter = derivNodeIndexMap_.find(nodeUpperCase);
+
+          if (mapIter == derivNodeIndexMap_.end()) 
+          { 
+            derivNodeIndexMap_[nodeUpperCase] = numDerivs_; numDerivs_++; 
+          }
+          derivIndexPair_ voltageNodePair(voltOpVec_[ii],derivNodeIndexMap_[nodeUpperCase]);
+          derivIndexVec_.push_back(voltageNodePair);
+        }
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
       {
         Teuchos::RCP<currentOp<usedType> > currOp
           = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-        std::string tmp = currOp->getCurrentDevice();
-        Xyce::Util::toUpper(tmp);
+        std::string currentDeviceUpperCase = currOp->getCurrentDevice();
+        Xyce::Util::toUpper(currentDeviceUpperCase);
         std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
+        mapIter = derivNodeIndexMap_.find(currentDeviceUpperCase);
         if (mapIter == derivNodeIndexMap_.end())
         {
-          derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
+          derivNodeIndexMap_[currentDeviceUpperCase] = numDerivs_; numDerivs_++;
         }
-        derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[tmp]);
+        derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[currentDeviceUpperCase]);
         derivIndexVec_.push_back(currentNodePair);
       }
 
@@ -1035,6 +1053,8 @@ void newExpression::setupVariousAstArrays()
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
 
+        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        {
         if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;
@@ -1045,6 +1065,7 @@ void newExpression::setupVariousAstArrays()
         else
         {
           voltOpMap_[node].push_back(voltOpVec_[ii]);
+        }
         }
       }
 
@@ -1841,7 +1862,7 @@ bool newExpression::getBreakPoints (
 //                 pass.  The second pass basically removes all the semicolons.
 //
 //
-// Scope         :
+// Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 2020
 //-------------------------------------------------------------------------------
@@ -1851,7 +1872,11 @@ bool newExpression::replaceName (
 {
   setupVariousAstArrays ();
 
+  // voltOpMap is only used here, for search and replace.
+ 
   bool found=false;
+  bool newNameIsGroundNode = Xyce::Util::checkGroundNodeName(new_name);
+  bool newNameIsDuplicate = false;
   {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpMap_.find(old_name);
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpMap_.find(new_name);
@@ -1863,11 +1888,12 @@ bool newExpression::replaceName (
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
         const std::string & node = voltOp->getVoltageNode();
-        if(node == old_name) { voltOp->setVoltageNode(new_name); } 
+        if(node == old_name) { voltOp->setVoltageNode(new_name); }  // ERK note: if statement seems unnecessary.
       }
 
       if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors
       {
+        newNameIsDuplicate = true;
         std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
         astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
       }
@@ -1920,6 +1946,18 @@ bool newExpression::replaceName (
   {
     dumpParseTree(Xyce::dout());
   }
+
+  if (found)
+  {
+    if (newNameIsGroundNode || newNameIsDuplicate)
+    {
+      // voltOpMap and/or currentOpMap have been updated.
+      // the voltNameVec_ and currentNameVec_ have been updated, but not pruned.
+      astArraysSetup_ = false;
+      externalDependencies_ = true;
+    }
+  }
+
   return found;
 }
 

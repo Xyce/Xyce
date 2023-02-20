@@ -107,19 +107,20 @@ public:
   Teuchos::RCP<baseExpressionGroup> getGroup();
 
   // ERK new expression stuff.  These kind of replace "get_names"
-  void getUnresolvedParams    (std::vector<std::string> & params) const;
-  void getVoltageNodes        (std::vector<std::string> & nodes) const;
-  void getDeviceCurrents      (std::vector<std::string> & devices) const;
-  void getLeadCurrents        (std::vector<std::string> & leads) const;
+  void getUnresolvedParams        (std::vector<std::string> & params) const;
+  void getVoltageNodes            (std::vector<std::string> & nodes) const;
+  void getDeviceCurrents          (std::vector<std::string> & devices) const;
+  void getLeadCurrents            (std::vector<std::string> & leads) const;
   void getLeadCurrentsExcludeBsrc (std::vector<std::string> & leads) const;
-  void getUnresolvedFunctions (std::vector<std::string> & funcs) const;
-  void getShallowSpecials     (std::vector<std::string> & specials) const;
-  void getSpecials            (std::vector<std::string> & specials) const;
-  void getVariables           (std::vector<std::string> & variables) const;
-  void getPowerCalcs          (std::vector<std::string> & powerCalcs) const;
+  void getUnresolvedFunctions     (std::vector<std::string> & funcs) const;
+  void getShallowSpecials         (std::vector<std::string> & specials) const;
+  void getSpecials                (std::vector<std::string> & specials) const;
+  void getVariables               (std::vector<std::string> & variables) const;
+  void getPowerCalcs              (std::vector<std::string> & powerCalcs) const;
 
   const std::vector<std::string> & getVoltageNodes () const;
   const std::vector<std::string> & getDeviceCurrents () const;
+
   const std::vector<std::string> & getUnresolvedParams () const;
   const std::vector<std::string> & getUnresolvedFunctions () const;
   const std::vector<std::string> & getVariables() const;

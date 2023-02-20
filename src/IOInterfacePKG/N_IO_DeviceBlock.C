@@ -1909,7 +1909,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
 
         if (DEBUG_IO)
           Xyce::dout() << " Setting parameter " << parameterPtr->uTag()
-                       << "to value " << parsedInputLine[linePosition].string_ << std::endl;
+                       << " to value " << parsedInputLine[linePosition].string_ << std::endl;
 
         // Set the parameter value.
         if (parameterPtr->getType() == Xyce::Util::DBLE)

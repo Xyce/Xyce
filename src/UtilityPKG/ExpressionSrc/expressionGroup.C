@@ -77,10 +77,13 @@ bool baseExpressionGroup::putValues(newExpression & expr)
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
 
       const std::string & node = voltOp->getVoltageNode();
-      usedType & val = voltOp->getVoltageVal();
-      usedType oldval = val;
-      getSolutionVal(node, val);
-      if(val != oldval) noChange=false;
+      if ( !Xyce::Util::checkGroundNodeName(node) ) 
+      {
+        usedType & val = voltOp->getVoltageVal();
+        usedType oldval = val;
+        getSolutionVal(node, val);
+        if(val != oldval) noChange=false;
+      }
     }
   }
 

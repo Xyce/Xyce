@@ -1030,9 +1030,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     dependentParam.storeOriginal=false;
   }
 
-  std::vector<std::string> names;
   bool isVoltDep = dependentParam.expr->getVoltageNodeDependent();
   bool isDevCurDep = dependentParam.expr->getDeviceCurrentDependent();
+
+  // error traps
   if (!(depend & ParameterType::SOLN_DEP))
   {
     if(isVoltDep || isDevCurDep)
@@ -1050,25 +1051,30 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     }
   }
 
-  std::vector<int> types;
-  if(isVoltDep)
-  {
-    const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
-    names.insert( names.end(), nodes.begin(), nodes.end() );
-    types.resize(nodes.size(), XEXP_NODE);
-  }
-
-  bool isLeadCurDep= dependentParam.expr->getLeadCurrentDependentExcludeBsrc();
-  if (isLeadCurDep)
+  if( dependentParam.expr->getLeadCurrentDependentExcludeBsrc() )
   {
     UserError(*this) << "Illegal use of lead current specification in expression '" 
                      << dependentParam.expr->get_expression()
                      << "' in parameter " << par.tag();
   }
 
+  // Set up dependent variables, to support Bsrc Jacobian entries.
+  // Also supports Jacobian entries for a few non-Bsrc devices which can also 
+  // have solution-dependent parameters, such as the resistor and capacitor
+  std::vector<std::string> names;
+  std::vector<int> types;
+  if(isVoltDep)
+  {
+    std::vector<std::string> nodes;
+    dependentParam.expr->getVoltageNodes(nodes);
+    names.insert( names.end(), nodes.begin(), nodes.end() );
+    types.resize(nodes.size(), XEXP_NODE);
+  }
+
   if(isDevCurDep)
   {
-    const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
+    std::vector<std::string> instances;
+    dependentParam.expr->getDeviceCurrents(instances);
     names.insert( names.end(), instances.begin(), instances.end() );
     int oldSize=types.size();
     types.resize(oldSize+instances.size(), XEXP_INSTANCE);

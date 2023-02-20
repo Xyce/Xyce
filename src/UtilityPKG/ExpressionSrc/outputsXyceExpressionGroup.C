@@ -161,8 +161,11 @@ bool outputsXyceExpressionGroup::setupGroup(newExpression &expr)
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
 
       const std::string & node = voltOp->getVoltageNode();
-      paramList.push_back(Param(std::string("V"),1  ));
-      paramList.push_back(Param(node,0.0));
+      if ( !Xyce::Util::checkGroundNodeName(node) ) 
+      {
+        paramList.push_back(Param(std::string("V"),1  ));
+        paramList.push_back(Param(node,0.0));
+      }
     }
 
     Util::Op::makeOps(comm_.comm(), op_builder_manager, NetlistLocation(), paramList.begin(), paramList.end(), std::back_inserter(voltageOps_));
@@ -346,10 +349,15 @@ bool outputsXyceExpressionGroup::putValues(newExpression & expr)
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
-      usedType & val = voltOp->getVoltageVal();
-      usedType oldval = val;
-      val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
-      if(val != oldval) noChange=false;
+
+      const std::string & node = voltOp->getVoltageNode();
+      if ( !Xyce::Util::checkGroundNodeName(node) ) 
+      {
+        usedType & val = voltOp->getVoltageVal();
+        usedType oldval = val;
+        val = Util::Op::getValue(comm_.comm(), *(*it), opData_); // fix for double.  this assumes std::complex<double>
+        if(val != oldval) noChange=false;
+      }
     }
   }
 

@@ -1069,7 +1069,7 @@ private:
 // Creator       : Eric Keiter
 // Creation Date : 9/3/2020
 //-------------------------------------------------------------------------
-inline bool checkGroundNodeName(std::string & name)
+inline bool checkGroundNodeName(const std::string & name)
 {
   std::string tmpName = name;
   Xyce::Util::toUpper(tmpName);

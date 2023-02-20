@@ -13098,7 +13098,6 @@ TEST ( Complex_Parser_Test_getVoltNames, voltNames2)
   }
 }
 
-#if 0
 // disabling this test until it works
 TEST ( Complex_Parser_Test_getVoltNames, voltNames3)
 {
@@ -13118,29 +13117,191 @@ TEST ( Complex_Parser_Test_getVoltNames, voltNames3)
   testExpression.replaceName(old_name2, new_name2);
 
   int correctNumberNodes=1;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
 
   {
+  testExpression.setupVariousAstArrays();
   const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
   int numVoltageNodes= voltNames.size();
   ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  //for (int ii=0;ii<numVoltageNodes; ii++) { std::cout << "voltNames3.  voltNames["<<ii<<"] = " << voltNames[ii] <<std::endl; }
   }
 
   {
-  Xyce::Util::newExpression copyExpression(testExpression);
+  copyExpression.setupVariousAstArrays();
   const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
   int numVoltageNodes= voltNames.size();
   ASSERT_EQ (numVoltageNodes, correctNumberNodes);
   }
 
   {
-  Xyce::Util::newExpression assignExpression;
-  assignExpression = testExpression;
+  assignExpression.setupVariousAstArrays();
   const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
   int numVoltageNodes= voltNames.size();
   ASSERT_EQ (numVoltageNodes, correctNumberNodes);
   }
 }
-#endif
+
+TEST ( Complex_Parser_Test_getVoltNames, voltNames4)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be a single derivative, value = 3;
+  // This is b/c after replacement, the expression is equivalent to {3*V(A)}
+  int correctNumberDerivs=1;
+
+  std::complex<double> result(0.0,0.0), Aval(1.0,0.0);
+  std::complex<double> refRes = 3.0*Aval;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(3.0);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+}
+
+TEST ( Complex_Parser_Test_getVoltNames, voltNames5)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("8.0*I(vb) + V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be two derivatives, value = 3 and 8
+  // This is b/c after replacement, the expression is equivalent to {8*I(vb) + 3*V(A)}
+  //
+  // Derivative array from expression library are in order of voltages first, currents second.
+  int correctNumberDerivs=2;
+
+  std::complex<double> result(0.0,0.0), Aval(1.0,0.0);
+  std::complex<double> VBval=std::complex<double>(8.0,0.0);
+  solnGroup->setSoln(std::string("vb"),VBval);
+  std::complex<double> refRes = 3.0*Aval + 8.0*VBval;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(3.0);
+  refDer.push_back(8.0);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+}
+
+TEST ( Complex_Parser_Test_getVoltNames, voltNames6)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  std::string gnd_name = "0";
+  testExpression.replaceName(new_name1, gnd_name); // now everything is ground
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be a zero derivatives.
+  // This is b/c after replacement, the expression is equivalent to {3*V(0)}
+  int correctNumberDerivs=0;
+
+  std::complex<double> result(0.0,0.0); 
+  std::complex<double> Aval(1.0,0.0);
+  std::complex<double> GNDval(0.0,0.0);
+  std::complex<double> refRes = 0.0;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),GNDval);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+}
+
 
 int main (int argc, char **argv)
 {
