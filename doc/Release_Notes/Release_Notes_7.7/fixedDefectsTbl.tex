@@ -119,5 +119,18 @@
   library were not properly reset at the beginning of each \texttt{.STEP} 
   iteration.  This was causing breakpoints to be overlooked early in the transient.
   This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Bugs/41}: Expression library inconsistently handles 
+  subcircuit nodes for derivatives &  When invoked from a Bsrc, the expression 
+  library has to provide derivatives as well as function evaluations.  In the 
+  Bsrc, the needed derivatives are with respect to solution variables, which 
+  are usually voltage nodes.  When a Bsrc is inside of a subcircuit, it is 
+  possible that the original expression contains voltage node dependencies 
+  that will need to be replaced with the subcircuit instance nodes.  When 
+  this happens, the new list of nodes might include a duplicate or ground node, 
+  even if the original version did not.  The expression library wasn't 
+  handling this use case (new duplicates) correctly, and this caused a 
+  memory error.  This has been fixed.  \\ \hline
+
 \end{longtable}
 }
