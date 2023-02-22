@@ -427,7 +427,7 @@ Teuchos::RCP<Parallel::ParMap> createBlockParMap( int numBlocks, const Parallel:
 
    // Extract the global indices.
    const Parallel::EpetraParMap& e_pmap = dynamic_cast<const Parallel::EpetraParMap&>(pmap);
-   e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
+   e_pmap.petraMap()->MyGlobalElements( BaseGIDs.data() );
 
    for( int i = 0; i < numBlocks; ++i )
    {

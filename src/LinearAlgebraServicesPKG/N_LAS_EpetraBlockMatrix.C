@@ -176,7 +176,7 @@ EpetraBlockMatrix::EpetraBlockMatrix( int size,
   // Communicate the augmented GIDs to all processors.
   // All other processors other than the one that owns the augmented GID will have -1.
   std::vector<int> tmpAugmentGIDs = augmentGIDs_;
-  aDCRSMatrix_->Comm().MaxAll( &tmpAugmentGIDs[0], &augmentGIDs_[0], augmentCount_ );
+  aDCRSMatrix_->Comm().MaxAll( tmpAugmentGIDs.data(), augmentGIDs_.data(), augmentCount_);
 }
 
 //-----------------------------------------------------------------------------

@@ -171,7 +171,7 @@ Pack<Device::DeviceState>::pack(const Device::DeviceState &device_state, char * 
   //----- pack int data
   length = device_state.dataInt.size();
   comm->pack( &length, 1, buf, bsize, pos );
-  comm->pack( &(device_state.dataInt[0]), length, buf, bsize, pos );
+  comm->pack( device_state.dataInt.data(), length, buf, bsize, pos );
 }
 
 //-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ Pack<Device::DeviceState>::unpack(Device::DeviceState &device_state, char * buf,
   //----- unpack int data
   comm->unpack( buf, bsize, pos, &length, 1 );
   device_state.dataInt.resize(length);
-  comm->unpack( buf, bsize, pos, &(device_state.dataInt[0]), length );
+  comm->unpack( buf, bsize, pos, device_state.dataInt.data(), length);
 }
 
 } // namespace Xyce
