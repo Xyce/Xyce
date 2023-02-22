@@ -614,10 +614,9 @@ bool Instance::doAllocations ()
     mEdge * edgePtr = meshContainerPtr->getEdge(iE);
     UINT uLabel = edgePtr->uLabel;
 
-    mLabel * labelPtr = meshContainerPtr->getLabel(uLabel);
-
     if(uLabel != -1u)
     {
+      mLabel* labelPtr = meshContainerPtr->getLabel(uLabel);
       if(uLabel != nofluxIndex)
       {
         if(labelPtr->uType == TYPE_EDGE)

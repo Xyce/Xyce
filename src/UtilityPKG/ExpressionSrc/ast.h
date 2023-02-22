@@ -5297,7 +5297,7 @@ class tableOp : public astNode<ScalarT>
             if ( std::real(ta_[index]) < std::real(time))
             {
              int tmp=index;
-             while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+             while(tmp < size && std::real(ta_[tmp]) < std::real(time) ) { tmp++; }
              index = tmp;
             }
 
