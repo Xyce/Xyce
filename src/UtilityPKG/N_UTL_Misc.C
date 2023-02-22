@@ -129,7 +129,7 @@ word_wrap(
     // else
     u = &prefix;
 
-    p0 = p2 + 1;
+    p0 = (p2 != s.end()) ? p2 + 1 : p2;
   }
 
   return os;
