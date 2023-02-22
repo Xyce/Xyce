@@ -177,8 +177,10 @@ bool isAbsolutePath(const std::string& includeFile)
       retVal=true;
     }
     #ifdef HAVE_WINDOWS_H
-    else if ((includeFile.size() >=3) && (posFirst == 3) && hasWinDriveLetter(includeFile))
-      retVal=true;
+    else if ((includeFile.size() >= 3) && (posFirst == 2) && hasWinDriveLetter(includeFile))
+    {
+      retVal = true;
+    }
     #endif
   }
 
