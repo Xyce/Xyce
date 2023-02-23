@@ -1604,26 +1604,34 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
   
   const Topo::Topology * topologyPtr = NULL;
   
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  if(getTransientFlag())
   {
-    topologyPtr = &(transientAnalysisObj->getTopology());
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
   }
   
-  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
-  if ( dcAnalysisObj != NULL)
+  if(getDCSweepFlag())
   {
-    topologyPtr = &(dcAnalysisObj->getTopology());
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
   }
   
-  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
-  if ( acAnalysisObj != NULL)
+  if(getACFlag())
   {
-    topologyPtr = &(acAnalysisObj->getTopology());
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
   }
   
   // if we have a topology object then try to look up the name
-  
   if ( topologyPtr != NULL)
   {
     const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
@@ -1648,7 +1656,7 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
       int proc, tmp_proc = -1;
       if ((varIndex_LID > -1) && (varIndex_LID < name_vec.size()))
       {
-        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        tmp_proc = Parallel::rank(parallelManager_->getPDSComm()->comm());
         node_name = *name_vec[varIndex_LID];
       }
       pdsComm.maxAll( &tmp_proc, &proc, 1 );
@@ -1694,24 +1702,34 @@ std::string AnalysisManager::getNodeNameFromLocalIndex( const int varIndex ) con
   
   const Topo::Topology * topologyPtr = NULL;
   
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  if(getTransientFlag())
   {
-    topologyPtr = &(transientAnalysisObj->getTopology());
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
   }
   
-  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
-  if ( dcAnalysisObj != NULL)
+  if(getDCSweepFlag())
   {
-    topologyPtr = &(dcAnalysisObj->getTopology());
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
   }
   
-  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
-  if ( acAnalysisObj != NULL)
+  if(getACFlag())
   {
-    topologyPtr = &(acAnalysisObj->getTopology());
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
   }
   
+  // if we have a topology object then try to look up the name
   if(topologyPtr != NULL)
   {
     const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
@@ -1751,28 +1769,38 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
   
   const Topo::Topology * topologyPtr = NULL;
   
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  if(getTransientFlag())
   {
-    topologyPtr = &(transientAnalysisObj->getTopology());
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
   }
   
-  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
-  if ( dcAnalysisObj != NULL)
+  if(getDCSweepFlag())
   {
-    topologyPtr = &(dcAnalysisObj->getTopology());
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
   }
   
-  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
-  if ( acAnalysisObj != NULL)
+  if(getACFlag())
   {
-    topologyPtr = &(acAnalysisObj->getTopology());
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
   }
   
+  // if we have a topology object then try to look up the name
   if ( topologyPtr != NULL)
   {
     const std::vector<char> type_vec = topologyPtr->getVarTypes(); 
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1793,7 +1821,7 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
       // Now determine which processor owns this solution node
       int proc = 0;
       int tmp_proc = -1;
-      tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+      tmp_proc = Parallel::rank(parallelManager_->getPDSComm()->comm());
       if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
       {
         node_type = type_vec[varIndex_LID];
