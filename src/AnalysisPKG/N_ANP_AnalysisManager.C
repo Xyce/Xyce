@@ -1847,12 +1847,46 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 char AnalysisManager::getNodeTypeFromLocalIndex( const int varIndex ) const
 {
   char node_type = '\0';
-
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
+  if(getTransientFlag())
   {
-    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getDCSweepFlag())
+  {
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getACFlag())
+  {
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
+  }
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<char> type_vec =topologyPtr->getVarTypes(); 
     if ((varIndex > -1) && (varIndex < type_vec.size()))
     {
         node_type = type_vec[varIndex];
