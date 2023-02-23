@@ -152,6 +152,8 @@ public:
   void fixupPrintParameters(Parallel::Machine comm, PrintParameters &print_parameters);
   void fixupOutputVariables(Parallel::Machine comm, Util::ParamList &outputParamList);
 
+  void createAllPrintParameters(Parallel::Machine comm, PrintParameters &print_parameters);
+
 public:
   void checkPrintParameters(Parallel::Machine comm, const Util::Op::BuilderManager &op_builder_manager);
   void earlyPrepareOutput(Parallel::Machine comm, Analysis::Mode analysis_mode);
@@ -482,6 +484,11 @@ public:
     return phaseOutputUsesRadians_;
   }
 
+  bool getCreateSnapshots() const
+  {
+    return createSnapshots_;
+  }
+
   void setDotACSpecified(bool value)
   {
     dotACSpecified_ = value;
@@ -728,7 +735,7 @@ private:
   bool                  outputVersionInRawFile_;    // flag to indicate that Version should be output in the header of a RAW file.
 
   bool                  phaseOutputUsesRadians_;         // default for VP() and IP() is radians.  This flag changes that to degrees.
-
+  bool                  createSnapshots_;           // flag to indicate that all solution variables should be output to create snapshot set.
   bool outputCalledBefore_;
 
   // dc loop information
