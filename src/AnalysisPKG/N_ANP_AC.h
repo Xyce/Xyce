@@ -176,6 +176,11 @@ public:
   bool setSensAnalysisParams(const Util::OptionBlock &option_block);
 
   bool getDCOPFlag() const;
+  
+  const Topo::Topology & getTopology() const
+  {
+    return topology_;
+  }
 
   void finalExpressionBasedSetup();
 

@@ -40,6 +40,7 @@
 
 #include <N_ANP_Transient.h>
 #include <N_ANP_DCSweep.h>
+#include <N_ANP_AC.h>
 #include <N_ANP_HB.h>
 #include <N_ANP_MPDE.h>
 #include <N_ANP_Step.h>
@@ -1593,10 +1594,39 @@ void AnalysisManager::setRFParamsRequested(const std::string & type)
 std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 {
   std::string node_name = "N/A";
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    topologyPtr = &(transientAnalysisObj->getTopology());
+  }
+  
+  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+  if ( dcAnalysisObj != NULL)
+  {
+    topologyPtr = &(dcAnalysisObj->getTopology());
+  }
+  
+  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+  if ( acAnalysisObj != NULL)
+  {
+    topologyPtr = &(acAnalysisObj->getTopology());
+  }
+  
+  // if we have a topology object then try to look up the name
+  
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1654,16 +1684,43 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 std::string AnalysisManager::getNodeNameFromLocalIndex( const int varIndex ) const
 {
   std::string node_name = "N/A";
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
-    
+    topologyPtr = &(transientAnalysisObj->getTopology());
+  }
+  
+  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+  if ( dcAnalysisObj != NULL)
+  {
+    topologyPtr = &(dcAnalysisObj->getTopology());
+  }
+  
+  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+  if ( acAnalysisObj != NULL)
+  {
+    topologyPtr = &(acAnalysisObj->getTopology());
+  }
+  
+  if(topologyPtr != NULL)
+  {
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     if ((varIndex > -1) && (varIndex < name_vec.size()))
     {
         node_name = *name_vec[varIndex];
     }
   }
+  
   return node_name; 
 }
 
@@ -1684,10 +1741,37 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
   int nodeAsInt = 0;
   int nodeTypeAsInt = 0;
 
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
   Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
   if ( transientAnalysisObj != NULL)
   {
-    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
+    topologyPtr = &(transientAnalysisObj->getTopology());
+  }
+  
+  DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+  if ( dcAnalysisObj != NULL)
+  {
+    topologyPtr = &(dcAnalysisObj->getTopology());
+  }
+  
+  AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+  if ( acAnalysisObj != NULL)
+  {
+    topologyPtr = &(acAnalysisObj->getTopology());
+  }
+  
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<char> type_vec = topologyPtr->getVarTypes(); 
     const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
