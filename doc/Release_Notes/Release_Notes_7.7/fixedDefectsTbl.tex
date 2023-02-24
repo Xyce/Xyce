@@ -132,5 +132,14 @@
   handling this use case (new duplicates) correctly, and this caused a 
   memory error.  This has been fixed.  \\ \hline
 
+  \textbf{Xyce Project Bugs/54}: subcircuit parameters incorrectly 
+  deleted when multiple subcircuit instances (X lines) refer to same 
+  subcircuit definition &   There was a bug in the parser in the function
+  that resolved subcircuit parameters.  When subcircuit instance
+  parameters (from the X line) matched a parameter in the list 
+  of unresolved parameters in the subcircuit definition, that parameter
+  was incorrectly being erased from the definition container.
+  This has been fixed.  \\ \hline
+
 \end{longtable}
 }
