@@ -1012,7 +1012,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
   currentContextPtr_->resolved_ = true;
 
-  // Clear resolved params and funcs.
+  // Clear resolved params and funcs.  These are for the subcircuit instances.  
+  // In constrast, currentContextPtr_->unresolvedParams is for the subcircuit definition.
   currentContextPtr_->resolvedParams_.clear();
   currentContextPtr_->resolvedGlobalParams_.clear();
   currentContextPtr_->resolvedFunctions_.clear();
@@ -1038,7 +1039,10 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 // AFTER the subcircuit parameters (both kinds) have been appropriately added to the resolvedParams/unresolvedParams 
 // containers, then proceed with the while loop for resolving params.
 
-  Util::UParamList * paramContainerToUsePtr = &(currentContextPtr_->unresolvedParams_);
+  // make a copy of unresolvedParams for this subcircuit instance.  
+  // The currentContextPtr_->unresolvedParams container is a list of 
+  // parameters for the subcircuit *definition*.  So it should not be changed.
+  Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_; 
 
   {
     // Add subcircuitParameters_ to the set of unresolved parameters.
@@ -1057,35 +1061,35 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       switch (parsingMgr_.getRedefinedParams()) 
       {
         case RedefinedParamsSetting::IGNORE:  // this is also default, below
-          addParamUseLast(parameter, *paramContainerToUsePtr);
+          addParamUseLast(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::WARNING:
-          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          addParamUseLastWarn(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::ERROR:
-          addParamUseError (parameter, *paramContainerToUsePtr);
+          addParamUseError (parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::USEFIRST:
-          addParamUseLast (parameter, *paramContainerToUsePtr);
+          addParamUseLast (parameter, asYetUnresolvedParameters );
           break;
 
         case  RedefinedParamsSetting::USEFIRSTWARN:
-          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          addParamUseLastWarn(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::USELAST:
-          addParamUseFirst (parameter, *paramContainerToUsePtr);
+          addParamUseFirst (parameter, asYetUnresolvedParameters );
           break;
 
         case  RedefinedParamsSetting::USELASTWARN:
-          addParamUseFirstWarn(parameter, *paramContainerToUsePtr);
+          addParamUseFirstWarn(parameter, asYetUnresolvedParameters );
           break;
 
         default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
-          addParamUseLast(parameter, *paramContainerToUsePtr);
+          addParamUseLast(parameter, asYetUnresolvedParameters );
           break;
       }
     }
@@ -1125,9 +1129,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         }
       }
 
-      // if this is in the unresolved container, remove
-      Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
-      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
+      // check if this is in the unresolved container.  
+      // If so, remove from our working copy of unresolvedParams.
+      // Do NOT remove it from currentContextPtr_->unresolvedParams_ as that is needed by every instance.
+      Util::UParamList::const_iterator urParamIter = asYetUnresolvedParameters.find( parameter );
+      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { asYetUnresolvedParameters.erase(urParamIter); } 
 
       switch (parsingMgr_.getRedefinedParams()) 
       {
@@ -1172,7 +1178,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   //
   // Time to resolve the 3 main containers: unresolvedParams_(.param), 
   // unresolvedGlobalParams_(.global_param), and unresolvedFunctions_(.func).
-  Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
+  //Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
   Util::UParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
   std::vector<FunctionBlock> asYetUnresolvedFunctions=currentContextPtr_->unresolvedFunctions_;
 
