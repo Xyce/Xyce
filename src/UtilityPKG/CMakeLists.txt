@@ -35,6 +35,10 @@ if ( Xyce_USE_FFTW )
   target_sources(XyceLib PRIVATE N_UTL_FFTW_Interface.C )
 endif ( Xyce_USE_FFTW )
 
+if ( Xyce_USE_APPLEFFT )
+  target_sources(XyceLib PRIVATE N_UTL_AppleFFT_Interface.C )
+endif ( Xyce_USE_APPLEFFT )
+
 
 # class source list
 target_sources(XyceLib PRIVATE

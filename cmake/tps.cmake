@@ -509,15 +509,25 @@ endif()
 
 # If the Intel MKL is not being used, try to find FFTW.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
-     find_package(FFTW)
-     if(FFTW_FOUND)
-          message(STATUS "Looking for FFT libraries - found FFTW")
-          add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
-          set_target_properties(FFTW::FFTW PROPERTIES
-               INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
-               INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
-          set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
-          set(FFT FFTW::FFTW)
+     if( NOT Xyce_USE_APPLEFFT)
+          find_package(FFTW)
+          if(FFTW_FOUND)
+               message(STATUS "Looking for FFT libraries - found FFTW")
+               add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
+               set_target_properties(FFTW::FFTW PROPERTIES
+                    INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
+                    INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
+               set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
+               set(FFT FFTW::FFTW)
+          endif()
+     elseif( APPLE)
+          # try searching for Apple's FFT functions 
+          find_library(Accelerate_Framework Accelerate)
+          if(Accelerate_Framework)
+               message(STATUS "Looking for Apple FFT libraries - found framework Accelerate")
+               add_library(Accelerate)
+               set(Xyce_USE_APPLEFFT TRUE CACHE BOOL "Use Apple FFT Library")
+          endif()
      endif()
 endif()
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
