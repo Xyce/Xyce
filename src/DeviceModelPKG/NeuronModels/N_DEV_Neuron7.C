@@ -261,6 +261,8 @@ Instance::Instance(
     uEquUOffset(-1)
 {
   numExtVars = 1;  // membrane voltage
+  devConMap.resize(1);
+  devConMap[0] = 1;
 
   // Set params to constant default values:
   setDefaultParams ();
