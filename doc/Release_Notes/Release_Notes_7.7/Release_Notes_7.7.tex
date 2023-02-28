@@ -87,7 +87,6 @@ please visit the \XyceTM{} web page at
   version of EKV MOSFET model version 2.6 as the level 260 MOSFET.
   Previously, this model was only available in our ``non free''
   binaries.
-\item new improvements
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
@@ -126,6 +125,8 @@ please visit the \XyceTM{} web page at
 \item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now contain comments.
 
 \item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now include dashes in the filename.
+
+\item When running a fequency domain analysis such as \texttt{.HB} or \texttt{.AC}, complex-valued expressions on the \texttt{.PRINT} line will now automatically output both the real and imaginary parts.  
 
 \end{XyceItemize}
 
