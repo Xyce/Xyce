@@ -57,20 +57,75 @@
   {
     // Although we used a const on input to show that we aren't changing dftInData_
     // we need to cast that away as the FFT library takes non-const pointers.
-    std::vector<double>::const_iterator inDataItr = (this->dftInData_)->begin();
-    double * inDataPtr = const_cast< double * >( &(*inDataItr) );
-    std::vector<double>::iterator outResultItr = (this->dftOutData_)->begin();
-    double * outResultPtr = &(*outResultItr);
+    //std::vector<double>::const_iterator inDataItr = (this->dftInData_)->begin();
+    //double * inDataPtr = const_cast< double * >( &(*inDataItr) );
+    //std::vector<double>::iterator outResultItr = (this->dftOutData_)->begin();
+    //double * outResultPtr = &(*outResultItr);
 
-    long status = DftiComputeForward( fftDescriptor, inDataPtr, outResultPtr);
-    checkAndTrapErrors( status );
+    //long status = DftiComputeForward( fftDescriptor, inDataPtr, outResultPtr);
+    //checkAndTrapErrors( status );
     
     // need to split interleaved input vector into two input vectors
     // or if the input vector is 1/2 the length of the output vector 
     // then leave the input as it is and make a zero vector of the same length 
     //  Also need to two output vectors for the FFT results.
-    vDSP_DFT_ExecuteD(forwardSetup, y.data(), yim.data(), yfd.data(), yfdim.data());
-    // now interleave the output vectors for return.
+    
+    
+    if( interleavedRoutines_ )
+    {
+      // copy dftInData_ to yTdInterleaved
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( i<dftInData_->size())
+        {
+          yTdInterleaved[2*i] = (*dftInData_)[i];
+          yTdInterleaved[2*i+1] = 0.0;
+        }
+        else
+        {
+          yTdInterleaved[2*i] = 0.0;
+          yTdInterleaved[2*i+1] = 0.0;
+        }
+      }
+      vDSP_DFT_Interleaved_ExecuteD(forwardInterleavedSetup_, (DSPDoubleComplex*)(yTdInterleaved.data()), (DSPDoubleComplex*)(yFdInterleaved.data()));
+      
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( i<dftOutData_->size())
+        {
+          (*dftOutData_)[i] = yFdInterleaved[i]/2.0;
+        }
+      }
+      // yFdInterleaved 0 is the DC component and 1 is the Nyquist component.  That must be zeroed here 
+      (*dftOutData_)[1] = 0.0;
+    }
+    else
+    {
+      // copy dftInData_ to yTdReal
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( i<dftInData_->size())
+        {
+          yTdReal[i] = (*dftInData_)[i];
+        }
+        else
+        {
+          yTdReal[i] = 0.0;
+        }
+        yTdImag[i] = 0.0;
+      }
+      
+      vDSP_DFT_ExecuteD(forwardSetup_, yTdReal.data(), yTdImag.data(), yFdReal.data(), yFdImag.data());
+      // now interleave the output vectors for return.
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( (2*i+1)<dftOutData_->size())
+        {
+          (*dftOutData_)[2*i] = yFdReal[i];
+          (*dftOutData_)[2*i+1] = yFdImag[i];
+        }
+      }
+    }
   }
 
   // Calculate IFT with the vectors that have been registered.
@@ -79,17 +134,75 @@
   {
     // Although we used a const on input to show that we aren't changing iftInData_
     // we need to cast that away as the FFT library takes non-const pointers.
-    std::vector<double>::const_iterator inDataItr = (this->iftInData_)->begin();
-    double * inDataPtr = const_cast< double * >( &(*inDataItr) );
-    std::vector<double>::iterator outResultItr = (this->iftOutData_)->begin();
-    double * outResultPtr = &(*outResultItr);
+    //std::vector<double>::const_iterator inDataItr = (this->iftInData_)->begin();
+    //double * inDataPtr = const_cast< double * >( &(*inDataItr) );
+    //std::vector<double>::iterator outResultItr = (this->iftOutData_)->begin();
+    //double * outResultPtr = &(*outResultItr);
 
-    long status = DftiComputeBackward( fftDescriptor, inDataPtr, outResultPtr);
-    checkAndTrapErrors( status );
+    //long status = DftiComputeBackward( fftDescriptor, inDataPtr, outResultPtr);
+    //checkAndTrapErrors( status );
     
     // need to break the interleaved input vector into two vectors 
     // make destination arrays for the real and imaginary results 
-    vDSP_DFT_ExecuteD(inverseSetup, yfd.data(), yfdim.data(), yResult.data(), yResultIm.data() );
-    // now combine the output arrays into an interleaved result.
     
+    if( interleavedRoutines_ )
+    {
+      // copy dftInData_ to yTdReal
+      for( int i=0;i<(2*nextLargestPowerOf2_);i++)
+      {
+        if( i<iftInData_->size())
+        {
+          yFdInterleaved[i] = (*iftInData_)[i];
+        }
+        else
+        {
+          yFdInterleaved[i] = 0.0;
+        }
+      }
+      vDSP_DFT_Interleaved_ExecuteD(inverseInterleavedSetup_, (DSPDoubleComplex*)(yFdInterleaved.data()), (DSPDoubleComplex*)(yTdInterleaved.data()));
+      
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( i<iftOutData_->size())
+        {
+          (*iftOutData_)[i] = scaleFactor_ * yTdInterleaved[i];
+        }
+      } 
+      
+    }
+    else
+    {
+      // copy iftInData_ to yFdReal and yFdImag
+      for( int i=0;i<(nextLargestPowerOf2_/2);i++)
+      {
+        if( (2*i)<iftInData_->size())
+        {
+          yFdReal[i] = (*iftInData_)[2*i];
+          yFdImag[i] = (*iftInData_)[2*i+1];
+        }
+        else
+        {
+          yFdReal[i] = 0.0;
+          yFdImag[i] = 0.0;
+        }
+      }
+      vDSP_DFT_ExecuteD(inverseSetup_, yFdReal.data(), yFdImag.data(), yTdReal.data(), yTdImag.data() );
+      // now combine the output arrays into an interleaved result.
+      for( int i=0;i<nextLargestPowerOf2_;i++)
+      {
+        if( i<iftOutData_->size())
+        {
+          (*iftOutData_)[i] = scaleFactor_ * yTdReal[i];
+        }
+        // this allows for a complex result in the time domain.  
+        // not sure if it is needed.
+        /*
+        if( (2*i+1)<iftOutData_->size())
+        {
+          (*iftOutData_)[2*i] = scaleFactor_ * yTdReal[i];
+          (*iftOutData_)[2*i+1] = scaleFactor_ * yTdImag[i];
+        }
+        */
+      }
+    }
   }

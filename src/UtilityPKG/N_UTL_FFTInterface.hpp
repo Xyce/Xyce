@@ -49,6 +49,10 @@
 #include <N_UTL_FFTW_Interface.hpp>
 #endif
 
+#ifdef Xyce_USE_APPLEFFT
+#include <N_UTL_AppleFFT_Interface.hpp>
+#endif
+
 #include <N_UTL_FFTInterfaceDecl.hpp>
 
 #include <N_ERH_ErrorMgr.h>
@@ -82,6 +86,8 @@ class N_UTL_FFTInterface
       fftInterface_ = Teuchos::rcp( new N_UTL_IntelFFT_Interface<VectorType>( length, numSignals, reqStride, overwrite ) );
 #elif defined(Xyce_USE_FFTW)
       fftInterface_ = Teuchos::rcp( new N_UTL_FFTW_Interface<VectorType>( length, numSignals, reqStride, overwrite ) );
+#elif defined(Xyce_USE_APPLEFFT)
+      fftInterface_ = Teuchos::rcp( new N_UTL_AppleFFT_Interface<VectorType>( length, numSignals, reqStride, overwrite ) );
 #else
       Xyce::Report::DevelFatal0() 
         <<  "Xyce has not been configured with an FFT library! Please reconfigure with FFT enabled to perform any frequency analysis!";

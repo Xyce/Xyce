@@ -95,6 +95,13 @@ if( Xyce_USE_FFTW )
   target_include_directories(XyceLib PUBLIC ${FFTWIncludeDir} )
 endif()
 
+#
+# if we are using Apple FFT then we need to add the Accelerate framework
+#
+if( Xyce_USE_APPLEFFT )
+   target_link_libraries(XyceLib PUBLIC ${Accelerate_Framework} )
+endif()
+
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
 target_link_libraries(XyceLib PUBLIC Trilinos::all_selected_libs)
 
