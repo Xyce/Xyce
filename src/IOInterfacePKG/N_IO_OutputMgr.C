@@ -3139,10 +3139,7 @@ void OutputMgr::createAllPrintParameters(
       std::string node( "{V(" );
       node += nnm_it->first;
       node += std::string( ")}" );
-      if ( Parallel::is_parallel_run( comm ) )
-        nodes.insert( node );
-      else
-        printVar.push_back(Util::Param( node , 0.0 ));
+      nodes.insert( node );
     }
     else if ( varType[nnm_it->second] == 'I' )
     {
@@ -3153,28 +3150,34 @@ void OutputMgr::createAllPrintParameters(
       std::string node( "{I(" );
       node += branch;
       node += std::string( ")}" );
-      if ( Parallel::is_parallel_run( comm ) )
-        nodes.insert( node );
-      else
-        printVar.push_back(Util::Param( node , 0.0 ));
+      nodes.insert( node );
     }
   }
 
   // Communicate all nodes to all other processors and create the print variables
+  std::set< std::string > all_nodes;
   if ( Parallel::is_parallel_run( comm ) )
   {
     mout << nodes;
     std::vector<std::string> dest;
     Parallel::AllGatherV(comm, mout.str(), dest);
 
+    // Collect all nodes in a set to obtain global ordering
     for (int p = 0; p < Parallel::size(comm); ++p)
     {
       Util::Marshal min(dest[p]);
       unordered_set<std::string> p_nodes;
       min >> p_nodes;
-      for ( unordered_set<std::string>::iterator pn_it = p_nodes.begin(); pn_it != p_nodes.end(); ++pn_it )
-        printVar.push_back(Util::Param( *pn_it , 0.0 ));
+      all_nodes.insert( p_nodes.begin(), p_nodes.end() );
     }
+  }
+  else
+    all_nodes.insert( nodes.begin(), nodes.end() );
+
+  // Create print variables that are ordered, regardless of the number of processors
+  for ( std::set<std::string>::iterator an_it = all_nodes.begin(); an_it != all_nodes.end(); ++an_it )
+  {
+    printVar.push_back(Util::Param( *an_it , 0.0 ));
   }
 }
 
