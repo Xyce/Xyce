@@ -93,10 +93,15 @@
       {
         if( i<dftOutData_->size())
         {
+          // magnitude of frequency domain values here are a factor of 2 larger
+          // than the results from FFTW.  Factor out that 2 here for consistency.
           (*dftOutData_)[i] = yFdInterleaved[i]/2.0;
         }
       }
-      // yFdInterleaved 0 is the DC component and 1 is the Nyquist component.  That must be zeroed here 
+      // yFdInterleaved[0] is the DC component and yFdInterleaved[1] 
+      // is the Nyquist component.  Move the Nyquist component to the 
+      // last real position.  Zero the original spot where the nyquist value was stored.
+      //(*dftOutData_)[nextLargestPowerOf2_] = (*dftOutData_)[1];
       (*dftOutData_)[1] = 0.0;
     }
     else
@@ -147,7 +152,6 @@
     
     if( interleavedRoutines_ )
     {
-      // copy dftInData_ to yTdReal
       for( int i=0;i<(2*nextLargestPowerOf2_);i++)
       {
         if( i<iftInData_->size())
@@ -159,13 +163,14 @@
           yFdInterleaved[i] = 0.0;
         }
       }
+      
       vDSP_DFT_Interleaved_ExecuteD(inverseInterleavedSetup_, (DSPDoubleComplex*)(yFdInterleaved.data()), (DSPDoubleComplex*)(yTdInterleaved.data()));
       
       for( int i=0;i<nextLargestPowerOf2_;i++)
       {
         if( i<iftOutData_->size())
         {
-          (*iftOutData_)[i] = scaleFactor_ * yTdInterleaved[i];
+          (*iftOutData_)[i] = scaleFactor_ * yTdInterleaved[2*i];
         }
       } 
       

@@ -93,22 +93,25 @@ class N_UTL_AppleFFT_Interface: public N_UTL_FFTInterfaceDecl<VectorType>
         nextLargestPowerOf2_ = (int) std::pow(2,(floor(log2Length)+1));
         paddingRequired_ = true;
       }
-      std::cout << "Apple FFT length = " << length << " nextLargestPowerOf2_ = " << nextLargestPowerOf2_;
+      //std::cout << "Apple FFT length = " << length << " nextLargestPowerOf2_ = " << nextLargestPowerOf2_;
       
       interleavedRoutines_ = false;
-      if( nextLargestPowerOf2_ <= std::pow(2,15))
+      // force non-interleaved routines for now
+      /*
+      if( nextLargestPowerOf2_ <= std::pow(2,14))
       {
         interleavedRoutines_ = true;
         forwardInterleavedSetup_ = vDSP_DFT_Interleaved_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_FORWARD, vDSP_DFT_Interleaved_RealtoComplex);
         inverseInterleavedSetup_ = vDSP_DFT_Interleaved_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_INVERSE, vDSP_DFT_Interleaved_ComplextoComplex);
-        std::cout << " interleavedRoutines_ = true" << std::endl;
+        //std::cout << " interleavedRoutines_ = true" << std::endl;
       }
       else
+      */
       {
         // create forward and inverse setup objects
         forwardSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_FORWARD);
         inverseSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_INVERSE);
-        std::cout << " interleavedRoutines_ = false" << std::endl;
+        //std::cout << " interleavedRoutines_ = false" << std::endl;
       }
       
       // The forward and backward transform must have a consistent scale factor
