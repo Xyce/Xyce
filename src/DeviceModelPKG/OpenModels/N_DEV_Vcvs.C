@@ -115,6 +115,12 @@ Instance::Instance(
   setNumBranchDataVars(0);          // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 1; // this is the space to allocate if lead current or power is needed.
 
+  devConMap.resize(4);
+  devConMap[0] = 1;
+  devConMap[1] = 1;
+  devConMap[2] = 2;
+  devConMap[3] = 2;
+
   if( jacStamp.empty() )
   {
     jacStamp.resize(5);
