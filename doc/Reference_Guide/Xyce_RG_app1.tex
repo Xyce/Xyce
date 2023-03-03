@@ -378,6 +378,7 @@ may contain any references to solution variables or lead currents.
 \Example{.PARAM SQUARES=5.0}
 \Example{.PARAM SHEETRES=25}
 \Example{.PARAM RESISTANCE=\{SQUARES*SHEETRES\}}
+\Example{.PARAM a0 = 1.0+2.0J}
 
 \Example{.PARAM dTdt=.01}
 \Example{.GLOBAL\_PARAM Temperature=\{27+dTdt*TIME\}}
@@ -388,6 +389,18 @@ parameters may not.  Parameters inside of subcircuits may not be swept by
 analysis commands such as \texttt{.STEP} or \texttt{.SAMPLING}.  Only globally 
 scoped user-defined parameters can be swept in this manner.  Note, this restriction 
 does not apply to device parameters, just user-defined parameters.
+
+Parameters can be complex-valued.  The suffix letter used for the imaginary 
+part of a complex number is the letter \texttt{J}.  For example, in the parameter statement 
+\texttt{.param a0=1.0+2.0J}, the parameter \texttt{a0} has \texttt{1.0} for the real part and 
+\texttt{2.0} is the imaginary part.  
+
+Although parameters are allowed
+to be complex, many uses of parameters are inherently real-valued.  Most 
+device parameters, for example, are assumed to be double precision numbers. So,
+if a real-valued device parameter is set equal to a complex-valued \texttt{.param}, 
+the device parameter will use the real part and the imaginary part
+will be ignored.
 
 \subsection{Expressions in \texttt{.PRINT} Lines}
 
