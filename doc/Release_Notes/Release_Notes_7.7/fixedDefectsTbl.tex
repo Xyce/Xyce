@@ -120,6 +120,17 @@
   iteration.  This was causing breakpoints to be overlooked early in the transient.
   This has been fixed.  \\ \hline
 
+
+  \textbf{Xyce Project Backlog/575}: 
+   Expression tables are inefficient when they are large and contain expressions & 
+   This issue was inspired by backlog issues 565 and 566.  If a PWL source is 
+   specified using a Bsrc and the \texttt{TABLE} operator (instead of a PWL 
+   source), then it was very 
+   inefficient if the table was large and the entries of that table were 
+   based on expressions rather than pure numbers.  This was because the subordinate 
+   expressions in the table were being updated too frequently.
+  This has been fixed.  \\ \hline
+
   \textbf{Xyce Project Bugs/41}: Expression library inconsistently handles 
   subcircuit nodes for derivatives &  When invoked from a Bsrc, the expression 
   library has to provide derivatives as well as function evaluations.  In the 
