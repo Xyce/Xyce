@@ -154,46 +154,48 @@ class ddtOp;
 
 inline void yyerror(std::vector<std::string> & s);
 
+
+
 #define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
   if (PTR->paramType()) { ovc.paramOpVector.push_back(PTR); }  \
-  if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
-  if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
-  if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
-  if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
-  if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
-  if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
-  if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
-  if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
-  if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
-  if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
-  if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
-  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
-  if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
-  if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
-  if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
-  if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
-  if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
-  if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
-  if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
-  if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
-  if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
-  if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
-  if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
-  if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
-  if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
-  if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
-  if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
-  if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
-  if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
-  if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
-  if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
+  else if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
+  else if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
+  else if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
+  else if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
+  else if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
+  else if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
+  else if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
+  else if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
+  else if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
+  else if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
+  else if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
+  else if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
+  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  else if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
+  else if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
+  else if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
+  else if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
+  else if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
+  else if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
+  else if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
+  else if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
+  else if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
+  else if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
+  else if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
+  else if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
+  else if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
+  else if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
+  else if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
+  else if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
+  else if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
+  else if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
+  else if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
+  else if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
   PTR->getInterestingOps(ovc); }
 
 #define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
   if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
+  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
   PTR->getStateOps(ovc); }
 
 #define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
@@ -467,12 +469,6 @@ class astNode : public staticsContainer
     virtual void setIsAttached() {};
     virtual void unsetIsAttached() {};
     virtual bool getIsAttached() { return false; }
-
-#if 0
-    virtual void setIsDotParam() {};
-    virtual void unsetIsDotParam() {};
-    virtual bool getIsDotParam() { return false; }
-#endif
 
     // various "getType" functions.  There is a cleaner way to do this, but I haven't had the time
     virtual bool numvalType()      { return false; };
@@ -1728,9 +1724,6 @@ AST_GET_TIME_OPS(paramNode_)
     // the param type can be .param, .global_param or a subcircuit argument
     // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUBCKT_ARG_PARAM}
     void setParamType(enumParamType type) { paramType_ = type; }
-#if 0
-    void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }a
-#endif
     enumParamType getParamType() { return paramType_; }
 
     virtual void processSuccessfulTimeStep ()
