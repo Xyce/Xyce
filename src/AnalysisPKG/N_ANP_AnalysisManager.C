@@ -1961,7 +1961,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   else if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
   {
     (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
-      << analysis_event.outputType_ << " smallest gmin = " << analysis_event.step_ <<  std::endl;
+      << analysis_event.outputType_ << " smallest gmin = " << std::scientific << analysis_event.step_ << std::defaultfloat <<  std::endl;
   }
   else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED)
   {
