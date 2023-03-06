@@ -216,6 +216,7 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
+    diagnosticFileNameGiven_(false),
     diagnosticExtremaLimitGiven_(false),
     diagnosticVoltageLimitGiven_(false),
     diagnosticCurrentLimitGiven_(false),
@@ -760,6 +761,7 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
     if (param.uTag() == "DIAGFILENAME")
     {
       diagnosticFileName_ = it->stringValue();
+      diagnosticFileNameGiven_=true;
       subResult = true;
     }
 
@@ -773,6 +775,12 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 
     // need to or in successive results of parameter setting 
     result = result || subResult;
+  }
+  
+  // if a diagnostic file name wasn't given then make a default name from the netlist file name.
+  if( !diagnosticFileNameGiven_)
+  {
+    diagnosticFileName_ = netlistFilename_ + ".dia";
   }
   return result;  
 }
@@ -1938,9 +1946,29 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     }
   }
   
-  (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
-    << analysis_event.outputType_ << " step = " << analysis_event.step_ <<  std::endl;
-
+  // on step==0 for DC or TRAN there can be useful, general information about
+  // solver status and solver method used like gmin stepping.  Output this general 
+  // info only when step==0
+  //
+  // Look for DC_OP_GMIN_STEPPING_FAILED and DC_OP_SOURCE_STEPPING_FAILED 
+  // as these are useful messages to pass on to the user. 
+  //
+  if(analysis_event.step_ == 0) 
+  {
+    (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+      << analysis_event.outputType_ <<  std::endl;
+  }
+  else if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
+  {
+    (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+      << analysis_event.outputType_ << " smallest gmin = " << analysis_event.step_ <<  std::endl;
+  }
+  else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED)
+  {
+    (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+      << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
+  }
+  
   if( diagnosticExtremaLimitGiven_)
   {
     // get largest absolute value from solution vector

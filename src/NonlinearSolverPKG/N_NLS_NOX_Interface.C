@@ -359,10 +359,11 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
 
     analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING, Analysis::AnalysisEvent::DC));
     isuccess=gminSteppingSolve ( paramsPtr );
-
+      
     if (isuccess < 0)
     {
-      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
+      double finalGmin = std::pow(10.0, stepperPtr_->getContinuationParameter());
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED, Analysis::AnalysisEvent::DC, finalGmin));
       paramsPtr->setNoxSolverType(34);
       groupPtr_->setNonContinuationFlag (false);
         
@@ -389,7 +390,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       isuccess=sourceSteppingSolve ( paramsPtr );
       if (isuccess < 0)
       {
-        analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
+        analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED, Analysis::AnalysisEvent::DC, stepperPtr_->getContinuationParameter()));
       }
       paramsPtr->setNoxSolverType(saveSolverType);
 
@@ -1325,7 +1326,6 @@ int Interface::gminSteppingSolve ( ParameterSet* paramsPtr )
   // Do the continuation run
   resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
   LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-
   groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
 
   // Kick out if continuation failed
@@ -1550,7 +1550,7 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   nonlinearEquationLoader_->resetScaledParams();
 
   nonlinearEquationLoader_->setDisableInitJctFlags(false);
-
+  
   // Kick out if continuation failed
   if (locaStatus != LOCA::Abstract::Iterator::Finished)
     return (-1);
