@@ -326,10 +326,14 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
   Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopyVector();
 
   groupPtr_->setNonContinuationFlag (true);
+  
+  
+  analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_STARTED, Analysis::AnalysisEvent::DC));
   int isuccess = stdNewtonSolve (paramsPtr);
  
   if (isuccess < 0) // attempt gmin stepping.
   {
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
     int saveSolverType=paramsPtr->getNoxSolverType();
     paramsPtr->setNoxSolverType(3);
     groupPtr_->setNonContinuationFlag (false);
@@ -353,10 +357,12 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
         *lasSysPtr_,
         *this);
 
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING, Analysis::AnalysisEvent::DC));
     isuccess=gminSteppingSolve ( paramsPtr );
 
     if (isuccess < 0)
     {
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
       paramsPtr->setNoxSolverType(34);
       groupPtr_->setNonContinuationFlag (false);
         
@@ -379,7 +385,12 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
                               *lasSysPtr_,
                               *this);
       
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING, Analysis::AnalysisEvent::DC));
       isuccess=sourceSteppingSolve ( paramsPtr );
+      if (isuccess < 0)
+      {
+        analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
+      }
       paramsPtr->setNoxSolverType(saveSolverType);
 
       nonlinearEquationLoader_->resetScaledParams();

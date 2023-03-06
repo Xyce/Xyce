@@ -1937,6 +1937,9 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
         << " Discontinuity output requested with disclimit = " << diagnosticDiscontinuityLimit_ << std::endl;
     }
   }
+  
+  (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+    << analysis_event.outputType_ << " step = " << analysis_event.step_ <<  std::endl;
 
   if( diagnosticExtremaLimitGiven_)
   {
