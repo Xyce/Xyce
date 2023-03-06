@@ -1133,7 +1133,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       // If so, remove from our working copy of unresolvedParams.
       // Do NOT remove it from currentContextPtr_->unresolvedParams_ as that is needed by every instance.
       Util::UParamList::const_iterator urParamIter = asYetUnresolvedParameters.find( parameter );
-      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { asYetUnresolvedParameters.erase(urParamIter); } 
+      if ( urParamIter != asYetUnresolvedParameters.end() ) { asYetUnresolvedParameters.erase(urParamIter); } 
 
       switch (parsingMgr_.getRedefinedParams()) 
       {
