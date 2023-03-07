@@ -1953,21 +1953,26 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   // Look for DC_OP_GMIN_STEPPING_FAILED and DC_OP_SOURCE_STEPPING_FAILED 
   // as these are useful messages to pass on to the user. 
   //
-  if(analysis_event.step_ == 0) 
+  // only output if the stream is open
+  if(diagnosticOutputStreamPtr_ != NULL)
   {
-    (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
-      << analysis_event.outputType_ <<  std::endl;
+    if(analysis_event.step_ == 0) 
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+        << analysis_event.outputType_ <<  std::endl;
+    }
+    else if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+        << analysis_event.outputType_ << " smallest gmin = " << std::scientific << analysis_event.step_ << std::defaultfloat <<  std::endl;
+    }
+    else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED)
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+        << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
+    }
   }
-  else if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
-  {
-    (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
-      << analysis_event.outputType_ << " smallest gmin = " << std::scientific << analysis_event.step_ << std::defaultfloat <<  std::endl;
-  }
-  else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED)
-  {
-    (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
-      << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
-  }
+  
   
   if( diagnosticExtremaLimitGiven_)
   {
