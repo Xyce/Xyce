@@ -97,6 +97,14 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                         \
       os << ")";                                                                            \
     }                                                                                       \
+                                                                                            \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->leftAst_->accept(visitor, this->leftAst_);                                      \
+      this->rightAst_->accept(visitor, this->rightAst_); }                                  \
+                                                                                            \
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;                               \
     double bpTol_;                                                                          \
     std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
@@ -162,6 +170,14 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                         \
       os << ")";                                                                            \
     }                                                                                       \
+                                                                                            \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->leftAst_->accept(visitor, this->leftAst_);                                      \
+      this->rightAst_->accept(visitor, this->rightAst_); }                                  \
+                                                                                            \
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;                               \
     double bpTol_;                                                                          \
     std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
@@ -210,6 +226,14 @@ class NAME : public astNode<ScalarT>                                            
       this->rightAst_->codeGen(os);                                                         \
       os << ")";                                                                            \
     }                                                                                       \
+                                                                                            \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->leftAst_->accept(visitor, this->leftAst_);                                      \
+      this->rightAst_->accept(visitor, this->rightAst_); }                                  \
+                                                                                            \
 }; 
 
 #define FIXVAL(val)  Xyce::Util::fixNan(  Xyce::Util::fixInf( val ) )

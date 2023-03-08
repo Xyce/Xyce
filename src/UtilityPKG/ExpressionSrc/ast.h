@@ -154,184 +154,7 @@ class ddtOp;
 
 inline void yyerror(std::vector<std::string> & s);
 
-
-
-#define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->paramType()) { ovc.paramOpVector.push_back(PTR); }  \
-  else if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
-  else if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
-  else if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
-  else if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
-  else if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
-  else if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
-  else if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
-  else if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
-  else if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
-  else if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
-  else if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
-  else if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  else if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
-  else if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
-  else if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
-  else if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
-  else if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
-  else if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
-  else if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
-  else if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
-  else if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
-  else if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
-  else if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
-  else if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
-  else if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
-  else if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
-  else if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
-  else if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
-  else if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
-  else if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
-  else if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
-  else if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
-  PTR->getInterestingOps(ovc); }
-
-#define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  PTR->getStateOps(ovc); }
-
-#define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
-
-#define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
-
-#define AST_GET_FUNC_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->funcType()) { funcOpVector.push_back(this->PTR); } this->PTR->getFuncOps(funcOpVector); }
-
-#define AST_GET_VOLT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } this->PTR->getVoltageOps(voltOpVector); }
-
-#define AST_GET_CURRENT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } this->PTR->getCurrentOps(currentOpVector); }
-
-#define AST_GET_INTERNAL_DEV_VAR_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->internalDeviceVarType()) { internalDevVarOpVector.push_back(this->PTR); } this->PTR->getInternalDevVarOps(internalDevVarOpVector); }
-
-#define AST_GET_TIME_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->timeSpecialType()) { timeOpVector.push_back(this->PTR); } this->PTR->getTimeOps(timeOpVector); }
-
-// this one adds "this"
-#define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR)
-#define AST_GET_STATE_OPS2(PTR) AST_GET_STATE_OPS (this->PTR)
-
-
-//-------------------------------------------------------------------------------
-// this is to make the call to "getInterestingOps" have a single
-// function argument that never has to change.
-template <typename ScalarT>
-struct opVectorContainers
-{
-public:
-  opVectorContainers(
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & param,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & func,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrent,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrent,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & power,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoise,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & src,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & comp,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limit,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agauss,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gauss,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunif,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unif,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & rand,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimit,
-  bool timeDep,
-  bool tempDep,
-  bool vTDep,
-  bool FreqDep,
-  bool gminDep,
-  bool scheduleDep
-      ):
-  paramOpVector(param),
-    funcOpVector(func),
-    voltOpVector(volt),
-    currentOpVector(current),
-    leadCurrentOpVector(leadCurrent),
-    bsrcCurrentOpVector(bsrcCurrent),
-    powerOpVector(power),
-    internalDevVarOpVector(internalDevVar),
-    dnoNoiseDevVarOpVector(dnoNoiseDevVar),
-    dniNoiseDevVarOpVector(dniNoiseDevVar),
-    oNoiseOpVector(oNoise),
-    iNoiseOpVector(iNoise),
-    sdtOpVector(sdt),
-    ddtOpVector(ddt),
-    srcOpVector(src),
-    stpOpVector(stp),
-    compOpVector(comp),
-    limitOpVector(limit),
-    phaseOpVector(phase),
-    sparamOpVector(sparam),
-    yparamOpVector(yparam),
-    zparamOpVector(zparam),
-    agaussOpVector(agauss),
-    gaussOpVector(gauss),
-    aunifOpVector(aunif),
-    unifOpVector(unif),
-    randOpVector(rand),
-    twoArgLimitOpVector(twoArgLimit),
-    isTimeDependent(timeDep),
-    isTempDependent(tempDep),
-    isVTDependent(vTDep),
-    isFreqDependent(FreqDep),
-    isGminDependent(gminDep),
-    isScheduleDependent(scheduleDep)
-  {};
-
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & funcOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & powerOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoiseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & srcOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & compOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limitOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agaussOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gaussOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunifOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unifOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & randOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimitOpVector;
-
-  bool isTimeDependent;
-  bool isTempDependent;
-  bool isVTDependent;
-  bool isFreqDependent;
-  bool isGminDependent;
-  bool isScheduleDependent;
-};
+#include "ast_visitor.h"
 
 //-------------------------------------------------------------------------------
 // this is to make the call to "getStateOps" have a single
@@ -519,7 +342,9 @@ class astNode : public staticsContainer
     virtual bool scheduleType() { return false; }
 
     virtual std::string getName () { return std::string(""); };
-    //virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
+
+    //virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) = 0;
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) {}
 
     virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
@@ -625,6 +450,12 @@ class numval : public astNode<ScalarT>
       os << number;
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<numval<ScalarT> > castToThis = Teuchos::rcp_static_cast<numval<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
     virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
@@ -665,6 +496,12 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
       // fix this later for formatting
       os << "std::complex<double>" << number;
     }
+
+    virtual void accept (nodeVisitor<std::complex<double>> & visitor, Teuchos::RCP<astNode<std::complex<double>> > & thisAst_) 
+    { 
+      Teuchos::RCP<numval<std::complex<double>> > castToThis = Teuchos::rcp_static_cast<numval<std::complex<double>> > (thisAst_);
+      visitor.visit( castToThis );
+    } // 2nd dispatch
 
     virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
@@ -868,6 +705,14 @@ class powOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<powOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
@@ -974,6 +819,14 @@ class atan2Op : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<atan2Op<ScalarT> > castToThis = Teuchos::rcp_static_cast<atan2Op<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
@@ -1044,6 +897,13 @@ class phaseOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<phaseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<phaseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
+
     virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
 
   private:
@@ -1101,6 +961,13 @@ class realOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<realOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<realOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
+
     virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
 };
 
@@ -1153,6 +1020,13 @@ class imagOp : public astNode<ScalarT>
       os << "std::imag(";
       this->leftAst_->codeGen(os);
       os << ")";
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<imagOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<imagOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
     }
 
     virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
@@ -1221,6 +1095,14 @@ class maxOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<maxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<maxOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 };
@@ -1284,6 +1166,15 @@ class minOp : public astNode<ScalarT>
       this->rightAst_->codeGen(os);
       os << ")";
     }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<minOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<minOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 };
@@ -1329,6 +1220,13 @@ class unaryNotOp : public astNode<ScalarT>
       os << "(!";
       this->leftAst_->codeGen(os);
       os << ")";
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryNotOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryNotOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
     }
 
     virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
@@ -1377,6 +1275,13 @@ class unaryMinusOp : public astNode<ScalarT>
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryMinusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryMinusOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
+
     virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
     virtual bool numvalType() { return (this->leftAst_->numvalType()); };
 };
@@ -1418,6 +1323,13 @@ class unaryPlusOp : public astNode<ScalarT>
       os << "(+";
       this->leftAst_->codeGen(os);
       os << ")";
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryPlusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryPlusOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->leftAst_->accept(visitor, this->leftAst_); 
     }
 
     virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
@@ -1534,6 +1446,13 @@ AST_GET_TIME_OPS(paramNode_)
     };
 
     virtual bool getIsTreeConstant() { return (paramNode_->getIsTreeConstant()); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<globalParamLayerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<globalParamLayerOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      paramNode_->accept(visitor, paramNode_); 
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > paramNode_;
@@ -1680,6 +1599,13 @@ AST_GET_CURRENT_OPS(paramNode_)
     virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
     {
 AST_GET_TIME_OPS(paramNode_)
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<paramOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<paramOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      paramNode_->accept(visitor, paramNode_); 
     }
 
     virtual bool getFunctionArgType() { return thisIsAFunctionArgument_; };
@@ -1833,6 +1759,12 @@ class voltageOp: public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<voltageOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<voltageOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     std::string voltageNode_;
     ScalarT voltageVal_;
@@ -1908,6 +1840,12 @@ class currentOp: public astNode<ScalarT>
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
     virtual bool getIsTreeConstant() { return false; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<currentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<currentOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
     ScalarT number_;
@@ -1987,6 +1925,12 @@ class sparamOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool sparamType() { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2064,6 +2008,12 @@ class yparamOp: public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; }
     virtual bool yparamType() { return true; };
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<yparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<yparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
 // data:
@@ -2143,6 +2093,12 @@ class zparamOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool zparamType() { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<zparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<zparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2217,6 +2173,12 @@ class leadCurrentOp: public astNode<ScalarT>
 
     virtual std::string getName () { return leadCurrentDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<leadCurrentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<leadCurrentOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2288,6 +2250,12 @@ class powerOp: public astNode<ScalarT>
 
     virtual std::string getName () { return powerDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<powerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powerOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2356,6 +2324,12 @@ class internalDevVarOp: public astNode<ScalarT>
     virtual bool internalDeviceVarType()  { return true; };
 
     virtual std::string getName () { return internalDevVarDevice_; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<internalDevVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<internalDevVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
 // data:
@@ -2438,6 +2412,12 @@ class dnoNoiseVarOp: public astNode<ScalarT>
 
     //virtual std::string getName () { return noiseDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<dnoNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dnoNoiseVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     std::vector<std::string> noiseDevices_;
@@ -2515,6 +2495,12 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     //virtual std::string getName () { return noiseDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<dniNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dniNoiseVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     std::vector<std::string> noiseDevices_;
@@ -2563,6 +2549,12 @@ class oNoiseOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool oNoiseType()  { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<oNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<oNoiseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     int derivIndex_;
@@ -2608,6 +2600,12 @@ class iNoiseOp: public astNode<ScalarT>
     void setNoiseVar (ScalarT n) { number_ = n; }
     virtual bool getIsTreeConstant() { return false; }
     virtual bool iNoiseType()  { return true; };
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<iNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<iNoiseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
     ScalarT number_;
@@ -3084,6 +3082,21 @@ AST_GET_TIME_OPS(functionNode_)
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<funcOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<funcOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+
+      if( !(Teuchos::is_null( functionNode_)))
+      {
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+        functionNode_->accept(visitor, functionNode_);
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+      }
+    } // 2nd dispatch
+
     bool getNodeResolved() { return nodeResolved_; }
     bool getArgsResolved() { return argsResolved_; }
 
@@ -3354,6 +3367,14 @@ class pwrsOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<pwrsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<pwrsOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
   private:
     bool rightConst_;
     bool leftConst_;
@@ -3414,6 +3435,13 @@ class sgnOp : public astNode<ScalarT>
     }
 
     virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sgnOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sgnOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3501,6 +3529,14 @@ class signOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<signOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<signOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_);
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3643,6 +3679,14 @@ class fmodOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant()
     { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<fmodOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<fmodOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_);
+    }
+
   private:
     bool rightConst_;
     bool leftConst_;
@@ -3694,6 +3738,13 @@ class roundOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<roundOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<roundOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3738,6 +3789,13 @@ class ceilOp : public astNode<ScalarT>
     }
     virtual bool getIsTreeConstant()
     { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ceilOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ceilOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3782,6 +3840,13 @@ class floorOp : public astNode<ScalarT>
     }
     virtual bool getIsTreeConstant()
     { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<floorOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<floorOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3831,6 +3896,13 @@ class intOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<intOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<intOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3971,6 +4043,15 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
       (this->leftAst_->getIsTreeConstant() &&
        this->rightAst_->getIsTreeConstant() &&
        this->zAst_->getIsTreeConstant() ) ;
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ifStatementOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ifStatementOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+      zAst_->accept(visitor,zAst_);
     }
 
   private:
@@ -4142,6 +4223,15 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
 
     virtual bool limitType() { return true; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<limitOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<limitOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+      this->rightAst_->accept(visitor, this->rightAst_); 
+      zAst_->accept(visitor,zAst_);
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > zAst_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
@@ -4218,6 +4308,13 @@ class stpOp : public astNode<ScalarT>
 
     virtual bool stpType() { return true; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<stpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<stpOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
+
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
     double bpTol_;
@@ -4282,6 +4379,13 @@ class urampOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return this->leftAst_->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<urampOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<urampOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_); 
+    }
 };
 
 inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
@@ -5452,6 +5556,26 @@ AST_GET_TIME_OPS(tableArgs_[ii])
 
     virtual bool getIsTreeConstant() { return allConst_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<tableOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<tableOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+
+      input_->accept(visitor, input_);
+
+      if (!allConst_)
+      {
+        if (!(tableArgs_.empty()))
+        {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
+            tableArgs_[ii]->accept(visitor, tableArgs_[ii]);
+          }
+        }
+      }
+    }
+
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
     bool allConst_;
@@ -5721,6 +5845,23 @@ AST_GET_TIME_OPS(tableArgs_[ii])
 
     virtual bool getIsTreeConstant() { return allNumVal_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<scheduleOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<scheduleOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+
+      time_->accept(visitor, time_);
+
+      if (!allNumVal_)
+      {
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+          tableArgs_[ii]->accept(visitor, tableArgs_[ii]);
+        }
+      }
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > time_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
@@ -5883,6 +6024,13 @@ class sdtOp : public astNode<ScalarT>
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
 
     virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sdtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sdtOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_);
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -6061,6 +6209,13 @@ class ddtOp : public astNode<ScalarT>
     Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
 
     virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ddtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddtOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_);
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -6257,6 +6412,14 @@ class ddxOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ddxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddxOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->leftAst_->accept(visitor, this->leftAst_);
+      this->rightAst_->accept(visitor, this->rightAst_); 
+    }
+
   private:
     bool foundX_;
     Teuchos::RCP<astNode<ScalarT> > astNodeX_;
@@ -6322,6 +6485,12 @@ class specialsOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; } // sometimes constant, sometimes not, so be conservative
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<specialsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<specialsOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
+
   private:
     std::string type_;
     ScalarT value_;
@@ -6355,6 +6524,11 @@ class piConstOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return true; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<piConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<piConstOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
   private:
 };
 
@@ -6384,6 +6558,12 @@ class CtoKConstOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
 
     virtual bool getIsTreeConstant() { return true; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<CtoKConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<CtoKConstOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
 
   private:
 };

@@ -108,6 +108,14 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                  \
     virtual bool getIsTreeConstant() { return                                          \
      (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }   \
+                                                                                       \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->leftAst_->accept(visitor, this->leftAst_);                                 \
+      this->rightAst_->accept(visitor, this->rightAst_); }                             \
+                                                                                       \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
 };

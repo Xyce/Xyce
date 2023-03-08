@@ -990,6 +990,7 @@ void newExpression::setupVariousAstArrays()
 
       if( !(Teuchos::is_null(astNodePtr_)) )
       {
+#if 0
         if (astNodePtr_->paramType())
         {
           if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
@@ -1036,6 +1037,9 @@ void newExpression::setupVariousAstArrays()
         opVectors_.isGminDependent = isGminDependent_;
 
         astNodePtr_->getInterestingOps( opVectors_  );
+#else
+        opVectors_.getInterestingOps(astNodePtr_);
+#endif
 
         if (opVectors_.isTimeDependent) isTimeDependent_ = true;
         if (opVectors_.isTempDependent) isTempDependent_ = true;

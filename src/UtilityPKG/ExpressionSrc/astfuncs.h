@@ -103,6 +103,13 @@ class NAME ## Op : public astNode<ScalarT>                                      
       this->leftAst_->codeGen(os);                                                     \
       os << ")";                                                                       \
     }                                                                                  \
+                                                                                       \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME ## Op<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME ## Op<ScalarT> > (thisAst_); \
+    visitor.visit( castToThis ); \
+      this->leftAst_->accept(visitor, this->leftAst_); }                               \
+                                                                                       \
     bool leftConst_;                                                                   \
 };
 
@@ -196,6 +203,13 @@ class tanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
+
+  virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+  { 
+    Teuchos::RCP<tanhOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<tanhOp<ScalarT> > (thisAst_);
+    visitor.visit( castToThis ); // 2nd dispatch
+    this->leftAst_->accept(visitor, this->leftAst_); 
+  }
 };
 
 template <typename ScalarT> 
@@ -273,6 +287,13 @@ class atanhOp : public astNode<ScalarT>
     this->leftAst_->codeGen(os);
     os << ")";
   } 
+
+  virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+  { 
+    Teuchos::RCP<atanhOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<atanhOp<ScalarT> > (thisAst_);
+    visitor.visit( castToThis ); // 2nd dispatch
+    this->leftAst_->accept(visitor, this->leftAst_); 
+  }
 };
 
 #endif

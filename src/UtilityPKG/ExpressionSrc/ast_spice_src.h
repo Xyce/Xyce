@@ -313,6 +313,20 @@ AST_GET_TIME_OPS(tr_) AST_GET_TIME_OPS(tf_) AST_GET_TIME_OPS(pw_)
 AST_GET_TIME_OPS(per_) AST_GET_TIME_OPS(time_)
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spicePulseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spicePulseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      v1_->accept(visitor,v1_);
+      v2_->accept(visitor,v2_);
+      td_->accept(visitor,td_);
+      tr_->accept(visitor,tr_);
+      tf_->accept(visitor,tf_);
+      pw_->accept(visitor,pw_);
+      per_->accept(visitor,per_);
+      time_->accept(visitor,time_);
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td_, tr_, tf_, pw_, per_, time_;
     bool v1Given_, v2Given_, tdGiven_, trGiven_, tfGiven_, pwGiven_, perGiven_;
@@ -558,6 +572,19 @@ AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(freq_)
 AST_GET_TIME_OPS(td_) AST_GET_TIME_OPS(theta_) AST_GET_TIME_OPS(phase_) AST_GET_TIME_OPS(time_)
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceSinOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSinOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      v0_->accept(visitor,v0_);
+      va_->accept(visitor,va_);
+      freq_->accept(visitor,freq_);
+      td_->accept(visitor,td_);
+      theta_->accept(visitor,theta_);
+      phase_->accept(visitor,phase_);
+      time_->accept(visitor,time_);
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > v0_, va_, freq_, td_, theta_, phase_, time_;
     bool v0Given_, vaGiven_, freqGiven_, tdGiven_, thetaGiven_, phaseGiven_;
@@ -750,6 +777,19 @@ AST_GET_TIME_OPS(v1_) AST_GET_TIME_OPS(v2_) AST_GET_TIME_OPS(td1_)
 AST_GET_TIME_OPS(tau1_) AST_GET_TIME_OPS(td2_) AST_GET_TIME_OPS(tau2_) AST_GET_TIME_OPS(time_) 
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceExpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceExpOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      v1_->accept(visitor,v1_);
+      v2_->accept(visitor,v2_);
+      td1_->accept(visitor,td1_);
+      tau1_->accept(visitor,tau1_);
+      td2_->accept(visitor,td2_);
+      tau2_->accept(visitor,tau2_);
+      time_->accept(visitor,time_);
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td1_, tau1_, td2_, tau2_, time_;
     bool v1Given_, v2Given_, td1Given_, tau1Given_, td2Given_, tau2Given_;
@@ -903,6 +943,18 @@ AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(fc_)
 AST_GET_TIME_OPS(mdi_) AST_GET_TIME_OPS(fs_) AST_GET_TIME_OPS(time_)
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceSffmOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSffmOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      v0_->accept(visitor,v0_);
+      va_->accept(visitor,va_);
+      fc_->accept(visitor,fc_);
+      mdi_->accept(visitor,mdi_);
+      fs_->accept(visitor,fs_);
+      time_->accept(visitor,time_);
+    }
+
   private:
     Teuchos::RCP<astNode<ScalarT> > v0_, va_, fc_, mdi_, fs_, time_;
     bool v0Given_, vaGiven_, fcGiven_, mdiGiven_, fsGiven_;
@@ -910,4 +962,3 @@ AST_GET_TIME_OPS(mdi_) AST_GET_TIME_OPS(fs_) AST_GET_TIME_OPS(time_)
 };
 
 #endif
-
