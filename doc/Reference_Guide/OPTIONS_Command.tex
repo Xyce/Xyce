@@ -108,8 +108,12 @@ Note that \texttt{EXTREMALIMIT} will only output one name and value per step whi
 \texttt{VOLTAGELIMIT}, \texttt{CURRENTLIMIT} and \texttt{DISCLIMIT} can output many 
 names and values per step.  Xyce's diagnostic output will be sent to the diagnostic 
 file set by \texttt{DIAGFILENAME} along with step information (time step in transient 
-simulation and step number otherwise). A user can examine the output to infer if the 
-circuit simulation is performing as expected.
+simulation and step number otherwise) and the status of \texttt{GMIN} or source-stepping 
+used to obtain the DC operating point. If no filename is specified, then the 
+default output file name will be the input netlist name plus the extenstion \texttt{.dia}.
+A user can examine the output to infer if the circuit simulation is performing as expected.
+Further examples of using diagnostic options can be found in chapter 10 of the \Xyce{} 
+User's Guide.
 
 \input{diagnosticTbl.tex}
 

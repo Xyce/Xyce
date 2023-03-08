@@ -28,11 +28,12 @@ circuit problems.
 \subsection{Introduction}
 To aid in understanding circuit simulation performance, \Xyce{} has a diagnostic output mode
 where additional data can be sent to an external file for the user to study.  The data 
-can include times and values of currents and voltages that are either extreme or over some
-user defined limit.  Additionally, there is a capability to output solution nodes that 
-appear to be discontinuous within a user specified limit.  The data is sent to a separate
-file to avoid it being lost in the normal simulation output.  The following sections will
-present examples of using diagnostic output in a circuit.
+can include information about GMIN stepping and source stepping during the DC operating
+point calculation as well as times and values of currents and voltages that are either 
+extreme or over some user defined limit.  Additionally, there is a capability to output 
+solution nodes that appear to be discontinuous within a user specified limit.  The data 
+is sent to a separate file to avoid it being lost in the normal simulation output.  The 
+following sections will present examples of using diagnostic output in a circuit.
 
 
 \subsection{Enabling Diagnostic Output}
@@ -56,11 +57,52 @@ Multiple modes can be specified and the results will be grouped by diagnostic mo
 each step within the diagnostic output file.
 
 Finally, the \texttt{.options diagnostic diagfilename} is optional.  If it is not given then 
-the diagnostic output will be saved in a file called \texttt{XyceDiag.out}.  No matter whether 
-it is set, or left at its default value, Xyce will overwrite any existing file with new 
-output each time Xyce is run.  
+the diagnostic output will be saved in a file called \texttt{[input file name].dia}.  
+No matter whether it is set, or left at its default value, Xyce will overwrite any existing 
+file with new output each time Xyce is run.  
 
 The next sections will give examples for each of the diagnostic modes listed above.
+
+\subsection{DC Operating Point Information}
+When Xyce attempts to calculate the DC operating point of a circuit, if the initial 
+Newton solver approach doesn't converge then Xyce will automatically attempt GMIN
+stepping and then source stepping to find a solution.  Information about the DC
+Operating point calculation and if GMIN or source stepping are used will be sent 
+to the diagnostic output file.  For example this is the output one might see
+if both GMIN and source stepping are needed:
+
+\begin{verbatim}
+Xyce Dagnostic Output
+Analysis event INITIALIZE DC
+Analysis event STEP_STARTED DC
+Analysis event DC_OP_STARTED DC
+Analysis event STEP_FAILED DC
+Analysis event DC_OP_GMIN_STEPPING DC
+Analysis event  DC_OP_GMIN_STEPPING_FAILED DC smallest gmin = 1.057478e-03
+Analysis event DC_OP_SOURCE_STEPPING DC
+Analysis event STEP_SUCCESSFUL DC
+\end{verbatim}
+
+In this example the default DC OP calculation is started and fails as reported with:
+\begin{verbatim}
+Analysis event DC_OP_STARTED DC
+Analysis event STEP_FAILED DC
+\end{verbatim}
+
+Then GMIN stepping is tried and it fails at a GMIN of around 1e-3.
+\begin{verbatim}
+Analysis event DC_OP_GMIN_STEPPING DC
+Analysis event  DC_OP_GMIN_STEPPING_FAILED DC smallest gmin = 1.057478e-03
+\end{verbatim}
+
+Then source stepping is attempted and that is successful.
+\begin{verbatim}
+Analysis event DC_OP_SOURCE_STEPPING DC
+Analysis event STEP_SUCCESSFUL DC
+\end{verbatim}
+
+Understanding how Xyce obtained or failed to obtain a DC Operating point can 
+be helpful in diagnosing a circuit topology or initial condition problem.
 
 \subsection{Extrema Output}
 To obtain the solution node name and value that has the largest absolute value over some 
