@@ -1956,12 +1956,8 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   // only output if the stream is open
   if(diagnosticOutputStreamPtr_ != NULL)
   {
-    if(analysis_event.step_ == 0) 
-    {
-      (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
-        << analysis_event.outputType_ <<  std::endl;
-    }
-    else if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
+    
+    if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
     {
       (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
         << analysis_event.outputType_ << " smallest gmin = " << std::scientific << analysis_event.step_ << std::defaultfloat <<  std::endl;
@@ -1970,6 +1966,12 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     {
       (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
         << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
+    }
+    else if(analysis_event.step_ == 0) 
+    {
+      // need this conditional last as source stepping can fail with step_ == 0 
+      (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+        << analysis_event.outputType_ <<  std::endl;
     }
   }
   
