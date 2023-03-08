@@ -264,7 +264,8 @@ extractOptionsData(
   addDefaultOptionsParameters(options_manager, defaultOptions, optionName);
 
   // generate a warning message for lines like .OPTIONS LINSOL TYPE
-  if ( parameterStartPos > (numFields - 2 ) )
+  // but lines like .options diagnostic are OK.
+  if ( parameterStartPos > (numFields - 2 ) && (optionName != "DIAGNOSTIC") )
   {
     Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
         << ".OPTIONS line is missing one or more required parameters, and was ignored.";
