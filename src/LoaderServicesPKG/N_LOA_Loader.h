@@ -78,8 +78,6 @@
 #include <N_TIA_fwd.h>
 #include <N_UTL_fwd.h>
 
-#include <astRandEnum.h>
-
 namespace Xyce {
 namespace Loader {
 

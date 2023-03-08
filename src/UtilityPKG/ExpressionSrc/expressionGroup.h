@@ -44,8 +44,6 @@
 
 #include <Teuchos_RCP.hpp>
 
-#include <astRandEnum.h>
-
 namespace Xyce {
 namespace Util {
 

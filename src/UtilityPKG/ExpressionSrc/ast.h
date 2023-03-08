@@ -130,28 +130,6 @@ inline std::complex<double> fixInf(const std::complex<double> & result)
 }
 
 
-
-template <typename ScalarT>
-class astNode;
-
-template <typename ScalarT>
-class funcOp;
-
-template <typename ScalarT>
-class paramOp;
-
-template <typename ScalarT>
-class voltageOp;
-
-template <typename ScalarT>
-class currentOp;
-
-template <typename ScalarT>
-class sdtOp;
-
-template <typename ScalarT>
-class ddtOp;
-
 inline void yyerror(std::vector<std::string> & s);
 
 #include "ast_visitor.h"
@@ -343,7 +321,6 @@ class astNode : public staticsContainer
 
     virtual std::string getName () { return std::string(""); };
 
-    //virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) = 0;
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) {}
 
     virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }

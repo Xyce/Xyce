@@ -22,9 +22,11 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
+// Purpose        : ast_visitor
 //
-// Special Notes  :
+// Special Notes  : this header file contains functions and classes related to
+//                  implementation of the "visitor pattern" for the
+//                  expression library AST.
 //
 // Creator        : Eric R. Keiter, SNL
 //

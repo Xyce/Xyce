@@ -1764,9 +1764,7 @@ TEST ( Complex_Parser_SourceFunc_Test, sin_func)
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   int numpoints=100;
   double v0(1.65), va(1.65), freq(10000), td(0.0), theta(0.0), phase(-90),time(0.0);
@@ -3256,9 +3254,7 @@ TEST ( Complex_Parser_LeadCurr_Test, test1)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IG"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
@@ -3282,9 +3278,7 @@ TEST ( Complex_Parser_LeadCurr_Test, test2)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("ID"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
@@ -3308,9 +3302,7 @@ TEST ( Complex_Parser_LeadCurr_Test, test3)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IS"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
@@ -3461,18 +3453,14 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, testConflict)
   Xyce::Util::newExpression testExpression(std::string("N+17.2*N(M3:GM)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Teuchos::RCP<Xyce::Util::newExpression> nExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("-0.5"), testGroup));
   nExpression->lexAndParseExpression();
   std::string nName = "N";
   testExpression.attachParameterNode(nName,nExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -3670,9 +3658,7 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3723,9 +3709,7 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig2)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3781,9 +3765,7 @@ TEST ( Complex_Parser_Func_Test, test_underscoreName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3832,9 +3814,7 @@ TEST ( Complex_Parser_Func_Test, test_poundSymbolName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3883,9 +3863,7 @@ TEST ( Complex_Parser_Func_Test, test_atSymbolName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3934,9 +3912,7 @@ TEST ( Complex_Parser_Func_Test, test_backtickName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3990,9 +3966,7 @@ TEST ( Complex_Parser_Func_Test, test1_multipleLexParse)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -6264,9 +6238,7 @@ TEST ( Complex_Parser_Param_Test, testE1)
   Xyce::Util::newExpression assign_testExpression; 
   assign_testExpression = testExpression; 
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double>  result;
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
@@ -7086,9 +7058,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs6 )
   std::complex<double> result;
   std::complex<double> refRes = 1.0;
 
-#if 0
-  derivFuncTestExpr.dumpParseTree(std::cout);
-#endif
+  //derivFuncTestExpr.dumpParseTree(std::cout);
 
   derivFuncTestExpr.evaluateFunction(result);       EXPECT_EQ(result, refRes);
 
@@ -7134,9 +7104,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs7 )
   std::complex<double> result;
   std::complex<double> refRes = 1.0;
 
-#if 0
-  derivFuncTestExpr.dumpParseTree(std::cout);
-#endif
+  //derivFuncTestExpr.dumpParseTree(std::cout);
 
   derivFuncTestExpr.evaluateFunction(result);        EXPECT_EQ(result, refRes);
   copy_derivFuncTestExpr.evaluateFunction(result);   EXPECT_EQ(result, refRes);
@@ -9542,35 +9510,6 @@ TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
   OUTPUT_MACRO3(Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }
 
-
-#if 0
-template <typename ScalarT>
-inline void trapezoidIntegral (
-   const std::vector<double> & times,
-   const std::vector<double> & values,
-   std::vector<double> & testIntegral,
-   ScalarT & integral)
-{
-  int cpSize = times.size();
-  int midIndex = cpSize-1;
-  integral=0.0;
-
-  testIntegral.resize(cpSize,0.0);
-
-  for (int is=0;is<cpSize-1;++is)
-  {
-    double deltaT = times[is+1]-times[is];
-    double pulse1 = values[is];
-    double pulse2 = values[is+1];
-    double Tau1 = times[is];
-    double Tau2 = times[is+1];
-    double deltaI = 0.5*(pulse1+pulse2)*deltaT;
-    integral += deltaI;
-    testIntegral[is+1] = integral;
-  }
-}
-#endif
-
 //-------------------------------------------------------------------------------
 // SDT tests
 //-------------------------------------------------------------------------------
@@ -9807,9 +9746,7 @@ TEST ( Complex_Parser_Integral_Test, sdt5)
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs;
   std::vector<std::complex<double> > refDerivs;
@@ -9944,9 +9881,7 @@ TEST ( Complex_Parser_Integral_Test, sdt7)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10037,9 +9972,7 @@ TEST ( Complex_Parser_Integral_Test, sdt8)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10138,9 +10071,7 @@ TEST ( Complex_Parser_Integral_Test, sdt9)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10239,9 +10170,7 @@ TEST ( Complex_Parser_Integral_Test, sdt10)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10341,9 +10270,7 @@ TEST ( Complex_Parser_Integral_Test, sdt11)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10956,9 +10883,7 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0, refRes = 0.0; 
   double time=0.0, finalTime=1.0;
@@ -11052,9 +10977,7 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv2)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0, refRes = 0.0; 
   double time=0.0, finalTime=1.0;
@@ -11424,9 +11347,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt7)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0; 
   std::complex<double> refRes = 0.0;
@@ -11492,9 +11413,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt8)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0; 
   std::complex<double> refRes = 0.0;
@@ -11560,9 +11479,7 @@ TEST ( Complex_Parser_Breakpoint_Test, stp1)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   timeDepGroup->setTime(0.4);
   std::complex<double> result = 0.0;
@@ -11623,9 +11540,7 @@ TEST ( Complex_Parser_Breakpoint_Test, stp2)
   std::complex<double> result;
   testExpression.evaluateFunction(result);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   testExpression.getBreakPoints(breakPointTimes);
@@ -11665,9 +11580,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit1)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   timeDepGroup->setTime(0.4);
   std::complex<double> result = 0.0;
@@ -11728,9 +11641,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit2)
   std::complex<double> result = 0.0;
   testExpression.evaluateFunction(result);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   testExpression.getBreakPoints(breakPointTimes);
@@ -11770,9 +11681,7 @@ TEST ( Complex_Parser_Breakpoint_Test, abm_breaks1)
   //std::cout << "firstBP = " << firstBP << std::endl;
   //std::cout << "seconBP = " << seconBP << std::endl;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -11819,9 +11728,7 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared1)
 
   double firstBP = 2.0;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -11872,9 +11779,7 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared2)
 
   double firstBP = 2.0;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -12041,9 +11946,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
 
   testExpression.attachFunctionNode(udfAName, udfAExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -12092,9 +11995,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
 
   testExpression.attachFunctionNode(udfAName, udfAExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -12135,9 +12036,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_obj_func)
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   testExpression.evaluateFunction(result);   ASSERT_EQ( result, 18.0 );
@@ -12232,9 +12131,7 @@ TEST ( Complex_Parser_ErrorTest,  power_unsupported_devices)
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result (0,0); // this number is the "can't find it" number
   std::complex<double> reference(-2e+09,0); // this number is the "can't find it" number
@@ -13302,6 +13199,43 @@ TEST ( Complex_Parser_Test_getVoltNames, voltNames6)
   EXPECT_EQ( result, refRes); 
 }
 
+
+// testing the bracket operator in device names.  Test1 passes if it dosn't crash during parsing.
+TEST ( Complex_Parser_Test_Brackets, test1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+
+  // original:
+  std::string testExpr = "I(V_VDD)*V(_VDD)+I(V_VSS)*V(_VSS)+I(V_Q[3])*V(_Q[3])+I(V_Q[2])*V(_Q[2])+I(V_Q[1])*V(_Q[1])+I(V_Q[0])*V(_Q[0])+I(V_A[6])*V(_A[6])+I(V_A[5])*V(_A[5])+I(V_A[4])*V(_A[4])+I(V_A[3])*V(_A[3])+I(V_A[2])*V(_A[2])+I(V_A[1])*V(_A[1])+I(V_A[0])*V(_A[0])+I(V_E)*V(_E)+I(V_D[3])*V(_D[3])+I(V_D[2])*V(_D[2])+I(V_D[1])*V(_D[1])+I(V_D[0])*V(_D[0])+I(V_W[3])*V(_W[3])+I(V_W[2])*V(_W[2])+I(V_W[1])*V(_W[1])+I(V_W[0])*V(_W[0])";
+
+  Xyce::Util::newExpression testExpression(testExpr, testGroup);
+
+  testExpression.lexAndParseExpression();
+
+}
+
+// another test of bracket operator. This one looks at the answer.
+TEST ( Complex_Parser_Test_Brackets, test2)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  // original:
+  std::string testExpr = "17.2*I(V_Q[3])+8.5";
+  Xyce::Util::newExpression testExpression(testExpr, testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, V1val=3.0;
+  std::complex<double> refRes = 17.2*V1val+8.5;
+  solnGroup->setSoln(std::string("V_Q[3]"),V1val);
+  testExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+  assignExpression.evaluateFunction(result); EXPECT_EQ( std::real(result), std::real(refRes));
+}
 
 int main (int argc, char **argv)
 {
