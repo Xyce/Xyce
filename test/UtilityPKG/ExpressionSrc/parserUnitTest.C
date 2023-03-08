@@ -11943,6 +11943,21 @@ TEST ( Double_Parser_Test_cmplxBoolean, isComplex1)
   ASSERT_FALSE (isComplex);
 }
 
+// testing the "getIsComplex" function
+// at this point, the only point of this test is to successfully get thru parsing without errororing out.
+TEST ( Double_Parser_Test_Brackets, test1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+
+  // original:
+  std::string testExpr = "I(V_VDD)*V(_VDD)+I(V_VSS)*V(_VSS)+I(V_Q[3])*V(_Q[3])+I(V_Q[2])*V(_Q[2])+I(V_Q[1])*V(_Q[1])+I(V_Q[0])*V(_Q[0])+I(V_A[6])*V(_A[6])+I(V_A[5])*V(_A[5])+I(V_A[4])*V(_A[4])+I(V_A[3])*V(_A[3])+I(V_A[2])*V(_A[2])+I(V_A[1])*V(_A[1])+I(V_A[0])*V(_A[0])+I(V_E)*V(_E)+I(V_D[3])*V(_D[3])+I(V_D[2])*V(_D[2])+I(V_D[1])*V(_D[1])+I(V_D[0])*V(_D[0])+I(V_W[3])*V(_W[3])+I(V_W[2])*V(_W[2])+I(V_W[1])*V(_W[1])+I(V_W[0])*V(_W[0])";
+
+  Xyce::Util::newExpression testExpression(testExpr, testGroup);
+
+  testExpression.lexAndParseExpression();
+
+}
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
