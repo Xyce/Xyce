@@ -333,7 +333,7 @@ public:
       if (left->randType()) { randOpVec_.push_back(left); }
       if (left->twoArgLimitType()) { twoArgLimitOpVec_.push_back(left); }
 
-      left->getInterestingOps( opVectors_  );
+      opVectors_.getInterestingOps(left);
     }
   };
 

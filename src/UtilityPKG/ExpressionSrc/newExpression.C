@@ -990,56 +990,7 @@ void newExpression::setupVariousAstArrays()
 
       if( !(Teuchos::is_null(astNodePtr_)) )
       {
-#if 0
-        if (astNodePtr_->paramType())
-        {
-          if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
-          {
-            paramOpVec_.push_back(astNodePtr_);
-          }
-        }
-        if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->powerType()) { powerOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->limitType())      { limitAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->agaussType())    { agaussOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->gaussType())    { gaussOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->aunifType())    { aunifOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->unifType())    { unifOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->randType())    { randOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->twoArgLimitType())    { twoArgLimitOpVec_.push_back(astNodePtr_); }
-
-        opVectors_.isTimeDependent = isTimeDependent_;
-        opVectors_.isTempDependent = isTempDependent_;
-        opVectors_.isVTDependent = isVTDependent_;
-        opVectors_.isFreqDependent = isFreqDependent_;
-        opVectors_.isGminDependent = isGminDependent_;
-
-        astNodePtr_->getInterestingOps( opVectors_  );
-#else
         opVectors_.getInterestingOps(astNodePtr_);
-#endif
 
         if (opVectors_.isTimeDependent) isTimeDependent_ = true;
         if (opVectors_.isTempDependent) isTempDependent_ = true;
@@ -1161,7 +1112,7 @@ void newExpression::setupVariousAstArrays()
       // So, just finding the first works OK, but it is wasteful.
       //
       // I believe this happening because the AST traversal
-      // (in the function call astNodePtr_->getInterestingOps( opVectors_  ); above )
+      // (in the function call opVectors_.getInterestingOps(astNodePtr_); above )
       // makes no attempt to  avoid duplicates.  It just pushes them all back onto the paramOpVec
       // as it traverses the tree.
       paramNameVec_.clear();

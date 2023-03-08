@@ -346,53 +346,6 @@ class astNode : public staticsContainer
     //virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) = 0;
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) {}
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(leftAst_) AST_GET_STATE_OPS(rightAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
-    }
-
-    // func arg ops are of class paramOp, but have been identified as being
-    // function arguments.  (thus being excluded from the getParamOps function, above)
-    // This is needed by the ddx function
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
-    }
-    virtual void getInternalDevVarOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector)
-    {
-AST_GET_INTERNAL_DEV_VAR_OPS (leftAst_) AST_GET_INTERNAL_DEV_VAR_OPS (rightAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
-    }
-
     virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }
     virtual sdtStateData<ScalarT> & getSdtState() { return sdtState_; }
 
@@ -539,10 +492,9 @@ inline void computeBreakPoint(
 {
   timeOpVec_.clear();
 
-  if (leftAst_->timeSpecialType()) { timeOpVec_.push_back(leftAst_); }
-  if (rightAst_->timeSpecialType()) { timeOpVec_.push_back(rightAst_); }
-  leftAst_->getTimeOps(timeOpVec_);
-  rightAst_->getTimeOps(timeOpVec_);
+  getTimeOpsVisitor<ScalarT> visitor(timeOpVec_);
+  leftAst_->accept(visitor,leftAst_);
+  rightAst_->accept(visitor,rightAst_);
 
   if (!(timeOpVec_.empty()))
   {
@@ -1400,46 +1352,6 @@ class globalParamLayerOp: public astNode<ScalarT>
     virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
     virtual void unsetValue() { paramNode_ = savedParamNode_; };
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(paramNode_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(paramNode_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(paramNode_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(paramNode_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(paramNode_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(paramNode_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(paramNode_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(paramNode_)
-    }
-
     virtual void processSuccessfulTimeStep ()
     {
       paramNode_->processSuccessfulTimeStep ();
@@ -1560,46 +1472,6 @@ class paramOp: public astNode<ScalarT>
     virtual std::string getName() { return paramName_; }
 
     virtual bool paramType() { return !thisIsAFunctionArgument_ ; };
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(paramNode_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(paramNode_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(paramNode_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(paramNode_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(paramNode_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(paramNode_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(paramNode_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(paramNode_)
-    }
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
@@ -3010,78 +2882,6 @@ class funcOp: public astNode<ScalarT>
 
     virtual std::string getName() { return funcName_; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_INTERESTING_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_STATE_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_PARAM_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_FUNC_ARG_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_FUNC_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_VOLT_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_CURRENT_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_TIME_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
       Teuchos::RCP<funcOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<funcOp<ScalarT> > (thisAst_);
@@ -3998,46 +3798,6 @@ class ifStatementOp : public astNode<ScalarT>
       os << "))";
     }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
-    }
-
     virtual bool getIsTreeConstant()
     { return
       (this->leftAst_->getIsTreeConstant() &&
@@ -4172,46 +3932,6 @@ class limitOp : public astNode<ScalarT>
     {
       /// fix this
       os << "LIMIT";
-    }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
     }
 
     virtual bool getIsTreeConstant()
@@ -5416,144 +5136,6 @@ class tableOp : public astNode<ScalarT>
 
     virtual bool srcType() { return ( input_->timeSpecialType() ); }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_INTERESTING_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_INTERESTING_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_STATE_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_STATE_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_PARAM_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_FUNC_ARG_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_FUNC_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_VOLT_OPS(tableArgs_[ii] )
-          }
-        }
-      }
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_CURRENT_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_TIME_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
     virtual bool getIsTreeConstant() { return allConst_; }
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
@@ -5728,120 +5310,6 @@ class scheduleOp : public astNode<ScalarT>
     }
 
     virtual bool scheduleType() { return true; }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_INTERESTING_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_INTERESTING_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_STATE_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_STATE_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_PARAM_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_FUNC_ARG_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_FUNC_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_VOLT_OPS(tableArgs_[ii] )
-        }
-      }
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_CURRENT_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_TIME_OPS(tableArgs_[ii])
-        }
-      }
-    }
 
     virtual bool getIsTreeConstant() { return allNumVal_; }
 
@@ -6253,11 +5721,8 @@ class ddxOp : public astNode<ScalarT>
       if ( this->rightAst_->paramType() || this->rightAst_->getFunctionArgType() )
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > paramOpVector;
-        if ( this->leftAst_->paramType() || this->leftAst_->getFunctionArgType() )
-        { paramOpVector.push_back(this->leftAst_); }
-
-        this->leftAst_->getParamOps(paramOpVector);
-        this->leftAst_->getFuncArgOps(paramOpVector);
+        getParamOpsVisitor<ScalarT> visitor(paramOpVector);
+        this->leftAst_->accept(visitor,this->leftAst_);
 
         // now match the user-specified right hand argument with a parameter inside
         // the function specified by the left-hand argument.  This is a klunky,
@@ -6281,9 +5746,8 @@ class ddxOp : public astNode<ScalarT>
       else if (this->rightAst_->voltageType())
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > voltOpVector;
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
-
-        this->leftAst_->getVoltageOps(voltOpVector);
+        getVoltageOpsVisitor<ScalarT> visitor(voltOpVector);
+        this->leftAst_->accept(visitor,this->leftAst_);
 
         std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))
@@ -6303,10 +5767,8 @@ class ddxOp : public astNode<ScalarT>
       else if (this->rightAst_->currentType())
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > currentOpVector;
-
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-
-        this->leftAst_->getCurrentOps(currentOpVector);
+        getCurrentOpsVisitor<ScalarT> visitor(currentOpVector);
+        this->leftAst_->accept(visitor,this->leftAst_);
 
         std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))

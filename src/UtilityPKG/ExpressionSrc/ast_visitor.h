@@ -127,7 +127,9 @@ template <typename ScalarT> class tanhOp;
 template <typename ScalarT> class atanhOp;
 
 
+//-------------------------------------------------------------------------------
 // base visitor class
+//-------------------------------------------------------------------------------
 template <typename ScalarT>
 class nodeVisitor
 {
@@ -233,7 +235,10 @@ class nodeVisitor
 
 // each derived visitor class is for a different operation to be done as we "visit" all the nodes.
 
-// first one is for gathering information for all kinds of ops.  This one is used the most.
+//-------------------------------------------------------------------------------
+// getInterestingOps visitor.  
+// This is the most important visitor.
+//-------------------------------------------------------------------------------
 template <typename ScalarT>
 class getInterestingOpsVisitor : public nodeVisitor<ScalarT>
 {
@@ -299,95 +304,52 @@ class getInterestingOpsVisitor : public nodeVisitor<ScalarT>
 };
 
 template <typename ScalarT>
-class getStateOpsVisitor : public nodeVisitor<ScalarT>
-{
-  public:
-  getStateOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-
-  void visit(Teuchos::RCP<sdtOp<ScalarT> > & astNode) { ovc.sdtOpVector.push_back(astNode); }
-  void visit(Teuchos::RCP<ddtOp<ScalarT> > & astNode) { ovc.ddtOpVector.push_back(astNode); }
-};
-
-template <typename ScalarT>
 class getParamOpsVisitor : public nodeVisitor<ScalarT>
 {
   public:
-  getParamOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-
-  void visit(Teuchos::RCP<paramOp<ScalarT> > & astNode) { ovc.paramOpVector.push_back(astNode); }
-};
-
-template <typename ScalarT>
-class getFuncArgOpsVisitor : public nodeVisitor<ScalarT>
-{
-  public:
-  getFuncArgOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-
-  // function arguments are a special type of paramOp.  
-  // This is one example of a visitor that isn't also (arguably redundantly) 
-  // covered by the getInterestingOpsVisitor 
-  void visit(Teuchos::RCP<paramOp<ScalarT> > & astNode) 
-  {
-    if ( astNode->getFunctionArgType() ) { ovc.funcArgOpVector.push_back(astNode); }
-  }
-};
-
-template <typename ScalarT>
-class getFuncOpsVisitor : public nodeVisitor<ScalarT>
-{
-  public:
-  getFuncOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-
-  void visit(Teuchos::RCP<funcOp<ScalarT> > & astNode) { ovc.funcOpVector.push_back(astNode); }
+  getParamOpsVisitor (std::vector<Teuchos::RCP<astNode<ScalarT> > > & tmp) : parVec(tmp) {}
+  std::vector<Teuchos::RCP<astNode<ScalarT> > > & parVec;
+  // while paramOps *can* be either a function argument or not, for some use cases you need both.
+  // In the ddxOp class, you need both.  As of this writing *only* the ddxOp class uses this visitor.
+  // So this visitor does *not* check for functionArgType.
+  void visit(Teuchos::RCP<paramOp<ScalarT> > & astNode) { parVec.push_back(astNode); }
 };
 
 template <typename ScalarT>
 class getVoltageOpsVisitor : public nodeVisitor<ScalarT>
 {
   public:
-  getVoltageOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode) { ovc.voltOpVector.push_back(astNode); }
+  getVoltageOpsVisitor (std::vector<Teuchos::RCP<astNode<ScalarT> > > & tmp) : voltVec(tmp) {}
+  std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltVec;
+  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode) { voltVec.push_back(astNode); }
 };
 
 template <typename ScalarT>
 class getCurrentOpsVisitor : public nodeVisitor<ScalarT>
 {
   public:
-  getCurrentOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-  void visit(Teuchos::RCP<currentOp<ScalarT> > & astNode) { ovc.currentOpVector.push_back(astNode); }
-};
-
-template <typename ScalarT>
-class getInternalVarOpsVisitor : public nodeVisitor<ScalarT>
-{
-  public:
-  getInternalVarOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
-  void visit(Teuchos::RCP<internalDevVarOp<ScalarT> > & astNode) { ovc.internalDevVarOpVector.push_back(astNode); }
-
+  getCurrentOpsVisitor (std::vector<Teuchos::RCP<astNode<ScalarT> > > & tmp) :currVec(tmp) {}
+  std::vector<Teuchos::RCP<astNode<ScalarT> > > & currVec;
+  void visit(Teuchos::RCP<currentOp<ScalarT> > & astNode) { currVec.push_back(astNode); }
 };
 
 template <typename ScalarT>
 class getTimeOpsVisitor : public nodeVisitor<ScalarT>
 {
   public:
-  getTimeOpsVisitor (opVectorContainers<ScalarT> & tmp) : ovc(tmp) {}
-  opVectorContainers<ScalarT> & ovc;
+  getTimeOpsVisitor (std::vector<Teuchos::RCP<astNode<ScalarT> > > & tmp) : tov(tmp) {}
+  std::vector<Teuchos::RCP<astNode<ScalarT> > > & tov;
+
   void visit(Teuchos::RCP<specialsOp<ScalarT> > & astNode) 
   { 
-    if (astNode->timeSpecialType() || astNode->dtSpecialType()) { ovc.timeOpVector.push_back(astNode); }
+    if (astNode->timeSpecialType() || astNode->dtSpecialType()) { tov.push_back(astNode); }
   }
 };
 
 //-------------------------------------------------------------------------------
-// this is to make the call to "getInterestingOps" have a single
-// function argument that never has to change.
+// this object is used by "getInterestingOps".  It is a catch-all, that contains 
+// references to all the book-keeping STL containers needed by the expression library
+//-------------------------------------------------------------------------------
 template <typename ScalarT>
 struct opVectorContainers
 {
@@ -506,111 +468,6 @@ public:
     getInterestingOpsVisitor<ScalarT> visitor(*this);
     ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
   }
-
-  void getStateOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getStateOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getParamOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getParamOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getFuncArgOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getFuncArgOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getFuncOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getFuncOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getVoltageOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getVoltageOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getCurrentOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getCurrentOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }
-
-  void getTimeOps (Teuchos::RCP<astNode<ScalarT> > &ast)
-  {
-    getTimeOpsVisitor<ScalarT> visitor(*this);
-    ast->accept(visitor,ast); // << 1st dispatch  ("accept" the visitor,ast)
-  }  
-  
 };
-
-
-#define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->paramType()) { ovc.paramOpVector.push_back(PTR); }  \
-  else if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
-  else if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
-  else if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
-  else if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
-  else if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
-  else if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
-  else if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
-  else if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
-  else if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
-  else if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
-  else if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
-  else if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  else if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
-  else if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
-  else if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
-  else if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
-  else if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
-  else if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
-  else if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
-  else if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
-  else if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
-  else if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
-  else if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
-  else if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
-  else if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
-  else if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
-  else if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
-  else if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
-  else if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
-  else if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
-  else if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
-  else if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
-  PTR->getInterestingOps(ovc); }
-
-
-#define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  else if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  PTR->getStateOps(ovc); }
-
-#define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
-
-#define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
-
-#define AST_GET_FUNC_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->funcType()) { funcOpVector.push_back(this->PTR); } this->PTR->getFuncOps(funcOpVector); }
-
-#define AST_GET_VOLT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } this->PTR->getVoltageOps(voltOpVector); }
-
-#define AST_GET_CURRENT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } this->PTR->getCurrentOps(currentOpVector); }
-
-#define AST_GET_INTERNAL_DEV_VAR_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->internalDeviceVarType()) { internalDevVarOpVector.push_back(this->PTR); } this->PTR->getInternalDevVarOps(internalDevVarOpVector); }
-
-#define AST_GET_TIME_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->timeSpecialType()) { timeOpVector.push_back(this->PTR); } this->PTR->getTimeOps(timeOpVector); }
-
-// this one adds "this"
-#define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR)
-#define AST_GET_STATE_OPS2(PTR) AST_GET_STATE_OPS (this->PTR)
 
 #endif

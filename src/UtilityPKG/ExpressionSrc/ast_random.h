@@ -126,46 +126,6 @@ class agaussOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_) AST_GET_INTERESTING_OPS(multAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(nAst_) AST_GET_STATE_OPS(multAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_) AST_GET_PARAM_OPS(multAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(nAst_) AST_GET_FUNC_ARG_OPS(multAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(nAst_) AST_GET_FUNC_OPS(multAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_) AST_GET_VOLT_OPS(multAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_) AST_GET_CURRENT_OPS(multAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_) AST_GET_TIME_OPS(multAst_)
-    }
-
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
       Teuchos::RCP<agaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<agaussOp<ScalarT> > (thisAst_);
@@ -275,46 +235,6 @@ class gaussOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(nAst_) AST_GET_INTERESTING_OPS(multAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(nAst_) AST_GET_STATE_OPS(multAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(nAst_) AST_GET_PARAM_OPS(multAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(nAst_) AST_GET_FUNC_ARG_OPS(multAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(nAst_) AST_GET_FUNC_OPS(multAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(nAst_) AST_GET_VOLT_OPS(multAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(nAst_) AST_GET_CURRENT_OPS(multAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(nAst_) AST_GET_TIME_OPS(multAst_)
-    }
-
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
       Teuchos::RCP<gaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<gaussOp<ScalarT> > (thisAst_);
@@ -419,46 +339,6 @@ class aunifOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(multAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(multAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(multAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(multAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(multAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(multAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(multAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(multAst_)
-    }
-
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
       Teuchos::RCP<aunifOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<aunifOp<ScalarT> > (thisAst_);
@@ -558,46 +438,6 @@ class unifOp : public astNode<ScalarT>
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; setValueCalledBefore_=true; }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(multAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(multAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(multAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(multAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(multAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(multAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(multAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(multAst_)
-    }
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
@@ -761,46 +601,6 @@ class twoArgLimitOp : public astNode<ScalarT>
 
     ScalarT getNominal()   { return (this->leftAst_->val());  }
     ScalarT getVariation() { return (this->rightAst_->val()); }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
-    }
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
