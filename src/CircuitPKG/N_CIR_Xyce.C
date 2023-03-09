@@ -147,6 +147,10 @@
 #include <mainXyceExpressionGroup.h>
 #include <N_DEV_DeviceSupport.h>
 
+#ifdef Xyce_USE_FFTW
+#include <fftw3.h>
+#endif 
+
 namespace Xyce {
 namespace Circuit {
 
@@ -374,6 +378,23 @@ Simulator::~Simulator()
     deleteList(opListPtr_->begin(), opListPtr_->end());
     delete opListPtr_;
   }
+  
+#ifdef Xyce_USE_FFTW
+  // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
+  // If there is anything accumulated other than the basic version info then tell
+  // FFTW to clean it up.  This can't be done in an FFT destructor because calling
+  // fftw_cleanup() resets the entire FFTW library and would invalidate any 
+  // fftw_plans in use by other oobjects.
+  
+  // First get the "wisdom" data from FFTW
+  std::string fftwWisdom(fftw_export_wisdom_to_string());
+  if( fftwWisdom.length() > 80)
+  {
+    // accumulated data is greater than the base info from the library (about 70 characters)
+    // so call FFTW cleanup 
+    fftw_cleanup();
+  }
+#endif
 
   set_report_handler(previousReportHandler_);
 
