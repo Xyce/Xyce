@@ -424,6 +424,9 @@ class Simulator
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
   unordered_set<std::string> device_names_;
   Util::Op::OpList *                    opListPtr_;                        ///List of operators created in getCircuitValue() if needed
+#ifdef Xyce_USE_FFTW
+  int                                   fftwWisdomLength_;               ///< length of FFTW library wisdom string. Used in cleanup.
+#endif 
 
   protected:
   IO::CmdParse                          commandLine_;

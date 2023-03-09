@@ -336,6 +336,16 @@ Simulator::Simulator(Parallel::Machine comm)
   rootStat_.start();
 
   TimeIntg::registerTimeIntegrationMethods();
+  
+#ifdef Xyce_USE_FFTW
+  // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
+  // At startup record the length of the default wisdom so Xyce can tell if it 
+  // need to clean up FFTW before closing 
+  
+  // First get the "wisdom" data from FFTW
+  std::string fftwWisdom(fftw_export_wisdom_to_string());
+  fftwWisdomLength_ = fftwWisdom.length();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -388,7 +398,7 @@ Simulator::~Simulator()
   
   // First get the "wisdom" data from FFTW
   std::string fftwWisdom(fftw_export_wisdom_to_string());
-  if( fftwWisdom.length() > 80)
+  if( fftwWisdom.length() > fftwWisdomLength_)
   {
     // accumulated data is greater than the base info from the library (about 70 characters)
     // so call FFTW cleanup 
