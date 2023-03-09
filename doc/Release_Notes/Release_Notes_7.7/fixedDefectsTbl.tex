@@ -153,11 +153,13 @@
   This has been fixed.  \\ \hline
 
 \textbf{Xyce Project Backlog/595}: 
-   Expression library does not recognize device names that include square brackets & 
+   Expression library does not recognize device names that include square
+    brackets and a bunch of other unusual (but supported) characters & 
    The expression library could not tokenize a device name such as \texttt{V\_B[0]}. 
-   The use of brackets was allowed in other tokens such as voltage nodes.  For this
-   bug only device name tokens were affected.  This was an oversight in the expression 
-   library lexer code. This has been fixed.  \\ \hline
+   The use of brackets and other unusual characters was allowed in other tokens 
+   such as voltage nodes.  For this bug only device name tokens, used in the expression 
+   library, were affected.  This was an oversight in the expression library lexer code. 
+   This has been fixed.  \\ \hline
 
 
 \end{longtable}
