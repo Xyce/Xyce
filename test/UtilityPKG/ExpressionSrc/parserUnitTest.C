@@ -11833,7 +11833,7 @@ TEST ( Double_Parser_Test_Brackets, test1)
 }
 
 // another test of bracket operator. This one looks at the answer.
-TEST ( Double_Parser_Test_Brackets, test2)
+TEST ( Double_Parser_DevName_WeirdChars, test2)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -11853,7 +11853,84 @@ TEST ( Double_Parser_Test_Brackets, test2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_Test_Brackets, test2)
+  OUTPUT_MACRO(Double_Parser_DevName_WeirdChars, test2)
+}
+
+TEST ( Double_Parser_DevName_WeirdChars, test3)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+
+  std::vector<std::string> validDevs= 
+  {
+    std::string("1`"),
+    std::string("1~"),
+    std::string("1!"),
+    std::string("1@"),
+    std::string("1$"),
+    std::string("1%"),
+    std::string("1^"),
+    std::string("1&"),
+    std::string("1*"),
+    std::string("1-"),
+    std::string("1_"),
+    std::string("1+"),
+    std::string("1["),
+    std::string("1]"),
+    std::string("1|"),
+    std::string("1\\"),
+    std::string("1<"),
+    std::string("1>"),
+    std::string("1."),
+    std::string("1?"),
+    std::string("1/"),
+    std::string("1#"),
+    std::string("`"),
+    std::string("~"),
+    std::string("!"),
+    std::string("@"),
+    std::string("$"),
+    std::string("%"),
+    std::string("^"),
+    std::string("&"),
+    std::string("*"),
+    std::string("-"),
+    std::string("_"),
+    std::string("+"),
+    std::string("["),
+    std::string("]"),
+    std::string("|"),
+    std::string("\\"),
+    std::string("<"),
+    std::string(">"),
+    std::string("."),
+    std::string("?"),
+    std::string("/")
+  };
+
+  for (int ii=0;ii< validDevs.size();ii++)
+  {
+    std::string devName = "V" + validDevs[ii];
+
+    std::string expressionString = "I(" + devName + ")";
+
+    Xyce::Util::newExpression testExpression(expressionString, testGroup);
+    testExpression.lexAndParseExpression();
+
+    Xyce::Util::newExpression copyExpression(testExpression); 
+    Xyce::Util::newExpression assignExpression; 
+    assignExpression = testExpression; 
+
+    double result=0.0, Aval=3.0;
+    double refRes = Aval;
+    solnGroup->setSoln(devName,Aval);
+
+    testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+    copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+    assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+    OUTPUT_MACRO(Double_Parser_VoltSoln_Test, weirdChar)
+  }
 }
 
 //-------------------------------------------------------------------------------
