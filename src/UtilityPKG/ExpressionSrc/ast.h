@@ -4147,7 +4147,7 @@ inline void checkAndFixPulse (
       {
         for (int ii=0;ii<timeVec.size();ii++)
         {
-          if (std::real(pulseVec[ii]) > 0.0)
+          if (std::real(pulseVec[ii]) != 0.0)
           {
             tmpTime.push_back(timeVec[ii]);
             tmpPulse.push_back(pulseVec[ii]);
@@ -4167,7 +4167,7 @@ inline void checkAndFixPulse (
       {
         if (std::real(timeVec[i]) != std::real(timeVec[i-1])
            &&
-          (std::real(pulseVec[i]) > 0.0)
+          (std::real(pulseVec[i]) != 0.0)
             )
         {
           tmpTime.push_back(timeVec[i]);
@@ -4188,7 +4188,7 @@ inline void checkAndFixPulse (
 
   if (timeVec.size() < 1)
   {
-    std::vector<std::string> errStr(1,std::string("After fixes, the specified pulse has size < 1, which is not valid."));
+    std::vector<std::string> errStr(1,std::string("After fixes, specified pulse has size < 1, which is invalid."));
     yyerror(errStr);
   }
 }
