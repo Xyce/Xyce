@@ -91,7 +91,8 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item new improvements 
+
+\item The expression library \texttt{TABLE} and \texttt{SPLINE} operators now support a ``downsampling'' feature, in which the user can request that a large data file can automatically have the number of points used by the source reduced.  For \texttt{TABLE} based sources, which are based on a PWL linear approximation, this can dramatically speed up simulations, as the number of required breakpoints is reduced.
 
 \end{XyceItemize}
 
