@@ -133,17 +133,8 @@ expression must be the node names of one or more devices in the same subcircuit
 as the ABM device, or in a subcircuit instantiated by that subcircuit. 
 
 \subsection{Examples of Analog Behavioral Modeling}
-\index{behavioral model!lookup table}
 \index{behavioral model!examples}
-\index{expressions!lookup table}
-\index{behavioral model!spline}
-\index{expressions!spline}
-\index{behavioral model!interpolation}
-\index{expressions!interpolation}
-\index{behavioral model!BLI}
-\index{expressions!BLI}
-\index{behavioral model!Barycentric Lagrange Interpolation}
-\index{expressions!Barycentric Lagrange Interpolation}
+
 A variety of examples of legal usage of analog behavioral modeling is
 probably the most effective means of demonstrating what is
 allowed. The following netlist fragment shows the range of 
@@ -185,8 +176,14 @@ device parameters are not constant throughout a simulation run.
 Frequency-dependent expressions are not supported for the current and voltage
 parameters of a B (or E, F, G, or H) source.
 
-In addition to these simple items, lookup tables provide a means of
-specifying a piecewise linear function in an expression.  A table expression is
+\subsubsection{Behavioral modeling with tables}
+\index{behavioral model!lookup table}
+\index{expressions!lookup table}
+
+
+
+Lookup tables and splines provide a means of
+specifying a interpolated data in an expression.  A table expression is
 specified with the keyword \verb+TABLE+ followed by an expression that
 is evaluated as the independent variable of the function, followed by a
 list of pairs of independent variable/dependent variable values.  For
@@ -240,8 +237,19 @@ whereas \texttt{table} will apply time integration breakpoints at every entry in
 the table, the \texttt{fasttable} capability will only apply breakpoints at 
 the first and last time point in the table.
 
-Another alternative to \texttt{table} is to use one of the spline and/or interpolator functions that are 
-available in the \Xyce{} expression library.   All of these methods use higher-order 
+\subsubsection{Behavioral modeling with splines}
+\index{behavioral model!spline}
+\index{expressions!spline}
+\index{behavioral model!interpolation}
+\index{expressions!interpolation}
+\index{behavioral model!BLI}
+\index{expressions!BLI}
+\index{behavioral model!Barycentric Lagrange Interpolation}
+\index{expressions!Barycentric Lagrange Interpolation}
+
+An alternative to \texttt{table} is to use one of the more advanced
+interpolator functions that are available in the \Xyce{} expression library.   
+All of these methods use higher-order 
 interpolation methods and (in theory) will produce a smoother result.  As they 
 tend to be very smooth, the interpolators do not produce any time integration 
 breakpoints, except for the first and last time point.  In this regard 
@@ -254,6 +262,34 @@ syntax as the \texttt{table} function in the expression library.  For example:
 
 \Example{Bfile 1 0 V=\{spline("myfile")\}}
 \Example{Bfile 1 0 V=\{bli("myfile")\}}
+
+Note, this is useful for data pulses that resemble smooth functions.   
+If the intended data has a lot of sharp discontinuities (such as a square wave), 
+higher orders of interpolation (and the removal of breakpoitns) are not a good choice.
+
+\subsubsection{Automatically sparsifying tabular data}
+\index{behavioral model!downsampling}
+\index{behavioral model!sparsifying}
+
+Interpolated ABM models, based on tabular data can optionally have the size of their 
+data set sparsified or reduced.  To enable this feature, the \texttt{TABLE} or \texttt{SPLINE} operator requires an additional argument specifying the number of points.
+
+\Example{Bfile 1 0 V=\{table("myfile",100)\}}
+
+In the above example, the number of points used internally for the 
+\texttt{Bfile} device is 
+automatically reduced to 100.  This reduction is a gradient-based reduction, 
+so the resulting dataset will cluster larger numbers of points in regions of 
+high gradients and small numbers of points where the dataset is nearly flat.
+The reduction requires an internal inteprolation, and this internal interpolation 
+is performed using splines, even if the interpolation used by the expression 
+is \texttt{TABLE}, which is uses piecewise linear interpolation.
+
+The motivation for using this feature is to improve simulation performance.  If a source is based on a really large dataset with very finely spaced points, the \Xyce{} time integrator must enforce breakpoints at every point.  This forces \Xyce{} to take a large number of timesteps and this can slow the calculations down considerably.  By sparsifying the data, the number of breakpoints can be dramatically reduced.
+
+Note, this main useful for data pulses that resemble smooth functions.   
+If the intended data has a lot of sharp discontinuities (such as a square wave), 
+this feature is not recommended.
 
 \subsection{Alternate behavioral modeling sources}
 
