@@ -263,33 +263,47 @@ syntax as the \texttt{table} function in the expression library.  For example:
 \Example{Bfile 1 0 V=\{spline("myfile")\}}
 \Example{Bfile 1 0 V=\{bli("myfile")\}}
 
-Note, this is useful for data pulses that resemble smooth functions.   
-If the intended data has a lot of sharp discontinuities (such as a square wave), 
-higher orders of interpolation (and the removal of breakpoitns) are not a good choice.
+Higher orders of interpolation is primarily useful for data that represents a smooth function.   
+If the data has intentionally sharp discontinuities (such as a square wave input), then 
+higher orders of interpolation (and the removal of breakpoints) are a bad choice.
+Discontinuties due to noisy measurement data may be another matter.  Assuming noise isn't a 
+desirable aspect, using splines will naturally smooth away noise.
 
 \subsubsection{Automatically sparsifying tabular data}
 \index{behavioral model!downsampling}
 \index{behavioral model!sparsifying}
 
 Interpolated ABM models, based on tabular data can optionally have the size of their 
-data set sparsified or reduced.  To enable this feature, the \texttt{TABLE} or \texttt{SPLINE} operator requires an additional argument specifying the number of points.
+dataset reduced using the sparsification option.  To enable this feature, the \texttt{TABLE} 
+or \texttt{SPLINE} operator requires an additional argument specifying the number of points.  
+To use a log scale for the gradient based table refinement, a third argument can be set to "true".
+Sparsification can only be used for tables specified from a file.
 
 \Example{Bfile 1 0 V=\{table("myfile",100)\}}
+\Example{Bfile 1 0 V=\{spline("myfile",100)\}}
+\Example{Bfile 1 0 V=\{table("myfile",100, true)\}; use log scale for gradients}
 
-In the above example, the number of points used internally for the 
-\texttt{Bfile} device is 
-automatically reduced to 100.  This reduction is a gradient-based reduction, 
+In the above examples, the number of points used internally for the 
+\texttt{Bfile} device is automatically reduced to 100.  This 
+reduction is a gradient-based reduction, 
 so the resulting dataset will cluster larger numbers of points in regions of 
 high gradients and small numbers of points where the dataset is nearly flat.
-The reduction requires an internal inteprolation, and this internal interpolation 
-is performed using splines, even if the interpolation used by the expression 
-is \texttt{TABLE}, which is uses piecewise linear interpolation.
 
-The motivation for using this feature is to improve simulation performance.  If a source is based on a really large dataset with very finely spaced points, the \Xyce{} time integrator must enforce breakpoints at every point.  This forces \Xyce{} to take a large number of timesteps and this can slow the calculations down considerably.  By sparsifying the data, the number of breakpoints can be dramatically reduced.
+The reduction requires an internal spline interprolation.  The internal spline 
+interpolation is used, no matter which interpolation option is later used by 
+the Bsrc.  So, for example, even though \texttt{\{table("myfile",100)\}} 
+specifies a piecewise-linear interpolation, the internal sparsification will 
+use a spline.
 
-Note, this main useful for data pulses that resemble smooth functions.   
-If the intended data has a lot of sharp discontinuities (such as a square wave), 
-this feature is not recommended.
+The motivation for using this feature is to improve simulation performance.  
+Piecewise linear sources in \Xyce{} apply time integration breakpoints at every point in the dataset.
+For large datasets with finely spaced time points, \Xyce{} may take a lot of very small time steps.
+This can result in very slow simulation times.  Sparsifying the data will mitigate this issue.
+
+Table sparsification is only useful for data pulses that resemble smooth functions.   
+If the data has a lot of sharp discontinuities (such as a square wave), 
+this feature is not recommended. Also, this feature will tend to remove noise 
+from a dataset.
 
 \subsection{Alternate behavioral modeling sources}
 
