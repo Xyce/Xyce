@@ -337,7 +337,7 @@ Simulator::Simulator(Parallel::Machine comm)
 
   TimeIntg::registerTimeIntegrationMethods();
   
-#ifdef Xyce_USE_FFTW
+#if defined(Xyce_USE_FFTW) && !defined(Xyce_USE_INTEL_FFT)
   // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
   // At startup record the length of the default wisdom so Xyce can tell if it 
   // need to clean up FFTW before closing 
