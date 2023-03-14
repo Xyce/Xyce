@@ -36,6 +36,8 @@
 #ifndef Xyce_N_PDS_fwd_h
 #define Xyce_N_PDS_fwd_h
 
+#include <Xyce_config.h>
+
 #ifdef Xyce_PARALLEL_MPI
 #include <mpi.h>
 #else
