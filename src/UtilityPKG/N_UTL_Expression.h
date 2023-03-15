@@ -91,6 +91,7 @@ public:
   void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
   void attachFunctionNode (const std::string & funcName, const Expression & exp); 
   void attachParameterNode (const std::string & paramName, const Expression & exp, enumParamType type=DOT_GLOBAL_PARAM); 
+  void replaceParameterNode (const std::string & paramName, const Expression & exp);
   void multiplyByExternalExpression (const Expression & exp); 
 
   const std::vector<std::string> & getFunctionArgStringVec ();

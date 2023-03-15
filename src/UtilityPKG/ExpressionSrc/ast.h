@@ -351,6 +351,8 @@ class astNode : public staticsContainer
 
     virtual void clearParents () 
     { 
+      parentAstNodes_.clear();
+
       for(int ii=0;ii<childrenAstNodes_.size();ii++)
       {
         if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
@@ -360,10 +362,51 @@ class astNode : public staticsContainer
       }
     }
 
+    virtual void setupParents () 
+    {
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          childrenAstNodes_[ii]->addParent( thisAstNode_, ii );
+        }
+      }
+
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          childrenAstNodes_[ii]->setupParents();
+        }
+      }
+    }
+
     virtual void addParent ( Teuchos::RCP<astNode<ScalarT> > tmpNode, int index )
     {
       std::pair< Teuchos::RCP<astNode<ScalarT> >, int > tmpPair(tmpNode,index);
       parentAstNodes_.push_back(tmpPair);
+    }
+
+    virtual bool replaceMeInTheParents (Teuchos::RCP<astNode<ScalarT> > & newNode)
+    {
+      bool repacementsAccomplished=false;
+      for(int ii=0;ii<parentAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(parentAstNodes_[ii].first)) )
+        {
+          int index = parentAstNodes_[ii].second;
+           std::vector<  Teuchos::RCP<astNode<ScalarT> > > & childrenOfTheParent = 
+             (parentAstNodes_[ii].first)->childrenAstNodes_;
+         
+          int size =  childrenOfTheParent.size();
+          if (index >= 0 && index < size)
+          {
+            childrenOfTheParent[ index ] = newNode;
+            repacementsAccomplished=true;
+          }
+        }
+      }
+      return repacementsAccomplished;
     }
 
   protected:

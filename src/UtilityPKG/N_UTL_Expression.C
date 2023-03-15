@@ -213,6 +213,19 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::replaceParameterNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 3/15/2023
+//-----------------------------------------------------------------------------
+void Expression::replaceParameterNode (const std::string & paramName, const Expression & exp)
+{
+  newExpPtr_->replaceParameterNode(paramName,exp.newExpPtr_, type);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::multiplyByExternalExpression
 // Purpose       : 
 // Special Notes :

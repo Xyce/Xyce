@@ -484,6 +484,71 @@ bool newExpression::attachParameterNode(
   return retval;
 }
 
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceParameterNode
+// Purpose       : resolve external parameters via node replacement.
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 3/15/2023
+//-------------------------------------------------------------------------------
+bool newExpression::replaceParameterNode(
+    const std::string & paramName,
+    const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  bool retval=false;
+
+  if ( !(Teuchos::is_null(expPtr)) )
+  {
+    //externalExpressions_.push_back(expPtr);
+    std::string paramNameUpper=paramName;
+    Xyce::Util::toUpper(paramNameUpper);
+    if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
+    {
+      // check if parent containers are setup.  These are needed for node replacement.
+      if (!parentsSetup_)
+      {
+        setupParents ();
+      }
+
+      std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+      int size = nodeVec.size();
+      for (int ii=0;ii<size;ii++) // loop over all the nodes with this name
+      {
+        Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+
+        if ( !(Teuchos::is_null( expPtr->getAst() ))) // if the new Ast is valid then do replacement on each
+        {
+          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst() );
+
+          if (!repacementsAccomplished)
+          {
+            // when "replacementsAccomplishments" is negative, that means that the node did not have parents.
+            // The one node in the AST with no parents is the top one, astNodePtr_.
+            if (node == astNodePtr_)
+            {
+              astNodePtr_ = expPtr->getAst();
+            }
+            else
+            {
+              Xyce::Report::UserError() << "newExpression::replaceParameterNode failed" << std::endl;
+            }
+          }
+        }
+      }
+
+      astArraysSetup_ = false; // this should trigger a call to setupVariousAstArrays later, but just in case calling it now.
+      setupVariousAstArrays ();
+    }
+    else
+    {
+      Xyce::Report::UserError() << "newExpression::replaceParameterNode.  Could not find param = " << paramName << std::endl;
+    }
+  }
+  return retval;
+}
+
 //-------------------------------------------------------------------------------
 // Function      : newExpression::multiplyByExternalExpression
 // Purpose       : Modify the AST so that it is multiplied by a provided parameter.
@@ -1226,6 +1291,24 @@ void newExpression::setupVariousAstArrays()
     groupSetup_ = false;
   }
 };
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setupParents
+// Purpose       : traverse the AST and setup the parent node vectors.
+// Special Notes : this is necessary to do node replacement in the tree.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 3/15/2023
+//-------------------------------------------------------------------------------
+void newExpression::setupParents ()
+{
+  if ( !(Teuchos::is_null(astNodePtr_)) )
+  {
+    astNodePtr_->clearParents();
+    astNodePtr_->setupParents();
+  }
+  parentsSetup_ = true;
+}
 
 #define NEW_EXP_ADD_TO_VEC1(VEC1,VEC2) \
   if ( !(VEC2.empty()) )  { VEC1.insert( VEC1.end(), VEC2.begin(), VEC2.end() ); }

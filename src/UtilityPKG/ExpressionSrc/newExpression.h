@@ -81,6 +81,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -128,6 +129,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -186,6 +188,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -249,6 +252,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -344,6 +348,7 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
+    parentsSetup_(right.parentsSetup_),
     groupSetup_(right.groupSetup_),
     functionArgStringVec_(right.functionArgStringVec_),
     functionArgOpVec_ (right.functionArgOpVec_),
@@ -467,6 +472,7 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
+    parentsSetup_ = right.parentsSetup_;
     groupSetup_ = right.groupSetup_;
     functionArgStringVec_ = right.functionArgStringVec_;
     functionArgOpVec_  = right.functionArgOpVec_;
@@ -586,6 +592,7 @@ public:
 
   bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type=DOT_GLOBAL_PARAM);
+  bool replaceParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
   bool multiplyByExternalExpression (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
@@ -594,6 +601,7 @@ public:
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
+  bool parentsSetup () const { return parentsSetup_; }
   bool groupSetup () const { return groupSetup_; }
 
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
@@ -882,6 +890,7 @@ public:
   void setDdtDerivs (std::vector<std::complex<double> > & vals);
 
   void setupVariousAstArrays ();
+  void setupParents ();
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; } 
   Teuchos::RCP<baseExpressionGroup> getGroup() { return group_; }
@@ -896,6 +905,7 @@ private:
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
+  bool parentsSetup_;
   bool groupSetup_;
 
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
