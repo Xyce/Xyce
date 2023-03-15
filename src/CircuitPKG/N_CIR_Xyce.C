@@ -389,7 +389,7 @@ Simulator::~Simulator()
     delete opListPtr_;
   }
   
-#ifdef Xyce_USE_FFTW
+#if defined(Xyce_USE_FFTW) && !defined(Xyce_USE_INTEL_FFT)
   // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
   // If there is anything accumulated other than the basic version info then tell
   // FFTW to clean it up.  This can't be done in an FFT destructor because calling
