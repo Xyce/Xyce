@@ -1,24 +1,26 @@
 # SuiteSparse web page: http://suitesparse.com/
 #
-# The only part of SuiteSparse used by Xyce is AMD.
-# When pointed to a SuiteSparse repository, this file is designed to build and
-# install *only* the AMD library into a specified location.
+# The only part of SuiteSparse used by Xyce is AMD.  When pointed to a
+# SuiteSparse repository, this file is designed to build *only* the AMD library
+# and to install it into a specified location.  Instructions on how to use this
+# file are below.
 #
-# The recommended usage is to first obtain SuiteSparse. Either download a
-# release tarball or make a shallow clone of the repository from GitHub:
+# First, obtain SuiteSparse.  Either download a release tarball or make a
+# shallow clone of the repository from GitHub:
 #    git clone --depth 1 https://github.com/DrTimothyAldenDavis/SuiteSparse.git
 #
-# Next, use the following invocation from a build directory, making the install
-# directory the *same* as the Trilinos installation target:
+# Next, create an AMD build directory.  Use the following invocation from that
+# build directory.  Note that the install directory should be the *same* as the
+# installation target for Trilinos when it is built:
 #    cmake \
-#    -D SuiteSparsePath=path/to/SuiteSparse \
-#    -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
-#    path/to/Xyce/cmake/trilinos/AMD
+#    -D SuiteSparsePath=<path/to/SuiteSparse> \
+#    -D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Trilinos> \
+#    <path/to/Xyce>/cmake/trilinos/AMD
 #
 # Build/install AMD in the usual way; e.g., from the AMD build directory, run:
 #    cmake --build . -t install
 #
-# Then be sure to use the following flags with the Trilnos CMake invocation:
+# Then be sure to add the following flags to the Trilnos CMake invocation:
 #    -D CMAKE_INSTALL_PREFIX=/trilinos/install/path \
 #    -D AMD_LIBRARY_DIRS=/trilinos/install/path/lib \
 #    -D AMD_INCLUDE_DIRS=/trilinos/install/path/include \
