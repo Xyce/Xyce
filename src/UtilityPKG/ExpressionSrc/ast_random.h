@@ -44,14 +44,18 @@
 // This uses absolute variation
 // The "n" argument, AKA num_sigmas is optional
 // The 4th argument, "multiplier" is not supported
+// 
+// Here is what the multiplier does in codes that support it:
+// multiplier  - An optional argument. If you do not specify a multiplier, the default is 1. 
+// If specified, code recalculates many times and saves the largest deviation. The resulting 
+// parameter value might be greater than or less than nominal_val. The resulting distribution is bimodal.
+//
 template <typename ScalarT>
 class agaussOp : public astNode<ScalarT>
 {
   public:
     agaussOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(args[0],args[1]),
-      mu_(args[0]),
-      alpha_(args[1]),
+      astNode<ScalarT>(args), 
       value_(0.0),
       setValueCalledBefore_(false)
     {
@@ -60,18 +64,19 @@ class agaussOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (agauss) needs at least 2 arguments.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child = this->childrenAstNodes_;
+      if (child.size() < 4) { child.resize(4); }
+
+      if (args.size() > 2) { } else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+
       if (args.size() > 3)
       {
-        multAst_ = args[3];
-        std::vector<std::string> errStr(1,std::string("AST node (agauss) accepts at most 3 arguments.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (agauss) accepts at most 3 arguments.  Multiplier argument is not supported")); yyerror(errStr);
       }
-      else
-      {
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
-      }
+      else { child[3] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
+      Teuchos::RCP<astNode<ScalarT> > & mu_ = this->childrenAstNodes_[0];
       value_ = mu_->val();
     };
 
@@ -98,9 +103,9 @@ class agaussOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "agauss operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
-      nAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -116,10 +121,10 @@ class agaussOp : public astNode<ScalarT>
 
     virtual bool agaussType()     { return true; };
 
-    ScalarT getMu ()    { return (this->leftAst_->val()); };
-    ScalarT getAlpha () { return (this->rightAst_->val()); };
-    ScalarT getN ()     { return nAst_->val() ; };
-    ScalarT getMult ()  { return multAst_->val() ; };
+    ScalarT getMu ()    { return (this->childrenAstNodes_[0]->val()); };
+    ScalarT getAlpha () { return (this->childrenAstNodes_[1]->val()); };
+    ScalarT getN ()     { return (this->childrenAstNodes_[2]->val()); };
+    ScalarT getMult ()  { return (this->childrenAstNodes_[3]->val()); };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
 
@@ -128,21 +133,17 @@ class agaussOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<agaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<agaussOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
-      this->leftAst_->accept(visitor, this->leftAst_); 
-      this->rightAst_->accept(visitor, this->rightAst_); 
-      nAst_->accept(visitor,nAst_);
-      multAst_->accept(visitor,multAst_);
+
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);  // mu
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]);  // alpha
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]);  // n
+      this->childrenAstNodes_[3]->accept(visitor, this->childrenAstNodes_[3]);  // mult
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > nAst_;
-    Teuchos::RCP<astNode<ScalarT> > multAst_;
-
-    Teuchos::RCP<astNode<ScalarT> > & mu_;
-    Teuchos::RCP<astNode<ScalarT> > & alpha_;
-
     ScalarT value_;
     bool setValueCalledBefore_;
 };
@@ -158,9 +159,7 @@ class gaussOp : public astNode<ScalarT>
 {
   public:
     gaussOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(args[0],args[1]),
-      mu_(args[0]),
-      alpha_(args[1]),
+      astNode<ScalarT>(args), 
       value_(0.0),
       setValueCalledBefore_(false)
     {
@@ -169,18 +168,18 @@ class gaussOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (gauss) needs at least 2 arguments.")); yyerror(errStr);
       }
 
-      if (args.size() > 2) { nAst_ = args[2];    } else { nAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child = this->childrenAstNodes_;
+      if (child.size() < 4) { child.resize(4); }
+
+      if (args.size() > 2) { } else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
       if (args.size() > 3)
       {
-        multAst_ = args[3];
-        std::vector<std::string> errStr(1,std::string("AST node (gauss) accepts at most 3 arguments.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (gauss) accepts at most 3 arguments.  Multiplier argument is not supported")); yyerror(errStr);
       }
-      else
-      {
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
-      }
+      else { child[3] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
+      Teuchos::RCP<astNode<ScalarT> > & mu_ = this->childrenAstNodes_[0];
       value_ = mu_->val();
     };
 
@@ -207,9 +206,9 @@ class gaussOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "gauss operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
-      nAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+2);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -225,10 +224,10 @@ class gaussOp : public astNode<ScalarT>
 
     virtual bool gaussType()      { return true; };
 
-    ScalarT getMu ()    { return (this->leftAst_->val()); };
-    ScalarT getAlpha () { return (this->rightAst_->val()); };
-    ScalarT getN ()     { return nAst_->val() ; };
-    ScalarT getMult ()  { return multAst_->val() ; };
+    ScalarT getMu ()    { return (this->childrenAstNodes_[0]->val()); };
+    ScalarT getAlpha () { return (this->childrenAstNodes_[1]->val()); };
+    ScalarT getN ()     { return (this->childrenAstNodes_[2]->val()); };
+    ScalarT getMult ()  { return (this->childrenAstNodes_[3]->val()); };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
 
@@ -237,21 +236,17 @@ class gaussOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<gaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<gaussOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
-      this->leftAst_->accept(visitor, this->leftAst_); 
-      this->rightAst_->accept(visitor, this->rightAst_); 
-      nAst_->accept(visitor, nAst_);
-      multAst_->accept(visitor, multAst_);
+
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);  // mu
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]);  // alpha
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]);  // n
+      this->childrenAstNodes_[3]->accept(visitor, this->childrenAstNodes_[3]);  // mult
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > nAst_;
-    Teuchos::RCP<astNode<ScalarT> > multAst_;
-
-    Teuchos::RCP<astNode<ScalarT> > & mu_;
-    Teuchos::RCP<astNode<ScalarT> > & alpha_;
-
     ScalarT value_;
     bool setValueCalledBefore_;
 };
@@ -260,15 +255,14 @@ class gaussOp : public astNode<ScalarT>
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α)/n
 // This uses absolute variation
+// The "n" argument, AKA num_sigmas which is used in AGAUSS is not used for AUNIF
 // The 3rd argument, "multiplier" is not supported
 template <typename ScalarT>
 class aunifOp : public astNode<ScalarT>
 {
   public:
     aunifOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(args[0],args[1]),
-      mu_(args[0]),
-      alpha_(args[1]),
+      astNode<ScalarT>(args), 
       value_(0.0),
       setValueCalledBefore_(false)
     {
@@ -277,17 +271,20 @@ class aunifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (aunif) needs at least 2 argument.")); yyerror(errStr);
       }
 
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child = this->childrenAstNodes_;
+      if (child.size() < 3) { child.resize(3); }
+
       if (args.size() > 2)
       {
-        multAst_ = args[2];
-        std::vector<std::string> errStr(1,std::string("AST node (aunif) accepts at most 2 arguments.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (aunif) accepts at most 2 arguments.  Multiplier argument is not supported")); yyerror(errStr);
       }
       else
       {
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
+        child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
       }
 
       // should check to make sure that mu, alpha are simple constant numbers
+      Teuchos::RCP<astNode<ScalarT> > & mu_ = this->childrenAstNodes_[0];
       value_ = mu_->val();
     };
 
@@ -314,8 +311,9 @@ class aunifOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "aunif operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -331,9 +329,9 @@ class aunifOp : public astNode<ScalarT>
 
     virtual bool aunifType()      { return true; };
 
-    ScalarT getMu ()    { return (this->leftAst_->val()); };
-    ScalarT getAlpha () { return (this->rightAst_->val()); };
-    ScalarT getMult ()  { return multAst_->val() ; };
+    ScalarT getMu ()    { return (this->childrenAstNodes_[0]->val()); };
+    ScalarT getAlpha () { return (this->childrenAstNodes_[1]->val()); };
+    ScalarT getMult ()  { return (this->childrenAstNodes_[2]->val()); };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
     ScalarT getValue() { return value_; }
@@ -341,18 +339,15 @@ class aunifOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<aunifOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<aunifOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
-      this->leftAst_->accept(visitor, this->leftAst_); 
-      this->rightAst_->accept(visitor, this->rightAst_); 
-      multAst_->accept(visitor, multAst_);
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]); 
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > multAst_;
-
-    Teuchos::RCP<astNode<ScalarT> > & mu_;
-    Teuchos::RCP<astNode<ScalarT> > & alpha_;
 
     ScalarT value_;
     bool setValueCalledBefore_;
@@ -362,14 +357,13 @@ class aunifOp : public astNode<ScalarT>
 // Random number sampled from uniform distribution with
 // mean μ and standard deviation (α ∗ μ )/n
 // This uses relative variation
+// The "n" argument, AKA num_sigmas which is used in AGAUSS is not used for UNIF
 template <typename ScalarT>
 class unifOp : public astNode<ScalarT>
 {
   public:
     unifOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(args[0],args[1]),
-      mu_(args[0]),
-      alpha_(args[1]),
+      astNode<ScalarT>(args), 
       value_(0.0),
       setValueCalledBefore_(false)
     {
@@ -378,17 +372,17 @@ class unifOp : public astNode<ScalarT>
         std::vector<std::string> errStr(1,std::string("AST node (unif) needs at least 2 argument.")); yyerror(errStr);
       }
 
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child = this->childrenAstNodes_;
+      if (child.size() < 3) { child.resize(3); }
+
       if (args.size() > 2)
       {
-        multAst_ = args[2];
-        std::vector<std::string> errStr(1,std::string("AST node (unif) accepts at most 2 arguments.")); yyerror(errStr);
+        std::vector<std::string> errStr(1,std::string("AST node (unif) accepts at most 2 arguments.  Multiplier argument is not supported")); yyerror(errStr);
       }
-      else
-      {
-        multAst_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0));
-      }
+      else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(1.0)); }
 
       // should check to make sure that mu, alpha and n are simple constant numbers
+      Teuchos::RCP<astNode<ScalarT> > & mu_ = this->childrenAstNodes_[0];
       value_ = mu_->val();
     };
 
@@ -415,8 +409,9 @@ class unifOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "unif operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -432,8 +427,9 @@ class unifOp : public astNode<ScalarT>
 
     virtual bool unifType()       { return true; };
 
-    ScalarT getMu ()    { return (this->leftAst_->val()); };
-    ScalarT getAlpha () { return (this->rightAst_->val()); };
+    ScalarT getMu ()    { return (this->childrenAstNodes_[0]->val()); };
+    ScalarT getAlpha () { return (this->childrenAstNodes_[1]->val()); };
+    ScalarT getMult ()  { return (this->childrenAstNodes_[2]->val()); };
 
     bool getSetValueCalledBefore() { return setValueCalledBefore_; }
     ScalarT getValue() { return value_; }
@@ -441,19 +437,15 @@ class unifOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<unifOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unifOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
-      this->leftAst_->accept(visitor, this->leftAst_); 
-      this->rightAst_->accept(visitor, this->rightAst_); 
-      multAst_->accept(visitor, multAst_);
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]); 
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > multAst_;
-
-    Teuchos::RCP<astNode<ScalarT> > & mu_;
-    Teuchos::RCP<astNode<ScalarT> > & alpha_;
-
     ScalarT value_;
     bool setValueCalledBefore_;
 };
@@ -511,6 +503,7 @@ class randOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<randOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<randOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -549,8 +542,8 @@ class twoArgLimitOp : public astNode<ScalarT>
       value_(0.0)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
-      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->rightAst_);
+      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->childrenAstNodes_[1]);
       value_ = (nominal->val());
     };
 
@@ -558,8 +551,8 @@ class twoArgLimitOp : public astNode<ScalarT>
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->rightAst_);
+      Teuchos::RCP<astNode<ScalarT> > & nominal = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->childrenAstNodes_[1]);
       return (nominal->dx (i));
     };
 
@@ -579,8 +572,8 @@ class twoArgLimitOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "Hpsice limit operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -599,15 +592,16 @@ class twoArgLimitOp : public astNode<ScalarT>
     ScalarT getValue() { return value_; }
     void setValue(ScalarT val) { value_ = val; }
 
-    ScalarT getNominal()   { return (this->leftAst_->val());  }
-    ScalarT getVariation() { return (this->rightAst_->val()); }
+    ScalarT getNominal()   { return (this->childrenAstNodes_[0]->val());  }
+    ScalarT getVariation() { return (this->childrenAstNodes_[1]->val()); }
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
+      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<twoArgLimitOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<twoArgLimitOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
-      this->leftAst_->accept(visitor, this->leftAst_); 
-      this->rightAst_->accept(visitor, this->rightAst_); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
     }
 
   private:

@@ -45,21 +45,21 @@ class NAME : public astNode<ScalarT>                                            
   public:                                                                              \
     NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
         astNode<ScalarT>(left,right) {                                                 \
-          rightConst_ = this->rightAst_->numvalType();                                 \
-          leftConst_ = this->leftAst_->numvalType();                                   \
+          rightConst_ = this->childrenAstNodes_[1]->numvalType();                      \
+          leftConst_ = this->childrenAstNodes_[0]->numvalType();                       \
         };                                                                             \
                                                                                        \
     virtual ScalarT val(){                                                             \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      ScalarT rightVal=this->rightAst_->val();                                         \
+      ScalarT leftVal=this->childrenAstNodes_[0]->val();                               \
+      ScalarT rightVal=this->childrenAstNodes_[1]->val();                              \
       return VAL; }                                                                    \
                                                                                        \
     virtual ScalarT dx(int i) {                                                        \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      ScalarT rightVal=this->rightAst_->val();                                         \
+      ScalarT leftVal=this->childrenAstNodes_[0]->val();                               \
+      ScalarT rightVal=this->childrenAstNodes_[1]->val();                              \
       ScalarT leftDx, rightDx;                                                         \
-      if (!leftConst_) { leftDx =this->leftAst_->dx(i); } else { leftDx=0.0; }         \
-      if (!rightConst_) { rightDx =this->rightAst_->dx(i); } else {rightDx=0.0; }      \
+      if (!leftConst_) { leftDx =this->childrenAstNodes_[0]->dx(i); } else { leftDx=0.0; }         \
+      if (!rightConst_) { rightDx =this->childrenAstNodes_[1]->dx(i); } else {rightDx=0.0; }      \
       return DX; }                                                                     \
                                                                                        \
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
@@ -68,14 +68,14 @@ class NAME : public astNode<ScalarT>                                            
       std::vector<ScalarT> lefDerivs_;                                                 \
       std::vector<ScalarT> rigDerivs_;                                                 \
       ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;                              \
-      if (leftConst_) { leftVal = this->leftAst_->val(); }                             \
+      if (leftConst_) { leftVal = this->childrenAstNodes_[0]->val(); }                 \
       else {                                                                           \
         lefDerivs_.resize(numDerivs,0.0);                                              \
-        this->leftAst_->dx2(leftVal,lefDerivs_); }                                     \
-      if (rightConst_) { rightVal = this->rightAst_->val(); }                          \
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_); }                         \
+      if (rightConst_) { rightVal = this->childrenAstNodes_[1]->val(); }               \
       else {                                                                           \
         rigDerivs_.resize(numDerivs,0.0);                                              \
-        this->rightAst_->dx2(rightVal,rigDerivs_); }                                   \
+        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_); }                        \
       result=VAL;                                                                      \
       for (int i=0;i<numDerivs;i++) {                                                  \
         if (!leftConst_)  { leftDx = lefDerivs_[i]; }                                  \
@@ -84,15 +84,15 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                  \
                                                                                        \
     virtual bool getIsComplex ()                                                       \
-    { return (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex()); }    \
+    { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }    \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \
       os << FCTQUOTE << " id = " << this->id_ << std::endl;                            \
       ++indent;                                                                        \
-      this->leftAst_->output(os,indent+1);                                             \
-      this->rightAst_->output(os,indent+1);                                            \
+      this->childrenAstNodes_[0]->output(os,indent+1);                                 \
+      this->childrenAstNodes_[1]->output(os,indent+1);                                 \
     }                                                                                  \
                                                                                        \
     virtual void compactOutput(std::ostream & os)                                      \
@@ -101,20 +101,20 @@ class NAME : public astNode<ScalarT>                                            
     virtual void codeGen (std::ostream & os )                                          \
     {                                                                                  \
       os << "(";                                                                       \
-      this->leftAst_->codeGen(os);                                                     \
+      this->childrenAstNodes_[0]->codeGen(os);                                         \
       os << FCTCODE;                                                                   \
-      this->rightAst_->codeGen(os);                                                    \
+      this->childrenAstNodes_[1]->codeGen(os);                                         \
       os << ")";                                                                       \
     }                                                                                  \
     virtual bool getIsTreeConstant() { return                                          \
-     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }   \
+     (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[0]->getIsTreeConstant()); }   \
                                                                                        \
     virtual void accept                                                                \
           (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
     { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
       visitor.visit( castToThis );  \
-      this->leftAst_->accept(visitor, this->leftAst_);                                 \
-      this->rightAst_->accept(visitor, this->rightAst_); }                             \
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);         \
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); }       \
                                                                                        \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
