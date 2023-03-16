@@ -408,6 +408,40 @@ v1 2 0 10V
 \end{centering}
 \end{figure}
 
+
+\subsubsection{Local and global variation}
+
+Similar to other simulators, \Xyce{} uses the following convention for 
+local and global variations sampling and other uncertainty quantification 
+methods.  This is based on how many layers of \texttt{.param} indirection 
+sit between a device parameter and the random operator.  If there is only a single 
+layer, then the random operator is treated as a local variation, and every
+affected device parameter will receive a unique random number at each sample point.
+If there is more than one layer, then it is instead treated as global, meaning 
+that each affected device parameter will receive the same random number from the operator.
+
+For example, the following netlist fragment will result in local variation, 
+where the resistors $r1$, $r2$ and $r3$ each get unique random numbers.
+\Example{\\
+\texttt{\\
+.param resval=aunif(1000,400)  \\
+r1 1 2 resval \\
+r2 2 3 resval \\
+r3 3 4 resval 
+}
+}
+In contrast, the following netlist fragment will result in global variation, 
+where the resistors will all get the same random number.
+\Example{\\
+\texttt{\\
+.param globalval=aunif(1000,400)  \\
+.param resval=globalval \\
+r1 1 2 resval \\
+r2 2 3 resval \\
+r3 3 4 resval 
+}
+}
+
 \subsection{Output files}
 \label{sampling_output_files}
 
