@@ -222,7 +222,7 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
 //-----------------------------------------------------------------------------
 void Expression::replaceParameterNode (const std::string & paramName, const Expression & exp)
 {
-  newExpPtr_->replaceParameterNode(paramName,exp.newExpPtr_, type);
+  newExpPtr_->replaceParameterNode(paramName,exp.newExpPtr_);
 }
 
 //-----------------------------------------------------------------------------
