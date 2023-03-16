@@ -2301,6 +2301,9 @@ void DeviceBlock::parameterErrorOutput(Device::Param & parameter)
 bool DeviceBlock::setParameterValues()
 {
   Device::Param parameter( "", "" );
+
+  bool replaceRandomNodes = true;
+
   int numParameters = getNumberOfInstanceParameters();
   for (int ii = 0; ii < numParameters; ++ii )
   {
@@ -2311,7 +2314,7 @@ bool DeviceBlock::setParameterValues()
          parameter.isTableFileTypeQuoted()  || 
          parameter.isStringTypeQuoted()  )
     {
-      if (!circuitContext_.resolveParameter(parameter)) 
+      if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes)) 
         parameterErrorOutput(parameter);
       setInstanceParameter( ii, parameter ); 
     }
@@ -2323,7 +2326,7 @@ bool DeviceBlock::setParameterValues()
         {
           ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
           parameter.setVal(std::string("{" + p_orig + "}"));
-          if (!circuitContext_.resolveParameter(parameter))
+          if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes))
             parameter.setVal(std::string(p_orig));
         }
       }

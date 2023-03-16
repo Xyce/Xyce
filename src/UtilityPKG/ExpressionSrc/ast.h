@@ -362,6 +362,19 @@ class astNode : public staticsContainer
       }
     }
 
+    virtual void setupThis ( Teuchos::RCP<astNode<ScalarT> > tmpNode)
+    {
+      thisAstNode_ = tmpNode;
+
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          childrenAstNodes_[ii]->setupThis( childrenAstNodes_[ii] );
+        }
+      }
+    }
+
     virtual void setupParents () 
     {
       for(int ii=0;ii<childrenAstNodes_.size();ii++)

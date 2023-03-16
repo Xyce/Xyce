@@ -220,7 +220,7 @@ public:
   bool globalNode (const std::string &nodeName) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  bool resolveParameter(Util::Param& parameter) const;
+  bool resolveParameter(Util::Param& parameter, bool replaceRandomNodes=false) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveGlobalParameter(Util::Param& parameter) const;
@@ -232,6 +232,9 @@ public:
   // resolve appropriately. Return true if all strings are resolved
   // otherwise return false.
   bool resolveStrings(Util::Expression & expression,
+                      std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+
+  bool resolveStringsForDevParams(Util::Expression & expression,
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
 
   // Determine if expressionString has any unresolved functions and

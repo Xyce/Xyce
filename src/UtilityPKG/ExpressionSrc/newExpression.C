@@ -484,11 +484,54 @@ bool newExpression::attachParameterNode(
   return retval;
 }
 
+//-------------------------------------------------------------------------------
+// This function performs a case-insensitive search and replace for substrings
+//-------------------------------------------------------------------------------
+void FindReplace(std::string& line, const std::string& oldString, const std::string& newString) 
+{
+  const size_t oldSize = oldString.length();
+
+  std::string lineUpper=line;
+  Xyce::Util::toUpper(lineUpper);
+
+  // do nothing if line is shorter than the string to find
+  if( oldSize > line.length() ) return;
+
+  const size_t newSize = newString.length();
+  for( size_t pos = 0; ; pos += newSize ) 
+  {
+    // Locate the substring to replace
+    pos = lineUpper.find( oldString, pos );
+    if( pos == std::string::npos ) return;
+    if( oldSize == newSize ) 
+    {
+      // if they're same size, use std::string::replace
+      line.replace( pos, oldSize, newString );
+    } 
+    else 
+    {
+      // if not same size, replace by erasing and inserting
+      line.erase( pos, oldSize );
+      line.insert( pos, newString );
+    }
+  }
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::replaceParameterNode
 // Purpose       : resolve external parameters via node replacement.
-// Special Notes :
+//
+// Special Notes : As of this writing (3/15/2023) the only use case for 
+//                 this is handling local variation in random operators.
+//
+//                 This function will:
+//                 - replace an existing node in the AST
+//                 - replace the relevant strings in the original expression.
+//                 - update the book-keeping for this expression as appropriate.
+//
+//                 In retrospect, it might be more efficient to simply do the 
+//                 string replacement, and then completely re-lex-and-parse the 
+//                 expression.  That may be a future experiment.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/15/2023
@@ -537,9 +580,77 @@ bool newExpression::replaceParameterNode(
           }
         }
       }
+      // replace substrings
+      FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
 
       astArraysSetup_ = false; // this should trigger a call to setupVariousAstArrays later, but just in case calling it now.
       setupVariousAstArrays ();
+
+      // update the "local" arrays.  The main reason for calling this function 
+      // is to support "local" variations via random operators.
+      // These local arrays are NOT updated by the "setupVariousArrays" function 
+      // call, and they are important to getting random operators to work correctly 
+      // with sampling, etc.
+      if ( !(expPtr->getLocalAgaussOpVec().empty())  ) 
+      {
+        localAgaussOpVec_.insert(localAgaussOpVec_.end(), 
+            expPtr->getLocalAgaussOpVec().begin(), expPtr->getLocalAgaussOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalGaussOpVec().empty()) ) 
+      {
+        localGaussOpVec_.insert(localGaussOpVec_.end(), 
+            expPtr->getLocalGaussOpVec().begin(), expPtr->getLocalGaussOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalAunifOpVec().empty()) ) 
+      { 
+        localAunifOpVec_.insert(localAunifOpVec_.end(), 
+            expPtr->getLocalAunifOpVec().begin(), expPtr->getLocalAunifOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalUnifOpVec().empty())  ) 
+      { 
+        localUnifOpVec_.insert(localUnifOpVec_.end(), 
+            expPtr->getLocalUnifOpVec().begin(), expPtr->getLocalUnifOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalRandOpVec().empty())  ) 
+      { 
+        localRandOpVec_.insert(localRandOpVec_.end(), 
+            expPtr->getLocalRandOpVec().begin(), expPtr->getLocalRandOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalTwoArgLimitOpVec().empty()) ) 
+      { 
+        localTwoArgLimitOpVec_.insert(localTwoArgLimitOpVec_.end(), 
+            expPtr->getLocalTwoArgLimitOpVec().begin(), expPtr->getLocalTwoArgLimitOpVec().end());
+      }
+
+      // local SDT and DDT arrays.  They probably aren't relevant to 
+      // the main use cases of this function. 
+      if ( !(expPtr->getLocalSdtOpVec().empty()) ) 
+      { 
+        localSdtOpVec_.insert(localSdtOpVec_.end(), 
+            expPtr->getLocalSdtOpVec().begin(), expPtr->getLocalSdtOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalDdtOpVec().empty()) ) 
+      { 
+        localDdtOpVec_.insert(localDdtOpVec_.end(), 
+            expPtr->getLocalDdtOpVec().begin(), expPtr->getLocalDdtOpVec().end());
+      }
+
+
+
+      // This debug output is occasionally useful, so keeping it around.  It can be used to 
+      // check that the expression string and AST were both updated correctly.
+      if (false) 
+      {
+        Xyce::dout() << "newExpression::replaceParameterNode for " << paramName << ". Expression tree for " << expressionString_ << std::endl;
+        dumpParseTree(Xyce::dout());
+      }
+
     }
     else
     {
@@ -1304,6 +1415,7 @@ void newExpression::setupParents ()
 {
   if ( !(Teuchos::is_null(astNodePtr_)) )
   {
+    astNodePtr_->setupThis( astNodePtr_ );
     astNodePtr_->clearParents();
     astNodePtr_->setupParents();
   }
