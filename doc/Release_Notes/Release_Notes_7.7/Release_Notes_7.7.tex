@@ -94,6 +94,8 @@ please visit the \XyceTM{} web page at
 
 \item The expression library \texttt{TABLE} and \texttt{SPLINE} operators now support a ``downsampling'' feature, in which the user can request that a large data file can automatically have the number of points used by the source reduced.  For \texttt{TABLE} based sources, which are based on a PWL linear approximation, this can dramatically speed up simulations, as the number of required breakpoints is reduced.
 
+\item The random operators in the expression library (such as \texttt{AGAUSS} and \texttt{AUNIF}) now support implicit local and global variation, consistent with other simulators.
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
