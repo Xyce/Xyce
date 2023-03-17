@@ -343,8 +343,10 @@ Simulator::Simulator(Parallel::Machine comm)
   // need to clean up FFTW before closing 
   
   // First get the "wisdom" data from FFTW
-  std::string fftwWisdom(fftw_export_wisdom_to_string());
+  char * fftwWistomString = fftw_export_wisdom_to_string();
+  std::string fftwWisdom(fftwWistomString);
   fftwWisdomLength_ = fftwWisdom.length();
+  free(fftwWistomString);
 #endif
 }
 
@@ -397,13 +399,15 @@ Simulator::~Simulator()
   // fftw_plans in use by other oobjects.
   
   // First get the "wisdom" data from FFTW
-  std::string fftwWisdom(fftw_export_wisdom_to_string());
+  char * fftwWistomString = fftw_export_wisdom_to_string();
+  std::string fftwWisdom(fftwWistomString);
   if( fftwWisdom.length() > fftwWisdomLength_)
   {
     // accumulated data is greater than the base info from the library (about 70 characters)
     // so call FFTW cleanup 
     fftw_cleanup();
   }
+  free(fftwWistomString);
 #endif
 
   set_report_handler(previousReportHandler_);
