@@ -335,10 +335,7 @@ class astNode : public staticsContainer
 
     virtual std::string getName () { return std::string(""); };
 
-    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
-    {
-      thisAstNode_ = thisAst_;
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) {}
 
     virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }
     virtual sdtStateData<ScalarT> & getSdtState() { return sdtState_; }
@@ -362,26 +359,13 @@ class astNode : public staticsContainer
       }
     }
 
-    virtual void setupThis ( Teuchos::RCP<astNode<ScalarT> > tmpNode)
-    {
-      thisAstNode_ = tmpNode;
-
-      for(int ii=0;ii<childrenAstNodes_.size();ii++)
-      {
-        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
-        {
-          childrenAstNodes_[ii]->setupThis( childrenAstNodes_[ii] );
-        }
-      }
-    }
-
-    virtual void setupParents () 
+    virtual void setupParents (Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
       for(int ii=0;ii<childrenAstNodes_.size();ii++)
       {
         if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
         {
-          childrenAstNodes_[ii]->addParent( thisAstNode_, ii );
+          childrenAstNodes_[ii]->addParent( thisAst_, ii );
         }
       }
 
@@ -389,7 +373,7 @@ class astNode : public staticsContainer
       {
         if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
         {
-          childrenAstNodes_[ii]->setupParents();
+          childrenAstNodes_[ii]->setupParents(childrenAstNodes_[ii]);
         }
       }
     }
@@ -414,6 +398,7 @@ class astNode : public staticsContainer
           int size =  childrenOfTheParent.size();
           if (index >= 0 && index < size)
           {
+            childrenOfTheParent[ index ] = Teuchos::null; // this probably isn't necessary
             childrenOfTheParent[ index ] = newNode;
             repacementsAccomplished=true;
           }
@@ -425,8 +410,6 @@ class astNode : public staticsContainer
   protected:
     std::vector<  std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > parentAstNodes_;
     std::vector<  Teuchos::RCP<astNode<ScalarT> > > childrenAstNodes_;
-
-    Teuchos::RCP<astNode<ScalarT> > thisAstNode_;
 
     ddtStateData<ScalarT> ddtState_;
     sdtStateData<ScalarT> sdtState_;
@@ -474,7 +457,6 @@ class numval : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<numval<ScalarT> > castToThis = Teuchos::rcp_static_cast<numval<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -522,7 +504,6 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 
     virtual void accept (nodeVisitor<std::complex<double>> & visitor, Teuchos::RCP<astNode<std::complex<double>> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<numval<std::complex<double>> > castToThis = Teuchos::rcp_static_cast<numval<std::complex<double>> > (thisAst_);
       visitor.visit( castToThis );
     } // 2nd dispatch
@@ -730,7 +711,6 @@ class powOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<powOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -845,7 +825,6 @@ class atan2Op : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<atan2Op<ScalarT> > castToThis = Teuchos::rcp_static_cast<atan2Op<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -924,7 +903,6 @@ class phaseOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<phaseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<phaseOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -989,7 +967,6 @@ class realOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<realOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<realOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1051,7 +1028,6 @@ class imagOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<imagOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<imagOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1125,7 +1101,6 @@ class maxOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<maxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<maxOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1198,7 +1173,6 @@ class minOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<minOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<minOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1254,7 +1228,6 @@ class unaryNotOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<unaryNotOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryNotOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1308,7 +1281,6 @@ class unaryMinusOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<unaryMinusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryMinusOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1359,7 +1331,6 @@ class unaryPlusOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<unaryPlusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryPlusOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -1479,7 +1450,6 @@ class globalParamLayerOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<globalParamLayerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<globalParamLayerOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
@@ -1617,7 +1587,6 @@ class paramOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<paramOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<paramOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
 
@@ -1780,7 +1749,6 @@ class voltageOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<voltageOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<voltageOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -1863,7 +1831,6 @@ class currentOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<currentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<currentOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -1948,7 +1915,6 @@ class sparamOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<sparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sparamOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2033,7 +1999,6 @@ class yparamOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<yparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<yparamOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2118,7 +2083,6 @@ class zparamOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<zparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<zparamOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2199,7 +2163,6 @@ class leadCurrentOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<leadCurrentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<leadCurrentOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2277,7 +2240,6 @@ class powerOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<powerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powerOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2353,7 +2315,6 @@ class internalDevVarOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<internalDevVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<internalDevVarOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2441,7 +2402,6 @@ class dnoNoiseVarOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<dnoNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dnoNoiseVarOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2525,7 +2485,6 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<dniNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dniNoiseVarOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2580,7 +2539,6 @@ class oNoiseOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<oNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<oNoiseOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -2633,7 +2591,6 @@ class iNoiseOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<iNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<iNoiseOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -3043,7 +3000,6 @@ class funcOp: public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<funcOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<funcOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
 
@@ -3329,7 +3285,6 @@ class pwrsOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<pwrsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<pwrsOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3399,7 +3354,6 @@ class sgnOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<sgnOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sgnOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3494,7 +3448,6 @@ class signOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<signOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<signOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3644,7 +3597,6 @@ class fmodOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<fmodOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<fmodOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3705,7 +3657,6 @@ class roundOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<roundOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<roundOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3757,7 +3708,6 @@ class ceilOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<ceilOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ceilOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3809,7 +3759,6 @@ class floorOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<floorOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<floorOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3866,7 +3815,6 @@ class intOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<intOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<intOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -3975,7 +3923,6 @@ class ifStatementOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<ifStatementOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ifStatementOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -4112,7 +4059,6 @@ class limitOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<limitOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<limitOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -4197,7 +4143,6 @@ class stpOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<stpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<stpOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -4270,7 +4215,6 @@ class urampOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<urampOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<urampOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -5317,7 +5261,6 @@ class tableOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<tableOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<tableOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
 
@@ -5498,7 +5441,6 @@ class scheduleOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<scheduleOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<scheduleOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
 
@@ -5679,7 +5621,6 @@ class sdtOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<sdtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sdtOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
@@ -5865,7 +5806,6 @@ class ddtOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<ddtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddtOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
@@ -6062,7 +6002,6 @@ class ddxOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<ddxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddxOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
@@ -6136,7 +6075,6 @@ class specialsOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<specialsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<specialsOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
     }
@@ -6176,7 +6114,6 @@ class piConstOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<piConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<piConstOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
     }
@@ -6212,7 +6149,6 @@ class CtoKConstOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<CtoKConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<CtoKConstOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
     }

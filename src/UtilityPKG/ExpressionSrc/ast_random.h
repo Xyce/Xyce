@@ -133,7 +133,6 @@ class agaussOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<agaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<agaussOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
 
@@ -236,7 +235,6 @@ class gaussOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<gaussOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<gaussOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
 
@@ -339,7 +337,6 @@ class aunifOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<aunifOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<aunifOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -437,7 +434,6 @@ class unifOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<unifOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unifOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
@@ -503,7 +499,6 @@ class randOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<randOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<randOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
     } // 2nd dispatch
@@ -597,7 +592,6 @@ class twoArgLimitOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<twoArgLimitOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<twoArgLimitOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); 
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 

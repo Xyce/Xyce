@@ -544,7 +544,6 @@ bool newExpression::replaceParameterNode(
 
   if ( !(Teuchos::is_null(expPtr)) )
   {
-    //externalExpressions_.push_back(expPtr);
     std::string paramNameUpper=paramName;
     Xyce::Util::toUpper(paramNameUpper);
     if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
@@ -571,6 +570,7 @@ bool newExpression::replaceParameterNode(
             // The one node in the AST with no parents is the top one, astNodePtr_.
             if (node == astNodePtr_)
             {
+              astNodePtr_ = Teuchos::null; // this probably isn't necessary.
               astNodePtr_ = expPtr->getAst();
             }
             else
@@ -1415,9 +1415,8 @@ void newExpression::setupParents ()
 {
   if ( !(Teuchos::is_null(astNodePtr_)) )
   {
-    astNodePtr_->setupThis( astNodePtr_ );
     astNodePtr_->clearParents();
-    astNodePtr_->setupParents();
+    astNodePtr_->setupParents(astNodePtr_);
   }
   parentsSetup_ = true;
 }

@@ -262,7 +262,6 @@ class spicePulseOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<spicePulseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spicePulseOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
                                    //
@@ -491,7 +490,6 @@ class spiceSinOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<spiceSinOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSinOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
                                    
@@ -672,7 +670,6 @@ class spiceExpOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<spiceExpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceExpOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
 
@@ -816,7 +813,6 @@ class spiceSffmOp : public astNode<ScalarT>
 
     virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     { 
-      this->thisAstNode_ = thisAst_;
       Teuchos::RCP<spiceSffmOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSffmOp<ScalarT> > (thisAst_);
       visitor.visit( castToThis ); // 2nd dispatch
 
