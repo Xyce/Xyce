@@ -2491,8 +2491,8 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
 
         if (isVoltDep || isDevCurDep || isLeadCurDep || isVarDep || isSpecialsDep || isRandom)
         {
-          parameter.setVal(expression);
-
+          // no need to set the parameter value to the modified expression as 
+          // the work has been done on a referece to the original expression
           if (DEBUG_IO) 
           { 
              Xyce::dout() << "resolveSubcircuitInstanceParamStrings: After all expression handling, get_expression returns "
@@ -2509,9 +2509,8 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
       }
       else
       {
-        // Reset the parameter value to the value of the expression with
-        // as much resolution as could be achieved.
-        parameter.setVal(expression);
+        // no need to set the parameter value to the modified expression as 
+        // the work has been done on a referece to the original expression
       }
     }
   }
