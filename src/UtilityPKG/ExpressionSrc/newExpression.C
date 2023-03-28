@@ -562,7 +562,11 @@ bool newExpression::replaceParameterNode(
 
         if ( !(Teuchos::is_null( expPtr->getAst() ))) // if the new Ast is valid then do replacement on each
         {
+#if 0
           bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst() );
+#else
+          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst(), astParents_ );
+#endif
 
           if (!repacementsAccomplished)
           {
@@ -1413,10 +1417,16 @@ void newExpression::setupVariousAstArrays()
 //-------------------------------------------------------------------------------
 void newExpression::setupParents ()
 {
+  if (false) // debug output
+  {
+    std::cout << "newExpression::setupParents() .  Parse tree for expression = " << expressionString_ << std::endl;
+    dumpParseTree(Xyce::dout());
+  }
+
   if ( !(Teuchos::is_null(astNodePtr_)) )
   {
-    astNodePtr_->clearParents();
-    astNodePtr_->setupParents(astNodePtr_);
+    astParents_.clear();
+    astNodePtr_->setupParents(astNodePtr_, astParents_);
   }
   parentsSetup_ = true;
 }

@@ -1069,6 +1069,23 @@ private:
 
   opVectorContainers<usedType> opVectors_;
   std::vector<usedType> oldSolVals_;
+
+  //-------------------------------------------------------------------------------
+  // This unordered_map is used for maintaining AST node parents.
+  // The first entry is the id_ of a node, and the second entry is a vector
+  // of pairs, corresponding to the parents.
+  //
+  // The first element of the pair is the RCP to a parent node, and the second
+  // element of the pair is an integer index into this parent node's children
+  // array.
+  //
+  // This cannot be stored in the AST nodes themselves(unlike the children arrays)
+  // because the AST is using RCPs, and storing RCPs to parents within the nodes
+  // themselves leads to a circular ownership pattern.  This circular pattern
+  // confuses the reference counting process and causes memory leaks.
+  //-------------------------------------------------------------------------------
+  std::unordered_map<unsigned long int,
+    std::vector< std::pair< Teuchos::RCP<astNode<usedType> >, int > > > astParents_;
 };
 
 //-------------------------------------------------------------------------

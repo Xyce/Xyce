@@ -346,69 +346,73 @@ class astNode : public staticsContainer
     unsigned long int getId () { return id_; }
     virtual unsigned long int getNodeId () { return id_; }
 
-    virtual void clearParents () 
-    { 
-      parentAstNodes_.clear();
-
-      for(int ii=0;ii<childrenAstNodes_.size();ii++)
-      {
-        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
-        {
-          childrenAstNodes_[ii]->clearParents();
-        }
-      }
-    }
-
-    virtual void setupParents (Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    virtual void setupParents (Teuchos::RCP<astNode<ScalarT> > thisAst,
+      std::unordered_map<unsigned long int, std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > > & astParents
+        )
     {
       for(int ii=0;ii<childrenAstNodes_.size();ii++)
       {
         if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
         {
-          childrenAstNodes_[ii]->addParent( thisAst_, ii );
-        }
-      }
+          std::pair< Teuchos::RCP<astNode<ScalarT> >, int > parentPair(thisAst, ii);
 
-      for(int ii=0;ii<childrenAstNodes_.size();ii++)
-      {
-        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
-        {
-          childrenAstNodes_[ii]->setupParents(childrenAstNodes_[ii]);
-        }
-      }
-    }
-
-    virtual void addParent ( Teuchos::RCP<astNode<ScalarT> > tmpNode, int index )
-    {
-      std::pair< Teuchos::RCP<astNode<ScalarT> >, int > tmpPair(tmpNode,index);
-      parentAstNodes_.push_back(tmpPair);
-    }
-
-    virtual bool replaceMeInTheParents (Teuchos::RCP<astNode<ScalarT> > & newNode)
-    {
-      bool repacementsAccomplished=false;
-      for(int ii=0;ii<parentAstNodes_.size();ii++)
-      {
-        if( !(Teuchos::is_null(parentAstNodes_[ii].first)) )
-        {
-          int index = parentAstNodes_[ii].second;
-           std::vector<  Teuchos::RCP<astNode<ScalarT> > > & childrenOfTheParent = 
-             (parentAstNodes_[ii].first)->childrenAstNodes_;
-         
-          int size =  childrenOfTheParent.size();
-          if (index >= 0 && index < size)
+          unsigned long int child_id =  childrenAstNodes_[ii]->getId();
+          if( astParents.find(child_id) == astParents.end() )
           {
-            childrenOfTheParent[ index ] = Teuchos::null; // this probably isn't necessary
-            childrenOfTheParent[ index ] = newNode;
-            repacementsAccomplished=true;
+            std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > parentPairVec;
+            parentPairVec.push_back(parentPair);
+            astParents[child_id] = parentPairVec;
+          }
+          else
+          {
+            astParents[child_id].push_back(parentPair);
           }
         }
       }
-      return repacementsAccomplished;
+
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          childrenAstNodes_[ii]->setupParents(childrenAstNodes_[ii],astParents);
+        }
+      }
+    }
+
+
+    virtual bool replaceMeInTheParents (Teuchos::RCP<astNode<ScalarT> > newNode,
+      std::unordered_map<unsigned long int, std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > > & astParents
+      )
+    {
+      bool replacementsAccomplished=false;
+
+      unsigned long int my_Id = this->getId();
+      if( astParents.find(my_Id) != astParents.end() )
+      {
+        std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > & parentAstNodes_ = astParents[my_Id];
+
+        for(int ii=0;ii<parentAstNodes_.size();ii++)
+        {
+          if( !(Teuchos::is_null(parentAstNodes_[ii].first)) )
+          {
+            int index = parentAstNodes_[ii].second;
+             std::vector<  Teuchos::RCP<astNode<ScalarT> > > & childrenOfTheParent = 
+               (parentAstNodes_[ii].first)->childrenAstNodes_;
+
+            int size =  childrenOfTheParent.size();
+            if (index >= 0 && index < size)
+            {
+              childrenOfTheParent[ index ] = Teuchos::null; // this probably isn't necessary
+              childrenOfTheParent[ index ] = newNode;
+              replacementsAccomplished=true;
+            }
+          }
+        }
+      }
+      return replacementsAccomplished;
     }
 
   protected:
-    std::vector<  std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > parentAstNodes_;
     std::vector<  Teuchos::RCP<astNode<ScalarT> > > childrenAstNodes_;
 
     ddtStateData<ScalarT> ddtState_;
