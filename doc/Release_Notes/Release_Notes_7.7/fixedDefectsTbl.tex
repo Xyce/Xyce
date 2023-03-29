@@ -153,8 +153,8 @@
   This has been fixed.  \\ \hline
 
   \textbf{Xyce Project Backlog/147}: The handling of the first failed step out 
-  of the DC op was incorrect & When Xyce cannot take the first transient step out
-  of the DC op, it incorrectly reported that Xyce reaches the maximum local error
+  of a DC op was incorrect & When Xyce cannot take the first transient step out
+  of a DC op, it incorrectly reported that Xyce reaches the maximum local error
   test failures. Xyce does not check local truncation error for the first step.
   This has been fixed. Xyce now handles this case correctly and it also reports
   the time when Xyce reaches the maximum number of failures without

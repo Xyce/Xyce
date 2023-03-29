@@ -966,7 +966,6 @@ bool StepErrorControl::updateMinTimeStep()
   bool bsuccess = true;
 
   minTimeStep = currentTime*minStepPrecisionFac_*Util::MachineDependentParams::MachinePrecision();
-//  minTimeStep = minStepPrecisionFac_*Util::MachineDependentParams::MachinePrecision();
 
   return bsuccess;
 }
