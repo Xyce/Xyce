@@ -161,6 +161,12 @@
    library, were affected.  This was an oversight in the expression library lexer code. 
    This has been fixed.  \\ \hline
 
+  \textbf{Xyce Project Bugs/55}: Null pointer in expression &
+  In the resolution of parameters in subcircuits, expressions
+  could be deleted before they were stored in parameter objects
+  resulting in a null pointer for the expression.  This issue
+  has been fixed. \\ \hline
+
 
 \end{longtable}
 }
