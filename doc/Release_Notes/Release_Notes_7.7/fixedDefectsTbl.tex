@@ -152,7 +152,15 @@
   was incorrectly being erased from the definition container.
   This has been fixed.  \\ \hline
 
-\textbf{Xyce Project Backlog/595}: 
+  \textbf{Xyce Project Backlog/147}: The handling of the first failed step out 
+  of the DC op was incorrect & When Xyce cannot take the first transient step out
+  of the DC op, it incorrectly reported that Xyce reaches the maximum local error
+  test failures. Xyce does not check local truncation error for the first step.
+  This has been fixed. Xyce now handles this case correctly and it also reports
+  the time when Xyce reaches the maximum number of failures without
+  convergence. \\ \hline   
+
+ \textbf{Xyce Project Backlog/595}: 
    Expression library does not recognize device names that include square
     brackets and a bunch of other unusual (but supported) characters & 
    The expression library could not tokenize a device name such as \texttt{V\_B[0]}. 
