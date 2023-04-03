@@ -262,6 +262,16 @@ option is only applicable to \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT
 The \texttt{PRINTFOOTER} option is only applicable to
 \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>} files.
 
+It can be convenient to have all the solution variables output to file during a
+transient run without specifying all of them on a {\texttt{.PRINT TRAN} line.  
+This can be accomplished with the \texttt{SNAPSHOTS} option available on the
+\texttt{.OPTIONS OUTPUT} line.
+\begin{vquote}
+.OPTIONS OUTPUT SNAPSHOTS=<boolean>
+\end{vquote}
+where setting the \texttt{SNAPSHOTS} variable to ``true'' will print all solution variables
+to the output file, ignoring any solution nodes specified in the {\texttt{.PRINT TRAN} line.
+
 It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
 \begin{vquote}
 .OPTIONS OUTPUT ADD\_STEPNUM\_COL=<boolean>
@@ -281,7 +291,7 @@ output to use radians instead:
 The default value for this option is FALSE.  If set to TRUE then the phase output
 will be in radians instead of degrees.  This option also applies to the format
 for AC sensitivity output.  It does not affect the output from a \texttt{.FOUR}
-analysis or a texttt{.FOUR} measure though.  Those two outputs are always in degrees.
+analysis or a \texttt{.FOUR} measure though.  Those two outputs are always in degrees.
 
 \subsubsection{\texttt{.OPTIONS RESTART} (Checkpointing Options)}
 

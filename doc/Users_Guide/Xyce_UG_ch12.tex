@@ -268,16 +268,32 @@ the simulation:
 \index{\texttt{.OPTIONS}!\texttt{OUTPUT}!\texttt{PRINTHEADER}}
 \index{\texttt{.OPTIONS}!\texttt{OUTPUT}!\texttt{PRINTFOOTER}}
 It can be convenient to have an output file that contains only numerical data with 
-minimal formatting.  There are two options,\texttt{PRINTHEADER} and \texttt{PRINTFOOTER} 
+minimal formatting.  There are two options, \texttt{PRINTHEADER} and \texttt{PRINTFOOTER} 
 available on the \texttt{.OPTIONS OUTPUT} line to facilitate this. The format
 is given by:
 
 \Format{\par\texttt{.OPTIONS OUTPUT PRINTHEADER=<boolean>  PRINTFOOTER=<boolean> }}
-So, to produce an output file that has no header and no footer, simply set:
+\noindent So, to produce an output file that has no header and no footer, simply set:
 
 \Example{\texttt{.OPTIONS OUTPUT PRINTHEADER=false PRINTFOOTER=false}}
 Note that \texttt{PRINTHEADER} is only supported for \texttt{.PRINT FORMAT=<STD|GNUPLOT|SPLOT>},
 while \texttt{PRINTFOOTER} is only supported for \texttt{.PRINT FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>}.
+
+\subsubsection{Outputting all solution variables to file}
+
+It can be convenient to have all the solution variables output to file during a
+transient run without specifying all of them on a {\texttt{.PRINT TRAN} line.  
+This can be accomplished with the \texttt{SNAPSHOTS} option available on the
+\texttt{.OPTIONS OUTPUT} line.  The format is given by:
+
+\Format{\par\texttt{.OPTIONS OUTPUT SNAPSHOTS=<boolean>}}
+
+\noindent So, to produce an output file that has all the solution variables, simply set:
+
+\Example{\par\texttt{.OPTIONS OUTPUT SNAPSHOTS=true}}
+Note that setting \texttt{SNAPSHOTS} will result in the parser ignoring any solution nodes
+specified in the {\texttt{.PRINT TRAN} line.
+
 
 \subsection{Output File Redirection}
 There are three ways to re-direct the output of a \Xyce{} simulation run
