@@ -4645,7 +4645,12 @@ class tableOp : public astNode<ScalarT>
       allConst_(true),
       input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(false),
+      logSpacingGiven_(false),
+      downSamplingComplete_(false),
+      numSamplesAst_(Teuchos::null),
+      logSpacingAst_(Teuchos::null)
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
 
@@ -4682,17 +4687,18 @@ class tableOp : public astNode<ScalarT>
         const std::string & kw,
         Teuchos::RCP<astNode<ScalarT> > &input,
         const std::string & filename,
-        Teuchos::RCP<astNode<ScalarT> > & numSamplesAst,
-        Teuchos::RCP<astNode<ScalarT> > & logSpacingAst
+        Teuchos::RCP<astNode<ScalarT> > & nsAst,
+        Teuchos::RCP<astNode<ScalarT> > & lsAst
         ):
       astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(true),
+      logSpacingGiven_(true),
+      downSamplingComplete_(false),
+      numSamplesAst_(nsAst),
+      logSpacingAst_(lsAst)
       {
-        int numDownSamples =
-          static_cast<int>( std::real(numSamplesAst->val()));
-        bool logSpacing = ((static_cast<int>( std::real(logSpacingAst->val())))>0);
-
         allocateInterpolators();
 
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
@@ -4763,12 +4769,6 @@ class tableOp : public astNode<ScalarT>
             }
           }
           dataIn.close();
-
-          // now downsample if necessary
-          if (numDownSamples>0 )
-          {
-            downSampleVector(numDownSamples, logSpacing, ta_, ya_);
-          } // downsample if-statement
         }
 
         evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
@@ -4788,7 +4788,12 @@ class tableOp : public astNode<ScalarT>
     tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
       astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(false),
+      logSpacingGiven_(false),
+      downSamplingComplete_(false),
+      numSamplesAst_(Teuchos::null),
+      logSpacingAst_(Teuchos::null)
       {
         allocateInterpolators();
 
@@ -4813,6 +4818,39 @@ class tableOp : public astNode<ScalarT>
           createOldStyleDerivativeTable ();
         }
       };
+
+    //-------------------------------------------------------------------------------
+    void applyDownSampling()
+    {
+      if (numSamplesGiven_ && !downSamplingComplete_)
+      {
+        int numDownSamples = static_cast<int>( std::real(numSamplesAst_->val()));
+        bool logSpacing = false;
+        if (logSpacingGiven_)
+        {
+          logSpacing = ((static_cast<int>( std::real(logSpacingAst_->val())))>0);
+        }
+        //std::cout << "logSpacing = " << ((logSpacing)?("true"):("false")) << std::endl <<std::endl;
+
+        // downsample if necessary
+        if (numDownSamples>0 )
+        {
+          downSampleVector(numDownSamples, logSpacing, ta_, ya_);
+        }
+
+        // downsampling will reduce the size of ta_, ya_, etc, so some things need to be re-set up.
+        evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
+
+        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+        if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
+        {
+          createOldStyleDerivativeTable ();
+        }
+
+        downSamplingComplete_ = true;
+      }
+    };
 
     //-------------------------------------------------------------------------------
     // The interpolation functions use std::vector<double> objects.  However, the
@@ -4892,6 +4930,10 @@ class tableOp : public astNode<ScalarT>
           }
         } // tableArgs_.empty()
       } // !allConst_
+      else
+      {
+        applyDownSampling();
+      }
 
       return updated;
     }
@@ -5298,6 +5340,11 @@ class tableOp : public astNode<ScalarT>
     Teuchos::RCP<astNode<ScalarT> > input_;
     bool useBreakPoints_;
     std::string keyword_;
+    bool numSamplesGiven_;
+    bool logSpacingGiven_;
+    bool downSamplingComplete_;
+    Teuchos::RCP<astNode<ScalarT> > numSamplesAst_;
+    Teuchos::RCP<astNode<ScalarT> > logSpacingAst_;
 };
 
 //-------------------------------------------------------------------------------
