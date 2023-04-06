@@ -333,6 +333,10 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
  
   if (isuccess < 0) // attempt gmin stepping.
   {
+    // First state that the first solve has not been completed so that devices 
+    // return to their initial state before starting gmin stepping.
+    firstSolveComplete_ = false;
+
     analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
     int saveSolverType=paramsPtr->getNoxSolverType();
     paramsPtr->setNoxSolverType(3);
