@@ -258,9 +258,11 @@ protected:
   bool debugTimeFlag_;
 
   int contStep_;
-
-private:
+  // derived classes need access to the analysis manager to send diagnostic notificaitons
   Analysis::AnalysisManager *   analysisManager_;
+  
+  
+private:
   int                           outputStepNumber_;  // this is either the time step number or the dc sweep step number,
                                                     // depending on the mode.  It is only used in setting up output file
                                                     // names.

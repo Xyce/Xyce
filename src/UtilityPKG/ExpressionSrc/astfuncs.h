@@ -44,15 +44,15 @@ class NAME ## Op : public astNode<ScalarT>                                      
 {                                                                                      \
   public:                                                                              \
     NAME ## Op (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {       \
-          leftConst_ = this->leftAst_->numvalType(); };                                \
+          leftConst_ = this->childrenAstNodes_[0]->numvalType(); };                    \
                                                                                        \
-    virtual ScalarT val() { return std::NAME(this->leftAst_->val()); }                 \
+    virtual ScalarT val() { return std::NAME(this->childrenAstNodes_[0]->val()); }     \
                                                                                        \
     virtual ScalarT dx(int i)                                                          \
     {                                                                                  \
       if(leftConst_) { return 0.0; }                                                   \
-      ScalarT leftVal=this->leftAst_->val();                                           \
-      ScalarT leftDx =this->leftAst_->dx(i);                                           \
+      ScalarT leftVal=this->childrenAstNodes_[0]->val();                               \
+      ScalarT leftDx =this->childrenAstNodes_[0]->dx(i);                               \
       return DX;                                                                       \
     }                                                                                  \
                                                                                        \
@@ -61,7 +61,7 @@ class NAME ## Op : public astNode<ScalarT>                                      
       ScalarT leftVal, leftDx;                                                         \
       if (leftConst_)                                                                  \
       {                                                                                \
-        leftVal=this->leftAst_->val();                                                 \
+        leftVal=this->childrenAstNodes_[0]->val();                                     \
         result = std::NAME(leftVal);                                                   \
         std::fill(derivs.begin(),derivs.end(),0.0);                                    \
         return;                                                                        \
@@ -71,19 +71,19 @@ class NAME ## Op : public astNode<ScalarT>                                      
         int numDerivs=derivs.size();                                                   \
         std::vector<ScalarT> lefDerivs_;                                               \
         lefDerivs_.resize(numDerivs,0.0);                                              \
-        this->leftAst_->dx2(leftVal,lefDerivs_);                                       \
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);                           \
         result= std::NAME(leftVal);                                                    \
         for (int i=0;i<numDerivs;i++) { ScalarT leftDx=lefDerivs_[i]; derivs[i]=DX; }  \
       }                                                                                \
     }                                                                                  \
                                                                                        \
     virtual bool getIsTreeConstant()                                                   \
-      { return (this->leftAst_->getIsTreeConstant() ); }                               \
+      { return (this->childrenAstNodes_[0]->getIsTreeConstant() ); }                   \
                                                                                        \
     virtual bool getIsComplex ()                                                       \
       {                                                                                \
         if (!ISCOMPLEX) return false;                                                  \
-        return (this->leftAst_->getIsComplex());                                       \
+        return (this->childrenAstNodes_[0]->getIsComplex());                           \
       }                                                                                \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
@@ -91,7 +91,7 @@ class NAME ## Op : public astNode<ScalarT>                                      
       os << std::setw(indent) << " ";                                                  \
       os << #NAME << " operator id = " << this->id_ << std::endl;                      \
       ++indent;                                                                        \
-      this->leftAst_->output(os,indent+1);                                             \
+      this->childrenAstNodes_[0]->output(os,indent+1);                                 \
     }                                                                                  \
     virtual void compactOutput(std::ostream & os)                                      \
     {                                                                                  \
@@ -100,9 +100,16 @@ class NAME ## Op : public astNode<ScalarT>                                      
     virtual void codeGen (std::ostream & os )                                          \
     {                                                                                  \
       os << "std::" #NAME << "(";                                                      \
-      this->leftAst_->codeGen(os);                                                     \
+      this->childrenAstNodes_[0]->codeGen(os);                                         \
       os << ")";                                                                       \
     }                                                                                  \
+                                                                                       \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME ## Op<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME ## Op<ScalarT> > (thisAst_); \
+    visitor.visit( castToThis ); \
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); }       \
+                                                                                       \
     bool leftConst_;                                                                   \
 };
 
@@ -131,7 +138,7 @@ class tanhOp : public astNode<ScalarT>
   virtual ScalarT val() 
   { 
     ScalarT retval;
-    ScalarT arg = this->leftAst_->val();
+    ScalarT arg = this->childrenAstNodes_[0]->val();
     if      (std::real(arg) > +20) { retval = +1.0; }
     else if (std::real(arg) < -20) { retval = -1.0; }
     else                           { retval = std::tanh(arg); }
@@ -141,11 +148,11 @@ class tanhOp : public astNode<ScalarT>
   virtual ScalarT dx(int i) 
   { 
     ScalarT retdx=0.0;
-    ScalarT arg = this->leftAst_->val();
+    ScalarT arg = this->childrenAstNodes_[0]->val();
     if (std::real(arg) <= 20 && std::real(arg) >= -20)
     {
       ScalarT cosh_arg = std::cosh(arg);
-      retdx = (this->leftAst_->dx(i)/(cosh_arg*cosh_arg));
+      retdx = (this->childrenAstNodes_[0]->dx(i)/(cosh_arg*cosh_arg));
     }
     return retdx;
   } 
@@ -157,7 +164,7 @@ class tanhOp : public astNode<ScalarT>
     lefDerivs_.resize(numDerivs,0.0);
 
     ScalarT arg;
-    this->leftAst_->dx2(arg,lefDerivs_);
+    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_);
 
     if      (std::real(arg) > +20) { result = +1.0; }
     else if (std::real(arg) < -20) { result = -1.0; }
@@ -182,7 +189,7 @@ class tanhOp : public astNode<ScalarT>
     os << std::setw(indent) << " ";
     os << "tanh" << " operator id = " << this->id_ << std::endl;
     ++indent;
-    this->leftAst_->output(os,indent+1);
+    this->childrenAstNodes_[0]->output(os,indent+1);
   } 
 
   virtual void compactOutput(std::ostream & os)
@@ -193,9 +200,16 @@ class tanhOp : public astNode<ScalarT>
   virtual void codeGen (std::ostream & os ) 
   { 
     os << "std::" "tanh" << "(";
-    this->leftAst_->codeGen(os);
+    this->childrenAstNodes_[0]->codeGen(os);
     os << ")";
   } 
+
+  virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+  { 
+    Teuchos::RCP<tanhOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<tanhOp<ScalarT> > (thisAst_);
+    visitor.visit( castToThis ); // 2nd dispatch
+    this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+  }
 };
 
 template <typename ScalarT> 
@@ -207,7 +221,7 @@ class atanhOp : public astNode<ScalarT>
   virtual ScalarT val() 
   { 
     ScalarT Epsilon = 1.e-12;
-    ScalarT arg = this->leftAst_->val();
+    ScalarT arg = this->childrenAstNodes_[0]->val();
 
     if      (std::real(arg) < std::real(Epsilon) - 1.0) { arg = Epsilon - 1.0; }
     else if (std::real(arg) > 1.0 - std::real(Epsilon)) { arg = 1.0 - Epsilon; }
@@ -220,10 +234,10 @@ class atanhOp : public astNode<ScalarT>
   { 
     ScalarT Epsilon = 1.e-12;
     ScalarT retdx=0.0;
-    ScalarT arg = this->leftAst_->val();
+    ScalarT arg = this->childrenAstNodes_[0]->val();
     if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
-      retdx = (this->leftAst_->dx(i)/(1.- arg*arg));
+      retdx = (this->childrenAstNodes_[0]->dx(i)/(1.- arg*arg));
     }
 
     return retdx;
@@ -239,7 +253,7 @@ class atanhOp : public astNode<ScalarT>
     lefDerivs_.resize(numDerivs,0.0);
 
     ScalarT arg;
-    this->leftAst_->dx2(arg,lefDerivs_);
+    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_);
     if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
       for (int i=0;i<numDerivs;i++) { derivs[i] = (lefDerivs_[i]/(1.- arg*arg)); }
@@ -259,7 +273,7 @@ class atanhOp : public astNode<ScalarT>
    os << std::setw(indent) << " ";
    os << "atanh" << " operator id = " << this->id_ << std::endl;
    ++indent;
-   this->leftAst_->output(os,indent+1);
+   this->childrenAstNodes_[0]->output(os,indent+1);
   } 
 
   virtual void compactOutput(std::ostream & os)
@@ -270,9 +284,16 @@ class atanhOp : public astNode<ScalarT>
   virtual void codeGen (std::ostream & os ) 
   { 
     os << "std::" "atanh" << "(";
-    this->leftAst_->codeGen(os);
+    this->childrenAstNodes_[0]->codeGen(os);
     os << ")";
   } 
+
+  virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+  { 
+    Teuchos::RCP<atanhOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<atanhOp<ScalarT> > (thisAst_);
+    visitor.visit( castToThis ); // 2nd dispatch
+    this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+  }
 };
 
 #endif

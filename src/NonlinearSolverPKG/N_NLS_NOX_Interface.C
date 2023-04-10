@@ -326,10 +326,18 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
   Linear::Vector * initVec = dsPtr_->nextSolutionPtr->cloneCopyVector();
 
   groupPtr_->setNonContinuationFlag (true);
+  
+  
+  analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_STARTED, Analysis::AnalysisEvent::DC));
   int isuccess = stdNewtonSolve (paramsPtr);
  
   if (isuccess < 0) // attempt gmin stepping.
   {
+    // First state that the first solve has not been completed so that devices 
+    // return to their initial state before starting gmin stepping.
+    firstSolveComplete_ = false;
+
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
     int saveSolverType=paramsPtr->getNoxSolverType();
     paramsPtr->setNoxSolverType(3);
     groupPtr_->setNonContinuationFlag (false);
@@ -353,10 +361,13 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
         *lasSysPtr_,
         *this);
 
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING, Analysis::AnalysisEvent::DC));
     isuccess=gminSteppingSolve ( paramsPtr );
-
+      
     if (isuccess < 0)
     {
+      double finalGmin = std::pow(10.0, stepperPtr_->getContinuationParameter());
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED, Analysis::AnalysisEvent::DC, finalGmin));
       paramsPtr->setNoxSolverType(34);
       groupPtr_->setNonContinuationFlag (false);
         
@@ -379,7 +390,12 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
                               *lasSysPtr_,
                               *this);
       
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING, Analysis::AnalysisEvent::DC));
       isuccess=sourceSteppingSolve ( paramsPtr );
+      if (isuccess < 0)
+      {
+        analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED, Analysis::AnalysisEvent::DC, stepperPtr_->getContinuationParameter()));
+      }
       paramsPtr->setNoxSolverType(saveSolverType);
 
       nonlinearEquationLoader_->resetScaledParams();
@@ -1314,7 +1330,6 @@ int Interface::gminSteppingSolve ( ParameterSet* paramsPtr )
   // Do the continuation run
   resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
   LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-
   groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
 
   // Kick out if continuation failed
@@ -1539,7 +1554,7 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   nonlinearEquationLoader_->resetScaledParams();
 
   nonlinearEquationLoader_->setDisableInitJctFlags(false);
-
+  
   // Kick out if continuation failed
   if (locaStatus != LOCA::Abstract::Iterator::Finished)
     return (-1);

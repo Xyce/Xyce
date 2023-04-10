@@ -53,6 +53,7 @@
 #include <expressionParamTypes.h>
 #include <N_UTL_HspiceBools.h>
 #include <N_UTL_Interface_Enum_Types.h>
+#include <N_IO_fwd.h>
 
 // new code includes:
 #include <ast.h>
@@ -80,6 +81,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -127,6 +129,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -185,6 +188,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -248,6 +252,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    parentsSetup_(false),
     groupSetup_(false),
     bpTol_(0.0),
     time_(0.0),
@@ -332,7 +337,7 @@ public:
       if (left->randType()) { randOpVec_.push_back(left); }
       if (left->twoArgLimitType()) { twoArgLimitOpVec_.push_back(left); }
 
-      left->getInterestingOps( opVectors_  );
+      opVectors_.getInterestingOps(left);
     }
   };
 
@@ -343,6 +348,7 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
+    parentsSetup_(right.parentsSetup_),
     groupSetup_(right.groupSetup_),
     functionArgStringVec_(right.functionArgStringVec_),
     functionArgOpVec_ (right.functionArgOpVec_),
@@ -466,6 +472,7 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
+    parentsSetup_ = right.parentsSetup_;
     groupSetup_ = right.groupSetup_;
     functionArgStringVec_ = right.functionArgStringVec_;
     functionArgOpVec_  = right.functionArgOpVec_;
@@ -585,6 +592,7 @@ public:
 
   bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr, enumParamType type=DOT_GLOBAL_PARAM);
+  bool replaceParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
   bool multiplyByExternalExpression (const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
@@ -593,6 +601,7 @@ public:
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
+  bool parentsSetup () const { return parentsSetup_; }
   bool groupSetup () const { return groupSetup_; }
 
   bool make_constant (std::string const & var, usedType const & val, enumParamType type=DOT_GLOBAL_PARAM);
@@ -881,6 +890,7 @@ public:
   void setDdtDerivs (std::vector<std::complex<double> > & vals);
 
   void setupVariousAstArrays ();
+  void setupParents ();
 
   void setGroup( Teuchos::RCP<baseExpressionGroup> & grp ) { group_ = grp; } 
   Teuchos::RCP<baseExpressionGroup> getGroup() { return group_; }
@@ -895,6 +905,7 @@ private:
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
+  bool parentsSetup_;
   bool groupSetup_;
 
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
@@ -1058,7 +1069,67 @@ private:
 
   opVectorContainers<usedType> opVectors_;
   std::vector<usedType> oldSolVals_;
+
+  //-------------------------------------------------------------------------------
+  // This unordered_map is used for maintaining AST node parents.
+  // The first entry is the id_ of a node, and the second entry is a vector
+  // of pairs, corresponding to the parents.
+  //
+  // The first element of the pair is the RCP to a parent node, and the second
+  // element of the pair is an integer index into this parent node's children
+  // array.
+  //
+  // This cannot be stored in the AST nodes themselves(unlike the children arrays)
+  // because the AST is using RCPs, and storing RCPs to parents within the nodes
+  // themselves leads to a circular ownership pattern.  This circular pattern
+  // confuses the reference counting process and causes memory leaks.
+  //-------------------------------------------------------------------------------
+  std::unordered_map<unsigned long int,
+    std::vector< std::pair< Teuchos::RCP<astNode<usedType> >, int > > > astParents_;
 };
+
+//-------------------------------------------------------------------------
+// Function      : checkGroundName
+// Purpose       : checks if the name of a voltage node is a synonym for ground
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 9/3/2020
+//-------------------------------------------------------------------------
+inline bool checkGroundNodeName(const std::string & name)
+{
+  std::string tmpName = name;
+  Xyce::Util::toUpper(tmpName);
+
+  if (tmpName == std::string("0")) { return true; }
+
+  if (Xyce::Util::preprocessFilter.size() >= Xyce::IO::PreprocessType::NUM_PREPROCESS)
+  {
+  if (Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND])
+  {
+    if (tmpName == std::string("GND")) { return true; }
+    if (tmpName == std::string("GND!")) { return true; }
+    if (tmpName == std::string("GROUND")) { return true; }
+  }
+  }
+
+  bool thisIsGround=false;
+  if (tmpName.size() > 1)
+  {
+    std::size_t lastColonIndex = tmpName.find_last_of(":");
+    std::size_t last = tmpName.size()-1;
+    if (lastColonIndex < last)
+    {
+      std::string endOfName = tmpName.substr(lastColonIndex,last);
+      if (endOfName == ":0") { thisIsGround=true; }
+      else if (endOfName == ":GND") { thisIsGround=true; }
+      else if (endOfName == ":GND!") { thisIsGround=true; }
+      else if (endOfName == ":GROUND") { thisIsGround=true; }
+    }
+  }
+
+  return thisIsGround;
+}
 
 }
 }

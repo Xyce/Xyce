@@ -38,6 +38,8 @@
 
 #include <complex>
 
+#include <N_ERH_ErrorMgr.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -241,6 +243,11 @@ void akima<ScalarT>::init (
 {
   size_t size = xa.size();
   size_t i;
+
+  if (size<=0)
+  {
+    Report::DevelFatal().in("akima<ScalarT>::init") << "Array size  = " << size << ".  Inteprolation failed";
+  }
 
   if (p1.size() != size) p1.resize(size,0.0);
   if (p2.size() != size) p2.resize(size,0.0);
@@ -546,6 +553,11 @@ void wodicka<ScalarT>::init (
   size_t size = xa.size();
   size_t i;
 
+  if (size<=0)
+  {
+    Report::DevelFatal().in("wodicka<ScalarT>::init") << "Array size  = " << size << ".  Inteprolation failed";
+  }
+
   if (p1.size() != size) p1.resize(size,0.0);
   if (p2.size() != size) p2.resize(size,0.0);
   if (p3.size() != size) p3.resize(size,0.0);
@@ -821,6 +833,11 @@ void cubicSpline<ScalarT>::init
 (const std::vector<ScalarT> & xa,
  const std::vector<ScalarT> & ya)
 {
+  if (xa.size()<=0)
+  {
+    Report::DevelFatal().in("cubicSpline<ScalarT>::init") << "Array size  = " << xa.size() << ".  Inteprolation failed";
+  }
+
   if (y2.size() != xa.size())
   {
     y2.resize(xa.size());
@@ -1283,6 +1300,11 @@ void quadSpline<ScalarT>::init
 {
   int size = xa.size();
 
+  if (size<=0)
+  {
+    Report::DevelFatal().in("quadSpline<ScalarT>::init") << "Array size  = " << size << ".  Inteprolation failed";
+  }
+
   if (b.size() != size) b.resize(size,0.0);
   if (c.size() != size) c.resize(size,0.0);
 
@@ -1452,6 +1474,12 @@ void barycentricLagrange<ScalarT>::init (
    const std::vector<ScalarT> & ya)
 {
   size_t size = xa.size();
+
+  if (size<=0)
+  {
+    Report::DevelFatal().in("barycentricLagrange<ScalarT>::init") << "Array size  = " << size << ".  Inteprolation failed";
+  }
+
   w.resize(size,0.0);
 
   // Compute the weights using formula 3.2 from the paper

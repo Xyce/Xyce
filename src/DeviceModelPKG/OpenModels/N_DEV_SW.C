@@ -214,8 +214,8 @@ Instance::Instance(
   {
     if (d->name == "CONTROL")
     {
-      expNumVars = d->n_vars;
-      expBaseVar = d->lo_var;
+      expNumVars = d->numVars;
+      expBaseVar = d->lowVarIndex;
       Exp_ptr = d->expr;
 
       jacStamp[0].resize(2+expNumVars);

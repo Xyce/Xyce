@@ -108,8 +108,12 @@ Note that \texttt{EXTREMALIMIT} will only output one name and value per step whi
 \texttt{VOLTAGELIMIT}, \texttt{CURRENTLIMIT} and \texttt{DISCLIMIT} can output many 
 names and values per step.  Xyce's diagnostic output will be sent to the diagnostic 
 file set by \texttt{DIAGFILENAME} along with step information (time step in transient 
-simulation and step number otherwise). A user can examine the output to infer if the 
-circuit simulation is performing as expected.
+simulation and step number otherwise) and the status of \texttt{GMIN} or source-stepping 
+used to obtain the DC operating point. If no filename is specified, then the 
+default output file name will be the input netlist name plus the extenstion \texttt{.dia}.
+A user can examine the output to infer if the circuit simulation is performing as expected.
+Further examples of using diagnostic options can be found in chapter 10 of the \Xyce{} 
+User's Guide.
 
 \input{diagnosticTbl.tex}
 
@@ -258,6 +262,16 @@ option is only applicable to \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT
 The \texttt{PRINTFOOTER} option is only applicable to
 \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>} files.
 
+It can be convenient to have all the solution variables output to file during a
+transient run without specifying all of them on a {\texttt{.PRINT TRAN} line.  
+This can be accomplished with the \texttt{SNAPSHOTS} option available on the
+\texttt{.OPTIONS OUTPUT} line.
+\begin{vquote}
+.OPTIONS OUTPUT SNAPSHOTS=<boolean>
+\end{vquote}
+where setting the \texttt{SNAPSHOTS} variable to ``true'' will print all solution variables
+to the output file, ignoring any solution nodes specified in the {\texttt{.PRINT TRAN} line.
+
 It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
 \begin{vquote}
 .OPTIONS OUTPUT ADD\_STEPNUM\_COL=<boolean>
@@ -277,7 +291,7 @@ output to use radians instead:
 The default value for this option is FALSE.  If set to TRUE then the phase output
 will be in radians instead of degrees.  This option also applies to the format
 for AC sensitivity output.  It does not affect the output from a \texttt{.FOUR}
-analysis or a texttt{.FOUR} measure though.  Those two outputs are always in degrees.
+analysis or a \texttt{.FOUR} measure though.  Those two outputs are always in degrees.
 
 \subsubsection{\texttt{.OPTIONS RESTART} (Checkpointing Options)}
 

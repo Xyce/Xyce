@@ -119,5 +119,62 @@
   library were not properly reset at the beginning of each \texttt{.STEP} 
   iteration.  This was causing breakpoints to be overlooked early in the transient.
   This has been fixed.  \\ \hline
+
+
+  \textbf{Xyce Project Backlog/575}: 
+   Expression tables are inefficient when they are large and contain expressions & 
+   This issue was inspired by backlog issues 565 and 566.  If a PWL source is 
+   specified using a Bsrc and the \texttt{TABLE} operator (instead of a PWL 
+   source), then it was very 
+   inefficient if the table was large and the entries of that table were 
+   based on expressions rather than pure numbers.  This was because the subordinate 
+   expressions in the table were being updated too frequently.
+  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Bugs/41}: Expression library inconsistently handles 
+  subcircuit nodes for derivatives &  When invoked from a Bsrc, the expression 
+  library has to provide derivatives as well as function evaluations.  In the 
+  Bsrc, the needed derivatives are with respect to solution variables, which 
+  are usually voltage nodes.  When a Bsrc is inside of a subcircuit, it is 
+  possible that the original expression contains voltage node dependencies 
+  that will need to be replaced with the subcircuit instance nodes.  When 
+  this happens, the new list of nodes might include a duplicate or ground node, 
+  even if the original version did not.  The expression library wasn't 
+  handling this use case (new duplicates) correctly, and this caused a 
+  memory error.  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Bugs/54}: subcircuit parameters incorrectly 
+  deleted when multiple subcircuit instances (X lines) refer to same 
+  subcircuit definition &   There was a bug in the parser in the function
+  that resolved subcircuit parameters.  When subcircuit instance
+  parameters (from the X line) matched a parameter in the list 
+  of unresolved parameters in the subcircuit definition, that parameter
+  was incorrectly being erased from the definition container.
+  This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Backlog/147}: The handling of the first failed step out 
+  of a DC op was incorrect & When Xyce cannot take the first transient step out
+  of a DC op, it incorrectly reported that Xyce reaches the maximum local error
+  test failures. Xyce does not check local truncation error for the first step.
+  This has been fixed. Xyce now handles this case correctly and it also reports
+  the time when Xyce reaches the maximum number of failures without
+  convergence. \\ \hline   
+
+ \textbf{Xyce Project Backlog/595}: 
+   Expression library does not recognize device names that include square
+    brackets and a bunch of other unusual (but supported) characters & 
+   The expression library could not tokenize a device name such as \texttt{V\_B[0]}. 
+   The use of brackets and other unusual characters was allowed in other tokens 
+   such as voltage nodes.  For this bug only device name tokens, used in the expression 
+   library, were affected.  This was an oversight in the expression library lexer code. 
+   This has been fixed.  \\ \hline
+
+  \textbf{Xyce Project Bugs/55}: Null pointer in expression &
+  In the resolution of parameters in subcircuits, expressions
+  could be deleted before they were stored in parameter objects
+  resulting in a null pointer for the expression.  This issue
+  has been fixed. \\ \hline
+
+
 \end{longtable}
 }

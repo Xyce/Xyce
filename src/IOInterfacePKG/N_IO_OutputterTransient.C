@@ -71,6 +71,10 @@ void enableTransientOutput(Parallel::Machine comm, OutputMgr &output_manager, An
     {
       PrintParameters transient_print_parameters = (*it);
 
+        // If we are creating snapshots, replace this list with all the solution variables.
+        if ( output_manager.getCreateSnapshots() )
+          output_manager.createAllPrintParameters( comm, transient_print_parameters );
+ 
         if (transient_print_parameters.format_ != Format::PROBE)
           transient_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
         if (transient_print_parameters.printIndexColumn_)

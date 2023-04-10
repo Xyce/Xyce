@@ -147,6 +147,10 @@
 #include <mainXyceExpressionGroup.h>
 #include <N_DEV_DeviceSupport.h>
 
+#ifdef Xyce_USE_FFTW
+#include <fftw3.h>
+#endif 
+
 namespace Xyce {
 namespace Circuit {
 
@@ -332,6 +336,18 @@ Simulator::Simulator(Parallel::Machine comm)
   rootStat_.start();
 
   TimeIntg::registerTimeIntegrationMethods();
+  
+#if defined(Xyce_USE_FFTW) && !defined(Xyce_USE_INTEL_FFT)
+  // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
+  // At startup record the length of the default wisdom so Xyce can tell if it 
+  // need to clean up FFTW before closing 
+  
+  // First get the "wisdom" data from FFTW
+  char * fftwWistomString = fftw_export_wisdom_to_string();
+  std::string fftwWisdom(fftwWistomString);
+  fftwWisdomLength_ = fftwWisdom.length();
+  free(fftwWistomString);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -374,6 +390,25 @@ Simulator::~Simulator()
     deleteList(opListPtr_->begin(), opListPtr_->end());
     delete opListPtr_;
   }
+  
+#if defined(Xyce_USE_FFTW) && !defined(Xyce_USE_INTEL_FFT)
+  // the FFTW library allocates some memory for accumulated "wisdom" as they put it 
+  // If there is anything accumulated other than the basic version info then tell
+  // FFTW to clean it up.  This can't be done in an FFT destructor because calling
+  // fftw_cleanup() resets the entire FFTW library and would invalidate any 
+  // fftw_plans in use by other oobjects.
+  
+  // First get the "wisdom" data from FFTW
+  char * fftwWistomString = fftw_export_wisdom_to_string();
+  std::string fftwWisdom(fftwWistomString);
+  if( fftwWisdom.length() > fftwWisdomLength_)
+  {
+    // accumulated data is greater than the base info from the library (about 70 characters)
+    // so call FFTW cleanup 
+    fftw_cleanup();
+  }
+  free(fftwWistomString);
+#endif
 
   set_report_handler(previousReportHandler_);
 

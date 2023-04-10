@@ -552,7 +552,7 @@ Instance::Instance(
         UserError(*this) << "Dependent expression " << d->expr->get_expression() << " for parameter " << d->name << " contains time derivatives";
       }
 
-      if (d->n_vars > 0)
+      if (d->numVars > 0)
       {
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
@@ -570,7 +570,7 @@ Instance::Instance(
 
         if (d->name == "C")
         {
-          expNumVars = d->n_vars;
+          expNumVars = d->numVars;
           solVarDepC = true;
           // To do the proper integration of the charge, we need to save the
           // voltage drop, the old capacitance and
@@ -582,7 +582,7 @@ Instance::Instance(
 
         if (d->name == "Q")
         {
-          expNumVars = d->n_vars;
+          expNumVars = d->numVars;
           solVarDepQ = true;
           expPtr = d->expr;
           dependentParamExcludeMap_[d->name] = 1;
@@ -680,8 +680,8 @@ bool Instance::isLinearDevice() const
 
     for (d=begin; d!=end; ++d)
     {
-      int expNumVars = d->n_vars;
-      int expNumGlobal = d->n_global;
+      int expNumVars = d->numVars;
+      int expNumGlobal = d->numGlobals;
       Util::Expression* expPtr = d->expr;
 
       if (expNumVars > 0 || expPtr->isTimeDependent() || expNumGlobal > 0 )

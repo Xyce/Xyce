@@ -1973,10 +1973,10 @@ void OneStep::rejectStep(const TIAParams & tia_params)
       sec.initialPhase_ = false;
       sec.nef_++;
       restoreHistory();
-      if (sec.nef_ >= sec.max_LET_fail_)
+      if (sec.nef_ >= sec.maxNumfail_)
       {
         Xyce::Report::DevelFatal0().in("OneStep::rejectStep")
-          << "  Maximum number of local error test failures.  ";
+          << "  Maximum number of failures at time "  << sec.currentTime;
       }
 
       if ((sec.newtonConvergenceStatus <= 0))

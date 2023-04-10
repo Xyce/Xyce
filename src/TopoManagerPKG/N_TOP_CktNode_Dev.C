@@ -296,7 +296,8 @@ void CktNode_Dev::registerDepLIDswithDev(
 //-----------------------------------------------------------------------------
 void CktNode_Dev::getDepSolnVars(std::vector<NodeID> & dsVars )
 {
-  // Get dependent solution variables and types from the device to determine which node type to use in the graph.
+  // Get dependent solution variables and types from the device to determine which 
+  // node type to use in the graph.
   dsVars.clear();
   const std::vector<std::string> &solution_variables = deviceInstance_->getDepSolnVars();
   const std::vector<int> &solution_types = deviceInstance_->getDepSolnTypes ();
@@ -307,7 +308,7 @@ void CktNode_Dev::getDepSolnVars(std::vector<NodeID> & dsVars )
     {
       dsVars.push_back( NodeID( solution_variables[ii], _VNODE ) ); 
     }
-    else if (type == XEXP_INSTANCE || type == XEXP_LEAD)
+    else if (type == XEXP_INSTANCE)
     {
       dsVars.push_back( NodeID( solution_variables[ii], _DNODE ) ); 
     }

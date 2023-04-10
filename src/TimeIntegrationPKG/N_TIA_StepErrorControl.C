@@ -165,7 +165,8 @@ StepErrorControl::StepErrorControl(
     r_max_(0.9),   // r_max_ is the same as the old-DAE variable, maxFailStepFac_.
     r_hincr_test_(2.0),
     r_hincr_(2.0),
-    max_LET_fail_(15),
+    max_LET_fail_(10),
+    maxNumfail_(15),
     reportedPauseBP(false)
 {
   setFromTIAParams(tia_params);
@@ -1563,7 +1564,7 @@ bool StepErrorControl::dumpRestartData(
     comm->pack ( &nef_, 1, buf, bsize, pos);
     comm->pack ( &nscsco_, 1, buf, bsize, pos);
     comm->pack ( &newOrder_, 1, buf, bsize, pos);
-    comm->pack ( &max_LET_fail_, 1, buf, bsize, pos);
+    comm->pack ( &maxNumfail_, 1, buf, bsize, pos);
 
     // bools:
     int iP = (initialPhase_)?1:0;
@@ -1622,7 +1623,7 @@ bool StepErrorControl::dumpRestartData(
     ost << nef_ << " ";
     ost << nscsco_ << " ";
     ost << newOrder_ << " ";
-    ost << max_LET_fail_ << " ";
+    ost << maxNumfail_ << " ";
 
     // bools:
     int iP = (initialPhase_)?1:0;
@@ -1922,7 +1923,7 @@ bool StepErrorControl::restoreRestartData(
     comm->unpack(buf, bsize, pos, &nef_, 1);
     comm->unpack(buf, bsize, pos, &nscsco_, 1);
     comm->unpack(buf, bsize, pos, &newOrder_, 1);
-    comm->unpack(buf, bsize, pos, &max_LET_fail_, 1);
+    comm->unpack(buf, bsize, pos, &maxNumfail_, 1);
 
     // bools:
     int iP;
@@ -1991,7 +1992,7 @@ bool StepErrorControl::restoreRestartData(
     ist >> nef_;
     ist >> nscsco_;
     ist >> newOrder_;
-    ist >> max_LET_fail_;
+    ist >> maxNumfail_;
 
     // bools:
     int iP;

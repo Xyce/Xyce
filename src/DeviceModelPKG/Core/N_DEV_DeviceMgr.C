@@ -2157,7 +2157,7 @@ bool DeviceMgr::setParam(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DeviceMgr::setParamRandomExpressionTerms
+// Function      : DeviceMgr::setParamRandomExpressionTerms2
 //
 // Purpose       : 
 // 

@@ -130,225 +130,9 @@ inline std::complex<double> fixInf(const std::complex<double> & result)
 }
 
 
-
-template <typename ScalarT>
-class astNode;
-
-template <typename ScalarT>
-class funcOp;
-
-template <typename ScalarT>
-class paramOp;
-
-template <typename ScalarT>
-class voltageOp;
-
-template <typename ScalarT>
-class currentOp;
-
-template <typename ScalarT>
-class sdtOp;
-
-template <typename ScalarT>
-class ddtOp;
-
 inline void yyerror(std::vector<std::string> & s);
 
-#define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->paramType()) { ovc.paramOpVector.push_back(PTR); }  \
-  if (PTR->funcType())    { ovc.funcOpVector.push_back(PTR); } \
-  if (PTR->voltageType()) { ovc.voltOpVector.push_back(PTR); } \
-  if (PTR->currentType()) { ovc.currentOpVector.push_back(PTR); } \
-  if (PTR->leadCurrentType()) { ovc.leadCurrentOpVector.push_back(PTR); } \
-  if (PTR->bsrcCurrentType()) { ovc.bsrcCurrentOpVector.push_back(PTR); } \
-  if (PTR->powerType()) { ovc.powerOpVector.push_back(PTR); } \
-  if (PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(PTR); } \
-  if (PTR->dnoNoiseVarType()) { ovc.dnoNoiseDevVarOpVector.push_back(PTR); } \
-  if (PTR->dniNoiseVarType()) { ovc.dniNoiseDevVarOpVector.push_back(PTR); } \
-  if (PTR->oNoiseType()) { ovc.oNoiseOpVector.push_back(PTR); } \
-  if (PTR->iNoiseType()) { ovc.iNoiseOpVector.push_back(PTR); } \
-  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  if (PTR->srcType()) { ovc.srcOpVector.push_back(PTR); } \
-  if (PTR->stpType()) { ovc.stpOpVector.push_back(PTR); } \
-  if (PTR->compType()) { ovc.compOpVector.push_back(PTR); } \
-  if (PTR->limitType()) { ovc.limitOpVector.push_back(PTR); } \
-  if (PTR->phaseType()) { ovc.phaseOpVector.push_back(PTR); } \
-  if (PTR->sparamType()) { ovc.sparamOpVector.push_back(PTR); } \
-  if (PTR->yparamType()) { ovc.yparamOpVector.push_back(PTR); } \
-  if (PTR->zparamType()) { ovc.zparamOpVector.push_back(PTR); } \
-  if (PTR->agaussType()) { ovc.agaussOpVector.push_back(PTR); } \
-  if (PTR->gaussType()) { ovc.gaussOpVector.push_back(PTR); } \
-  if (PTR->aunifType()) { ovc.aunifOpVector.push_back(PTR); } \
-  if (PTR->unifType()) { ovc.unifOpVector.push_back(PTR); } \
-  if (PTR->randType()) { ovc.randOpVector.push_back(PTR); } \
-  if (PTR->twoArgLimitType()) { ovc.twoArgLimitOpVector.push_back(PTR); } \
-  if (PTR->timeSpecialType() || PTR->dtSpecialType()) { ovc.isTimeDependent = true; } \
-  if (PTR->tempSpecialType()) { ovc.isTempDependent = true; } \
-  if (PTR->vtSpecialType()) { ovc.isVTDependent = true; } \
-  if (PTR->freqSpecialType()) { ovc.isFreqDependent = true; } \
-  if (PTR->gminSpecialType()) { ovc.isGminDependent = true; } \
-  if (PTR->scheduleType()) { ovc.isScheduleDependent = true; } \
-  PTR->getInterestingOps(ovc); }
-
-#define AST_GET_STATE_OPS(PTR) if( !(Teuchos::is_null(PTR)) ) {  \
-  if (PTR->sdtType()) { ovc.sdtOpVector.push_back(PTR); } \
-  if (PTR->ddtType()) { ovc.ddtOpVector.push_back(PTR); } \
-  PTR->getStateOps(ovc); }
-
-#define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
-
-#define AST_GET_FUNC_ARG_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->getFunctionArgType()) { funcArgOpVector.push_back(this->PTR); } this->PTR->getFuncArgOps(funcArgOpVector); }
-
-#define AST_GET_FUNC_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->funcType()) { funcOpVector.push_back(this->PTR); } this->PTR->getFuncOps(funcOpVector); }
-
-#define AST_GET_VOLT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } this->PTR->getVoltageOps(voltOpVector); }
-
-#define AST_GET_CURRENT_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } this->PTR->getCurrentOps(currentOpVector); }
-
-#define AST_GET_INTERNAL_DEV_VAR_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->internalDeviceVarType()) { internalDevVarOpVector.push_back(this->PTR); } this->PTR->getInternalDevVarOps(internalDevVarOpVector); }
-
-#define AST_GET_TIME_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->timeSpecialType()) { timeOpVector.push_back(this->PTR); } this->PTR->getTimeOps(timeOpVector); }
-
-// this one adds "this"
-#define AST_GET_INTERESTING_OPS2(PTR) AST_GET_INTERESTING_OPS (this->PTR)
-#define AST_GET_STATE_OPS2(PTR) AST_GET_STATE_OPS (this->PTR)
-
-
-//-------------------------------------------------------------------------------
-// this is to make the call to "getInterestingOps" have a single
-// function argument that never has to change.
-template <typename ScalarT>
-struct opVectorContainers
-{
-public:
-  opVectorContainers(
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & param,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & func,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & volt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & current,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrent,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrent,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & power,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVar,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoise,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoise,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & src,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stp,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & comp,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limit,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phase,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparam,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agauss,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gauss,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunif,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unif,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & rand,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimit,
-  bool timeDep,
-  bool tempDep,
-  bool vTDep,
-  bool FreqDep,
-  bool gminDep,
-  bool scheduleDep
-      ):
-  paramOpVector(param),
-    funcOpVector(func),
-    voltOpVector(volt),
-    currentOpVector(current),
-    leadCurrentOpVector(leadCurrent),
-    bsrcCurrentOpVector(bsrcCurrent),
-    powerOpVector(power),
-    internalDevVarOpVector(internalDevVar),
-    dnoNoiseDevVarOpVector(dnoNoiseDevVar),
-    dniNoiseDevVarOpVector(dniNoiseDevVar),
-    oNoiseOpVector(oNoise),
-    iNoiseOpVector(iNoise),
-    sdtOpVector(sdt),
-    ddtOpVector(ddt),
-    srcOpVector(src),
-    stpOpVector(stp),
-    compOpVector(comp),
-    limitOpVector(limit),
-    phaseOpVector(phase),
-    sparamOpVector(sparam),
-    yparamOpVector(yparam),
-    zparamOpVector(zparam),
-    agaussOpVector(agauss),
-    gaussOpVector(gauss),
-    aunifOpVector(aunif),
-    unifOpVector(unif),
-    randOpVector(rand),
-    twoArgLimitOpVector(twoArgLimit),
-    isTimeDependent(timeDep),
-    isTempDependent(tempDep),
-    isVTDependent(vTDep),
-    isFreqDependent(FreqDep),
-    isGminDependent(gminDep),
-    isScheduleDependent(scheduleDep)
-  {};
-
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & paramOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & funcOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & voltOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & currentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & leadCurrentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & bsrcCurrentOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & powerOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dnoNoiseDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & dniNoiseDevVarOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & oNoiseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & iNoiseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & srcOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & stpOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & compOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & limitOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & phaseOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & yparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & zparamOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & agaussOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & gaussOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & aunifOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & unifOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & randOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & twoArgLimitOpVector;
-
-  bool isTimeDependent;
-  bool isTempDependent;
-  bool isVTDependent;
-  bool isFreqDependent;
-  bool isGminDependent;
-  bool isScheduleDependent;
-};
-
-//-------------------------------------------------------------------------------
-// this is to make the call to "getStateOps" have a single
-// function argument that never has to change.
-template <typename ScalarT>
-struct stateOpVectorContainers
-{
-public:
-  stateOpVectorContainers(
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdt,
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddt
-      ):
-    sdtOpVector(sdt),
-    ddtOpVector(ddt)
-  {};
-
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & sdtOpVector;
-  std::vector< Teuchos::RCP<astNode<ScalarT> > > & ddtOpVector;
-};
+#include "ast_visitor.h"
 
 struct staticsContainer
 {
@@ -398,11 +182,44 @@ class astNode : public staticsContainer
   public:
     astNode(): id_(0) { id_ = ++(this->nextID); };
 
-    astNode( Teuchos::RCP<astNode<ScalarT> > &left ): leftAst_(left), id_(0) { id_ = ++(this->nextID); };
+    astNode( Teuchos::RCP<astNode<ScalarT> > &left ): 
+      id_(0) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > leftAst_(left);
+      childrenAstNodes_.push_back(leftAst_);
+      id_ = ++(this->nextID); 
+    };
 
     astNode(Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      leftAst_(left),rightAst_(right) { id_ = ++(this->nextID); };
+      id_(0) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > leftAst_(left);
+      Teuchos::RCP<astNode<ScalarT> > rightAst_(right);
+      childrenAstNodes_.push_back(leftAst_);
+      childrenAstNodes_.push_back(rightAst_);
+      id_ = ++(this->nextID); 
+    };
 
+    astNode(Teuchos::RCP<astNode<ScalarT> > &x, 
+            Teuchos::RCP<astNode<ScalarT> > &y,
+            Teuchos::RCP<astNode<ScalarT> > &z):
+      id_(0) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > xAst_(x);
+      Teuchos::RCP<astNode<ScalarT> > yAst_(y);
+      Teuchos::RCP<astNode<ScalarT> > zAst_(z);
+      childrenAstNodes_.push_back(xAst_);
+      childrenAstNodes_.push_back(yAst_);
+      childrenAstNodes_.push_back(zAst_);
+      id_ = ++(this->nextID); 
+    };
+
+
+    astNode (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
+      childrenAstNodes_(args), id_(0)
+  {
+      id_ = ++(this->nextID); 
+  }
 
     virtual ~astNode() = default;
     astNode(const astNode&) = default;
@@ -468,12 +285,6 @@ class astNode : public staticsContainer
     virtual void unsetIsAttached() {};
     virtual bool getIsAttached() { return false; }
 
-#if 0
-    virtual void setIsDotParam() {};
-    virtual void unsetIsDotParam() {};
-    virtual bool getIsDotParam() { return false; }
-#endif
-
     // various "getType" functions.  There is a cleaner way to do this, but I haven't had the time
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
@@ -523,54 +334,8 @@ class astNode : public staticsContainer
     virtual bool scheduleType() { return false; }
 
     virtual std::string getName () { return std::string(""); };
-    //virtual std::vector<std::string> getNodeNames() { std::vector<std::string> tmp; return tmp; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(leftAst_) AST_GET_INTERESTING_OPS(rightAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(leftAst_) AST_GET_STATE_OPS(rightAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_)
-    }
-
-    // func arg ops are of class paramOp, but have been identified as being
-    // function arguments.  (thus being excluded from the getParamOps function, above)
-    // This is needed by the ddx function
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_)
-    }
-    virtual void getInternalDevVarOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & internalDevVarOpVector)
-    {
-AST_GET_INTERNAL_DEV_VAR_OPS (leftAst_) AST_GET_INTERNAL_DEV_VAR_OPS (rightAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) {}
 
     virtual ddtStateData<ScalarT> & getDdtState() { return ddtState_; }
     virtual sdtStateData<ScalarT> & getSdtState() { return sdtState_; }
@@ -581,9 +346,74 @@ AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_)
     unsigned long int getId () { return id_; }
     virtual unsigned long int getNodeId () { return id_; }
 
+    virtual void setupParents (Teuchos::RCP<astNode<ScalarT> > thisAst,
+      std::unordered_map<unsigned long int, std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > > & astParents
+        )
+    {
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          std::pair< Teuchos::RCP<astNode<ScalarT> >, int > parentPair(thisAst, ii);
+
+          unsigned long int child_id =  childrenAstNodes_[ii]->getId();
+          if( astParents.find(child_id) == astParents.end() )
+          {
+            std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > parentPairVec;
+            parentPairVec.push_back(parentPair);
+            astParents[child_id] = parentPairVec;
+          }
+          else
+          {
+            astParents[child_id].push_back(parentPair);
+          }
+        }
+      }
+
+      for(int ii=0;ii<childrenAstNodes_.size();ii++)
+      {
+        if( !(Teuchos::is_null(childrenAstNodes_[ii])) )
+        {
+          childrenAstNodes_[ii]->setupParents(childrenAstNodes_[ii],astParents);
+        }
+      }
+    }
+
+
+    virtual bool replaceMeInTheParents (Teuchos::RCP<astNode<ScalarT> > newNode,
+      std::unordered_map<unsigned long int, std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > > & astParents
+      )
+    {
+      bool replacementsAccomplished=false;
+
+      unsigned long int my_Id = this->getId();
+      if( astParents.find(my_Id) != astParents.end() )
+      {
+        std::vector< std::pair< Teuchos::RCP<astNode<ScalarT> >, int > > & parentAstNodes_ = astParents[my_Id];
+
+        for(int ii=0;ii<parentAstNodes_.size();ii++)
+        {
+          if( !(Teuchos::is_null(parentAstNodes_[ii].first)) )
+          {
+            int index = parentAstNodes_[ii].second;
+             std::vector<  Teuchos::RCP<astNode<ScalarT> > > & childrenOfTheParent = 
+               (parentAstNodes_[ii].first)->childrenAstNodes_;
+
+            int size =  childrenOfTheParent.size();
+            if (index >= 0 && index < size)
+            {
+              childrenOfTheParent[ index ] = Teuchos::null; // this probably isn't necessary
+              childrenOfTheParent[ index ] = newNode;
+              replacementsAccomplished=true;
+            }
+          }
+        }
+      }
+      return replacementsAccomplished;
+    }
+
   protected:
-    Teuchos::RCP<astNode<ScalarT> > leftAst_;
-    Teuchos::RCP<astNode<ScalarT> > rightAst_;
+    std::vector<  Teuchos::RCP<astNode<ScalarT> > > childrenAstNodes_;
 
     ddtStateData<ScalarT> ddtState_;
     sdtStateData<ScalarT> sdtState_;
@@ -629,6 +459,12 @@ class numval : public astNode<ScalarT>
       os << number;
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<numval<ScalarT> > castToThis = Teuchos::rcp_static_cast<numval<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
     virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
@@ -670,6 +506,12 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
       os << "std::complex<double>" << number;
     }
 
+    virtual void accept (nodeVisitor<std::complex<double>> & visitor, Teuchos::RCP<astNode<std::complex<double>> > & thisAst_) 
+    { 
+      Teuchos::RCP<numval<std::complex<double>> > castToThis = Teuchos::rcp_static_cast<numval<std::complex<double>> > (thisAst_);
+      visitor.visit( castToThis );
+    } // 2nd dispatch
+
     virtual bool getIsTreeConstant() { return true; }
     virtual bool numvalType() { return true; };
 };
@@ -706,10 +548,9 @@ inline void computeBreakPoint(
 {
   timeOpVec_.clear();
 
-  if (leftAst_->timeSpecialType()) { timeOpVec_.push_back(leftAst_); }
-  if (rightAst_->timeSpecialType()) { timeOpVec_.push_back(rightAst_); }
-  leftAst_->getTimeOps(timeOpVec_);
-  rightAst_->getTimeOps(timeOpVec_);
+  getTimeOpsVisitor<ScalarT> visitor(timeOpVec_);
+  leftAst_->accept(visitor,leftAst_);
+  rightAst_->accept(visitor,rightAst_);
 
   if (!(timeOpVec_.empty()))
   {
@@ -777,16 +618,16 @@ class powOp : public astNode<ScalarT>
     powOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
     {
-      rightConst_ = this->rightAst_->numvalType();
-      leftConst_ = this->leftAst_->numvalType();
+      rightConst_ = this->childrenAstNodes_[1]->numvalType();
+      leftConst_ = this->childrenAstNodes_[0]->numvalType();
     };
 
-    virtual ScalarT val() { return std::pow(this->leftAst_->val(), this->rightAst_->val());}
+    virtual ScalarT val() { return std::pow(this->childrenAstNodes_[0]->val(), this->childrenAstNodes_[1]->val());}
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
       ScalarT retVal = 0.0;
       ScalarT leftVal=lef->val();
       ScalarT righVal=rig->val();
@@ -799,8 +640,8 @@ class powOp : public astNode<ScalarT>
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       std::vector<ScalarT> & retVal = derivs;
 
@@ -847,15 +688,15 @@ class powOp : public astNode<ScalarT>
       }
     }
 
-    virtual bool getIsComplex () { return (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex()); }
+    virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
       os << "power operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -866,14 +707,22 @@ class powOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::pow(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<powOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
+
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
 
   private:
     bool rightConst_;
@@ -889,16 +738,16 @@ class atan2Op : public astNode<ScalarT>
     atan2Op (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
     {
-      rightConst_ = this->rightAst_->numvalType();
-      leftConst_ = this->leftAst_->numvalType();
+      rightConst_ = this->childrenAstNodes_[1]->numvalType();
+      leftConst_ = this->childrenAstNodes_[0]->numvalType();
     };
 
-    virtual ScalarT val() { return std::atan2(std::real(this->leftAst_->val()), std::real(this->rightAst_->val()));}
+    virtual ScalarT val() { return std::atan2(std::real(this->childrenAstNodes_[0]->val()), std::real(this->childrenAstNodes_[1]->val()));}
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
       ScalarT retVal = 0.0;
 
       ScalarT leftVal=lef->val();
@@ -912,8 +761,8 @@ class atan2Op : public astNode<ScalarT>
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       std::vector<ScalarT> & retVal = derivs;
 
@@ -953,15 +802,15 @@ class atan2Op : public astNode<ScalarT>
       }
     }
 
-    virtual bool getIsComplex () { return (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex()); }
+    virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
       os << "atan2 operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -972,14 +821,22 @@ class atan2Op : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::atan2(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<atan2Op<ScalarT> > castToThis = Teuchos::rcp_static_cast<atan2Op<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
+
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
 
   private:
     bool rightConst_;
@@ -997,7 +854,7 @@ class phaseOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      return (std::arg(this->leftAst_->val())) * ((phaseOutputUsesRadians_)?1.0:(180.0/M_PI));
+      return (std::arg(this->childrenAstNodes_[0]->val())) * ((phaseOutputUsesRadians_)?1.0:(180.0/M_PI));
     }
 
     virtual ScalarT dx(int i)
@@ -1033,7 +890,7 @@ class phaseOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "phase operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1044,11 +901,18 @@ class phaseOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::arg(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<phaseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<phaseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return this->childrenAstNodes_[0]->getIsTreeConstant() ; }
 
   private:
     bool phaseOutputUsesRadians_;
@@ -1062,7 +926,7 @@ class realOp : public astNode<ScalarT>
   public:
     realOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return std::real(this->leftAst_->val()); }
+    virtual ScalarT val() { return std::real(this->childrenAstNodes_[0]->val()); }
 
     virtual ScalarT dx(int i)
     {
@@ -1090,7 +954,7 @@ class realOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "real operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1101,11 +965,18 @@ class realOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::real(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<realOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<realOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return this->childrenAstNodes_[0]->getIsTreeConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1116,7 +987,7 @@ class imagOp : public astNode<ScalarT>
   public:
     imagOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return std::imag(this->leftAst_->val()); }
+    virtual ScalarT val() { return std::imag(this->childrenAstNodes_[0]->val()); }
 
     virtual ScalarT dx(int i)
     {
@@ -1144,7 +1015,7 @@ class imagOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "imag operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1155,11 +1026,18 @@ class imagOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::imag(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant() ; }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<imagOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<imagOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return this->childrenAstNodes_[0]->getIsTreeConstant() ; }
 };
 
 //-------------------------------------------------------------------------------
@@ -1171,12 +1049,12 @@ class maxOp : public astNode<ScalarT>
     maxOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right) {};
 
     virtual ScalarT val()
-    { return std::max( std::real(this->leftAst_->val()), std::real(this->rightAst_->val()) ); }
+    { return std::max( std::real(this->childrenAstNodes_[0]->val()), std::real(this->childrenAstNodes_[1]->val()) ); }
 
     virtual ScalarT dx(int i)
     {
-      bool cmp = std::real(this->leftAst_->val()) < std::real(this->rightAst_->val());
-      return cmp?(std::real(this->rightAst_->dx(i))):(std::real(this->leftAst_->dx(i)));
+      bool cmp = std::real(this->childrenAstNodes_[0]->val()) < std::real(this->childrenAstNodes_[1]->val());
+      return cmp?(std::real(this->childrenAstNodes_[1]->dx(i))):(std::real(this->childrenAstNodes_[0]->dx(i)));
     }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
@@ -1188,8 +1066,8 @@ class maxOp : public astNode<ScalarT>
       rigDerivs_.resize(numDerivs,0.0);
 
       ScalarT leftVal, rightVal;
-      this->leftAst_->dx2(leftVal,lefDerivs_);
-      this->rightAst_->dx2(rightVal,rigDerivs_);
+      this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
+      this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
 
       result = std::max( std::real(leftVal), std::real(rightVal));
 
@@ -1207,8 +1085,8 @@ class maxOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "max operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1219,14 +1097,22 @@ class maxOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::max(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<maxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<maxOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
+
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1237,12 +1123,12 @@ class minOp : public astNode<ScalarT>
   public:
     minOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right) {};
 
-    virtual ScalarT val() { return std::min( std::real(this->leftAst_->val()), std::real(this->rightAst_->val()) ); }
+    virtual ScalarT val() { return std::min( std::real(this->childrenAstNodes_[0]->val()), std::real(this->childrenAstNodes_[1]->val()) ); }
 
     virtual ScalarT dx(int i)
     {
-      bool cmp = std::real(this->rightAst_->val()) < std::real(this->leftAst_->val()) ;
-      return (!cmp)?(std::real(this->leftAst_->dx(i))):(std::real(this->rightAst_->dx(i)));
+      bool cmp = std::real(this->childrenAstNodes_[1]->val()) < std::real(this->childrenAstNodes_[0]->val()) ;
+      return (!cmp)?(std::real(this->childrenAstNodes_[0]->dx(i))):(std::real(this->childrenAstNodes_[1]->dx(i)));
     }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
@@ -1253,8 +1139,8 @@ class minOp : public astNode<ScalarT>
       lefDerivs_.resize(numDerivs,0.0);
       rigDerivs_.resize(numDerivs,0.0);
       ScalarT leftVal, rightVal;
-      this->leftAst_->dx2(leftVal,lefDerivs_);
-      this->rightAst_->dx2(rightVal,rigDerivs_);
+      this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
+      this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
 
       result = std::min( std::real(leftVal), std::real(rightVal) );
       bool cmp = std::real(rightVal) < std::real(leftVal) ;
@@ -1271,8 +1157,8 @@ class minOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "min operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1283,13 +1169,22 @@ class minOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::min(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<minOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<minOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
+
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1302,14 +1197,14 @@ class unaryNotOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      return ((std::real(this->leftAst_->val())==0)?1:0);
+      return ((std::real(this->childrenAstNodes_[0]->val())==0)?1:0);
     }
 
     virtual ScalarT dx(int i) {return 0.0;}
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      result = ((std::real(this->leftAst_->val())==0)?1:0);
+      result = ((std::real(this->childrenAstNodes_[0]->val())==0)?1:0);
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
@@ -1320,7 +1215,7 @@ class unaryNotOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "unary NOT operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1331,11 +1226,18 @@ class unaryNotOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "(!";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryNotOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryNotOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return (this->childrenAstNodes_[0]->getIsTreeConstant()); }
 };
 
 //-------------------------------------------------------------------------------
@@ -1346,27 +1248,27 @@ class unaryMinusOp : public astNode<ScalarT>
   public:
     unaryMinusOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return (-(this->leftAst_->val())); }
-    virtual ScalarT dx(int i) { return (-(this->leftAst_->dx(i))); }
+    virtual ScalarT val() { return (-(this->childrenAstNodes_[0]->val())); }
+    virtual ScalarT dx(int i) { return (-(this->childrenAstNodes_[0]->dx(i))); }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
       int numDerivs = derivs.size();
       std::vector<ScalarT> lefDerivs_;
       lefDerivs_.resize(numDerivs,0.0);
-      this->leftAst_->dx2(result,lefDerivs_);
+      this->childrenAstNodes_[0]->dx2(result,lefDerivs_);
       result *=  -1.0;
       for (int i=0;i<numDerivs;i++) { derivs[i] = (-(lefDerivs_[i])); }
     }
 
-    virtual bool getIsComplex () { return this->leftAst_->getIsComplex(); }
+    virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
       os << "unary minus operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1377,12 +1279,19 @@ class unaryMinusOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "(-";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
-    virtual bool numvalType() { return (this->leftAst_->numvalType()); };
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryMinusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryMinusOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return (this->childrenAstNodes_[0]->getIsTreeConstant()); }
+    virtual bool numvalType() { return (this->childrenAstNodes_[0]->numvalType()); };
 };
 
 //-------------------------------------------------------------------------------
@@ -1393,23 +1302,23 @@ class unaryPlusOp : public astNode<ScalarT>
   public:
     unaryPlusOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return (+(this->leftAst_->val())); }
+    virtual ScalarT val() { return (+(this->childrenAstNodes_[0]->val())); }
 
-    virtual ScalarT dx(int i) { return (+(this->leftAst_->dx(i))); }
+    virtual ScalarT dx(int i) { return (+(this->childrenAstNodes_[0]->dx(i))); }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      this->leftAst_->dx2(result,derivs);
+      this->childrenAstNodes_[0]->dx2(result,derivs);
     }
 
-    virtual bool getIsComplex () { return this->leftAst_->getIsComplex(); }
+    virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
       os << "unary plus operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -1420,12 +1329,19 @@ class unaryPlusOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "(+";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return (this->leftAst_->getIsTreeConstant()); }
-    virtual bool numvalType() { return (this->leftAst_->numvalType()); };
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<unaryPlusOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<unaryPlusOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
+
+    virtual bool getIsTreeConstant() { return (this->childrenAstNodes_[0]->getIsTreeConstant()); }
+    virtual bool numvalType() { return (this->childrenAstNodes_[0]->numvalType()); };
 };
 
 
@@ -1440,6 +1356,11 @@ class unaryPlusOp : public astNode<ScalarT>
 // This is used on expressions that are the RHS of a global_param statement.
 // If an expression is a global_param, then it needs to optionally be
 // replaced with a value.  This class makes it possible for that to happen.
+//
+// There is a "paramNode_" which is the main AST node for this class.   
+// It is either set equal to a local numval node, or to an external AST tree.
+// The paramNode used to be a local object, but it is now stored in the
+// base class "children" array.
 //-------------------------------------------------------------------------------
 template <typename ScalarT>
 class globalParamLayerOp: public astNode<ScalarT>
@@ -1449,13 +1370,18 @@ class globalParamLayerOp: public astNode<ScalarT>
       astNode<ScalarT>()
     {
       numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
-      paramNode_ = numvalNode_;
       savedParamNode_ = numvalNode_;
+      this->childrenAstNodes_.push_back(savedParamNode_);
     };
 
-    virtual ScalarT val() { return paramNode_->val(); }
+    virtual ScalarT val() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      return paramNode_->val(); 
+    }
     virtual ScalarT dx(int i)
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       ScalarT retval=0.0;
       retval = paramNode_->dx(i);
       return retval;
@@ -1463,13 +1389,19 @@ class globalParamLayerOp: public astNode<ScalarT>
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       paramNode_->dx2(result,derivs);
     }
 
-    virtual bool getIsComplex () { return paramNode_->getIsComplex(); }
+    virtual bool getIsComplex () 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      return paramNode_->getIsComplex(); 
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       os << std::setw(indent) << " ";
       os << "globalParamLayer Op  val = " << val()
         << " id = " << this->id_
@@ -1485,88 +1417,69 @@ class globalParamLayerOp: public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os ) { }
 
-    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
-    virtual void unsetNode() { paramNode_ = numvalNode_; };
+    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = tmpNode; savedParamNode_ = tmpNode; 
+    };
+    virtual void unsetNode() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = numvalNode_; 
+    };
 
     virtual ScalarT getValue() { return numvalNode_->number; };
-    virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
-    virtual void unsetValue() { paramNode_ = savedParamNode_; };
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(paramNode_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(paramNode_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(paramNode_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(paramNode_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(paramNode_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(paramNode_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(paramNode_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(paramNode_)
-    }
+    virtual void setValue(ScalarT val) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      numvalNode_->number = val; paramNode_ = numvalNode_; 
+    };
+    virtual void unsetValue() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = savedParamNode_; 
+    };
 
     virtual void processSuccessfulTimeStep ()
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       paramNode_->processSuccessfulTimeStep ();
     };
 
-    virtual bool getIsTreeConstant() { return (paramNode_->getIsTreeConstant()); }
+    virtual bool getIsTreeConstant() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      return (paramNode_->getIsTreeConstant()); 
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    {
+      Teuchos::RCP<globalParamLayerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<globalParamLayerOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_->accept(visitor, paramNode_); 
+    }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > paramNode_;
     Teuchos::RCP<astNode<ScalarT> > savedParamNode_;
     Teuchos::RCP<numval<ScalarT> > numvalNode_;
 };
 
 //-------------------------------------------------------------------------------
+// parameter Op class.  Handles both .param and .global_param
 //
-// This is the parameter Op class.
+// It can either work via an attached external AST, or with a constant value 
+// via the numvalNode_.
 //
-// This is still a work in progress.  I originally wrote it to primarily behave
-// like a global_param.  ie, something that could dynamically change, and was
-// attached to an external expression via the "paramNode" object, which points
-// to the top of the ast tree of another expression.
+// The attached external AST case is useful for parameters that will change.
 //
-// I have been modifying this slowly to make it so that it can also (under
-// some circumstances) behave like a Xyce .param.  ie, a hardwired constant.
-// This aspect is not 100% fleshed out yet.
+// The constant value (via numval) is for parameters that are fixed.
 //
-// For a simple evaluation of the "val" function, this class will:
-//
-//    (1) call the "val" function of the underlying external syntax tree
-//    (2) return the scalar quantity "number_"
-//
-// For derivative calculation, there is at least one use case that mixes these two
-// modes of operation together.  So I still need to think about that.  Possibly
-// there should be two different kinds of classes for this, to avoid confusion.
-//
+// There is a "paramNode_" which is the main AST node for this class.   
+// It is either set equal to a local numval node, or to an external AST tree.
+// The paramNode used to be a local object, but it is now stored in the
+// base class "children" array.
+//-------------------------------------------------------------------------------
 template <typename ScalarT>
 class paramOp: public astNode<ScalarT>
 {
@@ -1582,21 +1495,30 @@ class paramOp: public astNode<ScalarT>
       derivIndex_(-1)
     {
       numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
-      paramNode_ = numvalNode_;
       savedParamNode_ = numvalNode_;
+      this->childrenAstNodes_.push_back(savedParamNode_);
     };
 
-    virtual ScalarT val() { return paramNode_->val(); }
+    virtual ScalarT val() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      return paramNode_->val(); 
+    }
     virtual ScalarT dx(int i)
     {
       ScalarT retval=0.0;
       if (isVar_) { retval = (derivIndex_==i)?1.0:0.0; }
-      else        { retval = paramNode_->dx(i); }
+      else        
+      { 
+        Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+        retval = paramNode_->dx(i);
+      }
       return retval;
     }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       if (isVar_)
       {
         result = paramNode_->val();
@@ -1609,10 +1531,12 @@ class paramOp: public astNode<ScalarT>
       else { paramNode_->dx2(result,derivs); }
     }
 
-    virtual bool getIsComplex () { return paramNode_->getIsComplex(); }
+    virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+
       os << std::setw(indent) << " ";
       os << "parameter : " << paramName_ << " = " << val()
         << " id = " << this->id_
@@ -1631,12 +1555,31 @@ class paramOp: public astNode<ScalarT>
       os << paramName_;
     }
 
-    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
-    virtual void unsetNode() { paramNode_ = numvalNode_; };
+    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = tmpNode; 
+      savedParamNode_ = tmpNode; 
+    };
+    virtual void unsetNode() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = numvalNode_; 
+    };
 
     virtual ScalarT getValue() { return numvalNode_->number; };
-    virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
-    virtual void unsetValue() { paramNode_ = savedParamNode_; };
+
+    virtual void setValue(ScalarT val) 
+    { 
+      numvalNode_->number = val; 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = numvalNode_; 
+    };
+    virtual void unsetValue() 
+    { 
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_ = savedParamNode_; 
+    };
 
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() {derivIndex_=-1;};
@@ -1646,44 +1589,13 @@ class paramOp: public astNode<ScalarT>
 
     virtual bool paramType() { return !thisIsAFunctionArgument_ ; };
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
     {
-AST_GET_INTERESTING_OPS(paramNode_)
-    }
+      Teuchos::RCP<paramOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<paramOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(paramNode_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(paramNode_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(paramNode_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(paramNode_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(paramNode_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(paramNode_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(paramNode_)
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+      paramNode_->accept(visitor, paramNode_); 
     }
 
     virtual bool getFunctionArgType() { return thisIsAFunctionArgument_; };
@@ -1716,7 +1628,11 @@ AST_GET_TIME_OPS(paramNode_)
     bool getIsTreeConstant()
     {
       if ( paramType_ == DOT_GLOBAL_PARAM ) { return false; }
-      else { return paramNode_->getIsTreeConstant(); }
+      else 
+      { 
+        Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
+        return paramNode_->getIsTreeConstant();
+      }
     }
 
     // this flag indicates if an external AST has been attached
@@ -1728,26 +1644,22 @@ AST_GET_TIME_OPS(paramNode_)
     // the param type can be .param, .global_param or a subcircuit argument
     // The enum is defined as enum enumParamType {DOT_PARAM, DOT_GLOBAL_PARAM, SUBCKT_ARG_PARAM}
     void setParamType(enumParamType type) { paramType_ = type; }
-#if 0
-    void unsetIsDotParam() { paramType_ = DOT_GLOBAL_PARAM; }a
-#endif
     enumParamType getParamType() { return paramType_; }
 
     virtual void processSuccessfulTimeStep ()
     {
+      Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       paramNode_->processSuccessfulTimeStep ();
     };
 
-    ddtStateData<ScalarT> & getDdtState() { return paramNode_->getDdtState(); }
-    sdtStateData<ScalarT> & getSdtState() { return paramNode_->getSdtState(); }
+    ddtStateData<ScalarT> & getDdtState() { return this->childrenAstNodes_[0]->getDdtState(); }
+    sdtStateData<ScalarT> & getSdtState() { return this->childrenAstNodes_[0]->getSdtState(); }
 
-    virtual unsigned long int getNodeId () { return paramNode_->getNodeId(); }
+    virtual unsigned long int getNodeId () { return this->childrenAstNodes_[0]->getNodeId(); }
 
   private:
     // data:
     std::string paramName_;
-
-    Teuchos::RCP<astNode<ScalarT> > paramNode_;
     Teuchos::RCP<astNode<ScalarT> > savedParamNode_;
     Teuchos::RCP<numval<ScalarT> > numvalNode_;
 
@@ -1758,7 +1670,6 @@ AST_GET_TIME_OPS(paramNode_)
     bool isAttached_;
 
     enumParamType paramType_;
-
     int derivIndex_;
 };
 
@@ -1840,6 +1751,12 @@ class voltageOp: public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<voltageOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<voltageOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     std::string voltageNode_;
     ScalarT voltageVal_;
@@ -1915,6 +1832,12 @@ class currentOp: public astNode<ScalarT>
     void unsetBsrcFlag  () { bsrcFlag_ = false; }
 
     virtual bool getIsTreeConstant() { return false; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<currentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<currentOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
     ScalarT number_;
@@ -1994,6 +1917,12 @@ class sparamOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool sparamType() { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2071,6 +2000,12 @@ class yparamOp: public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; }
     virtual bool yparamType() { return true; };
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<yparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<yparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
 // data:
@@ -2150,6 +2085,12 @@ class zparamOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool zparamType() { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<zparamOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<zparamOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2224,6 +2165,12 @@ class leadCurrentOp: public astNode<ScalarT>
 
     virtual std::string getName () { return leadCurrentDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<leadCurrentOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<leadCurrentOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2295,6 +2242,12 @@ class powerOp: public astNode<ScalarT>
 
     virtual std::string getName () { return powerDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<powerOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<powerOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
 // data:
     ScalarT number_;
@@ -2363,6 +2316,12 @@ class internalDevVarOp: public astNode<ScalarT>
     virtual bool internalDeviceVarType()  { return true; };
 
     virtual std::string getName () { return internalDevVarDevice_; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<internalDevVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<internalDevVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
 
   private:
 // data:
@@ -2445,6 +2404,12 @@ class dnoNoiseVarOp: public astNode<ScalarT>
 
     //virtual std::string getName () { return noiseDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<dnoNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dnoNoiseVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     std::vector<std::string> noiseDevices_;
@@ -2522,6 +2487,12 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     //virtual std::string getName () { return noiseDevice_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<dniNoiseVarOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<dniNoiseVarOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     std::vector<std::string> noiseDevices_;
@@ -2570,6 +2541,12 @@ class oNoiseOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool oNoiseType()  { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<oNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<oNoiseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     int derivIndex_;
@@ -2616,6 +2593,12 @@ class iNoiseOp: public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool iNoiseType()  { return true; };
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<iNoiseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<iNoiseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); 
+    } // 2nd dispatch
+
   private:
     ScalarT number_;
     int derivIndex_;
@@ -2659,9 +2642,9 @@ class funcOp: public astNode<ScalarT>
   public:
     // functions:
     funcOp (const std::string & name, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(),
+      astNode<ScalarT>(args),
       funcName_(name),
-      funcArgs_(args),
+      funcArgs_(this->childrenAstNodes_),
       nodeResolved_(false),
       argsResolved_(false),
       sdtNodesResolved_(false),
@@ -3019,77 +3002,20 @@ class funcOp: public astNode<ScalarT>
 
     virtual std::string getName() { return funcName_; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_INTERESTING_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<funcOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<funcOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_STATE_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_PARAM_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_FUNC_ARG_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_FUNC_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_VOLT_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_CURRENT_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
-AST_GET_TIME_OPS(functionNode_)
-      if(dummyFuncArgs_.size() == funcArgs_.size())
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
-    }
+      if( !(Teuchos::is_null( functionNode_)))
+      {
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
+        functionNode_->accept(visitor, functionNode_);
+        if(dummyFuncArgs_.size() == funcArgs_.size())
+          for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+      }
+    } // 2nd dispatch
 
     bool getNodeResolved() { return nodeResolved_; }
     bool getArgsResolved() { return argsResolved_; }
@@ -3138,8 +3064,8 @@ AST_GET_TIME_OPS(functionNode_)
   private:
 // data:
     std::string funcName_;
-    std::vector<Teuchos::RCP<astNode<ScalarT> > > funcArgs_;  // the unique args that are passed in to this instance of a function
-    std::vector<Teuchos::RCP<astNode<ScalarT> > > dummyFuncArgs_;  // generic args that the functionNode_ owns; ie, that are used to evaluate it.  They have to be temporarily replaced whenever the function is called.
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgs_; // the unique args passed in to this function instance. Reference to base class "child" vector.
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > dummyFuncArgs_; // generic args that the functionNode_ owns; ie, that are used to evaluate it.  They have to be temporarily replaced whenever the function is called.
 
     std::vector<Teuchos::RCP<astNode<ScalarT> > > sdtNodes_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > ddtNodes_;
@@ -3174,29 +3100,29 @@ class pwrsOp : public astNode<ScalarT>
     pwrsOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
     {
-      rightConst_ = this->rightAst_->numvalType();
-      leftConst_ = this->leftAst_->numvalType();
+      rightConst_ = this->childrenAstNodes_[1]->numvalType();
+      leftConst_ = this->childrenAstNodes_[0]->numvalType();
     }
 
     virtual ScalarT val()
     {
       ScalarT ret=0.0;
-      ScalarT leftVal=this->leftAst_->val();
+      ScalarT leftVal=this->childrenAstNodes_[0]->val();
       if (std::real(leftVal) >= 0)
       {
-        ret = std::pow(leftVal, this->rightAst_->val());
+        ret = std::pow(leftVal, this->childrenAstNodes_[1]->val());
       }
       else if (std::real(leftVal) < 0)
       {
-        ret = -std::pow(-(leftVal), this->rightAst_->val());
+        ret = -std::pow(-(leftVal), this->childrenAstNodes_[1]->val());
       }
       return ret;
     }
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
       ScalarT retVal = 0.0;
 
       ScalarT leftVal=lef->val();
@@ -3243,8 +3169,8 @@ class pwrsOp : public astNode<ScalarT>
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       ScalarT leftVal;
       ScalarT righVal;
@@ -3321,11 +3247,11 @@ class pwrsOp : public astNode<ScalarT>
 
     virtual bool getIsComplex ()
     {
-      bool isComplex = (this->rightAst_->getIsComplex() || this->leftAst_->getIsComplex());
+      bool isComplex = (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex());
 
       if (!isComplex)
       {
-        if (  std::real(this->leftAst_->val()) < 0.0  && std::abs(this->rightAst_->val()) < 1.0 )
+        if (  std::real(this->childrenAstNodes_[0]->val()) < 0.0  && std::abs(this->childrenAstNodes_[1]->val()) < 1.0 )
         {
           isComplex = true;
         }
@@ -3338,8 +3264,8 @@ class pwrsOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "pwrs operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3349,17 +3275,25 @@ class pwrsOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
+      if (std::real(this->childrenAstNodes_[0]->val()) < 0) { os << "-"; }
       os << "std::pow(";
-      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
-      this->leftAst_->codeGen(os);
+      if (std::real(this->childrenAstNodes_[0]->val()) < 0) { os << "-"; }
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
 
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<pwrsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<pwrsOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
 
   private:
     bool rightConst_;
@@ -3381,7 +3315,7 @@ class sgnOp : public astNode<ScalarT>
     virtual ScalarT val()
     {
       ScalarT ret = 0.0;
-      double leftVal = std::real(this->leftAst_->val());
+      double leftVal = std::real(this->childrenAstNodes_[0]->val());
       ret = ( (leftVal>0)?+1:ret );
       ret = ( (leftVal<0)?-1:ret );
       return ret;
@@ -3405,7 +3339,7 @@ class sgnOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "sgn operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3416,11 +3350,18 @@ class sgnOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "signbit(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
-    virtual bool getIsTreeConstant() { return this->leftAst_->getIsTreeConstant(); }
+    virtual bool getIsTreeConstant() { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sgnOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sgnOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3434,21 +3375,21 @@ class signOp : public astNode<ScalarT>
     virtual ScalarT val()
     {
       ScalarT y = 0.0;
-      double realRightVal = std::real(this->rightAst_->val());
+      double realRightVal = std::real(this->childrenAstNodes_[1]->val());
       y = ( (realRightVal>0)?+1:y );
       y = ( (realRightVal<0)?-1:y );
 
-      ScalarT x =  (std::abs(this->leftAst_->val()));
+      ScalarT x =  (std::abs(this->childrenAstNodes_[0]->val()));
       return (y*x);
     }
 
     virtual ScalarT dx (int i)
     {
       ScalarT y = 0.0;
-      double realRightVal = std::real(this->rightAst_->val());
+      double realRightVal = std::real(this->childrenAstNodes_[1]->val());
       y = ( (realRightVal>0)?+1:y );
       y = ( (realRightVal<0)?-1:y );
-      ScalarT dx = (std::real(this->leftAst_->val()) >= 0 ? this->leftAst_->dx(i) : ScalarT(-this->leftAst_->dx(i)));
+      ScalarT dx = (std::real(this->childrenAstNodes_[0]->val()) >= 0 ? this->childrenAstNodes_[0]->dx(i) : ScalarT(-this->childrenAstNodes_[0]->dx(i)));
       return (y*dx);
     }
 
@@ -3456,8 +3397,8 @@ class signOp : public astNode<ScalarT>
     {
       ScalarT y = 0.0;
 
-      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
-      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       ScalarT righVal=rig->val();
       std::vector<ScalarT> lefDerivs_;
@@ -3488,8 +3429,8 @@ class signOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "sign(x,y) = (sgn(y)|x|) op id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3500,14 +3441,22 @@ class signOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "signbit(";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")*std::abs(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<signOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<signOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]);
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3520,8 +3469,8 @@ class fmodOp : public astNode<ScalarT>
     fmodOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
       astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), bpTol_(0.0)
     {
-      rightConst_ = this->rightAst_->numvalType();
-      leftConst_ = this->leftAst_->numvalType();
+      rightConst_ = this->childrenAstNodes_[1]->numvalType();
+      leftConst_ = this->childrenAstNodes_[0]->numvalType();
     }
 
     virtual ScalarT val()
@@ -3531,16 +3480,16 @@ class fmodOp : public astNode<ScalarT>
       // stpOp returns a 1 or a 0.
       Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
       bpTimes_.clear();
-      computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
+      computeBreakPoint ( this->childrenAstNodes_[0], zeroAst_, timeOpVec_, bpTol_, bpTimes_);
 #endif
 
-      return std::fmod ( std::real(this->leftAst_->val()) , std::real(this->rightAst_->val()));
+      return std::fmod ( std::real(this->childrenAstNodes_[0]->val()) , std::real(this->childrenAstNodes_[1]->val()));
     }
 
     virtual ScalarT dx(int i)
     {
-      ScalarT leftVal=this->leftAst_->val();
-      ScalarT rightVal=this->rightAst_->val();
+      ScalarT leftVal=this->childrenAstNodes_[0]->val();
+      ScalarT rightVal=this->childrenAstNodes_[1]->val();
       ScalarT leftDx = 0.0; ScalarT rightDx = 0.0;
 
       double res = fabs((std::real(leftVal))/(std::real(rightVal)));
@@ -3550,11 +3499,11 @@ class fmodOp : public astNode<ScalarT>
       // 𝑎′(𝑥)−𝑏′(𝑥)[𝑎(𝑥)/𝑏(𝑥)]
       if (!leftConst_)
       {
-        leftDx = this->leftAst_->dx(i);
+        leftDx = this->childrenAstNodes_[0]->dx(i);
       }
       if (!rightConst_)
       {
-        rightDx = this->rightAst_->dx(i);
+        rightDx = this->childrenAstNodes_[1]->dx(i);
       }
       return leftDx-rightDx*floorRes;
     }
@@ -3569,21 +3518,21 @@ class fmodOp : public astNode<ScalarT>
       std::vector<ScalarT> rigDerivs_;
       if (leftConst_)
       {
-        leftVal = this->leftAst_->val();
+        leftVal = this->childrenAstNodes_[0]->val();
       }
       else
       {
         lefDerivs_.resize(numDerivs,0.0);
-        this->leftAst_->dx2(leftVal,lefDerivs_);
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
       }
       if (rightConst_)
       {
-        rightVal = this->rightAst_->val();
+        rightVal = this->childrenAstNodes_[1]->val();
       }
       else
       {
         rigDerivs_.resize(numDerivs,0.0);
-        this->rightAst_->dx2(rightVal,rigDerivs_);
+        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
       }
 
       double res = fabs((std::real(leftVal))/(std::real(rightVal)));
@@ -3627,8 +3576,8 @@ class fmodOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "fmod operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3638,17 +3587,25 @@ class fmodOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
+      if (std::real(this->childrenAstNodes_[0]->val()) < 0) { os << "-"; }
       os << "std::fmod(";
-      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
-      this->leftAst_->codeGen(os);
+      if (std::real(this->childrenAstNodes_[0]->val()) < 0) { os << "-"; }
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ",";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << ")";
     }
 
     virtual bool getIsTreeConstant()
-    { return (this->leftAst_->getIsTreeConstant() && this->rightAst_->getIsTreeConstant()); }
+    { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<fmodOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<fmodOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]);
+    }
 
   private:
     bool rightConst_;
@@ -3666,7 +3623,7 @@ class roundOp : public astNode<ScalarT>
   public:
     roundOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return std::round(std::real(this->leftAst_->val())); }
+    virtual ScalarT val() { return std::round(std::real(this->childrenAstNodes_[0]->val())); }
 
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
@@ -3684,7 +3641,7 @@ class roundOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "round operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3695,12 +3652,19 @@ class roundOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::round(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
 
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<roundOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<roundOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3711,7 +3675,7 @@ class ceilOp : public astNode<ScalarT>
   public:
     ceilOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return std::ceil(std::real(this->leftAst_->val())); }
+    virtual ScalarT val() { return std::ceil(std::real(this->childrenAstNodes_[0]->val())); }
 
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
@@ -3729,7 +3693,7 @@ class ceilOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "ceil operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3740,11 +3704,18 @@ class ceilOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::ceil(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ceilOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ceilOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3755,7 +3726,7 @@ class floorOp : public astNode<ScalarT>
   public:
     floorOp(Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
 
-    virtual ScalarT val() { return std::floor(std::real(this->leftAst_->val())); }
+    virtual ScalarT val() { return std::floor(std::real(this->childrenAstNodes_[0]->val())); }
 
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
@@ -3773,7 +3744,7 @@ class floorOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "floor operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3784,11 +3755,18 @@ class floorOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "std::floor(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")";
     }
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<floorOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<floorOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3801,7 +3779,7 @@ class intOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      int tmp = std::real(this->leftAst_->val()) ;
+      int tmp = std::real(this->childrenAstNodes_[0]->val()) ;
       ScalarT ret = tmp;
       return ret;
     }
@@ -3821,7 +3799,7 @@ class intOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "int operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3832,12 +3810,19 @@ class intOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "static_cast<int>( std::real(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << "))";
     }
 
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<intOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<intOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 //-------------------------------------------------------------------------------
@@ -3847,14 +3832,14 @@ class ifStatementOp : public astNode<ScalarT>
 {
   public:
     ifStatementOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst, Teuchos::RCP<astNode<ScalarT> > &zAst):
-      astNode<ScalarT>(xAst,yAst),
-      zAst_(zAst) {};
+      astNode<ScalarT>(xAst,yAst,zAst)
+      {};
 
     virtual ScalarT val()
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
+      Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
       // The correct place to fix this is in the comparison operators.  Fix later.
@@ -3865,9 +3850,9 @@ class ifStatementOp : public astNode<ScalarT>
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
+      Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
       // The correct place to fix this is in the comparison operators.  Fix later.
@@ -3884,10 +3869,10 @@ class ifStatementOp : public astNode<ScalarT>
       yDerivs_.resize(numDerivs,0.0);
       zDerivs_.resize(numDerivs,0.0);
 
-      ScalarT xVal = this->leftAst_->val();
+      ScalarT xVal = this->childrenAstNodes_[0]->val();
       ScalarT yFixed, zFixed;
-      this->rightAst_->dx2(yFixed,yDerivs_);
-      zAst_->dx2(zFixed,zDerivs_);
+      this->childrenAstNodes_[1]->dx2(yFixed,yDerivs_);
+      this->childrenAstNodes_[2]->dx2(zFixed,zDerivs_);
 
       Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
       Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
@@ -3905,16 +3890,16 @@ class ifStatementOp : public astNode<ScalarT>
     };
 
     // For the x-part (the conditional), only real part is used.  But y and z can be complex.
-    virtual bool getIsComplex () { return ((this->rightAst_)->getIsComplex() || (zAst_)->getIsComplex()); }
+    virtual bool getIsComplex () { return ((this->childrenAstNodes_[1])->getIsComplex() || (this->childrenAstNodes_[2])->getIsComplex()); }
 
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
       os << "if statement operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
-      zAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -3925,63 +3910,31 @@ class ifStatementOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "((";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")?(";
-      this->rightAst_->codeGen(os);
+      this->childrenAstNodes_[1]->codeGen(os);
       os << "):(";
-      zAst_->codeGen(os);
+      this->childrenAstNodes_[2]->codeGen(os);
       os << "))";
-    }
-
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
     }
 
     virtual bool getIsTreeConstant()
     { return
-      (this->leftAst_->getIsTreeConstant() &&
-       this->rightAst_->getIsTreeConstant() &&
-       this->zAst_->getIsTreeConstant() ) ;
+      (this->childrenAstNodes_[0]->getIsTreeConstant() &&
+       this->childrenAstNodes_[1]->getIsTreeConstant() &&
+       this->childrenAstNodes_[2]->getIsTreeConstant() ) ;
+    }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ifStatementOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ifStatementOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]);
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > zAst_;
 };
 
 //-------------------------------------------------------------------------------
@@ -3994,14 +3947,13 @@ class limitOp : public astNode<ScalarT>
 {
   public:
     limitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst, Teuchos::RCP<astNode<ScalarT> > &zAst):
-      astNode<ScalarT>(xAst,yAst),
-      zAst_(zAst), bpTol_(0.0) {};
+      astNode<ScalarT>(xAst,yAst,zAst), bpTol_(0.0) {};
 
     virtual ScalarT val()
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
+      Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
@@ -4018,9 +3970,9 @@ class limitOp : public astNode<ScalarT>
 
     virtual ScalarT dx (int i)
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
+      Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
@@ -4032,9 +3984,9 @@ class limitOp : public astNode<ScalarT>
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      Teuchos::RCP<astNode<ScalarT> > & x = (this->leftAst_);
-      Teuchos::RCP<astNode<ScalarT> > & y = (this->rightAst_);
-      Teuchos::RCP<astNode<ScalarT> > & z = (zAst_);
+      Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
+      Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
+      Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       int numDerivs = derivs.size();
       std::vector<ScalarT> xDerivs_;
@@ -4084,9 +4036,9 @@ class limitOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "limit operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
-      zAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
+      this->childrenAstNodes_[2]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -4100,57 +4052,25 @@ class limitOp : public astNode<ScalarT>
       os << "LIMIT";
     }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS2(leftAst_) AST_GET_INTERESTING_OPS2(rightAst_) AST_GET_INTERESTING_OPS(zAst_)
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS2(leftAst_) AST_GET_STATE_OPS2(rightAst_) AST_GET_STATE_OPS(zAst_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(leftAst_) AST_GET_PARAM_OPS(rightAst_) AST_GET_PARAM_OPS(zAst_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(leftAst_) AST_GET_FUNC_ARG_OPS(rightAst_) AST_GET_FUNC_ARG_OPS(zAst_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(leftAst_) AST_GET_FUNC_OPS(rightAst_) AST_GET_FUNC_OPS(zAst_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(leftAst_) AST_GET_VOLT_OPS(rightAst_) AST_GET_VOLT_OPS(zAst_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(leftAst_) AST_GET_CURRENT_OPS(rightAst_) AST_GET_CURRENT_OPS(zAst_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(leftAst_) AST_GET_TIME_OPS(rightAst_) AST_GET_TIME_OPS(zAst_)
-    }
-
     virtual bool getIsTreeConstant()
     { return
-      (this->leftAst_->getIsTreeConstant() &&
-       this->rightAst_->getIsTreeConstant() &&
-       this->zAst_->getIsTreeConstant() ) ;
+      (this->childrenAstNodes_[0]->getIsTreeConstant() &&
+       this->childrenAstNodes_[1]->getIsTreeConstant() &&
+       this->childrenAstNodes_[2]->getIsTreeConstant() ) ;
     }
 
     virtual bool limitType() { return true; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<limitOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<limitOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+      this->childrenAstNodes_[2]->accept(visitor, this->childrenAstNodes_[2]);
+    }
+
   private:
-    Teuchos::RCP<astNode<ScalarT> > zAst_;
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
     double bpTol_;
     std::vector<Xyce::Util::BreakPoint> bpTimes_;
@@ -4169,9 +4089,9 @@ class stpOp : public astNode<ScalarT>
       // stpOp returns a 1 or a 0.
       Teuchos::RCP<astNode<ScalarT> > zeroAst_ = Teuchos::rcp(new numval<ScalarT>(0.0));
       bpTimes_.clear();
-      computeBreakPoint ( this->leftAst_, zeroAst_, timeOpVec_, bpTol_, bpTimes_);
+      computeBreakPoint ( this->childrenAstNodes_[0], zeroAst_, timeOpVec_, bpTol_, bpTimes_);
 
-      ScalarT xFixed = this->leftAst_->val();
+      ScalarT xFixed = this->childrenAstNodes_[0]->val();
       Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       return ((std::real(xFixed))>0)?1.0:0.0;
     }
@@ -4206,7 +4126,7 @@ class stpOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "step function operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -4221,9 +4141,16 @@ class stpOp : public astNode<ScalarT>
     }
 
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
 
     virtual bool stpType() { return true; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<stpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<stpOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 
   private:
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
@@ -4241,19 +4168,19 @@ class urampOp : public astNode<ScalarT>
 
     virtual ScalarT val()
     {
-      double leftVal = std::real(this->leftAst_->val());
+      double leftVal = std::real(this->childrenAstNodes_[0]->val());
       return ((leftVal)>0)?(leftVal):0.0;
     }
 
     // ERK check this.  Looks wrong
     virtual ScalarT dx (int i)
     {
-      return ((std::real(this->leftAst_->val()))>0)?1.0:0.0;
+      return ((std::real(this->childrenAstNodes_[0]->val()))>0)?1.0:0.0;
     }
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
-      double leftVal = std::real(this->leftAst_->val());
+      double leftVal = std::real(this->childrenAstNodes_[0]->val());
       result = ((leftVal)>0)?(leftVal):0.0;
 
       int numDerivs = derivs.size();
@@ -4270,7 +4197,7 @@ class urampOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "uramp operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -4281,14 +4208,21 @@ class urampOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os )
     {
       os << "(((std::real(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << "))>0)?(std::real(";
-      this->leftAst_->codeGen(os);
+      this->childrenAstNodes_[0]->codeGen(os);
       os << ")):0.0)";
     }
 
     virtual bool getIsTreeConstant()
-    { return this->leftAst_->getIsTreeConstant(); }
+    { return this->childrenAstNodes_[0]->getIsTreeConstant(); }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<urampOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<urampOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
+    }
 };
 
 inline bool isLeftCurlyBrace(char c) { return (c=='{'); }
@@ -4353,7 +4287,7 @@ inline void checkAndFixPulse (
       {
         for (int ii=0;ii<timeVec.size();ii++)
         {
-          if (std::real(pulseVec[ii]) > 0.0)
+          if (std::real(pulseVec[ii]) != 0.0)
           {
             tmpTime.push_back(timeVec[ii]);
             tmpPulse.push_back(pulseVec[ii]);
@@ -4373,7 +4307,7 @@ inline void checkAndFixPulse (
       {
         if (std::real(timeVec[i]) != std::real(timeVec[i-1])
            &&
-          (std::real(pulseVec[i]) > 0.0)
+          (std::real(pulseVec[i]) != 0.0)
             )
         {
           tmpTime.push_back(timeVec[i]);
@@ -4394,7 +4328,7 @@ inline void checkAndFixPulse (
 
   if (timeVec.size() < 1)
   {
-    std::vector<std::string> errStr(1,std::string("After fixes, the specified pulse has size < 1, which is not valid."));
+    std::vector<std::string> errStr(1,std::string("After fixes, specified pulse has size < 1, which is invalid."));
     yyerror(errStr);
   }
 }
@@ -4707,12 +4641,19 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // functions:
     tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > &input, std::vector<Teuchos::RCP<astNode<ScalarT> > > & args):
-      astNode<ScalarT>(), tableArgs_(args),
+      astNode<ScalarT>(args),
       allConst_(true),
       input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(false),
+      logSpacingGiven_(false),
+      downSamplingComplete_(false),
+      numSamplesAst_(Teuchos::null),
+      logSpacingAst_(Teuchos::null)
       {
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+
         allocateInterpolators();
 
         int size = tableArgs_.size();
@@ -4746,17 +4687,18 @@ class tableOp : public astNode<ScalarT>
         const std::string & kw,
         Teuchos::RCP<astNode<ScalarT> > &input,
         const std::string & filename,
-        Teuchos::RCP<astNode<ScalarT> > & numSamplesAst,
-        Teuchos::RCP<astNode<ScalarT> > & logSpacingAst
+        Teuchos::RCP<astNode<ScalarT> > & nsAst,
+        Teuchos::RCP<astNode<ScalarT> > & lsAst
         ):
       astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(true),
+      logSpacingGiven_(true),
+      downSamplingComplete_(false),
+      numSamplesAst_(nsAst),
+      logSpacingAst_(lsAst)
       {
-        int numDownSamples =
-          static_cast<int>( std::real(numSamplesAst->val()));
-        bool logSpacing = ((static_cast<int>( std::real(logSpacingAst->val())))>0);
-
         allocateInterpolators();
 
         if ( !(Xyce::Util::checkIfValidFile(filename)) )
@@ -4827,12 +4769,6 @@ class tableOp : public astNode<ScalarT>
             }
           }
           dataIn.close();
-
-          // now downsample if necessary
-          if (numDownSamples>0 )
-          {
-            downSampleVector(numDownSamples, logSpacing, ta_, ya_);
-          } // downsample if-statement
         }
 
         evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
@@ -4852,7 +4788,12 @@ class tableOp : public astNode<ScalarT>
     tableOp (const std::string & kw, Teuchos::RCP<astNode<ScalarT> > & input, const std::vector<ScalarT> & xvals, const std::vector<ScalarT> & yvals):
       astNode<ScalarT>(), allConst_(true), input_(input),
       useBreakPoints_(true),
-      keyword_(kw)
+      keyword_(kw),
+      numSamplesGiven_(false),
+      logSpacingGiven_(false),
+      downSamplingComplete_(false),
+      numSamplesAst_(Teuchos::null),
+      logSpacingAst_(Teuchos::null)
       {
         allocateInterpolators();
 
@@ -4877,6 +4818,39 @@ class tableOp : public astNode<ScalarT>
           createOldStyleDerivativeTable ();
         }
       };
+
+    //-------------------------------------------------------------------------------
+    void applyDownSampling()
+    {
+      if (numSamplesGiven_ && !downSamplingComplete_)
+      {
+        int numDownSamples = static_cast<int>( std::real(numSamplesAst_->val()));
+        bool logSpacing = false;
+        if (logSpacingGiven_)
+        {
+          logSpacing = ((static_cast<int>( std::real(logSpacingAst_->val())))>0);
+        }
+        //std::cout << "logSpacing = " << ((logSpacing)?("true"):("false")) << std::endl <<std::endl;
+
+        // downsample if necessary
+        if (numDownSamples>0 )
+        {
+          downSampleVector(numDownSamples, logSpacing, ta_, ya_);
+        }
+
+        // downsampling will reduce the size of ta_, ya_, etc, so some things need to be re-set up.
+        evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
+
+        yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
+
+        if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
+        {
+          createOldStyleDerivativeTable ();
+        }
+
+        downSamplingComplete_ = true;
+      }
+    };
 
     //-------------------------------------------------------------------------------
     // The interpolation functions use std::vector<double> objects.  However, the
@@ -4908,6 +4882,8 @@ class tableOp : public astNode<ScalarT>
       //
       if (!allConst_)  // if not all constants, then might need to reinitialize the arrays
       {
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+
         if(!(tableArgs_.empty()))
         {
           bool tmpAllConst=true;
@@ -4954,6 +4930,10 @@ class tableOp : public astNode<ScalarT>
           }
         } // tableArgs_.empty()
       } // !allConst_
+      else
+      {
+        applyDownSampling();
+      }
 
       return updated;
     }
@@ -5127,6 +5107,8 @@ class tableOp : public astNode<ScalarT>
       {
         if (!allConst_)  // if not all pure numbers, then initialize the arrays again
         {
+          std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+
           if (!(tableArgs_.empty()))
           {
             int size = tableArgs_.size();
@@ -5190,6 +5172,7 @@ class tableOp : public astNode<ScalarT>
         //
         if (!allConst_)  // if not all pure numbers, then initialize the arrays again.
         {
+          std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
           for (int ii=0,jj=0;ii<size;ii+=2,jj++)
           {
             ta_[jj] = (tableArgs_)[ii]->val();
@@ -5234,6 +5217,7 @@ class tableOp : public astNode<ScalarT>
         // approach is much cleaner than what we do for the linear interpolator.
         if (!allConst_)  // if not all pure numbers, then initialize the arrays again
         {
+          std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
           if (!(tableArgs_.empty()))
           {
             int size = tableArgs_.size();
@@ -5297,7 +5281,7 @@ class tableOp : public astNode<ScalarT>
             if ( std::real(ta_[index]) < std::real(time))
             {
              int tmp=index;
-             while( std::real(ta_[tmp]) < std::real(time) && tmp <= size ) { tmp++; }
+             while(tmp < size && std::real(ta_[tmp]) < std::real(time) ) { tmp++; }
              index = tmp;
             }
 
@@ -5319,148 +5303,30 @@ class tableOp : public astNode<ScalarT>
 
     virtual bool srcType() { return ( input_->timeSpecialType() ); }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_INTERESTING_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_INTERESTING_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_STATE_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_STATE_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_PARAM_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_FUNC_ARG_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_FUNC_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_VOLT_OPS(tableArgs_[ii] )
-          }
-        }
-      }
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_CURRENT_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(input_)
-
-      if (!allConst_)
-      {
-        if (!(tableArgs_.empty()))
-        {
-          int size=tableArgs_.size();
-          for(int ii=0;ii<size;ii++)
-          {
-AST_GET_TIME_OPS(tableArgs_[ii])
-          }
-        }
-      }
-    }
-
     virtual bool getIsTreeConstant() { return allConst_; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<tableOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<tableOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+
+      input_->accept(visitor, input_);
+
+      if (!allConst_)
+      {
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+        if (!(tableArgs_.empty()))
+        {
+          int size=tableArgs_.size();
+          for(int ii=0;ii<size;ii++)
+          {
+            tableArgs_[ii]->accept(visitor, tableArgs_[ii]);
+          }
+        }
+      }
+    }
+
   private:
-    std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
     bool allConst_;
     std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> ya_;
@@ -5474,6 +5340,11 @@ AST_GET_TIME_OPS(tableArgs_[ii])
     Teuchos::RCP<astNode<ScalarT> > input_;
     bool useBreakPoints_;
     std::string keyword_;
+    bool numSamplesGiven_;
+    bool logSpacingGiven_;
+    bool downSamplingComplete_;
+    Teuchos::RCP<astNode<ScalarT> > numSamplesAst_;
+    Teuchos::RCP<astNode<ScalarT> > logSpacingAst_;
 };
 
 //-------------------------------------------------------------------------------
@@ -5488,8 +5359,11 @@ class scheduleOp : public astNode<ScalarT>
     scheduleOp (
         std::vector<Teuchos::RCP<astNode<ScalarT> > > & args,
         Teuchos::RCP<astNode<ScalarT> > &time
-        ): astNode<ScalarT>(), time_(time), tableArgs_(args), allNumVal_(true)
+        ): 
+      astNode<ScalarT>(args), time_(time), allNumVal_(true)
       {
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+
         int size = tableArgs_.size();
         if (size % 2)
         {
@@ -5517,6 +5391,7 @@ class scheduleOp : public astNode<ScalarT>
     virtual ScalarT val()
     {
       ScalarT y = 0.0;
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
       int size = tableArgs_.size();
 
       if (!allNumVal_)  // if not all pure numbers, then initialize the arrays again
@@ -5600,6 +5475,7 @@ class scheduleOp : public astNode<ScalarT>
      if ( time_->timeSpecialType() ) // this should always be true ....
      {
         double time = std::real(this->time_->val());
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
         int size = tableArgs_.size();
         for (int ii=0,jj=0;ii<size;ii+=2,jj++)
         {
@@ -5612,125 +5488,28 @@ class scheduleOp : public astNode<ScalarT>
 
     virtual bool scheduleType() { return true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_INTERESTING_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_INTERESTING_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-
-AST_GET_STATE_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_STATE_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_PARAM_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_FUNC_ARG_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_FUNC_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_VOLT_OPS(tableArgs_[ii] )
-        }
-      }
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_CURRENT_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(time_)
-
-      if (!allNumVal_)
-      {
-        int size=tableArgs_.size();
-        for(int ii=0;ii<size;ii++)
-        {
-AST_GET_TIME_OPS(tableArgs_[ii])
-        }
-      }
-    }
-
     virtual bool getIsTreeConstant() { return allNumVal_; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<scheduleOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<scheduleOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+
+      time_->accept(visitor, time_);
+
+      if (!allNumVal_)
+      {
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > & tableArgs_ = this->childrenAstNodes_;
+        int size=tableArgs_.size();
+        for(int ii=0;ii<size;ii++)
+        {
+          tableArgs_[ii]->accept(visitor, tableArgs_[ii]);
+        }
+      }
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > time_;
-    std::vector<Teuchos::RCP<astNode<ScalarT> > > tableArgs_;
     bool allNumVal_;
     std::vector<ScalarT> ta_; // using ta for name instead of xa so as not to confuse meaning of dx function
     std::vector<ScalarT> ya_;
@@ -5785,7 +5564,7 @@ class sdtOp : public astNode<ScalarT>
       }
 
       sdtStateData<ScalarT> & state = this->getSdtState();
-      state.val2 = this->leftAst_->val();
+      state.val2 = this->childrenAstNodes_[0]->val();
       ScalarT deltaI = 0.5*(state.val1+state.val2)*deltaT;
       state.integral = state.integral_old + deltaI;
       return state.integral;
@@ -5813,7 +5592,7 @@ class sdtOp : public astNode<ScalarT>
         }
       }
 
-      ScalarT dVal2dx = this->leftAst_->dx(i);
+      ScalarT dVal2dx = this->childrenAstNodes_[0]->dx(i);
       ScalarT dIdVal2 = 0.5*deltaT;
       ScalarT dIdx = dIdVal2*dVal2dx;
       return dIdx;
@@ -5853,7 +5632,7 @@ class sdtOp : public astNode<ScalarT>
 
       sdtStateData<ScalarT> & state = this->getSdtState();
       int numDerivs = derivs.size();
-      this->leftAst_->dx2(state.val2, derivs);
+      this->childrenAstNodes_[0]->dx2(state.val2, derivs);
 
       ScalarT dIdVal2 = 0.5*deltaT;
       ScalarT deltaI = (state.val1+state.val2)*dIdVal2;
@@ -5871,7 +5650,7 @@ class sdtOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "sdt (time integral) operator " << " id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -5887,9 +5666,16 @@ class sdtOp : public astNode<ScalarT>
 
     virtual bool sdtType() { return true; }
 
-    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
+    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->childrenAstNodes_[0]); }
 
     virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<sdtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<sdtOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -5931,7 +5717,7 @@ class ddtOp : public astNode<ScalarT>
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
       ddtStateData<ScalarT> & state = this->getDdtState();
-      state.val2 = this->leftAst_->val();
+      state.val2 = this->childrenAstNodes_[0]->val();
 
       if (!useExternDeriv_ )
       {
@@ -5973,7 +5759,7 @@ class ddtOp : public astNode<ScalarT>
           { std::vector<std::string> errStr(1,std::string("AST node (ddt) has a null dt pointer")); yyerror(errStr); }
 
 
-          ScalarT dVal2dx = this->leftAst_->dx(i);
+          ScalarT dVal2dx = this->childrenAstNodes_[0]->dx(i);
           ScalarT ddt_dVal2 = 1.0/deltaT;
           // for now, hardwire to backward Euler
           ddt_dx = ddt_dVal2 * dVal2dx;
@@ -6015,7 +5801,7 @@ class ddtOp : public astNode<ScalarT>
 
           // for now, hardwire to backward Euler
           ScalarT ddt_dVal2 = 1.0/deltaT;
-          this->leftAst_->dx2(state.val2, derivs);
+          this->childrenAstNodes_[0]->dx2(state.val2, derivs);
           timeDerivative_ = (state.val2-state.val1)*ddt_dVal2;
 
           for(int ii=0;ii<numDerivs;ii++)
@@ -6027,7 +5813,7 @@ class ddtOp : public astNode<ScalarT>
       }
       else
       {
-        state.val2 = this->leftAst_->val();
+        state.val2 = this->childrenAstNodes_[0]->val();
         if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
       }
       result = timeDerivative_;
@@ -6041,7 +5827,7 @@ class ddtOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "ddt (time derivative) operator id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -6065,9 +5851,16 @@ class ddtOp : public astNode<ScalarT>
 
     void    setDdtDeriv(ScalarT deriv) { useExternDeriv_ = true; timeDerivative_ = deriv; };
 
-    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->leftAst_); }
+    Teuchos::RCP<astNode<ScalarT> > & getArg() { return (this->childrenAstNodes_[0]); }
 
     virtual bool getIsTreeConstant() { return false; }  // time dependent can't be constant
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ddtOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddtOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
+    }
 
   private:
     Teuchos::RCP<astNode<ScalarT> > dt_;
@@ -6102,20 +5895,17 @@ class ddxOp : public astNode<ScalarT>
       // This is fine for expressions with very small numbers of parameters, etc.
       // Not fine for really large containers.  Fix later.
       //
-      if ( this->rightAst_->paramType() || this->rightAst_->getFunctionArgType() )
+      if ( this->childrenAstNodes_[1]->paramType() || this->childrenAstNodes_[1]->getFunctionArgType() )
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > paramOpVector;
-        if ( this->leftAst_->paramType() || this->leftAst_->getFunctionArgType() )
-        { paramOpVector.push_back(this->leftAst_); }
-
-        this->leftAst_->getParamOps(paramOpVector);
-        this->leftAst_->getFuncArgOps(paramOpVector);
+        getParamOpsVisitor<ScalarT> visitor(paramOpVector);
+        this->childrenAstNodes_[0]->accept(visitor,this->childrenAstNodes_[0]);
 
         // now match the user-specified right hand argument with a parameter inside
         // the function specified by the left-hand argument.  This is a klunky,
         // inefficient search and should be replaced with something better.
         // (same is true below for voltages and currents)
-        std::string tmp = this->rightAst_->getName();
+        std::string tmp = this->childrenAstNodes_[1]->getName();
         if (!(tmp.empty()))
         {
           Xyce::Util::toUpper(tmp);
@@ -6130,14 +5920,13 @@ class ddxOp : public astNode<ScalarT>
           }
         }
       }
-      else if (this->rightAst_->voltageType())
+      else if (this->childrenAstNodes_[1]->voltageType())
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > voltOpVector;
-        if (this->leftAst_->voltageType()) { voltOpVector.push_back(this->leftAst_); }
+        getVoltageOpsVisitor<ScalarT> visitor(voltOpVector);
+        this->childrenAstNodes_[0]->accept(visitor,this->childrenAstNodes_[0]);
 
-        this->leftAst_->getVoltageOps(voltOpVector);
-
-        std::string tmp = this->rightAst_->getName();
+        std::string tmp = this->childrenAstNodes_[1]->getName();
         if (!(tmp.empty()))
         {
           Xyce::Util::toUpper(tmp);
@@ -6152,15 +5941,13 @@ class ddxOp : public astNode<ScalarT>
           }
         }
       }
-      else if (this->rightAst_->currentType())
+      else if (this->childrenAstNodes_[1]->currentType())
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > currentOpVector;
+        getCurrentOpsVisitor<ScalarT> visitor(currentOpVector);
+        this->childrenAstNodes_[0]->accept(visitor,this->childrenAstNodes_[0]);
 
-        if (this->leftAst_->currentType()) { currentOpVector.push_back(this->leftAst_); }
-
-        this->leftAst_->getCurrentOps(currentOpVector);
-
-        std::string tmp = this->rightAst_->getName();
+        std::string tmp = this->childrenAstNodes_[1]->getName();
         if (!(tmp.empty()))
         {
           Xyce::Util::toUpper(tmp);
@@ -6193,17 +5980,17 @@ class ddxOp : public astNode<ScalarT>
         std::string msg = "DDX argument ";
         std::string tmp;
         // ERK: this block of code needs to be revised.  The set of if-statements, below often fail, so tmp=""
-        if (this->rightAst_->paramType() || this->rightAst_->getFunctionArgType())
+        if (this->childrenAstNodes_[1]->paramType() || this->childrenAstNodes_[1]->getFunctionArgType())
         {
-          tmp = this->rightAst_->getName();
+          tmp = this->childrenAstNodes_[1]->getName();
         }
-        else if (this->rightAst_->currentType())
+        else if (this->childrenAstNodes_[1]->currentType())
         {
-          tmp = "I(" + this->rightAst_->getName() + ")";
+          tmp = "I(" + this->childrenAstNodes_[1]->getName() + ")";
         }
-        else if (this->rightAst_->voltageType())
+        else if (this->childrenAstNodes_[1]->voltageType())
         {
-          std::string name = this->rightAst_->getName();
+          std::string name = this->childrenAstNodes_[1]->getName();
           tmp = "V(";
           tmp += name;
           tmp += ")";
@@ -6217,7 +6004,7 @@ class ddxOp : public astNode<ScalarT>
       {
         astNodeX_->setDerivIndex(0);
         astNodeX_->setIsVar();
-        ret = this->leftAst_->dx(0);
+        ret = this->childrenAstNodes_[0]->dx(0);
         astNodeX_->unsetDerivIndex();
         astNodeX_->unsetIsVar();
       }
@@ -6247,8 +6034,8 @@ class ddxOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "ddx (derivative) operator " << " id = " << this->id_ << std::endl;
       ++indent;
-      this->leftAst_->output(os,indent+1);
-      this->rightAst_->output(os,indent+1);
+      this->childrenAstNodes_[0]->output(os,indent+1);
+      this->childrenAstNodes_[1]->output(os,indent+1);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -6263,6 +6050,14 @@ class ddxOp : public astNode<ScalarT>
     }
 
     virtual bool getIsTreeConstant() { return false; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<ddxOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<ddxOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); 
+    }
 
   private:
     bool foundX_;
@@ -6329,6 +6124,12 @@ class specialsOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return false; } // sometimes constant, sometimes not, so be conservative
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<specialsOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<specialsOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
+
   private:
     std::string type_;
     ScalarT value_;
@@ -6362,6 +6163,11 @@ class piConstOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return true; }
 
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<piConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<piConstOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
   private:
 };
 
@@ -6391,6 +6197,12 @@ class CtoKConstOp : public astNode<ScalarT>
     virtual void codeGen (std::ostream & os ) { os << ScalarT(CONSTCtoK); }
 
     virtual bool getIsTreeConstant() { return true; }
+
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_)
+    { 
+      Teuchos::RCP<CtoKConstOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<CtoKConstOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+    }
 
   private:
 };

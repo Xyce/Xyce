@@ -264,8 +264,8 @@ Instance::Instance(
   {
     if (d->name == "GNDCLAMPTBL")
     {
-      expNumVars = d->n_vars;
-      expNumVars_gc = d->n_vars;
+      expNumVars = d->numVars;
+      expNumVars_gc = d->numVars;
       Exp_ptr_gc = d->expr;
 
       if (expNumVars < 1)
@@ -275,30 +275,30 @@ Instance::Instance(
     }
     else if (d->name == "PWRCLAMPTBL")
     {
-      expNumVars_pc = d->n_vars;
+      expNumVars_pc = d->numVars;
       Exp_ptr_pc = d->expr;
      
-      if (d->n_vars < 1)
+      if (d->numVars < 1)
       {
         UserError(*this) << "Error making Power Clamp Table";
       }
     }
     else if (d->name == "PULLUPTBL")
     {
-      expNumVars_pu = d->n_vars;
+      expNumVars_pu = d->numVars;
       Exp_ptr_pu = d->expr;
      
-      if (d->n_vars < 1)
+      if (d->numVars < 1)
       {
         UserError(*this) << "Error making Pullup Table";
       }
     }
     else if (d->name == "PULLDOWNTBL")
     {
-      expNumVars_pd = d->n_vars;
+      expNumVars_pd = d->numVars;
       Exp_ptr_pd = d->expr;
      
-      if (d->n_vars < 1)
+      if (d->numVars < 1)
       {
         UserError(*this) << "Error making Pulldown Table";
       }

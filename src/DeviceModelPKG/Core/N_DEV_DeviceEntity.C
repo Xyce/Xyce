@@ -1030,9 +1030,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     dependentParam.storeOriginal=false;
   }
 
-  std::vector<std::string> names;
   bool isVoltDep = dependentParam.expr->getVoltageNodeDependent();
   bool isDevCurDep = dependentParam.expr->getDeviceCurrentDependent();
+
+  // error traps
   if (!(depend & ParameterType::SOLN_DEP))
   {
     if(isVoltDep || isDevCurDep)
@@ -1050,63 +1051,50 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     }
   }
 
+  if( dependentParam.expr->getLeadCurrentDependentExcludeBsrc() )
+  {
+    UserError(*this) << "Illegal use of lead current specification in expression '" 
+                     << dependentParam.expr->get_expression()
+                     << "' in parameter " << par.tag();
+  }
+
+  // Set up dependent variables, to support Bsrc Jacobian entries.
+  // Also supports Jacobian entries for a few non-Bsrc devices which can also 
+  // have solution-dependent parameters, such as the resistor and capacitor
+  std::vector<std::string> names;
   std::vector<int> types;
   if(isVoltDep)
   {
-    const std::vector<std::string> & nodes = dependentParam.expr->getVoltageNodes();
+    std::vector<std::string> nodes;
+    dependentParam.expr->getVoltageNodes(nodes);
     names.insert( names.end(), nodes.begin(), nodes.end() );
     types.resize(nodes.size(), XEXP_NODE);
   }
 
-  bool isLeadCurDep= dependentParam.expr->getLeadCurrentDependentExcludeBsrc();
-  if (isLeadCurDep)
-  {
-    const std::vector<std::string> & leads = dependentParam.expr->getLeadCurrentsExcludeBsrc();
-    char type;
-    int index;
-    for (std::vector<std::string>::const_iterator n_i=leads.begin(); n_i != leads.end(); ++n_i)
-    {
-      index = n_i->find_last_of(Xyce::Util::separator);
-      if (index == std::string::npos )
-        type = (*n_i)[0];
-      else
-        type = (*n_i)[index+1];
-
-      if (type != 'B' && type != 'E' && type != 'H')
-      {
-        UserError(*this) << "Illegal use of lead current specification in expression '" << dependentParam.expr->get_expression()
-                         << "' in parameter " << par.tag();
-      }
-    }
-    names.insert( names.end(), leads.begin(), leads.end() );
-
-    int oldSize=types.size();
-    types.resize(oldSize+leads.size(), XEXP_LEAD);
-  }
-
   if(isDevCurDep)
   {
-    const std::vector<std::string> & instances = dependentParam.expr->getDeviceCurrents();
+    std::vector<std::string> instances;
+    dependentParam.expr->getDeviceCurrents(instances);
     names.insert( names.end(), instances.begin(), instances.end() );
     int oldSize=types.size();
     types.resize(oldSize+instances.size(), XEXP_INSTANCE);
   }
 
-  dependentParam.lo_var = expVarNames.size();
-  dependentParam.n_vars = names.size();
+  dependentParam.lowVarIndex = expVarNames.size();
+  dependentParam.numVars = names.size();
 
-  int expVarLen = dependentParam.lo_var+dependentParam.n_vars;
+  int expVarLen = dependentParam.lowVarIndex+dependentParam.numVars;
   expVarGIDs.resize(expVarLen);
   expVarLIDs.resize(expVarLen);
   expVarVals.resize(expVarLen);
 
-  for (int i=0 ; i<dependentParam.n_vars ; ++i)
+  for (int i=0 ; i<dependentParam.numVars ; ++i)
   {
     expVarNames.push_back(names[i]);
     expVarTypes.push_back(types[i]);
   }
 
-  dependentParam.n_global=0;
+  dependentParam.numGlobals=0;
   bool isVarDep = dependentParam.expr->getVariableDependent();
   if (isVarDep)
   {
@@ -1123,7 +1111,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       }
       else 
       {
-        dependentParam.n_global++; 
+        dependentParam.numGlobals++; 
 
         // add this entity and params to the temporary map 
         std::unordered_map <std::string, std::vector <Depend> >::iterator tmpGlobalIter = 
@@ -1250,7 +1238,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( ((dpIter->n_global > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
+    if ( ((dpIter->numGlobals > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
         // ERK: check if the time and freq booleans are reliable.
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
@@ -1308,7 +1296,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
         if (changed==true) { std::cout << " changed=true"; }
         else { std::cout << " changed=false"; }
 
-        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        if ( ((dpIter->numGlobals > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
         else { std::cout << " globalParDep=false"; }
 
         if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
@@ -1368,7 +1356,7 @@ bool DeviceEntity::updateGlobalAndDependentParametersForStep(
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( ((dpIter->n_global > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
+    if ( ((dpIter->numGlobals > 0) && globalParameterChanged) || // seems too general. If depends on global param and *any* global param changed, then evaluate?
         // ERK: check if the time and freq booleans are reliable.
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
@@ -1429,7 +1417,7 @@ bool DeviceEntity::updateGlobalAndDependentParametersForStep(
         if (changed==true) { std::cout << " changed=true"; }
         else { std::cout << " changed=false"; }
 
-        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        if ( ((dpIter->numGlobals > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
         else { std::cout << " globalParDep=false"; }
 
         if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
@@ -1495,7 +1483,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
       if ( dependentScaleParamExcludeMap_.find( dpIter->name ) != dependentScaleParamExcludeMap_.end() ) { continue; }
     }
 
-    if ( ((dpIter->n_global > 0) && globalParameterChanged) || 
+    if ( ((dpIter->numGlobals > 0) && globalParameterChanged) || 
            (dpIter->expr->isTimeDependent() && timeChanged) ||
            (dpIter->expr->isFreqDependent() && freqChanged) ||
            dpIter->expr->isSolutionDependent()  
@@ -1554,7 +1542,7 @@ bool DeviceEntity::updateGlobalAndDependentParameters(
         if (changed==true) { std::cout << " changed=true"; }
         else { std::cout << " changed=false"; }
 
-        if ( ((dpIter->n_global > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
+        if ( ((dpIter->numGlobals > 0) && globalParameterChanged) ) { std::cout << " globalParDep=true"; }
         else { std::cout << " globalParDep=false"; }
 
         if ( (dpIter->expr->isTimeDependent() && timeChanged) ) { std::cout << " timeDep=true"; }
@@ -1676,8 +1664,8 @@ void DeviceEntity::applyDepSolnLIDs()
   std::vector<Depend>::iterator end = dependentParams_.end();
   for (int ii=0 ; dpIter != end; ++dpIter, ++ii)
   { 
-    int lo = dpIter->lo_var;
-    int hi = dpIter->lo_var+dpIter->n_vars;
+    int lo = dpIter->lowVarIndex;
+    int hi = dpIter->lowVarIndex+dpIter->numVars;
 
   Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
     Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
@@ -2082,49 +2070,13 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
               }
 
               std::string name = param.stringValue();
-#if 0
-              // ERK
-              std::cout << "Must be a composite: composite_name = " << composite_name << " name " << name << std::endl;
-
-              if ( param.getType() == Util::EXPR ) 
-              { 
-                std::cout << "param " << tag << " is Util::EXPR type" << std::endl; 
-                Util::Expression & expToBeDumped = param.getValue<Util::Expression>();
-                expToBeDumped.dumpParseTree();
-              }
-              else { std::cout << "param " << tag << " is NOT Util::EXPR type" << std::endl; }
-#endif
+              // ERK std::cout << "Must be a composite: composite_name = " << composite_name << " name " << name << std::endl;
               CompositeParam *composite = constructComposite(composite_name, name);
               composite_parameter_map[composite_name].push_back(composite);
               setDefaultParameters(*composite, composite->getParameterMap().begin(), composite->getParameterMap().end(), devOptions_);
-#if 0
-              // ERK
-              ParameterMap::const_iterator pIter = composite->getParameterMap().begin();
-              for (;pIter!= composite->getParameterMap().end(); pIter++)
-              {
-                const std::string &name = (*pIter).first;
-                const Descriptor &param = *(*pIter).second;
-                //std::cout << "name = " << name << "paramDescriptor = " << param << std::endl;
-              }
-
-              //std::cout << "
-#endif
             }
             else
             {
-#if 0
-              // ERK
-              std::cout << "Must be a composite: composite_name = " << composite_name << " name " << param.stringValue() << std::endl;
-
-              if ( param.getType() == Util::EXPR ) 
-              { 
-                std::cout << "param " << tag << " is Util::EXPR type" << std::endl; 
-                Util::Expression & expToBeDumped = param.getValue<Util::Expression>();
-                expToBeDumped.dumpParseTree();
-              }
-              else { std::cout << "param " << tag << " is NOT Util::EXPR type" << std::endl; }
-#endif
-
               if (n >= composite_parameter_map[composite_name].size())
               {
                 UserFatal(*this) << "Error in definition of vector-composite parameter. "

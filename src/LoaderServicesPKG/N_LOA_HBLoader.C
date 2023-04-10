@@ -1532,7 +1532,7 @@ void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& v
     if ( p > 0 )
       sumOffProcBVecLIDs[p] += sumOffProcBVecLIDs[p-1];
   } 
-  appVecPtr_->pmap()->pdsComm().sumAll( &tmpOffProcGIDs[0], &allOffProcGIDs[0], totalOffProcBVecLIDs_ );
+  appVecPtr_->pmap()->pdsComm().sumAll( tmpOffProcGIDs.data(), allOffProcGIDs.data(), totalOffProcBVecLIDs_);
 
   // Convert the GIDs being communicated to the PIDs that own them
   // Store the PIDs that b vector information needs to be received from.
@@ -1554,7 +1554,7 @@ void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& v
       }
     } 
   }
-  appVecPtr_->pmap()->pdsComm().sumAll( &tmpOffProcPIDs[0], &allOffProcPIDs[0], totalOffProcBVecLIDs_ );
+  appVecPtr_->pmap()->pdsComm().sumAll( tmpOffProcPIDs.data(), allOffProcPIDs.data(), totalOffProcBVecLIDs_);
 
   // Resize the processors we are receiving the data from.
   offProcBVecPIDs_.resize( offProcBVecLIDs_.size() );

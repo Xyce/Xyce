@@ -109,9 +109,9 @@ mkdir trilinos-build
 cd trilinos-build
 
 cmake \
--D CMAKE_INSTALL_PREFIX=/path/to/Trilinos_install \
--C path/to/Xyce/cmake/trilinos/trilinos-config.cmake \
-path/to/Trilinos
+-D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Trilinos> \
+-C <path/to/Xyce>/cmake/trilinos/trilinos-base.cmake \
+<path/to/Trilinos>
 
 cmake --build . -j 2 -t install
 cd ..
@@ -119,8 +119,8 @@ mkdir xyce-build
 cd xyce-build
 
 cmake \
--D CMAKE_INSTALL_PREFIX=/path/to/install \
--D Trilinos_ROOT=/path/to/Trilinos_install \
+-D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
+-D Trilinos_ROOT=</path/to/Trilinos-install-location> \
 path/to/Xyce
 
 cmake --build . -j 2 -t install
@@ -191,7 +191,7 @@ location. The name does not matter, and can be something simple like
 location is `/usr/local`. This can be changed by adding the following flag to
 the CMake invocation.
 ```sh
--D CMAKE_INSTALL_PREFIX=</path/to/Trilinos_install> \
+-D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Trilinos> \
 ```
 As with Xyce, both a parallel and serial build of Trilinos can exist on the
 same system, but they must be in different directories. We recommend specifying
@@ -203,14 +203,14 @@ not change often, so it can save time to have an installed Trilinos library.
 If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
 
-A CMake "initial cache" file, called `trilinos-config.cmake`, is included in
+A CMake "initial cache" file, called `trilinos-base.cmake`, is included in
 the Xyce repository in the `cmake/trilinos` directory. The file contains a
 typical set of options for a Xyce-oriented serial Trilinos build.
 
 To configure Trilinos (using the default `/usr/local` install location), enter
 the build directory and run:
 ```sh
-cmake -C path/to/Xyce/cmake/trilinos/trilinos-config.cmake path/to/Trilinos
+cmake -C <path/to/Xyce>/cmake/trilinos/trilinos-base.cmake path/to/Trilinos
 ```
 Once the configuration step has completed, run the following in the build
 directory to build and install Trilinos:
@@ -268,17 +268,17 @@ more details on the Trilinos build options.
 #### Building Trilinos with MPI Parallelism
 
 To enable MPI parallelism in Xyce, Trilinos must be built with MPI enabled. An
-"initial cache" file, called `trilinos-config-MPI.cmake`, is provided for MPI
+"initial cache" file, called `trilinos-MPI-base.cmake`, is provided for MPI
 builds. In addition to using the MPI-oriented cache file, the MPI compilers
 must be explicitly specified to CMake. The following CMake invocation should
 work on most systems:
 ```sh
 cmake \
--C path/to/Xyce/cmake/trilinos/trilinos-config-MPI.cmake \
+-C <path/to/Xyce>/cmake/trilinos/trilinos-MPI-base.cmake \
 -D CMAKE_C_COMPILER=mpicc \
 -D CMAKE_CXX_COMPILER=mpicxx \
 -D CMAKE_Fortran_COMPILER=mpifort \
-path/to/Trilinos
+<path/to/Trilinos>
 ```
 Note that the exact compiler names may be different on your system. Also, the
 above invocation will install Trilinos in `/usr/local`.
@@ -295,7 +295,7 @@ Once Trilinos is installed, you can build and install Xyce. By default, Xyce
 will be installed in the `/usr/local/` directory. To specify a different
 installation location, add the following flag to the CMake invocation:
 ```sh
--D CMAKE_INSTALL_PREFIX=</path/to/install>
+-D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
 ```
 Again, if you plan to have both a parallel and serial build of Xyce on your
 system, they must be in different directories. We recommend specifying unique
@@ -304,12 +304,12 @@ sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.
 If Trilinos is not located in your path, add the following flag to the CMake
 invocation:
 ```sh
--D Trilinos_ROOT=/path/to/Trilinos_install
+-D Trilinos_ROOT=</path/to/Trilinos-install-location> \
 ```
 Create a build directory for Xyce (such as `xyce_build`) and go into that
 directory. Then run CMake using:
 ```sh
-cmake [flags] path/to/Xyce
+cmake [flags] <path/to/Xyce>
 ```
 Then, to build and install Xyce, run:
 ```sh
@@ -415,7 +415,7 @@ file containing:
 #!/bin/sh
 
 cmake \
--C path/to/Xyce/cmake/trilinos/trilinos-config.cmake \
+-C path/to/Xyce/cmake/trilinos/trilinos-MPI-base.cmake \
 -D CMAKE_C_COMPILER=mpicc \
 -D CMAKE_CXX_COMPILER=mpicxx \
 -D CMAKE_Fortran_COMPILER=mpifort \
@@ -479,11 +479,11 @@ popd
 ```
 
 Trilinos does not test their code on Windows. The initial configuration file
-for Trilinos in `path/to/Xyce/cmake/trilinos/trilinos-config.cmake` may
+for Trilinos in `path/to/Xyce/cmake/trilinos/trilinos-base.cmake` may
 require a few extra options:
 ```
 cmake ^
-    -C path\to\Xyce\cmake\trilinos\trilinos-config.cmake ^
+    -C path\to\Xyce\cmake\trilinos\trilinos-base.cmake ^
     -D HAVE_TEUCHOS_LAPACKLARND=OFF ^
     -D Trilinos_ENABLE_Stokhos=OFF ^
     -D Trilinos_ENABLE_Sacado=OFF ^

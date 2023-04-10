@@ -40,6 +40,7 @@
 
 #include <N_ANP_Transient.h>
 #include <N_ANP_DCSweep.h>
+#include <N_ANP_AC.h>
 #include <N_ANP_HB.h>
 #include <N_ANP_MPDE.h>
 #include <N_ANP_Step.h>
@@ -215,6 +216,7 @@ AnalysisManager::AnalysisManager(
     sweepSourceResetFlag_(true),
     switchIntegrator_(false),
     diagnosticMode_(false),
+    diagnosticFileNameGiven_(false),
     diagnosticExtremaLimitGiven_(false),
     diagnosticVoltageLimitGiven_(false),
     diagnosticCurrentLimitGiven_(false),
@@ -759,6 +761,7 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
     if (param.uTag() == "DIAGFILENAME")
     {
       diagnosticFileName_ = it->stringValue();
+      diagnosticFileNameGiven_=true;
       subResult = true;
     }
 
@@ -772,6 +775,12 @@ bool AnalysisManager::setDiagnosticMode(const Util::OptionBlock & OB)
 
     // need to or in successive results of parameter setting 
     result = result || subResult;
+  }
+  
+  // if a diagnostic file name wasn't given then make a default name from the netlist file name.
+  if( !diagnosticFileNameGiven_)
+  {
+    diagnosticFileName_ = netlistFilename_ + ".dia";
   }
   return result;  
 }
@@ -1593,10 +1602,47 @@ void AnalysisManager::setRFParamsRequested(const std::string & type)
 std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 {
   std::string node_name = "N/A";
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
+  if(getTransientFlag())
   {
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getDCSweepFlag())
+  {
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getACFlag())
+  {
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
+  }
+  
+  // if we have a topology object then try to look up the name
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1618,7 +1664,7 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
       int proc, tmp_proc = -1;
       if ((varIndex_LID > -1) && (varIndex_LID < name_vec.size()))
       {
-        tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+        tmp_proc = Parallel::rank(parallelManager_->getPDSComm()->comm());
         node_name = *name_vec[varIndex_LID];
       }
       pdsComm.maxAll( &tmp_proc, &proc, 1 );
@@ -1654,16 +1700,53 @@ std::string AnalysisManager::getNodeNameFromIndex( const int varIndex ) const
 std::string AnalysisManager::getNodeNameFromLocalIndex( const int varIndex ) const
 {
   std::string node_name = "N/A";
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
+  if(getTransientFlag())
   {
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
-    
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getDCSweepFlag())
+  {
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getACFlag())
+  {
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
+  }
+  
+  // if we have a topology object then try to look up the name
+  if(topologyPtr != NULL)
+  {
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     if ((varIndex > -1) && (varIndex < name_vec.size()))
     {
         node_name = *name_vec[varIndex];
     }
   }
+  
   return node_name; 
 }
 
@@ -1684,11 +1767,48 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
   int nodeAsInt = 0;
   int nodeTypeAsInt = 0;
 
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
+  if(getTransientFlag())
   {
-    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getDCSweepFlag())
+  {
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getACFlag())
+  {
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
+  }
+  
+  // if we have a topology object then try to look up the name
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<char> type_vec = topologyPtr->getVarTypes(); 
+    const std::vector<const std::string *> name_vec = topologyPtr->getSolutionNodeNames();
     
     Xyce::Parallel::Communicator& pdsComm = *(this->getPDSManager()->getPDSComm());
 
@@ -1709,7 +1829,7 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
       // Now determine which processor owns this solution node
       int proc = 0;
       int tmp_proc = -1;
-      tmp_proc = Parallel::rank(transientAnalysisObj->getParallelMachine());
+      tmp_proc = Parallel::rank(parallelManager_->getPDSComm()->comm());
       if ((varIndex_LID > -1) && (varIndex_LID < type_vec.size()))
       {
         node_type = type_vec[varIndex_LID];
@@ -1735,12 +1855,46 @@ char AnalysisManager::getNodeTypeFromIndex( const int varIndex ) const
 char AnalysisManager::getNodeTypeFromLocalIndex( const int varIndex ) const
 {
   char node_type = '\0';
-
-  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
-  if ( transientAnalysisObj != NULL)
+  // This is a bit messy as all of the primary analysis classes 
+  // derive off of AnalysisBase.  But only the derived classes have a reference 
+  // to Topology which is needed to look up a node name.  We can't just make a 
+  // Topology Class object to hold the reference we find in the primaryAnalysis 
+  // object because the Topology class doesn't have a simple default constructor.
+  // It might make sense to move Topology to the AnalysisBase class, but some 
+  // classes derived form AnalysisBase, like STEP, don't have or need Topology.
+  
+  const Topo::Topology * topologyPtr = NULL;
+  
+  if(getTransientFlag())
   {
-    const std::vector<char> type_vec = transientAnalysisObj->getTopology().getVarTypes(); 
-    const std::vector<const std::string *> name_vec = transientAnalysisObj->getTopology().getSolutionNodeNames();
+    Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+    if ( transientAnalysisObj != NULL)
+    {
+      topologyPtr = &(transientAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getDCSweepFlag())
+  {
+    DCSweep * dcAnalysisObj = dynamic_cast<DCSweep *>(primaryAnalysisObject_);
+    if ( dcAnalysisObj != NULL)
+    {
+      topologyPtr = &(dcAnalysisObj->getTopology());
+    }
+  }
+  
+  if(getACFlag())
+  {
+    AC * acAnalysisObj = dynamic_cast<AC *>(primaryAnalysisObject_);
+    if ( acAnalysisObj != NULL)
+    {
+      topologyPtr = &(acAnalysisObj->getTopology());
+    }
+  }
+  Transient * transientAnalysisObj = dynamic_cast<Transient *>(primaryAnalysisObject_);
+  if ( topologyPtr != NULL)
+  {
+    const std::vector<char> type_vec =topologyPtr->getVarTypes(); 
     if ((varIndex > -1) && (varIndex < type_vec.size()))
     {
         node_type = type_vec[varIndex];
@@ -1791,7 +1945,37 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
         << " Discontinuity output requested with disclimit = " << diagnosticDiscontinuityLimit_ << std::endl;
     }
   }
-
+  
+  // on step==0 for DC or TRAN there can be useful, general information about
+  // solver status and solver method used like gmin stepping.  Output this general 
+  // info only when step==0
+  //
+  // Look for DC_OP_GMIN_STEPPING_FAILED and DC_OP_SOURCE_STEPPING_FAILED 
+  // as these are useful messages to pass on to the user. 
+  //
+  // only output if the stream is open
+  if(diagnosticOutputStreamPtr_ != NULL)
+  {
+    
+    if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+        << analysis_event.outputType_ << " smallest gmin = " << std::scientific << analysis_event.step_ << std::defaultfloat <<  std::endl;
+    }
+    else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED)
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
+        << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
+    }
+    else if(analysis_event.step_ == 0) 
+    {
+      // need this conditional last as source stepping can fail with step_ == 0 
+      (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+        << analysis_event.outputType_ <<  std::endl;
+    }
+  }
+  
+  
   if( diagnosticExtremaLimitGiven_)
   {
     // get largest absolute value from solution vector

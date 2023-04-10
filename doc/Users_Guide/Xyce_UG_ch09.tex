@@ -1153,8 +1153,10 @@ different magnitude, phase, frequency and resistance for each point.
       \begin{minipage}{0.9\textwidth}
         \begin{vquote}
 \color{blue}* AC Analysis example\color{black}
-.global\_param mag=1
-.global\_param phase=0.1
+.param mag=1
+.param phase=0.1
+.param cmplxParam1=\{log(-1)\}  ; example complex parameter
+.param cmplxParam2=\{2.0+3.0J\} ; example complex parameter
 
 Isrc 1 0 AC \{mag\} \{phase\} 
 R1 1 0 1e3
@@ -1172,7 +1174,9 @@ C1 1 0 2e-6
 
 \color{blue}* AC file output\color{black}
 .print ac \{mag\} \{phase\} \{Isrc:acmag\} \{Isrc:acphase\} 
-+ \{r1:r\} v(1)
++ \{r1:r\} v(1) 
++ \{cmplxParam1 * V(1)\}
++ \{cmplxParam2 * V(1)\}
 
 .end
 \end{vquote}
@@ -1260,17 +1264,28 @@ formats are also available:
 \item \texttt{VP(<circuit node>)} output the phase of voltage response, in degrees
 \end{XyceItemize}
 
+Also, \Xyce{} supports printing the real and imaginary parts of 
+complex expressions.  The user can specify the real or imaginary 
+parts of an expression using the \texttt{Re()} and 
+\texttt{Img()} operators within the expression.  However, it usually 
+isn't necessary to do this, as \Xyce{} will automatically output 
+both the real and imaginary parts, if the expression produces a 
+complex result.  If an expression produces a purely real result 
+(even if the inputs are complex), then \Xyce{} will only output 
+the real part.
+
 Some examples are as follows: 
 \Example{\\ 
 \texttt{.print AC V(3) }\\
 \texttt{.print AC VI(15)}\\
 \texttt{.print AC VP(OUTPUT)} \\
 \texttt{.print AC \{Re(V(OUTPUT))\} } \\
-\texttt{.print AC \{Img(V(OUTPUT))\} }
+\texttt{.print AC \{Img(V(OUTPUT))\} } \\
+\texttt{.print AC \{ V(OUTPUT)*2.0  \} }
 }
 
 As shown in the examples, the expression library can handle both real and complex valued solution variables.
-See the \Xyce{} Reference Guide\ReferenceGuide{} for more details.
+See the \Xyce{} Reference Guide\ReferenceGuide{} for more details.  
 
 
 %%%%%%

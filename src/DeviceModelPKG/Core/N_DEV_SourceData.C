@@ -116,34 +116,6 @@ sourceFunctionMetadata(DeviceParamMap &sourceFcnMap)
 
 }
 
-//----------------------------------------------------------------------------
-// Function       : CircuitMetadata::getSourceFunctionParameters
-// Purpose        :
-// Special Notes  :
-// Scope          : public
-// Creator        : 
-// Creation Date  : 
-//----------------------------------------------------------------------------
-const std::vector<Param> & getSourceFunctionParameters(
-    const std::string &sourceFcn, 
-    const IO::DeviceBlock & device_block,
-    const IO::TokenVector & parsedInputLine )
-{
-  static DeviceParamMap sourceFcnMap;
-
-  if (sourceFcnMap.empty())
-    sourceFunctionMetadata(sourceFcnMap);
-
-  DeviceParamMap::const_iterator it = sourceFcnMap.find(sourceFcn);
-  if (it == sourceFcnMap.end())
-  {
-    Report::UserError().at(device_block.getNetlistFilename(), parsedInputLine[0].lineNumber_)
-      << "No such source function " << sourceFcn << " in " << device_block.getInstanceName();
-  }
-
-  return (*it).second;
-}
-
 //-----------------------------------------------------------------------------
 // Function      : getSourceFunctionID
 // Purpose       : Return the integer value corresponding to the
@@ -3026,20 +2998,29 @@ extractSourceFields(
         // the input line.
         size_t numInputSourceFunctionParams = sourceFunctionParamEnd - sourceFunctionParamStart + 1;
 
-        // const std::vector<Param> &sourceFunctionParameters = metadata_.getSourceFunctionParameters(sourceFunction);
-        const std::vector<Param> &sourceFunctionParameters = getSourceFunctionParameters(sourceFunction,
-            device_block, parsedInputLine);
-
-        for ( size_t k = 0; k < sourceFunctionParameters.size(); ++k )
+        DeviceParamMap sourceFunctionMap;
+        sourceFunctionMetadata(sourceFunctionMap);
+        DeviceParamMap::const_iterator it = sourceFunctionMap.find(sourceFunction);
+        if (it == sourceFunctionMap.end())
         {
-          if ( k < numInputSourceFunctionParams )
+          Report::UserError().at(device_block.getNetlistFilename(), parsedInputLine[0].lineNumber_)
+            << "No such source function " << sourceFunction << " in " << device_block.getInstanceName();
+        }
+        else
+        {
+          const std::vector<Param> &sourceFunctionParameters = (*it).second;
+          for ( size_t k = 0; k < sourceFunctionParameters.size(); ++k )
           {
-            Param parameter(sourceFunctionParameters[k].uTag(), 0.0);
-            parameter.setVal( parsedInputLine[sourceFunctionParamStart + k].string_ );
-            parameter.setGiven( true );
-            device_block.addInstanceParameter( parameter );
+            if ( k < numInputSourceFunctionParams )
+            {
+              Param parameter(sourceFunctionParameters[k].uTag(), 0.0);
+              parameter.setVal( parsedInputLine[sourceFunctionParamStart + k].string_ );
+              parameter.setGiven( true );
+              device_block.addInstanceParameter( parameter );
+            }
           }
         }
+
       }
       else // PWL source
       {

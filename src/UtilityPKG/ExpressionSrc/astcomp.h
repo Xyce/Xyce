@@ -49,7 +49,7 @@ class NAME : public astNode<ScalarT>                                            
     virtual ScalarT val()                                                                   \
     {                                                                                       \
       bpTimes_.clear();                                                                     \
-      computeBreakPoint ( this->leftAst_, this->rightAst_, timeOpVec_, bpTol_, bpTimes_);   \
+      computeBreakPoint ( this->childrenAstNodes_[0], this->childrenAstNodes_[1], timeOpVec_, bpTol_, bpTimes_);   \
       return VAL;                                                                           \
     }                                                                                       \
                                                                                             \
@@ -79,93 +79,36 @@ class NAME : public astNode<ScalarT>                                            
       os << std::setw(indent) << " ";                                                       \
       os << FCTQUOTE " operator id = " << this->id_ << std::endl;                           \
       ++indent;                                                                             \
-      this->leftAst_->output(os,indent+1);                                                  \
-      this->rightAst_->output(os,indent+1);                                                 \
+      this->childrenAstNodes_[0]->output(os,indent+1);                                                  \
+      this->childrenAstNodes_[1]->output(os,indent+1);                                                 \
     }                                                                                       \
     virtual void compactOutput(std::ostream & os)                                           \
     { os << FCTQUOTE " operator id = " << this->id_ << std::endl; }                         \
                                                                                             \
     virtual bool getIsTreeConstant() { return                                               \
-     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
+     (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[0]->getIsTreeConstant()); }        \
     virtual bool compType() { return true; }                                                \
                                                                                             \
     virtual void codeGen (std::ostream & os )                                               \
     {                                                                                       \
       os << "(";                                                                            \
-      this->leftAst_->codeGen(os);                                                          \
+      this->childrenAstNodes_[0]->codeGen(os);                                                          \
       os << FCTQUOTE;                                                                       \
-      this->rightAst_->codeGen(os);                                                         \
+      this->childrenAstNodes_[1]->codeGen(os);                                                         \
       os << ")";                                                                            \
     }                                                                                       \
+                                                                                            \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);                                      \
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); }                                  \
+                                                                                            \
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;                               \
     double bpTol_;                                                                          \
     std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
 };       
-
-
-#define AST_CMP_OP_MACRO(NAME,FCTQUOTE,VAL,DX)                                              \
-template <typename ScalarT>                                                                 \
-class NAME : public astNode<ScalarT>                                                        \
-{                                                                                           \
-  public:                                                                                   \
-    NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
-        astNode<ScalarT>(left,right), bpTol_(0.0) {};                                       \
-                                                                                            \
-    virtual ScalarT val()                                                                   \
-    {                                                                                       \
-      bpTimes_.clear();                                                                     \
-      computeBreakPoint ( this->leftAst_, this->rightAst_, timeOpVec_, bpTol_, bpTimes_);   \
-      return VAL;                                                                           \
-    }                                                                                       \
-                                                                                            \
-    virtual ScalarT dx(int i) { return DX; }                                                \
-                                                                                            \
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  \
-    { \
-      result = val(); \
-      std::fill(derivs.begin(),derivs.end(),0.0); \
-    } \
-                                                                                            \
-    virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)      \
-    {                                                                                       \
-      if(!(bpTimes_.empty()))                                                               \
-      {                                                                                     \
-        for (int ii=0;ii<bpTimes_.size();ii++)                                              \
-        {                                                                                   \
-          breakPointTimes.push_back(bpTimes_[ii]);                                          \
-        }                                                                                   \
-      }                                                                                     \
-      return true;                                                                          \
-    }                                                                                       \
-    virtual void setBreakPointTol(double tol) { bpTol_ = tol; }                             \
-    virtual bool getIsComplex () { return false; }                                          \
-    virtual void output(std::ostream & os, int indent=0)                                    \
-    {                                                                                       \
-      os << std::setw(indent) << " ";                                                       \
-      os << FCTQUOTE " operator id = " << this->id_ << std::endl;                           \
-      ++indent;                                                                             \
-      this->leftAst_->output(os,indent+1);                                                  \
-      this->rightAst_->output(os,indent+1);                                                 \
-    }                                                                                       \
-    virtual void compactOutput(std::ostream & os)                                           \
-    { os << FCTQUOTE " operator id = " << this->id_ << std::endl; }                         \
-                                                                                            \
-    virtual bool getIsTreeConstant() { return                                               \
-     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
-    virtual bool compType() { return true; }                                                \
-                                                                                            \
-    virtual void codeGen (std::ostream & os )                                               \
-    {                                                                                       \
-      os << "(";                                                                            \
-      this->leftAst_->codeGen(os);                                                          \
-      os << FCTQUOTE;                                                                       \
-      this->rightAst_->codeGen(os);                                                         \
-      os << ")";                                                                            \
-    }                                                                                       \
-    std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;                               \
-    double bpTol_;                                                                          \
-    std::vector<Xyce::Util::BreakPoint> bpTimes_;                                           \
-};
 
 
 #define AST_CMP_OP_MACRO2(NAME,FCTQUOTE,VAL,DX)                                             \
@@ -187,7 +130,7 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                       \
                                                                                             \
     virtual bool getIsTreeConstant() { return                                               \
-     (this->leftAst_->getIsTreeConstant() && this->leftAst_->getIsTreeConstant()); }        \
+     (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[0]->getIsTreeConstant()); }        \
                                                                                             \
     virtual bool getIsComplex () { return false; }                                          \
                                                                                             \
@@ -196,8 +139,8 @@ class NAME : public astNode<ScalarT>                                            
       os << std::setw(indent) << " ";                                                       \
       os << FCTQUOTE " operator id = " << this->id_ << std::endl;                           \
       ++indent;                                                                             \
-      this->leftAst_->output(os,indent+1);                                                  \
-      this->rightAst_->output(os,indent+1);                                                 \
+      this->childrenAstNodes_[0]->output(os,indent+1);                                      \
+      this->childrenAstNodes_[1]->output(os,indent+1);                                      \
     }                                                                                       \
     virtual void compactOutput(std::ostream & os)                                           \
     { os << FCTQUOTE " operator id = " << this->id_ << std::endl; }                         \
@@ -205,25 +148,33 @@ class NAME : public astNode<ScalarT>                                            
     virtual void codeGen (std::ostream & os )                                               \
     {                                                                                       \
       os << "(";                                                                            \
-      this->leftAst_->codeGen(os);                                                          \
+      this->childrenAstNodes_[0]->codeGen(os);                                              \
       os << FCTQUOTE;                                                                       \
-      this->rightAst_->codeGen(os);                                                         \
+      this->childrenAstNodes_[1]->codeGen(os);                                              \
       os << ")";                                                                            \
     }                                                                                       \
+                                                                                            \
+    virtual void accept                                                                \
+          (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) \
+    { Teuchos::RCP<NAME<ScalarT> > castToThis = Teuchos::rcp_static_cast<NAME<ScalarT> > (thisAst_); \
+      visitor.visit( castToThis );  \
+      this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]);              \
+      this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]); }            \
+                                                                                            \
 }; 
 
 #define FIXVAL(val)  Xyce::Util::fixNan(  Xyce::Util::fixInf( val ) )
 #define FIXVALREAL(val)  std::real( FIXVAL(val) )
 
-AST_CMP_OP_MACRO(  gtOp,  ">", ((FIXVALREAL(this->leftAst_->val()) > FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  ltOp,  "<", ((FIXVALREAL(this->leftAst_->val()) < FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  neOp, "!=", (((FIXVAL(this->leftAst_->val())) != (FIXVAL(this->rightAst_->val())))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  eqOp, "==", (((FIXVAL(this->leftAst_->val())) == (FIXVAL(this->rightAst_->val())))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  geOp, ">=", ((FIXVALREAL(this->leftAst_->val()) >= FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO(  leOp, "<=", ((FIXVALREAL(this->leftAst_->val()) <= FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  gtOp,  ">", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) > FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  ltOp,  "<", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) < FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  neOp, "!=", (((FIXVAL(this->childrenAstNodes_[0]->val())) != (FIXVAL(this->childrenAstNodes_[1]->val())))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  eqOp, "==", (((FIXVAL(this->childrenAstNodes_[0]->val())) == (FIXVAL(this->childrenAstNodes_[1]->val())))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  geOp, ">=", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) >= FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO(  leOp, "<=", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) <= FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
 
-AST_CMP_OP_MACRO2(  orOp, "||", ((FIXVALREAL(this->leftAst_->val()) || FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO2( andOp, "&&", ((FIXVALREAL(this->leftAst_->val()) && FIXVALREAL(this->rightAst_->val()))? 1 : 0), (0.0))
-AST_CMP_OP_MACRO2( xorOp,  "^", (((FIXVALREAL(this->leftAst_->val()) > 0 && FIXVALREAL(this->rightAst_->val()) <= 0) || (FIXVALREAL(this->leftAst_->val()) <= 0 && FIXVALREAL(this->rightAst_->val()) > 0))?1.0:0.0), (0.0))
+AST_CMP_OP_MACRO2(  orOp, "||", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) || FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO2( andOp, "&&", ((FIXVALREAL(this->childrenAstNodes_[0]->val()) && FIXVALREAL(this->childrenAstNodes_[1]->val()))? 1 : 0), (0.0))
+AST_CMP_OP_MACRO2( xorOp,  "^", (((FIXVALREAL(this->childrenAstNodes_[0]->val()) > 0 && FIXVALREAL(this->childrenAstNodes_[1]->val()) <= 0) || (FIXVALREAL(this->childrenAstNodes_[0]->val()) <= 0 && FIXVALREAL(this->childrenAstNodes_[1]->val()) > 0))?1.0:0.0), (0.0))
 #endif
 

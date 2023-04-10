@@ -357,9 +357,11 @@ this case, the expression needs to be fixed another way, such as with parenthesi
 \paragraph{Arithmetic Functions}
 \input{Expression_Arithmetic_Functions}
 
+\newpage
 \paragraph{Spice Compatable Functions}
 \index{netlist!functions}
 \index{expressions!SPICE functions}
+Expressions can also use functions that are the equivalent of standard sources.
 \input{Expression_Spice_Functions}
 
 Information about the restrictions on expressions in specific contexts
@@ -378,6 +380,7 @@ may contain any references to solution variables or lead currents.
 \Example{.PARAM SQUARES=5.0}
 \Example{.PARAM SHEETRES=25}
 \Example{.PARAM RESISTANCE=\{SQUARES*SHEETRES\}}
+\Example{.PARAM a0 = 1.0+2.0J}
 
 \Example{.PARAM dTdt=.01}
 \Example{.GLOBAL\_PARAM Temperature=\{27+dTdt*TIME\}}
@@ -388,6 +391,18 @@ parameters may not.  Parameters inside of subcircuits may not be swept by
 analysis commands such as \texttt{.STEP} or \texttt{.SAMPLING}.  Only globally 
 scoped user-defined parameters can be swept in this manner.  Note, this restriction 
 does not apply to device parameters, just user-defined parameters.
+
+Parameters can be complex-valued.  The suffix letter used for the imaginary 
+part of a complex number is the letter \texttt{J}.  For example, in the parameter statement 
+\texttt{.param a0=1.0+2.0J}, the parameter \texttt{a0} has \texttt{1.0} for the real part and 
+\texttt{2.0} is the imaginary part.  
+
+Although parameters are allowed
+to be complex, many uses of parameters are inherently real-valued.  Most 
+device parameters, for example, are assumed to be double precision numbers. So,
+if a real-valued device parameter is set equal to a complex-valued \texttt{.param}, 
+the device parameter will use the real part and the imaginary part
+will be ignored.
 
 \subsection{Expressions in \texttt{.PRINT} Lines}
 
@@ -416,30 +431,33 @@ V1 1 0 sin(0 5 100khz)
 }
 \end{centering}
 
-\subsection{Limitations on Using Complex Values in Expressions}
+\subsection{Using Complex Values in Expressions}
 \label{ComplexExpressions}
 The \Xyce{} expression library was written to work with complex
 quantities, and can perform complex arithmetic on any set of 
 complex inputs to produce a complex output.
-However, the default behavior is to print only the real part 
-for expressions on the print line.  If the user desires both the
-real and imaginary part, it is necessary to use operators 
-such as \texttt{Re()} and \texttt{Img()} as follows:
+However, the default behavior on the \texttt{.PRINT} line depends 
+on the type of analysis being run.  
 
+If running a frequency domain analysis such as \texttt{.AC} or \texttt{.HB}, then outputs of complex valued expressions will automatically include both the real and imaginary part.  For example:
 \begin{vquote}
-.PRINT AC  \{RE(V(N0,N1))\} \{IMG(V(N0,N1))\}
+.param r0=\{log(-1)\}
+.print ac \{r0\} // automatically output real and imaginary parts
 \end{vquote}
 
-Note that this is only necessary to obtain the specific components 
-final result.   It isn't necessary to manually specify real equivalent 
-arithmetic expressions to do complex math, although that will work.  Complex 
-arithmetic will happen automatically within the expression.  So, for example,
-the following will work to produce the magnitude of the product of two 
-complex-valued voltage nodes:
+
+If running a real-valued analysis such as \texttt{.DC} or \texttt{.TRAN}, the output on the \texttt{.PRINT} line will, by default, only include the real part.  This is true even if the expression evaluates to a complex number.
+If the user is running a real-valued analysis, but desires output of both the real and imaginary part, it is necessary to use operators such as \texttt{Re()} and \texttt{Img()}.  Here are some examples.
+
 
 \begin{vquote}
-.PRINT AC  \{M(V(N1)*V(N0))\}
+.param r0=\{log(-1)\}
+.print tran \{r0\} // only output the real part of \{r0\}
+.print tran  \{re(r0)\} \{img(r0)\} // output both real and imaginary parts 
 \end{vquote}
+
+Note any complex-valued expression will internally be evaluaed using complex math.
+The only thing different for \texttt{ \{r0\} } in the above examples is the default outputs for \texttt{.AC} and \texttt{.TRAN}.
 
 \subsection{Expressions for Device Instance and Model Parameters}
 

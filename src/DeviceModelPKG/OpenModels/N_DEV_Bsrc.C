@@ -201,8 +201,8 @@ Instance::Instance(
   {
     if (d->name == "I" || d->name == "V")
     {
-      expNumVars = d->n_vars;
-      expBaseVar = d->lo_var;
+      expNumVars = d->numVars;
+      expBaseVar = d->lowVarIndex;
       Exp_ptr = d->expr;
 
       expNumDdt = Exp_ptr->getNumDdt();
@@ -1023,6 +1023,21 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
     {
       bi.Exp_ptr->evaluate( bi.expVal, bi.expVarDerivs);
     }
+
+#if 0
+    {
+      std::cout << "Master::updateSecondaryState.  bi.expVarDerivs.size = " << bi.expVarDerivs.size() << std::endl;
+      std::cout << "Master::updateSecondaryState.  bi.expNumVars = " << bi.expNumVars << std::endl;
+      for (int ii=0;ii<bi.expVarNames.size();ii++)
+      {
+        std::cout << "Master::updateSecondaryState.  names["<<ii<<"] = " << bi.expVarNames[ii] <<std::endl;
+      }
+      for (int ii=0;ii<bi.expVarDerivs.size();ii++)
+      {
+        std::cout << "Master::updateSecondaryState.  derivs["<<ii<<"] = " << bi.expVarDerivs[ii] <<std::endl;
+      }
+    }
+#endif
 
     // Test derivatives, if too big, zero out
     for (int k = 0; k < bi.expNumVars; ++k)

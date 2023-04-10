@@ -295,8 +295,9 @@ class StepErrorControl
   double r_max_;          // maximum reduction factor
   double r_hincr_test_;   // threshold for increasing the step-size
   double r_hincr_;        // factor used for increasing the step-size
-  int max_LET_fail_;      // max number of error test failures before quitting.
+  int max_LET_fail_;      // max number of LTE test failures before quitting.
 
+  int maxNumfail_;        // max number of error test failure
   bool reportedPauseBP;   // true if any devices have produced pause breakpoints.
 };
 

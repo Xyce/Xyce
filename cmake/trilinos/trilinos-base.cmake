@@ -13,7 +13,9 @@ set( Trilinos_ENABLE_Amesos                  ON  CACHE BOOL "" )
 set(     Amesos_ENABLE_KLU                   ON  CACHE BOOL "" )
 set( Trilinos_ENABLE_Sacado                  ON  CACHE BOOL "" )
 set( Trilinos_ENABLE_Stokhos                 ON  CACHE BOOL "" )
+set( Trilinos_ENABLE_ROL                     ON  CACHE BOOL "" )
 set( Trilinos_ENABLE_Amesos2                 ON  CACHE BOOL "" )
+set(     Amesos2_ENABLE_KLU2                 ON  CACHE BOOL "" )
 set(     Amesos2_ENABLE_Basker               ON  CACHE BOOL "" )
 set( Trilinos_ENABLE_COMPLEX_DOUBLE          ON  CACHE BOOL "" )
 set( Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES   OFF CACHE BOOL "" )
@@ -21,3 +23,8 @@ set( TPL_ENABLE_AMD                          ON  CACHE BOOL "" )
 set( TPL_ENABLE_BLAS                         ON  CACHE BOOL "" )
 set( TPL_ENABLE_LAPACK                       ON  CACHE BOOL "" )
 set( CMAKE_POSITION_INDEPENDENT_CODE        TRUE CACHE BOOL "" )
+
+# The following must be ON to enable the SuperLU solver, which must already be
+# installed on the system
+#set(     Amesos_ENABLE_SuperLU               ON  CACHE BOOL "" )
+#set( TPL_ENABLE_SuperLU                      ON  CACHE BOOL "" )

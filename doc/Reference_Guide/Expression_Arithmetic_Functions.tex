@@ -9,7 +9,7 @@
 
 {\renewcommand{\arraystretch}{1.2}
   \newcommand{\category}[1]{\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries #1}}
-  \begin{longtable}{>{\raggedright\small}m{1in}>{\raggedright\small}m{2in}>{\raggedright\let\\\tabularnewline\small}m{2in}}
+  \begin{longtable}{>{\raggedright\small}m{2.0in}>{\raggedright\small}m{1.0in}>{\raggedright\let\\\tabularnewline\small}m{2.2in}}
     \caption{Arithmetic Functions\label{Arithmetic_Functions}} \\ \hline
     \rowcolor{XyceDarkBlue}
     \color{white}\bf Function &
@@ -91,55 +91,76 @@
     TABLE(x,y,z,*)
     & $f(x)$ where $f(y)=z$ & piecewise linear interpolation, multiple ($y$,$z$) pairs can be specified \\ \hline
 
-    TABLE(``filename'') &  
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{TABLE} for use as function lookup table. Synonymous with TABLEFILE. \\ \hline
+    TABLE(``filename'', [$N$], [$log$]) &
+    & Alternate specification for \texttt{TABLE}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Synonymous with \texttt{TABLEFILE}.  Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     FASTTABLE(x,y,z,*)
     & $f(x)$ where $f(y)=z$ & piecewise linear interpolation without breakpoints, multiple ($y$,$z$) pairs can be specified \\ \hline
 
-    FASTTABLE(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{FASTTABLE} for use as breakpoint-free function lookup table. \\ \hline
+    FASTTABLE(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{FASTTABLE}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     SPLINE(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & Akima spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
+    & 
+    & Akima spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
 
-    SPLINE(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{SPLINE} for use in an Akima spline. \\ \hline
+    SPLINE(``filename'', $N$) &
+    & Alternate specification for \texttt{SPLINE}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     AKIMA(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & Akima spline interpolation~\cite{10.1145/321607.321609}, multiple ($y$,$z$) pairs should be specified (synonymous with SPLINE) \\ \hline
+    & 
+    & Akima spline interpolation~\cite{10.1145/321607.321609}, multiple ($y$,$z$) pairs should be specified Synonymous with SPLINE. \\ \hline
 
-    AKIMA(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{AKIMA} for use in an Akima spline. \\ \hline
+    AKIMA(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{AKIMA}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     CUBIC(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & Cubic spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
+    & 
+    & Cubic spline interpolation, multiple ($y$,$z$) pairs should be specified \\ \hline
 
-    CUBIC(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{CUBIC} for use in an Cubic spline. \\ \hline
+    CUBIC(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{CUBIC}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     WODICKA(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & Wodicka spline interpolation~\cite{Engeln1996}, multiple ($y$,$z$) should be specified \\ \hline
+    & 
+    & Wodicka spline interpolation~\cite{Engeln1996}, multiple ($y$,$z$) should be specified \\ \hline
 
-    WODICKA(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{WODICKA} for use in a Wodicka spline. \\ \hline
+    WODICKA(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{WODICKA}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     BLI(x,y,z,*)
-    & $f(x)$ where $f(y)=z$ & Barycentric Lagrange interpolation~\cite{Berrut_barycentriclagrange}, multiple ($y$,$z$) pairs should be specified \\ \hline
+    & 
+    & Barycentric Lagrange interpolation~\cite{Berrut_barycentriclagrange}, multiple ($y$,$z$) pairs should be specified \\ \hline
 
-    BLI(``filename'') &
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{BLI} for use in Barycentric Lagrance Interpolation. \\ \hline
+    BLI(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{BLI}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
     
-    TABLEFILE(``filename'') &  
-    & \texttt{filename} of $x,y$ data pairs, one pair per line, space separated, is 
-      read from disk and put into a \texttt{TABLE} for use as function lookup table. \\ \hline
+    TABLEFILE(``filename'', [$N$], [log]) &
+    & Alternate specification for \texttt{TABLE}, in which data is read in from a file.
+    \texttt{filename} consists of $x,y$ data pairs, one pair per line, space separated. 
+    Arguments $N$ and $log$ are optional, and related to sparsification.\footnotemark[3] 
+      \\ \hline
 
     \category{Operators related to complex numbers} \\ \hline
 
@@ -229,3 +250,9 @@
   console indicating what seed is being used.}  
 \footnotetext[2]{Use of the \texttt{IF} function to create an expression that has step-function-like behavior as a function of a solution variable is highly likely to produce convergence errors in simulation.  \texttt{IF} statements that have step-like behavior with an explicit time dependence are the exception, as the code will insert breakpoints at the discontinuities.  Do not use step-function or other infinite-slope transitions dependent on variables other than time. Smooth the transition so that it is more easily integrated through. See the ``Analog Behavioral Modeling'' chapter of the \Xyce{} Users' Guide~\UsersGuide{} for guidance on using the \texttt{IF} function with the B-source device.}
 }
+\footnotetext[3]{For all the interpolator functions, such as \texttt{TABLE} and \texttt{SPLINE}, the second and third arguments are optional.  
+The second argument, $N$, toggles automatic sparsification of the data, where $N$ is the requested number of data points. 
+The third argument, $log$ is a boolean.  If true, the gradient-based sparsification uses a log scale.  To specify $log$, the second parameter $N$ must be specified first.}
+
+
+

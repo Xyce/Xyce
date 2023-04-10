@@ -99,6 +99,11 @@ public:
   {
     return true;
   }
+  
+  const Topo::Topology & getTopology() const
+  {
+    return topology_;
+  }
 
   void registerLinearSystem(Linear::System * linear_system_ptr)
   {

@@ -322,9 +322,9 @@ Instance::Instance(
       {
         Depend dpTmp;
         dpTmp.name = model_dp[i].name;
-        dpTmp.n_global = model_dp[i].n_global;
-        dpTmp.n_vars = model_dp[i].n_vars;
-        dpTmp.lo_var = model_dp[i].lo_var;
+        dpTmp.numGlobals = model_dp[i].numGlobals;
+        dpTmp.numVars = model_dp[i].numVars;
+        dpTmp.lowVarIndex = model_dp[i].lowVarIndex;
         dpTmp.vectorIndex = -1;
 
         // dpTmp needs to point to a copy of the original expression.

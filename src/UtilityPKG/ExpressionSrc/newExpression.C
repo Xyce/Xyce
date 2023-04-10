@@ -485,6 +485,186 @@ bool newExpression::attachParameterNode(
 }
 
 //-------------------------------------------------------------------------------
+// This function performs a case-insensitive search and replace for substrings
+//-------------------------------------------------------------------------------
+void FindReplace(std::string& line, const std::string& oldString, const std::string& newString) 
+{
+  const size_t oldSize = oldString.length();
+
+  std::string lineUpper=line;
+  Xyce::Util::toUpper(lineUpper);
+
+  // do nothing if line is shorter than the string to find
+  if( oldSize > line.length() ) return;
+
+  const size_t newSize = newString.length();
+  for( size_t pos = 0; ; pos += newSize ) 
+  {
+    // Locate the substring to replace
+    pos = lineUpper.find( oldString, pos );
+    if( pos == std::string::npos ) return;
+    if( oldSize == newSize ) 
+    {
+      // if they're same size, use std::string::replace
+      line.replace( pos, oldSize, newString );
+    } 
+    else 
+    {
+      // if not same size, replace by erasing and inserting
+      line.erase( pos, oldSize );
+      line.insert( pos, newString );
+    }
+  }
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceParameterNode
+// Purpose       : resolve external parameters via node replacement.
+//
+// Special Notes : As of this writing (3/15/2023) the only use case for 
+//                 this is handling local variation in random operators.
+//
+//                 This function will:
+//                 - replace an existing node in the AST
+//                 - replace the relevant strings in the original expression.
+//                 - update the book-keeping for this expression as appropriate.
+//
+//                 In retrospect, it might be more efficient to simply do the 
+//                 string replacement, and then completely re-lex-and-parse the 
+//                 expression.  That may be a future experiment.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 3/15/2023
+//-------------------------------------------------------------------------------
+bool newExpression::replaceParameterNode(
+    const std::string & paramName,
+    const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  bool retval=false;
+
+  if ( !(Teuchos::is_null(expPtr)) )
+  {
+    std::string paramNameUpper=paramName;
+    Xyce::Util::toUpper(paramNameUpper);
+    if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
+    {
+      // check if parent containers are setup.  These are needed for node replacement.
+      if (!parentsSetup_)
+      {
+        setupParents ();
+      }
+
+      std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+      int size = nodeVec.size();
+      for (int ii=0;ii<size;ii++) // loop over all the nodes with this name
+      {
+        Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+
+        if ( !(Teuchos::is_null( expPtr->getAst() ))) // if the new Ast is valid then do replacement on each
+        {
+#if 0
+          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst() );
+#else
+          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst(), astParents_ );
+#endif
+
+          if (!repacementsAccomplished)
+          {
+            // when "replacementsAccomplishments" is negative, that means that the node did not have parents.
+            // The one node in the AST with no parents is the top one, astNodePtr_.
+            if (node == astNodePtr_)
+            {
+              astNodePtr_ = Teuchos::null; // this probably isn't necessary.
+              astNodePtr_ = expPtr->getAst();
+            }
+            else
+            {
+              Xyce::Report::UserError() << "newExpression::replaceParameterNode failed" << std::endl;
+            }
+          }
+        }
+      }
+      // replace substrings
+      FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
+
+      astArraysSetup_ = false; // this should trigger a call to setupVariousAstArrays later, but just in case calling it now.
+      setupVariousAstArrays ();
+
+      // update the "local" arrays.  The main reason for calling this function 
+      // is to support "local" variations via random operators.
+      // These local arrays are NOT updated by the "setupVariousArrays" function 
+      // call, and they are important to getting random operators to work correctly 
+      // with sampling, etc.
+      if ( !(expPtr->getLocalAgaussOpVec().empty())  ) 
+      {
+        localAgaussOpVec_.insert(localAgaussOpVec_.end(), 
+            expPtr->getLocalAgaussOpVec().begin(), expPtr->getLocalAgaussOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalGaussOpVec().empty()) ) 
+      {
+        localGaussOpVec_.insert(localGaussOpVec_.end(), 
+            expPtr->getLocalGaussOpVec().begin(), expPtr->getLocalGaussOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalAunifOpVec().empty()) ) 
+      { 
+        localAunifOpVec_.insert(localAunifOpVec_.end(), 
+            expPtr->getLocalAunifOpVec().begin(), expPtr->getLocalAunifOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalUnifOpVec().empty())  ) 
+      { 
+        localUnifOpVec_.insert(localUnifOpVec_.end(), 
+            expPtr->getLocalUnifOpVec().begin(), expPtr->getLocalUnifOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalRandOpVec().empty())  ) 
+      { 
+        localRandOpVec_.insert(localRandOpVec_.end(), 
+            expPtr->getLocalRandOpVec().begin(), expPtr->getLocalRandOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalTwoArgLimitOpVec().empty()) ) 
+      { 
+        localTwoArgLimitOpVec_.insert(localTwoArgLimitOpVec_.end(), 
+            expPtr->getLocalTwoArgLimitOpVec().begin(), expPtr->getLocalTwoArgLimitOpVec().end());
+      }
+
+      // local SDT and DDT arrays.  They probably aren't relevant to 
+      // the main use cases of this function. 
+      if ( !(expPtr->getLocalSdtOpVec().empty()) ) 
+      { 
+        localSdtOpVec_.insert(localSdtOpVec_.end(), 
+            expPtr->getLocalSdtOpVec().begin(), expPtr->getLocalSdtOpVec().end());
+      }
+
+      if ( !(expPtr->getLocalDdtOpVec().empty()) ) 
+      { 
+        localDdtOpVec_.insert(localDdtOpVec_.end(), 
+            expPtr->getLocalDdtOpVec().begin(), expPtr->getLocalDdtOpVec().end());
+      }
+
+
+
+      // This debug output is occasionally useful, so keeping it around.  It can be used to 
+      // check that the expression string and AST were both updated correctly.
+      if (false) 
+      {
+        Xyce::dout() << "newExpression::replaceParameterNode for " << paramName << ". Expression tree for " << expressionString_ << std::endl;
+        dumpParseTree(Xyce::dout());
+      }
+
+    }
+    else
+    {
+      Xyce::Report::UserError() << "newExpression::replaceParameterNode.  Could not find param = " << paramName << std::endl;
+    }
+  }
+  return retval;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::multiplyByExternalExpression
 // Purpose       : Modify the AST so that it is multiplied by a provided parameter.
 // Special Notes : The main use case for this is handling subcircuit multipliers.
@@ -723,7 +903,17 @@ bool newExpression::make_constant (
 //                 If they are not, then there
 //                 will be some NULL pointers in the AST tree, which will cause
 //                 seg faults.
-// Special Notes :
+//
+// Special Notes : The main goal of this function is to set up the 
+//                 derivIndexVec_ structure.  This is a vector of pairs, where
+//                 pairs are (voltOp/currOp Op, int derivative_index) pairs.  This object is
+//                 used by the newExpression::evaluate function.
+//
+//                 As it sets this up, it also will create and use 
+//                 the container derivNodeIndexMap_, 
+//                 where  first  = std::string node/current
+//                 and    second = int derivative_index
+//
 // Scope         : private
 // Creator       : Eric Keiter
 // Creation Date : 11/5/2019
@@ -750,26 +940,34 @@ void newExpression::setupDerivatives_ ()
 
         const std::string & node = voltOp->getVoltageNode();
 
-        std::string tmp = node; Xyce::Util::toUpper(tmp);
-        std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
+        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        {
+          std::string nodeUpperCase = node; Xyce::Util::toUpper(nodeUpperCase);
+          std::unordered_map<std::string, int>::iterator mapIter;
+          mapIter = derivNodeIndexMap_.find(nodeUpperCase);
+
+          if (mapIter == derivNodeIndexMap_.end()) 
+          { 
+            derivNodeIndexMap_[nodeUpperCase] = numDerivs_; numDerivs_++; 
+          }
+          derivIndexPair_ voltageNodePair(voltOpVec_[ii],derivNodeIndexMap_[nodeUpperCase]);
+          derivIndexVec_.push_back(voltageNodePair);
+        }
       }
 
       for (int ii=0;ii<currentOpVec_.size();ii++)
       {
         Teuchos::RCP<currentOp<usedType> > currOp
           = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
-        std::string tmp = currOp->getCurrentDevice();
-        Xyce::Util::toUpper(tmp);
+        std::string currentDeviceUpperCase = currOp->getCurrentDevice();
+        Xyce::Util::toUpper(currentDeviceUpperCase);
         std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
+        mapIter = derivNodeIndexMap_.find(currentDeviceUpperCase);
         if (mapIter == derivNodeIndexMap_.end())
         {
-          derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
+          derivNodeIndexMap_[currentDeviceUpperCase] = numDerivs_; numDerivs_++;
         }
-        derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[tmp]);
+        derivIndexPair_ currentNodePair(currentOpVec_[ii],derivNodeIndexMap_[currentDeviceUpperCase]);
         derivIndexVec_.push_back(currentNodePair);
       }
 
@@ -972,52 +1170,7 @@ void newExpression::setupVariousAstArrays()
 
       if( !(Teuchos::is_null(astNodePtr_)) )
       {
-        if (astNodePtr_->paramType())
-        {
-          if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
-          {
-            paramOpVec_.push_back(astNodePtr_);
-          }
-        }
-        if (astNodePtr_->funcType())    { funcOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->leadCurrentType()) { leadCurrentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->bsrcCurrentType()) { bsrcCurrentOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->powerType()) { powerOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->dnoNoiseVarType()) { dnoNoiseDevVarOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->dniNoiseVarType()) { dniNoiseDevVarOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->oNoiseType())      { oNoiseOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->iNoiseType())      { iNoiseOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->sdtType())      { sdtOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->ddtType())      { ddtOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->srcType())      { srcAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->stpType())      { stpAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->compType())      { compAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->limitType())      { limitAstNodeVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->phaseType())    { phaseOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->sparamType())    { sparamOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->yparamType())    { yparamOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->zparamType())    { zparamOpVec_.push_back(astNodePtr_); }
-
-        if (astNodePtr_->agaussType())    { agaussOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->gaussType())    { gaussOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->aunifType())    { aunifOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->unifType())    { unifOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->randType())    { randOpVec_.push_back(astNodePtr_); }
-        if (astNodePtr_->twoArgLimitType())    { twoArgLimitOpVec_.push_back(astNodePtr_); }
-
-        opVectors_.isTimeDependent = isTimeDependent_;
-        opVectors_.isTempDependent = isTempDependent_;
-        opVectors_.isVTDependent = isVTDependent_;
-        opVectors_.isFreqDependent = isFreqDependent_;
-        opVectors_.isGminDependent = isGminDependent_;
-
-        astNodePtr_->getInterestingOps( opVectors_  );
+        opVectors_.getInterestingOps(astNodePtr_);
 
         if (opVectors_.isTimeDependent) isTimeDependent_ = true;
         if (opVectors_.isTempDependent) isTempDependent_ = true;
@@ -1035,6 +1188,8 @@ void newExpression::setupVariousAstArrays()
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
 
+        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        {
         if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
           std::vector<Teuchos::RCP<astNode<usedType> > > vec;
@@ -1045,6 +1200,7 @@ void newExpression::setupVariousAstArrays()
         else
         {
           voltOpMap_[node].push_back(voltOpVec_[ii]);
+        }
         }
       }
 
@@ -1136,7 +1292,7 @@ void newExpression::setupVariousAstArrays()
       // So, just finding the first works OK, but it is wasteful.
       //
       // I believe this happening because the AST traversal
-      // (in the function call astNodePtr_->getInterestingOps( opVectors_  ); above )
+      // (in the function call opVectors_.getInterestingOps(astNodePtr_); above )
       // makes no attempt to  avoid duplicates.  It just pushes them all back onto the paramOpVec
       // as it traverses the tree.
       paramNameVec_.clear();
@@ -1250,6 +1406,30 @@ void newExpression::setupVariousAstArrays()
     groupSetup_ = false;
   }
 };
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setupParents
+// Purpose       : traverse the AST and setup the parent node vectors.
+// Special Notes : this is necessary to do node replacement in the tree.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 3/15/2023
+//-------------------------------------------------------------------------------
+void newExpression::setupParents ()
+{
+  if (false) // debug output
+  {
+    std::cout << "newExpression::setupParents() .  Parse tree for expression = " << expressionString_ << std::endl;
+    dumpParseTree(Xyce::dout());
+  }
+
+  if ( !(Teuchos::is_null(astNodePtr_)) )
+  {
+    astParents_.clear();
+    astNodePtr_->setupParents(astNodePtr_, astParents_);
+  }
+  parentsSetup_ = true;
+}
 
 #define NEW_EXP_ADD_TO_VEC1(VEC1,VEC2) \
   if ( !(VEC2.empty()) )  { VEC1.insert( VEC1.end(), VEC2.begin(), VEC2.end() ); }
@@ -1841,7 +2021,7 @@ bool newExpression::getBreakPoints (
 //                 pass.  The second pass basically removes all the semicolons.
 //
 //
-// Scope         :
+// Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 2020
 //-------------------------------------------------------------------------------
@@ -1851,7 +2031,11 @@ bool newExpression::replaceName (
 {
   setupVariousAstArrays ();
 
+  // voltOpMap is only used here, for search and replace.
+ 
   bool found=false;
+  bool newNameIsGroundNode = Xyce::Util::checkGroundNodeName(new_name);
+  bool newNameIsDuplicate = false;
   {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltOpMap_.find(old_name);
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator checkNewName = voltOpMap_.find(new_name);
@@ -1863,11 +2047,12 @@ bool newExpression::replaceName (
       {
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
         const std::string & node = voltOp->getVoltageNode();
-        if(node == old_name) { voltOp->setVoltageNode(new_name); } 
+        if(node == old_name) { voltOp->setVoltageNode(new_name); }  // ERK note: if statement seems unnecessary.
       }
 
       if (checkNewName != voltOpMap_.end()) // "new" name already exists, so combine the vectors
       {
+        newNameIsDuplicate = true;
         std::vector<Teuchos::RCP<astNode<usedType> > > & astVec2 = checkNewName->second;
         astVec2.insert( astVec2.end(),  astVec.begin(), astVec.end() );
       }
@@ -1920,6 +2105,18 @@ bool newExpression::replaceName (
   {
     dumpParseTree(Xyce::dout());
   }
+
+  if (found)
+  {
+    if (newNameIsGroundNode || newNameIsDuplicate)
+    {
+      // voltOpMap and/or currentOpMap have been updated.
+      // the voltNameVec_ and currentNameVec_ have been updated, but not pruned.
+      astArraysSetup_ = false;
+      externalDependencies_ = true;
+    }
+  }
+
   return found;
 }
 

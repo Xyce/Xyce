@@ -431,22 +431,12 @@ ExpressionData::setup(
       }
       else if (replacement_param.getType() == Xyce::Util::EXPR)
       {
-        // ERK.  Need to add error messaging to the "attachParameterNode" function to (if need be) output this:
-        //  Report::UserWarning0() << "Problem inserting expression " << replacement_param.getValue<Util::Expression>().get_expression()
-        //                       << " as substitute for " << varName << " in expression " << expressionString;
-        //
         enumParamType paramType=DOT_PARAM;
         expression_->attachParameterNode (varName, replacement_param.getValue<Util::Expression>(), paramType);
       }
     }
     else
     {
-      // this block of code will check if the current string is in the global parameter map.
-      // If it is, then it will call the "make_var" function for this string.
-      // In the old expression library, this marks the string as being something that the 
-      // calling code will need to set.  It does not do anything else.
-      // Later, the string will be added to the globalParams container, and also the 
-      // expVarNames vector.
       param_it = context_global_param_map.find(varName);
       if (param_it != context_global_param_map.end())
       {

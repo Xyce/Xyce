@@ -478,10 +478,13 @@ Marshal &operator>>(Marshal &min, std::string &s)  {
 
   size_t size = 0;
   min >> size;
-  std::vector<char> c(size);
+  if (size > 0)
+  {
+    std::vector<char> c(size);
 
-  min.stream.read(&c[0], size);
-  s.assign(&c[0], size);
+    min.stream.read(&c[0], size);
+    s.assign(&c[0], size);
+  }
 
   return min;
 }

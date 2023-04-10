@@ -44,6 +44,25 @@ std::ostream &operator<<(std::ostream &os, const AnalysisEvent::State &state)
       os << "INITIALIZE";
       break;
 
+    case AnalysisEvent::DC_OP_STARTED:
+      os << "DC_OP_STARTED";
+      break;
+      
+    case AnalysisEvent::DC_OP_GMIN_STEPPING:
+      os << "DC_OP_GMIN_STEPPING";
+      break;
+    
+    case AnalysisEvent::DC_OP_SOURCE_STEPPING:
+      os << "DC_OP_SOURCE_STEPPING";
+      break;
+
+    case AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED:
+      os << "DC_OP_GMIN_STEPPING_FAILED";
+      break;
+    
+    case AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED:
+      os << "DC_OP_SOURCE_STEPPING_FAILED";
+      break;  
     case AnalysisEvent::STEP_STARTED:
       os << "STEP_STARTED";
       break;

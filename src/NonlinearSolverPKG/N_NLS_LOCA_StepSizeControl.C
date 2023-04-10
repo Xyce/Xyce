@@ -222,8 +222,8 @@ StepSizeControl::clipStepSize(double& stepSize)
     res = NOX::Abstract::Group::Failed;
     stepSize =  signStep*minStepSize;
     if (LOCA::Utils::doPrint(LOCA::Utils::Error)) {
-      cout << "\n\tStep size reached minimum step size bound"
-           << endl;
+      //cout << "\n\tStep size reached minimum step size bound"
+      //     << endl;
     }
   }
 

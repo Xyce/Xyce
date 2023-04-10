@@ -590,6 +590,7 @@ private:
   bool                  sweepSourceResetFlag_;
   bool                  switchIntegrator_;              ///< Set to true when Transient::integrationMethod_ is changed
   bool                  diagnosticMode_;                ///< Set to true when gathering system diagnostics during analysis
+  bool                  diagnosticFileNameGiven_;
   bool                  diagnosticExtremaLimitGiven_;
   bool                  diagnosticVoltageLimitGiven_;
   bool                  diagnosticCurrentLimitGiven_;

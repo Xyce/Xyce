@@ -1012,7 +1012,8 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
   currentContextPtr_->resolved_ = true;
 
-  // Clear resolved params and funcs.
+  // Clear resolved params and funcs.  These are for the subcircuit instances.  
+  // In constrast, currentContextPtr_->unresolvedParams is for the subcircuit definition.
   currentContextPtr_->resolvedParams_.clear();
   currentContextPtr_->resolvedGlobalParams_.clear();
   currentContextPtr_->resolvedFunctions_.clear();
@@ -1038,7 +1039,10 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 // AFTER the subcircuit parameters (both kinds) have been appropriately added to the resolvedParams/unresolvedParams 
 // containers, then proceed with the while loop for resolving params.
 
-  Util::UParamList * paramContainerToUsePtr = &(currentContextPtr_->unresolvedParams_);
+  // make a copy of unresolvedParams for this subcircuit instance.  
+  // The currentContextPtr_->unresolvedParams container is a list of 
+  // parameters for the subcircuit *definition*.  So it should not be changed.
+  Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_; 
 
   {
     // Add subcircuitParameters_ to the set of unresolved parameters.
@@ -1057,35 +1061,35 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       switch (parsingMgr_.getRedefinedParams()) 
       {
         case RedefinedParamsSetting::IGNORE:  // this is also default, below
-          addParamUseLast(parameter, *paramContainerToUsePtr);
+          addParamUseLast(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::WARNING:
-          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          addParamUseLastWarn(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::ERROR:
-          addParamUseError (parameter, *paramContainerToUsePtr);
+          addParamUseError (parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::USEFIRST:
-          addParamUseLast (parameter, *paramContainerToUsePtr);
+          addParamUseLast (parameter, asYetUnresolvedParameters );
           break;
 
         case  RedefinedParamsSetting::USEFIRSTWARN:
-          addParamUseLastWarn(parameter, *paramContainerToUsePtr);
+          addParamUseLastWarn(parameter, asYetUnresolvedParameters );
           break;
 
         case RedefinedParamsSetting::USELAST:
-          addParamUseFirst (parameter, *paramContainerToUsePtr);
+          addParamUseFirst (parameter, asYetUnresolvedParameters );
           break;
 
         case  RedefinedParamsSetting::USELASTWARN:
-          addParamUseFirstWarn(parameter, *paramContainerToUsePtr);
+          addParamUseFirstWarn(parameter, asYetUnresolvedParameters );
           break;
 
         default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
-          addParamUseLast(parameter, *paramContainerToUsePtr);
+          addParamUseLast(parameter, asYetUnresolvedParameters );
           break;
       }
     }
@@ -1125,9 +1129,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         }
       }
 
-      // if this is in the unresolved container, remove
-      Util::UParamList::const_iterator urParamIter = currentContextPtr_->unresolvedParams_.find( parameter );
-      if ( urParamIter != currentContextPtr_->unresolvedParams_.end() ) { currentContextPtr_->unresolvedParams_.erase(urParamIter); }
+      // check if this is in the unresolved container.  
+      // If so, remove from our working copy of unresolvedParams.
+      // Do NOT remove it from currentContextPtr_->unresolvedParams_ as that is needed by every instance.
+      Util::UParamList::const_iterator urParamIter = asYetUnresolvedParameters.find( parameter );
+      if ( urParamIter != asYetUnresolvedParameters.end() ) { asYetUnresolvedParameters.erase(urParamIter); } 
 
       switch (parsingMgr_.getRedefinedParams()) 
       {
@@ -1172,7 +1178,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   //
   // Time to resolve the 3 main containers: unresolvedParams_(.param), 
   // unresolvedGlobalParams_(.global_param), and unresolvedFunctions_(.func).
-  Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
+  //Util::UParamList asYetUnresolvedParameters=currentContextPtr_->unresolvedParams_;
   Util::UParamList asYetUnresolvedGlobalParameters=currentContextPtr_->unresolvedGlobalParams_;
   std::vector<FunctionBlock> asYetUnresolvedFunctions=currentContextPtr_->unresolvedFunctions_;
 
@@ -1752,7 +1758,7 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
 // Creator        : Lon Waters/Eric Keiter
 // Creation Date  : 02/10/2003; 4/11/2020
 //----------------------------------------------------------------------------
-bool CircuitContext::resolveParameter(Util::Param& parameter) const
+bool CircuitContext:: resolveParameter(Util::Param& parameter, bool replaceRandomNodes) const
 {
   if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
   {
@@ -1772,7 +1778,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
     // Resolve the strings in the expression. Unresolved strings
     // may be parameters defined in a .PARAM statement or global
     // parameters defined in .GLOBAL_PARAM statement.
-    bool stringsResolved = resolveStrings(expression);
+    bool stringsResolved = (replaceRandomNodes)?resolveStringsForDevParams(expression):resolveStrings(expression);
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
@@ -2063,9 +2069,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         if ( expressionParameter.getType() == Xyce::Util::STR ||  
              expressionParameter.getType() == Xyce::Util::DBLE)
         {
-            // ERK. "string" will be tested vs. the isValue function, which doesn't detect complex numbers yet;  
-            // so, if it is a pure number, then it must be a real. (for now).  For now, complex valued parameters 
-            // must be set as expressions, inside of braces.
           enumParamType paramType=DOT_PARAM;
           if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>(),paramType))
           {
@@ -2082,10 +2085,6 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
         }
         else if (expressionParameter.getType() == Xyce::Util::EXPR)
         {
-          // ERK.  Add an error test for nodes that cannot be attached below.  Something like:
-          //
-          //  Report::UserWarning0() << "Problem inserting expression " << expressionParameter.getValue<Util::Expression>().get_expression()
-          //                         << " as substitute for " << parameterName << " in expression " << expression.get_expression();
           enumParamType paramType=DOT_PARAM;
 
           bool isVarDep = expressionParameter.getValue<Util::Expression>().getVariableDependent ();
@@ -2106,6 +2105,173 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
           // which means it can always be attached.
           Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
           expression.attachParameterNode(strings[i], expToBeAttached);
+        }
+        else
+        {
+          if (Util::isBool(strings[i]))
+          {
+            bool stat = false;
+            enumParamType paramType=DOT_PARAM;
+            if (Util::Bval(strings[i]))
+              stat = expression.make_constant(strings[i], static_cast<double>(1),paramType);
+            else
+              stat = expression.make_constant(strings[i], static_cast<double>(0),paramType);
+            if (!stat)
+            {
+              Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value";
+            }
+          }
+          else
+          {
+            unresolvedStrings = true;
+          }
+        }
+      }
+    }
+  }
+  return !unresolvedStrings;
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::resolveStringsForDevParams
+// Purpose        : Determine if expression has any unresolved strings
+//                  and resolve appropriately. Return true if all strings are
+//                  resolved otherwise return false.
+//
+// Special Notes  : This is a different version of the above function.  The main
+//                  difference is that it uses the "replaceParam" instead of 
+//                  the "attachParam" function when it finds random operators.
+//
+// Scope          : public
+// Creator        : Eric Keiter, SNL
+// Creation Date  : 03/16/2023
+//----------------------------------------------------------------------------
+bool CircuitContext::resolveStringsForDevParams( Util::Expression & expression,
+                                     std::vector<std::string> exceptionStrings) const
+{
+  // Strings in the expression must be previously resolved parameters
+  // that appear in paramList else there is an error.
+  bool unresolvedStrings = false;
+  // Normally "strings" would be a reference.  But here it has to be a copy 
+  // because it loops over them and accesses them in the function below.
+  // If it is just a reference, then the vector keeps getting smaller each 
+  // time a param/string is resolved, and it results in memory access errors.
+  const std::vector<std::string> strings = expression.getUnresolvedParams(); 
+
+  if ( !(strings.empty()) )
+  {
+    // If the expression is resolvable, each string in the current expression
+    // must appear as a resolved parameter in netlistParameters. Get the value
+    // if it appears there.
+    ExtendedString parameterName("");
+    int numStrings = strings.size();
+
+    if (DEBUG_IO)
+    {
+      Xyce::dout() <<" CircuitContext::resolveStrings numStrings = " << numStrings << std::endl;
+    }
+
+    for (int i = 0; i < numStrings; ++i)
+    {
+      if (DEBUG_IO)
+      {
+        Xyce::dout() <<" CircuitContext::resolveStrings resolving " << strings[i] << std::endl;
+      }
+
+      // Skip the current string if it is in exception strings. This prevents
+      // a function argument from being improperly resolved when there is
+      // a parameter in a .param statement with the same name as the function
+      // argument.
+      if (!exceptionStrings.empty())
+      {
+        std::vector<std::string>::iterator stringIter = find(exceptionStrings.begin(),
+                                                             exceptionStrings.end(),
+                                                             strings[i]);
+        if (stringIter != exceptionStrings.end()) { continue; }
+      }
+
+      // Look for the string in netlistParameters.
+      parameterName = strings[i];
+      parameterName.toUpper();
+
+      Util::Param expressionParameter(parameterName, "");
+      bool parameterFound = getResolvedParameter(expressionParameter);
+      if (parameterFound)
+      {
+        if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], false); }
+
+        if ( expressionParameter.getType() == Xyce::Util::STR ||  
+             expressionParameter.getType() == Xyce::Util::DBLE)
+        {
+          enumParamType paramType=DOT_PARAM;
+          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue<double>(),paramType))
+          {
+            Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
+          }
+        }
+        else if ( expressionParameter.getType() == Xyce::Util::CMPLX)
+        {
+          enumParamType paramType=DOT_PARAM;
+          if (!expression.make_constant(strings[i], expressionParameter.getImmutableValue< std::complex<double> >(),paramType))
+          {
+            Report::UserWarning0() << "Problem converting parameter " << parameterName << " to its value.";
+          }
+        }
+        else if (expressionParameter.getType() == Xyce::Util::EXPR)
+        {
+          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
+          bool isRandom = expToBeAttached.isRandomDependent();
+          if (isRandom)
+          {
+            std::string copyExprString = expToBeAttached.get_expression(); 
+            Util::Expression copiedExpression(expressionGroup_, copyExprString);
+            if (copiedExpression.parsed()) 
+            { 
+              expression.replaceParameterNode(strings[i], copiedExpression);  // check this.  If param is a SUBCKT_ARG_PARAM should we get here?
+            }
+            else
+            {
+              Report::DevelFatal()<< "Failure parsing random expression = " << copyExprString <<std::endl;
+            }
+          }
+          else
+          {
+            enumParamType paramType=DOT_PARAM;
+            bool isVarDep = expToBeAttached.getVariableDependent ();
+            if (isVarDep) paramType=SUBCKT_ARG_PARAM;
+            else          paramType=DOT_PARAM;
+            expression.attachParameterNode(strings[i], expToBeAttached, paramType); 
+          }
+        }
+      }
+      else
+      {
+        parameterFound = getResolvedGlobalParameter(expressionParameter);
+        if (parameterFound)
+        {
+          if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], true); }
+
+          // the param to be attached is a global, which means it is always Util::EXPR type, 
+          // which means it can always be attached.
+          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
+          bool isRandom = expToBeAttached.isRandomDependent();
+          if (isRandom)
+          {
+            std::string copyExprString = expToBeAttached.get_expression(); 
+            Util::Expression copiedExpression(expressionGroup_, copyExprString);
+            if (copiedExpression.parsed()) 
+            { 
+              expression.replaceParameterNode(strings[i], copiedExpression); 
+            }
+            else
+            {
+              Report::DevelFatal()<< "Failure parsing random expression = " << copyExprString <<std::endl;
+            }
+          }
+          else
+          {
+            expression.attachParameterNode(strings[i], expToBeAttached);
+          }
         }
         else
         {

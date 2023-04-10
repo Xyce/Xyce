@@ -1482,10 +1482,10 @@ void Gear12::rejectStep(const TIAParams & tia_params)
       //    for (int i=1;i<=sec.currentOrder_;++i)
       //      sec.psi_[i-1] = sec.psi_[i] - sec.currentTimeStep;
 
-      if (sec.nef_ >= sec.max_LET_fail_)  
+      if (sec.nef_ >= sec.maxNumfail_)
       {
         Xyce::Report::DevelFatal0().in("Gear12::rejectStep")
-          << "  Maximum number of local error test failures.";
+          << "  Maximum number of failures at time "  << sec.currentTime;
       }
 
       if ((sec.newtonConvergenceStatus <= 0))

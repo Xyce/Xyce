@@ -1027,39 +1027,6 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
       }
     }
   }
-  else if (name == "OUTPUT-LINE")
-  {
-    // The parameters on a .OUTPUT line need to be added to the option block
-    // with the name "OUTPUT" which was created by a prior .OPTIONS OUTPUT
-    // line in the netlist. Find the option block, report an error if not
-    // found.
-    std::list<Util::OptionBlock>::iterator it = optionsTable_.begin();
-    std::list<Util::OptionBlock>::iterator end = optionsTable_.end();
-    for (; it != end; ++it)
-      if (it->getName() == "OUTPUT")
-        break;
-
-    Util::ParamList::const_iterator paramIter = options.begin();
-
-    if (it == optionsTable_.end())
-    {
-      // The line number of the .OUTPUT line was stored as the 3rd parameter.
-      paramIter++;
-      paramIter++;
-      int lineNum = (*paramIter).getImmutableValue<int>();
-
-      // Could not find required option block, report error.
-      Report::UserError0().at(netlistFilename_, lineNum) << "A .OPTIONS OUTPUT line is required before any .OUTPUT line in the netlist";
-    }
-    else
-    {
-      // If we get here, all is well, add the parameters.
-      it->addParam(*paramIter);
-      paramIter++;
-      it->addParam(*paramIter);
-    }
-    return;
-  }
 
   optionsTable_.push_back(options);
 }

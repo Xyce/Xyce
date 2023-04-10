@@ -147,6 +147,7 @@ OutputMgr::OutputMgr(
     printStepNumCol_(false),
     outputVersionInRawFile_(false),
     phaseOutputUsesRadians_(false),
+    createSnapshots_(false),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
     maxDCSteps_(0)
@@ -951,7 +952,13 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
       phaseOutputUsesRadians_ = (*it).getImmutableValue<bool>();
       ++it;
     }
-
+    else if ((*it).tag()=="SNAPSHOTS")
+    {
+      // look for flag to toggle whether to output all solution variables to create
+      // snapshot set.  This is useful for performing model order reduction.
+      createSnapshots_ = (*it).getImmutableValue<bool>();
+      ++it;
+    }
     else if ( std::string( (*it).uTag() ,0,16) == "OUTPUTTIMEPOINTS") // this is a vector
     {
       outputPointsSpecified = true;
@@ -3099,6 +3106,82 @@ void OutputMgr::fixupOutputVariables(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgr::createAllPrintParameters
+// Purpose       : Create a list of print parameters for all the solution
+//                 variables for the transient analysis.
+// Special Notes : This is used for creating snapshots from Xyce for model
+//                 order reduction.
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 2/16/2023
+//-----------------------------------------------------------------------------
+void OutputMgr::createAllPrintParameters(
+    Parallel::Machine comm,
+    PrintParameters &print_parameters)
+{
+  auto& printVar = print_parameters.variableList_;
+
+  // Clear the variable list and replace it with a list of all the solution variables
+  print_parameters.variableList_.clear();
+
+  const std::vector<char> & varType = getVarTypes();
+  const NodeNameMap & nodeName = getSolutionNodeMap();
+
+  // In parallel collect all solution variables so that it is consistent across processors
+  Util::Marshal mout;
+  unordered_set<std::string> nodes;
+
+  NodeNameMap::const_iterator nnm_it = nodeName.begin();
+  for ( ; nnm_it != nodeName.end(); ++nnm_it)
+  {
+    if ( varType[nnm_it->second] == 'V' )
+    {
+      std::string node( "{V(" );
+      node += nnm_it->first;
+      node += std::string( ")}" );
+      nodes.insert( node );
+    }
+    else if ( varType[nnm_it->second] == 'I' )
+    {
+      // First remove "_branch" from the node name then convert it back to a Xyce device name
+      std::string branch( nnm_it->first );
+      branch.replace( branch.find( "_branch" ), branch.length(), "" );
+      branch = Util::spiceDeviceNameToXyceName( branch );
+      std::string node( "{I(" );
+      node += branch;
+      node += std::string( ")}" );
+      nodes.insert( node );
+    }
+  }
+
+  // Communicate all nodes to all other processors and create the print variables
+  std::set< std::string > all_nodes;
+  if ( Parallel::is_parallel_run( comm ) )
+  {
+    mout << nodes;
+    std::vector<std::string> dest;
+    Parallel::AllGatherV(comm, mout.str(), dest);
+
+    // Collect all nodes in a set to obtain global ordering
+    for (int p = 0; p < Parallel::size(comm); ++p)
+    {
+      Util::Marshal min(dest[p]);
+      unordered_set<std::string> p_nodes;
+      min >> p_nodes;
+      all_nodes.insert( p_nodes.begin(), p_nodes.end() );
+    }
+  }
+  else
+    all_nodes.insert( nodes.begin(), nodes.end() );
+
+  // Create print variables that are ordered, regardless of the number of processors
+  for ( std::set<std::string>::iterator an_it = all_nodes.begin(); an_it != all_nodes.end(); ++an_it )
+  {
+    printVar.push_back(Util::Param( *an_it , 0.0 ));
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::output
 // Purpose       : Runs specified output commands
 //
@@ -3812,6 +3895,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTVERSIONINRAWFILE", Util::Param("OUTPUTVERSIONINRAWFILE", false)));
     parameters.insert(Util::ParamMap::value_type("PHASE_OUTPUT_RADIANS", Util::Param("PHASE_OUTPUT_RADIANS", false)));
+    parameters.insert(Util::ParamMap::value_type("SNAPSHOTS", Util::Param("SNAPSHOTS", false)));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTTIMEPOINTS", Util::Param("OUTPUTTIMEPOINTS", "VECTOR")));
   }

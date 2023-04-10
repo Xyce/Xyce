@@ -1909,7 +1909,7 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
 
         if (DEBUG_IO)
           Xyce::dout() << " Setting parameter " << parameterPtr->uTag()
-                       << "to value " << parsedInputLine[linePosition].string_ << std::endl;
+                       << " to value " << parsedInputLine[linePosition].string_ << std::endl;
 
         // Set the parameter value.
         if (parameterPtr->getType() == Xyce::Util::DBLE)
@@ -2301,6 +2301,9 @@ void DeviceBlock::parameterErrorOutput(Device::Param & parameter)
 bool DeviceBlock::setParameterValues()
 {
   Device::Param parameter( "", "" );
+
+  bool replaceRandomNodes = true;
+
   int numParameters = getNumberOfInstanceParameters();
   for (int ii = 0; ii < numParameters; ++ii )
   {
@@ -2311,7 +2314,7 @@ bool DeviceBlock::setParameterValues()
          parameter.isTableFileTypeQuoted()  || 
          parameter.isStringTypeQuoted()  )
     {
-      if (!circuitContext_.resolveParameter(parameter)) 
+      if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes)) 
         parameterErrorOutput(parameter);
       setInstanceParameter( ii, parameter ); 
     }
@@ -2323,7 +2326,7 @@ bool DeviceBlock::setParameterValues()
         {
           ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
           parameter.setVal(std::string("{" + p_orig + "}"));
-          if (!circuitContext_.resolveParameter(parameter))
+          if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes))
             parameter.setVal(std::string(p_orig));
         }
       }
@@ -2488,8 +2491,8 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
 
         if (isVoltDep || isDevCurDep || isLeadCurDep || isVarDep || isSpecialsDep || isRandom)
         {
-          parameter.setVal(expression);
-
+          // no need to set the parameter value to the modified expression as 
+          // the work has been done on a referece to the original expression
           if (DEBUG_IO) 
           { 
              Xyce::dout() << "resolveSubcircuitInstanceParamStrings: After all expression handling, get_expression returns "
@@ -2506,9 +2509,8 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
       }
       else
       {
-        // Reset the parameter value to the value of the expression with
-        // as much resolution as could be achieved.
-        parameter.setVal(expression);
+        // no need to set the parameter value to the modified expression as 
+        // the work has been done on a referece to the original expression
       }
     }
   }

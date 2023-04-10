@@ -40,7 +40,7 @@
 
 #define AST_CALL_SUBFUNC(PTR,FUNC,ARG)  if(this->PTR) { this->PTR->FUNC(ARG);  }
 
-#define AST_CALL_SUBOUTPUT(PTR)  if(  !(Teuchos::is_null(this->PTR))  ) { os << std::setw(indent) << " "; os << #PTR << ": " << std::endl; this->PTR->output(os,indent+1); }
+#define AST_CALL_SUBOUTPUT(PTR)  if(  !(Teuchos::is_null(PTR))  ) { os << std::setw(indent) << " "; os << #PTR << ": " << std::endl; PTR->output(os,indent+1); }
 
 //-------------------------------------------------------------------------------
 // spice pulse  operator
@@ -52,7 +52,7 @@ class spicePulseOp : public astNode<ScalarT>
 {
   public:
     spicePulseOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
-      astNode<ScalarT>(), 
+      astNode<ScalarT>(args), 
       time_(time), 
       v1Given_(false), v2Given_(false), tdGiven_(false),
       trGiven_(false), tfGiven_(false), pwGiven_(false), perGiven_(false),
@@ -81,30 +81,33 @@ class spicePulseOp : public astNode<ScalarT>
     //
     // At the time of construction, I don't think I have these values yet, so set in the val function.
     //
-    if (args.size() >= 1) { v1_ = args[0]; v1Given_=true; } else { v1_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 2) { v2_ = args[1]; v2Given_=true; } else { v2_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 3) { td_ = args[2]; tdGiven_=true; } else { td_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 4) { tr_ = args[3]; trGiven_=true; } else { tr_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 5) { tf_ = args[4]; tfGiven_=true; } else { tf_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 6) { pw_ = args[5]; pwGiven_=true; } else { pw_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-    if (args.size() >= 7) { per_ = args[6]; perGiven_=true; } else { per_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+    if (child.size() < 7) { child.resize(7); }
+
+    if (args.size() >= 1) { v1Given_=true; } else { child[0] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 2) { v2Given_=true; } else { child[1] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 3) { tdGiven_=true; } else { child[2] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 4) { trGiven_=true; } else { child[3] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 5) { tfGiven_=true; } else { child[4] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 6) { pwGiven_=true; } else { child[5] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
+    if (args.size() >= 7) { perGiven_=true; } else { child[6] = ( Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)) ); }
   };
 
     virtual ScalarT val()
     {
-      if (!trGiven_) { Teuchos::RCP<numval<ScalarT> > trTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tr_); trTmpOp->number = startingTimeStep_; }
-      if (!tfGiven_) { Teuchos::RCP<numval<ScalarT> > tfTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tf_); tfTmpOp->number = startingTimeStep_; }
-      if (!pwGiven_) { Teuchos::RCP<numval<ScalarT> > pwTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (pw_); pwTmpOp->number = finalTime_; }
-      if (!perGiven_) { Teuchos::RCP<numval<ScalarT> > perTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (per_); perTmpOp->number = finalTime_; }
+      if (!trGiven_) { Teuchos::RCP<numval<ScalarT> > trTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[3]); trTmpOp->number = startingTimeStep_; }
+      if (!tfGiven_) { Teuchos::RCP<numval<ScalarT> > tfTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[4]); tfTmpOp->number = startingTimeStep_; }
+      if (!pwGiven_) { Teuchos::RCP<numval<ScalarT> > pwTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[5]); pwTmpOp->number = finalTime_; }
+      if (!perGiven_) { Teuchos::RCP<numval<ScalarT> > perTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[6]); perTmpOp->number = finalTime_; }
 
       ScalarT time = std::real(this->time_->val());
-      ScalarT V1 = this->v1_->val();
-      ScalarT V2 = this->v2_->val();
-      ScalarT TD = std::real(this->td_->val());
-      ScalarT TR = std::real(this->tr_->val());
-      ScalarT TF = std::real(this->tf_->val());
-      ScalarT PW = std::real(this->pw_->val());
-      ScalarT PER = std::real(this->per_->val());
+      ScalarT V1 = this->childrenAstNodes_[0]->val();
+      ScalarT V2 = this->childrenAstNodes_[1]->val();
+      ScalarT TD = std::real(this->childrenAstNodes_[2]->val());
+      ScalarT TR = std::real(this->childrenAstNodes_[3]->val());
+      ScalarT TF = std::real(this->childrenAstNodes_[4]->val());
+      ScalarT PW = std::real(this->childrenAstNodes_[5]->val());
+      ScalarT PER = std::real(this->childrenAstNodes_[6]->val());
 
       time -= TD;
 
@@ -178,13 +181,13 @@ class spicePulseOp : public astNode<ScalarT>
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
       ScalarT time = std::real(this->time_->val());
-      ScalarT V1 = this->v1_->val();
-      ScalarT V2 = this->v2_->val();
-      ScalarT TD = std::real(this->td_->val());
-      ScalarT TR = std::real(this->tr_->val());
-      ScalarT TF = std::real(this->tf_->val());
-      ScalarT PW = std::real(this->pw_->val());
-      ScalarT PER = std::real(this->per_->val());
+      ScalarT V1 = this->childrenAstNodes_[0]->val();
+      ScalarT V2 = this->childrenAstNodes_[1]->val();
+      ScalarT TD = std::real(this->childrenAstNodes_[2]->val());
+      ScalarT TR = std::real(this->childrenAstNodes_[3]->val());
+      ScalarT TF = std::real(this->childrenAstNodes_[4]->val());
+      ScalarT PW = std::real(this->childrenAstNodes_[5]->val());
+      ScalarT PER = std::real(this->childrenAstNodes_[6]->val());
 
       int currPeriodIndex = 0;
       double basetime = 0.0;
@@ -235,13 +238,13 @@ class spicePulseOp : public astNode<ScalarT>
       os << "spice pulse operator id = " << this->id_ << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v1_)
-      AST_CALL_SUBOUTPUT(v2_)
-      AST_CALL_SUBOUTPUT(td_)
-      AST_CALL_SUBOUTPUT(tr_)
-      AST_CALL_SUBOUTPUT(tf_)
-      AST_CALL_SUBOUTPUT(pw_)
-      AST_CALL_SUBOUTPUT(per_)
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[0])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[1])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[2])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[3])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[4])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[5])
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[6])
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -257,64 +260,24 @@ class spicePulseOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(v1_) AST_GET_INTERESTING_OPS(v2_) AST_GET_INTERESTING_OPS(td_)
-AST_GET_INTERESTING_OPS(tr_) AST_GET_INTERESTING_OPS(tf_) AST_GET_INTERESTING_OPS(pw_)
-AST_GET_INTERESTING_OPS(per_) AST_GET_INTERESTING_OPS(time_)
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spicePulseOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spicePulseOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+                                   //
+      this->childrenAstNodes_[0]->accept(visitor,this->childrenAstNodes_[0]);
+      this->childrenAstNodes_[1]->accept(visitor,this->childrenAstNodes_[1]);
+      this->childrenAstNodes_[2]->accept(visitor,this->childrenAstNodes_[2]);
+      this->childrenAstNodes_[3]->accept(visitor,this->childrenAstNodes_[3]);
+      this->childrenAstNodes_[4]->accept(visitor,this->childrenAstNodes_[4]);
+      this->childrenAstNodes_[5]->accept(visitor,this->childrenAstNodes_[5]);
+      this->childrenAstNodes_[6]->accept(visitor,this->childrenAstNodes_[6]);
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(v1_) AST_GET_STATE_OPS(v2_) AST_GET_STATE_OPS(td_)
-AST_GET_STATE_OPS(tr_) AST_GET_STATE_OPS(tf_) AST_GET_STATE_OPS(pw_)
-AST_GET_STATE_OPS(per_) AST_GET_STATE_OPS(time_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(v1_) AST_GET_PARAM_OPS(v2_) AST_GET_PARAM_OPS(td_)
-AST_GET_PARAM_OPS(tr_) AST_GET_PARAM_OPS(tf_) AST_GET_PARAM_OPS(pw_)
-AST_GET_PARAM_OPS(per_) AST_GET_PARAM_OPS(time_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(v1_) AST_GET_FUNC_ARG_OPS(v2_) AST_GET_FUNC_ARG_OPS(td_)
-AST_GET_FUNC_ARG_OPS(tr_) AST_GET_FUNC_ARG_OPS(tf_) AST_GET_FUNC_ARG_OPS(pw_)
-AST_GET_FUNC_ARG_OPS(per_) AST_GET_FUNC_ARG_OPS(time_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(v1_) AST_GET_FUNC_OPS(v2_) AST_GET_FUNC_OPS(td_)
-AST_GET_FUNC_OPS(tr_) AST_GET_FUNC_OPS(tf_) AST_GET_FUNC_OPS(pw_)
-AST_GET_FUNC_OPS(per_) AST_GET_FUNC_OPS(time_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(v1_) AST_GET_VOLT_OPS(v2_) AST_GET_VOLT_OPS(td_)
-AST_GET_VOLT_OPS(tr_) AST_GET_VOLT_OPS(tf_) AST_GET_VOLT_OPS(pw_)
-AST_GET_VOLT_OPS(per_) AST_GET_VOLT_OPS(time_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(v1_) AST_GET_CURRENT_OPS(v2_) AST_GET_CURRENT_OPS(td_)
-AST_GET_CURRENT_OPS(tr_) AST_GET_CURRENT_OPS(tf_) AST_GET_CURRENT_OPS(pw_)
-AST_GET_CURRENT_OPS(per_) AST_GET_CURRENT_OPS(time_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(v1_) AST_GET_TIME_OPS(v2_) AST_GET_TIME_OPS(td_)
-AST_GET_TIME_OPS(tr_) AST_GET_TIME_OPS(tf_) AST_GET_TIME_OPS(pw_)
-AST_GET_TIME_OPS(per_) AST_GET_TIME_OPS(time_)
+      time_->accept(visitor,time_);
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td_, tr_, tf_, pw_, per_, time_;
+    Teuchos::RCP<astNode<ScalarT> > time_;
     bool v1Given_, v2Given_, tdGiven_, trGiven_, tfGiven_, pwGiven_, perGiven_;
     double bpTol_;
     double startingTimeStep_;
@@ -331,7 +294,7 @@ class spiceSinOp : public astNode<ScalarT>
 {
   public:
     spiceSinOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
-      astNode<ScalarT>(), 
+      astNode<ScalarT>(args), 
       time_(time),
       v0Given_(false), vaGiven_(false), freqGiven_(false), tdGiven_(false), thetaGiven_(false), phaseGiven_(false),
       finalTime_(0.0)
@@ -345,13 +308,16 @@ class spiceSinOp : public astNode<ScalarT>
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sin) has too many arguments")); yyerror(errStr);
       }
-    
-      if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 3) { freq_  = args[2]; freqGiven_=true;  } else { freq_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 4) { td_    = args[3]; tdGiven_=true;    } else { td_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 5) { theta_ = args[4]; thetaGiven_=true; } else { theta_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 6) { phase_ = args[5]; phaseGiven_=true; } else { phase_ = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+   
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      if (child.size() < 6) { child.resize(6); }
+
+      if (args.size() >= 1) { v0Given_=true;    } else { child[0] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { vaGiven_=true;    } else { child[1] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { freqGiven_=true;  } else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { tdGiven_=true;    } else { child[3] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { thetaGiven_=true; } else { child[4] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 6) { phaseGiven_=true; } else { child[5] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
@@ -363,20 +329,23 @@ class spiceSinOp : public astNode<ScalarT>
 
       if (!freqGiven_ && finalTime_ != 0.0)  
       {
-        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (freq_);
+        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[2]);
         freqTmpOp->number = 1.0/finalTime_;
       }
 
       ScalarT time = std::real(this->time_->val());
-      time -= std::real(this->td_->val());
+      ScalarT tdVal = this->childrenAstNodes_[3]->val();
+      time -= std::real(tdVal);
       double mpi = M_PI;
       ScalarT SourceValue = 0.0;
 
-      ScalarT v0Val = this->v0_->val();
-      ScalarT vaVal = this->va_->val();
-      ScalarT freqVal = this->freq_->val();
-      ScalarT phaseVal = this->phase_->val();
-      ScalarT thetaVal = this->theta_->val();
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      ScalarT v0Val    = child[0]->val();
+      ScalarT vaVal    = child[1]->val();
+      ScalarT freqVal  = child[2]->val();
+      //ScalarT tdVal    = child[3]->val();
+      ScalarT thetaVal = child[4]->val();
+      ScalarT phaseVal = child[5]->val();
 
       if (std::real(time) <= 0)
       {
@@ -401,7 +370,8 @@ class spiceSinOp : public astNode<ScalarT>
       if(std::real(dTime_dt) != 0.0)
       { 
         ScalarT time = std::real(this->time_->val());
-        time -= std::real(this->td_->val());
+        ScalarT tdVal = this->childrenAstNodes_[3]->val();
+        time -= std::real(tdVal);
         double mpi = M_PI;
 
         if (std::real(time) <= 0)
@@ -411,10 +381,13 @@ class spiceSinOp : public astNode<ScalarT>
         else
         {
           // time derivative computed via Maple:
-          ScalarT vaVal = this->va_->val();
-          ScalarT freqVal = this->freq_->val();
-          ScalarT phaseVal = this->phase_->val();
-          ScalarT thetaVal = this->theta_->val();
+          std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+          //ScalarT v0Val    = child[0]->val();
+          ScalarT vaVal    = child[1]->val();
+          ScalarT freqVal  = child[2]->val();
+          //ScalarT tdVal    = child[3]->val();
+          ScalarT thetaVal = child[4]->val();
+          ScalarT phaseVal = child[5]->val();
 
           dSource_dt = 2.0*vaVal*mpi*std::real(freqVal)*cos(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*exp(-time*std::real(thetaVal))-vaVal*sin(2.0*mpi*(std::real(freqVal)*time+1/360*std::real(phaseVal)))*std::real(thetaVal)*exp(-time*std::real(thetaVal));
           dSource_dt *= dTime_dt;
@@ -428,7 +401,7 @@ class spiceSinOp : public astNode<ScalarT>
       ScalarT dSource_dt = 0.0;
       if (!freqGiven_ && finalTime_ != 0.0)  
       {
-        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (freq_);
+        Teuchos::RCP<numval<ScalarT> > freqTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (this->childrenAstNodes_[2]);
         freqTmpOp->number = 1.0/finalTime_;
       }
 
@@ -437,14 +410,18 @@ class spiceSinOp : public astNode<ScalarT>
       this->time_->dx2(time,derivs); // ERK check this!
       time = std::real(time);
 
-      time -= std::real(this->td_->val());
+      ScalarT tdVal = this->childrenAstNodes_[3]->val();
+      time -= std::real(tdVal);
       double mpi = M_PI;
 
-      ScalarT v0Val = this->v0_->val();
-      ScalarT vaVal = this->va_->val();
-      ScalarT freqVal = this->freq_->val();
-      ScalarT phaseVal = this->phase_->val();
-      ScalarT thetaVal = this->theta_->val();
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      ScalarT v0Val    = child[0]->val();
+      ScalarT vaVal    = child[1]->val();
+      ScalarT freqVal  = child[2]->val();
+      //ScalarT tdVal    = child[3]->val();
+      ScalarT thetaVal = child[4]->val();
+      ScalarT phaseVal = child[5]->val();
+
       if (std::real(time) <= 0)
       {
         dSource_dt = 0.0;
@@ -475,7 +452,8 @@ class spiceSinOp : public astNode<ScalarT>
       if (tdGiven_)
       {
         double basetime=0.0;
-        ScalarT TD = std::real(this->td_->val());
+        ScalarT tdVal = this->childrenAstNodes_[3]->val();
+        ScalarT TD = std::real(tdVal);
         breakPointTimes.push_back(std::real(basetime+TD));
       }
       return true;
@@ -489,12 +467,12 @@ class spiceSinOp : public astNode<ScalarT>
       os << "spice sin operator id = " << this->id_ << std::endl;
       ++indent;
 
-      AST_CALL_SUBOUTPUT(v0_)
-      AST_CALL_SUBOUTPUT(va_)
-      AST_CALL_SUBOUTPUT(freq_)
-      AST_CALL_SUBOUTPUT(td_)
-      AST_CALL_SUBOUTPUT(theta_)
-      AST_CALL_SUBOUTPUT(phase_)
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[0]);
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[1]);
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[2]);
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[3]);
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[4]);
+      AST_CALL_SUBOUTPUT(this->childrenAstNodes_[5]);
     }
 
     virtual void compactOutput(std::ostream & os)
@@ -510,56 +488,23 @@ class spiceSinOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(freq_)
-AST_GET_INTERESTING_OPS(td_) AST_GET_INTERESTING_OPS(theta_) AST_GET_INTERESTING_OPS(phase_) AST_GET_INTERESTING_OPS(time_)
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceSinOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSinOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
+                                   
+      this->childrenAstNodes_[0]->accept(visitor,this->childrenAstNodes_[0]);
+      this->childrenAstNodes_[1]->accept(visitor,this->childrenAstNodes_[1]);
+      this->childrenAstNodes_[2]->accept(visitor,this->childrenAstNodes_[2]);
+      this->childrenAstNodes_[3]->accept(visitor,this->childrenAstNodes_[3]);
+      this->childrenAstNodes_[4]->accept(visitor,this->childrenAstNodes_[4]);
+      this->childrenAstNodes_[5]->accept(visitor,this->childrenAstNodes_[5]);
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(v0_) AST_GET_STATE_OPS(va_) AST_GET_STATE_OPS(freq_)
-AST_GET_STATE_OPS(td_) AST_GET_STATE_OPS(theta_) AST_GET_STATE_OPS(phase_) AST_GET_STATE_OPS(time_)
-    }
-
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(v0_) AST_GET_PARAM_OPS(va_) AST_GET_PARAM_OPS(freq_)
-AST_GET_PARAM_OPS(td_) AST_GET_PARAM_OPS(theta_) AST_GET_PARAM_OPS(phase_) AST_GET_PARAM_OPS(time_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(v0_) AST_GET_FUNC_ARG_OPS(va_) AST_GET_FUNC_ARG_OPS(freq_)
-AST_GET_FUNC_ARG_OPS(td_) AST_GET_FUNC_ARG_OPS(theta_) AST_GET_FUNC_ARG_OPS(phase_) AST_GET_FUNC_ARG_OPS(time_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(v0_) AST_GET_FUNC_OPS(va_) AST_GET_FUNC_OPS(freq_)
-AST_GET_FUNC_OPS(td_) AST_GET_FUNC_OPS(theta_) AST_GET_FUNC_OPS(phase_) AST_GET_FUNC_OPS(time_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(v0_) AST_GET_VOLT_OPS(va_) AST_GET_VOLT_OPS(freq_)
-AST_GET_VOLT_OPS(td_) AST_GET_VOLT_OPS(theta_) AST_GET_VOLT_OPS(phase_) AST_GET_VOLT_OPS(time_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(freq_)
-AST_GET_CURRENT_OPS(td_) AST_GET_CURRENT_OPS(theta_) AST_GET_CURRENT_OPS(phase_) AST_GET_CURRENT_OPS(time_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(freq_)
-AST_GET_TIME_OPS(td_) AST_GET_TIME_OPS(theta_) AST_GET_TIME_OPS(phase_) AST_GET_TIME_OPS(time_)
+      time_->accept(visitor,time_);
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > v0_, va_, freq_, td_, theta_, phase_, time_;
+    Teuchos::RCP<astNode<ScalarT> > time_;
     bool v0Given_, vaGiven_, freqGiven_, tdGiven_, thetaGiven_, phaseGiven_;
     double finalTime_;
 };
@@ -574,7 +519,7 @@ class spiceExpOp : public astNode<ScalarT>
 {
   public:
     spiceExpOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
-      astNode<ScalarT>(), 
+      astNode<ScalarT>(args), 
       time_(time),
       v1Given_(false), v2Given_(false), td1Given_(false), tau1Given_(false), td2Given_(false), tau2Given_(false),
       startingTimeStep_(0.0)
@@ -588,24 +533,34 @@ class spiceExpOp : public astNode<ScalarT>
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_exp) has too many arguments")); yyerror(errStr);
       }
-    
-      if (args.size() >= 1) { v1_    = args[0]; v1Given_=true;    } else { v1_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 2) { v2_    = args[1]; v2Given_=true;    } else { v2_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 3) { td1_   = args[2]; td1Given_=true;   } else { td1_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 4) { tau1_  = args[3]; tau1Given_=true;  } else { tau1_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 5) { td2_   = args[4]; td2Given_=true;   } else { td2_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 6) { tau2_  = args[5]; tau2Given_=true;  } else { tau2_  = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+   
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      if (child.size() < 6) { child.resize(6); }
+
+      if (args.size() >= 1) { v1Given_=true;    } else { child[0] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { v2Given_=true;    } else { child[1] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { td1Given_=true;   } else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { tau1Given_=true;  } else { child[3] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { td2Given_=true;   } else { child[4] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 6) { tau2Given_=true;  } else { child[5] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
     {
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v1_   = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & v2_   = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & td1_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & tau1_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & td2_  = child[4];
+      Teuchos::RCP<astNode<ScalarT> > & tau2_ = child[5];
+
       // If neccessary, set defaults:
       // double tstep = solState_.startingTimeStep_;
       // if (!TD1given)  TD1 = 0.0;
       // if (!TAU1given) TAU1 = tstep;
       // if (!TD2given)  TD2 = TD1 + tstep;
       // if (!TAU2given) TAU2 = tstep;
-
       if (!tau1Given_)  { Teuchos::RCP<numval<ScalarT> > tau1TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tau1_); tau1TmpOp->number = startingTimeStep_; }
 
       if (!td2Given_)   
@@ -616,25 +571,24 @@ class spiceExpOp : public astNode<ScalarT>
       }
 
       if (!tau2Given_)  { Teuchos::RCP<numval<ScalarT> > tau2TmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (tau2_); tau2TmpOp->number = startingTimeStep_; }
-
-      ScalarT time = std::real(this->time_->val());
+      ScalarT time = std::real(time_->val());
       ScalarT SourceValue = 0.0;
 
-      ScalarT TD1 = std::real(this->td1_->val()), TD2 = std::real(this->td2_->val());
+      ScalarT TD1 = std::real(td1_->val()), TD2 = std::real(td2_->val());
       if (std::real(time) <= std::real(TD1))
       {
-        SourceValue = this->v1_->val();
+        SourceValue = v1_->val();
       }
       else if (std::real(time) <= std::real(TD2))
       {
-        ScalarT V1 = this->v1_->val(), V2 = this->v2_->val();
-        ScalarT TAU1 = std::real(this->tau1_->val());
+        ScalarT V1 = v1_->val(), V2 = v2_->val();
+        ScalarT TAU1 = std::real(tau1_->val());
         SourceValue = V1 + (V2-V1)*(1.0-std::exp(-(std::real(time)-std::real(TD1))/std::real(TAU1)));
       }
       else
       {
-        ScalarT V1 = this->v1_->val(), V2 = this->v2_->val();
-        ScalarT TAU1 = std::real(this->tau1_->val()), TAU2 = std::real(this->tau2_->val());
+        ScalarT V1 = v1_->val(), V2 = v2_->val();
+        ScalarT TAU1 = std::real(tau1_->val()), TAU2 = std::real(tau2_->val());
         SourceValue = V1 + (V2-V1)*(1.0-std::exp(-(std::real(time)-std::real(TD1))/std::real(TAU1))) +
                            (V1-V2)*(1.0-std::exp(-(std::real(time)-std::real(TD2))/std::real(TAU2))) ;
       }
@@ -657,17 +611,21 @@ class spiceExpOp : public astNode<ScalarT>
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes)
     {
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & td1_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & td2_  = child[4];
+
       if (td1Given_)
       {
         double basetime=0.0;
-        ScalarT TD1 = std::real(this->td2_->val());
+        ScalarT TD1 = std::real(td2_->val());
         breakPointTimes.push_back(std::real(basetime+TD1));
       }
 
       if (td2Given_)
       {
         double basetime=0.0;
-        ScalarT TD2 = std::real(this->td2_->val());
+        ScalarT TD2 = std::real(td2_->val());
         breakPointTimes.push_back(std::real(basetime+TD2));
       }
       return true;
@@ -680,6 +638,14 @@ class spiceExpOp : public astNode<ScalarT>
       os << std::setw(indent) << " ";
       os << "spice exp operator id = " << this->id_ << std::endl;
       ++indent;
+
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v1_   = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & v2_   = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & td1_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & tau1_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & td2_  = child[4];
+      Teuchos::RCP<astNode<ScalarT> > & tau2_ = child[5];
 
       AST_CALL_SUBOUTPUT(v1_)
       AST_CALL_SUBOUTPUT(v2_)
@@ -702,56 +668,30 @@ class spiceExpOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(v1_) AST_GET_INTERESTING_OPS(v2_) AST_GET_INTERESTING_OPS(td1_)
-AST_GET_INTERESTING_OPS(tau1_) AST_GET_INTERESTING_OPS(td2_) AST_GET_INTERESTING_OPS(tau2_) AST_GET_INTERESTING_OPS(time_)
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceExpOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceExpOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(v1_) AST_GET_STATE_OPS(v2_) AST_GET_STATE_OPS(td1_)
-AST_GET_STATE_OPS(tau1_) AST_GET_STATE_OPS(td2_) AST_GET_STATE_OPS(tau2_) AST_GET_STATE_OPS(time_)
-    }
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v1_   = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & v2_   = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & td1_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & tau1_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & td2_  = child[4];
+      Teuchos::RCP<astNode<ScalarT> > & tau2_ = child[5];
 
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(v1_) AST_GET_PARAM_OPS(v2_) AST_GET_PARAM_OPS(td1_)
-AST_GET_PARAM_OPS(tau1_) AST_GET_PARAM_OPS(td2_) AST_GET_PARAM_OPS(tau2_) AST_GET_PARAM_OPS(time_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(v1_) AST_GET_FUNC_ARG_OPS(v2_) AST_GET_FUNC_ARG_OPS(td1_)
-AST_GET_FUNC_ARG_OPS(tau1_) AST_GET_FUNC_ARG_OPS(td2_) AST_GET_FUNC_ARG_OPS(tau2_) AST_GET_FUNC_ARG_OPS(time_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(v1_) AST_GET_FUNC_OPS(v2_) AST_GET_FUNC_OPS(td1_)
-AST_GET_FUNC_OPS(tau1_) AST_GET_FUNC_OPS(td2_) AST_GET_FUNC_OPS(tau2_) AST_GET_FUNC_OPS(time_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(v1_) AST_GET_VOLT_OPS(v2_) AST_GET_VOLT_OPS(td1_)
-AST_GET_VOLT_OPS(tau1_) AST_GET_VOLT_OPS(td2_) AST_GET_VOLT_OPS(tau2_) AST_GET_VOLT_OPS(time_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(v1_) AST_GET_CURRENT_OPS(v2_) AST_GET_CURRENT_OPS(td1_)
-AST_GET_CURRENT_OPS(tau1_) AST_GET_CURRENT_OPS(td2_) AST_GET_CURRENT_OPS(tau2_) AST_GET_CURRENT_OPS(time_) 
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(v1_) AST_GET_TIME_OPS(v2_) AST_GET_TIME_OPS(td1_)
-AST_GET_TIME_OPS(tau1_) AST_GET_TIME_OPS(td2_) AST_GET_TIME_OPS(tau2_) AST_GET_TIME_OPS(time_) 
+      v1_->accept(visitor,v1_);
+      v2_->accept(visitor,v2_);
+      td1_->accept(visitor,td1_);
+      tau1_->accept(visitor,tau1_);
+      td2_->accept(visitor,td2_);
+      tau2_->accept(visitor,tau2_);
+      time_->accept(visitor,time_);
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td1_, tau1_, td2_, tau2_, time_;
+    Teuchos::RCP<astNode<ScalarT> > time_;
     bool v1Given_, v2Given_, td1Given_, tau1Given_, td2Given_, tau2Given_;
     double startingTimeStep_;
 };
@@ -766,7 +706,7 @@ class spiceSffmOp : public astNode<ScalarT>
 {
   public:
     spiceSffmOp (std::vector<Teuchos::RCP<astNode<ScalarT> > > & args, Teuchos::RCP<astNode<ScalarT> > &time):
-      astNode<ScalarT>(), 
+      astNode<ScalarT>(args), 
       time_(time),
       v0Given_(false), vaGiven_(false), fcGiven_(false), mdiGiven_(false), fsGiven_(false),
       finalTime_(0.0)
@@ -780,16 +720,25 @@ class spiceSffmOp : public astNode<ScalarT>
       {
         std::vector<std::string> errStr(1,std::string("AST node (spice_sffm) has too many arguments")); yyerror(errStr);
       }
-    
-      if (args.size() >= 1) { v0_    = args[0]; v0Given_=true;    } else { v0_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 2) { va_    = args[1]; vaGiven_=true;    } else { va_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 3) { fc_    = args[2]; fcGiven_=true;    } else { fc_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 4) { mdi_   = args[3]; mdiGiven_=true;   } else { mdi_   = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
-      if (args.size() >= 5) { fs_    = args[4]; fsGiven_=true;    } else { fs_    = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      if (child.size() < 5) { child.resize(5); }
+
+      if (args.size() >= 1) { v0Given_=true;    } else { child[0] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 2) { vaGiven_=true;    } else { child[1] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 3) { fcGiven_=true;    } else { child[2] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 4) { mdiGiven_=true;   } else { child[3] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
+      if (args.size() >= 5) { fsGiven_=true;    } else { child[4] = Teuchos::RCP<astNode<ScalarT> >(new numval<ScalarT>(0.0)); }
     };
 
     virtual ScalarT val()
     {
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v0_  = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & va_  = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & fc_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & mdi_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & fs_  = child[4];
+
       // If neccessary, set the defaults:
       //double tstop = solState_.finalTime_;
       //if (!FCgiven) FC = 1.0/tstop;
@@ -798,13 +747,13 @@ class spiceSffmOp : public astNode<ScalarT>
       if (!fcGiven_ && finalTime_ != 0.0) { Teuchos::RCP<numval<ScalarT> > fcTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (fc_); fcTmpOp->number = 1.0/finalTime_; }
       if (!fsGiven_ && finalTime_ != 0.0) { Teuchos::RCP<numval<ScalarT> > fsTmpOp = Teuchos::rcp_static_cast<numval<ScalarT> > (fs_); fsTmpOp->number = 1.0/finalTime_; }
 
-      ScalarT time = std::real(this->time_->val());
+      ScalarT time = std::real(time_->val());
 
-      ScalarT V0 = this->v0_->val();
-      ScalarT VA = this->va_->val();
-      ScalarT FC = this->fc_->val();
-      ScalarT MDI = this->mdi_->val();
-      ScalarT FS = this->fs_->val();
+      ScalarT V0 = v0_->val();
+      ScalarT VA = va_->val();
+      ScalarT FC = fc_->val();
+      ScalarT MDI = mdi_->val();
+      ScalarT FS = fs_->val();
 
       double mpi = M_PI;
       ScalarT SourceValue = V0 + VA * sin((2 * mpi * FC * std::real(time)) +
@@ -835,6 +784,13 @@ class spiceSffmOp : public astNode<ScalarT>
       os << "spice sffm operator id = " << this->id_ << std::endl;
       ++indent;
 
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v0_  = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & va_  = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & fc_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & mdi_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & fs_  = child[4];
+
       AST_CALL_SUBOUTPUT(v0_)
       AST_CALL_SUBOUTPUT(va_)
       AST_CALL_SUBOUTPUT(fc_)
@@ -855,59 +811,30 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual bool getIsTreeConstant() { return false; }
     virtual bool srcType() { return true; }
 
-    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(fc_)
-AST_GET_INTERESTING_OPS(mdi_) AST_GET_INTERESTING_OPS(fs_) AST_GET_INTERESTING_OPS(time_)
-    }
+    virtual void accept (nodeVisitor<ScalarT> & visitor, Teuchos::RCP<astNode<ScalarT> > & thisAst_) 
+    { 
+      Teuchos::RCP<spiceSffmOp<ScalarT> > castToThis = Teuchos::rcp_static_cast<spiceSffmOp<ScalarT> > (thisAst_);
+      visitor.visit( castToThis ); // 2nd dispatch
 
-    virtual void getStateOps(stateOpVectorContainers<ScalarT> & ovc)
-    {
-AST_GET_STATE_OPS(v0_) AST_GET_STATE_OPS(va_) AST_GET_STATE_OPS(fc_)
-AST_GET_STATE_OPS(mdi_) AST_GET_STATE_OPS(fs_) AST_GET_STATE_OPS(time_)
-    }
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & child =  this->childrenAstNodes_;
+      Teuchos::RCP<astNode<ScalarT> > & v0_  = child[0];
+      Teuchos::RCP<astNode<ScalarT> > & va_  = child[1];
+      Teuchos::RCP<astNode<ScalarT> > & fc_  = child[2];
+      Teuchos::RCP<astNode<ScalarT> > & mdi_ = child[3];
+      Teuchos::RCP<astNode<ScalarT> > & fs_  = child[4];
 
-    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
-    {
-AST_GET_PARAM_OPS(v0_) AST_GET_PARAM_OPS(va_) AST_GET_PARAM_OPS(fc_)
-AST_GET_PARAM_OPS(mdi_) AST_GET_PARAM_OPS(fs_) AST_GET_PARAM_OPS(time_)
-    }
-
-    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
-    {
-AST_GET_FUNC_ARG_OPS(v0_) AST_GET_FUNC_ARG_OPS(va_) AST_GET_FUNC_ARG_OPS(fc_)
-AST_GET_FUNC_ARG_OPS(mdi_) AST_GET_FUNC_ARG_OPS(fs_) AST_GET_FUNC_ARG_OPS(time_)
-    }
-
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
-    {
-AST_GET_FUNC_OPS(v0_) AST_GET_FUNC_OPS(va_) AST_GET_FUNC_OPS(fc_)
-AST_GET_FUNC_OPS(mdi_) AST_GET_FUNC_OPS(fs_) AST_GET_FUNC_OPS(time_)
-    }
-
-    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
-    {
-AST_GET_VOLT_OPS(v0_) AST_GET_VOLT_OPS(va_) AST_GET_VOLT_OPS(fc_)
-AST_GET_VOLT_OPS(mdi_) AST_GET_VOLT_OPS(fs_) AST_GET_VOLT_OPS(time_)
-    }
-
-    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
-    {
-AST_GET_CURRENT_OPS(v0_) AST_GET_CURRENT_OPS(va_) AST_GET_CURRENT_OPS(fc_)
-AST_GET_CURRENT_OPS(mdi_) AST_GET_CURRENT_OPS(fs_) AST_GET_CURRENT_OPS(time_)
-    }
-
-    virtual void getTimeOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & timeOpVector)
-    {
-AST_GET_TIME_OPS(v0_) AST_GET_TIME_OPS(va_) AST_GET_TIME_OPS(fc_)
-AST_GET_TIME_OPS(mdi_) AST_GET_TIME_OPS(fs_) AST_GET_TIME_OPS(time_)
+      v0_->accept(visitor,v0_);
+      va_->accept(visitor,va_);
+      fc_->accept(visitor,fc_);
+      mdi_->accept(visitor,mdi_);
+      fs_->accept(visitor,fs_);
+      time_->accept(visitor,time_);
     }
 
   private:
-    Teuchos::RCP<astNode<ScalarT> > v0_, va_, fc_, mdi_, fs_, time_;
+    Teuchos::RCP<astNode<ScalarT> > time_;
     bool v0Given_, vaGiven_, fcGiven_, mdiGiven_, fsGiven_;
     double finalTime_;
 };
 
 #endif
-

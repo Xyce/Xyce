@@ -77,8 +77,9 @@ class N_UTL_FFTW_Interface: public N_UTL_FFTInterfaceDecl<VectorType>
         fftw_destroy_plan(forwardPlan_);
       if (!firstInverseFFT_)
         fftw_destroy_plan(inversePlan_);
-      // Only clean up when the object is being destroyed, save any wisdom FFTW may have obtained.
-      fftw_cleanup();
+      // calling fftw_cleanup() is not safe here as it would invalidate, but not delete 
+      // and fftw_plan data held by other instances of this class.  calling fftw_cleanup()
+      // has been moved to the ~Simulator() function.
     }
 
     // Register new vectors for the FFT/IFT interface to use.

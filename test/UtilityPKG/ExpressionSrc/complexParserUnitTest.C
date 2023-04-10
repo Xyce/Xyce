@@ -505,7 +505,7 @@ void createFunc( std::string & lhs, std::string & rhs,
 
 //-------------------------------------------------------------------------------
 // number by itself
-TEST ( Complex_Parser_Test, numval)
+TEST ( ComplexParserTest, numval)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("1.0+2.0J"), testGroup);
@@ -525,7 +525,7 @@ TEST ( Complex_Parser_Test, numval)
 }
 
 
-TEST ( Complex_Parser_Test, numval2)
+TEST ( ComplexParserTest, numval2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("10.61E6"), testGroup);
@@ -545,7 +545,7 @@ TEST ( Complex_Parser_Test, numval2)
 }
 
 // these next 3 tests are for parameters that happen to have the same name as single-character operators
-TEST ( Complex_Parser_Test, singleParam_R)
+TEST ( ComplexParserTest, singleParam_R)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("R"), testGroup);
@@ -555,7 +555,7 @@ TEST ( Complex_Parser_Test, singleParam_R)
   EXPECT_EQ( result, 0.0);
 }
 
-TEST ( Complex_Parser_Test, singleParam_M)
+TEST ( ComplexParserTest, singleParam_M)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M"), testGroup);
@@ -565,7 +565,7 @@ TEST ( Complex_Parser_Test, singleParam_M)
   EXPECT_EQ( result, 0.0);
 }
 
-TEST ( Complex_Parser_Test, singleParam_P)
+TEST ( ComplexParserTest, singleParam_P)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("P"), testGroup);
@@ -575,7 +575,7 @@ TEST ( Complex_Parser_Test, singleParam_P)
   EXPECT_EQ( result, 0.0);
 }
 
-TEST ( Complex_Parser_Test, singleParam_E)
+TEST ( ComplexParserTest, singleParam_E)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("E"), testGroup);
@@ -585,7 +585,7 @@ TEST ( Complex_Parser_Test, singleParam_E)
   EXPECT_EQ( result, 0.0);
 }
 
-TEST ( Complex_Parser_Test, singleParam_J)
+TEST ( ComplexParserTest, singleParam_J)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("J"), testGroup);
@@ -597,7 +597,7 @@ TEST ( Complex_Parser_Test, singleParam_J)
 
 // this test is to ensure that a parameter name can include a period "."
 //INVALIDLINES.S2P
-TEST ( Complex_Parser_Test, param_INVALIDLINES_dot_S2PJ)
+TEST ( ComplexParserTest, param_INVALIDLINES_dot_S2PJ)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("INVALIDLINES.S2P"), testGroup);
@@ -609,7 +609,7 @@ TEST ( Complex_Parser_Test, param_INVALIDLINES_dot_S2PJ)
 
 // this test is to ensure that a parameter name can include a period "!"
 // See issue 191 on gitlab-ex.
-TEST ( Complex_Parser_Test, param_exclamationPoint)
+TEST ( ComplexParserTest, param_exclamationPoint)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("YCAP!CAP2F:R"), testGroup);
@@ -621,7 +621,7 @@ TEST ( Complex_Parser_Test, param_exclamationPoint)
 
 // these next 3 tests are for the single-character operators, which are mostly relevant to complex numbers
 // In some codes, R(number) means "real part" of number.
-TEST ( Complex_Parser_Test, singleCharacter_Rop)
+TEST ( ComplexParserTest, singleCharacter_Rop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("R(1.0+2.0J)"), testGroup);
@@ -633,7 +633,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Rop)
 
 // make sure it also works with a space, as the lexing of R operator requires that the 
 // left paren be part of the token, so whitespace is optionally handled via regex
-TEST ( Complex_Parser_Test, singleCharacter_Rop2)
+TEST ( ComplexParserTest, singleCharacter_Rop2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("R (1.0+2.0J)"), testGroup);
@@ -645,7 +645,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Rop2)
 
 
 // M(number) = abs of complex number.
-TEST ( Complex_Parser_Test, singleCharacter_Mop)
+TEST ( ComplexParserTest, singleCharacter_Mop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M(1.0+2.0J)"), testGroup);
@@ -660,7 +660,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop)
 
 
 // M(parameter) = abs of complex valued parameter
-TEST ( Complex_Parser_Test, singleCharacter_Mop_Param)
+TEST ( ComplexParserTest, singleCharacter_Mop_Param)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M(par1)"), testGroup);
@@ -680,7 +680,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop_Param)
 }
 
 // M(parameter) = abs of complex valued expression
-TEST ( Complex_Parser_Test, singleCharacter_Mop_Expr)
+TEST ( ComplexParserTest, singleCharacter_Mop_Expr)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M(par1 + par2*4.0)"), testGroup);
@@ -706,7 +706,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop_Expr)
 }
 
 // M(parameter) = abs of complex valued expression with a function
-TEST ( Complex_Parser_Test, singleCharacter_Mop_Func)
+TEST ( ComplexParserTest, singleCharacter_Mop_Func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M(par1 + F1(4.0))"), testGroup);
@@ -742,7 +742,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop_Func)
 
 // make sure it also works with a space, as the lexing of M operator requires that the 
 // left paren be part of the token, so whitespace is optionally handled via regex
-TEST ( Complex_Parser_Test, singleCharacter_Mop2)
+TEST ( ComplexParserTest, singleCharacter_Mop2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("M (1.0+2.0J)"), testGroup);
@@ -755,7 +755,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Mop2)
 }
 
 // P(number) = phase of number
-TEST ( Complex_Parser_Test, singleCharacter_Pop)
+TEST ( ComplexParserTest, singleCharacter_Pop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)"), testGroup);
@@ -769,7 +769,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Pop)
 
 // make sure it also works with a space, as the lexing of P operator requires that the 
 // left paren be part of the token, so whitespace is optionally handled via regex
-TEST ( Complex_Parser_Test, singleCharacter_Pop2)
+TEST ( ComplexParserTest, singleCharacter_Pop2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Ph (1.0+2.0J)"), testGroup);
@@ -783,7 +783,7 @@ TEST ( Complex_Parser_Test, singleCharacter_Pop2)
 
 
 // other complex number oriented operators:
-TEST ( Complex_Parser_Test, complexOps_REop)
+TEST ( ComplexParserTest, complexOps_REop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("RE(2.0+3.0J)"), testGroup);
@@ -795,7 +795,7 @@ TEST ( Complex_Parser_Test, complexOps_REop)
 
 #if 0
 // had to disable this, as IM conflicts with current magnitude operator, IM
-TEST ( Complex_Parser_Test, complexOps_IMop)
+TEST ( ComplexParserTest, complexOps_IMop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("IM(2.0+3.0J)"), testGroup);
@@ -806,7 +806,7 @@ TEST ( Complex_Parser_Test, complexOps_IMop)
 }
 #endif
 
-TEST ( Complex_Parser_Test, complexOps_IMGop)
+TEST ( ComplexParserTest, complexOps_IMGop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("IMG(2.0+3.0J)"), testGroup);
@@ -816,7 +816,7 @@ TEST ( Complex_Parser_Test, complexOps_IMGop)
   EXPECT_EQ( result, 3.0);
 }
 
-TEST ( Complex_Parser_Test, complexOps_ABSop)
+TEST ( ComplexParserTest, complexOps_ABSop)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("ABS(2.0+3.0J)"), testGroup);
@@ -828,7 +828,7 @@ TEST ( Complex_Parser_Test, complexOps_ABSop)
 
 
 // ABS(parameter) = abs of complex valued parameter
-TEST ( Complex_Parser_Test, singleCharacter_ABSop_Param)
+TEST ( ComplexParserTest, singleCharacter_ABSop_Param)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("ABS(par1)"), testGroup);
@@ -848,7 +848,7 @@ TEST ( Complex_Parser_Test, singleCharacter_ABSop_Param)
 }
 
 // ABS(parameter) = abs of complex valued expression
-TEST ( Complex_Parser_Test, singleCharacter_ABSop_Expr)
+TEST ( ComplexParserTest, singleCharacter_ABSop_Expr)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("ABS(par1 + par2*4.0)"), testGroup);
@@ -874,7 +874,7 @@ TEST ( Complex_Parser_Test, singleCharacter_ABSop_Expr)
 }
 
 // ABS(parameter) = abs of complex valued expression with a function
-TEST ( Complex_Parser_Test, singleCharacter_ABSop_Func)
+TEST ( ComplexParserTest, singleCharacter_ABSop_Func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("ABS(par1 + F1(4.0))"), testGroup);
@@ -910,7 +910,7 @@ TEST ( Complex_Parser_Test, singleCharacter_ABSop_Func)
 
 
 
-TEST ( Complex_Parser_Test, complexOps_DBop)
+TEST ( ComplexParserTest, complexOps_DBop)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -928,10 +928,10 @@ TEST ( Complex_Parser_Test, complexOps_DBop)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+  OUTPUT_MACRO( ComplexParserTest, complexOps_DBop)
 }
 
-TEST ( Complex_Parser_Test, complexOps_DBop2)
+TEST ( ComplexParserTest, complexOps_DBop2)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -948,456 +948,456 @@ TEST ( Complex_Parser_Test, complexOps_DBop2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO( Complex_Parser_Test, complexOps_DBop)
+  OUTPUT_MACRO( ComplexParserTest, complexOps_DBop)
 }
 // binary operators
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryAdd, "(1.0+2.0J)+(3.0+4.0J)", (std::complex<double>(1.0,2.0)+std::complex<double>(3.0,4.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryMinus, "(1.0+2.0J)-(3.0+4.0J)", (std::complex<double>(1.0,2.0)-std::complex<double>(3.0,4.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryMul, "(8.0+2.0J)*(3.0+4.0J)", (std::complex<double>(8.0,2.0)*std::complex<double>(3.0,4.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryDiv, "(8.0+2.0J)/(3.0+4.0J)", (std::complex<double>(8.0,2.0)/std::complex<double>(3.0,4.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserTest, binaryAdd, "(1.0+2.0J)+(3.0+4.0J)", (std::complex<double>(1.0,2.0)+std::complex<double>(3.0,4.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserTest, binaryMinus, "(1.0+2.0J)-(3.0+4.0J)", (std::complex<double>(1.0,2.0)-std::complex<double>(3.0,4.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserTest, binaryMul, "(8.0+2.0J)*(3.0+4.0J)", (std::complex<double>(8.0,2.0)*std::complex<double>(3.0,4.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserTest, binaryDiv, "(8.0+2.0J)/(3.0+4.0J)", (std::complex<double>(8.0,2.0)/std::complex<double>(3.0,4.0)))
 
 // these "extra" tests all came from my needing to add another bunch of lexer rules for processing numbers.
 // Mainly, numbers specified as 1.  or .2, where one side of the decimal point doesn't have a number at all.
 // I couldn't think of a way to handle them with a single regex (or lexer rule).  
 // The regression test that triggered this was Certification_Tests/BUG_80_SON/Bad_PWL_Source.   The test was
 // not about this issue, but it contains a couple of expressions like this.
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra1, "{4.*PI*1.E-7}", (4*M_PI *1.0e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra2, "{.4*PI*.1E-7}", (0.4*M_PI *0.1e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra3, "{4.u*PI*1.E-7}", (4e-6*M_PI *1.0e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra4, "{.4u*PI*.1E-7}", (0.4e-6*M_PI *0.1e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra5, "{4.*PI*1.E-7u}", (4*M_PI *1.0e-7*1.0e-6) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra6, "{.4*PI*.1E-7u}", (0.4*M_PI *0.1e-7*1.0e-6) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra7, "{4.*PI*1.E-7meg}", (4*M_PI *1.0e-7*1.0e+6) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra8, "{.4*PI*.1E-7meg}", (0.4*M_PI *0.1e-7*1.0e+6) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra9, "{4.meg*PI*1.E-7}", (4e+6*M_PI *1.0e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra10, "{.4meg*PI*.1E-7}", (0.4e+6*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra1, "{4.*PI*1.E-7}", (4*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra2, "{.4*PI*.1E-7}", (0.4*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra3, "{4.u*PI*1.E-7}", (4e-6*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra4, "{.4u*PI*.1E-7}", (0.4e-6*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra5, "{4.*PI*1.E-7u}", (4*M_PI *1.0e-7*1.0e-6) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra6, "{.4*PI*.1E-7u}", (0.4*M_PI *0.1e-7*1.0e-6) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra7, "{4.*PI*1.E-7meg}", (4*M_PI *1.0e-7*1.0e+6) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra8, "{.4*PI*.1E-7meg}", (0.4*M_PI *0.1e-7*1.0e+6) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra9, "{4.meg*PI*1.E-7}", (4e+6*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra10, "{.4meg*PI*.1E-7}", (0.4e+6*M_PI *0.1e-7) )
 
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra11, "{4.*PI*1.E-7mil}", (4*M_PI *1.0e-7*(25.4e-6)) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra12, "{.4*PI*.1E-7mil}", (0.4*M_PI *0.1e-7*(25.4e-6)) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra13, "{4.mil*PI*1.E-7}", (4*(25.4e-6)*M_PI *1.0e-7) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, binaryAddExtra14, "{.4mil*PI*.1E-7}", (0.4*(25.4e-6)*M_PI *0.1e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra11, "{4.*PI*1.E-7mil}", (4*M_PI *1.0e-7*(25.4e-6)) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra12, "{.4*PI*.1E-7mil}", (0.4*M_PI *0.1e-7*(25.4e-6)) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra13, "{4.mil*PI*1.E-7}", (4*(25.4e-6)*M_PI *1.0e-7) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, binaryAddExtra14, "{.4mil*PI*.1E-7}", (0.4*(25.4e-6)*M_PI *0.1e-7) )
 
 // simple precendence testing (via binary operators):
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence1, "3.0*2.0+4.0", (3.0*2.0+4.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence2, "5.0+4.0/2.0", (5.0+4.0/2.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence3, "4.0*6.0/2.0", (4.0*6.0/2.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence4, "4.0*(6.0/2.0)", (4.0*(6.0/2.0)) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence5, "1.0/4.0*10.0", (1.0/4.0*10.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, precedence6, "1.0/(4.0*10.0)", (1.0/(4.0*10.0)) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence1, "3.0*2.0+4.0", (3.0*2.0+4.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence2, "5.0+4.0/2.0", (5.0+4.0/2.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence3, "4.0*6.0/2.0", (4.0*6.0/2.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence4, "4.0*(6.0/2.0)", (4.0*(6.0/2.0)) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence5, "1.0/4.0*10.0", (1.0/4.0*10.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, precedence6, "1.0/(4.0*10.0)", (1.0/(4.0*10.0)) )
 
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, unaryPlus, "+2.0", (2.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, unaryMinus, "-2.0", (-2.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, unaryPlus, "+2.0", (2.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, unaryMinus, "-2.0", (-2.0) )
 
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, phase, "Ph(1.0)", std::arg(1.0) )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, real1, "Re(1.0)", 1.0 )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, real2, "R(1.0)", 1.0 )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, phase, "Ph(1.0)", std::arg(1.0) )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, real1, "Re(1.0)", 1.0 )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, real2, "R(1.0)", 1.0 )
 // Im cannot work along with IM for imaginary current.  disabling
-//PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, imag1, "Im(1.0)", 0.0 )
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, imag2, "Img(1.0)", 0.0 )
+//PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, imag1, "Im(1.0)", 0.0 )
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, imag2, "Img(1.0)", 0.0 )
 
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, int1, "int(11.2423)", 11)
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, int2, "int(-11.2423)", -11)
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, int3, "int  (11.2423)", 11)
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, int1, "int(11.2423)", 11)
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, int2, "int(-11.2423)", -11)
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, int3, "int  (11.2423)", 11)
 
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, uramp1, "uramp(11.2423)", 11.2423)
-PARSER_SIMPLE_TEST_MACRO ( Complex_Parser_Test, uramp2, "uramp(-11.2423)", 0)
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, uramp1, "uramp(11.2423)", 11.2423)
+PARSER_SIMPLE_TEST_MACRO ( ComplexParserTest, uramp2, "uramp(-11.2423)", 0)
 
 // std library functions
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test,sqrt,"sqrt(4.0+3.0J)",  std::sqrt(std::complex<double>(4.0,3.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest,sqrt,"sqrt(4.0+3.0J)",  std::sqrt(std::complex<double>(4.0,3.0)))
 
 // necessary to use std::abs here b/c this test often produces opposite sign (even though both call std::sqrt)
-PARSER_SIMPLE_TEST_MACRO2(Complex_Parser_UnaryFunc_Test,sqrtNeg, "abs(sqrt(-4.0))", std::abs(std::sqrt(std::complex<double>(-4.0,0.0))))
+PARSER_SIMPLE_TEST_MACRO2(ComplexParserUnaryFuncTest,sqrtNeg, "abs(sqrt(-4.0))", std::abs(std::sqrt(std::complex<double>(-4.0,0.0))))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, exp,   "exp(0.5)", std::exp(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abs,   "abs(-0.5)", std::abs(std::complex<double>(-0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sin,   "sin(0.5)", std::sin(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, cos,   "cos(0.5)", std::cos(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, acos,  "acos(0.5)", std::acos(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, acosh, "acosh(1.5)", std::acosh(std::complex<double>(1.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, asin,  "asin(0.5)", std::asin(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, asinh, "asinh(0.5)", std::asinh(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, atan,  "atan(0.5)", std::atan(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, atanh, "atanh(0.5)", std::atanh(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std::cosh(std::complex<double>(0.5,0.0)))
-//PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, exp,   "exp(0.5)", std::exp(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abs,   "abs(-0.5)", std::abs(std::complex<double>(-0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, sin,   "sin(0.5)", std::sin(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, cos,   "cos(0.5)", std::cos(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, acos,  "acos(0.5)", std::acos(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, acosh, "acosh(1.5)", std::acosh(std::complex<double>(1.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, asin,  "asin(0.5)", std::asin(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, asinh, "asinh(0.5)", std::asinh(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, atan,  "atan(0.5)", std::atan(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, atanh, "atanh(0.5)", std::atanh(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, cosh,  "cosh(0.5)", std::cosh(std::complex<double>(0.5,0.0)))
+//PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, log,   "log(0.5)", std::log(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, log,   "log(0.5)", std::log10(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, log10, "log10(0.5)", std::log10(std::complex<double>(0.5,0.0)))
 
 // use abs b/c this often returns opposite sign
-PARSER_SIMPLE_TEST_MACRO2(Complex_Parser_UnaryFunc_Test, log10neg, "abs(log10(-0.5))", std::abs(std::log10(std::complex<double>(-0.5,0.0))))
+PARSER_SIMPLE_TEST_MACRO2(ComplexParserUnaryFuncTest, log10neg, "abs(log10(-0.5))", std::abs(std::log10(std::complex<double>(-0.5,0.0))))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tan,   "tan(0.5)", std::tan(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tanh,  "tanh(0.5)", std::tanh(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, sinh,  "sinh(0.5)", std::sinh(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, tan,   "tan(0.5)", std::tan(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, tanh,  "tanh(0.5)", std::tanh(std::complex<double>(0.5,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow1,  "pow(2.0,3.0)", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow2,  "2.0**3.0", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pow1,  "pow(2.0,3.0)", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pow2,  "2.0**3.0", std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow1,  "pow(2.5,2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abmpow1,  "pow(2.5,2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.0,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow2a,  "pow(2.5,-2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-2.0,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow2b,  "pow(2.5,-3.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-3.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abmpow2a,  "pow(2.5,-2.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-2.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abmpow2b,  "pow(2.5,-3.0)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(-3.0,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow3a,  "pow(2.5,2.1)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.1,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abmpow3a,  "pow(2.5,2.1)", std::pow(std::complex<double>(2.5,0.0),std::complex<double>(2.1,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, abmpow3b,  "pow(-2.5,3.1)", std::pow(std::complex<double>(-2.5,-0.0),std::complex<double>(3.1,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, abmpow3b,  "pow(-2.5,3.1)", std::pow(std::complex<double>(-2.5,-0.0),std::complex<double>(3.1,0.0)))
 
 
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pwrs1,  "pwrs(2.0,3.0)" , std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pwrs2,  "pwrs(0.0,3.0)", 0.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pwrs3,  "pwrs(-2.0,3.0)", -std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pwrs1,  "pwrs(2.0,3.0)" , std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pwrs2,  "pwrs(0.0,3.0)", 0.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pwrs3,  "pwrs(-2.0,3.0)", -std::pow(std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sign1,  "sign(-25,10.25)", 25)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sign2,  "sign(15,-10.25)", -15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, sign1,  "sign(-25,10.25)", 25)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, sign2,  "sign(15,-10.25)", -15)
 
 // Hspice only:
-//PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, pow3,  "2.0^3.0", std::pow(2.0,3.0))
+//PARSER_SIMPLE_TEST_MACRO(ComplexParserUnaryFuncTest, pow3,  "2.0^3.0", std::pow(2.0,3.0))
 
 // lower case metrix prefix/suffix tests
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tera,  "3.0t", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, giga,  "5.0g", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kilo,  "7.0k", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mili,  "2.0m", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega,  "2.0meg", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2,  "4.0x", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, micro,  "2.0u", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nano,  "9.0n", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, pico,  "6.0p", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femto,  "6.0f", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mil,  "2.0mil", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tera,  "3.0t", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, giga,  "5.0g", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kilo,  "7.0k", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mili,  "2.0m", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega,  "2.0meg", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2,  "4.0x", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, micro,  "2.0u", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nano,  "9.0n", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, pico,  "6.0p", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femto,  "6.0f", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mil,  "2.0mil", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, Sec,      "3.0s", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraSec,  "3.0ts", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaSec,  "5.0gs", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloSec,  "7.0ks", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliSec,  "2.0ms", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaSec,  "2.0megs", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Sec,  "4.0xs", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microSec,  "2.0us", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoSec,  "9.0ns", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoSec,  "6.0ps", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoSec,  "6.0fs", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milSec,  "2.0mils", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, Sec,      "3.0s", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraSec,  "3.0ts", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaSec,  "5.0gs", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloSec,  "7.0ks", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliSec,  "2.0ms", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaSec,  "2.0megs", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Sec,  "4.0xs", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microSec,  "2.0us", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoSec,  "9.0ns", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoSec,  "6.0ps", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoSec,  "6.0fs", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milSec,  "2.0mils", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraMeter,  "3.0tm", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaMeter,  "5.0gm", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloMeter,  "7.0km", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliMeter,  "2.0mm", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaMeter,  "2.0megm", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Meter,  "4.0xm", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microMeter,  "2.0um", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoMeter,  "9.0nm", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoMeter,  "6.0pm", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoMeter,  "6.0fm", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milMeter,  "2.0milm", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraMeter,  "3.0tm", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaMeter,  "5.0gm", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloMeter,  "7.0km", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliMeter,  "2.0mm", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaMeter,  "2.0megm", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Meter,  "4.0xm", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microMeter,  "2.0um", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoMeter,  "9.0nm", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoMeter,  "6.0pm", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoMeter,  "6.0fm", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milMeter,  "2.0milm", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, Henry,      "3.0h", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraHenry,  "3.0th", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaHenry,  "5.0gh", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloHenry,  "7.0kh", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliHenry,  "2.0mh", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaHenry,  "2.0megh", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Henry,  "4.0xh", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microHenry,  "2.0uh", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoHenry,  "9.0nh", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoHenry,  "6.0ph", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoHenry,  "6.0fh", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milHenry,  "2.0milh", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, Henry,      "3.0h", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraHenry,  "3.0th", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaHenry,  "5.0gh", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloHenry,  "7.0kh", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliHenry,  "2.0mh", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaHenry,  "2.0megh", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Henry,  "4.0xh", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microHenry,  "2.0uh", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoHenry,  "9.0nh", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoHenry,  "6.0ph", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoHenry,  "6.0fh", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milHenry,  "2.0milh", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, Hz,      "3.0hz", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraHz,  "3.0thz", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaHz,  "5.0ghz", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloHz,  "7.0khz", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliHz,  "2.0mhz", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaHz,  "2.0meghz", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Hz,  "4.0xhz", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microHz,  "2.0uhz", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoHz,  "9.0nhz", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoHz,  "6.0phz", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoHz,  "6.0fhz", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milHz,  "2.0milhz", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, Hz,      "3.0hz", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraHz,  "3.0thz", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaHz,  "5.0ghz", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloHz,  "7.0khz", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliHz,  "2.0mhz", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaHz,  "2.0meghz", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Hz,  "4.0xhz", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microHz,  "2.0uhz", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoHz,  "9.0nhz", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoHz,  "6.0phz", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoHz,  "6.0fhz", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milHz,  "2.0milhz", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, Volt,      "3.0v", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraVolt,  "3.0tv", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaVolt,  "5.0gv", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloVolt,  "7.0kv", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliVolt,  "2.0mv", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaVolt,  "2.0megv", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Volt,  "4.0xv", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microVolt,  "2.0uv", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoVolt,  "9.0nv", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoVolt,  "6.0pv", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoVolt,  "6.0fv", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milVolt,  "2.0milv", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, Volt,      "3.0v", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraVolt,  "3.0tv", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaVolt,  "5.0gv", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloVolt,  "7.0kv", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliVolt,  "2.0mv", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaVolt,  "2.0megv", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Volt,  "4.0xv", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microVolt,  "2.0uv", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoVolt,  "9.0nv", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoVolt,  "6.0pv", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoVolt,  "6.0fv", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milVolt,  "2.0milv", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, Amp,     "3.0a", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, teraAmp,  "3.0ta", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, gigaAmp,  "5.0ga", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, kiloAmp,  "7.0ka", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, miliAmp,  "2.0ma", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, megaAmp,  "2.0mega", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, mega2Amp,  "4.0xa", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, microAmp,  "2.0ua", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, nanoAmp,  "9.0na", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, picoAmp,  "6.0pa", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, femtoAmp,  "6.0fa", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, milAmp,  "2.0mila", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, Amp,     "3.0a", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, teraAmp,  "3.0ta", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, gigaAmp,  "5.0ga", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, kiloAmp,  "7.0ka", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, miliAmp,  "2.0ma", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, megaAmp,  "2.0mega", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, mega2Amp,  "4.0xa", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, microAmp,  "2.0ua", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, nanoAmp,  "9.0na", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, picoAmp,  "6.0pa", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, femtoAmp,  "6.0fa", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, milAmp,  "2.0mila", 2.0*(25.4e-6) )
 
 // unit suffixes, which should be ignored, lower case
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, volt,  "7.0v", 7.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, amp,  "6.0a", 6.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sec,  "5.0s", 5.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, hz,  "5.0hz", 5.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, henry,  "5.0h", 5.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, volt,  "7.0v", 7.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, amp,  "6.0a", 6.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sec,  "5.0s", 5.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, hz,  "5.0hz", 5.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, henry,  "5.0h", 5.0 )
 
 // upper case metrix prefix/suffix tests
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERA,  "3.0T", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGA,  "5.0G", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILO,  "7.0K", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILI,  "2.0M", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA,  "2.0MEG", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2,  "4.0X", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICRO,  "2.0U", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANO,  "9.0N", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICO,  "6.0P", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTO,  "6.0F", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MIL,  "2.0MIL", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERA,  "3.0T", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGA,  "5.0G", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILO,  "7.0K", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILI,  "2.0M", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA,  "2.0MEG", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2,  "4.0X", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICRO,  "2.0U", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANO,  "9.0N", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICO,  "6.0P", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTO,  "6.0F", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MIL,  "2.0MIL", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SEC,  "3.0S", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERASEC,  "3.0TS", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGASEC,  "5.0GS", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILOSEC,  "7.0KS", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILISEC,  "2.0MS", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGASEC,  "2.0MEGS", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2SEC,  "4.0XS", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICROSEC,  "2.0US", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANOSEC,  "9.0NS", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICOSEC,  "6.0PS", 6.0E-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTOSEC,  "6.0FS", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILSEC,  "2.0MILS", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SEC,  "3.0S", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERASEC,  "3.0TS", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGASEC,  "5.0GS", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILOSEC,  "7.0KS", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILISEC,  "2.0MS", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGASEC,  "2.0MEGS", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2SEC,  "4.0XS", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICROSEC,  "2.0US", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANOSEC,  "9.0NS", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICOSEC,  "6.0PS", 6.0E-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTOSEC,  "6.0FS", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILSEC,  "2.0MILS", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERAMETER,  "3.0TM", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGAMETER,  "5.0GM", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILOMETER,  "7.0KM", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILIMETER,  "2.0MM", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGAMETER,  "2.0MEGM", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2METER,  "4.0XM", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICROMETER,  "2.0UM", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANOMETER,  "9.0NM", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICOMETER,  "6.0PM", 6.0E-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTOMETER,  "6.0FM", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILMETER,  "2.0MILM", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERAMETER,  "3.0TM", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGAMETER,  "5.0GM", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILOMETER,  "7.0KM", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILIMETER,  "2.0MM", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGAMETER,  "2.0MEGM", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2METER,  "4.0XM", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICROMETER,  "2.0UM", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANOMETER,  "9.0NM", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICOMETER,  "6.0PM", 6.0E-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTOMETER,  "6.0FM", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILMETER,  "2.0MILM", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, HENRY,  "3.0H", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERAHENRY,  "3.0TH", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGAHENRY,  "5.0GH", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILOHENRY,  "7.0KH", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILIHENRY,  "2.0MH", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGAHENRY,  "2.0MEGH", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2HENRY,  "4.0XH", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICROHENRY,  "2.0UH", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANOHENRY,  "9.0NH", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICOHENRY,  "6.0PH", 6.0E-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTOHENRY,  "6.0FH", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILHENRY,  "2.0MILH", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, HENRY,  "3.0H", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERAHENRY,  "3.0TH", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGAHENRY,  "5.0GH", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILOHENRY,  "7.0KH", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILIHENRY,  "2.0MH", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGAHENRY,  "2.0MEGH", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2HENRY,  "4.0XH", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICROHENRY,  "2.0UH", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANOHENRY,  "9.0NH", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICOHENRY,  "6.0PH", 6.0E-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTOHENRY,  "6.0FH", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILHENRY,  "2.0MILH", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, VOLT,  "3.0V", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERAVOLT,  "3.0TV", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGAVOLT,  "5.0GV", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILOVOLT,  "7.0KV", 7.0E+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILIVOLT,  "2.0MV", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGAVOLT,  "2.0MEGV", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2VOLT,  "4.0XV", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICROVOLT,  "2.0UV", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANOVOLT,  "9.0NV", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICOVOLT,  "6.0PV", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTOVOLT,  "6.0FV", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILVOLT,  "2.0MILV", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, VOLT,  "3.0V", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERAVOLT,  "3.0TV", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGAVOLT,  "5.0GV", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILOVOLT,  "7.0KV", 7.0E+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILIVOLT,  "2.0MV", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGAVOLT,  "2.0MEGV", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2VOLT,  "4.0XV", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICROVOLT,  "2.0UV", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANOVOLT,  "9.0NV", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICOVOLT,  "6.0PV", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTOVOLT,  "6.0FV", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILVOLT,  "2.0MILV", 2.0*(25.4e-6) )
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, AMP,  "3.0A", 3.0)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TERAAMP,  "3.0TA", 3.0e+12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, GIGAAMP,  "5.0GA", 5.0e+9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, KILOAMP,  "7.0KA", 7.0e+3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILIAMP,  "2.0MA", 2.0e-3)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGAAMP,  "2.0MEGA", 2.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MEGA2AMP,  "4.0XA", 4.0e+6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MICROAMP,  "2.0UA", 2.0e-6)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, NANOAMP,  "9.0NA", 9.0*1.0e-9)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, PICOAMP,  "6.0PA", 6.0e-12)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, FEMTOAMP,  "6.0FA", 6.0*1.0e-15)
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, MILAMP,  "2.0MILA", 2.0*(25.4e-6) )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, AMP,  "3.0A", 3.0)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TERAAMP,  "3.0TA", 3.0e+12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, GIGAAMP,  "5.0GA", 5.0e+9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, KILOAMP,  "7.0KA", 7.0e+3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILIAMP,  "2.0MA", 2.0e-3)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGAAMP,  "2.0MEGA", 2.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MEGA2AMP,  "4.0XA", 4.0e+6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MICROAMP,  "2.0UA", 2.0e-6)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, NANOAMP,  "9.0NA", 9.0*1.0e-9)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, PICOAMP,  "6.0PA", 6.0e-12)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, FEMTOAMP,  "6.0FA", 6.0*1.0e-15)
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, MILAMP,  "2.0MILA", 2.0*(25.4e-6) )
 
 // unit suffixes, which should be ignored, upper case
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, VOLT2,  "4.0V", 4.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, AMP2,  "3.0A", 3.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SEC2,  "2.0S", 2.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, HZ2,  "2.0HZ", 2.0 )
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, HENRY2,  "2.0HZ", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, VOLT2,  "4.0V", 4.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, AMP2,  "3.0A", 3.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SEC2,  "2.0S", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, HZ2,  "2.0HZ", 2.0 )
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, HENRY2,  "2.0HZ", 2.0 )
 
 // lower case metrix prefix/suffix tests
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_tera,  "sin(3.0t)", std::sin(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_giga,  "sin(5.0g)", std::sin(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_kilo,  "sin(7.0k)", std::sin(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_mili,  "sin(2.0m)", std::sin(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_mega,  "sin(2.0meg)", std::sin(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_mega2,  "sin(4.0x)", std::sin(4.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_micro,  "sin(2.0u)", std::sin(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_nano,  "sin(9.0n)", std::sin(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_pico,  "sin(6.0p)", std::sin(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_femto,  "sin(6.0f)", std::sin(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_mil,  "sin(2.0mil)", std::sin(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_tera,  "sin(3.0t)", std::sin(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_giga,  "sin(5.0g)", std::sin(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_kilo,  "sin(7.0k)", std::sin(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_mili,  "sin(2.0m)", std::sin(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_mega,  "sin(2.0meg)", std::sin(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_mega2,  "sin(4.0x)", std::sin(4.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_micro,  "sin(2.0u)", std::sin(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_nano,  "sin(9.0n)", std::sin(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_pico,  "sin(6.0p)", std::sin(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_femto,  "sin(6.0f)", std::sin(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_mil,  "sin(2.0mil)", std::sin(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_teraSec,  "exp(3.0e-12ts)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_gigaSec,  "exp(5.0e-9gs)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_kiloSec,  "exp(7.0e-3ks)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_miliSec,  "exp(2.0e+3ms)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_megaSec,  "exp(2.0e-6megs)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_mega2Sec,  "exp(4.0e-6xs)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_microSec,  "exp(2.0us)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_nanoSec,  "exp(9.0ns)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_picoSec,  "exp(6.0ps)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_femtoSec,  "exp(6.0fs)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_milSec,  "exp(2.0mils)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_teraSec,  "exp(3.0e-12ts)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_gigaSec,  "exp(5.0e-9gs)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_kiloSec,  "exp(7.0e-3ks)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_miliSec,  "exp(2.0e+3ms)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_megaSec,  "exp(2.0e-6megs)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_mega2Sec,  "exp(4.0e-6xs)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_microSec,  "exp(2.0us)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_nanoSec,  "exp(9.0ns)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_picoSec,  "exp(6.0ps)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_femtoSec,  "exp(6.0fs)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_milSec,  "exp(2.0mils)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_teraMeter,  "exp(3.0e-12tm)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_gigaMeter,  "exp(5.0e-9gm)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_kiloMeter,  "exp(7.0e-3km)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_miliMeter,  "exp(2.0e+3mm)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_megaMeter,  "exp(2.0e-6megm)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_mega2Meter,  "exp(4.0e-6xm)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_microMeter,  "exp(2.0um)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_nanoMeter,  "exp(9.0nm)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_picoMeter,  "exp(6.0pm)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_femtoMeter,  "exp(6.0fm)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_milMeter,  "exp(2.0milm)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_teraMeter,  "exp(3.0e-12tm)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_gigaMeter,  "exp(5.0e-9gm)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_kiloMeter,  "exp(7.0e-3km)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_miliMeter,  "exp(2.0e+3mm)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_megaMeter,  "exp(2.0e-6megm)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_mega2Meter,  "exp(4.0e-6xm)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_microMeter,  "exp(2.0um)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_nanoMeter,  "exp(9.0nm)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_picoMeter,  "exp(6.0pm)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_femtoMeter,  "exp(6.0fm)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_milMeter,  "exp(2.0milm)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_teraHz,  "exp(3.0e-12thz)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_gigaHz,  "exp(5.0e-9ghz)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_kiloHz,  "exp(7.0e-3khz)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_miliHz,  "exp(2.0e+3mhz)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_megaHz,  "exp(2.0e-6meghz)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_mega2Hz,  "exp(4.0e-6xhz)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_microHz,  "exp(2.0uhz)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_nanoHz,  "exp(9.0nhz)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_picoHz,  "exp(6.0phz)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_femtoHz,  "exp(6.0fhz)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, exp_milHz,  "exp(2.0milhz)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_teraHz,  "exp(3.0e-12thz)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_gigaHz,  "exp(5.0e-9ghz)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_kiloHz,  "exp(7.0e-3khz)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_miliHz,  "exp(2.0e+3mhz)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_megaHz,  "exp(2.0e-6meghz)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_mega2Hz,  "exp(4.0e-6xhz)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_microHz,  "exp(2.0uhz)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_nanoHz,  "exp(9.0nhz)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_picoHz,  "exp(6.0phz)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_femtoHz,  "exp(6.0fhz)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, exp_milHz,  "exp(2.0milhz)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_teraVolt,  "cos(3.0tv)", std::cos(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_gigaVolt,  "cos(5.0gv)", std::cos(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_kiloVolt,  "cos(7.0kv)", std::cos(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_miliVolt,  "cos(2.0mv)", std::cos(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_megaVolt,  "cos(2.0megv)", std::cos(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_mega2Volt,  "cos(4.0xv)", std::cos(4.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_microVolt,  "cos(2.0uv)", std::cos(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_nanoVolt,  "cos(9.0nv)", std::cos(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_picoVolt,  "cos(6.0pv)", std::cos(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_femtoVolt,  "cos(6.0fv)", std::cos(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, cos_milVolt,  "cos(2.0milv)", std::cos(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_teraVolt,  "cos(3.0tv)", std::cos(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_gigaVolt,  "cos(5.0gv)", std::cos(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_kiloVolt,  "cos(7.0kv)", std::cos(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_miliVolt,  "cos(2.0mv)", std::cos(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_megaVolt,  "cos(2.0megv)", std::cos(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_mega2Volt,  "cos(4.0xv)", std::cos(4.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_microVolt,  "cos(2.0uv)", std::cos(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_nanoVolt,  "cos(9.0nv)", std::cos(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_picoVolt,  "cos(6.0pv)", std::cos(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_femtoVolt,  "cos(6.0fv)", std::cos(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, cos_milVolt,  "cos(2.0milv)", std::cos(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_teraAmp,  "tan(3.0ta)", std::tan(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_gigaAmp,  "tan(5.0ga)", std::tan(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_kiloAmp,  "tan(7.0ka)", std::tan(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_miliAmp,  "tan(2.0m)", std::tan(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_megaAmp,  "tan(2.0mega)", std::tan(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_mega2Amp,  "tan(4.0xa)", std::tan(std::complex<double>(4.0e+6,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_microAmp,  "tan(2.0ua)", std::tan(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_nanoAmp,  "tan(9.0na)", std::tan(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_picoAmp,  "tan(6.0pa)", std::tan(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_femtoAmp,  "tan(6.0fa)", std::tan(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, tan_milAmp,  "tan(2.0mila)", std::tan(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_teraAmp,  "tan(3.0ta)", std::tan(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_gigaAmp,  "tan(5.0ga)", std::tan(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_kiloAmp,  "tan(7.0ka)", std::tan(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_miliAmp,  "tan(2.0m)", std::tan(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_megaAmp,  "tan(2.0mega)", std::tan(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_mega2Amp,  "tan(4.0xa)", std::tan(std::complex<double>(4.0e+6,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_microAmp,  "tan(2.0ua)", std::tan(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_nanoAmp,  "tan(9.0na)", std::tan(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_picoAmp,  "tan(6.0pa)", std::tan(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_femtoAmp,  "tan(6.0fa)", std::tan(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, tan_milAmp,  "tan(2.0mila)", std::tan(2.0*(25.4e-6)))
 
 // unit suffixes, which should be ignored, lower case
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_volt,  "sin(2.0v)", std::sin(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_amp,  "sin(3.0a)", std::sin(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, sin_sec,  "sin(4.0s)", std::sin(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_volt,  "sin(2.0v)", std::sin(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_amp,  "sin(3.0a)", std::sin(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, sin_sec,  "sin(4.0s)", std::sin(4.0))
 
 // upper case
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_TERA,  "SIN(3.0T)", std::sin(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_GIGA,  "SIN(5.0G)", std::sin(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_KILO,  "SIN(7.0K)", std::sin(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_MILI,  "SIN(2.0M)", std::sin(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_MEGA,  "SIN(2.0MEG)", std::sin(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_MEGA2,  "SIN(4.0X)", std::sin(4.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_MICRO,  "SIN(2.0U)", std::sin(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_NANO,  "SIN(9.0N)", std::sin(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_PICO,  "SIN(6.0P)", std::sin(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_FEMTO,  "SIN(6.0F)", std::sin(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_MIL,  "SIN(2.0MIL)", std::sin(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_TERA,  "SIN(3.0T)", std::sin(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_GIGA,  "SIN(5.0G)", std::sin(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_KILO,  "SIN(7.0K)", std::sin(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_MILI,  "SIN(2.0M)", std::sin(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_MEGA,  "SIN(2.0MEG)", std::sin(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_MEGA2,  "SIN(4.0X)", std::sin(4.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_MICRO,  "SIN(2.0U)", std::sin(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_NANO,  "SIN(9.0N)", std::sin(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_PICO,  "SIN(6.0P)", std::sin(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_FEMTO,  "SIN(6.0F)", std::sin(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_MIL,  "SIN(2.0MIL)", std::sin(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_TERASEC,  "EXP(3.0E-12TS)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_GIGASEC,  "EXP(5.0E-9GS)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_KILOSEC,  "EXP(7.0E-3KS)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILISEC,  "EXP(2.0E+3MS)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGASEC,  "EXP(2.0E-6MEGS)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGA2SEC,  "EXP(4.0E-6XS)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MICROSEC,  "EXP(2.0US)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_NANOSEC,  "EXP(9.0NS)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_PICOSEC,  "EXP(6.0PS)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_FEMTOSEC,  "EXP(6.0FS)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILSEC,  "EXP(2.0MILS)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_TERASEC,  "EXP(3.0E-12TS)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_GIGASEC,  "EXP(5.0E-9GS)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_KILOSEC,  "EXP(7.0E-3KS)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILISEC,  "EXP(2.0E+3MS)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGASEC,  "EXP(2.0E-6MEGS)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGA2SEC,  "EXP(4.0E-6XS)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MICROSEC,  "EXP(2.0US)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_NANOSEC,  "EXP(9.0NS)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_PICOSEC,  "EXP(6.0PS)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_FEMTOSEC,  "EXP(6.0FS)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILSEC,  "EXP(2.0MILS)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_TERAMETER,  "EXP(3.0E-12TM)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_GIGAMETER,  "EXP(5.0E-9GM)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_KILOMETER,  "EXP(7.0E-3KM)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILIMETER,  "EXP(2.0E+3MM)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGAMETER,  "EXP(2.0E-6MEGM)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGA2METER,  "EXP(4.0E-6XM)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MICROMETER,  "EXP(2.0UM)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_NANOMETER,  "EXP(9.0NM)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_PICOMETER,  "EXP(6.0PM)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_FEMTOMETER,  "EXP(6.0FM)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILMETER,  "EXP(2.0MILM)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_TERAMETER,  "EXP(3.0E-12TM)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_GIGAMETER,  "EXP(5.0E-9GM)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_KILOMETER,  "EXP(7.0E-3KM)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILIMETER,  "EXP(2.0E+3MM)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGAMETER,  "EXP(2.0E-6MEGM)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGA2METER,  "EXP(4.0E-6XM)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MICROMETER,  "EXP(2.0UM)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_NANOMETER,  "EXP(9.0NM)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_PICOMETER,  "EXP(6.0PM)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_FEMTOMETER,  "EXP(6.0FM)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILMETER,  "EXP(2.0MILM)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_TERAHZ,  "EXP(3.0E-12THZ)", std::exp(3.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_GIGAHZ,  "EXP(5.0E-9GHZ)", std::exp(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_KILOHZ,  "EXP(7.0E-3KHZ)", std::exp(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILIHZ,  "EXP(2.0E+3MHZ)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGAHZ,  "EXP(2.0E-6MEGHZ)", std::exp(2.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MEGA2HZ,  "EXP(4.0E-6XHZ)", std::exp(4.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MICROHZ,  "EXP(2.0UHZ)", std::exp(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_NANOHZ,  "EXP(9.0NHZ)", std::exp(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_PICOHZ,  "EXP(6.0PHZ)", std::exp(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_FEMTOHZ,  "EXP(6.0FHZ)", std::exp(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, EXP_MILHZ,  "EXP(2.0MILHZ)", std::exp(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_TERAHZ,  "EXP(3.0E-12THZ)", std::exp(3.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_GIGAHZ,  "EXP(5.0E-9GHZ)", std::exp(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_KILOHZ,  "EXP(7.0E-3KHZ)", std::exp(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILIHZ,  "EXP(2.0E+3MHZ)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGAHZ,  "EXP(2.0E-6MEGHZ)", std::exp(2.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MEGA2HZ,  "EXP(4.0E-6XHZ)", std::exp(4.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MICROHZ,  "EXP(2.0UHZ)", std::exp(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_NANOHZ,  "EXP(9.0NHZ)", std::exp(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_PICOHZ,  "EXP(6.0PHZ)", std::exp(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_FEMTOHZ,  "EXP(6.0FHZ)", std::exp(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, EXP_MILHZ,  "EXP(2.0MILHZ)", std::exp(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_TERAVOLT,  "COS(3.0TV)", std::cos(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_GIGAVOLT,  "COS(5.0GV)", std::cos(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_KILOVOLT,  "COS(7.0KV)", std::cos(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_MILIVOLT,  "COS(2.0MV)", std::cos(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_MEGAVOLT,  "COS(2.0MEGV)", std::cos(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_MEGA2VOLT,  "COS(4.0XV)", std::cos(4.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_MICROVOLT,  "COS(2.0UV)", std::cos(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_NANOVOLT,  "COS(9.0NV)", std::cos(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_PICOVOLT,  "COS(6.0PV)", std::cos(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_FEMTOVOLT,  "COS(6.0FV)", std::cos(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, COS_MILVOLT,  "COS(2.0MILV)", std::cos(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_TERAVOLT,  "COS(3.0TV)", std::cos(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_GIGAVOLT,  "COS(5.0GV)", std::cos(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_KILOVOLT,  "COS(7.0KV)", std::cos(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_MILIVOLT,  "COS(2.0MV)", std::cos(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_MEGAVOLT,  "COS(2.0MEGV)", std::cos(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_MEGA2VOLT,  "COS(4.0XV)", std::cos(4.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_MICROVOLT,  "COS(2.0UV)", std::cos(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_NANOVOLT,  "COS(9.0NV)", std::cos(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_PICOVOLT,  "COS(6.0PV)", std::cos(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_FEMTOVOLT,  "COS(6.0FV)", std::cos(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, COS_MILVOLT,  "COS(2.0MILV)", std::cos(2.0*(25.4e-6)))
 
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_TERAAMP,  "TAN(3.0TA)", std::tan(3.0e+12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_GIGAAMP,  "TAN(5.0GA)", std::tan(5.0e+9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_KILOAMP,  "TAN(7.0KA)", std::tan(7.0e+3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_MILIAMP,  "TAN(2.0MA)", std::tan(2.0e-3))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_MEGAAMP,  "TAN(2.0MEGA)", std::tan(2.0e+6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_MEGA2AMP,  "TAN(4.0XA)", std::tan(std::complex<double>(4.0e+6,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_MICROAMP,  "TAN(2.0UA)", std::tan(2.0e-6))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_NANOAMP,  "TAN(9.0NA)", std::tan(9.0*1.0e-9))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_PICOAMP,  "TAN(6.0PA)", std::tan(6.0e-12))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_FEMTOAMP,  "TAN(6.0FA)", std::tan(6.0*1.0e-15))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, TAN_MILAMP,  "TAN(2.0MILA)", std::tan(2.0*(25.4e-6)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_TERAAMP,  "TAN(3.0TA)", std::tan(3.0e+12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_GIGAAMP,  "TAN(5.0GA)", std::tan(5.0e+9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_KILOAMP,  "TAN(7.0KA)", std::tan(7.0e+3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_MILIAMP,  "TAN(2.0MA)", std::tan(2.0e-3))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_MEGAAMP,  "TAN(2.0MEGA)", std::tan(2.0e+6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_MEGA2AMP,  "TAN(4.0XA)", std::tan(std::complex<double>(4.0e+6,0.0)))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_MICROAMP,  "TAN(2.0UA)", std::tan(2.0e-6))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_NANOAMP,  "TAN(9.0NA)", std::tan(9.0*1.0e-9))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_PICOAMP,  "TAN(6.0PA)", std::tan(6.0e-12))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_FEMTOAMP,  "TAN(6.0FA)", std::tan(6.0*1.0e-15))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, TAN_MILAMP,  "TAN(2.0MILA)", std::tan(2.0*(25.4e-6)))
 
 // unit suffixes, which should be ignored, upper case
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_VOLT,  "SIN(5.0V)", std::sin(5.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_AMP,  "SIN(6.0A)", std::sin(6.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Suffix_Test, SIN_HZ,  "SIN(7.0HZ)", std::sin(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_VOLT,  "SIN(5.0V)", std::sin(5.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_AMP,  "SIN(6.0A)", std::sin(6.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
+PARSER_SIMPLE_TEST_MACRO(ComplexParserSuffixTest, SIN_HZ,  "SIN(7.0HZ)", std::sin(7.0))
 
 // the next 6 tests were all added when I was trying to narrow down the problem
 // with the lmod_indmod regression test case, which was failing.
 // The issue turned out to be that I didn't include Henrys in the units that 
 // could be handled by the lexer.  So, it (sort of) lexed "10mH", but ignored the "H", and
 // then threw away everything to the right of it rather than emitting an obvious error.
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod1)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("10mH*2*(1+0.010*(90-27)+0.926e-4*(90-27)**2)"), testGroup);
@@ -1419,10 +1419,10 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod1)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod1)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod1)
 }
 
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod2)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("(90-27)**2)"), testGroup);
@@ -1446,10 +1446,10 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod2)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod2)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod2)
 }
 
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod3)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("10mH"), testGroup);
@@ -1473,10 +1473,10 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod3)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod3)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod3)
 }
 
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod4)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod4)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("1+0.010*(90-27)"), testGroup);
@@ -1500,10 +1500,10 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod4)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod4)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod4)
 }
 
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod5)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod5)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("0.926e-4*(90-27)**2)"), testGroup);
@@ -1527,10 +1527,10 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod5)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod5)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod5)
 }
 
-TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod6)
+TEST ( ComplexParserTest, simpleExpression_lmod_indmod6)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("10mH*2"), testGroup);
@@ -1554,7 +1554,7 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod6)
   EXPECT_DOUBLE_EQ( std::real(result), std::real(refres));
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refres));
 
-  OUTPUT_MACRO(Complex_Parser_Test, simpleExpression_lmod_indmod6)
+  OUTPUT_MACRO(ComplexParserTest, simpleExpression_lmod_indmod6)
 }
 
 //-------------------------------------------------------------------------------
@@ -1562,7 +1562,7 @@ TEST ( Complex_Parser_Test, simpleExpression_lmod_indmod6)
 //-------------------------------------------------------------------------------
 // pulse
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, pulse)
+TEST ( ComplexParserSourceFuncTest, pulse)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1588,7 +1588,7 @@ TEST ( Complex_Parser_SourceFunc_Test, pulse)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, pulse_breakpoints)
+TEST ( ComplexParserSourceFuncTest, pulse_breakpoints)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1609,13 +1609,13 @@ TEST ( Complex_Parser_SourceFunc_Test, pulse_breakpoints)
   bool timeDependent = testExpression.getTimeDependent();
   EXPECT_EQ(timeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,pulse_breakpoints)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,pulse_breakpoints)
 }
 
 //-------------------------------------------------------------------------------
 // identical to the first pulse test, except that it goes thru a .func
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, pulse_func)
+TEST ( ComplexParserSourceFuncTest, pulse_func)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1664,13 +1664,13 @@ TEST ( Complex_Parser_SourceFunc_Test, pulse_func)
   EXPECT_EQ(copyTimeDependent, true);
   EXPECT_EQ(assignTimeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,pulse_func)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,pulse_func)
 }
 
 //-------------------------------------------------------------------------------
 // sin
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, sin)
+TEST ( ComplexParserSourceFuncTest, sin)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1702,7 +1702,7 @@ TEST ( Complex_Parser_SourceFunc_Test, sin)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, sin_3arg)
+TEST ( ComplexParserSourceFuncTest, sin_3arg)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1736,7 +1736,7 @@ TEST ( Complex_Parser_SourceFunc_Test, sin_3arg)
 //-------------------------------------------------------------------------------
 // same as sin test, but thru a .func
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, sin_func)
+TEST ( ComplexParserSourceFuncTest, sin_func)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1764,9 +1764,7 @@ TEST ( Complex_Parser_SourceFunc_Test, sin_func)
   Xyce::Util::newExpression assignExpression; 
   assignExpression = testExpression; 
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   int numpoints=100;
   double v0(1.65), va(1.65), freq(10000), td(0.0), theta(0.0), phase(-90),time(0.0);
@@ -1798,14 +1796,14 @@ TEST ( Complex_Parser_SourceFunc_Test, sin_func)
   EXPECT_EQ(copyTimeDependent, true);
   EXPECT_EQ(assignTimeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,sin_func)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,sin_func)
 }
 
 //-------------------------------------------------------------------------------
 // This test is taken from the sources.cir Xyce regression test.  This is the "B2" source in that test.
 // The test runs with Xyce if I comment out the B2 source.  So I created this unit test to track down the problem.
 // The test ultimately did find the problem and it is now fixed.
-TEST ( Complex_Parser_SourceFunc_Test, sin2)
+TEST ( ComplexParserSourceFuncTest, sin2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -1890,13 +1888,13 @@ TEST ( Complex_Parser_SourceFunc_Test, sin2)
   EXPECT_EQ(copyTimeDependent, true);
   EXPECT_EQ(assignTimeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,sin2)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,sin2)
 }
 
 //-------------------------------------------------------------------------------
 // exp
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, exp)
+TEST ( ComplexParserSourceFuncTest, exp)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
@@ -1932,7 +1930,7 @@ TEST ( Complex_Parser_SourceFunc_Test, exp)
 //-------------------------------------------------------------------------------
 // same as exp test, but thru a .func
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, exp_func)
+TEST ( ComplexParserSourceFuncTest, exp_func)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
@@ -1980,13 +1978,13 @@ TEST ( Complex_Parser_SourceFunc_Test, exp_func)
     EXPECT_EQ( assignResult[ii], refRes[ii]);
   }
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,exp_func)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,exp_func)
 }
 
 //-------------------------------------------------------------------------------
 // sffm
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, sffm)
+TEST ( ComplexParserSourceFuncTest, sffm)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
@@ -2023,7 +2021,7 @@ TEST ( Complex_Parser_SourceFunc_Test, sffm)
 //-------------------------------------------------------------------------------
 // same as sffm, but thru a .func
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_SourceFunc_Test, sffm_func)
+TEST ( ComplexParserSourceFuncTest, sffm_func)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeDepGroup;
@@ -2070,11 +2068,11 @@ TEST ( Complex_Parser_SourceFunc_Test, sffm_func)
     EXPECT_EQ( assignResult[ii], refRes[ii]);
   }
 
-  OUTPUT_MACRO(Complex_Parser_SourceFunc_Test,sffm_func)
+  OUTPUT_MACRO(ComplexParserSourceFuncTest,sffm_func)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_VoltSoln_Test, test0)
+TEST ( ComplexParserVoltSolnTest, test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2095,7 +2093,7 @@ TEST ( Complex_Parser_VoltSoln_Test, test0)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, test1)
+TEST ( ComplexParserVoltSolnTest, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2113,10 +2111,10 @@ TEST ( Complex_Parser_VoltSoln_Test, test1)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test1)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test1)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, test2)
+TEST ( ComplexParserVoltSolnTest, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2136,11 +2134,11 @@ TEST ( Complex_Parser_VoltSoln_Test, test2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test2)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test2)
 }
 
 //
-TEST ( Complex_Parser_VoltSoln_Test, test3)
+TEST ( ComplexParserVoltSolnTest, test3)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2157,10 +2155,10 @@ TEST ( Complex_Parser_VoltSoln_Test, test3)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test3)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test3)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, test4)
+TEST ( ComplexParserVoltSolnTest, test4)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2179,10 +2177,10 @@ TEST ( Complex_Parser_VoltSoln_Test, test4)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test4)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test4)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, test5)
+TEST ( ComplexParserVoltSolnTest, test5)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2204,12 +2202,12 @@ TEST ( Complex_Parser_VoltSoln_Test, test5)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test5)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test5)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 //
-TEST ( Complex_Parser_VoltSoln_Test, test5b)
+TEST ( ComplexParserVoltSolnTest, test5b)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2231,12 +2229,12 @@ TEST ( Complex_Parser_VoltSoln_Test, test5b)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test5b)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test5b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, test5c)
+TEST ( ComplexParserVoltSolnTest, test5c)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2258,13 +2256,13 @@ TEST ( Complex_Parser_VoltSoln_Test, test5c)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, test5c)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, test5c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 // Test complex .PRINT operators for voltage
-TEST ( Complex_Parser_VoltSoln_Test, vr_test0)
+TEST ( ComplexParserVoltSolnTest, vr_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2282,10 +2280,10 @@ TEST ( Complex_Parser_VoltSoln_Test, vr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vr_test0)
+  OUTPUT_MACRO ( ComplexParserVoltSolnTest, vr_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, vi_test0)
+TEST ( ComplexParserVoltSolnTest, vi_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2303,10 +2301,10 @@ TEST ( Complex_Parser_VoltSoln_Test, vi_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vi_test0)
+  OUTPUT_MACRO ( ComplexParserVoltSolnTest, vi_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, vm_test0)
+TEST ( ComplexParserVoltSolnTest, vm_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2324,10 +2322,10 @@ TEST ( Complex_Parser_VoltSoln_Test, vm_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vm_test0)
+  OUTPUT_MACRO ( ComplexParserVoltSolnTest, vm_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, vp_test0)
+TEST ( ComplexParserVoltSolnTest, vp_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2345,10 +2343,10 @@ TEST ( Complex_Parser_VoltSoln_Test, vp_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vp_test0)
+  OUTPUT_MACRO ( ComplexParserVoltSolnTest, vp_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, vdb_test0)
+TEST ( ComplexParserVoltSolnTest, vdb_test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2366,7 +2364,7 @@ TEST ( Complex_Parser_VoltSoln_Test, vdb_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_VoltSoln_Test, vdb_test0)
+  OUTPUT_MACRO ( ComplexParserVoltSolnTest, vdb_test0)
 }
 
 //-------------------------------------------------------------------------------
@@ -2400,7 +2398,7 @@ TEST ( Complex_Parser_VoltSoln_Test, vdb_test0)
 // + {IC(Q1+)} {IB(Q1+)} {IE(Q1+)}
 //
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_VoltSoln_Test, weirdChar)
+TEST ( ComplexParserVoltSolnTest, weirdChar)
 {
   Teuchos::RCP<solutionGroup> solnGroup = Teuchos::rcp(new solutionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2474,14 +2472,14 @@ TEST ( Complex_Parser_VoltSoln_Test, weirdChar)
     testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
     copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
     assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-    OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, weirdChar)
+    OUTPUT_MACRO(ComplexParserVoltSolnTest, weirdChar)
   }
 }
 
 //-------------------------------------------------------------------------------
 // Test complex .PRINT operators for current
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
+TEST ( ComplexParserCurrentSolnTest, ir_test0)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2499,10 +2497,10 @@ TEST ( Complex_Parser_CurrentSoln_Test, ir_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, ir_test0)
+  OUTPUT_MACRO(ComplexParserCurrentSolnTest, ir_test0)
 }
 
-TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
+TEST ( ComplexParserCurrentSolnTest, ii_test0)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2520,10 +2518,10 @@ TEST ( Complex_Parser_CurrentSoln_Test, ii_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, ii_test0)
+  OUTPUT_MACRO(ComplexParserCurrentSolnTest, ii_test0)
 }
 
-TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
+TEST ( ComplexParserCurrentSolnTest, im_test0)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2541,10 +2539,10 @@ TEST ( Complex_Parser_CurrentSoln_Test, im_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_CurrentSoln_Test, im_test0)
+  OUTPUT_MACRO(ComplexParserCurrentSolnTest, im_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
+TEST ( ComplexParserVoltSolnTest, ip_test0)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2562,10 +2560,10 @@ TEST ( Complex_Parser_VoltSoln_Test, ip_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, ip_test0)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, ip_test0)
 }
 
-TEST ( Complex_Parser_VoltSoln_Test, idb_test0)
+TEST ( ComplexParserVoltSolnTest, idb_test0)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -2583,10 +2581,10 @@ TEST ( Complex_Parser_VoltSoln_Test, idb_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_VoltSoln_Test, idb_test0)
+  OUTPUT_MACRO(ComplexParserVoltSolnTest, idb_test0)
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test1)
+TEST ( ComplexParserVoltDerivTest, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2612,7 +2610,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test1)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test2)
+TEST ( ComplexParserVoltDerivTest, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2636,7 +2634,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test2)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0]-refDer[0], 0.0);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test3)
+TEST ( ComplexParserVoltDerivTest, test3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2660,7 +2658,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test3)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test4)
+TEST ( ComplexParserVoltDerivTest, test4)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2684,7 +2682,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test4)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test5)
+TEST ( ComplexParserVoltDerivTest, test5)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2708,7 +2706,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test5)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test6)
+TEST ( ComplexParserVoltDerivTest, test6)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<solnExpressionGroup>(testGroup);
@@ -2732,7 +2730,7 @@ TEST ( Complex_Parser_VoltDeriv_Test, test6)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test7)
+TEST ( ComplexParserVoltDerivTest, test7)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2755,12 +2753,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test7)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test7)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test7)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test7b)
+TEST ( ComplexParserVoltDerivTest, test7b)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2783,12 +2781,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test7b)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test7b)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test7b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test7c)
+TEST ( ComplexParserVoltDerivTest, test7c)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2811,12 +2809,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test7c)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test7c)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test7c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test8)
+TEST ( ComplexParserVoltDerivTest, test8)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2839,12 +2837,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test8)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test8)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test8)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test8b)
+TEST ( ComplexParserVoltDerivTest, test8b)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2867,12 +2865,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test8b)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test8b)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test8b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test8c)
+TEST ( ComplexParserVoltDerivTest, test8c)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2895,12 +2893,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test8c)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test8c)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test8c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test9)
+TEST ( ComplexParserVoltDerivTest, test9)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2923,12 +2921,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test9)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test9)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test9)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test9b)
+TEST ( ComplexParserVoltDerivTest, test9b)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2951,12 +2949,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test9b)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test9b)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test9b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test9c)
+TEST ( ComplexParserVoltDerivTest, test9c)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -2979,12 +2977,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test9c)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test9c)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test9c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test10)
+TEST ( ComplexParserVoltDerivTest, test10)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -3019,10 +3017,10 @@ TEST ( Complex_Parser_VoltDeriv_Test, test10)
   EXPECT_EQ( derivs[0],refDer[0]);
   EXPECT_EQ( derivs[1],refDer[1]);
 
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test1)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test1)
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test11)
+TEST ( ComplexParserVoltDerivTest, test11)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -3045,12 +3043,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test11)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test11)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test11)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test11b)
+TEST ( ComplexParserVoltDerivTest, test11b)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -3073,12 +3071,12 @@ TEST ( Complex_Parser_VoltDeriv_Test, test11b)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test11b)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test11b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
-TEST ( Complex_Parser_VoltDeriv_Test, test11c)
+TEST ( ComplexParserVoltDerivTest, test11c)
 {
   Xyce::Util::preprocessFilter.resize(Xyce::IO::PreprocessType::NUM_PREPROCESS, false);
   Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND] = true;
@@ -3101,13 +3099,13 @@ TEST ( Complex_Parser_VoltDeriv_Test, test11c)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0],refDer[0]);
-  OUTPUT_MACRO(Complex_Parser_VoltDeriv_Test, test11c)
+  OUTPUT_MACRO(ComplexParserVoltDerivTest, test11c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_CurrSoln_Test, test1)
+TEST ( ComplexParserCurrSolnTest, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
@@ -3127,7 +3125,7 @@ TEST ( Complex_Parser_CurrSoln_Test, test1)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 }
 
-TEST ( Complex_Parser_Power_Test, test1)
+TEST ( ComplexParserPowerTest, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -3145,10 +3143,10 @@ TEST ( Complex_Parser_Power_Test, test1)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_Power_Test, test1)
+  OUTPUT_MACRO(ComplexParserPowerTest, test1)
 }
 
-TEST ( Complex_Parser_Power_Test, test2)
+TEST ( ComplexParserPowerTest, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -3166,10 +3164,10 @@ TEST ( Complex_Parser_Power_Test, test2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_Power_Test, test2)
+  OUTPUT_MACRO(ComplexParserPowerTest, test2)
 }
 
-TEST ( Complex_Parser_Power_Test, test3)
+TEST ( ComplexParserPowerTest, test3)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -3187,10 +3185,10 @@ TEST ( Complex_Parser_Power_Test, test3)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_Power_Test, test2)
+  OUTPUT_MACRO(ComplexParserPowerTest, test2)
 }
 
-TEST ( Complex_Parser_CurrDeriv_Test, test1)
+TEST ( ComplexParserCurrDerivTest, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
@@ -3215,7 +3213,7 @@ TEST ( Complex_Parser_CurrDeriv_Test, test1)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
 }
 
-TEST ( Complex_Parser_CurrDeriv_Test, test2)
+TEST ( ComplexParserCurrDerivTest, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp_dynamic_cast<currSolnExpressionGroup>(testGroup);
@@ -3241,7 +3239,7 @@ TEST ( Complex_Parser_CurrDeriv_Test, test2)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_LeadCurr_Test, test1)
+TEST ( ComplexParserLeadCurrTest, test1)
 {
   Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
@@ -3256,18 +3254,16 @@ TEST ( Complex_Parser_LeadCurr_Test, test1)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IG"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 
-  OUTPUT_MACRO(Complex_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(ComplexParserCurrSolnTest, test1)
 }
 
-TEST ( Complex_Parser_LeadCurr_Test, test2)
+TEST ( ComplexParserLeadCurrTest, test2)
 {
   Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
@@ -3282,18 +3278,16 @@ TEST ( Complex_Parser_LeadCurr_Test, test2)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("ID"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 
-  OUTPUT_MACRO(Complex_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(ComplexParserCurrSolnTest, test1)
 }
 
-TEST ( Complex_Parser_LeadCurr_Test, test3)
+TEST ( ComplexParserLeadCurrTest, test3)
 {
   Teuchos::RCP<leadCurrentExpressionGroup> leadCurrentGroup = Teuchos::rcp(new leadCurrentExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = leadCurrentGroup;
@@ -3308,18 +3302,16 @@ TEST ( Complex_Parser_LeadCurr_Test, test3)
   std::complex<double> refRes = 17.2*M1val+8.5;
   leadCurrentGroup->setCurrentVal(std::string("M1"),std::string("IS"),M1val);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
 
-  OUTPUT_MACRO(Complex_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(ComplexParserCurrSolnTest, test1)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, test1)
+TEST ( ComplexParserInternalDeviceVariableTest, test1)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3339,12 +3331,12 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, test1)
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(ComplexParserCurrSolnTest, test1)
 }
 
 
 // Test complex .PRINT operators for N()
-TEST ( Complex_Parser_InternalDeviceVariable_Test, nr_test0)
+TEST ( ComplexParserInternalDeviceVariableTest, nr_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3363,10 +3355,10 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, nr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_InternalDeviceVariable_Test, nr_test0)
+  OUTPUT_MACRO ( ComplexParserInternalDeviceVariableTest, nr_test0)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, ni_test0)
+TEST ( ComplexParserInternalDeviceVariableTest, ni_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3385,10 +3377,10 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, ni_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_InternalDeviceVariable_Test, ni_test0)
+  OUTPUT_MACRO ( ComplexParserInternalDeviceVariableTest, ni_test0)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, nm_test0)
+TEST ( ComplexParserInternalDeviceVariableTest, nm_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3407,10 +3399,10 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, nm_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_InternalDeviceVariable_Test, nm_test0)
+  OUTPUT_MACRO ( ComplexParserInternalDeviceVariableTest, nm_test0)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, np_test0)
+TEST ( ComplexParserInternalDeviceVariableTest, np_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3429,10 +3421,10 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, np_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_InternalDeviceVariable_Test, np_test0)
+  OUTPUT_MACRO ( ComplexParserInternalDeviceVariableTest, np_test0)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, ndb_test0)
+TEST ( ComplexParserInternalDeviceVariableTest, ndb_test0)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
@@ -3451,28 +3443,24 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, ndb_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO ( Complex_Parser_InternalDeviceVariable_Test, ndb_test0)
+  OUTPUT_MACRO ( ComplexParserInternalDeviceVariableTest, ndb_test0)
 }
 
-TEST ( Complex_Parser_InternalDeviceVariable_Test, testConflict)
+TEST ( ComplexParserInternalDeviceVariableTest, testConflict)
 {
   Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
   Xyce::Util::newExpression testExpression(std::string("N+17.2*N(M3:GM)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Teuchos::RCP<Xyce::Util::newExpression> nExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("-0.5"), testGroup));
   nExpression->lexAndParseExpression();
   std::string nName = "N";
   testExpression.attachParameterNode(nName,nExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -3486,11 +3474,11 @@ TEST ( Complex_Parser_InternalDeviceVariable_Test, testConflict)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_InternalDeviceVariable_Test, test1)
+  OUTPUT_MACRO(ComplexParserInternalDeviceVariableTest, test1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Noise_Test, dno_test)
+TEST ( ComplexParserNoiseTest, dno_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -3511,10 +3499,10 @@ TEST ( Complex_Parser_Noise_Test, dno_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_Noise_Test, dno_test)
+  OUTPUT_MACRO(ComplexParserNoiseTest, dno_test)
 }
 
-TEST ( Complex_Parser_Noise_Test, dni_test)
+TEST ( ComplexParserNoiseTest, dni_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -3535,10 +3523,10 @@ TEST ( Complex_Parser_Noise_Test, dni_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_Noise_Test, dni_test)
+  OUTPUT_MACRO(ComplexParserNoiseTest, dni_test)
 }
 
-TEST ( Complex_Parser_Noise_Test, onoise_test)
+TEST ( ComplexParserNoiseTest, onoise_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -3557,10 +3545,10 @@ TEST ( Complex_Parser_Noise_Test, onoise_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_Noise_Test, onoise_test)
+  OUTPUT_MACRO(ComplexParserNoiseTest, onoise_test)
 }
 
-TEST ( Complex_Parser_Noise_Test, inoise_test)
+TEST ( ComplexParserNoiseTest, inoise_test)
 {
   Teuchos::RCP<noiseExpressionGroup> noiseVarGroup = Teuchos::rcp(new noiseExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noiseVarGroup;
@@ -3579,13 +3567,13 @@ TEST ( Complex_Parser_Noise_Test, inoise_test)
   copyExpression.evaluateFunction(result); 
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Complex_Parser_Noise_Test, inoise_test)
+  OUTPUT_MACRO(ComplexParserNoiseTest, inoise_test)
 }
 
 //-------------------------------------------------------------------------------
 // .func tests
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test1)
+TEST ( ComplexParserFuncTest, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -3635,7 +3623,7 @@ TEST ( Complex_Parser_Func_Test, test1)
 //-------------------------------------------------------------------------------
 // this test is inspired by the BUG_547_SON/mb_orig.cir test case, which seemed
 // to have trouble with the function name DC_AC.
-TEST ( Complex_Parser_Func_Test, test_mb_orig)
+TEST ( ComplexParserFuncTest, test_mb_orig)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3670,9 +3658,7 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3682,13 +3668,13 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_mb_orig)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_mb_orig)
 }
 
 //-------------------------------------------------------------------------------
 // this test is inspired by the BUG_547_SON/mb_orig.cir test case, which seemed
 // to have trouble with the function name DC_AC, among other things
-TEST ( Complex_Parser_Func_Test, test_mb_orig2)
+TEST ( ComplexParserFuncTest, test_mb_orig2)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3723,9 +3709,7 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig2)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3742,11 +3726,11 @@ TEST ( Complex_Parser_Func_Test, test_mb_orig2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 0.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_mb_orig2)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_mb_orig2)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test_underscoreName)
+TEST ( ComplexParserFuncTest, test_underscoreName)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3781,9 +3765,7 @@ TEST ( Complex_Parser_Func_Test, test_underscoreName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3793,11 +3775,11 @@ TEST ( Complex_Parser_Func_Test, test_underscoreName)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_underscoreName)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_underscoreName)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test_poundSymbolName)
+TEST ( ComplexParserFuncTest, test_poundSymbolName)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3832,9 +3814,7 @@ TEST ( Complex_Parser_Func_Test, test_poundSymbolName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3844,11 +3824,11 @@ TEST ( Complex_Parser_Func_Test, test_poundSymbolName)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_poundSymbolName)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_poundSymbolName)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test_atSymbolName)
+TEST ( ComplexParserFuncTest, test_atSymbolName)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3883,9 +3863,7 @@ TEST ( Complex_Parser_Func_Test, test_atSymbolName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3895,11 +3873,11 @@ TEST ( Complex_Parser_Func_Test, test_atSymbolName)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_poundSymbolName)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_poundSymbolName)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test_backtickName)
+TEST ( ComplexParserFuncTest, test_backtickName)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3934,9 +3912,7 @@ TEST ( Complex_Parser_Func_Test, test_backtickName)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -3946,11 +3922,11 @@ TEST ( Complex_Parser_Func_Test, test_backtickName)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test_backtickName)
+  OUTPUT_MACRO(ComplexParserFuncTest, test_backtickName)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Func_Test, test1_multipleLexParse)
+TEST ( ComplexParserFuncTest, test1_multipleLexParse)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -3990,9 +3966,7 @@ TEST ( Complex_Parser_Func_Test, test1_multipleLexParse)
 
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -4002,11 +3976,11 @@ TEST ( Complex_Parser_Func_Test, test1_multipleLexParse)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Func_Test, test1)
+  OUTPUT_MACRO(ComplexParserFuncTest, test1)
 }
 
 // tests are taken from the "ternary_precedence.cir" Xyce regression test
-TEST ( Complex_Parser_ternary_precedence, simple)
+TEST ( ComplexParserTernary_precedence, simple)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4060,7 +4034,7 @@ TEST ( Complex_Parser_ternary_precedence, simple)
   }
 }
 
-TEST ( Complex_Parser_ternary_precedence, precplus)
+TEST ( ComplexParserTernary_precedence, precplus)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4110,7 +4084,7 @@ TEST ( Complex_Parser_ternary_precedence, precplus)
   }
 }
 
-TEST ( Complex_Parser_ternary_precedence, precplusparen)
+TEST ( ComplexParserTernary_precedence, precplusparen)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4141,7 +4115,7 @@ TEST ( Complex_Parser_ternary_precedence, precplusparen)
     precplusparenTrue.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     copyPrecplusparenTrue.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     assignPrecplusparenTrue.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusparen, precplusparenTrue) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusparen, precplusparenTrue) 
   }
   {
     Xyce::Util::newExpression precplusparenFalse(std::string("precplusparen(-4)"), testGroup);
@@ -4158,11 +4132,11 @@ TEST ( Complex_Parser_ternary_precedence, precplusparen)
     precplusparenFalse.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     copyPrecplusparenFalse.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     assignPrecplusparenFalse.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusparen, precplusparenFalse) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusparen, precplusparenFalse) 
   }
 }
 
-TEST ( Complex_Parser_ternary_precedence, simpleif)
+TEST ( ComplexParserTernary_precedence, simpleif)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4194,7 +4168,7 @@ TEST ( Complex_Parser_ternary_precedence, simpleif)
     simpleifTrue.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     copySimpleifTrue.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     assignSimpleifTrue.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, simpleif, simpleifTrue) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, simpleif, simpleifTrue) 
   }
   {
     Xyce::Util::newExpression simpleifFalse(std::string("simpleif(0)"), testGroup);
@@ -4211,11 +4185,11 @@ TEST ( Complex_Parser_ternary_precedence, simpleif)
     simpleifFalse.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(0.0,0.0) );
     copySimpleifFalse.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(0.0,0.0) );
     assignSimpleifFalse.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(0.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, simpleif, simpleifFalse) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, simpleif, simpleifFalse) 
   }
 }
 
-TEST ( Complex_Parser_ternary_precedence, precplusif)
+TEST ( ComplexParserTernary_precedence, precplusif)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4246,7 +4220,7 @@ TEST ( Complex_Parser_ternary_precedence, precplusif)
     precplusifTrue.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     copyPrecplusifTrue.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     assignPrecplusifTrue.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusif, precplusifTrue) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusif, precplusifTrue) 
   }
   {
     Xyce::Util::newExpression precplusifFalse(std::string("precplusif(-4)"), testGroup);
@@ -4263,11 +4237,11 @@ TEST ( Complex_Parser_ternary_precedence, precplusif)
     precplusifFalse.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     copyPrecplusifFalse.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     assignPrecplusifFalse.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusif, precplusifFalse) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusif, precplusifFalse) 
   }
 }
 
-TEST ( Complex_Parser_ternary_precedence, precplusparenif)
+TEST ( ComplexParserTernary_precedence, precplusparenif)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp_dynamic_cast<testExpressionGroupWithFuncSupport>(testGroup);
@@ -4298,7 +4272,7 @@ TEST ( Complex_Parser_ternary_precedence, precplusparenif)
     precplusparenifTrue.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     copyPrecplusparenifTrue.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
     assignPrecplusparenifTrue.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(8.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusparenif, precplusparenifTrue) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusparenif, precplusparenifTrue) 
   }
   {
     Xyce::Util::newExpression precplusparenifFalse(std::string("precplusparenif(-4)"), testGroup);
@@ -4315,11 +4289,11 @@ TEST ( Complex_Parser_ternary_precedence, precplusparenif)
     precplusparenifFalse.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     copyPrecplusparenifFalse.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
     assignPrecplusparenifFalse.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(2.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_ternary_precedence, precplusparenif, precplusparenifFalse) 
+    OUTPUT_MACRO2(ComplexParserTernary_precedence, precplusparenif, precplusparenifFalse) 
   }
 }
 
-TEST ( Complex_Parser_Func_Test, longArgList)
+TEST ( ComplexParserFuncTest, longArgList)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -4349,7 +4323,7 @@ TEST ( Complex_Parser_Func_Test, longArgList)
     crazyTrue.evaluateFunction(result);       EXPECT_EQ( result, 4.0 );
     copyCrazyTrue.evaluateFunction(result);   EXPECT_EQ( result, 4.0 );
     assignCrazyTrue.evaluateFunction(result); EXPECT_EQ( result, 4.0 );
-    OUTPUT_MACRO2(Complex_Parser_Func_Test, longArgList, crazyTrue) 
+    OUTPUT_MACRO2(ComplexParserFuncTest, longArgList, crazyTrue) 
   }
   {
     Xyce::Util::newExpression crazyFalse(std::string("crazy(0,0,0,0,-4,0,0,0)"), testGroup);
@@ -4366,14 +4340,14 @@ TEST ( Complex_Parser_Func_Test, longArgList)
     crazyFalse.evaluateFunction(result);       EXPECT_EQ( result, std::complex<double>(-4.0,0.0) );
     copyCrazyFalse.evaluateFunction(result);   EXPECT_EQ( result, std::complex<double>(-4.0,0.0) );
     assignCrazyFalse.evaluateFunction(result); EXPECT_EQ( result, std::complex<double>(-4.0,0.0) );
-    OUTPUT_MACRO2(Complex_Parser_Func_Test, longArgList, crazyFalse) 
+    OUTPUT_MACRO2(ComplexParserFuncTest, longArgList, crazyFalse) 
   }
 }
 
 //-------------------------------------------------------------------------------
 // tests are taken from the "ifstatement.cir" Xyce regression test
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
+TEST ( ComplexParserIfstatement, ifmin_ifmax_func)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4442,11 +4416,11 @@ TEST ( Complex_Parser_ifstatement, ifmin_ifmax_func)
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
     EXPECT_EQ( assignResult, refRes);
-    OUTPUT_MACRO2(Complex_Parser_ifstatement, ifmin_ifmax_func, e3) 
+    OUTPUT_MACRO2(ComplexParserIfstatement, ifmin_ifmax_func, e3) 
   }
 }
 
-TEST ( Complex_Parser_ifstatement, simple_nested_func)
+TEST ( ComplexParserIfstatement, simple_nested_func)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4503,7 +4477,7 @@ TEST ( Complex_Parser_ifstatement, simple_nested_func)
   }
 }
 
-TEST ( Complex_Parser_ifstatement, min_max)
+TEST ( ComplexParserIfstatement, min_max)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4544,7 +4518,7 @@ TEST ( Complex_Parser_ifstatement, min_max)
   EXPECT_EQ( assignResult, refRes);
 }
 
-TEST ( Complex_Parser_ifstatement, limit)
+TEST ( ComplexParserIfstatement, limit)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4585,7 +4559,7 @@ TEST ( Complex_Parser_ifstatement, limit)
   EXPECT_EQ( assignResult, refRes);
 }
 
-TEST ( Complex_Parser_ifstatement, limit2)
+TEST ( ComplexParserIfstatement, limit2)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4639,10 +4613,10 @@ TEST ( Complex_Parser_ifstatement, limit2)
     ASSERT_EQ( derivs, refDerivs);
   }
 
-  OUTPUT_MACRO2(Complex_Parser_ifstatement,limit2, e5) 
+  OUTPUT_MACRO2(ComplexParserIfstatement,limit2, e5) 
 }
 
-TEST ( Complex_Parser_ifstatement, or_true)
+TEST ( ComplexParserIfstatement, or_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4661,10 +4635,10 @@ TEST ( Complex_Parser_ifstatement, or_true)
   e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, or_true,e8) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, or_true,e8) 
 }
 
-TEST ( Complex_Parser_ifstatement, or_false)
+TEST ( ComplexParserIfstatement, or_false)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4683,10 +4657,10 @@ TEST ( Complex_Parser_ifstatement, or_false)
   e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, or_false,e9) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, or_false,e9) 
 }
 
-TEST ( Complex_Parser_ifstatement, hspice_or_true)
+TEST ( ComplexParserIfstatement, hspice_or_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4705,10 +4679,10 @@ TEST ( Complex_Parser_ifstatement, hspice_or_true)
   e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, hspice_or_true,e8) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, hspice_or_true,e8) 
 }
 
-TEST ( Complex_Parser_ifstatement, hspice_or_false)
+TEST ( ComplexParserIfstatement, hspice_or_false)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4727,10 +4701,10 @@ TEST ( Complex_Parser_ifstatement, hspice_or_false)
   e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, hspice_or_false,e9) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, hspice_or_false,e9) 
 }
 
-TEST ( Complex_Parser_ifstatement, and_true)
+TEST ( ComplexParserIfstatement, and_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4749,10 +4723,10 @@ TEST ( Complex_Parser_ifstatement, and_true)
   e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, and_true,e8) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, and_true,e8) 
 }
 
-TEST ( Complex_Parser_ifstatement, and_false)
+TEST ( ComplexParserIfstatement, and_false)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4771,10 +4745,10 @@ TEST ( Complex_Parser_ifstatement, and_false)
   e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, and_false,e9) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, and_false,e9) 
 }
 
-TEST ( Complex_Parser_ifstatement, hspice_and_true)
+TEST ( ComplexParserIfstatement, hspice_and_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4793,10 +4767,10 @@ TEST ( Complex_Parser_ifstatement, hspice_and_true)
   e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, hspice_and_true,e8) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, hspice_and_true,e8) 
 }
 
-TEST ( Complex_Parser_ifstatement, hspice_and_false)
+TEST ( ComplexParserIfstatement, hspice_and_false)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4815,10 +4789,10 @@ TEST ( Complex_Parser_ifstatement, hspice_and_false)
   e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, hspice_and_false,e9) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, hspice_and_false,e9) 
 }
 
-TEST ( Complex_Parser_ifstatement, xor_true)
+TEST ( ComplexParserIfstatement, xor_true)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4839,7 +4813,7 @@ TEST ( Complex_Parser_ifstatement, xor_true)
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 1.0);
 }
 
-TEST ( Complex_Parser_ifstatement, xor_false)
+TEST ( ComplexParserIfstatement, xor_false)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4860,7 +4834,7 @@ TEST ( Complex_Parser_ifstatement, xor_false)
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 3.0);
 }
 
-TEST ( Complex_Parser_ifstatement, neq)
+TEST ( ComplexParserIfstatement, neq)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4881,7 +4855,7 @@ TEST ( Complex_Parser_ifstatement, neq)
   assign_e10.evaluateFunction(result); EXPECT_EQ( result, 3.0);
 }
 
-TEST ( Complex_Parser_ifstatement, not)
+TEST ( ComplexParserIfstatement, not)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp_dynamic_cast<ifStatementExpressionGroup>(testGroup);
@@ -4902,7 +4876,7 @@ TEST ( Complex_Parser_ifstatement, not)
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
 }
 
-TEST ( Complex_Parser_ifstatement, equiv)
+TEST ( ComplexParserIfstatement, equiv)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4921,10 +4895,10 @@ TEST ( Complex_Parser_ifstatement, equiv)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, equiv, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, equiv, e11) 
 }
 
-TEST ( Complex_Parser_ifstatement, ge1)
+TEST ( ComplexParserIfstatement, ge1)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4943,10 +4917,10 @@ TEST ( Complex_Parser_ifstatement, ge1)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, ge1, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, ge1, e11) 
 }
 
-TEST ( Complex_Parser_ifstatement, ge2)
+TEST ( ComplexParserIfstatement, ge2)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4965,10 +4939,10 @@ TEST ( Complex_Parser_ifstatement, ge2)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, ge2, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, ge2, e11) 
 }
 
-TEST ( Complex_Parser_ifstatement, ge3)
+TEST ( ComplexParserIfstatement, ge3)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -4987,11 +4961,11 @@ TEST ( Complex_Parser_ifstatement, ge3)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, ge3, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, ge3, e11) 
 }
 
 
-TEST ( Complex_Parser_ifstatement, le1)
+TEST ( ComplexParserIfstatement, le1)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -5010,10 +4984,10 @@ TEST ( Complex_Parser_ifstatement, le1)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, le1, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, le1, e11) 
 }
 
-TEST ( Complex_Parser_ifstatement, le2)
+TEST ( ComplexParserIfstatement, le2)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -5032,10 +5006,10 @@ TEST ( Complex_Parser_ifstatement, le2)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, le2, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, le2, e11) 
 }
 
-TEST ( Complex_Parser_ifstatement, le3)
+TEST ( ComplexParserIfstatement, le3)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -5054,13 +5028,13 @@ TEST ( Complex_Parser_ifstatement, le3)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
-  OUTPUT_MACRO2(Complex_Parser_ifstatement, le3, e11) 
+  OUTPUT_MACRO2(ComplexParserIfstatement, le3, e11) 
 }
 
 // from "ifstatement.cir":
 // Also test modulus, along with its precedence vs. + - * and /.
 // Because of precedence, this should evaluate to 4.
-TEST ( Complex_Parser_modulus, test1)
+TEST ( ComplexParserModulus, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5078,7 +5052,7 @@ TEST ( Complex_Parser_modulus, test1)
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, 4.0);
 }
 
-TEST ( Complex_Parser_modulus, test2)
+TEST ( ComplexParserModulus, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5097,7 +5071,7 @@ TEST ( Complex_Parser_modulus, test2)
 
 #if 1
 // test for modulus w/real numbers
-TEST ( Complex_Parser_modulus, test3)
+TEST ( ComplexParserModulus, test3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5113,11 +5087,11 @@ TEST ( Complex_Parser_modulus, test3)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refRes);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO2(Complex_Parser_modulus, test3, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test3, p1) 
 }
 
 // test for modulus w/real numbers, with problem: second arg is zero.
-TEST ( Complex_Parser_modulus, test4)
+TEST ( ComplexParserModulus, test4)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5133,11 +5107,11 @@ TEST ( Complex_Parser_modulus, test4)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refRes);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO2(Complex_Parser_modulus, test4, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test4, p1) 
 }
 
 // test for modulus w/real numbers, and derivatives
-TEST ( Complex_Parser_modulus, test5)
+TEST ( ComplexParserModulus, test5)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
@@ -5161,11 +5135,11 @@ TEST ( Complex_Parser_modulus, test5)
   p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
-  OUTPUT_MACRO2(Complex_Parser_modulus, test5, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test5, p1) 
 }
 
 // test for modulus w/real numbers, and derivatives
-TEST ( Complex_Parser_modulus, test6)
+TEST ( ComplexParserModulus, test6)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
@@ -5190,11 +5164,11 @@ TEST ( Complex_Parser_modulus, test6)
   p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
-  OUTPUT_MACRO2(Complex_Parser_modulus, test6, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test6, p1) 
 }
 
 // test for modulus w/real numbers, and derivatives
-TEST ( Complex_Parser_modulus, test7)
+TEST ( ComplexParserModulus, test7)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
@@ -5218,11 +5192,11 @@ TEST ( Complex_Parser_modulus, test7)
   p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
   assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ(derivs, refDer);
-  OUTPUT_MACRO2(Complex_Parser_modulus, test7, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test7, p1) 
 }
 
 // test for modulus w/real numbers, and derivatives
-TEST ( Complex_Parser_modulus, test8)
+TEST ( ComplexParserModulus, test8)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = solnGroup;
@@ -5250,11 +5224,11 @@ TEST ( Complex_Parser_modulus, test8)
   p1.evaluate(result,derivs);        EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
   copy_p1.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
   assign_p1.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_DOUBLE_EQ(std::real(derivs[0]), std::real(refDer[0]));
-  OUTPUT_MACRO2(Complex_Parser_modulus, test8, p1) 
+  OUTPUT_MACRO2(ComplexParserModulus, test8, p1) 
 }
 #endif
 
-TEST ( Complex_Parser_fmod, fmod1)
+TEST ( ComplexParserFmod, fmod1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5270,10 +5244,10 @@ TEST ( Complex_Parser_fmod, fmod1)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_fmod, fmod1, p1) 
+  OUTPUT_MACRO2(ComplexParserFmod, fmod1, p1) 
 }
 
-TEST ( Complex_Parser_fmod, fmod2)
+TEST ( ComplexParserFmod, fmod2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5289,10 +5263,10 @@ TEST ( Complex_Parser_fmod, fmod2)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_fmod, fmod2, p1) 
+  OUTPUT_MACRO2(ComplexParserFmod, fmod2, p1) 
 }
 
-TEST ( Complex_Parser_fmod, fmod3)
+TEST ( ComplexParserFmod, fmod3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5308,10 +5282,10 @@ TEST ( Complex_Parser_fmod, fmod3)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_fmod, fmod3, p1) 
+  OUTPUT_MACRO2(ComplexParserFmod, fmod3, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint1)
+TEST ( ComplexParserNint, nint1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5327,10 +5301,10 @@ TEST ( Complex_Parser_nint, nint1)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint1, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint1, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint2)
+TEST ( ComplexParserNint, nint2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5346,10 +5320,10 @@ TEST ( Complex_Parser_nint, nint2)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint2, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint2, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint3)
+TEST ( ComplexParserNint, nint3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5365,10 +5339,10 @@ TEST ( Complex_Parser_nint, nint3)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint3, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint3, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint4)
+TEST ( ComplexParserNint, nint4)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5384,10 +5358,10 @@ TEST ( Complex_Parser_nint, nint4)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint4, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint4, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint5)
+TEST ( ComplexParserNint, nint5)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5403,10 +5377,10 @@ TEST ( Complex_Parser_nint, nint5)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint5, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint5, p1) 
 }
 
-TEST ( Complex_Parser_nint, nint6)
+TEST ( ComplexParserNint, nint6)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new testExpressionGroup() );
 
@@ -5422,14 +5396,14 @@ TEST ( Complex_Parser_nint, nint6)
   p1.evaluateFunction(result);        EXPECT_EQ( result, refres);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, refres);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, refres);
-  OUTPUT_MACRO2(Complex_Parser_nint, nint6, p1) 
+  OUTPUT_MACRO2(ComplexParserNint, nint6, p1) 
 }
 
 //-------------------------------------------------------------------------------
 // table tests
 //
 // adapted from break.cir
-TEST ( Complex_Parser_table_Test, break1)
+TEST ( ComplexParserTableTest, break1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp_dynamic_cast<timeDepExpressionGroup>(grp);
@@ -5458,7 +5432,7 @@ TEST ( Complex_Parser_table_Test, break1)
   EXPECT_EQ(refRes,assignResult);
 }
 
-TEST ( Complex_Parser_table_Test, tablefile_break1)
+TEST ( ComplexParserTableTest, tablefile_break1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp_dynamic_cast<timeDepExpressionGroup>(grp);
@@ -5491,7 +5465,7 @@ TEST ( Complex_Parser_table_Test, tablefile_break1)
 // (1) making sure filenames can include dashes 
 // (2) making sure table files can include comments.  
 // The file, test1-1.dat includes comments in it.
-TEST ( Complex_Parser_table_Test, tablefile_dash_comment)
+TEST ( ComplexParserTableTest, tablefile_dash_comment)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp_dynamic_cast<timeDepExpressionGroup>(grp);
@@ -5520,7 +5494,7 @@ TEST ( Complex_Parser_table_Test, tablefile_dash_comment)
   EXPECT_EQ(refRes,assignResult);
 }
 
-TEST ( Complex_Parser_table_Test, tablefile_break1b)
+TEST ( ComplexParserTableTest, tablefile_break1b)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -5547,10 +5521,10 @@ TEST ( Complex_Parser_table_Test, tablefile_break1b)
   EXPECT_EQ(refRes,result);
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
-  OUTPUT_MACRO2(Complex_Parser_table_Test, tablefile_break1b, tableExpression) 
+  OUTPUT_MACRO2(ComplexParserTableTest, tablefile_break1b, tableExpression) 
 }
 
-TEST ( Complex_Parser_table_Test, tablefile_break1c)
+TEST ( ComplexParserTableTest, tablefile_break1c)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -5577,10 +5551,10 @@ TEST ( Complex_Parser_table_Test, tablefile_break1c)
   EXPECT_EQ(refRes,result);
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
-  OUTPUT_MACRO2(Complex_Parser_table_Test, tablefile_break1c, tableExpression) 
+  OUTPUT_MACRO2(ComplexParserTableTest, tablefile_break1c, tableExpression) 
 }
 
-TEST ( Complex_Parser_table_Test, break2)
+TEST ( ComplexParserTableTest, break2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp_dynamic_cast<timeDepExpressionGroup>(grp);
@@ -5613,7 +5587,7 @@ TEST ( Complex_Parser_table_Test, break2)
 // fasttable tests
 //
 // adapted from break.cir
-TEST ( Complex_Parser_fasttable_Test, break1)
+TEST ( ComplexParserfasttableTest, break1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -5642,11 +5616,11 @@ TEST ( Complex_Parser_fasttable_Test, break1)
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
 
-  OUTPUT_MACRO2(Complex_Parser_table_Test, break1, tableExpression) 
+  OUTPUT_MACRO2(ComplexParserTableTest, break1, tableExpression) 
 }
 
 // adapted from power_thermalres_gear.cir
-TEST ( Complex_Parser_table_Test, power_thermalres)
+TEST ( ComplexParserTableTest, power_thermalres)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp_dynamic_cast<tempDepExpressionGroup>(grp);
@@ -5704,13 +5678,13 @@ TEST ( Complex_Parser_table_Test, power_thermalres)
 
 #if 0
 // adapted from Bsrc_C1.cir.
-// See the Complex_Parser_Param_Test.test2  test below,
+// See the ComplexParserParam_Test.test2  test below,
 // which also tests the first-argument expression and uses
 // some of the same machinery.
 //
 // the mechanics of the table seem to work here, but I haven't generated a good gold standard yet
 // so, disabling for now
-TEST ( Complex_Parser_table_Test, Bsrc_C1_withoutParens)
+TEST ( ComplexParserTableTest, Bsrc_C1_withoutParens)
 {
   Bsrc_C1_ExpressionGroup grp;
   {
@@ -5752,7 +5726,7 @@ TEST ( Complex_Parser_table_Test, Bsrc_C1_withoutParens)
 }
 #endif
 
-TEST ( Complex_Parser_table_Test, Bsrc_C1_pureArray)
+TEST ( ComplexParserTableTest, Bsrc_C1_pureArray)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp_dynamic_cast<Bsrc_C1_ExpressionGroup>(grp);
@@ -5811,7 +5785,7 @@ TEST ( Complex_Parser_table_Test, Bsrc_C1_pureArray)
   }
 }
 
-TEST ( Complex_Parser_table_Test, Bsrc_C1_pairsWithParens)
+TEST ( ComplexParserTableTest, Bsrc_C1_pairsWithParens)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
@@ -5871,7 +5845,7 @@ TEST ( Complex_Parser_table_Test, Bsrc_C1_pairsWithParens)
 }
 
 
-TEST ( Complex_Parser_table_Test, power_e_gear)
+TEST ( ComplexParserTableTest, power_e_gear)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
@@ -5903,7 +5877,7 @@ TEST ( Complex_Parser_table_Test, power_e_gear)
   }
 }
 
-TEST ( Complex_Parser_table_Test, power_endcomma)
+TEST ( ComplexParserTableTest, power_endcomma)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
@@ -5939,7 +5913,7 @@ TEST ( Complex_Parser_table_Test, power_endcomma)
 // spline tests
 //
 // adapted from break.cir
-TEST ( Complex_Parser_spline_Test, break1)
+TEST ( ComplexParsersplineTest, break1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -5968,10 +5942,10 @@ TEST ( Complex_Parser_spline_Test, break1)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
 
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, break1, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, break1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, break2)
+TEST ( ComplexParsersplineTest, break2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -5999,11 +5973,11 @@ TEST ( Complex_Parser_spline_Test, break2)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, break2, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, break2, splineExpression) 
 }
 
 // adapted from power_thermalres_gear.cir
-TEST ( Complex_Parser_spline_Test, power_thermalres)
+TEST ( ComplexParsersplineTest, power_thermalres)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempDepGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = tempDepGroup;
@@ -6032,7 +6006,7 @@ TEST ( Complex_Parser_spline_Test, power_thermalres)
       EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
       EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
     }
-    OUTPUT_MACRO2(Complex_Parser_spline_Test, power_thermalres, resistivity) 
+    OUTPUT_MACRO2(ComplexParsersplineTest, power_thermalres, resistivity) 
   }
   {
     Xyce::Util::newExpression heatcapacity(std::string("8.92e+3*spline(temp+273.15, 0, 1, 1000, 1500)"), grp);
@@ -6059,12 +6033,12 @@ TEST ( Complex_Parser_spline_Test, power_thermalres)
       EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
       EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
     }
-    OUTPUT_MACRO2(Complex_Parser_spline_Test, power_thermalres, heatcapacity) 
+    OUTPUT_MACRO2(ComplexParsersplineTest, power_thermalres, heatcapacity) 
   }
 }
 
 #if 1
-TEST ( Complex_Parser_spline_Test, akima1)
+TEST ( ComplexParsersplineTest, akima1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -6092,10 +6066,10 @@ TEST ( Complex_Parser_spline_Test, akima1)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, akima1, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, akima1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, cubic1)
+TEST ( ComplexParsersplineTest, cubic1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -6123,10 +6097,10 @@ TEST ( Complex_Parser_spline_Test, cubic1)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, cubic1, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, cubic1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, barycentric1)
+TEST ( ComplexParsersplineTest, barycentric1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -6154,10 +6128,10 @@ TEST ( Complex_Parser_spline_Test, barycentric1)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, barycentric1, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, barycentric1, splineExpression) 
 }
 
-TEST ( Complex_Parser_spline_Test, wodicka1)
+TEST ( ComplexParsersplineTest, wodicka1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -6185,7 +6159,7 @@ TEST ( Complex_Parser_spline_Test, wodicka1)
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(copyResult[ii]));
     EXPECT_FLOAT_EQ(std::real(refRes[ii]),std::real(assignResult[ii]));
   }
-  OUTPUT_MACRO2(Complex_Parser_spline_Test, wodicka1, splineExpression) 
+  OUTPUT_MACRO2(ComplexParsersplineTest, wodicka1, splineExpression) 
 }
 #endif
 
@@ -6196,7 +6170,7 @@ TEST ( Complex_Parser_spline_Test, wodicka1)
 // if t0 < time < t1 value = dt0 
 // if t1 < time < t2 value = dt1 
 // if t2 < time      value = dt2
-TEST ( Complex_Parser_schedule_Test, test1)
+TEST ( ComplexParserScheduleTest, test1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = timeGroup;
@@ -6221,7 +6195,7 @@ TEST ( Complex_Parser_schedule_Test, test1)
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Param_Test, test1)
+TEST ( ComplexParserParamTest, test1)
 {
   Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
@@ -6242,12 +6216,12 @@ TEST ( Complex_Parser_Param_Test, test1)
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Param_Test, test1)
+  OUTPUT_MACRO(ComplexParserParamTest, test1)
 }
 
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.
-TEST ( Complex_Parser_Param_Test, testE1)
+TEST ( ComplexParserParamTest, testE1)
 {
   Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
@@ -6264,18 +6238,16 @@ TEST ( Complex_Parser_Param_Test, testE1)
   Xyce::Util::newExpression assign_testExpression; 
   assign_testExpression = testExpression; 
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double>  result;
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Complex_Parser_Param_Test, testE1)
+  OUTPUT_MACRO(ComplexParserParamTest, testE1)
 }
 
-TEST ( Complex_Parser_Param_Test, test2)
+TEST ( ComplexParserParamTest, test2)
 {
   Teuchos::RCP<Bsrc_C1_ExpressionGroup> paramGroup = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = paramGroup;
@@ -6317,10 +6289,10 @@ TEST ( Complex_Parser_Param_Test, test2)
     ASSERT_NEAR(std::real(refRes[ii]),std::real(copyResult[ii]),1.0e-15);
     ASSERT_NEAR(std::real(refRes[ii]),std::real(assignResult[ii]),1.0e-15);
   }
-  OUTPUT_MACRO(Complex_Parser_Param_Test, test2)
+  OUTPUT_MACRO(ComplexParserParamTest, test2)
 }
 
-TEST ( Complex_Parser_calculus, ddx1)
+TEST ( ComplexParserCalculus, ddx1)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6340,7 +6312,7 @@ TEST ( Complex_Parser_calculus, ddx1)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
 }
 
-TEST ( Complex_Parser_calculus, ddx2)
+TEST ( ComplexParserCalculus, ddx2)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6361,7 +6333,7 @@ TEST ( Complex_Parser_calculus, ddx2)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, 2.0*(2+3) );
 }
 
-TEST ( Complex_Parser_calculus, ddx3)
+TEST ( ComplexParserCalculus, ddx3)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6382,7 +6354,7 @@ TEST ( Complex_Parser_calculus, ddx3)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::cos(2+3) );
 }
 
-TEST ( Complex_Parser_calculus, ddx4)
+TEST ( ComplexParserCalculus, ddx4)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6404,7 +6376,7 @@ TEST ( Complex_Parser_calculus, ddx4)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, 2.0*p1*std::cos(p1*p1) );
 }
 
-TEST ( Complex_Parser_calculus, ddx5)
+TEST ( ComplexParserCalculus, ddx5)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6430,7 +6402,7 @@ TEST ( Complex_Parser_calculus, ddx5)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result-refRes, 0.0 );
 }
 
-TEST ( Complex_Parser_calculus, ddx5b)
+TEST ( ComplexParserCalculus, ddx5b)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6454,7 +6426,7 @@ TEST ( Complex_Parser_calculus, ddx5b)
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
 
-TEST ( Complex_Parser_calculus, ddx6)
+TEST ( ComplexParserCalculus, ddx6)
 {
   Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6480,7 +6452,7 @@ TEST ( Complex_Parser_calculus, ddx6)
   assign_ddxTest.evaluateFunction(result); ASSERT_NEAR( std::real(result), std::real(refRes2), 1.0e-16);
 } 
 
-TEST ( Complex_Parser_calculus, ddx7)
+TEST ( ComplexParserCalculus, ddx7)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6499,7 +6471,7 @@ TEST ( Complex_Parser_calculus, ddx7)
 
 // this test will produce an error message.  That is (as of this writing) the correct behavior.
 // I am leaving it in the unit test suite to prove that it doesn't produce a core dump (it used to do this)
-TEST ( Complex_Parser_calculus, ddx8)
+TEST ( ComplexParserCalculus, ddx8)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6519,7 +6491,7 @@ TEST ( Complex_Parser_calculus, ddx8)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, refRes);
 }
 
-TEST ( Complex_Parser_calculus, ddx9)
+TEST ( ComplexParserCalculus, ddx9)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6536,7 +6508,7 @@ TEST ( Complex_Parser_calculus, ddx9)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::cos(5.0) );
 }
 
-TEST ( Complex_Parser_calculus, ddx10)
+TEST ( ComplexParserCalculus, ddx10)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6558,7 +6530,7 @@ TEST ( Complex_Parser_calculus, ddx10)
   assign_ddxTest.evaluateFunction(result); ASSERT_EQ((result - refRes), 0.0);
 }
 
-TEST ( Complex_Parser_calculus, ddx11)
+TEST ( ComplexParserCalculus, ddx11)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -6593,7 +6565,7 @@ TEST ( Complex_Parser_calculus, ddx11)
 // ddx seems to work fine thru .funcs, even though I don't seem to have any 
 // unit tests for it other than this one.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_calculus, ddx12)
+TEST ( ComplexParserCalculus, ddx12)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6668,7 +6640,7 @@ std::vector<double> xvals =
   }
 }
 
-TEST ( Complex_Parser_calculus, simpleDerivs1 )
+TEST ( ComplexParserCalculus, simpleDerivs1 )
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6703,7 +6675,7 @@ TEST ( Complex_Parser_calculus, simpleDerivs1 )
 
 #if 1
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_calculus, simpleDerivs2 )
+TEST ( ComplexParserCalculus, simpleDerivs2 )
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6729,7 +6701,7 @@ TEST ( Complex_Parser_calculus, simpleDerivs2 )
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_calculus, ddx13)
+TEST ( ComplexParserCalculus, ddx13)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6751,7 +6723,7 @@ TEST ( Complex_Parser_calculus, ddx13)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_calculus, ddx14)
+TEST ( ComplexParserCalculus, ddx14)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -6778,7 +6750,7 @@ TEST ( Complex_Parser_calculus, ddx14)
 // At the time of test creation (2/21/2020), the answer was NO.
 //
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_calculus, derivsThruFuncs1 )
+TEST ( ComplexParserCalculus, derivsThruFuncs1 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -6830,7 +6802,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs1 )
 
 // there are a bunch of tests in this one, all testing if derivatives propagate thru
 // a .FUNC in the right way.
-TEST ( Complex_Parser_calculus, derivsThruFuncs2 )
+TEST ( ComplexParserCalculus, derivsThruFuncs2 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -6929,7 +6901,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs2 )
   EXPECT_EQ( derivs, derivs2 );
 }
 
-TEST ( Complex_Parser_calculus, derivsThruFuncs3 )
+TEST ( ComplexParserCalculus, derivsThruFuncs3 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -6974,7 +6946,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs3 )
 
 }
 
-TEST ( Complex_Parser_calculus, derivsThruFuncs4 )
+TEST ( ComplexParserCalculus, derivsThruFuncs4 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -7014,7 +6986,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs4 )
   EXPECT_EQ( derivs,derivsRef);
 }
 
-TEST ( Complex_Parser_calculus, derivsThruFuncs5 )
+TEST ( ComplexParserCalculus, derivsThruFuncs5 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -7055,7 +7027,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs5 )
 }
 
 //
-TEST ( Complex_Parser_calculus, derivsThruFuncs6 )
+TEST ( ComplexParserCalculus, derivsThruFuncs6 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -7086,9 +7058,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs6 )
   std::complex<double> result;
   std::complex<double> refRes = 1.0;
 
-#if 0
-  derivFuncTestExpr.dumpParseTree(std::cout);
-#endif
+  //derivFuncTestExpr.dumpParseTree(std::cout);
 
   derivFuncTestExpr.evaluateFunction(result);       EXPECT_EQ(result, refRes);
 
@@ -7097,7 +7067,7 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs6 )
 }
 
 //
-TEST ( Complex_Parser_calculus, derivsThruFuncs7 )
+TEST ( ComplexParserCalculus, derivsThruFuncs7 )
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
@@ -7134,16 +7104,14 @@ TEST ( Complex_Parser_calculus, derivsThruFuncs7 )
   std::complex<double> result;
   std::complex<double> refRes = 1.0;
 
-#if 0
-  derivFuncTestExpr.dumpParseTree(std::cout);
-#endif
+  //derivFuncTestExpr.dumpParseTree(std::cout);
 
   derivFuncTestExpr.evaluateFunction(result);        EXPECT_EQ(result, refRes);
   copy_derivFuncTestExpr.evaluateFunction(result);   EXPECT_EQ(result, refRes);
   assign_derivFuncTestExpr.evaluateFunction(result); EXPECT_EQ(result, refRes);
 }
 
-TEST ( Complex_Parser_calculus, derivsThruParams1 )
+TEST ( ComplexParserCalculus, derivsThruParams1 )
 {
   Teuchos::RCP<solnExpressionGroup2> solnParamGroup = Teuchos::rcp(new solnExpressionGroup2() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnParamGroup;
@@ -7176,7 +7144,7 @@ TEST ( Complex_Parser_calculus, derivsThruParams1 )
   assign_derivParamTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
 
-TEST ( Complex_Parser_floor, test1)
+TEST ( ComplexParserFloor, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression floorTest(std::string("floor(10.25)"), testGroup);
@@ -7192,7 +7160,7 @@ TEST ( Complex_Parser_floor, test1)
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, 10.0);
 }
 
-TEST ( Complex_Parser_floor, test2)
+TEST ( ComplexParserFloor, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression floorTest(std::string("floor(-34.251)"), testGroup);
@@ -7208,7 +7176,7 @@ TEST ( Complex_Parser_floor, test2)
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, -35.0);
 }
 
-TEST ( Complex_Parser_floor, test3)
+TEST ( ComplexParserFloor, test3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression floorTest(std::string("floor(0.71)"), testGroup);
@@ -7224,7 +7192,7 @@ TEST ( Complex_Parser_floor, test3)
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, 0.0);
 }
 
-TEST ( Complex_Parser_ceil, test1)
+TEST ( ComplexParserCeil, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression ceilTest(std::string("ceil(10.25)"), testGroup);
@@ -7240,7 +7208,7 @@ TEST ( Complex_Parser_ceil, test1)
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, 11.0);
 }
 
-TEST ( Complex_Parser_ceil, test2)
+TEST ( ComplexParserCeil, test2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression ceilTest(std::string("ceil(-34.251)"), testGroup);
@@ -7256,7 +7224,7 @@ TEST ( Complex_Parser_ceil, test2)
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, -34.0);
 }
 
-TEST ( Complex_Parser_ceil, test3)
+TEST ( ComplexParserCeil, test3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression ceilTest(std::string("ceil(0.71)"), testGroup);
@@ -7272,7 +7240,7 @@ TEST ( Complex_Parser_ceil, test3)
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, 1.0);
 }
 
-TEST ( Complex_Parser_specials, pi1)
+TEST ( ComplexParserSpecials, pi1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression piTest(std::string("pi"), testGroup);
@@ -7288,7 +7256,7 @@ TEST ( Complex_Parser_specials, pi1)
   assign_piTest.evaluateFunction(result); EXPECT_EQ( result, M_PI);
 }
 
-TEST ( Complex_Parser_specials, pi2)
+TEST ( ComplexParserSpecials, pi2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression piTest(std::string("sin(pi)"), testGroup);
@@ -7304,7 +7272,7 @@ TEST ( Complex_Parser_specials, pi2)
   assign_piTest.evaluateFunction(result); EXPECT_EQ( result, std::sin(M_PI));
 }
 
-TEST ( Complex_Parser_specials, time)
+TEST ( ComplexParserSpecials, time)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7329,10 +7297,10 @@ TEST ( Complex_Parser_specials, time)
   EXPECT_EQ(copyTimeDependent, true);
   EXPECT_EQ(assignTimeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, time)
+  OUTPUT_MACRO(ComplexParserSpecials, time)
 }
 
-TEST ( Complex_Parser_specials, time2)
+TEST ( ComplexParserSpecials, time2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7364,10 +7332,10 @@ TEST ( Complex_Parser_specials, time2)
   EXPECT_EQ(copyTimeDependent, true);
   EXPECT_EQ(assignTimeDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, time2)
+  OUTPUT_MACRO(ComplexParserSpecials, time2)
 }
 
-TEST ( Complex_Parser_specials, freq)
+TEST ( ComplexParserSpecials, freq)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7392,11 +7360,11 @@ TEST ( Complex_Parser_specials, freq)
   EXPECT_EQ(copyFreqDependent, true);
   EXPECT_EQ(assignFreqDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, freq)
+  OUTPUT_MACRO(ComplexParserSpecials, freq)
 }
 
 
-TEST (Complex_Parser_specials, freq2)
+TEST (ComplexParserSpecials, freq2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7428,10 +7396,10 @@ TEST (Complex_Parser_specials, freq2)
   EXPECT_EQ(copyFreqDependent, true);
   EXPECT_EQ(assignFreqDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, freq2)
+  OUTPUT_MACRO(ComplexParserSpecials, freq2)
 }
 
-TEST ( Complex_Parser_specials, hertz)
+TEST ( ComplexParserSpecials, hertz)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7456,10 +7424,10 @@ TEST ( Complex_Parser_specials, hertz)
   EXPECT_EQ(copyFreqDependent, true);
   EXPECT_EQ(assignFreqDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, hertz)
+  OUTPUT_MACRO(ComplexParserSpecials, hertz)
 }
 
-TEST ( Complex_Parser_specials, hertz2)
+TEST ( ComplexParserSpecials, hertz2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7491,10 +7459,10 @@ TEST ( Complex_Parser_specials, hertz2)
   EXPECT_EQ(copyFreqDependent, true);
   EXPECT_EQ(assignFreqDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, hertz2)
+  OUTPUT_MACRO(ComplexParserSpecials, hertz2)
 }
 
-TEST ( Complex_Parser_specials, gmin)
+TEST ( ComplexParserSpecials, gmin)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7519,10 +7487,10 @@ TEST ( Complex_Parser_specials, gmin)
   EXPECT_EQ(copyGminDependent, true);
   EXPECT_EQ(assignGminDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, gmin)
+  OUTPUT_MACRO(ComplexParserSpecials, gmin)
 }
 
-TEST ( Complex_Parser_specials, gmin2)
+TEST ( ComplexParserSpecials, gmin2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = timeGroup;
@@ -7554,10 +7522,10 @@ TEST ( Complex_Parser_specials, gmin2)
   EXPECT_EQ(copyGminDependent, true);
   EXPECT_EQ(assignGminDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, gmin2)
+  OUTPUT_MACRO(ComplexParserSpecials, gmin2)
 }
 
-TEST (Complex_Parser_specials, temp)
+TEST (ComplexParserSpecials, temp)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
@@ -7582,10 +7550,10 @@ TEST (Complex_Parser_specials, temp)
   EXPECT_EQ(copyTempDependent, true);
   EXPECT_EQ(assignTempDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, temp)
+  OUTPUT_MACRO(ComplexParserSpecials, temp)
 }
 
-TEST (Complex_Parser_specials, temp2)
+TEST (ComplexParserSpecials, temp2)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
@@ -7617,11 +7585,11 @@ TEST (Complex_Parser_specials, temp2)
   EXPECT_EQ(copyTempDependent, true);
   EXPECT_EQ(assignTempDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, temp2)
+  OUTPUT_MACRO(ComplexParserSpecials, temp2)
 }
 
 
-TEST ( Complex_Parser_specials, temper)
+TEST ( ComplexParserSpecials, temper)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
@@ -7646,10 +7614,10 @@ TEST ( Complex_Parser_specials, temper)
   EXPECT_EQ(copyTempDependent, true);
   EXPECT_EQ(assignTempDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, temper)
+  OUTPUT_MACRO(ComplexParserSpecials, temper)
 }
 
-TEST ( Complex_Parser_specials, temper2)
+TEST ( ComplexParserSpecials, temper2)
 {
   Teuchos::RCP<tempDepExpressionGroup> tempGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = tempGroup;
@@ -7681,12 +7649,12 @@ TEST ( Complex_Parser_specials, temper2)
   EXPECT_EQ(copyTempDependent, true);
   EXPECT_EQ(assignTempDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, temper2)
+  OUTPUT_MACRO(ComplexParserSpecials, temper2)
 }
 
 
 //
-TEST (Complex_Parser_specials, vt)
+TEST (ComplexParserSpecials, vt)
 {
   Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
@@ -7711,10 +7679,10 @@ TEST (Complex_Parser_specials, vt)
   EXPECT_EQ(copyVTDependent, true);
   EXPECT_EQ(assignVTDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, vt)
+  OUTPUT_MACRO(ComplexParserSpecials, vt)
 }
 
-TEST (Complex_Parser_specials, vt2)
+TEST (ComplexParserSpecials, vt2)
 {
   Teuchos::RCP<tempDepExpressionGroup> vtGroup = Teuchos::rcp(new tempDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = vtGroup;
@@ -7746,10 +7714,10 @@ TEST (Complex_Parser_specials, vt2)
   EXPECT_EQ(copyVTDependent, true);
   EXPECT_EQ(assignVTDependent, true);
 
-  OUTPUT_MACRO(Complex_Parser_specials, vt2)
+  OUTPUT_MACRO(ComplexParserSpecials, vt2)
 }
 
-TEST (  Complex_Parser_specials, CtoK1)
+TEST (  ComplexParserSpecials, CtoK1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("CtoK"), testGroup);
@@ -7769,7 +7737,7 @@ TEST (  Complex_Parser_specials, CtoK1)
   EXPECT_EQ(result, refRes);
 }
 
-TEST ( Complex_Parser_specials, exp1)
+TEST ( ComplexParserSpecials, exp1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression expTest(std::string("exp"), testGroup);
@@ -7783,10 +7751,10 @@ TEST ( Complex_Parser_specials, exp1)
   expTest.evaluateFunction(result);        EXPECT_EQ( result, std::exp(1.0));
   copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, std::exp(1.0));
   assign_expTest.evaluateFunction(result); EXPECT_EQ( result, std::exp(1.0));
-  OUTPUT_MACRO2(Complex_Parser_specials, exp1, expTest) 
+  OUTPUT_MACRO2(ComplexParserSpecials, exp1, expTest) 
 }
 
-TEST ( Complex_Parser_specials, exp2)
+TEST ( ComplexParserSpecials, exp2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression expTest(std::string("5.0*exp"), testGroup);
@@ -7800,10 +7768,10 @@ TEST ( Complex_Parser_specials, exp2)
   expTest.evaluateFunction(result);        EXPECT_EQ( result, (5.0*std::exp(1.0)));
   copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (5.0*std::exp(1.0)));
   assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (5.0*std::exp(1.0)));
-  OUTPUT_MACRO2(Complex_Parser_specials, exp2, expTest) 
+  OUTPUT_MACRO2(ComplexParserSpecials, exp2, expTest) 
 }
 
-TEST ( Complex_Parser_specials, exp3)
+TEST ( ComplexParserSpecials, exp3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression expTest(std::string("exp*exp(2.0)"), testGroup);
@@ -7817,7 +7785,7 @@ TEST ( Complex_Parser_specials, exp3)
   expTest.evaluateFunction(result);        EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
   copy_expTest.evaluateFunction(result);   EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
   assign_expTest.evaluateFunction(result); EXPECT_EQ( result, (std::exp(1.0)*std::exp(2.0)));
-  OUTPUT_MACRO2(Complex_Parser_specials, exp3, expTest) 
+  OUTPUT_MACRO2(ComplexParserSpecials, exp3, expTest) 
 }
 
 
@@ -7832,7 +7800,7 @@ TEST ( Complex_Parser_specials, exp3)
 // parse and wouldn't even issue an error.  It would proceed but then fail to compute anything.
 //
 
-TEST ( Complex_Parser_Param_Test, I )
+TEST ( ComplexParserParamTest, I )
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -7863,10 +7831,10 @@ TEST ( Complex_Parser_Param_Test, I )
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, iVal*iVal*resVal );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, iVal*iVal*resVal );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, iVal*iVal*resVal );
-  OUTPUT_MACRO(Complex_Parser_Param_Test, I)
+  OUTPUT_MACRO(ComplexParserParamTest, I)
 }
 
-TEST ( Complex_Parser_Param_Test, V )
+TEST ( ComplexParserParamTest, V )
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
@@ -7897,10 +7865,64 @@ TEST ( Complex_Parser_Param_Test, V )
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, vVal*vVal*resVal );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, vVal*vVal*resVal );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, vVal*vVal*resVal );
-  OUTPUT_MACRO(Complex_Parser_Param_Test, V)
+  OUTPUT_MACRO(ComplexParserParamTest, V)
 }
 
-TEST ( Complex_Parser_ASCTH_Test, test0)
+// parameter node replacement tests
+TEST ( ComplexParserParamTest, replace1)
+{
+  Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "p1";
+
+  Xyce::Util::newExpression testExpression(std::string("p1"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.replaceParameterNode(p1Name,p1Expression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( std::real(result), 5.0 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), 5.0 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( std::real(result), 5.0 );
+  OUTPUT_MACRO(ComplexParserParamTest, replace1)
+}
+
+TEST ( ComplexParserParamTest, replace2)
+{
+  Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "p1";
+
+  Teuchos::RCP<Xyce::Util::newExpression> p0Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("p1"), testGroup));
+  p0Expression->lexAndParseExpression();
+  p0Expression->attachParameterNode(p1Name,p1Expression);
+  std::string p0Name = "p0";
+
+  Xyce::Util::newExpression testExpression(std::string("p0"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.replaceParameterNode(p0Name,p0Expression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::complex<double> result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( std::real(result), 5.0 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), 5.0 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( std::real(result), 5.0 );
+  OUTPUT_MACRO(ComplexParserParamTest, replace2)
+}
+
+TEST ( ComplexParserASCTHTest, test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -7924,7 +7946,7 @@ TEST ( Complex_Parser_ASCTH_Test, test0)
   EXPECT_EQ( result, refRes);
 }
 
-TEST ( Complex_Parser_ASCTH_Test, test1)
+TEST ( ComplexParserASCTHTest, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -7948,7 +7970,7 @@ TEST ( Complex_Parser_ASCTH_Test, test1)
   EXPECT_EQ( result, refRes);
 }
 
-TEST ( Complex_Parser_ASCTH_Test, test2)
+TEST ( ComplexParserASCTHTest, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -7978,7 +8000,7 @@ TEST ( Complex_Parser_ASCTH_Test, test2)
 }
 
 
-TEST ( Complex_Parser_STP_Test, test1)
+TEST ( ComplexParserSTPTest, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8000,10 +8022,10 @@ TEST ( Complex_Parser_STP_Test, test1)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_STP_Test, test1)
+  OUTPUT_MACRO(ComplexParserSTPTest, test1)
 }
 
-TEST ( Complex_Parser_STP_Test, test2)
+TEST ( ComplexParserSTPTest, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8025,11 +8047,11 @@ TEST ( Complex_Parser_STP_Test, test2)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Complex_Parser_STP_Test, test2)
+  OUTPUT_MACRO(ComplexParserSTPTest, test2)
 }
 
 
-TEST ( Complex_Parser_atan2_Test, test1)
+TEST ( ComplexParseratan2Test, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8059,11 +8081,11 @@ TEST ( Complex_Parser_atan2_Test, test1)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_atan2_Test, test1)
+  OUTPUT_MACRO(ComplexParseratan2Test, test1)
 }
 
 
-TEST ( Complex_Parser_atan2_Test, test2)
+TEST ( ComplexParseratan2Test, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8093,10 +8115,10 @@ TEST ( Complex_Parser_atan2_Test, test2)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_atan2_Test, test2)
+  OUTPUT_MACRO(ComplexParseratan2Test, test2)
 }
 
-TEST ( Complex_Parser_atan2_Test, test3)
+TEST ( ComplexParseratan2Test, test3)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8126,10 +8148,10 @@ TEST ( Complex_Parser_atan2_Test, test3)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_atan2_Test, test3)
+  OUTPUT_MACRO(ComplexParseratan2Test, test3)
 }
 
-TEST ( Complex_Parser_atan2_Test, test4)
+TEST ( ComplexParseratan2Test, test4)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8159,13 +8181,13 @@ TEST ( Complex_Parser_atan2_Test, test4)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_atan2_Test, test4)
+  OUTPUT_MACRO(ComplexParseratan2Test, test4)
 }
 
 
 
 
-TEST ( Complex_Parser_TwoNodeDeriv_Test, test1)
+TEST ( ComplexParserTwoNodeDerivTest, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8200,7 +8222,7 @@ TEST ( Complex_Parser_TwoNodeDeriv_Test, test1)
 }
 
 //
-TEST ( Complex_Parser_poly_Test, test1)
+TEST ( ComplexParserpolyTest, test1)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8229,7 +8251,7 @@ TEST ( Complex_Parser_poly_Test, test1)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test1)
+  OUTPUT_MACRO(ComplexParserpolyTest, test1)
 }
 
 
@@ -8237,7 +8259,7 @@ TEST ( Complex_Parser_poly_Test, test1)
 //
 // BAM = 0 + 0*V(10) + 0*V(20) + 0*V(10)^2 + 1*V(10)*V(20) 
 //
-TEST ( Complex_Parser_poly_Test, test2)
+TEST ( ComplexParserpolyTest, test2)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8269,7 +8291,7 @@ TEST ( Complex_Parser_poly_Test, test2)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test2)
+  OUTPUT_MACRO(ComplexParserpolyTest, test2)
 }
 
 
@@ -8282,7 +8304,7 @@ TEST ( Complex_Parser_poly_Test, test2)
 // And this means:
 // G1 = V(8,9)*V(1)
 //
-TEST ( Complex_Parser_poly_Test, test3)
+TEST ( ComplexParserpolyTest, test3)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8316,10 +8338,10 @@ TEST ( Complex_Parser_poly_Test, test3)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test3)
+  OUTPUT_MACRO(ComplexParserpolyTest, test3)
 }
 
-TEST ( Complex_Parser_poly_Test, test4)
+TEST ( ComplexParserpolyTest, test4)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8351,11 +8373,11 @@ TEST ( Complex_Parser_poly_Test, test4)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test4)
+  OUTPUT_MACRO(ComplexParserpolyTest, test4)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
-TEST ( Complex_Parser_poly_Test, test5)
+TEST ( ComplexParserpolyTest, test5)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8397,11 +8419,11 @@ TEST ( Complex_Parser_poly_Test, test5)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test5)
+  OUTPUT_MACRO(ComplexParserpolyTest, test5)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
-TEST ( Complex_Parser_poly_Test, test6)
+TEST ( ComplexParserpolyTest, test6)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8444,11 +8466,11 @@ TEST ( Complex_Parser_poly_Test, test6)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test6)
+  OUTPUT_MACRO(ComplexParserpolyTest, test6)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
-TEST ( Complex_Parser_poly_Test, test7)
+TEST ( ComplexParserpolyTest, test7)
 {
   Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8492,10 +8514,10 @@ TEST ( Complex_Parser_poly_Test, test7)
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
 
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test7)
+  OUTPUT_MACRO(ComplexParserpolyTest, test7)
 }
 
-TEST ( Complex_Parser_poly_Test, test8)
+TEST ( ComplexParserpolyTest, test8)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8525,10 +8547,10 @@ TEST ( Complex_Parser_poly_Test, test8)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
 
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test8)
+  OUTPUT_MACRO(ComplexParserpolyTest, test8)
 }
 
-TEST ( Complex_Parser_poly_Test, test9)
+TEST ( ComplexParserpolyTest, test9)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8558,10 +8580,10 @@ TEST ( Complex_Parser_poly_Test, test9)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
 
-  OUTPUT_MACRO(Complex_Parser_poly_Test, test9)
+  OUTPUT_MACRO(ComplexParserpolyTest, test9)
 }
 
-TEST ( Complex_Parser_poly_Test, test10)
+TEST ( ComplexParserpolyTest, test10)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8608,7 +8630,7 @@ TEST ( Complex_Parser_poly_Test, test10)
 
 // poly test with parameters and a function
 // This test is named "test10a" b/c it is nearly identical to test10, other than use of .func.
-TEST ( Complex_Parser_poly_Test, test10a)
+TEST ( ComplexParserpolyTest, test10a)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8670,7 +8692,7 @@ TEST ( Complex_Parser_poly_Test, test10a)
 }
 
 // single input, 4th order POLY test, with parameters
-TEST ( Complex_Parser_poly_Test, test11)
+TEST ( ComplexParserpolyTest, test11)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8738,7 +8760,7 @@ TEST ( Complex_Parser_poly_Test, test11)
 }
 
 // two input, 3rd order POLY test
-TEST ( Complex_Parser_poly_Test, test12)
+TEST ( ComplexParserpolyTest, test12)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8830,7 +8852,7 @@ void setupCoordinates ( int order, int localIndex, int size, std::vector<int> & 
 }
 
 // three input, 3rd order POLY test
-TEST ( Complex_Parser_poly_Test, test13)
+TEST ( ComplexParserpolyTest, test13)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -8927,7 +8949,7 @@ TEST ( Complex_Parser_poly_Test, test13)
 //ii=2 numCoefs=21 +4^2 = +16 
 //ii=3 numCoefs=85 +4^3 = +64
 //ii=4 numCoefs=341 +4^4 = +256
-TEST ( Complex_Parser_poly_Test, test14)
+TEST ( ComplexParserpolyTest, test14)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
@@ -9023,7 +9045,7 @@ TEST ( Complex_Parser_poly_Test, test14)
 }
 
 #if 0
-TEST ( Complex_Parser_NestedFunc_Test, func_cir)
+TEST ( ComplexParserNestedFuncTest, func_cir)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9095,7 +9117,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir)
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refresult );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO(Complex_Parser_NestedFunc_Test, func_cir)
+  OUTPUT_MACRO(ComplexParserNestedFuncTest, func_cir)
 }
 #endif
 
@@ -9138,7 +9160,7 @@ void resolveFunctions (
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution)
+TEST ( ComplexParserNestedFuncTest, func_cir_newResolution)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9222,7 +9244,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution)
   std::complex<double>  refresult = 11;
   testExpression->evaluateFunction(result);   EXPECT_FLOAT_EQ( std::real(result), std::real(refresult) );
 
-  OUTPUT_MACRO3(Complex_Parser_NestedFunc_Test, func_cir)
+  OUTPUT_MACRO3(ComplexParserNestedFuncTest, func_cir)
 }
 
 
@@ -9251,7 +9273,7 @@ void newResolveFunctions (
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution2)
+TEST ( ComplexParserNestedFuncTest, func_cir_newResolution2)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9325,7 +9347,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution2)
   std::complex<double>  refresult = 11;
   testExpression->evaluateFunction(result);   EXPECT_FLOAT_EQ( std::real(result), std::real(refresult) );
 
-  OUTPUT_MACRO3(Complex_Parser_NestedFunc_Test, func_cir)
+  OUTPUT_MACRO3(ComplexParserNestedFuncTest, func_cir)
 }
 
 //-------------------------------------------------------------------------------
@@ -9343,7 +9365,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution2)
 // Also, it would probably be good if we could automatically prune or 
 // shrink the tree.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedFunc_Test, 200nest_no_deriv)
+TEST ( ComplexParserNestedFuncTest, 200nest_no_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9406,12 +9428,12 @@ TEST ( Complex_Parser_NestedFunc_Test, 200nest_no_deriv)
   std::complex<double>  refresult = 10.0;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO3 ( Complex_Parser_NestedFunc_Test, 200nest_no_deriv)
+  OUTPUT_MACRO3 ( ComplexParserNestedFuncTest, 200nest_no_deriv)
 }
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedFunc_Test, 200nest_with_deriv)
+TEST ( ComplexParserNestedFuncTest, 200nest_with_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9478,11 +9500,11 @@ TEST ( Complex_Parser_NestedFunc_Test, 200nest_with_deriv)
   EXPECT_EQ( result, refresult );
   EXPECT_EQ( derivs, refderivs);
 
-  OUTPUT_MACRO3(Complex_Parser_NestedFunc_Test, 200nest_with_deriv)
+  OUTPUT_MACRO3(ComplexParserNestedFuncTest, 200nest_with_deriv)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
+TEST ( ComplexParserNestedGlobalParamTest, 1000nest_no_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -9539,37 +9561,8 @@ TEST ( Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
   std::complex<double>  refresult = 10.0;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO3(Complex_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
+  OUTPUT_MACRO3(ComplexParserNestedGlobalParamTest, 1000nest_no_deriv)
 }
-
-
-#if 0
-template <typename ScalarT>
-inline void trapezoidIntegral (
-   const std::vector<double> & times,
-   const std::vector<double> & values,
-   std::vector<double> & testIntegral,
-   ScalarT & integral)
-{
-  int cpSize = times.size();
-  int midIndex = cpSize-1;
-  integral=0.0;
-
-  testIntegral.resize(cpSize,0.0);
-
-  for (int is=0;is<cpSize-1;++is)
-  {
-    double deltaT = times[is+1]-times[is];
-    double pulse1 = values[is];
-    double pulse2 = values[is+1];
-    double Tau1 = times[is];
-    double Tau2 = times[is+1];
-    double deltaI = 0.5*(pulse1+pulse2)*deltaT;
-    integral += deltaI;
-    testIntegral[is+1] = integral;
-  }
-}
-#endif
 
 //-------------------------------------------------------------------------------
 // SDT tests
@@ -9581,7 +9574,7 @@ inline void trapezoidIntegral (
 #define NUM_SDT_STEPS 11
 #define NUM_SDT_STEPS2 11
 #endif
-TEST ( Complex_Parser_Integral_Test, sdt1)
+TEST ( ComplexParserIntegralTest, sdt1)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9626,11 +9619,11 @@ TEST ( Complex_Parser_Integral_Test, sdt1)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt1)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt2)
+TEST ( ComplexParserIntegralTest, sdt2)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9673,11 +9666,11 @@ TEST ( Complex_Parser_Integral_Test, sdt2)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt2)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt2)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt3)
+TEST ( ComplexParserIntegralTest, sdt3)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9726,11 +9719,11 @@ TEST ( Complex_Parser_Integral_Test, sdt3)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt3)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt3)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt4)
+TEST ( ComplexParserIntegralTest, sdt4)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9783,11 +9776,11 @@ TEST ( Complex_Parser_Integral_Test, sdt4)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt4)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt4)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt5)
+TEST ( ComplexParserIntegralTest, sdt5)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9807,9 +9800,7 @@ TEST ( Complex_Parser_Integral_Test, sdt5)
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs;
   std::vector<std::complex<double> > refDerivs;
@@ -9851,11 +9842,11 @@ TEST ( Complex_Parser_Integral_Test, sdt5)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt5)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt5)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt6)
+TEST ( ComplexParserIntegralTest, sdt6)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9916,14 +9907,14 @@ TEST ( Complex_Parser_Integral_Test, sdt6)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt6)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt6)
 }
 
 //-------------------------------------------------------------------------------
 // this point of this test is to make sure that when SDT is inside of a .FUNC, 
 // and that .FUNC is called more than once, that the integral informmation doesn't 
 // get mangled.  Each call to the .FUNC should carry its own unique SDT state.
-TEST ( Complex_Parser_Integral_Test, sdt7)
+TEST ( ComplexParserIntegralTest, sdt7)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -9944,9 +9935,7 @@ TEST ( Complex_Parser_Integral_Test, sdt7)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10002,13 +9991,13 @@ TEST ( Complex_Parser_Integral_Test, sdt7)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt7)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt7)
 }
 
 //-------------------------------------------------------------------------------
 // this test is similar to sdt7, except that the SDT operators 
 // are behind 2 layers of funcs instead of 1.
-TEST ( Complex_Parser_Integral_Test, sdt8)
+TEST ( ComplexParserIntegralTest, sdt8)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10037,9 +10026,7 @@ TEST ( Complex_Parser_Integral_Test, sdt8)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10095,13 +10082,13 @@ TEST ( Complex_Parser_Integral_Test, sdt8)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt8)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt8)
 }
 
 //-------------------------------------------------------------------------------
 // this test is similar to sdt7, except that the SDT operators 
 // are behind 3 layers of funcs instead of 1.
-TEST ( Complex_Parser_Integral_Test, sdt9)
+TEST ( ComplexParserIntegralTest, sdt9)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10138,9 +10125,7 @@ TEST ( Complex_Parser_Integral_Test, sdt9)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10195,14 +10180,14 @@ TEST ( Complex_Parser_Integral_Test, sdt9)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt9)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt9)
 }
 
 //-------------------------------------------------------------------------------
 // this test is similar to sdt7, except that the SDT operators 
 // are behind 3 layers of funcs instead of 1.
 // Also, the f1 layer calls sdt directly, which doubles the size of the answer
-TEST ( Complex_Parser_Integral_Test, sdt10)
+TEST ( ComplexParserIntegralTest, sdt10)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10239,9 +10224,7 @@ TEST ( Complex_Parser_Integral_Test, sdt10)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10297,14 +10280,14 @@ TEST ( Complex_Parser_Integral_Test, sdt10)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt10)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt10)
 }
 
 //-------------------------------------------------------------------------------
 // this test is similar to sdt7, except that the SDT operators 
 // are behind 3 layers of funcs instead of 1.
 // Also, the f1 layer calls sdt directly, which doubles the size of the answer
-TEST ( Complex_Parser_Integral_Test, sdt11)
+TEST ( ComplexParserIntegralTest, sdt11)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10341,9 +10324,7 @@ TEST ( Complex_Parser_Integral_Test, sdt11)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<std::complex<double> > derivs(2);
   std::vector<std::complex<double> > refDerivs(2);
@@ -10398,11 +10379,11 @@ TEST ( Complex_Parser_Integral_Test, sdt11)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt11)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt11)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt12)
+TEST ( ComplexParserIntegralTest, sdt12)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10466,11 +10447,11 @@ TEST ( Complex_Parser_Integral_Test, sdt12)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt12)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt12)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt13)
+TEST ( ComplexParserIntegralTest, sdt13)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10519,11 +10500,11 @@ TEST ( Complex_Parser_Integral_Test, sdt13)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt13)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt13)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt14)
+TEST ( ComplexParserIntegralTest, sdt14)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10580,7 +10561,7 @@ TEST ( Complex_Parser_Integral_Test, sdt14)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt14)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt14)
 }
 
 
@@ -10597,7 +10578,7 @@ TEST ( Complex_Parser_Integral_Test, sdt14)
 // In this case, the argument to sdt is a function argument parameter.  So, a 
 // relatively simple scenario
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt15)
+TEST ( ComplexParserIntegralTest, sdt15)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10685,7 +10666,7 @@ TEST ( Complex_Parser_Integral_Test, sdt15)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt15)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt15)
 }
 
 //-------------------------------------------------------------------------------
@@ -10701,7 +10682,7 @@ TEST ( Complex_Parser_Integral_Test, sdt15)
 // This test is similar, but different from sdt15, in that the argument to sdt
 // is an expression. (B*B) instead of (B).  This was a little harder to manage.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt16)
+TEST ( ComplexParserIntegralTest, sdt16)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10788,7 +10769,7 @@ TEST ( Complex_Parser_Integral_Test, sdt16)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt16)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt16)
 }
 
 //-------------------------------------------------------------------------------
@@ -10807,7 +10788,7 @@ TEST ( Complex_Parser_Integral_Test, sdt16)
 // the same as (B,A), in terms of  the state key. (the key that determines which
 // state to use).
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt17)
+TEST ( ComplexParserIntegralTest, sdt17)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10895,11 +10876,11 @@ TEST ( Complex_Parser_Integral_Test, sdt17)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Integral_Test, sdt17)
+  OUTPUT_MACRO(ComplexParserIntegralTest, sdt17)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv)
+TEST ( ComplexParserIntegralTest, sdt_100nest_no_deriv)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -10956,9 +10937,7 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0, refRes = 0.0; 
   double time=0.0, finalTime=1.0;
@@ -10992,11 +10971,11 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  //OUTPUT_MACRO3(Complex_Parser_Integral_Test, sdt_1000nest_no_deriv)
+  //OUTPUT_MACRO3(ComplexParserIntegralTest, sdt_1000nest_no_deriv)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv2)
+TEST ( ComplexParserIntegralTest, sdt_100nest_no_deriv2)
 {
   Teuchos::RCP<sdtExpressionGroup> sdtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = sdtGroup;
@@ -11052,9 +11031,7 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv2)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0, refRes = 0.0; 
   double time=0.0, finalTime=1.0;
@@ -11089,14 +11066,14 @@ TEST ( Complex_Parser_Integral_Test, sdt_100nest_no_deriv2)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  //OUTPUT_MACRO3(Complex_Parser_Integral_Test, sdt_1000nest_no_deriv)
+  //OUTPUT_MACRO3(ComplexParserIntegralTest, sdt_1000nest_no_deriv)
 }
 
 
 //-------------------------------------------------------------------------------
 // DDT tests
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt1)
+TEST ( ComplexParserDerivativeTest, ddt1)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11144,11 +11121,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt1)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt1)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt2)
+TEST ( ComplexParserDerivativeTest, ddt2)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11191,11 +11168,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt2)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt2)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt2)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt3)
+TEST ( ComplexParserDerivativeTest, ddt3)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11243,11 +11220,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt3)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt3)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt3)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt4)
+TEST ( ComplexParserDerivativeTest, ddt4)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11294,11 +11271,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt4)
     testExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt4)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt4)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt5)
+TEST ( ComplexParserDerivativeTest, ddt5)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11346,11 +11323,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt5)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt5)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt5)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt6)
+TEST ( ComplexParserDerivativeTest, ddt6)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11399,11 +11376,11 @@ TEST ( Complex_Parser_Derivative_Test, ddt6)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt6)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt6)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Derivative_Test, ddt7)
+TEST ( ComplexParserDerivativeTest, ddt7)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11424,9 +11401,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt7)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0; 
   std::complex<double> refRes = 0.0;
@@ -11457,13 +11432,13 @@ TEST ( Complex_Parser_Derivative_Test, ddt7)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt7)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt7)
 }
 
 //-------------------------------------------------------------------------------
 // this test is similar to ddt7, except that the DDT operators 
 // are behind 2 layers of funcs instead of 1.
-TEST ( Complex_Parser_Derivative_Test, ddt8)
+TEST ( ComplexParserDerivativeTest, ddt8)
 {
   Teuchos::RCP<sdtExpressionGroup> ddtGroup = Teuchos::rcp(new sdtExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = ddtGroup;
@@ -11492,9 +11467,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt8)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result = 0.0; 
   std::complex<double> refRes = 0.0;
@@ -11526,7 +11499,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt8)
     assignExpression.processSuccessfulTimeStep();
   }
 
-  OUTPUT_MACRO(Complex_Parser_Derivative_Test, ddt8)
+  OUTPUT_MACRO(ComplexParserDerivativeTest, ddt8)
 }
 
 //-------------------------------------------------------------------------------
@@ -11538,7 +11511,7 @@ TEST ( Complex_Parser_Derivative_Test, ddt8)
 // problem.  So, it won't use the bottom part of the function, where it continues
 // for subsequent iterations.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Breakpoint_Test, stp1)
+TEST ( ComplexParserBreakpointTest, stp1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11560,9 +11533,7 @@ TEST ( Complex_Parser_Breakpoint_Test, stp1)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   timeDepGroup->setTime(0.4);
   std::complex<double> result = 0.0;
@@ -11597,11 +11568,11 @@ TEST ( Complex_Parser_Breakpoint_Test, stp1)
   EXPECT_EQ( numBp, 1 ); EXPECT_EQ( bpVals[0], 0.5 );
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, stp1)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, stp1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Breakpoint_Test, stp2)
+TEST ( ComplexParserBreakpointTest, stp2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11623,9 +11594,7 @@ TEST ( Complex_Parser_Breakpoint_Test, stp2)
   std::complex<double> result;
   testExpression.evaluateFunction(result);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   testExpression.getBreakPoints(breakPointTimes);
@@ -11636,14 +11605,14 @@ TEST ( Complex_Parser_Breakpoint_Test, stp2)
   EXPECT_EQ( numBp, 1 );
   EXPECT_EQ( bpVals[0], 0.5 );
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, stp2)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, stp2)
 }
 
 //-------------------------------------------------------------------------------
 // limitOp breakpoint tests.  These are very similar to the STP breakpoint tests
 // as they rely on the same computeBreakpoints function.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Breakpoint_Test, limit1)
+TEST ( ComplexParserBreakpointTest, limit1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11665,9 +11634,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit1)
   Xyce::Util::newExpression assignExpression;
   assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   timeDepGroup->setTime(0.4);
   std::complex<double> result = 0.0;
@@ -11702,11 +11669,11 @@ TEST ( Complex_Parser_Breakpoint_Test, limit1)
   EXPECT_EQ( numBp, 2 ); EXPECT_EQ( bpVals[0], 0.5 ); EXPECT_EQ( bpVals[1], 1.5 );
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, limit1)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, limit1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Breakpoint_Test, limit2)
+TEST ( ComplexParserBreakpointTest, limit2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11728,9 +11695,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit2)
   std::complex<double> result = 0.0;
   testExpression.evaluateFunction(result);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::vector<Xyce::Util::BreakPoint> breakPointTimes;
   testExpression.getBreakPoints(breakPointTimes);
@@ -11741,7 +11706,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit2)
   EXPECT_EQ( bpVals[0], 0.5 );
   EXPECT_EQ( bpVals[1], 1.5 );
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, limit2)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, limit2)
 }
 
 //-------------------------------------------------------------------------------
@@ -11752,7 +11717,7 @@ TEST ( Complex_Parser_Breakpoint_Test, limit2)
 // B3   3  0  V = {v(2) + v(1) * if(abs(sin(5*PI*time)) > 0.9, (abs(sin(5*PI*time))-0.9)*10, 0)}
 //
 //
-TEST ( Complex_Parser_Breakpoint_Test, abm_breaks1)
+TEST ( ComplexParserBreakpointTest, abm_breaks1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11770,9 +11735,7 @@ TEST ( Complex_Parser_Breakpoint_Test, abm_breaks1)
   //std::cout << "firstBP = " << firstBP << std::endl;
   //std::cout << "seconBP = " << seconBP << std::endl;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -11801,12 +11764,12 @@ TEST ( Complex_Parser_Breakpoint_Test, abm_breaks1)
     EXPECT_DOUBLE_EQ( val, seconBP );
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, abm_breaks1)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, abm_breaks1)
 }
 
 //-------------------------------------------------------------------------------
 // made up test, for the equiv operator
-TEST ( Complex_Parser_Breakpoint_Test, timeSquared1)
+TEST ( ComplexParserBreakpointTest, timeSquared1)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11819,9 +11782,7 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared1)
 
   double firstBP = 2.0;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -11844,12 +11805,12 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared1)
     EXPECT_EQ( numBp, 1);
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, timeSquared1)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, timeSquared1)
 }
 
 //-------------------------------------------------------------------------------
 // made up test, for the equiv operator, which uses it in a .func
-TEST ( Complex_Parser_Breakpoint_Test, timeSquared2)
+TEST ( ComplexParserBreakpointTest, timeSquared2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
@@ -11872,9 +11833,7 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared2)
 
   double firstBP = 2.0;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   timeDepGroup->setTime(0.01);
@@ -11897,12 +11856,12 @@ TEST ( Complex_Parser_Breakpoint_Test, timeSquared2)
     EXPECT_EQ( numBp, 1);
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, timeSquared2)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, timeSquared2)
 }
 
 //-------------------------------------------------------------------------------
 // breakpoint test, for table source
-TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint)
+TEST ( ComplexParserBreakpointTest, tableBreakPoint)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -11928,12 +11887,12 @@ TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint)
     }
   }
 
-  OUTPUT_MACRO2(Complex_Parser_Breakpoint_Test, tableBreakPoint, tableExpression) 
+  OUTPUT_MACRO2(ComplexParserBreakpointTest, tableBreakPoint, tableExpression) 
 }
 
 //-------------------------------------------------------------------------------
 // breakpoint test, for table source
-TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint2)
+TEST ( ComplexParserBreakpointTest, tableBreakPoint2)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp = timeDepGroup;
@@ -11968,7 +11927,7 @@ TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint2)
     }
   }
 
-  OUTPUT_MACRO(Complex_Parser_Breakpoint_Test, tableBreakPoint2)
+  OUTPUT_MACRO(ComplexParserBreakpointTest, tableBreakPoint2)
 }
 
 
@@ -11979,7 +11938,7 @@ TEST ( Complex_Parser_Breakpoint_Test, tableBreakPoint2)
 // For this test, see invalid math error message (See Message/Function/invalid_math_operator.cir, which has 'b =# n' )
 //
 //  As of this writing (6/27/2020) the new expression library doesn't believe this is an error.  It incorrectly passes.
-TEST ( Complex_Parser_ErrorTest, invalidMath)
+TEST ( ComplexParserErrorTest, invalidMath)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   //Xyce::Util::newExpression testExpression(std::string("b # n"), testGroup); // 
@@ -12022,7 +11981,7 @@ TEST ( Complex_Parser_ErrorTest, invalidMath)
 //  are errors.  However, as I haven't yet figured out how to properly do unit 
 //  tests on error messages, I've hacked the code below to (rightfully) pass.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
+TEST ( ComplexParserErrorTest,  bad_user_defined_func )
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -12041,9 +12000,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
 
   testExpression.attachFunctionNode(udfAName, udfAExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -12053,7 +12010,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, std::exp( 10.0e-12/1.0e-6 )/50.0 );
-  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_user_defined_func)
+  OUTPUT_MACRO(ComplexParserErrorTest,  bad_user_defined_func)
 }
 
 //-------------------------------------------------------------------------------
@@ -12071,7 +12028,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func )
 // Good news: no segfault.
 // Bad news:  (as of 9/1/2020) no syntax error for extra paren at the end.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
+TEST ( ComplexParserErrorTest,  bad_user_defined_func2 )
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
@@ -12092,9 +12049,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
 
   testExpression.attachFunctionNode(udfAName, udfAExpression);
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression);
   Xyce::Util::newExpression assignExpression;
@@ -12104,7 +12059,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
   testExpression.evaluateFunction(result);
   copyExpression.evaluateFunction(result);
   assignExpression.evaluateFunction(result);
-  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_user_defined_func2)
+  OUTPUT_MACRO(ComplexParserErrorTest,  bad_user_defined_func2)
 }
 
 //-------------------------------------------------------------------------------
@@ -12113,7 +12068,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_user_defined_func2 )
 //  objfunc={{I(VM),V(3)*V(3)}
 //
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_ErrorTest,  bad_obj_func)
+TEST ( ComplexParserErrorTest,  bad_obj_func)
 {
   Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
@@ -12135,15 +12090,13 @@ TEST ( Complex_Parser_ErrorTest,  bad_obj_func)
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result;
   testExpression.evaluateFunction(result);   ASSERT_EQ( result, 18.0 );
   //copyExpression.evaluateFunction(result);   ASSERT_EQ( result, 1.0 );
   //assignExpression.evaluateFunction(result); ASSERT_EQ( result, 1.0 );
-  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_obj_func)
+  OUTPUT_MACRO(ComplexParserErrorTest,  bad_obj_func)
 }
 
 //-------------------------------------------------------------------------------
@@ -12158,7 +12111,7 @@ TEST ( Complex_Parser_ErrorTest,  bad_obj_func)
 // happen if there is a space between the w and the "!".  The fix appears to be
 // to just exclude "!" from the TOK_ID in the lexer file.
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_inlineComp, equiv)
+TEST ( ComplexParserinlineComp, equiv)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -12180,11 +12133,11 @@ TEST ( Complex_Parser_inlineComp, equiv)
   copy_e11.evaluateFunction(result);   ASSERT_EQ( result, 1.0e-9);
   assign_e11.evaluateFunction(result); ASSERT_EQ( result, 1.0e-9);
 
-  OUTPUT_MACRO2(Complex_Parser_ternary_precedence, equiv, e11)
+  OUTPUT_MACRO2(ComplexParserTernary_precedence, equiv, e11)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_inlineComp, notEquiv)
+TEST ( ComplexParserinlineComp, notEquiv)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
@@ -12206,7 +12159,7 @@ TEST ( Complex_Parser_inlineComp, notEquiv)
   copy_e11.evaluateFunction(result);   ASSERT_EQ( result, 1.0e9);
   assign_e11.evaluateFunction(result); ASSERT_EQ( result, 1.0e9);
 
-  OUTPUT_MACRO2(Complex_Parser_ternary_precedence, notEquiv, e11)
+  OUTPUT_MACRO2(ComplexParserTernary_precedence, notEquiv, e11)
 }
 
 
@@ -12219,7 +12172,7 @@ TEST ( Complex_Parser_inlineComp, notEquiv)
 // Netlist error: Function or variable P(UAND1) is not defined
 // Netlist error: Function or variable P(YOR!OR1) is not defined
 //
-TEST ( Complex_Parser_ErrorTest,  power_unsupported_devices)
+TEST ( ComplexParserErrorTest,  power_unsupported_devices)
 {
   Teuchos::RCP<solutionGroup> solGroup = Teuchos::rcp(new solutionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solGroup;
@@ -12232,16 +12185,14 @@ TEST ( Complex_Parser_ErrorTest,  power_unsupported_devices)
   //Xyce::Util::newExpression assignExpression;
   //assignExpression = testExpression;
 
-#if 0
-  testExpression.dumpParseTree(std::cout);
-#endif
+  //testExpression.dumpParseTree(std::cout);
 
   std::complex<double> result (0,0); // this number is the "can't find it" number
   std::complex<double> reference(-2e+09,0); // this number is the "can't find it" number
   testExpression.evaluateFunction(result);   ASSERT_EQ( result, reference );
   //copyExpression.evaluateFunction(result);   ASSERT_EQ( result, 1.0 );
   //assignExpression.evaluateFunction(result); ASSERT_EQ( result, 1.0 );
-  OUTPUT_MACRO(Complex_Parser_ErrorTest,  bad_obj_func)
+  OUTPUT_MACRO(ComplexParserErrorTest,  bad_obj_func)
 }
 
 
@@ -12291,7 +12242,7 @@ TEST ( Complex_Parsing_Syntax, bug28_2)
 //-------------------------------------------------------------------------------
 // tests for random operators
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss0)
+TEST ( ComplexParserRandom, agauss0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
@@ -12300,11 +12251,11 @@ TEST ( Complex_Parser_Random, agauss0)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss0)
+  OUTPUT_MACRO(ComplexParserRandom, agauss0)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss1)
+TEST ( ComplexParserRandom, agauss1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1,1.0)"), testGroup);
@@ -12317,11 +12268,11 @@ TEST ( Complex_Parser_Random, agauss1)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss1)
+  OUTPUT_MACRO(ComplexParserRandom, agauss1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss2)
+TEST ( ComplexParserRandom, agauss2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
@@ -12330,11 +12281,11 @@ TEST ( Complex_Parser_Random, agauss2)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss2)
+  OUTPUT_MACRO(ComplexParserRandom, agauss2)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss3)
+TEST ( ComplexParserRandom, agauss3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("agauss(1.0,0.1)"), testGroup);
@@ -12347,11 +12298,11 @@ TEST ( Complex_Parser_Random, agauss3)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss3)
+  OUTPUT_MACRO(ComplexParserRandom, agauss3)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss1_func)
+TEST ( ComplexParserRandom, agauss1_func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
@@ -12373,11 +12324,11 @@ TEST ( Complex_Parser_Random, agauss1_func)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss1_func)
+  OUTPUT_MACRO(ComplexParserRandom, agauss1_func)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, agauss2_func)
+TEST ( ComplexParserRandom, agauss2_func)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("f1(1.0)"), testGroup);
@@ -12399,11 +12350,11 @@ TEST ( Complex_Parser_Random, agauss2_func)
 
   ASSERT_EQ( result1, result2); 
 
-  OUTPUT_MACRO(Complex_Parser_Random, agauss2_func)
+  OUTPUT_MACRO(ComplexParserRandom, agauss2_func)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, gauss0)
+TEST ( ComplexParserRandom, gauss0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1,1.0)"), testGroup);
@@ -12412,10 +12363,10 @@ TEST ( Complex_Parser_Random, gauss0)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, gauss0)
+  OUTPUT_MACRO(ComplexParserRandom, gauss0)
 }
 
-TEST ( Complex_Parser_Random, gauss1)
+TEST ( ComplexParserRandom, gauss1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("gauss(1.0,0.1)"), testGroup);
@@ -12424,11 +12375,11 @@ TEST ( Complex_Parser_Random, gauss1)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, gauss1)
+  OUTPUT_MACRO(ComplexParserRandom, gauss1)
 }
 
 //-------------------------------------------------------------------------------
-TEST ( Complex_Parser_Random, aunif0)
+TEST ( ComplexParserRandom, aunif0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("aunif(1.0,0.1)"), testGroup);
@@ -12437,10 +12388,10 @@ TEST ( Complex_Parser_Random, aunif0)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, aunif0)
+  OUTPUT_MACRO(ComplexParserRandom, aunif0)
 }
 
-TEST ( Complex_Parser_Random, unif0)
+TEST ( ComplexParserRandom, unif0)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("unif(1.0,0.1)"), testGroup);
@@ -12449,7 +12400,7 @@ TEST ( Complex_Parser_Random, unif0)
   testExpression.evaluateFunction(result);
   ASSERT_EQ( result, 1.0);
 
-  OUTPUT_MACRO(Complex_Parser_Random, unif0)
+  OUTPUT_MACRO(ComplexParserRandom, unif0)
 }
 
 TEST ( Double_Parser_Random, rand0)
@@ -12520,7 +12471,7 @@ TEST ( Double_Parser_Random, limit0)
 //ZR(2,2)	1.99999944e+02
 //ZI(2,2)	-9.94334503e-02
 
-TEST ( Complex_Parser_Sparam_Test, sparam1)
+TEST ( ComplexParserSparamTest, sparam1)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12581,11 +12532,11 @@ TEST ( Complex_Parser_Sparam_Test, sparam1)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[0][0])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[0][0])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Sparam_Test, sparam1)
+  //OUTPUT_MACRO ( ComplexParserSparamTest, sparam1)
 }
 
 
-TEST ( Complex_Parser_Sparam_Test, sparam2)
+TEST ( ComplexParserSparamTest, sparam2)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12646,10 +12597,10 @@ TEST ( Complex_Parser_Sparam_Test, sparam2)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[1][0])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(spars[1][0])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Sparam_Test, sparam2)
+  //OUTPUT_MACRO ( ComplexParserSparamTest, sparam2)
 }
 
-TEST ( Complex_Parser_Yparam_Test, yparam1)
+TEST ( ComplexParserYparamTest, yparam1)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12710,10 +12661,10 @@ TEST ( Complex_Parser_Yparam_Test, yparam1)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][0])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][0])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Yparam_Test, yparam1)
+  //OUTPUT_MACRO ( ComplexParserYparamTest, yparam1)
 }
 
-TEST ( Complex_Parser_Yparam_Test, yparam2)
+TEST ( ComplexParserYparamTest, yparam2)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12774,10 +12725,10 @@ TEST ( Complex_Parser_Yparam_Test, yparam2)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][1])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(ypars[0][1])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Yparam_Test, yparam2)
+  //OUTPUT_MACRO ( ComplexParserYparamTest, yparam2)
 }
 
-TEST ( Complex_Parser_Zparam_Test, zparam1)
+TEST ( ComplexParserZparamTest, zparam1)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12838,10 +12789,10 @@ TEST ( Complex_Parser_Zparam_Test, zparam1)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[0][0])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[0][0])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam1)
+  //OUTPUT_MACRO ( ComplexParserZparamTest, zparam1)
 }
 
-TEST ( Complex_Parser_Zparam_Test, zparam2)
+TEST ( ComplexParserZparamTest, zparam2)
 {
   Teuchos::RCP<rfParamGroup> rfGroup = Teuchos::rcp(new rfParamGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = rfGroup;
@@ -12902,12 +12853,12 @@ TEST ( Complex_Parser_Zparam_Test, zparam2)
   copyExpr_sdb.evaluateFunction(result);   ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])) );
   assignExpr_sdb.evaluateFunction(result); ASSERT_FLOAT_EQ( std::real(result), 20.0*std::log10( std::abs(zpars[1][1])));
   
-  //OUTPUT_MACRO ( Complex_Parser_Zparam_Test, zparam2)
+  //OUTPUT_MACRO ( ComplexParserZparamTest, zparam2)
 }
 
 
 // testing the "getIsComplex" function
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex1)
+TEST ( ComplexParserTestCmplxBoolean, isComplex1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("1.0+2.0J"), testGroup);
@@ -12927,7 +12878,7 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex1)
 }
 
 // testing the "getIsComplex" function
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex2)
+TEST ( ComplexParserTestCmplxBoolean, isComplex2)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Re(1.0+2.0J)"), testGroup);
@@ -12947,7 +12898,7 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex2)
 }
 
 // testing the "getIsComplex" function
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex3)
+TEST ( ComplexParserTestCmplxBoolean, isComplex3)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Img(1.0+2.0J)"), testGroup);
@@ -12967,7 +12918,7 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex3)
 }
 
 // testing the "getIsComplex" function
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex4)
+TEST ( ComplexParserTestCmplxBoolean, isComplex4)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)"), testGroup);
@@ -12987,7 +12938,7 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex4)
 }
 
 // testing the "getIsComplex" function
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex5)
+TEST ( ComplexParserTestCmplxBoolean, isComplex5)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("2.0"), testGroup);
@@ -13009,7 +12960,7 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex5)
 
 // testing the "getIsComplex" function
 // this expression is complex because while Ph(1.0+2.0J) is real, par1 is complex.
-TEST ( Complex_Parser_Test_cmplxBoolean, isComplex6)
+TEST ( ComplexParserTestCmplxBoolean, isComplex6)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("Ph(1.0+2.0J)*par1"), testGroup);
@@ -13032,6 +12983,389 @@ TEST ( Complex_Parser_Test_cmplxBoolean, isComplex6)
   assignExpression = testExpression;
   isComplex = assignExpression.getIsComplex ();
   ASSERT_TRUE (isComplex);
+}
+
+
+
+// testing the "getVoltNameVec" function
+TEST ( ComplexParserTest_getVoltNames, voltNames1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(B) + V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  int correctNumberNodes=2;
+
+  {
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression copyExpression(testExpression);
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+
+// testing the "getVoltNameVec" function
+TEST ( ComplexParserTest_getVoltNames, voltNames2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(0) + V(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  int correctNumberNodes=1;
+
+  {
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression copyExpression(testExpression);
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+
+// disabling this test until it works
+TEST ( ComplexParserTest_getVoltNames, voltNames3)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  int correctNumberNodes=1;
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  {
+  testExpression.setupVariousAstArrays();
+  const std::vector<std::string> & voltNames = testExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  //for (int ii=0;ii<numVoltageNodes; ii++) { std::cout << "voltNames3.  voltNames["<<ii<<"] = " << voltNames[ii] <<std::endl; }
+  }
+
+  {
+  copyExpression.setupVariousAstArrays();
+  const std::vector<std::string> & voltNames = copyExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+
+  {
+  assignExpression.setupVariousAstArrays();
+  const std::vector<std::string> & voltNames = assignExpression.getVoltNameVec();
+  int numVoltageNodes= voltNames.size();
+  ASSERT_EQ (numVoltageNodes, correctNumberNodes);
+  }
+}
+
+TEST ( ComplexParserTest_getVoltNames, voltNames4)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be a single derivative, value = 3;
+  // This is b/c after replacement, the expression is equivalent to {3*V(A)}
+  int correctNumberDerivs=1;
+
+  std::complex<double> result(0.0,0.0), Aval(1.0,0.0);
+  std::complex<double> refRes = 3.0*Aval;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(3.0);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+}
+
+TEST ( ComplexParserTest_getVoltNames, voltNames5)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("8.0*I(vb) + V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be two derivatives, value = 3 and 8
+  // This is b/c after replacement, the expression is equivalent to {8*I(vb) + 3*V(A)}
+  //
+  // Derivative array from expression library are in order of voltages first, currents second.
+  int correctNumberDerivs=2;
+
+  std::complex<double> result(0.0,0.0), Aval(1.0,0.0);
+  std::complex<double> VBval=std::complex<double>(8.0,0.0);
+  solnGroup->setSoln(std::string("vb"),VBval);
+  std::complex<double> refRes = 3.0*Aval + 8.0*VBval;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > refDer;
+  refDer.push_back(3.0);
+  refDer.push_back(8.0);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+}
+
+TEST ( ComplexParserTest_getVoltNames, voltNames6)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("V(A) + V(Y) + V(Z)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // the replaceName function is called when replacing a voltage node name with an alias 
+  // (due to a subcircuit call)
+  // The point of this test is to make sure that when nodes are replaced with redundant names, 
+  // that the internal data structures of expression will properly update.
+  std::string old_name1 = "Y";
+  std::string old_name2 = "Z";
+  std::string new_name1 = "A";
+  std::string new_name2 = "A";
+  testExpression.replaceName(old_name1, new_name1);
+  testExpression.replaceName(old_name2, new_name2);
+
+  std::string gnd_name = "0";
+  testExpression.replaceName(new_name1, gnd_name); // now everything is ground
+
+  Xyce::Util::newExpression copyExpression(testExpression);
+  Xyce::Util::newExpression assignExpression;
+  assignExpression = testExpression;
+
+  // After replacement, there should be a zero derivatives.
+  // This is b/c after replacement, the expression is equivalent to {3*V(0)}
+  int correctNumberDerivs=0;
+
+  std::complex<double> result(0.0,0.0); 
+  std::complex<double> Aval(1.0,0.0);
+  std::complex<double> GNDval(0.0,0.0);
+  std::complex<double> refRes = 0.0;
+
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("0"),GNDval);
+
+  std::vector<std::complex<double> > derivs;
+
+  testExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+
+  copyExpression.evaluate(result,derivs);   
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+
+  assignExpression.evaluate(result,derivs); 
+  ASSERT_EQ (correctNumberDerivs,derivs.size());
+  EXPECT_EQ( result, refRes); 
+}
+
+
+// testing the bracket operator in device names.  Test1 passes if it dosn't crash during parsing.
+TEST ( ComplexParserDevNameWeirdChars, test1)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+
+  // original:
+  std::string testExpr = "I(V_VDD)*V(_VDD)+I(V_VSS)*V(_VSS)+I(V_Q[3])*V(_Q[3])+I(V_Q[2])*V(_Q[2])+I(V_Q[1])*V(_Q[1])+I(V_Q[0])*V(_Q[0])+I(V_A[6])*V(_A[6])+I(V_A[5])*V(_A[5])+I(V_A[4])*V(_A[4])+I(V_A[3])*V(_A[3])+I(V_A[2])*V(_A[2])+I(V_A[1])*V(_A[1])+I(V_A[0])*V(_A[0])+I(V_E)*V(_E)+I(V_D[3])*V(_D[3])+I(V_D[2])*V(_D[2])+I(V_D[1])*V(_D[1])+I(V_D[0])*V(_D[0])+I(V_W[3])*V(_W[3])+I(V_W[2])*V(_W[2])+I(V_W[1])*V(_W[1])+I(V_W[0])*V(_W[0])";
+
+  Xyce::Util::newExpression testExpression(testExpr, testGroup);
+
+  testExpression.lexAndParseExpression();
+
+}
+
+// another test of bracket operator. This one looks at the answer.
+TEST ( ComplexParserDevNameWeirdChars, test2)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  // original:
+  std::string testExpr = "17.2*I(V_Q[3])+8.5";
+  Xyce::Util::newExpression testExpression(testExpr, testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, V1val=3.0;
+  std::complex<double> refRes = 17.2*V1val+8.5;
+  solnGroup->setSoln(std::string("V_Q[3]"),V1val);
+  testExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+  assignExpression.evaluateFunction(result); EXPECT_EQ( std::real(result), std::real(refRes));
+}
+
+TEST ( ComplexParserDevNameWeirdChars, test3)
+{
+  Teuchos::RCP<currSolnExpressionGroup> solnGroup = Teuchos::rcp(new currSolnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+
+  std::vector<std::string> validDevs= 
+  {
+    std::string("1`"),
+    std::string("1~"),
+    std::string("1!"),
+    std::string("1@"),
+    std::string("1$"),
+    std::string("1%"),
+    std::string("1^"),
+    std::string("1&"),
+    std::string("1*"),
+    std::string("1-"),
+    std::string("1_"),
+    std::string("1+"),
+    std::string("1["),
+    std::string("1]"),
+    std::string("1|"),
+    std::string("1\\"),
+    std::string("1<"),
+    std::string("1>"),
+    std::string("1."),
+    std::string("1?"),
+    std::string("1/"),
+    std::string("1#"),
+    std::string("`"),
+    std::string("~"),
+    std::string("!"),
+    std::string("@"),
+    std::string("$"),
+    std::string("%"),
+    std::string("^"),
+    std::string("&"),
+    std::string("*"),
+    std::string("-"),
+    std::string("_"),
+    std::string("+"),
+    std::string("["),
+    std::string("]"),
+    std::string("|"),
+    std::string("\\"),
+    std::string("<"),
+    std::string(">"),
+    std::string("."),
+    std::string("?"),
+    std::string("/")
+  };
+
+  for (int ii=0;ii< validDevs.size();ii++)
+  {
+    std::string devName = "V" + validDevs[ii];
+
+    std::string expressionString = "I(" + devName + ")";
+
+    Xyce::Util::newExpression testExpression(expressionString, testGroup);
+    testExpression.lexAndParseExpression();
+
+    Xyce::Util::newExpression copyExpression(testExpression); 
+    Xyce::Util::newExpression assignExpression; 
+    assignExpression = testExpression; 
+
+    std::complex<double> result=0.0, Aval=3.0;
+    std::complex<double> refRes = Aval;
+    solnGroup->setSoln(devName,Aval);
+
+    testExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+    copyExpression.evaluateFunction(result);   EXPECT_EQ( std::real(result), std::real(refRes));
+    assignExpression.evaluateFunction(result); EXPECT_EQ( std::real(result), std::real(refRes));
+    OUTPUT_MACRO(Double_Parser_VoltSolnTest, weirdChar)
+  }
 }
 
 int main (int argc, char **argv)

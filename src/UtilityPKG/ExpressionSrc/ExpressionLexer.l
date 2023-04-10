@@ -118,8 +118,7 @@ class ExpressionLexer;
  /* NODE is used for voltage node names, particularly inside of voltage vars  V(NODE) and V(NODE,NODE) */
 
  /* Both DEV and NODE include the colon, to handle Xyce subcircuit syntax */
- /* Other simulators use other delimiters for subcircuit names, so might */
- /* want to consider supporting delimiters other than the colon. */
+ /* Other simulators use a period, which is also handled by DEV and NODE */
 DIGIT [0-9]
 ID [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*
 ID2 [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*[!][a-zA-Z0-9_:`@#\.\$]+
@@ -128,7 +127,7 @@ ID2 [a-zA-Z_`@#\$][a-zA-Z0-9_:`@#\.\$]*[!][a-zA-Z0-9_:`@#\.\$]+
 FILENAME [a-zA-Z0-9_:`@#\.\$\/\-]*
 
  /* to support bug 1034, the DEV needs to recognize some weird characters, including '+' and '-' */
-DEV [a-zA-Z][a-zA-Z0-9_:!`@#\.\+\-]*
+DEV [a-zA-Z][a-zA-Z0-9_:\$\-`~!@#%&_\+|<>\?\.\\/\^\*\[\]]*
 
  /* to support bug 1034, the NODE needs to recognize a lot of weird characters: */
  /* from bug 1034: */
