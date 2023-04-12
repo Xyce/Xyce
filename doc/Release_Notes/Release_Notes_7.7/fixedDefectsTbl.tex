@@ -174,7 +174,11 @@
   could be deleted before they were stored in parameter objects
   resulting in a null pointer for the expression.  This issue
   has been fixed. \\ \hline
-
+  
+  
+\textbf{Xyce Project Bugs/59}: Mixed-Signal Segmentation Fault &
+  The Python interface to Xyce was incorrectly using an ADC 
+  base name when trying to get DAC devices.  This has been fixed. \\ \hline
 
 \end{longtable}
 }
