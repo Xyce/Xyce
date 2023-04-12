@@ -126,7 +126,7 @@ class xyce_interface:
     return (status, names)
 
   def getDACDeviceNames( self ):
-    basename = "YADC"
+    basename = "YDAC"
     cBaseName = c_char_p(basename.encode('utf-8'))
     cNumDeviceNames = c_int( 0 )
     cMaxDeviceNameLength = c_int( 0 )
