@@ -1981,8 +1981,8 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     // get largest absolute value from solution vector
     double value = 0.0;
     int localId = 0;
-    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );      
-    if( fabs(value) > diagnosticExtremaLimit_)
+    (this->getDataStore())->currSolutionPtr->infNorm( &value, &localId );
+    if( (localId > 0) && (fabs(value) > diagnosticExtremaLimit_))
     {
       if( (diagnosticOutputStreamPtr_ != NULL) &&  outputHeaderLine )
       {
