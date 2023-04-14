@@ -67,6 +67,14 @@ namespace IO {
 
 typedef Device::DeviceCountMap DeviceCountMap;
 
+struct resolveStatus
+{
+  resolveStatus(): success(false), convertToGlobal(false){};
+
+  bool success;
+  bool convertToGlobal;
+};
+
 //----------------------------------------------------------------------------
 // Class          : CircuitContext
 // Purpose        :
@@ -219,8 +227,12 @@ public:
   void restorePreviousContext() const;
   bool globalNode (const std::string &nodeName) const;
 
+#if 0
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveParameter(Util::Param& parameter, bool replaceRandomNodes=false) const;
+#else
+  void resolveParameter(Util::Param& parameter, resolveStatus & rs) const;
+#endif
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveGlobalParameter(Util::Param& parameter) const;
@@ -231,11 +243,18 @@ public:
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved
   // otherwise return false.
-  bool resolveStrings(Util::Expression & expression,
+#if 0 
+  bool resolveStrings(Util::Expression & expression, 
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+#else
+  void resolveStrings(Util::Expression & expression, resolveStatus & rs,
+                      std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+#endif
 
-  bool resolveStringsForDevParams(Util::Expression & expression,
+#if 0
+  bool resolveStringsIncLocalVariation(Util::Expression & expression,
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+#endif
 
   // Determine if expressionString has any unresolved functions and
   // resolve appropriately. Return true if all functions are resolved

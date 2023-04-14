@@ -165,6 +165,7 @@ public:
   bool isFreqDependent() const;
   bool isSolutionDependent() const;
   bool isRandomDependent() const;
+  bool isOriginalRandomDependent() const;
   void dumpParseTree();
 
   static void seedRandom(long seed);

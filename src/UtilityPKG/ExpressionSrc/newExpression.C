@@ -631,6 +631,16 @@ bool newExpression::replaceParameterNode(
             expPtr->getLocalTwoArgLimitOpVec().begin(), expPtr->getLocalTwoArgLimitOpVec().end());
       }
 
+      // update the isShallowRandomDependent boolean
+      if ( !(localAgaussOpVec_.empty()) ||
+         !(localGaussOpVec_.empty())||
+         !(localAunifOpVec_.empty())||
+         !(localUnifOpVec_.empty()) ||
+         !(localRandOpVec_.empty()) ||
+         !(localTwoArgLimitOpVec_.empty())  
+         )
+      { isShallowRandomDependent_ = true; }
+
       // local SDT and DDT arrays.  They probably aren't relevant to 
       // the main use cases of this function. 
       if ( !(expPtr->getLocalSdtOpVec().empty()) ) 

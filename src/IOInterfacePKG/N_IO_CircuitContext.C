@@ -992,7 +992,6 @@ void CircuitContext::addFunction(FunctionBlock const& function)
 //----------------------------------------------------------------------------
 bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstanceParams )
 {
-  Util::ParamList retryParams;
   Util::UParamList uretryParams;
   std::vector<FunctionBlock> retryFunctions;
 
@@ -1193,7 +1192,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   {
     resolvedSomethingThisLoop=false;
     somethingLeftToDo=false;
-    retryParams.clear();
     uretryParams.clear();
     retryFunctions.clear();
 
@@ -1206,16 +1204,36 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     {
       Util::Param parameter = *uparamIter;
 
+#if 0
       if (!resolveParameter(parameter))
+#else
+      resolveStatus paramResolveStatus;
+      resolveParameter(parameter, paramResolveStatus);
+      if ( ! (paramResolveStatus.success) )
+#endif
       {
         // save it for later, because it might use functions that haven't
         // been resolved yet.
-        uretryParams.insert(parameter);
+        if (paramResolveStatus.convertToGlobal)
+        {
+          asYetUnresolvedGlobalParameters.insert(parameter);
+        }
+        else
+        {
+          uretryParams.insert(parameter);
+        }
         somethingLeftToDo=true;
       }
       else
       {
-        currentContextPtr_->resolvedParams_.insert(parameter);
+        if (paramResolveStatus.convertToGlobal)
+        {
+          currentContextPtr_->resolvedGlobalParams_.insert(parameter);
+        }
+        else
+        {
+          currentContextPtr_->resolvedParams_.insert(parameter);
+        }
         resolvedSomethingThisLoop=true;
       }
     }
@@ -1758,7 +1776,11 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
 // Creator        : Lon Waters/Eric Keiter
 // Creation Date  : 02/10/2003; 4/11/2020
 //----------------------------------------------------------------------------
-bool CircuitContext:: resolveParameter(Util::Param& parameter, bool replaceRandomNodes) const
+#if 0
+bool CircuitContext::resolveParameter(Util::Param& parameter, bool replaceRandomNodes) const
+#else
+void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs) const
+#endif
 {
   if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
   {
@@ -1773,12 +1795,31 @@ bool CircuitContext:: resolveParameter(Util::Param& parameter, bool replaceRando
     // Parse the expression:
     Util::Expression expression(expressionGroup_, expressionString);
 
+#if 0
     if (!expression.parsed()) { return false; }
+#else
+    if (!expression.parsed()) 
+    { 
+      rs.success = false;
+      return; 
+    }
+#endif
 
     // Resolve the strings in the expression. Unresolved strings
     // may be parameters defined in a .PARAM statement or global
     // parameters defined in .GLOBAL_PARAM statement.
-    bool stringsResolved = (replaceRandomNodes)?resolveStringsForDevParams(expression):resolveStrings(expression);
+#if 0 
+    bool stringsResolved = (replaceRandomNodes)?resolveStringsIncLocalVariation(expression):resolveStrings(expression);
+#else
+#if 0
+    bool stringsResolved = resolveStrings(expression);
+#else
+    resolveStatus stringResolveStatus;
+    resolveStrings(expression,stringResolveStatus);
+    bool stringsResolved = stringResolveStatus.success; 
+    rs.convertToGlobal = stringResolveStatus.convertToGlobal;
+#endif
+#endif
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
@@ -1786,7 +1827,12 @@ bool CircuitContext:: resolveParameter(Util::Param& parameter, bool replaceRando
     if ( expression.getLeadCurrentDependent() ) 
     {
       parameter.setVal(expression);
+#if 0
       return false;
+#else
+      rs.success = false;
+      return;
+#endif
     }
 
     if (stringsResolved && functionsResolved)
@@ -1849,14 +1895,24 @@ bool CircuitContext:: resolveParameter(Util::Param& parameter, bool replaceRando
        debugResolveParameterOutput2(parameter); 
     }
 
+#if 0
     return stringsResolved && functionsResolved;
+#else
+    rs.success = stringsResolved && functionsResolved;
+    return;
+#endif
   }
 
   // Handle quoted string parameters e.g. "some text" by removing quotes.
   resolveQuote(parameter);
   resolveTableFileType(parameter);
-  
+
+#if 0  
   return true;
+#else
+  rs.success = true;
+  return ;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1889,7 +1945,13 @@ bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
     // Resolve the strings in the expression. Unresolved strings
     // may be parameters defined in a .PARAM statement or global
     // parameters defined in .GLOBAL_PARAM statement.
+#if 0 
     bool stringsResolved = resolveStrings(expression);
+#else
+    resolveStatus stringResolveStatus;
+    resolveStrings(expression,stringResolveStatus);
+    bool stringsResolved = stringResolveStatus.success;
+#endif
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
@@ -1946,7 +2008,13 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
     //
     // They may also be function arguments if the expression is the
     // body of a function defined by .FUNC.
+#if 0 
     bool stringsResolved = resolveStrings(expression, funcArgs);
+#else
+    resolveStatus stringResolveStatus;
+    resolveStrings(expression, stringResolveStatus, funcArgs);
+    bool stringsResolved = stringResolveStatus.success;
+#endif
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
@@ -2002,6 +2070,7 @@ void debugResolveStringsOutput(const Util::Param & expressionParameter, const st
   Xyce::dout() << std::endl;
 }
 
+#if 0
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveStrings
 // Purpose        : Determine if expression has any unresolved strings
@@ -2131,23 +2200,30 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
   }
   return !unresolvedStrings;
 }
+#endif
 
 //----------------------------------------------------------------------------
-// Function       : CircuitContext::resolveStringsForDevParams
+// Function       : CircuitContext::resolveStringsIncLocalVariation
 // Purpose        : Determine if expression has any unresolved strings
 //                  and resolve appropriately. Return true if all strings are
 //                  resolved otherwise return false.
 //
 // Special Notes  : This is a different version of the above function.  The main
-//                  difference is that it uses the "replaceParam" instead of 
-//                  the "attachParam" function when it finds random operators.
+//                  difference is that it (under some circumstances) uses 
+//                  the "replaceParam" instead of the "attachParam" function 
+//                  when it finds random operators.
 //
 // Scope          : public
 // Creator        : Eric Keiter, SNL
 // Creation Date  : 03/16/2023
 //----------------------------------------------------------------------------
-bool CircuitContext::resolveStringsForDevParams( Util::Expression & expression,
+#if 0
+bool CircuitContext::resolveStringsIncLocalVariation( Util::Expression & expression,
+#else
+void CircuitContext::resolveStrings( Util::Expression & expression,
+  resolveStatus & rs,
                                      std::vector<std::string> exceptionStrings) const
+#endif
 {
   // Strings in the expression must be previously resolved parameters
   // that appear in paramList else there is an error.
@@ -2220,14 +2296,22 @@ bool CircuitContext::resolveStringsForDevParams( Util::Expression & expression,
         else if (expressionParameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
-          bool isRandom = expToBeAttached.isRandomDependent();
-          if (isRandom)
+          bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
+          if (isOriginalRandom)
           {
             std::string copyExprString = expToBeAttached.get_expression(); 
-            Util::Expression copiedExpression(expressionGroup_, copyExprString);
-            if (copiedExpression.parsed()) 
-            { 
-              expression.replaceParameterNode(strings[i], copiedExpression);  // check this.  If param is a SUBCKT_ARG_PARAM should we get here?
+            Util::Param copiedParam(strings[i],copyExprString);
+#if 0
+            resolveParameter(copiedParam);
+#else
+            resolveStatus rsTmp;
+            resolveParameter(copiedParam,rsTmp);
+#endif
+            if (copiedParam.getType() == Xyce::Util::EXPR)
+            {
+              Util::Expression & copiedExpression = copiedParam.getValue<Util::Expression>();
+              expression.replaceParameterNode(strings[i], copiedExpression);  
+              rs.convertToGlobal = true;
             }
             else
             {
@@ -2254,14 +2338,23 @@ bool CircuitContext::resolveStringsForDevParams( Util::Expression & expression,
           // the param to be attached is a global, which means it is always Util::EXPR type, 
           // which means it can always be attached.
           Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
-          bool isRandom = expToBeAttached.isRandomDependent();
-          if (isRandom)
+          bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
+          if (isOriginalRandom)
           {
             std::string copyExprString = expToBeAttached.get_expression(); 
-            Util::Expression copiedExpression(expressionGroup_, copyExprString);
-            if (copiedExpression.parsed()) 
-            { 
-              expression.replaceParameterNode(strings[i], copiedExpression); 
+
+            Util::Param copiedParam(strings[i],copyExprString);
+#if 0
+            resolveParameter(copiedParam);
+#else
+            resolveStatus rsTmp;
+            resolveParameter(copiedParam,rsTmp);
+#endif
+            if (copiedParam.getType() == Xyce::Util::EXPR)
+            {
+              Util::Expression & copiedExpression = copiedParam.getValue<Util::Expression>();
+              expression.replaceParameterNode(strings[i], copiedExpression);  
+              rs.convertToGlobal = true;
             }
             else
             {
@@ -2296,7 +2389,12 @@ bool CircuitContext::resolveStringsForDevParams( Util::Expression & expression,
       }
     }
   }
+#if 0
   return !unresolvedStrings;
+#else
+  rs.success = !unresolvedStrings;
+  return;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -2578,6 +2676,10 @@ bool InBinRange(double value, double min, double max)
 bool CircuitContext::fullyResolveParam(Device::Param & param, double & value) const
 {
   bool successfullyResolved = false;
+#if 0
+#else
+  resolveStatus rsTmp;
+#endif
 
   if (Util::isValue(param.stringValue()))
   {
@@ -2589,7 +2691,12 @@ bool CircuitContext::fullyResolveParam(Device::Param & param, double & value) co
     if (param.hasExpressionValue() || param.isQuoted() ||
         param.isTableFileTypeQuoted() || param.isStringTypeQuoted())
     {
+#if 0
       if(resolveParameter(param))
+#else
+      resolveParameter(param,rsTmp);
+      if(rsTmp.success)
+#endif
       {
         // ERK. This is to make this (binning) work with L,W params being set via 
         // global_params.

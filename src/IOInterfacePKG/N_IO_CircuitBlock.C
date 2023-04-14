@@ -1754,7 +1754,12 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         }
 
         Util::Param& parameter = (*iterPar);
+#if 0 
         circuitContext_.resolveParameter(parameter);
+#else
+        resolveStatus paramResolveStatus;
+        circuitContext_.resolveParameter(parameter,paramResolveStatus);
+#endif
         if(parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expressionToModify = parameter.getValue<Util::Expression>();
@@ -1812,7 +1817,13 @@ void CircuitBlock::updateAliasNodeMapHelper()
       // parameters defined in .GLOBAL_PARAM statement or may
       // be due to function arguments if the expression is the
       // body of a function defined in a .FUNC statement.
+#if 0 
       bool stringsResolved = circuitContext_.resolveStrings(expression, exceptionStrings);
+#else
+      resolveStatus stringResolveStatus;
+      circuitContext_.resolveStrings(expression, stringResolveStatus, exceptionStrings);
+      bool stringsResolved = stringResolveStatus.success;
+#endif
 
       // Resolve functions in the expression.
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
@@ -1823,7 +1834,12 @@ void CircuitBlock::updateAliasNodeMapHelper()
       if ( !(strings.empty()) )
       //if ( expression.get_num(XEXP_STRING) > 0 )
       {
-        circuitContext_.resolveStrings(expression, exceptionStrings);
+#if 0
+        circuitContext_.resolveStrings(expression, exceptionStrings); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
+#else
+        resolveStatus stringResolveStatusTmp;
+        circuitContext_.resolveStrings(expression, stringResolveStatusTmp, exceptionStrings); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
+#endif
       }
 
       if (stringsResolved && functionsResolved)

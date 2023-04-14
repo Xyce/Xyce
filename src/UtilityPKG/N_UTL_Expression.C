@@ -1041,6 +1041,7 @@ bool Expression::isSolutionDependent() const
            !(newExpPtr_->getCurrentOpVec().empty()) );
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
@@ -1060,6 +1061,40 @@ bool Expression::isRandomDependent() const
 
   return false;
 }
+#else
+//-----------------------------------------------------------------------------
+// Function      : Expression::isRandomDependent
+// Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
+//
+// Special Notes : This is only based on local dependence, from parsing as well 
+//                 as nodes that have been "replaced".  This excludes parts of 
+//                 the tree that have been "attached".  
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isRandomDependent() const
+{
+  return newExpPtr_->getIsShallowRandomDependent();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::isOriginalRandomDependent
+//
+// Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
+//
+// Special Notes : This is only based on local dependence, from parsing. It 
+//                 excludes nodes that have been replaced, and also excludes 
+//                 nodes that have been attached.
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isOriginalRandomDependent() const
+{
+  return newExpPtr_->getIsOriginalShallowRandomDependent();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::dumpParseTree

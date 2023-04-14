@@ -119,6 +119,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {};
 
@@ -167,6 +169,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -226,6 +230,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -290,6 +296,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -452,6 +460,8 @@ public:
     getTheSeedCalledBefore_(right.getTheSeedCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
+    isShallowRandomDependent_(right.isShallowRandomDependent_),
+    isOriginalShallowRandomDependent_(right.isOriginalShallowRandomDependent_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = right.dtNodePtr_;
@@ -575,6 +585,8 @@ public:
     getTheSeedCalledBefore_ = right.getTheSeedCalledBefore_;
     savedResult_ = right.savedResult_;
     phaseOutputUsesRadians_ = right.phaseOutputUsesRadians_;
+    isShallowRandomDependent_ = right.isShallowRandomDependent_;
+    isOriginalShallowRandomDependent_ = right.isOriginalShallowRandomDependent_;
 
     dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -790,6 +802,11 @@ public:
   bool getDeviceCurrentDependent() { return isDeviceCurrentDependent_; }
   bool getLeadCurrentDependent() { return isLeadCurrentDependent_; }
   bool getLeadCurrentDependentExcludeBsrc() { return isLeadCurrentDependentExcludeBsrc_; }
+
+  bool getIsShallowRandomDependent() { return isShallowRandomDependent_; }
+  bool getIsOriginalShallowRandomDependent() { return isOriginalShallowRandomDependent_; }
+  void setIsShallowRandomDependent() { isShallowRandomDependent_ = true; }
+  void setIsOriginalShallowRandomDependent() { isOriginalShallowRandomDependent_ = true; }
 
   // this function is only used to determine function arguments of a function prototype
   // So if we have .func abc(x,y) {x+y+10}
@@ -1066,6 +1083,9 @@ private:
   bool getTheSeedCalledBefore_;
   usedType savedResult_;
   bool phaseOutputUsesRadians_;
+
+  bool isShallowRandomDependent_; // true if the the local AST contains random operator.
+  bool isOriginalShallowRandomDependent_; // true if the original local AST, before any node replacements contains random operator
 
   opVectorContainers<usedType> opVectors_;
   std::vector<usedType> oldSolVals_;
