@@ -180,5 +180,10 @@
   The Python interface to Xyce was incorrectly using an ADC 
   base name when trying to get DAC devices.  This has been fixed. \\ \hline
 
+\textbf{Xyce Project Bugs/60}: Error building with Xyce\_GRAPH\_DEBUG=ON &
+  The bracket operator used in a block of debugging code was incorrect
+  for use on the std::unordered\_map object.  This code was fixed to use
+  the correct accessor function for the map. \\ \hline
+
 \end{longtable}
 }
