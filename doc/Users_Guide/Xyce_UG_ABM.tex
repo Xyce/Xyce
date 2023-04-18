@@ -202,11 +202,11 @@ at time $t=1s$ the voltage is $2$ volts.  Similarly, the voltage will
 be $4$ volts at $t=2s$ and $6$ volts at $t=3s$. Linear interpolation is
 used at times in between those tabulated values.
 
-It is also possible to create ABM sources from files of time-value pairs by providing the name of the file containing the pairs between quotation marks \texttt{(")}:
+It is also possible to create ABM sources from files of time-value pairs by providing the name of the file containing the pairs between quotation marks:
 
-\Example{Bfile 1 0 V=tablefile("myfile")}
-\Example{Bfile 1 0 V=\{tablefile("myfile")\}}
-\Example{Bfile 1 0 V=\{table("myfile")\}}
+\Example{Bfile 1 0 V=tablefile(``myfile'')}
+\Example{Bfile 1 0 V=\{tablefile(``myfile'')\}}
+\Example{Bfile 1 0 V=\{table(``myfile'')\}}
 
 The file provided must have one time-voltage pair per line, separated
 by spaces.  Comma-separated files are not supported, and will not be
@@ -260,8 +260,8 @@ Another high-order interpolator is \texttt{BLI}, which is for Barycentric Lagran
 Interpolation~\cite{Berrut_barycentriclagrange}.  All of these interpolators use the same 
 syntax as the \texttt{table} function in the expression library.  For example:
 
-\Example{Bfile 1 0 V=\{spline("myfile")\}}
-\Example{Bfile 1 0 V=\{bli("myfile")\}}
+\Example{Bfile 1 0 V=\{spline(``myfile'')\}}
+\Example{Bfile 1 0 V=\{bli(``myfile'')\}}
 
 Higher orders of interpolation is primarily useful for data that represents a smooth function.   
 If the data has intentionally sharp discontinuities (such as a square wave input), then 
@@ -276,12 +276,12 @@ desirable aspect, using splines will naturally smooth away noise.
 Interpolated ABM models, based on tabular data can optionally have the size of their 
 dataset reduced using the sparsification option.  To enable this feature, the \texttt{TABLE} 
 or \texttt{SPLINE} operator requires an additional argument specifying the number of points.  
-To use a log scale for the gradient based table refinement, a third argument can be set to "true".
+To use a log scale for the gradient based table refinement, a third argument can be set to ``true''.
 Sparsification can only be used for tables specified from a file.
 
-\Example{Bfile 1 0 V=\{table("myfile",100)\}}
-\Example{Bfile 1 0 V=\{spline("myfile",100)\}}
-\Example{Bfile 1 0 V=\{table("myfile",100, true)\}; use log scale for gradients}
+\Example{Bfile 1 0 V=\{table(``myfile'',100)\}}
+\Example{Bfile 1 0 V=\{spline(``myfile'',100)\}}
+\Example{Bfile 1 0 V=\{table(``myfile'',100, true)\}; use log scale for gradients}
 
 In the above examples, the number of points used internally for the 
 \texttt{Bfile} device is automatically reduced to 100.  This 
@@ -291,7 +291,7 @@ high gradients and small numbers of points where the dataset is nearly flat.
 
 The reduction requires an internal spline interprolation.  The internal spline 
 interpolation is used, no matter which interpolation option is later used by 
-the Bsrc.  So, for example, even though \texttt{\{table("myfile",100)\}} 
+the Bsrc.  So, for example, even though \texttt{\{table(``myfile'',100)\}} 
 specifies a piecewise-linear interpolation, the internal sparsification will 
 use a spline.
 
