@@ -14,6 +14,7 @@ from flask import Flask
 from flask import request
 
 import os
+import json 
 
 app = Flask(__name__)
 
@@ -62,7 +63,7 @@ XyceObjectsDict = {}
 
 @app.route("/test")
 def test_response():
-  return "Active and responding.\n"
+  return "Active and responding."
   
 @app.route("/status")
 def status():
@@ -72,7 +73,7 @@ def status():
   
 @app.route("/xyce_open", methods=['POST'])  
 def open():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   
   # use a random 16 digit ID as a session ID
   # convert it to a string for easier rep. in json
@@ -87,11 +88,11 @@ def open():
     xyceObj = xyce_interface(libdir=libDirectory)
   
   XyceObjectsDict[uuid] = {'libdir': libDirectory, 'xyceObj': xyceObj}
-  return uuid
+  return dict({'uuid': uuid})
   
 @app.route("/xyce_initialize", methods=['POST'])
 def initialize():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -108,7 +109,7 @@ def initialize():
   
 @app.route("/xyce_getsimtime", methods=['POST'])
 def getTime():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -122,7 +123,7 @@ def getTime():
   
 @app.route("/xyce_getfinaltime", methods=['POST'])
 def getFinalTime():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -136,7 +137,7 @@ def getFinalTime():
 
 @app.route("/xyce_getdacnames", methods=['POST'])
 def getDACDeviceNames():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -150,7 +151,7 @@ def getDACDeviceNames():
   
 @app.route("/xyce_getadcmap", methods=['POST'])
 def getADCMap():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -165,7 +166,7 @@ def getADCMap():
   
 @app.route("/xyce_checkcircuitparamexists", methods=['POST'])
 def checkCircuitParameterExists():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -182,7 +183,7 @@ def checkCircuitParameterExists():
   
 @app.route("/xyce_getcircuitvalue", methods=['POST'])
 def getCircuitValue():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -199,7 +200,7 @@ def getCircuitValue():
 
 @app.route("/xyce_setcircuitparameter", methods=['POST'])
 def setCircuitParameter():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -219,7 +220,7 @@ def setCircuitParameter():
   
 @app.route("/xyce_gettimevoltagepairs", methods=['POST'])
 def getTimeVoltagePairs():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -239,7 +240,7 @@ def getTimeVoltagePairs():
 
 @app.route("/xyce_updatetimevoltagepairs", methods=['POST'])
 def updateTimeVoltagePairs():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -263,7 +264,7 @@ def updateTimeVoltagePairs():
   
 @app.route("/xyce_simulateuntil", methods=['POST'])
 def simulateUntil():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -281,7 +282,7 @@ def simulateUntil():
 
 @app.route("/xyce_run", methods=['POST'])
 def run():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
@@ -294,7 +295,7 @@ def run():
     
 @app.route("/xyce_close", methods=['POST'])
 def close():
-  args=request.get_json()
+  args=json.loads(request.get_json())
   if( 'uuid' not in args):
     return 'Session ID not specified.', 400
   theKey = args['uuid']
