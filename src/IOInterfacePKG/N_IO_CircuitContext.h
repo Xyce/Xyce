@@ -69,7 +69,8 @@ typedef Device::DeviceCountMap DeviceCountMap;
 
 struct resolveStatus
 {
-  resolveStatus(): success(false), convertToGlobal(false){};
+  resolveStatus(): success(false), convertToGlobal(false)
+  {};
 
   bool success;
   bool convertToGlobal;
@@ -271,7 +272,13 @@ public:
   // Check current context and recursively check parent
   // contexts. Return the parameter if it is found, set the
   // parameter value to the empty string if it is not found.
+#if 0 
   bool getResolvedGlobalParameter(Util::Param & parameter) const;
+#else
+  resolveStatus getResolvedGlobalParameter(Util::Param & parameter) const;
+#endif
+
+  bool checkForResolvedGlobalParameter(const Util::Param & parameter) const;
 
   // Look for a function with tag functionName in resolvedFunctions_.
   // Check current context and recursively check parent
@@ -395,6 +402,12 @@ public:
     return resolvedGlobalParams_;
   }
 
+  const Util::UParamList &getContextGlobals() const
+  {
+    //if (currentContextPtr_) { 
+    return currentContextPtr_->getGlobals(); 
+  }
+
   bool getContextMultiplierSet() 
   {
     bool retval=false;
@@ -498,6 +511,7 @@ private:
   Util::UParamList resolvedParams_;
   Util::UParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
+  unordered_map<std::string, std::string> globalParamAliasMap_;
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 

@@ -1216,6 +1216,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         // been resolved yet.
         if (paramResolveStatus.convertToGlobal)
         {
+#if 1
+          std::cout << "Parameter " << parameter.uTag() << " is converted to global, but WAS NOT successfully resolved! value = " 
+            << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")"
+            << std::endl;
+#endif
           asYetUnresolvedGlobalParameters.insert(parameter);
         }
         else
@@ -1228,7 +1233,33 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         if (paramResolveStatus.convertToGlobal)
         {
+#if 1
+          std::cout << "Parameter " << parameter.uTag() << " is converted to global, but WAS successfully resolved! value = " 
+            << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")"
+            << std::endl;
+#endif
+
+          // if this is a subcircuit global param, then insert both the orginal name as well as the
+          // fully resolved name.  this makes subsequent lookups easier.  The originals will be
+          // discarded later.
           currentContextPtr_->resolvedGlobalParams_.insert(parameter);
+          if (currentContextPtr_->parentContextPtr_ != NULL)  // if this isn't at the top, convert to full name
+          {
+            std::string fullyResolvedTag = currentContextPtr_->getCurrentContextName();
+            if (fullyResolvedTag != "")  // double check
+            {
+              std::string originalTag = parameter.uTag();
+              unordered_map<std::string, std::string>::iterator iter = 
+                currentContextPtr_->globalParamAliasMap_.find(originalTag);
+              if (iter == currentContextPtr_->globalParamAliasMap_.end())
+              {
+                fullyResolvedTag += Xyce::Util::separator + originalTag;
+                parameter.setTag( fullyResolvedTag );
+                currentContextPtr_->globalParamAliasMap_[originalTag] = fullyResolvedTag;
+                currentContextPtr_->resolvedGlobalParams_.insert(parameter);
+              }
+            }
+          }
         }
         else
         {
@@ -1302,6 +1333,17 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             }
           }
 
+          // ERK.  This "isVarDep" check is pointless and a waste of effort.  
+          // if a parameter has been successfully "resolved", then all the "variables" have 
+          // been looked up already, and handled.  So, this is a redundnat check, and must 
+          // be a hold over of the old library.
+          //
+          // If the error below is triggered here, that is actually a sign that there 
+          // is an inconsistency between the "resolve" function operations and the "getVariableDependent" 
+          // and "getVariables" functions.
+          //
+          // Also, the "find" that is performed is not adequate in any case.  It should 
+          // recursively search all the contexts, not just the current one.
           bool isVarDep = parameter.getValue<Util::Expression>().getVariableDependent();
           if (isVarDep)
           {
@@ -1310,12 +1352,19 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             // If variables are found, they must be previously defined global params
             for (std::vector<std::string>::const_iterator s_i=variables.begin() ; s_i!=variables.end() ; ++s_i)
             {
-              Util::Param parameter( *s_i, "");
-              Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
+              Util::Param tmpParam( *s_i, "");
+#if 0
+              Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( tmpParam );
               if ( urGParamIter == currentContextPtr_->resolvedGlobalParams_.end() )
+#else
+              if( !(checkForResolvedGlobalParameter(tmpParam)))
+#endif
               {
                 Report::UserError0() << "Unknown parameter (" << *s_i << ") found in global param expression: "
-                                     << parameter.getValue<Util::Expression>().get_expression();
+                                     << parameter.getValue<Util::Expression>().get_expression() << " which is from parameter " << parameter.uTag() ;
+#if 1
+                exit(0); // putting this here so we don't get 1000000 errors.  remove later
+#endif
               }
             }
           }
@@ -1691,6 +1740,7 @@ void debugResolveParameterOutput2 (Util::Param& parameter)
 }
 
 //----------------------------------------------------------------------------
+// this is a debug function
 //----------------------------------------------------------------------------
 void testExpressionBools(  Util::Expression & expression, const std::string & expressionString  )
 {
@@ -2330,8 +2380,13 @@ void CircuitContext::resolveStrings( Util::Expression & expression,
       }
       else
       {
+#if 0
         parameterFound = getResolvedGlobalParameter(expressionParameter);
         if (parameterFound)
+#else
+        resolveStatus getResolvedGPstatus = getResolvedGlobalParameter(expressionParameter);
+        if (getResolvedGPstatus.success)
+#endif
         {
           if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], true); }
 
@@ -2364,6 +2419,17 @@ void CircuitContext::resolveStrings( Util::Expression & expression,
           else
           {
             expression.attachParameterNode(strings[i], expToBeAttached);
+#if 1
+            if (getResolvedGPstatus.convertToGlobal)
+            {
+              std::string newName = currentContextPtr_->getCurrentContextName();
+              if (newName != "")  // double check
+              {
+                newName += Xyce::Util::separator + strings[i];
+                expression.replaceParameterName(strings[i], newName);
+              }
+            }
+#endif
           }
         }
         else
@@ -2485,9 +2551,9 @@ bool CircuitContext::getResolvedParameter(Util::Param & parameter) const
 // Creator        : Dave Shirley, PSSI
 // Creation Date  : 11/17/2005
 //----------------------------------------------------------------------------
-bool CircuitContext::getResolvedGlobalParameter(Util::Param & parameter) const
+resolveStatus CircuitContext::getResolvedGlobalParameter(Util::Param & parameter) const
 {
-  bool success = false;
+  resolveStatus rs;
 
   Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
   if ( urGParamIter != currentContextPtr_->resolvedGlobalParams_.end() )
@@ -2495,12 +2561,51 @@ bool CircuitContext::getResolvedGlobalParameter(Util::Param & parameter) const
     // Found a parameter with given name, set the value
     // of parameter and return.
     parameter.setVal(*urGParamIter);
+    rs.success = true;
+
+    // check for subcircuit global params.
+    if (currentContextPtr_->parentContextPtr_ != NULL) 
+    { 
+      std::string Tag = parameter.uTag();
+      unordered_map<std::string, std::string>::iterator iter = currentContextPtr_->globalParamAliasMap_.find(Tag);
+      if (iter != currentContextPtr_->globalParamAliasMap_.end())
+      {
+        rs.convertToGlobal = true; 
+      }
+    }
+  }
+  else if (currentContextPtr_->parentContextPtr_ != NULL)
+  {
+    setContext(currentContextPtr_->parentContextPtr_);
+    rs = getResolvedGlobalParameter(parameter);
+    restorePreviousContext();
+  }
+
+  return rs;
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::checkForResolvedGlobalParameter
+//
+// Purpose        : Look for a global parameter see if it is present in any context
+// Special Notes  :
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 04/19/2023
+//----------------------------------------------------------------------------
+bool CircuitContext::checkForResolvedGlobalParameter(const Util::Param & parameter) const
+{
+  bool success = false;
+
+  Util::UParamList::const_iterator urGParamIter = currentContextPtr_->resolvedGlobalParams_.find( parameter );
+  if ( urGParamIter != currentContextPtr_->resolvedGlobalParams_.end() )
+  {
     success = true;
   }
   else if (currentContextPtr_->parentContextPtr_ != NULL)
   {
     setContext(currentContextPtr_->parentContextPtr_);
-    success = getResolvedGlobalParameter(parameter);
+    success = checkForResolvedGlobalParameter(parameter);
     restorePreviousContext();
   }
 

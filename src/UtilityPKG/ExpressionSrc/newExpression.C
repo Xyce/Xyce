@@ -570,7 +570,7 @@ bool newExpression::replaceParameterNode(
 
           if (!repacementsAccomplished)
           {
-            // when "replacementsAccomplishments" is negative, that means that the node did not have parents.
+            // when "repacementsAccomplished" is negative, that means that the node did not have parents.
             // The one node in the AST with no parents is the top one, astNodePtr_.
             if (node == astNodePtr_)
             {
@@ -585,10 +585,42 @@ bool newExpression::replaceParameterNode(
         }
       }
       // replace substrings
+
+      {
+      // ERK.  These erases should not be necessary, as the setupVariousAstArrays is being called, below
+      std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
+      if (it != unresolvedParamNameVec_.end())
+      {
+        int index = std::distance(unresolvedParamNameVec_.begin(),it);
+        unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+      }
+
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+      if (it != globalParamNameVec_.end())
+      {
+        int index = std::distance(globalParamNameVec_.begin(),it);
+        globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
+      }
+      }
+
+      // update the expression string (should actually regenerate from the tree)
       FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
 
-      astArraysSetup_ = false; // this should trigger a call to setupVariousAstArrays later, but just in case calling it now.
+      // the point of this function is to modify the AST, but do so in such a way that once it is done, 
+      // the AST will look as though it was never modified, and was originally like this.  
+      // In other words, there isn't an external depedency like there would be from an attachment.  
+      //
+      // However, with this modified AST, the "various Ast arrays" still
+      // need to be re-computed.  The function "setupVariousAstArrays" won't do this work unless 
+      // (1) astArraysSetup is false, and (2) externalDependencies_ is true.  But, once done, as we 
+      // want this to look like this was the original, unmodified AST, the externalDependencies_ 
+      // boolean should be reset back to whatever it was before this.
+      astArraysSetup_ = false; 
+      bool tmpExtDep = externalDependencies_;
+      externalDependencies_ = true;  // temporarily force this to be true
       setupVariousAstArrays ();
+      externalDependencies_ = tmpExtDep; //reset to whatever it was before
 
       // update the "local" arrays.  The main reason for calling this function 
       // is to support "local" variations via random operators.
@@ -672,6 +704,71 @@ bool newExpression::replaceParameterNode(
     }
   }
   return retval;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceParameterName
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/25/2023
+//-------------------------------------------------------------------------------
+bool newExpression::replaceParameterName
+  ( const std::string & paramName, const std::string & newParamName)
+{
+  {
+    std::string paramNameUpper=paramName;
+    Xyce::Util::toUpper(paramNameUpper);
+
+    std::string newParamNameUpper=newParamName;
+    Xyce::Util::toUpper(newParamNameUpper);
+
+    if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+      int size = nodeVec.size();
+      for (int ii=0;ii<size;ii++) // loop over all the nodes with this name
+      {
+        Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
+        parOp->setName(newParamNameUpper);
+      }
+      paramOpMap_[newParamNameUpper] = nodeVec;
+      paramOpMap_.erase(paramNameUpper);
+
+      std::vector<std::string>::iterator paramIter;
+      paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
+      if (paramIter != paramNameVec_.end()) // found it
+      {
+        int index = std::distance(paramNameVec_.begin(),paramIter);
+        paramNameVec_[index] = newParamNameUpper;
+      }
+
+      paramIter = std::find(globalParamNameVec_.begin(),globalParamNameVec_.end(), paramNameUpper);
+      if (paramIter != globalParamNameVec_.end()) // found it
+      {
+        int index = std::distance(globalParamNameVec_.begin(),paramIter);
+        globalParamNameVec_[index] = newParamNameUpper;
+      }
+
+      paramIter = std::find(unresolvedParamNameVec_.begin(),unresolvedParamNameVec_.end(), paramNameUpper);
+      if (paramIter != unresolvedParamNameVec_.end()) // found it
+      {
+        int index = std::distance(unresolvedParamNameVec_.begin(),paramIter);
+        unresolvedParamNameVec_[index] = newParamNameUpper;
+      }
+
+      // update the expression string (should actually regenerate from the tree)
+      FindReplace(expressionString_ , paramNameUpper, newParamNameUpper);
+    }
+    else
+    {
+      Xyce::Report::UserError() << "newExpression::replaceParameterName.  Could not find param = " << paramName << std::endl;
+    }
+  }
+
+  return true;
 }
 
 //-------------------------------------------------------------------------------

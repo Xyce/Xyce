@@ -1058,6 +1058,23 @@ bool DistToolDefault::expandSubcircuitInstance(
   if (!result)
     return result;
 
+#if 1
+  // At this stage, the parameters of the current context are resolved.
+  // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
+  // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
+  Util::UParamList::const_iterator paramIter    = circuitContext_->getContextGlobals().begin(); 
+  Util::UParamList::const_iterator paramIterEnd = circuitContext_->getContextGlobals().end();
+  for(;paramIter!=paramIterEnd;++paramIter)
+  {
+    Util::Param parameter = *paramIter;
+#if 0
+    std::string fullyResolvedTag = subcircuitPrefix + parsingMgr_.getSeparator() + paramIter->uTag();
+    parameter.setTag(fullyResolvedTag);
+#endif
+    addResolvedGlobalParams_.insert(parameter);
+  }
+#endif
+
   // Add any .IC or .NODESET statements for this subcircuit to the top level 
   // option block and resolve any parameters in the current context.
   // Pass in local nodes and instance nodes so that the IC/NODESET node is identified properly.

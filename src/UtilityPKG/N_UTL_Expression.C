@@ -992,6 +992,12 @@ bool Expression::replace_name ( const std::string & old_name,
   return newExpPtr_->replaceName( old_name, new_name );
 }
 
+bool Expression::replaceParameterName ( const std::string & old_name,
+                                        const std::string & new_name)
+{
+  return newExpPtr_->replaceParameterName( old_name, new_name );
+}
+
 //-----------------------------------------------------------------------------
 // Function      : Expression::isTimeDependent
 // Purpose       : Return true if expression is either explicitly OR implicitly

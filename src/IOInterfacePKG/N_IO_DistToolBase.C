@@ -804,6 +804,14 @@ bool DistToolBase::instantiateDevice(
     // "SOLN_DEP" parameters must be hacked in here or they can't be used
     // in a subcircuit!
 
+#if 0
+    // ERK.  Comments to possibly remove later, related to issue 24.
+    // In this section, some parameter expressions (like I or V from Bsrc devices)
+    // which have solution dependencies are modified with different names to accomodate subcircuits.
+    // For issue 24, something similar may be necessary here with converted global 
+    // parameters, that exist within subcircuits.  Some kind of aliasing will *probably* be needed.
+#endif
+
     if ((device.getNetlistDeviceType() == "B" || 
          device.getNetlistDeviceType() == "S" || 
          device.getNetlistDeviceType() == "R" || 

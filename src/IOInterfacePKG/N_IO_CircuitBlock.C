@@ -1784,10 +1784,6 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
 //--------------------------------------------------------------------------
 void CircuitBlock::updateAliasNodeMapHelper()
 {
-  // Needed for call to circuitContext_.resolveStrings() but this value is
-  // then otherwise unused within this function.
-  std::vector<std::string> exceptionStrings; 
-
   // Find the entries in aliasNodeMapHelper_ that are expressions (e.g.,
   // start with '}' and store them in a vector (expStrings)
   std::vector<std::string> expStrings; 
@@ -1818,29 +1814,32 @@ void CircuitBlock::updateAliasNodeMapHelper()
       // be due to function arguments if the expression is the
       // body of a function defined in a .FUNC statement.
 #if 0 
-      bool stringsResolved = circuitContext_.resolveStrings(expression, exceptionStrings);
+      bool stringsResolved = circuitContext_.resolveStrings(expression);
 #else
       resolveStatus stringResolveStatus;
-      circuitContext_.resolveStrings(expression, stringResolveStatus, exceptionStrings);
+      circuitContext_.resolveStrings(expression, stringResolveStatus);
       bool stringsResolved = stringResolveStatus.success;
 #endif
 
       // Resolve functions in the expression.
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
 
+#if 0
+      // ERK. Commenting this out b/c I think it is pointless.    If the resolveStrings, above, failed, there is no reason it would work now.
+      // It is a code fragment that might have made sense with the old expression library, but no longer does.
+
       // resolve variables in the function body
-    
       const std::vector<std::string> & strings = expression.getUnresolvedParams();
       if ( !(strings.empty()) )
-      //if ( expression.get_num(XEXP_STRING) > 0 )
       {
 #if 0
-        circuitContext_.resolveStrings(expression, exceptionStrings); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
+        circuitContext_.resolveStrings(expression); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
 #else
         resolveStatus stringResolveStatusTmp;
-        circuitContext_.resolveStrings(expression, stringResolveStatusTmp, exceptionStrings); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
+        circuitContext_.resolveStrings(expression, stringResolveStatusTmp); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?  And, if it failed the first time, why would it work now?
 #endif
       }
+#endif
 
       if (stringsResolved && functionsResolved)
       {
@@ -1937,7 +1936,7 @@ bool CircuitBlock::parseIncludeFile(
     ssfPtr_ = ssfMap_[includeFile].second;
 
     if (DEBUG_IO) {
-      Xyce::dout() << "  CircuitBlock::parseIncludeFile: found eisting ssFT " << std::endl
+      Xyce::dout() << "  CircuitBlock::parseIncludeFile: found existing ssFT " << std::endl
                    << " \t its file name is " << ssfPtr_->getFileName() << std::endl
                    << "\t its current location is " << ssfPtr_->getFilePosition() << std::endl
                    << "\t its current line number is " << ssfPtr_->getLineNumber() << std::endl

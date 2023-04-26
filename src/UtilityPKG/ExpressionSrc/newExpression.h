@@ -761,6 +761,7 @@ public:
   const std::string & getExpressionString() { return expressionString_; };
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
+  bool replaceParameterName ( const std::string & paramName, const std::string & newParamName);
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
