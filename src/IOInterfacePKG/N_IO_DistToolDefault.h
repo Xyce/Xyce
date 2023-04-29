@@ -104,7 +104,7 @@ protected:
 private:
 
   // Send a circuit device line to current proc
-  bool circuitDeviceLine(TokenVector & deviceLine );
+  bool sendCircuitDeviceLine(TokenVector & deviceLine );
   void endDeviceLines();
 
   // change current subcircuit context after a new subcircuit is started

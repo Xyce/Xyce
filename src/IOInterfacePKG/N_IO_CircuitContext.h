@@ -76,6 +76,16 @@ struct resolveStatus
   bool convertToGlobal;
 };
 
+struct getGlobalParamStatus
+{
+  getGlobalParamStatus(): success(false), subcktGlobal(false), prefix("")
+  {};
+
+  bool success;
+  bool subcktGlobal;
+  std::string prefix;
+};
+
 //----------------------------------------------------------------------------
 // Class          : CircuitContext
 // Purpose        :
@@ -171,6 +181,7 @@ public:
   const std::string& getCurrentContextName() const;
   const std::string& getPrefix() const;
   unordered_map<std::string, std::string> *getNodeMapPtr() const;
+  unordered_map<std::string, std::string> * getGlobalParamAliasMapPtr () const;
   void setParentContextPtr( CircuitContext * const ptr );
   const CircuitContext * getParentContextPtr() const;
   CircuitContext * getCurrentContextPtr() const;
@@ -228,12 +239,8 @@ public:
   void restorePreviousContext() const;
   bool globalNode (const std::string &nodeName) const;
 
-#if 0
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  bool resolveParameter(Util::Param& parameter, bool replaceRandomNodes=false) const;
-#else
   void resolveParameter(Util::Param& parameter, resolveStatus & rs) const;
-#endif
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveGlobalParameter(Util::Param& parameter) const;
@@ -244,18 +251,8 @@ public:
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved
   // otherwise return false.
-#if 0 
-  bool resolveStrings(Util::Expression & expression, 
-                      std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
-#else
   void resolveStrings(Util::Expression & expression, resolveStatus & rs,
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
-#endif
-
-#if 0
-  bool resolveStringsIncLocalVariation(Util::Expression & expression,
-                      std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
-#endif
 
   // Determine if expressionString has any unresolved functions and
   // resolve appropriately. Return true if all functions are resolved
@@ -272,13 +269,14 @@ public:
   // Check current context and recursively check parent
   // contexts. Return the parameter if it is found, set the
   // parameter value to the empty string if it is not found.
-#if 0 
-  bool getResolvedGlobalParameter(Util::Param & parameter) const;
-#else
-  resolveStatus getResolvedGlobalParameter(Util::Param & parameter) const;
+  getGlobalParamStatus getResolvedGlobalParameter(Util::Param & parameter) const;
+
+#if 1
+  // might not need this
+  bool checkForResolvedGlobalParameter(const Util::Param & parameter) const;
 #endif
 
-  bool checkForResolvedGlobalParameter(const Util::Param & parameter) const;
+  bool getUqEnabled ();
 
   // Look for a function with tag functionName in resolvedFunctions_.
   // Check current context and recursively check parent
@@ -521,6 +519,8 @@ private:
 
   bool multiplierSet_;
   Util::Param multiplierParameter_;
+
+  bool uqEnabled_;
 };
 
 //----------------------------------------------------------------------------
@@ -595,6 +595,19 @@ inline const std::string& CircuitContext::getPrefix() const
 inline unordered_map<std::string, std::string> * CircuitContext::getNodeMapPtr() const
 {
   return &(currentContextPtr_->nodeMap_);
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::getNodeMapPtr
+// Purpose        :
+// Special Notes  :
+// Scope          : public
+// Creator        : Lon Waters
+// Creation Date  : 08/05/2003
+//----------------------------------------------------------------------------
+inline unordered_map<std::string, std::string> * CircuitContext::getGlobalParamAliasMapPtr () const
+{
+  return &(currentContextPtr_->globalParamAliasMap_);
 }
 
 //----------------------------------------------------------------------------

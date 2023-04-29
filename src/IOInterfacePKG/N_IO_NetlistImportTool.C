@@ -510,12 +510,6 @@ int NetlistImportTool::constructCircuitFromNetlist(
 #endif
   }
 
-#if 1
-  // register additional global parameters, which have been resolved in subcircuits
-  Util::UParamList & newGlobals = distributionTool_->getAdditionalGlobalParams();
-  registerGlobalParams(device_manager, newGlobals.begin(), newGlobals.end());
-#endif
-
   // register additional circuit options after distribution
   registerCircuitOptions(options_manager, distributionTool_->getAdditionalOptions());
 

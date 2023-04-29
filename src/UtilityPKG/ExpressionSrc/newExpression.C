@@ -542,6 +542,16 @@ bool newExpression::replaceParameterNode(
 {
   bool retval=false;
 
+#if 0
+  std::string upperExpressionString = expressionString_;
+  Xyce::Util::toUpper(upperExpressionString);
+  std::string upperAttachExpressionString = expPtr->getExpressionString();
+  Xyce::Util::toUpper(upperAttachExpressionString);
+  std::string upperParamName = paramName;
+  Xyce::Util::toUpper(upperParamName);
+  std::cout << "newExpression::replaceParameterNode.  Expression = " << upperExpressionString << " replacing param = " << paramName << " with " << upperAttachExpressionString << std::endl;
+#endif
+
   if ( !(Teuchos::is_null(expPtr)) )
   {
     std::string paramNameUpper=paramName;
@@ -562,11 +572,7 @@ bool newExpression::replaceParameterNode(
 
         if ( !(Teuchos::is_null( expPtr->getAst() ))) // if the new Ast is valid then do replacement on each
         {
-#if 0
-          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst() );
-#else
           bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst(), astParents_ );
-#endif
 
           if (!repacementsAccomplished)
           {
@@ -703,6 +709,15 @@ bool newExpression::replaceParameterNode(
       Xyce::Report::UserError() << "newExpression::replaceParameterNode.  Could not find param = " << paramName << std::endl;
     }
   }
+
+#if 0
+  {
+  std::string upperExpressionString = expressionString_;
+  Xyce::Util::toUpper(upperExpressionString);
+  std::cout << "newExpression::replaceParameterNode.  After replacement, Expression = " << upperExpressionString << std::endl;
+  }
+#endif
+
   return retval;
 }
 

@@ -918,9 +918,29 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
         }
         else
         {
-          message << " contains unrecognized symbols: ";
+          message << " contains unrecognized symbols:\n";
+
+          const std::vector<std::string> & nodes = expr.getVoltageNodes();
+          for (int ii=0;ii<nodes.size();ii++)
+          {
+            message << "nodes["<<ii<<"] = " << nodes[ii] << "\n";
+          }
+
+          const std::vector<std::string> & instances = expr.getDeviceCurrents();
+          for (int ii=0;ii<instances.size();ii++)
+          {
+            message << "instances["<<ii<<"] = " << instances[ii] << "\n";
+          }
+
+          const std::vector<std::string> & variables = expr.getVariables();
+          for (int ii=0;ii<variables.size();ii++)
+          {
+            message << "variables["<<ii<<"] = " << variables[ii] << "\n";
+          }
         }
         message << expr.get_expression();
+
+
       }
     }
     if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))

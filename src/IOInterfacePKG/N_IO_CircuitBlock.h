@@ -260,6 +260,8 @@ public:
   void addParams(const Util::OptionBlock &options);
   void addGlobalParams(const Util::OptionBlock &options);
 
+  void registerGlobalParams(Util::UParamList & globalParams);
+
   // Search the subcircuitInstanceTable of the current circuit block for the
   // subcircuit of the given name. If it is not found, recursively
   // search each parent subcircuit. Return a pointer to the circuit

@@ -1107,7 +1107,22 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       if (global_param_it == globals_.paramMap.end())
       {
         UserError(*this) << "Global parameter " << *iterVariable << " in " <<
-            dependentParam.expr->get_expression() << " not found";
+          par.tag() << " = " << dependentParam.expr->get_expression() << " not found";
+#if 1
+        for (int ii=0;ii<variables.size();ii++)
+        {
+          std::cout << "variables["<<ii<<"] = " << variables[ii] << std::endl;
+        }
+
+        GlobalParameterMap::iterator tmpIter = globals_.paramMap.begin();
+        for ( int ii=0; tmpIter != globals_.paramMap.end(); ++tmpIter, ++ii)
+        {
+          std::cout << "globals["<<ii<<"] = " << tmpIter->first <<std::endl;
+        }
+
+          //dependentParam.expr->dumpParseTree();
+          exit(0);
+#endif
       }
       else 
       {

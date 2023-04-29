@@ -3015,6 +3015,16 @@ class funcOp: public astNode<ScalarT>
         if(dummyFuncArgs_.size() == funcArgs_.size())
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
       }
+      else
+      {
+        if(!(funcArgs_.empty()))
+        {
+          for (int ii=0;ii<funcArgs_.size();++ii)
+          {
+            funcArgs_[ii]->accept(visitor, funcArgs_[ii]);
+          }
+        }
+      }
     } // 2nd dispatch
 
     bool getNodeResolved() { return nodeResolved_; }

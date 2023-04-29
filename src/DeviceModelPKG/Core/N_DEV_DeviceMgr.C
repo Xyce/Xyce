@@ -2636,6 +2636,9 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   }
 
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
+#if 0
+  std::cout << "DeviceMgr::getRandomParams  Number of sampling params = " << SamplingParams.size() <<std::endl;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3382,6 +3385,11 @@ void DeviceMgr::updateDependentParameters_()
 
   if (freqParamsProcessed_ != solState_.currFreq_)
     freqChanged = true;
+
+#if 0
+  std::cout << "DeviceMgr::updateDependentParameters_.  Number of global expressions = " << 
+    globalExpressionsVec.size() << std::endl; 
+#endif
 
   // Update global params for new time and other global params
   int pos = 0;
@@ -5542,6 +5550,10 @@ bool setParameterRandomExpressionTerms2(
   std::vector<Util::Expression> & global_expressions = globals.expressionVec;
   std::vector<std::string> & global_exp_names = globals.expNameVec;
   std::vector< std::vector<entityDepend> > & device_entities = globals.deviceEntityDependVec;
+
+#if 0
+  std::cout << "setParameterRandomExpressionTerms2.  Number of sampling params = " << SamplingParams.size() <<std::endl;
+#endif
 
   for(int isamp=0;isamp<SamplingParams.size();isamp++)
   {

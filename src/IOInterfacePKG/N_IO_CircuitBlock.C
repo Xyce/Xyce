@@ -968,6 +968,23 @@ void CircuitBlock::addGlobalParams(const Util::OptionBlock & options)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : CircuitBlock::registerGlobalParams
+// Purpose       : 
+// Special Notes :
+// Creator       : Eric Keiter
+// Creation Date : 04/27/2023
+//-----------------------------------------------------------------------------
+void CircuitBlock::registerGlobalParams(Util::UParamList & globalParams)
+{
+  Util::UParamList::iterator begin = globalParams.begin();
+  Util::UParamList::iterator end= globalParams.end();
+  for (; begin != end; ++begin)
+  {
+    deviceManager_.addGlobalPar(*begin);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : CircuitBlock::addOptions
 // Purpose       : Add a set of options corresponding to a .OPTIONS netlist
 //                 line to the circuit.
@@ -1754,12 +1771,9 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         }
 
         Util::Param& parameter = (*iterPar);
-#if 0 
-        circuitContext_.resolveParameter(parameter);
-#else
         resolveStatus paramResolveStatus;
         circuitContext_.resolveParameter(parameter,paramResolveStatus);
-#endif
+
         if(parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expressionToModify = parameter.getValue<Util::Expression>();
@@ -1813,33 +1827,12 @@ void CircuitBlock::updateAliasNodeMapHelper()
       // parameters defined in .GLOBAL_PARAM statement or may
       // be due to function arguments if the expression is the
       // body of a function defined in a .FUNC statement.
-#if 0 
-      bool stringsResolved = circuitContext_.resolveStrings(expression);
-#else
       resolveStatus stringResolveStatus;
       circuitContext_.resolveStrings(expression, stringResolveStatus);
       bool stringsResolved = stringResolveStatus.success;
-#endif
 
       // Resolve functions in the expression.
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
-
-#if 0
-      // ERK. Commenting this out b/c I think it is pointless.    If the resolveStrings, above, failed, there is no reason it would work now.
-      // It is a code fragment that might have made sense with the old expression library, but no longer does.
-
-      // resolve variables in the function body
-      const std::vector<std::string> & strings = expression.getUnresolvedParams();
-      if ( !(strings.empty()) )
-      {
-#if 0
-        circuitContext_.resolveStrings(expression); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?
-#else
-        resolveStatus stringResolveStatusTmp;
-        circuitContext_.resolveStrings(expression, stringResolveStatusTmp); // ERK.  Why would this ever happen?  And why doesn't the "stringsResolved" boolean depend on this?  And, if it failed the first time, why would it work now?
-#endif
-      }
-#endif
 
       if (stringsResolved && functionsResolved)
       {
