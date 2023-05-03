@@ -1428,8 +1428,12 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       std::vector<std::string> functionArgs =
         asYetUnresolvedFunctions[ii].functionArgs;
       Util::Param functionParameter(functionNameAndArgs, functionBody);
+
       // this is only an error if we have no parameters left to resolve
-      if (!resolveParameterThatIsAdotFunc(functionParameter, functionArgs))
+      resolveStatus funcResolveStatus;
+      resolveParameterThatIsAdotFunc(functionParameter, functionArgs, funcResolveStatus);
+      // "funcResolveStatus.convertToGlobal" is not used for functions
+      if ( ! (funcResolveStatus.success) )
       {
         retryFunctions.push_back(asYetUnresolvedFunctions[ii]);
         somethingLeftToDo=true;
@@ -1467,13 +1471,19 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       const std::vector<std::string> &functionArgs = (*func_it).functionArgs;
 
       Util::Param functionParameter(functionNameAndArgs, functionBody);
-      if (!resolveParameterThatIsAdotFunc(functionParameter, (*func_it).functionArgs))
+      resolveStatus funcResolveStatus;
+      resolveParameterThatIsAdotFunc(functionParameter, (*func_it).functionArgs,funcResolveStatus);
+      // "funcResolveStatus.convertToGlobal" is not used for functions
+      if ( ! (funcResolveStatus.success) )
       {
         Report::UserError0() << functionNameAndArgs << " contains an undefined parameter or function.";
       }
       else
       {
-
+#if 0
+        // ERK.  What is the point of this code block?  If the function successfully resolved there 
+        // should not be any unresolved params at this point.  So why are we checking for them?
+        // (similar question happened above in the param section)
         Util::Expression functionBodyExpression(expressionGroup_, functionParameter.stringValue());
         const std::vector<std::string> & strings = functionBodyExpression.getUnresolvedParams();
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
@@ -1488,6 +1498,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             }
           }
         }
+#endif
       }
     }
   }
@@ -1853,7 +1864,7 @@ void testExpressionBools(  Util::Expression & expression, const std::string & ex
 // Creator        : Lon Waters/Eric Keiter
 // Creation Date  : 02/10/2003; 4/11/2020
 //----------------------------------------------------------------------------
-void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs) const
+void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rsArg) const
 {
   if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
   {
@@ -1862,7 +1873,6 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
       Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
                    << " has expression value, which is " << parameter.stringValue() << std::endl;
     }
-
 
     bool brandNewExpression = false;
     Util::Expression * expressionPtr;
@@ -1882,7 +1892,7 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
 
       if (!(expressionPtr->parsed()))
       { 
-        rs.success = false;
+        rsArg.success = false;
         delete expressionPtr;
         return; 
       }
@@ -1891,29 +1901,13 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
     // convert expression ptr to a reference
     Util::Expression & expression = *expressionPtr;
 
-#if 0
-    {
-    std::string upperTag = parameter.uTag();
-    Util::toUpper(upperTag);
-    if(upperTag == "PAR0")
-    {
-      std::cout << "resolveParameter.  PAR0 unresolvedParams are:"<< std::endl;
-      const std::vector<std::string> strings = expression.getUnresolvedParams(); 
-      for (int ii=0;ii<strings.size();ii++)
-      {
-        std::cout << "PAR0 unresolvedPar["<<ii<<"] = " << strings[ii] <<std::endl;
-      }
-    }
-    }
-#endif
-
     // Resolve the strings in the expression. Unresolved strings
     // may be parameters defined in a .PARAM statement or global
     // parameters defined in .GLOBAL_PARAM statement.
     resolveStatus stringResolveStatus;
     resolveStrings(expression,stringResolveStatus);
     bool stringsResolved = stringResolveStatus.success; 
-    rs.convertToGlobal = stringResolveStatus.convertToGlobal;
+    rsArg.convertToGlobal = stringResolveStatus.convertToGlobal;
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
@@ -1925,7 +1919,7 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
         parameter.setVal(expression);
         delete expressionPtr;
       }
-      rs.success = false;
+      rsArg.success = false;
       return;
     }
 
@@ -1998,7 +1992,7 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
 
     if(brandNewExpression) { delete expressionPtr; }
 
-    rs.success = stringsResolved && functionsResolved;
+    rsArg.success = stringsResolved && functionsResolved;
     return;
   }
 
@@ -2006,7 +2000,7 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
   resolveQuote(parameter);
   resolveTableFileType(parameter);
 
-  rs.success = true;
+  rsArg.success = true;
   return ;
 }
 
@@ -2076,8 +2070,8 @@ bool CircuitContext::resolveGlobalParameter(Util::Param& parameter) const
 // Creator        : Eric Keiter
 // Creation Date  : 04/11/2020
 //----------------------------------------------------------------------------
-bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
-                                      std::vector<std::string> funcArgs) const
+void CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
+                      std::vector<std::string> funcArgs, resolveStatus & rsArg) const
 {
   if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
   {
@@ -2087,12 +2081,32 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
                    << " has expression value " << std::endl;
     }
 
-    std::string expressionString = parameter.stringValue();
+    bool brandNewExpression = false;
+    Util::Expression * expressionPtr;
+    if (parameter.getType() == Xyce::Util::EXPR)
+    {
+      // The underlying type is an expression, so keep using it.
+      expressionPtr = &(parameter.getValue<Util::Expression>());
+    }
+    else
+    {
+      brandNewExpression = true;
 
-    // Parse the expression:
-    Util::Expression expression(expressionGroup_, expressionString,funcArgs);
+      std::string expressionString = parameter.stringValue();
 
-    if (!expression.parsed()) { return false; }
+      // The underlying type isn't an expression, meaning we need to create and parse a new one
+      expressionPtr = new Util::Expression(expressionGroup_, expressionString,funcArgs);
+
+      if (!(expressionPtr->parsed()))
+      { 
+        rsArg.success = false;
+        delete expressionPtr;
+        return; 
+      }
+    }
+
+    // convert expression ptr to a reference
+    Util::Expression & expression = *expressionPtr;
 
     // Resolve the strings in the expression, which may be 
     // parameters defined by .PARAM or .GLOBAL_PARAM.  
@@ -2101,27 +2115,46 @@ bool CircuitContext::resolveParameterThatIsAdotFunc( Util::Param& parameter,
     // body of a function defined by .FUNC.
     resolveStatus stringResolveStatus;
     resolveStrings(expression, stringResolveStatus, funcArgs);
-    bool stringsResolved = stringResolveStatus.success;
+    bool stringsResolved = stringResolveStatus.success; 
+    rsArg.convertToGlobal = stringResolveStatus.convertToGlobal;
 
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
 
-    parameter.setVal(expression); 
-    if (expression.getLeadCurrentDependent()) { return false; }
+    if (brandNewExpression)
+    {
+      parameter.setVal(expression); 
+    }
+
+    if ( expression.getLeadCurrentDependent() )  // ERK.  I still don't know why this error trap is here.
+    {
+      if (brandNewExpression)
+      {
+        parameter.setVal(expression);  // no need for this here   (setVal just happened)
+        delete expressionPtr;
+      }
+      rsArg.success = false;
+      return;
+    }
 
     if (DEBUG_IO)
     {
       Xyce::dout() << "CircuitContext::resolveParameterThatIsAdotFunc: right before returns " << std::endl;
        debugResolveParameterOutput2(parameter); 
     }
-    return stringsResolved && functionsResolved;
+
+    if(brandNewExpression) { delete expressionPtr; }
+
+    rsArg.success = stringsResolved && functionsResolved;
+    return;
   }
  
   // Handle quoted string parameters e.g. "some text" by removing quotes.
   resolveQuote(parameter);
   resolveTableFileType(parameter);
   
-  return true;
+  rsArg.success = true;
+  return;
 }
 
 //----------------------------------------------------------------------------
@@ -2484,7 +2517,6 @@ getGlobalParamStatus CircuitContext::getResolvedGlobalParameter(Util::Param & pa
       {
         ggps.subcktGlobal = true; 
         ggps.prefix = currentContextPtr_->subcircuitPrefix_ ;
-          //currentContextPtr_->getCurrentContextName();
       }
     }
   }

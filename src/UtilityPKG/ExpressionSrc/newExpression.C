@@ -543,6 +543,7 @@ bool newExpression::replaceParameterNode(
   bool retval=false;
 
 #if 0
+  {
   std::string upperExpressionString = expressionString_;
   Xyce::Util::toUpper(upperExpressionString);
   std::string upperAttachExpressionString = expPtr->getExpressionString();
@@ -550,6 +551,16 @@ bool newExpression::replaceParameterNode(
   std::string upperParamName = paramName;
   Xyce::Util::toUpper(upperParamName);
   std::cout << "newExpression::replaceParameterNode.  Expression = " << upperExpressionString << " replacing param = " << paramName << " with " << upperAttachExpressionString << std::endl;
+
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpIter = paramOpMap_.begin();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpEnd  = paramOpMap_.end();
+  std::cout << "newExpression::replaceParameterNode.  Before replacement, paramOpMap contains:" <<std::endl;
+  int ii=0;
+  for (; paramOpIter!= paramOpEnd; ++paramOpIter, ++ii)
+  {
+    std::cout << "newExpression::replaceParameterNode.  Before replacement, ii = " << ii << "  " << paramOpIter->first << std::endl;
+  }
+  }
 #endif
 
   if ( !(Teuchos::is_null(expPtr)) )
@@ -693,8 +704,6 @@ bool newExpression::replaceParameterNode(
             expPtr->getLocalDdtOpVec().begin(), expPtr->getLocalDdtOpVec().end());
       }
 
-
-
       // This debug output is occasionally useful, so keeping it around.  It can be used to 
       // check that the expression string and AST were both updated correctly.
       if (false) 
@@ -715,6 +724,19 @@ bool newExpression::replaceParameterNode(
   std::string upperExpressionString = expressionString_;
   Xyce::Util::toUpper(upperExpressionString);
   std::cout << "newExpression::replaceParameterNode.  After replacement, Expression = " << upperExpressionString << std::endl;
+
+
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpIter = paramOpMap_.begin();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpEnd  = paramOpMap_.end();
+
+  std::cout << "newExpression::replaceParameterNode.  After replacement, paramOpMap contains:" <<std::endl;
+  int ii=0;
+  for (; paramOpIter!= paramOpEnd; ++paramOpIter, ++ii)
+  {
+    std::cout << "newExpression::replaceParameterNode.  After replacement, ii = " << ii << "  " << paramOpIter->first << std::endl;
+
+  }
+
   }
 #endif
 
@@ -957,6 +979,10 @@ bool newExpression::make_constant (
   Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
 
+#if 0
+  Xyce::dout() << "newExpression::make_constant for " << var << ". setting " << var << " to value = " << val << std::endl;
+#endif
+
   if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
   {
     std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
@@ -1001,17 +1027,22 @@ bool newExpression::make_constant (
   }
   else
   {
-    Xyce::Report::UserError()
-      << "newExpression::make_constant  ERROR.  Could not find parameter "
-      << paramNameUpper
-      << " in expression: " << expressionString_ <<std::endl;
-  }
-
+#if 0
+    if (true) // ERK.  This debug output is occasionally useful, so keeping it around.
+#else
     if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
+#endif
     {
       Xyce::dout() << "newExpression::make_constant for " << var << ". Expression tree for " << expressionString_ << std::endl;
       dumpParseTree(Xyce::dout());
     }
+
+    Xyce::Report::UserError()
+      << "newExpression::make_constant  ERROR.  Could not find parameter "
+      << paramNameUpper
+      << " in expression: " << expressionString_ <<std::endl;
+
+  }
 
   return retval;
 }

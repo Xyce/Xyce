@@ -240,13 +240,13 @@ public:
   bool globalNode (const std::string &nodeName) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  void resolveParameter(Util::Param& parameter, resolveStatus & rs) const;
+  void resolveParameter(Util::Param& parameter, resolveStatus & rsArg) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
   bool resolveGlobalParameter(Util::Param& parameter) const;
 
   // ERK. new function for new expression.
-  bool resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs) const; 
+  void resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs, resolveStatus & rsArg) const; 
 
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved

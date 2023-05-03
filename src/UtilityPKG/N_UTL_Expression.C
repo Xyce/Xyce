@@ -1047,27 +1047,6 @@ bool Expression::isSolutionDependent() const
            !(newExpPtr_->getCurrentOpVec().empty()) );
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::isRandomDependent
-// Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
-// Special Notes : This is only based on local dependence, from parsing.
-// Scope         :
-// Creator       : Eric Keiter, SNL
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool Expression::isRandomDependent() const
-{
-  if ( !(newExpPtr_->getLocalAgaussOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalGaussOpVec().empty()) ) { return true; }
-  if ( !(newExpPtr_->getLocalAunifOpVec().empty()) ) { return true; }
-  if ( !(newExpPtr_->getLocalUnifOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalRandOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalTwoArgLimitOpVec().empty()) ) { return true; }
-
-  return false;
-}
-#else
 //-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
@@ -1100,7 +1079,6 @@ bool Expression::isOriginalRandomDependent() const
 {
   return newExpPtr_->getIsOriginalShallowRandomDependent();
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::dumpParseTree
