@@ -80,7 +80,11 @@ class agaussOp : public astNode<ScalarT>
       value_ = mu_->val();
     };
 
-    virtual ScalarT val() { return value_; };
+    virtual ScalarT val() 
+    {
+      if ( !setValueCalledBefore_ ) { value_ = this->childrenAstNodes_[0]->val(); }
+      return value_; 
+    };
 
     virtual ScalarT dx (int i)
     {
@@ -98,6 +102,16 @@ class agaussOp : public astNode<ScalarT>
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "agauss("; 
+      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += ")";
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -182,7 +196,11 @@ class gaussOp : public astNode<ScalarT>
       value_ = mu_->val();
     };
 
-    virtual ScalarT val() { return value_; };
+    virtual ScalarT val()
+    {
+      if ( !setValueCalledBefore_ ) { value_ = this->childrenAstNodes_[0]->val(); }
+      return value_; 
+    };
 
     virtual ScalarT dx (int i)
     {
@@ -199,7 +217,16 @@ class gaussOp : public astNode<ScalarT>
     // in practice, the random operators are all applied to real-valued .params.
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
-
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "gauss("; 
+      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += ")";
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -286,7 +313,11 @@ class aunifOp : public astNode<ScalarT>
       value_ = mu_->val();
     };
 
-    virtual ScalarT val() { return value_; };
+    virtual ScalarT val()
+    { 
+      if ( !setValueCalledBefore_ ) { value_ = this->childrenAstNodes_[0]->val(); }
+      return value_; 
+    };
 
     virtual ScalarT dx (int i)
     {
@@ -303,7 +334,16 @@ class aunifOp : public astNode<ScalarT>
     // in practice, the random operators are all applied to real-valued .params.
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
-
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "aunif("; 
+      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += ")";
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -383,7 +423,11 @@ class unifOp : public astNode<ScalarT>
       value_ = mu_->val();
     };
 
-    virtual ScalarT val() { return value_; };
+    virtual ScalarT val()
+    { 
+      if ( !setValueCalledBefore_ ) { value_ = this->childrenAstNodes_[0]->val(); }
+      return value_; 
+    };
 
     virtual ScalarT dx (int i)
     {
@@ -400,7 +444,16 @@ class unifOp : public astNode<ScalarT>
     // in practice, the random operators are all applied to real-valued .params.
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
-
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "unif("; 
+      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += ")";
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -476,7 +529,10 @@ class randOp : public astNode<ScalarT>
     // in practice, the random operators are all applied to real-valued .params.
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
-
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "rand()"; 
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -534,7 +590,8 @@ class twoArgLimitOp : public astNode<ScalarT>
   public:
     twoArgLimitOp (Teuchos::RCP<astNode<ScalarT> > &xAst, Teuchos::RCP<astNode<ScalarT> > &yAst):
       astNode<ScalarT>(xAst,yAst),
-      value_(0.0)
+      value_(0.0),
+      setValueCalledBefore_(false)
     {
       // should check to make sure that mu, alpha and n are simple constant numbers
       Teuchos::RCP<astNode<ScalarT> > & nominal = (this->childrenAstNodes_[0]);
@@ -542,12 +599,15 @@ class twoArgLimitOp : public astNode<ScalarT>
       value_ = (nominal->val());
     };
 
-    virtual ScalarT val() { return value_; };
+    virtual ScalarT val()
+    {
+      if ( !setValueCalledBefore_ ) { value_ = this->childrenAstNodes_[0]->val(); }
+      return value_; 
+    };
 
     virtual ScalarT dx (int i)
     {
       Teuchos::RCP<astNode<ScalarT> > & nominal = (this->childrenAstNodes_[0]);
-      Teuchos::RCP<astNode<ScalarT> > & abs_variation = (this->childrenAstNodes_[1]);
       return (nominal->dx (i));
     };
 
@@ -562,6 +622,15 @@ class twoArgLimitOp : public astNode<ScalarT>
     // update this if it changes.
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "limit("; 
+      str += tmp1 + "," + tmp2;
+      str += ")";
+    }
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -585,7 +654,7 @@ class twoArgLimitOp : public astNode<ScalarT>
     virtual bool twoArgLimitType() { return true; };
 
     ScalarT getValue() { return value_; }
-    void setValue(ScalarT val) { value_ = val; }
+    void setValue(ScalarT val) { value_ = val; setValueCalledBefore_ = true; }
 
     ScalarT getNominal()   { return (this->childrenAstNodes_[0]->val());  }
     ScalarT getVariation() { return (this->childrenAstNodes_[1]->val()); }
@@ -600,6 +669,7 @@ class twoArgLimitOp : public astNode<ScalarT>
 
   private:
     ScalarT value_;
+    bool setValueCalledBefore_;
 };
 
 #endif

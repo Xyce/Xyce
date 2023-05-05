@@ -2312,6 +2312,28 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   GlobalParameterMap & global_parameter_map = globals_.paramMap;
   std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
 
+#if 1
+  // diagnostic: print out the expNames on each processor
+  //if (Parallel::is_parallel_run(parallel_comm.comm())) 
+  {
+    int procID = parallel_comm.procID();
+    int numProc = parallel_comm.numProc();
+
+    for (int proc=0; proc<numProc; ++proc)
+    {
+      if (proc == procID)
+      {
+        std::cout << "expNameVec for proc = " << procID << std::endl;
+        for (int ii=0;ii< expNameVec.size(); ++ii)
+        {
+          std::cout << "expNameVec["<<ii<<"] = " << expNameVec[ii] <<std::endl;
+        }
+      }
+    }
+  }
+#endif
+
+
   // get random expressions from global parameters first.
   // Sort the globals.  This is absolutely necessary in parallel, and not necessary for serial. 
   // But it is convenient for testing comparisons to do it for both serial and parallel.
@@ -2636,9 +2658,6 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   }
 
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
-#if 0
-  std::cout << "DeviceMgr::getRandomParams  Number of sampling params = " << SamplingParams.size() <<std::endl;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3362,6 +3381,9 @@ bool DeviceMgr::updateSecondaryState_()
   return bsuccess;
 }
 
+#if 0
+static int called=0;
+#endif
 //----------------------------------------------------------------------------
 // Function       : DeviceMgr::updateDependentParameters_
 // Purpose        : This function updates all dependent parameters for
@@ -3387,8 +3409,12 @@ void DeviceMgr::updateDependentParameters_()
     freqChanged = true;
 
 #if 0
-  std::cout << "DeviceMgr::updateDependentParameters_.  Number of global expressions = " << 
-    globalExpressionsVec.size() << std::endl; 
+  if (called==0)
+  {
+    std::cout << "DeviceMgr::updateDependentParameters_.  Number of global expressions = " << 
+      globalExpressionsVec.size() << std::endl; 
+    called = 1;
+  }
 #endif
 
   // Update global params for new time and other global params

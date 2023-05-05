@@ -128,6 +128,7 @@ public:
   newExpression ( std::string const & exp, Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_(exp),
+    originalExpressionString_(exp),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -189,6 +190,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_(expressionString_),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -255,6 +257,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_(expressionString_),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -353,6 +356,7 @@ public:
   newExpression (const newExpression & right) :
     group_(right.group_),
     expressionString_(right.expressionString_),
+    originalExpressionString_(right.originalExpressionString_),
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
@@ -479,6 +483,7 @@ public:
   {
     group_ = right.group_;
     expressionString_ = right.expressionString_;
+    originalExpressionString_ = right.originalExpressionString_;
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
@@ -753,12 +758,26 @@ public:
     }
   };
 
+  // Create a new expression string from the AST
+  // This is useful if the AST has been modified, and needs to be re-parsed.
+  // This can happen, sometimes, with the handling of local variation via random operators.
+  // In that case, nodes of the AST are replaced, and then a completely new independent copy 
+  // of the expression may be needed.
+  void generateExpressionString (std::string & expStr)
+  {
+    if ( !(Teuchos::is_null(astNodePtr_)) )
+    {
+      astNodePtr_->generateExpressionString(expStr);
+    }
+  }
+
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getStpNodeVec() { return stpAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getLimitNodeVec() { return limitAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
+  const std::string & getOriginalExpressionString() { return originalExpressionString_; }
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
   bool replaceParameterName ( const std::string & paramName, const std::string & newParamName);
@@ -920,6 +939,7 @@ private:
 
   mutable Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
+  std::string originalExpressionString_; // unmodified by "replace" procedures
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;

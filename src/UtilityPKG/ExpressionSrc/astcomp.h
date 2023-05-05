@@ -74,6 +74,13 @@ class NAME : public astNode<ScalarT>                                            
     }                                                                                       \
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }                             \
     virtual bool getIsComplex () { return false; }                                          \
+    virtual void generateExpressionString (std::string & str)                               \
+    {                                                                                       \
+      std::string tmp1,tmp2;                                                                \
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);                           \
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);                           \
+      str = "(" + tmp1 + FCTQUOTE + tmp2 + ")";                                             \
+    }                                                                                       \
     virtual void output(std::ostream & os, int indent=0)                                    \
     {                                                                                       \
       os << std::setw(indent) << " ";                                                       \
@@ -133,7 +140,13 @@ class NAME : public astNode<ScalarT>                                            
      (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[0]->getIsTreeConstant()); }        \
                                                                                             \
     virtual bool getIsComplex () { return false; }                                          \
-                                                                                            \
+    virtual void generateExpressionString (std::string & str)                               \
+    {                                                                                       \
+      std::string tmp1,tmp2;                                                                \
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);                           \
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);                           \
+      str = "(" + tmp1 + FCTQUOTE + tmp2 + ")";                                             \
+    }                                                                                       \
     virtual void output(std::ostream & os, int indent=0)                                    \
     {                                                                                       \
       os << std::setw(indent) << " ";                                                       \

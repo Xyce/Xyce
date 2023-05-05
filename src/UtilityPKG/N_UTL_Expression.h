@@ -144,6 +144,7 @@ public:
   bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;
+  std::string get_original_expression (void) const;
 
   bool updateForStep ();
 

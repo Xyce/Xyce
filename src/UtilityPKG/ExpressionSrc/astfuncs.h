@@ -86,6 +86,12 @@ class NAME ## Op : public astNode<ScalarT>                                      
         return (this->childrenAstNodes_[0]->getIsComplex());                           \
       }                                                                                \
                                                                                        \
+    virtual void generateExpressionString (std::string & str)                          \
+    {                                                                                  \
+      std::string tmp1;                                                                \
+      (this->childrenAstNodes_[0]->generateExpressionString(tmp1));                    \
+      str = std::string(#NAME) + "(" + tmp1 + ")";                                     \
+    }                                                                                  \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \
@@ -184,6 +190,12 @@ class tanhOp : public astNode<ScalarT>
     }
   }
 
+  virtual void generateExpressionString (std::string & str)
+  {
+    std::string tmp1;
+    this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+    str = "tanh(" + tmp1 + ")";
+  }
   virtual void output(std::ostream & os, int indent=0) 
   { 
     os << std::setw(indent) << " ";
@@ -268,6 +280,12 @@ class atanhOp : public astNode<ScalarT>
 
   }
 
+  virtual void generateExpressionString (std::string & str)
+  {
+    std::string tmp1;
+    this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+    str = "atanh(" + tmp1 + ")";
+  }
   virtual void output(std::ostream & os, int indent=0) 
   { 
    os << std::setw(indent) << " ";

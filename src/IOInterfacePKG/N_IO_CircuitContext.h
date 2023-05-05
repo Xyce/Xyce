@@ -24,7 +24,8 @@
 //
 // Purpose        : Declare the circuit "context".
 //
-// Special Notes  :
+// Special Notes  : The circuit context class is arranged in a hierarchy 
+//                  which corresponds to the subcircuit hierarchy.
 //
 // Creator        : Lon Waters
 //
@@ -243,7 +244,7 @@ public:
   void resolveParameter(Util::Param& parameter, resolveStatus & rsArg) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  bool resolveGlobalParameter(Util::Param& parameter) const;
+  void resolveGlobalParameter(Util::Param& parameter, resolveStatus & rsArg) const;
 
   // ERK. new function for new expression.
   void resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs, resolveStatus & rsArg) const; 
@@ -251,7 +252,9 @@ public:
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved
   // otherwise return false.
-  void resolveStrings(Util::Expression & expression, resolveStatus & rs,
+  void resolveStrings(
+      const std::string & paramBeingResolvedTag, // mostly for debugging
+      Util::Expression & expression, resolveStatus & rs,
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
 
   // Determine if expressionString has any unresolved functions and

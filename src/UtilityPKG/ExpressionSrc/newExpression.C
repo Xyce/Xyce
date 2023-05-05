@@ -621,8 +621,16 @@ bool newExpression::replaceParameterNode(
       }
       }
 
-      // update the expression string (should actually regenerate from the tree)
-      FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
+      // update the expression string. This originally was done just by searching 
+      // and replacing substrings in the original expression string.  But this 
+      // doesn't work when some of the strings have similar names, other than a 
+      // suffix or a prefix.  For example, if you want to replace "M" with "(2+3)" in the 
+      // string "M+2*M_2".  The result you want is "(2+3)+2*M_2", but the result you get
+      // is "(2+3)+2*(2+3)_2", which is wrong, and also not parsable.
+      //FindReplace(expressionString_ , paramNameUpper, newParamNameUpper);
+      //
+      // So, this is now done by generating a new string from the AST: 
+      generateExpressionString (expressionString_);
 
       // the point of this function is to modify the AST, but do so in such a way that once it is done, 
       // the AST will look as though it was never modified, and was originally like this.  
@@ -795,9 +803,12 @@ bool newExpression::replaceParameterName
         int index = std::distance(unresolvedParamNameVec_.begin(),paramIter);
         unresolvedParamNameVec_[index] = newParamNameUpper;
       }
-
-      // update the expression string (should actually regenerate from the tree)
-      FindReplace(expressionString_ , paramNameUpper, newParamNameUpper);
+      
+      // update the expression string. Previously, this was a search-replace operation 
+      // on the original string, but that didn't work very well.
+      //FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
+      // This is now instead done by generating a new string from the AST: 
+      generateExpressionString (expressionString_);
     }
     else
     {
@@ -866,6 +877,7 @@ void newExpression::clear ()
   // copied from destructor
 
   expressionString_ = std::string("");
+  originalExpressionString_ = std::string("");
   parsed_ = false;
   derivsSetup_ = false;
   astArraysSetup_ = false;
@@ -1027,11 +1039,7 @@ bool newExpression::make_constant (
   }
   else
   {
-#if 0
-    if (true) // ERK.  This debug output is occasionally useful, so keeping it around.
-#else
     if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
-#endif
     {
       Xyce::dout() << "newExpression::make_constant for " << var << ". Expression tree for " << expressionString_ << std::endl;
       dumpParseTree(Xyce::dout());

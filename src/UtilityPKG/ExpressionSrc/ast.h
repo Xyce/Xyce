@@ -241,6 +241,8 @@ class astNode : public staticsContainer
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) = 0;
 
+    virtual void generateExpressionString (std::string & str) = 0;
+
     virtual void output(std::ostream & os, int indent=0) = 0;
     virtual void compactOutput(std::ostream & os) = 0;
     virtual void codeGen (std::ostream & os )
@@ -444,6 +446,13 @@ class numval : public astNode<ScalarT>
 
     ScalarT number;
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::stringstream ss;
+      ss << std::real(number);
+      str = ss.str();
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -490,6 +499,22 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     virtual bool getIsComplex () { return (std::imag(number) != 0.0) ; }
 
     std::complex<double> number;
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      if (std::imag(number)!=0.0)
+      {
+        std::stringstream ss;
+        ss << "(" << std::real(number) << "+" << std::imag(number) << "J)";
+        str = ss.str();
+      }
+      else
+      {
+        std::stringstream ss;
+        ss << std::real(number);
+        str = ss.str();
+      }
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -690,6 +715,14 @@ class powOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "(pow(" + tmp1 + "," + tmp2 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -804,6 +837,14 @@ class atan2Op : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "(atan2(" + tmp1 + "," + tmp2 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -885,6 +926,13 @@ class phaseOp : public astNode<ScalarT>
       phaseOutputUsesRadians_ = usesRadians;
     }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Ph(" + tmp1 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -949,6 +997,13 @@ class realOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Re(" + tmp1 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1009,6 +1064,13 @@ class imagOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Img(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1079,6 +1141,13 @@ class maxOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(max(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1152,6 +1221,13 @@ class minOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(min(" + tmp1 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1210,6 +1286,13 @@ class unaryNotOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(~(" + tmp1 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1263,6 +1346,13 @@ class unaryMinusOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(-(" + tmp1 + "))";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1312,6 +1402,13 @@ class unaryPlusOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(+(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1397,6 +1494,11 @@ class globalParamLayerOp: public astNode<ScalarT>
     { 
       Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       return paramNode_->getIsComplex(); 
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      this->childrenAstNodes_[0]->generateExpressionString(str);
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1532,6 +1634,12 @@ class paramOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = paramName_;
+      //this->childrenAstNodes_[0]->generateExpressionString(str);
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1710,6 +1818,11 @@ class voltageOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "V(" + voltageNode_ + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1795,6 +1908,11 @@ class currentOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "I(" + currentDevice_ + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -1874,6 +1992,18 @@ class sparamOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "SParam(";
+      int size=sparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += sparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1959,6 +2089,18 @@ class yparamOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "YParam(";
+      int size=yparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += yparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2042,6 +2184,18 @@ class zparamOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "ZParam(";
+      int size=zparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += zparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2130,6 +2284,11 @@ class leadCurrentOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "I(" + leadCurrentDevice_ + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2210,6 +2369,11 @@ class powerOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "P(" + powerDevice_ + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2286,6 +2450,11 @@ class internalDevVarOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "N(" + internalDevVarDevice_ + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2361,6 +2530,18 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "DNO(";
+      int size = noiseDevices_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        str += noiseDevices_[ii]; 
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2446,6 +2627,18 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "DNI(";
+      int size = noiseDevices_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        str += noiseDevices_[ii]; 
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2520,6 +2713,11 @@ class oNoiseOp: public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "ONOISE";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -2571,6 +2769,11 @@ class iNoiseOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "INOISE";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2892,6 +3095,23 @@ class funcOp: public astNode<ScalarT>
           } // restore
         }
       }
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = funcName_ + "(";
+      int size = funcArgs_.size();
+      for (int ii=0;ii<size;++ii) 
+      { 
+        std::string tmp1;
+        funcArgs_[ii]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1)
+        {
+          str += ",";
+        }
+      }
+      str += ")";
     }
 
     //-------------------------------------------------------------------------------
@@ -3269,6 +3489,14 @@ class pwrsOp : public astNode<ScalarT>
       return isComplex;
     }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "pwrs(" + tmp1 + "," + tmp2 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -3343,6 +3571,13 @@ class sgnOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "sgn(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3433,6 +3668,14 @@ class signOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part of right, and mag(left)
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "sign(" + tmp1 + "," + tmp2 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3581,6 +3824,14 @@ class fmodOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // val() only considers real parts
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "fmod(" + tmp1 + "," + tmp2 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -3646,6 +3897,13 @@ class roundOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "nint(" + tmp1 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -3698,6 +3956,13 @@ class ceilOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "ceil(" + tmp1 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -3748,6 +4013,13 @@ class floorOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "floor(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3803,6 +4075,13 @@ class intOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "int(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3901,6 +4180,15 @@ class ifStatementOp : public astNode<ScalarT>
 
     // For the x-part (the conditional), only real part is used.  But y and z can be complex.
     virtual bool getIsComplex () { return ((this->childrenAstNodes_[1])->getIsComplex() || (this->childrenAstNodes_[2])->getIsComplex()); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "if(" + tmp1 + "," + tmp2 + "," + tmp3 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -4041,6 +4329,15 @@ class limitOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // val() only uses real parts
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "limit(" + tmp1 + "," + tmp2 + "," + tmp3 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -4131,6 +4428,13 @@ class stpOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; } // val() only uses real part
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "stp(" + tmp1 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -4201,6 +4505,13 @@ class urampOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only uses real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "uramp(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -5257,6 +5568,15 @@ class tableOp : public astNode<ScalarT>
     //virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "table(" + tmp1 + ")"; // FIX THIS!
+
+      std::vector<std::string> errStr(1,std::string("AST node (table) doesn't have generateExpressionString function yet")); yyerror(errStr);
+    }
+
     virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
       os << std::setw(indent) << " ";
@@ -5459,6 +5779,14 @@ class scheduleOp : public astNode<ScalarT>
     // It also isn't generally used in outputs.
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "schedule(" + tmp1 + ")";
+      std::vector<std::string> errStr(1,std::string("AST node (schedule) doesn't have generateExpressionString function yet")); yyerror(errStr);
+    }
+
     virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
       os << std::setw(indent) << " ";
@@ -5655,6 +5983,13 @@ class sdtOp : public astNode<ScalarT>
     // in practice this is (so far) only used in transient simulation, so real valued, not complex.
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "sdt(" + tmp1 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -5831,6 +6166,13 @@ class ddtOp : public astNode<ScalarT>
 
     // in practice this is (so far) only used in transient simulation, so real valued, not complex.
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "ddt(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -6039,6 +6381,14 @@ class ddxOp : public astNode<ScalarT>
     // revisit this.  Going with typeid is probably good enough for now.
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "ddx(" + tmp1 + "," + tmp2 + ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -6107,6 +6457,11 @@ class specialsOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = type_;
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -6161,6 +6516,11 @@ class piConstOp : public astNode<ScalarT>
 
     virtual bool getIsComplex () { return false; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "PI";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -6195,6 +6555,11 @@ class CtoKConstOp : public astNode<ScalarT>
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); } }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = std::to_string(std::real(CONSTCtoK));
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {

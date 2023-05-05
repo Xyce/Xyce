@@ -25,14 +25,18 @@
 // Purpose        : Define the circuit level containers for holding netlist
 //                  circuit data and the associated circuit level methods.
 //
-// Special Notes  :
+// Special Notes  : This class is arranged in a hierarchy of one or more 
+//                  CircuitBlock objects.  This hierarchy corresponds to the 
+//                  netlist file hierarchy.
+//
+//                  Subcircuit hierarchy is handled by another class, the 
+//                  CircuitContext.  As subcircuits are always completely 
+//                  contained in a single file, the ownership pattern has 
+//                  CircuitContext(s) owned by CircuitBlock(s).
 //
 // Creator        : Lon Waters, SNL
 //
 // Creation Date  : 09/06/2001
-//
-//
-//
 //
 //-----------------------------------------------------------------------------
 
@@ -1828,7 +1832,8 @@ void CircuitBlock::updateAliasNodeMapHelper()
       // be due to function arguments if the expression is the
       // body of a function defined in a .FUNC statement.
       resolveStatus stringResolveStatus;
-      circuitContext_.resolveStrings(expression, stringResolveStatus);
+      std::string tmp("");
+      circuitContext_.resolveStrings(tmp,expression, stringResolveStatus);
       bool stringsResolved = stringResolveStatus.success;
 
       // Resolve functions in the expression.

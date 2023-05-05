@@ -86,6 +86,14 @@ class NAME : public astNode<ScalarT>                                            
     virtual bool getIsComplex ()                                                       \
     { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }    \
                                                                                        \
+    virtual void generateExpressionString (std::string & str)                          \
+    {                                                                                  \
+      std::string tmp1,tmp2;                                                           \
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);                      \
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);                      \
+      str = "(" + tmp1 + std::string(FCTCODE) + tmp2 + ")";                            \
+    }                                                                                  \
+                                                                                       \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
       os << std::setw(indent) << " ";                                                  \

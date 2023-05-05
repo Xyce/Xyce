@@ -25,7 +25,8 @@
 // Purpose        : Declare the circuit level containers for holding netlist
 //                  circuit data and the associated circuit level methods.
 //
-// Special Notes  :
+// Special Notes  : The circuit block class is arranged in a hierarchy 
+//                  which corresponds to the netlist file hierarchy.
 //
 // Creator        : Lon Waters, SNL
 //

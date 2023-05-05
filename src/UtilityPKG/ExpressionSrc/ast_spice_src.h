@@ -232,6 +232,20 @@ class spicePulseOp : public astNode<ScalarT>
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_pulse("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -461,6 +475,20 @@ class spiceSinOp : public astNode<ScalarT>
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_sin("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -633,6 +661,20 @@ class spiceExpOp : public astNode<ScalarT>
 
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
 
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_exp("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -777,6 +819,20 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual bool getIsComplex () { return false; }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_sffm("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {

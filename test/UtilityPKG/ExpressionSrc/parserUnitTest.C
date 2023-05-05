@@ -7287,10 +7287,16 @@ TEST ( DoubleParserParamTest, replace1)
   Xyce::Util::newExpression assign_testExpression; 
   assign_testExpression = testExpression; 
 
+  std::string generatedString;
+  testExpression.generateExpressionString(generatedString);
+  Xyce::Util::newExpression generatedExpression(generatedString, testGroup);
+  generatedExpression.lexAndParseExpression();
+
   double result;
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  generatedExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   OUTPUT_MACRO(DoubleParserParamTest, replace1)
 }
 
@@ -7310,18 +7316,131 @@ TEST ( DoubleParserParamTest, replace2)
 
   Xyce::Util::newExpression testExpression(std::string("p0"), testGroup);
   testExpression.lexAndParseExpression();
-  testExpression.replaceParameterNode(p0Name,p0Expression);
+  testExpression.replaceParameterNode(p0Name,p0Expression); // at this point, "testExpression" has changed from "p0" to "p1".  
+                                                            // It probably doesn't need to have p1 re-attached, because it swaps in the entire AST of p1.
 
   Xyce::Util::newExpression copy_testExpression(testExpression); 
   Xyce::Util::newExpression assign_testExpression; 
   assign_testExpression = testExpression; 
 
+  std::string generatedString;
+  testExpression.generateExpressionString(generatedString); // this should be "p1".  It needs to attach p1, as this is a whole new expression from a new string.
+  Xyce::Util::newExpression generatedExpression(generatedString, testGroup);
+  generatedExpression.lexAndParseExpression();
+  generatedExpression.attachParameterNode(p1Name,p1Expression);
+
   double result;
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  generatedExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   OUTPUT_MACRO(DoubleParserParamTest, replace2)
 }
+
+TEST ( DoubleParserParamTest, replace3)
+{
+  Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A+B"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "p1";
+
+  Teuchos::RCP<Xyce::Util::newExpression> p0Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("p1"), testGroup));
+  p0Expression->lexAndParseExpression();
+  p0Expression->replaceParameterNode(p1Name,p1Expression);
+  std::string p0Name = "p0";
+
+  Xyce::Util::newExpression testExpression(std::string("p0"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.replaceParameterNode(p0Name,p0Expression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> AExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2"), testGroup));
+  AExpression->lexAndParseExpression();
+  std::string AName = "A";
+
+  Teuchos::RCP<Xyce::Util::newExpression> BExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("3"), testGroup));
+  BExpression->lexAndParseExpression();
+  std::string BName = "B";
+
+  testExpression.attachParameterNode(AName,AExpression);
+  testExpression.attachParameterNode(BName,BExpression);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::string generatedString;
+  testExpression.generateExpressionString(generatedString);
+  Xyce::Util::newExpression generatedExpression(generatedString, testGroup);
+  generatedExpression.lexAndParseExpression();
+
+  generatedExpression.attachParameterNode(AName,AExpression);
+  generatedExpression.attachParameterNode(BName,BExpression);
+
+  double result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  generatedExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(DoubleParserParamTest, replace3)
+}
+
+TEST ( DoubleParserParamTest, replace4)
+{
+  Teuchos::RCP<testExpressionGroup> noparamGroup = Teuchos::rcp(new testExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = noparamGroup;
+
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("agauss(a,b,c)"), testGroup));
+  p1Expression->lexAndParseExpression();
+  std::string p1Name = "p1";
+
+  Teuchos::RCP<Xyce::Util::newExpression> AExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2"), testGroup));
+  AExpression->lexAndParseExpression();
+  std::string AName = "A";
+
+  Teuchos::RCP<Xyce::Util::newExpression> BExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1"), testGroup));
+  BExpression->lexAndParseExpression();
+  std::string BName = "B";
+
+  Teuchos::RCP<Xyce::Util::newExpression> CExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1"), testGroup));
+  CExpression->lexAndParseExpression();
+  std::string CName = "C";
+
+  p1Expression->attachParameterNode(AName,AExpression);
+  p1Expression->attachParameterNode(BName,BExpression);
+  p1Expression->attachParameterNode(CName,CExpression);
+
+  Xyce::Util::newExpression testExpression(std::string("3*(p1+2)"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.replaceParameterNode(p1Name,p1Expression);
+  testExpression.attachParameterNode(AName,AExpression);
+  testExpression.attachParameterNode(BName,BExpression);
+  testExpression.attachParameterNode(CName,CExpression);
+  testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::string generatedString;
+  testExpression.generateExpressionString(generatedString);
+  Xyce::Util::newExpression generatedExpression(generatedString, testGroup);
+  generatedExpression.lexAndParseExpression();
+  generatedExpression.attachParameterNode(AName,AExpression);
+  generatedExpression.attachParameterNode(BName,BExpression);
+  generatedExpression.attachParameterNode(CName,CExpression);
+
+  double result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, 12.0 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 12.0 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 12.0 );
+  generatedExpression.evaluateFunction(result);   EXPECT_EQ( result, 12.0 );
+  OUTPUT_MACRO(DoubleParserParamTest, replace4)
+}
+
+
+
 
 
 TEST ( DoubleParserASCTHTest, test0)
@@ -11676,6 +11795,38 @@ TEST ( DoubleParserRandom, agauss0)
   EXPECT_DOUBLE_EQ( result, 1.0);
 
   OUTPUT_MACRO(DoubleParserRandom, agauss0)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( DoubleParserRandom, agauss1_param)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("agauss(A,B,C)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Teuchos::RCP<Xyce::Util::newExpression> AExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2"), testGroup));
+  AExpression->lexAndParseExpression();
+  std::string AName = "A";
+
+  Teuchos::RCP<Xyce::Util::newExpression> BExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1"), testGroup));
+  BExpression->lexAndParseExpression();
+  std::string BName = "B";
+
+  Teuchos::RCP<Xyce::Util::newExpression> CExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1"), testGroup));
+  CExpression->lexAndParseExpression();
+  std::string CName = "C";
+
+  testExpression.attachParameterNode(AName,AExpression);
+  testExpression.attachParameterNode(BName,BExpression);
+  testExpression.attachParameterNode(CName,CExpression);
+
+  double result1(0.0);
+  double goldstd(2.0);
+  testExpression.evaluateFunction(result1);
+
+  EXPECT_DOUBLE_EQ( result1, goldstd);
+
+  OUTPUT_MACRO(DoubleParserRandom, agauss1_param)
 }
 
 //-------------------------------------------------------------------------------
