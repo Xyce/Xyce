@@ -398,6 +398,8 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 
     paramNameVec_.resize(samplingVector_.size());
     for (int ii=0;ii<samplingVector_.size();ii++) { paramNameVec_[ii] = samplingVector_[ii].name; }
+
+    Xyce::lout() << "***** Using expression-based UQ.  Number of unique random parameters = " << samplingVector_.size() << "\n" << std::endl;
   }
   else
   {
@@ -492,6 +494,8 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       }
       samplingVector_.push_back(sampling_param);
     }
+
+    Xyce::lout() << "***** Using manually specified UQ.  Number of unique random parameters = " << samplingVector_.size() << "\n" << std::endl;
   }
 
   outputManagerAdapter_.setStepSweepVector(samplingVector_);
