@@ -216,14 +216,10 @@ Instance::Instance(
         myVarVals.resize(expNumVars);
 
         // this tells the device entity class NOT to call evaluateFunction on 
-        // this expression, as that will be redundant with the evaluate call that 
-        // is done from the Bsrc.  The exception is if the expression contains the 
-        // ddt operator.  Then, it needs to call both  evaluateFunction and later 
-        // evaluate for it to work properly.
-        if (expNumDdt<=0)
-        {
-          dependentParamExcludeMap_[d->name] = 1;
-        }
+        // this expression, as that will be redundant with the evaluate 
+        // (and in the case of ddt, evaluateFunction as well) call that 
+        // is done from the Bsrc.   
+        dependentParamExcludeMap_[d->name] = 1;
       }
       break;
     }
@@ -654,7 +650,7 @@ bool Instance::updatePrimaryState ()
   if (expNumDdt > 0)
   {
     double * staVec = extData.nextStaVectorRawPtr;
-
+    Exp_ptr->evaluateFunction(expVal);
     Exp_ptr->getDdtVals (ddtVals);
     for (int i=0 ; i<expNumDdt ; ++i)
     {
@@ -982,6 +978,7 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     // can be determined by the time integration class
     if (bi.expNumDdt > 0)
     {
+      bi.Exp_ptr->evaluateFunction(bi.expVal);
       bi.Exp_ptr->getDdtVals (bi.ddtVals);
       for (int j=0 ; j<bi.expNumDdt ; ++j)
       {

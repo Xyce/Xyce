@@ -97,6 +97,11 @@ public:
     return implicitSubcktMultiplier_;
   }
 
+  bool getLocalVariationFlag () const
+  {
+    return localVariationFlag_;
+  }
+
 private:
   bool     hspiceExtFlag_;  // was the -hspice-ext command line option specified?
   bool     useHspiceUnits_; // was units or all specified for -hspice-ext ?
@@ -108,6 +113,8 @@ private:
   int      redefinedParams_;
   bool     implicitSubcktMultiplierFlag_;
   bool     implicitSubcktMultiplier_;
+  bool     localVariationFlagExists_;
+  bool     localVariationFlag_;
 };
 
 bool registerPkgOptionsMgr(ParsingMgr & parsing_manager, PkgOptionsMgr &options_manager);

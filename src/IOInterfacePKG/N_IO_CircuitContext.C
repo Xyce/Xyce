@@ -2313,7 +2313,7 @@ void CircuitContext::resolveStrings(
         {
           Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
           bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
-          if (isOriginalRandom)
+          if (parsingMgr_.getLocalVariationFlag() && isOriginalRandom)
           {
             std::string copyExprString = expToBeAttached.get_expression(); 
             Util::Param copiedParam(strings[i],copyExprString);
@@ -2353,7 +2353,7 @@ void CircuitContext::resolveStrings(
           // which means it can always be attached.
           Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
           bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
-          if (isOriginalRandom)
+          if (parsingMgr_.getLocalVariationFlag() && isOriginalRandom)
           {
             std::string copyExprString = expToBeAttached.get_expression(); 
             Util::Param copiedParam(strings[i],copyExprString);

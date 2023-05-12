@@ -310,7 +310,9 @@ public:
   virtual bool getVoltageLimiterStatus();
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
 
+#if 0
   virtual void updateDependentParams ();
+#endif
   virtual void resetScaledParams();
 
 public:

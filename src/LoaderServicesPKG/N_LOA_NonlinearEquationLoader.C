@@ -854,6 +854,7 @@ void NonlinearEquationLoader::setVoltageLimiterStatus(bool voltageLimterStatus)
   return deviceManager_.setVoltageLimiterStatus(voltageLimterStatus);
 }
 
+#if 0
 //---------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::updateDependentParams () 
 // Purpose       :
@@ -866,6 +867,7 @@ void NonlinearEquationLoader::updateDependentParams ()
 {
   return deviceManager_.updateDependentParams ();
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::resetScaledParams

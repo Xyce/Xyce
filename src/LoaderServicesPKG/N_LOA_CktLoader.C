@@ -1482,6 +1482,7 @@ void CktLoader::setVoltageLimiterStatus(bool voltageLimterStatus)
   return deviceManager_.setVoltageLimiterStatus(voltageLimterStatus);
 }
 
+#if 0
 //---------------------------------------------------------------------------
 // Function      : CktLoader::updateDependentParams () 
 // Purpose       :
@@ -1494,6 +1495,7 @@ void CktLoader::updateDependentParams ()
 {
   return deviceManager_.updateDependentParams ();
 }
+#endif
 
 //---------------------------------------------------------------------------
 // Function      : CktLoader::resetScaledParams() 

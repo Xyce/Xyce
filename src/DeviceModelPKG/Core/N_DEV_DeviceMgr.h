@@ -59,6 +59,7 @@ using std::unordered_map;
 #include <N_UTL_fwd.h>
 
 #include <N_ANP_StepEvent.h>
+#include <N_ANP_AnalysisEvent.h>
 #include <N_LOA_Loader.h>
 #include <N_DEV_ArtificialParameters.h>
 #include <N_DEV_DeviceOptions.h>
@@ -88,6 +89,9 @@ bool getParamAndReduce(
   const std::string &   name,
   std::complex<double> & val);
 
+typedef Util::Listener<Analysis::StepEvent> StepEventListener;
+typedef Util::Listener<Analysis::AnalysisEvent> AnalysisEventListener;
+
 //-----------------------------------------------------------------------------
 // Class         : DeviceMgr
 // Purpose       :
@@ -95,7 +99,9 @@ bool getParamAndReduce(
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 3/16/00
 //-----------------------------------------------------------------------------
-class DeviceMgr : public Util::Listener<Analysis::StepEvent>
+class DeviceMgr : public StepEventListener,
+                  public AnalysisEventListener
+
 {
   friend struct ArtificialParameters::ArtificialParameter;
   friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, double &value);
@@ -126,6 +132,7 @@ private:
 
 public:
   void notify(const Analysis::StepEvent &event);
+  void notify(const Analysis::AnalysisEvent &analysis_event);
 
   bool registerAnalysisManager(Analysis::AnalysisManager *analysis_manager);
 
@@ -570,7 +577,10 @@ public:
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 
+#if 0
   void updateDependentParams();
+#endif
+
   void resetScaledParams();
 
 private:
@@ -583,7 +593,11 @@ private:
   bool updatePrimaryState_();
   bool updateSecondaryState_();
 
+#if 0
   void updateDependentParameters_();
+#else
+  void updateSolutionDependentParameters_();
+#endif
 
   // Do the actual solve/calculation for the external devices
   void updateExternalDevices_();
@@ -658,7 +672,10 @@ private:
   IndependentSourceVector       indepSourceInstanceBackupPtrVec_;
 
   InstanceVector                testJacDevicePtrVec_;   ///< Devices under jacobian test
-  EntityVector                  dependentPtrVec_;
+  EntityVector                  dependentPtrVec_;     ///< Instances and Models that have dependent params (dependent on anything)
+  EntityVector                  solnDepEntityPtrVec_; ///< Instances and Models that have solution-dependent params
+  EntityVector                  timeDepEntityPtrVec_; ///< Instances and Models that have time-dependent params
+  EntityVector                  freqDepEntityPtrVec_; ///< Instances and Models that have freq-dependent params
 
   std::set<std::string>         devicesNeedingLeadCurrentLoads_;
 

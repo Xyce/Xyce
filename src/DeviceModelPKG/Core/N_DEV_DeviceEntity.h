@@ -199,6 +199,10 @@ public:
 
   bool setParameterRandomExpressionTerms(const std::string & paramName, int opIndex, int astType, double value, bool override_original);
 
+  bool updateSolutionDependentParameters ();
+  bool updateTimeDependentParameters ();
+  bool updateFreqDependentParameters ();
+
   bool updateGlobalAndDependentParameters (
       bool globalParameterChanged,
       bool timeChanged, 

@@ -996,6 +996,137 @@ void DeviceMgr::notify(const Analysis::StepEvent &event)
   }
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::notify
+// Purpose       : Receive "AnalysisEvent" notifications from publishers of such.
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 05/10/2023
+//-----------------------------------------------------------------------------
+void DeviceMgr::notify(const Analysis::AnalysisEvent &analysis_event)
+{
+  if (analysis_event.state_ == Analysis::AnalysisEvent::STEP_STARTED)
+  {
+    GlobalParameterMap & globalParamMap = globals_.paramMap;
+    std::vector<Util::Expression> & globalExpressionsVec = globals_.expressionVec;
+
+    bool globalParamChanged = false, timeChanged = false, freqChanged = false;
+    std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
+    std::vector<Util::Expression>::iterator globalExprEnd  = globalExpressionsVec.end();
+
+    if ( analysis_event.outputType_ == Analysis::AnalysisEvent::AC ||
+         analysis_event.outputType_ == Analysis::AnalysisEvent::NOISE)
+    {
+      // this section is mainly called when frequency is changed.  However, AC and NOISE can update other things
+      // on their sweep, including device and/or global parameters.  So, we can't strictly update only frequency 
+      // dependent things.
+      // Note also, that it isn't necessary to explicitly update the global parameters to support device parameters.
+      // Device parameter updates will automatically account for them anyway, since they share the same AST.
+      // The only reason to explicitly update global params here is to support printing them out on the .PRINT line, 
+      // when they are requested outside an expression.  (ie. ".print tran param" rather than ".print tran {param}"; these two use cases follow different paths thru the code).
+      // If they are specified inside an expression, then the AST is set up automatically.
+      // So, if the .PRINT line can be refactored a bit, this loop over global params can go away.
+      freqChanged = true;
+      bool all_devices_converged = true; // this should be true at this stage
+      setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
+
+      // Update global params as needed.  This is mainly to support updated frequency.
+      if ( !(globalExpressionsVec.empty()) )
+      {
+        int pos = 0;
+        for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
+        {
+          //if (globalExprIter->isFreqDependent())
+          {
+            double val;
+            if (globalExprIter->evaluateFunction(val))
+            {
+              globalParamChanged = true;
+              globalParamMap[globals_.expNameVec[pos]] = val;
+            }
+          }
+          ++pos;
+        }
+      }
+
+      if (firstDependent_)
+      {
+        firstDependent_ = false;
+        setupDependentEntities();
+      }
+
+      if ( ! (dependentPtrVec_.empty()) ) // update all device parameters, not just freq-dependent ones
+      {
+        EntityVector::iterator iter;
+        EntityVector::iterator begin = dependentPtrVec_.begin();
+        EntityVector::iterator end = dependentPtrVec_.end();
+        for (iter=begin; iter!=end;++iter)
+        {
+          bool changed = (*iter)->updateGlobalAndDependentParametersForStep(true,true,true);
+          (*iter)->processParams();
+          (*iter)->processInstanceParams();
+        }
+      }
+    }
+    else if ( analysis_event.outputType_ == Analysis::AnalysisEvent::TRAN )
+    {
+      timeChanged = true;
+      bool all_devices_converged = true; // this should be true at this stage
+      setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
+
+      // Update global params as needed.  This is mainly to support updated time, so only check time-dependent params
+      // Note also, that it isn't necessary to explicitly update the global parameters to support device parameters.
+      // Device parameter updates will automatically account for them anyway, since they share the same AST.
+      // The only reason to explicitly update global params here is to support printing them out on the .PRINT line, 
+      // when they are requested outside an expression.  (ie. ".print tran param" rather than ".print tran {param}"; these two use cases follow different paths thru the code).
+      // If they are specified inside an expression, then the AST is set up automatically.
+      // So, if the .PRINT line can be refactored a bit, this loop over global params can go away.
+      if ( !(globalExpressionsVec.empty()) )
+        { 
+        int pos = 0;
+        for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
+        {
+          if (globalExprIter->isTimeDependent())
+          {
+            double val;
+            if (globalExprIter->evaluateFunction(val))
+            {
+              globalParamChanged = true;
+              globalParamMap[globals_.expNameVec[pos]] = val;
+            }
+          }
+          ++pos;
+        }
+      }
+
+      if (firstDependent_)
+      {
+        firstDependent_ = false;
+        setupDependentEntities();
+      }
+
+      if ( ! (timeDepEntityPtrVec_.empty()) )
+      {
+        EntityVector::iterator iter;
+        EntityVector::iterator begin = timeDepEntityPtrVec_.begin();
+        EntityVector::iterator end = timeDepEntityPtrVec_.end();
+
+        for (iter=begin; iter!=end;++iter)
+        {
+          bool changed = (*iter)->updateTimeDependentParameters();
+          if (changed)
+          {
+            (*iter)->processParams();
+            (*iter)->processInstanceParams();
+          }
+        }
+      }
+    }
+
+  }
+}
+
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getDeviceByModelType
 // Purpose       : This function creates a single device based on the passed
@@ -2080,8 +2211,24 @@ void DeviceMgr::getNumericalMatrixSensitivities
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setupDependentEntities
-// Purpose       : This function sets up ...
-// Special Notes :
+//
+// Purpose       : This function sets up vectors of pointers to entities which
+//                 contain dependent params
+//
+// Special Notes : The "dependentPtrVec_" contains entities which depend 
+//                 on any kind of active expression.  So, they can depend on 
+//                 time, frequency, global parameters and/or solution variables.
+//
+//                 The "solnDepEntityPtrVec_" contains ONLY entities with 
+//                 solution dependent parameters.  This should be a much smaller 
+//                 vector than dependentPtrVec_.  There are only a few devices 
+//                 that allow solution dependent params, including the Bsrc,
+//                 capacitor, resistor and mutual inductor.
+//
+//                 Solution-dependent parameters need to be updated at every
+//                 Newton step.  Other dependencies, like time, freq or global 
+//                 params can be updated much less frequently.
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 2/13/2023
@@ -2089,6 +2236,9 @@ void DeviceMgr::getNumericalMatrixSensitivities
 void DeviceMgr::setupDependentEntities ()
 {
   dependentPtrVec_.clear();
+  solnDepEntityPtrVec_.clear();
+  timeDepEntityPtrVec_.clear();
+  freqDepEntityPtrVec_.clear();
 
   // do the models:
   ModelVector::iterator iterM;
@@ -2096,10 +2246,26 @@ void DeviceMgr::setupDependentEntities ()
   ModelVector::iterator endM =modelVector_.end();
   for (iterM=beginM; iterM!=endM;++iterM)
   {
-    if (!(*iterM)->getDependentParams().empty())
+    const std::vector<Depend> & depParams = (*iterM)->getDependentParams();
+    if (!(depParams.empty()))
     {
       dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
     }
+
+    // find solution, time, freq dependent params
+    // Note, as of this writing, I don't think any .MODELs are allowed 
+    // to have solution-dependent parameters (that may change in the future).  
+    // So this model loop is usually a no-op.
+    bool solnDep=false, timeDep=false, freqDep=false; 
+    for (int ii=0;ii<depParams.size();ii++) 
+    {
+      if (depParams[ii].expr->isSolutionDependent()) { solnDep=true; }
+      if (depParams[ii].expr->isTimeDependent() && !(  depParams[ii].expr->isSolutionDependent())) { timeDep=true; }
+      if (depParams[ii].expr->isFreqDependent()  && !(  depParams[ii].expr->isSolutionDependent())) { freqDep=true; }
+    }
+    if (solnDep) { solnDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM)); }
+    if (timeDep) { timeDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM)); }
+    if (freqDep) { freqDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM)); }
   }
 
   // do the instances
@@ -2108,10 +2274,23 @@ void DeviceMgr::setupDependentEntities ()
   InstanceVector::iterator end =instancePtrVec_.end();
   for (iter=begin; iter!=end;++iter)
   {
-    if (!(*iter)->getDependentParams().empty())
+    const std::vector<Depend> & depParams = (*iter)->getDependentParams();
+    if (!(depParams.empty()))
     {
       dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
     }
+
+    // find solution, time, freq dependent params
+    bool solnDep=false, timeDep=false, freqDep=false; 
+    for (int ii=0;ii<depParams.size();ii++)
+    {
+      if (depParams[ii].expr->isSolutionDependent()) { solnDep=true; }
+      if (depParams[ii].expr->isTimeDependent() && !(  depParams[ii].expr->isSolutionDependent())) { timeDep=true; }
+      if (depParams[ii].expr->isFreqDependent()  && !(  depParams[ii].expr->isSolutionDependent())) { freqDep=true; }
+    }
+    if (solnDep) { solnDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iter)); }
+    if (timeDep) { timeDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iter)); }
+    if (freqDep) { freqDepEntityPtrVec_.push_back(static_cast<DeviceEntity *>(*iter)); }
   }
 
   return;
@@ -2293,6 +2472,76 @@ struct SweepParam_equal
 };
 
 //-----------------------------------------------------------------------------
+// Diagnostic output for global params, serial version.
+//-----------------------------------------------------------------------------
+void printOutGlobalParamsInfoSerial(
+  std::vector<Util::Expression> & expressionVec,
+  std::vector<std::string> & expNameVec,
+  GlobalParameterMap & global_parameter_map,
+  std::vector< std::vector<entityDepend> > & deviceEntityDependVec)
+{
+  {
+  for (int ii=0;ii< expNameVec.size(); ++ii)
+  {
+    std::cout << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
+    std::cout << " = " << expressionVec[ii].get_expression() << std::endl;
+
+    for (int jj=0;jj< deviceEntityDependVec[ii].size();jj++)
+    {
+      std::string entityName;
+      DeviceInstance * inst = dynamic_cast<DeviceInstance *>(deviceEntityDependVec[ii][jj].entityPtr);
+      if (inst != 0)
+      {
+        entityName = inst->getName().getEncodedName();
+      }
+      else
+      {
+        DeviceModel * model = dynamic_cast<DeviceModel *>(deviceEntityDependVec[ii][jj].entityPtr);
+        entityName = model->getName();
+      }
+      std::cout << "  entity["<<jj<<"] = " << entityName;
+      std::cout <<std::endl;
+      for (int kk=0;kk< deviceEntityDependVec[ii][jj].parameterVec.size(); kk++)
+      {
+        std::cout << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
+        std::cout <<std::endl;
+      }
+    }
+    std::cout <<std::endl;
+  }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Diagnostic output for global params, parallel version.
+//-----------------------------------------------------------------------------
+void printOutGlobalParamsInfo(
+  std::vector<Util::Expression> & expressionVec,
+  std::vector<std::string> & expNameVec,
+  GlobalParameterMap & global_parameter_map,
+  std::vector< std::vector<entityDepend> > & deviceEntityDependVec,
+   Parallel::Communicator & parallel_comm)
+{
+  // diagnostic: print out the expNames on each processor
+  //if (Parallel::is_parallel_run(parallel_comm.comm())) 
+  {
+    int procID = parallel_comm.procID();
+    int numProc = parallel_comm.numProc();
+
+    for (int proc=0; proc<numProc; ++proc)
+    {
+      if (proc == procID)
+      {
+        std::cout << "expNameVec for proc = " << procID << std::endl;
+
+        printOutGlobalParamsInfoSerial(
+            expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec);
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getRandomParams
 //
 // Purpose       : To conduct Hspice-style sampling analysis, it is necessary 
@@ -2307,32 +2556,18 @@ struct SweepParam_equal
 void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm)
 {
+  Stats::StatTop _samplingStat("Setup Expression Sampling Params");
+  Stats::TimeBlock _samplingTimer(_samplingStat);
+
   std::vector<Util::Expression> & expressionVec  = globals_.expressionVec;
   std::vector<std::string> & expNameVec = globals_.expNameVec;
   GlobalParameterMap & global_parameter_map = globals_.paramMap;
   std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
 
-#if 1
-  // diagnostic: print out the expNames on each processor
-  //if (Parallel::is_parallel_run(parallel_comm.comm())) 
+  if (false) // useful debug
   {
-    int procID = parallel_comm.procID();
-    int numProc = parallel_comm.numProc();
-
-    for (int proc=0; proc<numProc; ++proc)
-    {
-      if (proc == procID)
-      {
-        std::cout << "expNameVec for proc = " << procID << std::endl;
-        for (int ii=0;ii< expNameVec.size(); ++ii)
-        {
-          std::cout << "expNameVec["<<ii<<"] = " << expNameVec[ii] <<std::endl;
-        }
-      }
-    }
+    printOutGlobalParamsInfo(expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);
   }
-#endif
-
 
   // get random expressions from global parameters first.
   // Sort the globals.  This is absolutely necessary in parallel, and not necessary for serial. 
@@ -2660,6 +2895,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::updateDependentParams
 // Purpose       : 
@@ -2672,6 +2908,7 @@ void DeviceMgr::updateDependentParams()
 {
   updateDependentParameters_();
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::resetScaledParams()
@@ -2760,7 +2997,11 @@ bool DeviceMgr::updateState(
   externData_.currStoVectorRawPtr = &((*externData_.currStoVectorPtr)[0]);
   externData_.lastStoVectorRawPtr = &((*externData_.lastStoVectorPtr)[0]);
 
+#if 0
   updateDependentParameters_();
+#else
+  updateSolutionDependentParameters_();
+#endif
 
   std::vector<Device*>::iterator iter;
   std::vector<Device*>::iterator begin;
@@ -3382,13 +3623,19 @@ bool DeviceMgr::updateSecondaryState_()
 }
 
 #if 0
+#if 1
 static int called=0;
 #endif
 //----------------------------------------------------------------------------
 // Function       : DeviceMgr::updateDependentParameters_
+//
 // Purpose        : This function updates all dependent parameters for
 //                  the current time step.
+//
 // Special Notes  : This was evolved from updateTimeDependentParameters_
+//
+// ERK.  This function is nearly obsolete.
+//
 // Scope          : private
 // Creator        : Dave Shirley
 // Creation Date  : 08/17/06
@@ -3414,9 +3661,16 @@ void DeviceMgr::updateDependentParameters_()
     std::cout << "DeviceMgr::updateDependentParameters_.  Number of global expressions = " << 
       globalExpressionsVec.size() << std::endl; 
     called = 1;
+
+    printOutGlobalParamsInfoSerial(
+        globalExpressionsVec, 
+        globals_.expNameVec,
+        globalParamMap, 
+        globals_.deviceEntityDependVec);
   }
 #endif
 
+#if 0
   // Update global params for new time and other global params
   int pos = 0;
   std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
@@ -3444,7 +3698,9 @@ void DeviceMgr::updateDependentParameters_()
     }
     ++pos;
   }
+#endif
 
+#if 0  // test to see if any of this is needed.
   // do the models:
   if (firstDependent_)
   {
@@ -3477,10 +3733,64 @@ void DeviceMgr::updateDependentParameters_()
       }
     }
   }
+#endif
+
   timeParamsProcessed_ = solState_.currTime_;
+  freqParamsProcessed_ = solState_.currFreq_;
+  return;
+}
+#else
+//----------------------------------------------------------------------------
+// Function       : DeviceMgr::updateSolutionDependentParameters_
+//
+// Purpose        : This function updates all solution dependent parameters for
+//                  the current time step.
+//
+//                  ERK. This function is a little misleading.  Most of 
+//                  the devices which can have solution dependent parameters 
+//                  (Bsrc, resistor, capacitor) handle them entirely inside 
+//                  functions such as updatePrimaryState or 
+//                  updateIntermediateVars.  So, those devices are excluded
+//                  from the loop below.
+//
+//                  The main device in the "open models" directory, which 
+//                  can have a solution dependent variable, but that does not 
+//                  handle it for itself is the linear mutual inductor device.
+//
+//                  As a result, in most circuits this function doesn't
+//                  do anything.
+//
+// Scope          : private
+// Creator        : Eric Keiter
+// Creation Date  : 05/11/2023
+//----------------------------------------------------------------------------
+void DeviceMgr::updateSolutionDependentParameters_()
+{
+  if (firstDependent_)
+  {
+    firstDependent_ = false;
+    setupDependentEntities();
+  }
+
+  if (!(solnDepEntityPtrVec_.empty()))
+  {
+    EntityVector::iterator iter;
+    EntityVector::iterator begin = solnDepEntityPtrVec_.begin();
+    EntityVector::iterator end = solnDepEntityPtrVec_.end();
+    for (iter=begin; iter!=end;++iter)
+    {
+      bool changed = (*iter)->updateSolutionDependentParameters ();
+      if (changed)
+      {
+        (*iter)->processParams();
+        (*iter)->processInstanceParams();
+      }
+    }
+  }
 
   return;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::loadBVectorsforAC
@@ -3500,7 +3810,9 @@ bool DeviceMgr::loadBVectorsforAC(Linear::Vector * bVecRealPtr, Linear::Vector *
   bool all_devices_converged = allDevicesConverged(comm_);
   bool tmpBool = setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
   // to make sure global parameters are updated properly in AC analysis.
+#if 0 
   updateDependentParameters_();
+#endif
 
 #ifdef Xyce_PARALLEL_MPI
   externData_.nextSolVectorPtr->importOverlap();
@@ -5402,7 +5714,6 @@ bool setParameter(
     GlobalParameterMap::iterator global_param_it = global_parameter_map.find(name);
     if (global_param_it != global_parameter_map.end())
     {
-
       // find the expression.  ERK.  This should be the "real" place to update.
       std::string tmpName = name; Util::toUpper(tmpName);
       std::vector<std::string>::iterator name_it = std::find(global_exp_names.begin(), global_exp_names.end(), tmpName);
@@ -5573,13 +5884,12 @@ bool setParameterRandomExpressionTerms2(
   bool bsuccess = true, success = true;
 
   GlobalParameterMap &          global_parameter_map = globals.paramMap;
-  std::vector<Util::Expression> & global_expressions = globals.expressionVec;
-  std::vector<std::string> & global_exp_names = globals.expNameVec;
+  std::vector<Util::Expression> & expressionVec = globals.expressionVec;
+  std::vector<std::string> & expNameVec = globals.expNameVec;
   std::vector< std::vector<entityDepend> > & device_entities = globals.deviceEntityDependVec;
 
-#if 0
-  std::cout << "setParameterRandomExpressionTerms2.  Number of sampling params = " << SamplingParams.size() <<std::endl;
-#endif
+  std::set<int> uniqueGlobalIndices;
+  std::set <DeviceEntity *> uniqueDeviceEntities;
 
   for(int isamp=0;isamp<SamplingParams.size();isamp++)
   {
@@ -5593,7 +5903,7 @@ bool setParameterRandomExpressionTerms2(
 
     if (globalIndex >= 0)
     {
-      Util::Expression &expression = global_expressions[globalIndex];
+      Util::Expression &expression = expressionVec[globalIndex];
 
       // set value .  The variable "value" was determined in one of the UQ classes.  
       // It represents the value of a particular operator within the expression.  
@@ -5619,31 +5929,8 @@ bool setParameterRandomExpressionTerms2(
           expression.setLimitValue(opIndex,value);
           break;
       }
-      double paramValue=0.0;
-      expression.evaluateFunction(paramValue);
 
-      if (global_param_it != global_parameter_map.end())
-      {
-        if ((*global_param_it).second != value)
-        {
-          (*global_param_it).second = value;
-        }
-      }
-      else
-      {
-        Report::DevelFatal().in("Xyce::Device::setParameterRandomExpressionTerms2")
-          << "Cannot find global parameter";
-      }
-
-      if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
-      {
-        Xyce::dout() << " in DeviceMgr setParam, setting global parameter "<< name << " to " << value << std::endl;
-        if (override_original)
-        {
-          Xyce::dout()  << " overriding original";
-        }
-        Xyce::dout() << std::endl;
-      }
+      uniqueGlobalIndices.insert(globalIndex);
     }
     else
     {
@@ -5659,8 +5946,7 @@ bool setParameterRandomExpressionTerms2(
 
         if (found)
         {
-          device_entity->processParams (); 
-          device_entity->processInstanceParams();
+          uniqueDeviceEntities.insert(device_entity);
         }
 
         entity_found = found;
@@ -5679,6 +5965,56 @@ bool setParameterRandomExpressionTerms2(
           Report::UserError() << "Xyce::Device::setParameterRandomExpressionTerms.  Unable to find parameter " << name;
         }
       }
+    }
+  }
+
+
+  if ( !(uniqueGlobalIndices.empty()) )
+  {
+    // ERK.  5/11/2023.
+    // Note that the ONLY reason for running these "evaluateFunction" calls here is
+    // to (if necessary) provide a correct value for a global parameter being printed on the .PRINT line
+    // (and maybe the *res file as well).  It isn't needed for updating the device parameter 
+    // values, below, since they share the same ASTs.  And, w.r.t. the .PRINT line, 
+    // it is only needed if it is requested as a raw global parameter, rather than an expression.
+    // So, for example, ".PRINT TRAN paramName" instead of ".PRINT TRAN {paramName}".  The first
+    // case will request the value directly from the device manager, so the newValue, below is needed
+    // for that to be correct.  The second case is evaluated as an expression, so no need to make such a request.
+    // If the Op classes can be modified so that "globalParameterOps" are always converted to expression Ops, 
+    // then this block of code can go.
+    //
+    // See also: the values in the *res file.
+    std::set<int>::iterator iter = uniqueGlobalIndices.begin();
+    std::set<int>::iterator end = uniqueGlobalIndices.end();
+    for (;iter!=end;iter++)
+    {
+      int globalIndex = *iter;
+      Util::Expression &expression = expressionVec[globalIndex];
+      double newValue=0.0;
+      expression.evaluateFunction(newValue);
+
+      GlobalParameterMap::iterator global_param_it = global_parameter_map.find(expNameVec[globalIndex]); // this "find" should only have happened 1x, in the getRandomParams function.  That is what the gpIter was for.  Fix later.
+      if (global_param_it != global_parameter_map.end())
+      {
+        (*global_param_it).second = newValue; 
+      }
+      else
+      {
+        Report::DevelFatal().in("Xyce::Device::setParameterRandomExpressionTerms2") // we should never get here.
+          << "Cannot find global parameter";
+      }
+    }
+  }
+
+  if ( !(uniqueDeviceEntities.empty()) )
+  {
+    std::set<DeviceEntity *>::iterator iter = uniqueDeviceEntities.begin();
+    std::set<DeviceEntity *>::iterator end = uniqueDeviceEntities.end();
+    for (;iter!=end;iter++)
+    {
+      DeviceEntity * device_entity = *iter;
+      device_entity->processParams (); 
+      device_entity->processInstanceParams();
     }
   }
 
@@ -5771,9 +6107,11 @@ void addGlobalParameter(
 
     globals.deviceEntityDependVec.push_back(std::vector<entityDepend>(0));
 
-    globals.paramMap[param.uTag()] = 0.0; 
-    // this value will get set properly later in a 
-    // updateDependentParameters_ function call.  
+    double val;
+    expression.evaluateFunction(val);
+    globals.paramMap[param.uTag()] = val;
+
+    // the group will get set properly later 
     expression.setGroup(expressionGroup);
   }
   else
