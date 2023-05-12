@@ -1205,12 +1205,8 @@ void DistToolBase::find_IC_NODESET_OptionBlock(const std::string& modelName,
               }
  
               // Resolve any local params.
-#if 0 
-              circuitContext_->resolveParameter((*iterPar));
-#else
               resolveStatus stringResolveStatus;
               circuitContext_->resolveParameter((*iterPar), stringResolveStatus);
-#endif
             }
   
             // Add this new option block to the current list.

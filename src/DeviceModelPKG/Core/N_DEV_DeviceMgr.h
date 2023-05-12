@@ -448,6 +448,8 @@ public:
   void setVoltageLimiterFlag ( bool flagVal );
 
   void addGlobalPar(const Util::Param &param);
+  void addGlobalPars(const Util::UParamList & ioGlobalParams);
+  void addSubcktGlobalPars(const Util::UParamList & ioGlobalParams);
   const double *findGlobalPar(const std::string &name) const;
 
   // functions related to options registration
@@ -577,10 +579,6 @@ public:
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 
-#if 0
-  void updateDependentParams();
-#endif
-
   void resetScaledParams();
 
 private:
@@ -593,11 +591,7 @@ private:
   bool updatePrimaryState_();
   bool updateSecondaryState_();
 
-#if 0
-  void updateDependentParameters_();
-#else
   void updateSolutionDependentParameters_();
-#endif
 
   // Do the actual solve/calculation for the external devices
   void updateExternalDevices_();
@@ -622,6 +616,7 @@ private:
   MatrixLoadData                matrixLoadData_;        ///< temporary jacobian load structures:
   SolverState                   solState_;              ///< real time solver data:
   UserDefinedParams &           globals_;               ///< global variables
+  UserDefinedParams &           subcktGlobals_;         ///< global variables from subcircuits
   bool                          externalInitJctFlag_;
   bool                          externalStateFlag_;
 
@@ -741,8 +736,15 @@ inline void DeviceMgr::setVoltageLimiterFlag ( bool flagVal )
 bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options_manager);
 void registerOpBuilders(Util::Op::BuilderManager &builder_manager, Parallel::Machine comm, DeviceMgr &device_manager);
 
-void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
+void addGlobalParameter(
+    UserDefinedParams &global, const Util::Param &param,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
+
+void addGlobalParameters(
+    UserDefinedParams &global, 
+    const Util::UParamList & ioGlobalParams,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
+
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device

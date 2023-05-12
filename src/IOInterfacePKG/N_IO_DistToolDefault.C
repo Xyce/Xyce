@@ -1073,15 +1073,13 @@ bool DistToolDefault::expandSubcircuitInstance(
   std::vector<Device::Param> subcircuitInstanceParams;
   subcircuitInstance.getInstanceParameters(subcircuitInstanceParams);
 
-#if 0
-  std::cout << "Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl;
-#endif
+  if (DEBUG_IO) 
+  { std::cout << "Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
 
   result = circuitContext_->resolve(subcircuitInstanceParams);
   if (!result)
     return result;
 
-#if 1
   // At this stage, the parameters of the current context are resolved.
   // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
   // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
@@ -1098,17 +1096,17 @@ bool DistToolDefault::expandSubcircuitInstance(
     if ( globalParamAliasMap->find(tag) == globalParamAliasMap->end() )  
     {
       if (DEBUG_IO) { std::cout << "Adding subcircuit global param: " << tag << std::endl; }
-
       addResolvedGlobalParams_.insert(parameter);
     }
   } 
 
-  // ERK.  It doesn't work to save the new globals here and pass them over later.
-  // They must be sent to the device manager NOW, before any "handleDeviceLines" are called.
-  // This is because, "handleDeviceLine" will potentially add models.  Apparently, the Xyce 
-  // device package resolved model parameters immediately, so all the globals are needed.
-  circuitBlock_.registerGlobalParams(addResolvedGlobalParams_);
-#endif
+  // ERK.  It doesn't work to save the new globals here and pass them over to the 
+  // device package later. They must be sent to the device manager NOW, before any 
+  // "handleDeviceLines" are called.  This is because, "handleDeviceLine" will 
+  // potentially add models.  Apparently, the Xyce device package resolves model 
+  // parameters immediately, as they are added, so all the globals are needed now.
+  // They will be distributed in parallel later, as needed by the device package.
+  circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
 
   // Add any .IC or .NODESET statements for this subcircuit to the top level 
   // option block and resolve any parameters in the current context.

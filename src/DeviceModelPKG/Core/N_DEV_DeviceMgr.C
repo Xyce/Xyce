@@ -171,6 +171,7 @@ DeviceMgr::DeviceMgr(
     matrixLoadData_(),
     solState_(),
     globals_(solState_.globals_),
+    subcktGlobals_(solState_.subcktGlobals_),
     analysisManager_(0),
     // measureManager_(0),
     artificialParameterMap_(),
@@ -2542,13 +2543,218 @@ void printOutGlobalParamsInfo(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : mergeGlobals
+// Purpose       : Merge the subcircuit globals into the main container of globals.
+// Special Notes : Helper function for DeviceMgr::getRandomParams.  
+//                 This is probably where parallelism needs to be added for 
+//                 subcircuit global parameters.
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void mergeGlobals(
+  UserDefinedParams & globals_, 
+  UserDefinedParams & subcktGlobals_
+    )
+{
+  if (!(subcktGlobals_.paramMap.empty()))
+  {
+    GlobalParameterMap & paramMap = globals_.paramMap;
+    GlobalParameterMap & subcktParamMap = subcktGlobals_.paramMap;
+    paramMap.insert(subcktParamMap.begin(), subcktParamMap.end());
+
+    subcktParamMap.clear();
+  }
+
+  if (!(subcktGlobals_.expressionVec.empty()))
+  {
+    std::vector<Util::Expression> & expressionVec = globals_.expressionVec;
+    std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
+    expressionVec.insert(expressionVec.end(), subcktExpressionVec.begin(), subcktExpressionVec.end());
+
+    subcktExpressionVec.clear();
+  }
+
+  if (!(subcktGlobals_.expNameVec.empty()))
+  {
+    std::vector<std::string> & expNameVec = globals_.expNameVec;
+    std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
+    expNameVec.insert(expNameVec.end(), subcktExpNameVec.begin(), subcktExpNameVec.end());
+
+    subcktExpNameVec.clear();
+  }
+
+  if (!(subcktGlobals_.deviceEntityDependVec.empty()))
+  {
+    std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
+    std::vector< std::vector<entityDepend> > & subcktDeviceEntityDependVec = subcktGlobals_.deviceEntityDependVec;
+    deviceEntityDependVec.insert(deviceEntityDependVec.end(), subcktDeviceEntityDependVec.begin(), subcktDeviceEntityDependVec.end());
+
+    subcktDeviceEntityDependVec.clear();
+  }
+
+}
+
+//-----------------------------------------------------------------------------
+// Function      : sortGlobals
+//
+// Purpose       : Perform sort operations on the std::vectors 
+//                 associated with global parameters to ensure the same order 
+//                 on each processor.   Ideally these 3 objects would be 
+//                 in a struct together and thus sorted once, rather than 
+//                 3 separate sorts.  
+//
+// Special Notes : Helper function for DeviceMgr::getRandomParams.  
+//                 Originally this code was inside that function.
+//
+//                 The three objects that are sorted in this class are:
+//
+//                 1. expNameVec, which is a std::vector of strings, where 
+//                 each string is the name of an expression-based global 
+//                 parameter.
+//
+//                 2. expressionVec, which is a std::vector of expressions,
+//                 corresponding to expression-based global parameters.
+//
+//                 3. deviceEntityDependVec, which is a std::vector of std::vectors.
+//                 The subordinate std::vector contains dependencies.  This vector was 
+//                 set during the various DeviceEntity setup functions (specifically setParams).
+//
+//                 All 3 of these objects need to be in the same order.
+//
+//                 Other relevant objects, NOT dealt with in this function include:
+//
+//                 1.  globals_.paramMap, which is a std::unordered_map.  Unlike 
+//                 the 3 objects above, this map contains *all* the global parameters, 
+//                 including non-expression params. (i.e. params that are just a raw number).
+//                 This object's size will be >= the size of the above 3 vectors.
+//                 The key for this object is a string (the param name) and the value 
+//                 is a double-precision number.   This "value" mostly isn't used in 
+//                 the device package anymore and is a legacy of the old expression 
+//                 library, which needed to have global param values explicitly pushed into it.
+//                 The new expression library doesn't need this.  So, in practice, 
+//                 these values are only used by things like the .PRINT line, via 
+//                 "global expression Op" objects.
+//
+//                 2. masterGlobalParamDependencies, which is a std::unordered_map.  
+//                 This contains the same information (mostly) as the deviceEntityDependVec.  
+//                 But, the key is a deviceEntityPtr.  For sampling-based parameter 
+//                 updates, this is the only object that gets used after setup.  But it 
+//                 only contains parameters that are actually used.  The other objects, 
+//                 above, don't get pruned in that way as of this writing (5/2023).
+//
+//                 Once the masterGlobalParamDepdendencies object is set up,
+//                 the deviceEntityDependVec probably can be deleted.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void sortGlobals(
+  std::vector<std::string> & expNameVec,
+  std::vector<Util::Expression> & expressionVec,
+  std::vector< std::vector<entityDepend> > & deviceEntityDependVec
+    )
+{
+  // sort indices based on name vector
+  std::vector<std::size_t> indices(expNameVec.size(),0);
+  std::iota(indices.begin(), indices.end(),0);
+  std::sort(indices.begin(), indices.end(), 
+      [&](const int& a, const int& b) { return (expNameVec[a] < expNameVec[b]); } ) ;
+
+  // sort the the global expression vector, using permutation based on name vector
+  {
+    std::vector<Util::Expression> sortedExpressionVec = expressionVec;
+    std::transform(indices.begin(), indices.end(), sortedExpressionVec.begin(),
+        [&](std::size_t i){ return expressionVec[i]; });
+    expressionVec = sortedExpressionVec;
+  }
+
+  // sort the the global depend vector, using permutation based on name vector
+  {
+    std::vector< std::vector<entityDepend> > sortedDeviceEntityDependVec(deviceEntityDependVec.size());
+    std::transform(indices.begin(), indices.end(), sortedDeviceEntityDependVec.begin(),
+        [&](std::size_t i){ return deviceEntityDependVec[i]; });
+    deviceEntityDependVec = sortedDeviceEntityDependVec;
+  }
+
+  // sort the global name vector.  Do this last.
+  std::sort(expNameVec.begin(), expNameVec.end(), 
+      [&](const std::string & a, const std::string & b) { return (a < b); } ) ;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : pruneGlobals
+//
+// Purpose       : Perform sort operations on the std::vectors 
+//                 associated with global parameters to ensure Xyce isn't 
+//                 storing and processing any unused parameters.
+//
+//                 Issue #306 work led to adding this function.  Some of 
+//                 the params being sampled had zero dependencies in large 
+//                 PDK test circuit.  
+//
+// Special Notes : Helper function for DeviceMgr::getRandomParams.  
+//                 Originally this code was inside that function.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void pruneGlobals(
+    std::vector<std::string> & expNameVec,
+    std::vector<Util::Expression> & expressionVec,
+    std::vector< std::vector<entityDepend> > & deviceEntityDependVec,
+    Parallel::Communicator & parallel_comm
+    )
+{
+  std::vector<int> pruneIndices(expressionVec.size(),0);
+  int count=0;
+  for (int ii=0;ii<expressionVec.size();ii++)
+  {
+    bool empty = deviceEntityDependVec[ii].empty();
+    if (Parallel::is_parallel_run(parallel_comm.comm()))
+    {
+      int tmpEmpty = empty?1:0; int globalEmpty = 0;
+      parallel_comm.minAll(&tmpEmpty, &globalEmpty, 1);
+      empty = (globalEmpty==0)?false:true;
+    }
+    if ( empty ) { pruneIndices[ii] = 1; }
+    else { count++; }
+  }
+
+  std::vector<std::string> tmpExpNameVec;
+  std::vector<Util::Expression> tmpExpressionVec;
+  std::vector< std::vector<entityDepend> > tmpDeviceEntityDependVec;
+  tmpExpNameVec.reserve(count);
+  tmpExpressionVec.reserve(count);
+  tmpDeviceEntityDependVec.reserve(count);
+
+  for (int ii=0; ii<pruneIndices.size(); ii++)
+  {
+    if ( pruneIndices[ii] == 0 )
+    {
+      tmpExpNameVec.push_back(expNameVec[ii]);
+      tmpExpressionVec.push_back(expressionVec[ii]);
+      tmpDeviceEntityDependVec.push_back(deviceEntityDependVec[ii]);
+    }
+  }
+
+  expNameVec = tmpExpNameVec;
+  expressionVec = tmpExpressionVec;
+  deviceEntityDependVec = tmpDeviceEntityDependVec;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getRandomParams
 //
 // Purpose       : To conduct Hspice-style sampling analysis, it is necessary 
 //                 to gather all the parameters (global and/or device) which 
 //                 depend upon expressions containing operators such as 
 //                 AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
-// Special Notes :
+//
+// Special Notes : Setup function, called once.
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 07/28/2020
@@ -2569,42 +2775,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
     printOutGlobalParamsInfo(expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);
   }
 
-  // get random expressions from global parameters first.
-  // Sort the globals.  This is absolutely necessary in parallel, and not necessary for serial. 
-  // But it is convenient for testing comparisons to do it for both serial and parallel.
-  //if (Parallel::is_parallel_run(parallel_comm.comm())) 
-  {
-    // Perform sort operations on the std::vectors 
-    // associated with global parameters to ensure the same order 
-    // on each processor.   Ideally these 3 things would be in a struct 
-    // together and thus sorted once, rather than 3 separate sorts.  
-
-    // sort indices based on name vector
-    std::vector<std::size_t> indices(expNameVec.size(),0);
-    std::iota(indices.begin(), indices.end(),0);
-    std::sort(indices.begin(), indices.end(), 
-        [&](const int& a, const int& b) { return (expNameVec[a] < expNameVec[b]); } ) ;
-
-    // sort the the global expression vector, using permutation based on name vector
-    {
-      std::vector<Util::Expression> sortedExpressionVec = expressionVec;
-      std::transform(indices.begin(), indices.end(), sortedExpressionVec.begin(),
-          [&](std::size_t i){ return expressionVec[i]; });
-      expressionVec = sortedExpressionVec;
-    }
-
-    // sort the the global depend vector, using permutation based on name vector
-    {
-      std::vector< std::vector<entityDepend> > sortedDeviceEntityDependVec(deviceEntityDependVec.size());
-      std::transform(indices.begin(), indices.end(), sortedDeviceEntityDependVec.begin(),
-          [&](std::size_t i){ return deviceEntityDependVec[i]; });
-      deviceEntityDependVec = sortedDeviceEntityDependVec;
-    }
-
-    // sort the global name vector.  Do this last.
-    std::sort(expNameVec.begin(), expNameVec.end(), 
-        [&](const std::string & a, const std::string & b) { return (a < b); } ) ;
-  }
+  mergeGlobals( globals_, subcktGlobals_);
+  sortGlobals( expNameVec, expressionVec, deviceEntityDependVec);
  
   //  this minAll should not be necessary, but just being extra-safe.
   bool emptyExprVec = expressionVec.empty();
@@ -2617,12 +2789,15 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 
   if (! ( emptyExprVec) ) 
   {
+    pruneGlobals(expNameVec, expressionVec, deviceEntityDependVec,parallel_comm);
+
     for (int ii=0;ii<expressionVec.size();ii++)
-   {
+    {
+#if 0
       // ERK. Issue #306 work led to adding this if-statement.  Some of the params
       // being sampled had zero dependencies in large PDK test circuit.  
       // This if-statement ensures that they are excluded from the sampling study.
-      bool empty = globals_.deviceEntityDependVec[ii].empty();
+      bool empty = deviceEntityDependVec[ii].empty();
       if (Parallel::is_parallel_run(parallel_comm.comm()))
       {
         int tmpEmpty = empty?1:0; int globalEmpty = 0;
@@ -2631,6 +2806,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
 
       if ( !empty )
+#endif
       {
         GlobalParameterMap::iterator global_param_it = global_parameter_map.find(expNameVec[ii]);
         populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams, ii, global_param_it);
@@ -2895,21 +3071,6 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   if ( !(SamplingParams.empty()) ) expressionBasedSamplingEnabled_ = true;
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : DeviceMgr::updateDependentParams
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/11/2020
-//-----------------------------------------------------------------------------
-void DeviceMgr::updateDependentParams()
-{
-  updateDependentParameters_();
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::resetScaledParams()
 // Purpose       : 
@@ -2997,11 +3158,7 @@ bool DeviceMgr::updateState(
   externData_.currStoVectorRawPtr = &((*externData_.currStoVectorPtr)[0]);
   externData_.lastStoVectorRawPtr = &((*externData_.lastStoVectorPtr)[0]);
 
-#if 0
-  updateDependentParameters_();
-#else
   updateSolutionDependentParameters_();
-#endif
 
   std::vector<Device*>::iterator iter;
   std::vector<Device*>::iterator begin;
@@ -3530,10 +3687,33 @@ bool DeviceMgr::loadErrorWeightMask(Linear::Vector * deviceMask)
 //-----------------------------------------------------------------------------
 void DeviceMgr::addGlobalPar(const Util::Param & param)
 {
-  // get the device manager's current temp
-  double temp = getDeviceOptions().temp.getImmutableValue<double>();
+  addGlobalParameter(globals_, param, expressionGroup_);
+}
 
-  addGlobalParameter(solState_, temp, globals_, param, expressionGroup_);
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::addGlobalPars()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void DeviceMgr::addGlobalPars(const Util::UParamList & ioGlobalParams)
+{
+  addGlobalParameters(globals_, ioGlobalParams, expressionGroup_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::addSubcktGlobalPars()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void DeviceMgr::addSubcktGlobalPars(const Util::UParamList & ioGlobalParams)
+{
+  addGlobalParameters(subcktGlobals_, ioGlobalParams, expressionGroup_);
 }
 
 //-----------------------------------------------------------------------------
@@ -3622,124 +3802,6 @@ bool DeviceMgr::updateSecondaryState_()
   return bsuccess;
 }
 
-#if 0
-#if 1
-static int called=0;
-#endif
-//----------------------------------------------------------------------------
-// Function       : DeviceMgr::updateDependentParameters_
-//
-// Purpose        : This function updates all dependent parameters for
-//                  the current time step.
-//
-// Special Notes  : This was evolved from updateTimeDependentParameters_
-//
-// ERK.  This function is nearly obsolete.
-//
-// Scope          : private
-// Creator        : Dave Shirley
-// Creation Date  : 08/17/06
-//----------------------------------------------------------------------------
-void DeviceMgr::updateDependentParameters_()
-{
-  GlobalParameterMap & globalParamMap = globals_.paramMap;
-  std::vector<Util::Expression> & globalExpressionsVec = globals_.expressionVec;
-
-  bool timeChanged = false;
-  bool freqChanged = false;
-  bool globalParamChanged = false;
-
-  if (timeParamsProcessed_ != solState_.currTime_)
-    timeChanged = true;
-
-  if (freqParamsProcessed_ != solState_.currFreq_)
-    freqChanged = true;
-
-#if 0
-  if (called==0)
-  {
-    std::cout << "DeviceMgr::updateDependentParameters_.  Number of global expressions = " << 
-      globalExpressionsVec.size() << std::endl; 
-    called = 1;
-
-    printOutGlobalParamsInfoSerial(
-        globalExpressionsVec, 
-        globals_.expNameVec,
-        globalParamMap, 
-        globals_.deviceEntityDependVec);
-  }
-#endif
-
-#if 0
-  // Update global params for new time and other global params
-  int pos = 0;
-  std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
-  std::vector<Util::Expression>::iterator globalExprEnd  = globalExpressionsVec.end();
-  for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
-  {
-    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
-    // depending on various calls such as set_sim_time, which let each expression 
-    // report back if its internal time variable (or temp, or freq, etc) had changed.
-    //
-    // Those function calls don't exist anymore due to the new expression refactor.
-    //
-    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
-    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
-    // If this isn't changed, then a lot of "processParam" function calls are going 
-    // to be called unneccessarily.
-    //
-    // But that will have to come later.
-
-    double val;
-    if (globalExprIter->evaluateFunction(val))
-    {
-      globalParamChanged = true;
-      globalParamMap[globals_.expNameVec[pos]] = val;
-    }
-    ++pos;
-  }
-#endif
-
-#if 0  // test to see if any of this is needed.
-  // do the models:
-  if (firstDependent_)
-  {
-    firstDependent_ = false;
-    setupDependentEntities();
-
-    EntityVector::iterator iter;
-    EntityVector::iterator begin = dependentPtrVec_.begin();
-    EntityVector::iterator end = dependentPtrVec_.end();
-    for (iter=begin; iter!=end;++iter)
-    {
-      bool changed = (*iter)->updateGlobalAndDependentParametersForStep(globalParamChanged, timeChanged, freqChanged);
-      (*iter)->processParams(); // for first call, don't care if "changed" is true or not
-      (*iter)->processInstanceParams();
-    }
-  }
-  else
-  {
-    EntityVector::iterator iter;
-    EntityVector::iterator begin = dependentPtrVec_.begin();
-    EntityVector::iterator end = dependentPtrVec_.end();
-    for (iter=begin; iter!=end;++iter)
-    {
-      bool changed = (*iter)->updateGlobalAndDependentParameters(globalParamChanged, timeChanged, freqChanged);
-
-      if (changed)
-      {
-        (*iter)->processParams();
-        (*iter)->processInstanceParams();
-      }
-    }
-  }
-#endif
-
-  timeParamsProcessed_ = solState_.currTime_;
-  freqParamsProcessed_ = solState_.currFreq_;
-  return;
-}
-#else
 //----------------------------------------------------------------------------
 // Function       : DeviceMgr::updateSolutionDependentParameters_
 //
@@ -3790,7 +3852,6 @@ void DeviceMgr::updateSolutionDependentParameters_()
 
   return;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::loadBVectorsforAC
@@ -3809,10 +3870,6 @@ bool DeviceMgr::loadBVectorsforAC(Linear::Vector * bVecRealPtr, Linear::Vector *
   // dependent on freqency.
   bool all_devices_converged = allDevicesConverged(comm_);
   bool tmpBool = setupSolverInfo(solState_, *analysisManager_, all_devices_converged, devOptions_, nlsMgrPtr_->getNonLinInfo());
-  // to make sure global parameters are updated properly in AC analysis.
-#if 0 
-  updateDependentParameters_();
-#endif
 
 #ifdef Xyce_PARALLEL_MPI
   externData_.nextSolVectorPtr->importOverlap();
@@ -5886,7 +5943,6 @@ bool setParameterRandomExpressionTerms2(
   GlobalParameterMap &          global_parameter_map = globals.paramMap;
   std::vector<Util::Expression> & expressionVec = globals.expressionVec;
   std::vector<std::string> & expNameVec = globals.expNameVec;
-  std::vector< std::vector<entityDepend> > & device_entities = globals.deviceEntityDependVec;
 
   std::set<int> uniqueGlobalIndices;
   std::set <DeviceEntity *> uniqueDeviceEntities;
@@ -6091,8 +6147,6 @@ bool setParameterRandomExpressionTerms2(
 // Creation Date : 11/18/05
 //-----------------------------------------------------------------------------
 void addGlobalParameter(
-  SolverState &         solver_state,
-  double                temp,
   UserDefinedParams &   globals,
   const Util::Param &   param,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup
@@ -6111,12 +6165,64 @@ void addGlobalParameter(
     expression.evaluateFunction(val);
     globals.paramMap[param.uTag()] = val;
 
-    // the group will get set properly later 
+    // the group may get updatd later 
     expression.setGroup(expressionGroup);
   }
   else
   {
     globals.paramMap[param.uTag()] = param.getImmutableValue<double>();
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::addGlobalParameters()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/12/2023
+//-----------------------------------------------------------------------------
+void addGlobalParameters(
+  UserDefinedParams &   globals,
+  const Util::UParamList & ioGlobalParams,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup
+  )
+{
+  if (!(ioGlobalParams.empty()))
+  {
+    int size = ioGlobalParams.size();
+
+    if (globals.expressionVec.empty()) { globals.expressionVec.reserve(size); }
+    if (globals.expNameVec.empty()) { globals.expNameVec.reserve(size); }
+    if (globals.deviceEntityDependVec.empty()) { globals.deviceEntityDependVec.reserve(size); }
+
+    Util::UParamList::const_iterator begin = ioGlobalParams.begin();
+    Util::UParamList::const_iterator end= ioGlobalParams.end();
+    for (; begin != end; ++begin)
+    {
+      const Util::Param & param = *begin;
+
+      if (param.getType() == Util::EXPR)
+      {
+        globals.expressionVec.push_back(param.getValue<Util::Expression>());
+        Util::Expression &expression = globals.expressionVec.back();
+
+        globals.expNameVec.push_back(param.uTag());
+
+        globals.deviceEntityDependVec.push_back(std::vector<entityDepend>(0));
+
+        double val;
+        expression.evaluateFunction(val);
+        globals.paramMap[param.uTag()] = val;
+
+        // the group may get updated later 
+        expression.setGroup(expressionGroup);
+      }
+      else
+      {
+        globals.paramMap[param.uTag()] = param.getImmutableValue<double>();
+      }
+    }
   }
 }
 

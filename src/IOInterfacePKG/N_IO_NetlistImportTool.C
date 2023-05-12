@@ -466,7 +466,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   Device::registerDevices(circuitContext_.getDeviceCountMap(), mainCircuitBlock_->getLevelSet(), false);
 
   // register the global parameters
-  registerGlobalParams(device_manager, circuitContext_.getGlobals().begin(), circuitContext_.getGlobals().end());
+  registerGlobalParams(device_manager, circuitContext_.getGlobals());
 
   // register circuit options
   // NOTE:  This method does not process distribution options, since they were processed above.

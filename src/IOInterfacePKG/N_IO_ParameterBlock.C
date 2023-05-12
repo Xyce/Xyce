@@ -898,13 +898,9 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
     
     if (parameterPtr != NULL)
     {
-#if 0
-      if (!contextPtr->resolveParameter(*parameterPtr))
-#else
       resolveStatus paramResolveStatus;
       contextPtr->resolveParameter(*parameterPtr,paramResolveStatus);
       if (!(paramResolveStatus.success))
-#endif
       {
         Util::Expression & expr = parameterPtr->getValue<Util::Expression>();
 
@@ -984,13 +980,9 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
         // try to resolve this string as a simple parameter.  If it can't
         // resolve, restore it to its original value (it's real original
         // value, not its upcased value)
-#if 0 
-        if (!contextPtr->resolveParameter(param))
-#else
         resolveStatus paramResolveStatus;
         contextPtr->resolveParameter(param,paramResolveStatus);
         if (!(paramResolveStatus.success))
-#endif
           param.setVal(std::string(paramNameSave));
       }
     }

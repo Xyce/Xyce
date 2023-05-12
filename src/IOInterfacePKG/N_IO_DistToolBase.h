@@ -76,9 +76,7 @@ public:
 
   std::list<Util::OptionBlock>& getAdditionalOptions() { return addOptions_; }
 
-#if 1
   Util::UParamList & getAdditionalGlobalParams() { return addResolvedGlobalParams_; }
-#endif
 
 protected:
 
@@ -156,11 +154,9 @@ protected:
   // during device distribution.
   std::list<Util::OptionBlock>  addOptions_;
 
-#if 1
   // this container will contain global parameters from subcircuits.  
   // These aren't known until subcircuits are resolved in pass 2
   Util::UParamList addResolvedGlobalParams_; 
-#endif
 
   // global data
   CircuitBlock &                circuitBlock_;

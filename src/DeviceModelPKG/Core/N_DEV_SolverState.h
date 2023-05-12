@@ -100,6 +100,11 @@ public:
     return const_cast<UserDefinedParams &>(globals_);
   }
 
+  UserDefinedParams &getSubcktGlobals() const
+  {
+    return const_cast<UserDefinedParams &>(subcktGlobals_);
+  }
+
   expressionGroupWrapper * getGroupWrapper () { return groupWrapperPtr_; } 
   expressionGroupWrapper * getGroupWrapper () const { return groupWrapperPtr_; } 
 
@@ -205,6 +210,7 @@ public:
   double                sizeScale_;             ///< ArtificialParameters
 
   UserDefinedParams     globals_;
+  UserDefinedParams     subcktGlobals_;
 
   double                currFreq_;              ///< current frequency
 

@@ -980,12 +980,19 @@ void CircuitBlock::addGlobalParams(const Util::OptionBlock & options)
 //-----------------------------------------------------------------------------
 void CircuitBlock::registerGlobalParams(Util::UParamList & globalParams)
 {
-  Util::UParamList::iterator begin = globalParams.begin();
-  Util::UParamList::iterator end= globalParams.end();
-  for (; begin != end; ++begin)
-  {
-    deviceManager_.addGlobalPar(*begin);
-  }
+  deviceManager_.addGlobalPars(globalParams);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CircuitBlock::registerSubcktGlobalParams
+// Purpose       : 
+// Special Notes :
+// Creator       : Eric Keiter
+// Creation Date : 04/27/2023
+//-----------------------------------------------------------------------------
+void CircuitBlock::registerSubcktGlobalParams(Util::UParamList & globalParams)
+{
+  deviceManager_.addSubcktGlobalPars(globalParams);
 }
 
 //-----------------------------------------------------------------------------

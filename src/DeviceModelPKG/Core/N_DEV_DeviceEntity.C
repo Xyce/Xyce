@@ -1103,23 +1103,32 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     std::vector<std::string>::const_iterator iterVariable;
     for (iterVariable=variables.begin() ; iterVariable!=variables.end() ; ++iterVariable)
     {
+      bool found=true;
       GlobalParameterMap::iterator global_param_it = globals_.paramMap.find(*iterVariable);
       if (global_param_it == globals_.paramMap.end())
       {
+        UserDefinedParams & subcktGlobals_ = solState_.getSubcktGlobals();
+        global_param_it = subcktGlobals_.paramMap.find(*iterVariable);
+        if (global_param_it == subcktGlobals_.paramMap.end())
+        {
+          found=false;
+        }
+      }
+
+      if (!found)
+      {
         UserError(*this) << "Global parameter " << *iterVariable << " in " <<
           par.tag() << " = " << dependentParam.expr->get_expression() << " not found";
-#if 1
+#if 0
         for (int ii=0;ii<variables.size();ii++)
         {
           std::cout << "variables["<<ii<<"] = " << variables[ii] << std::endl;
         }
-
         GlobalParameterMap::iterator tmpIter = globals_.paramMap.begin();
         for ( int ii=0; tmpIter != globals_.paramMap.end(); ++tmpIter, ++ii)
         {
           std::cout << "globals["<<ii<<"] = " << tmpIter->first <<std::endl;
         }
-
           //dependentParam.expr->dumpParseTree();
           exit(0);
 #endif
@@ -2253,25 +2262,47 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
   {
     std::unordered_map <std::string, std::vector <Depend> >::iterator it = tmpGlobalParams_.begin(); 
     std::unordered_map <std::string, std::vector <Depend> >::iterator end = tmpGlobalParams_.end(); 
+    UserDefinedParams & subcktGlobals_ = solState_.getSubcktGlobals();
 
     for ( ; it!=end; it++)
     {
-      std::vector<std::string> & global_exp_names = globals_.expNameVec;
+      std::vector<std::string> & expNameVec = globals_.expNameVec;
       std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec; 
-      std::vector<std::string>::iterator name_it = 
-        std::find(global_exp_names.begin(), global_exp_names.end(), it->first);
-      if (name_it == global_exp_names.end())
-      {
-        Report::UserError() << "Xyce::Device::DeviceEntity::setDependentParameter.  Unable to find parameter " << it->first;
-      }
-      else
-      {
-        int globalIndex = std::distance (global_exp_names.begin(), name_it );
 
+      std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
+      std::vector< std::vector<entityDepend> > & subcktDeviceEntityDependVec 
+          = subcktGlobals_.deviceEntityDependVec; 
+
+      std::vector<std::string>::iterator name_it = 
+        std::find(expNameVec.begin(), expNameVec.end(), it->first);
+
+      int foundGlobal=1;
+      if (name_it == expNameVec.end())
+      {
+        name_it = std::find(subcktExpNameVec.begin(), subcktExpNameVec.end(), it->first);
+        if (name_it == subcktExpNameVec.end()) { foundGlobal = 0; }
+        else { foundGlobal = 2; }
+      }
+
+      if (foundGlobal==1)
+      {
+        int globalIndex = std::distance (expNameVec.begin(), name_it );
         entityDepend ed;
         ed.entityPtr = this;
         ed.parameterVec = it->second;
         deviceEntityDependVec[globalIndex].push_back(ed);
+      }
+      else if (foundGlobal==2)
+      {
+        int globalIndex = std::distance (subcktExpNameVec.begin(), name_it );
+        entityDepend ed;
+        ed.entityPtr = this;
+        ed.parameterVec = it->second;
+        subcktDeviceEntityDependVec[globalIndex].push_back(ed);
+      }
+      else
+      {
+        Report::UserError() << "Xyce::Device::DeviceEntity::setDependentParameter.  Unable to find parameter " << it->first;
       }
     }
 
