@@ -4130,11 +4130,16 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
-      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-      return ((std::real(x->val()))?(yFixed):(zFixed));
+      if (std::real(x->val()))
+      {
+        ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+        return yFixed;
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        return zFixed;
+      }
     };
 
     virtual ScalarT dx (int i)
@@ -4143,39 +4148,36 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
-      ScalarT dyFixed = y->dx(i);  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
-      ScalarT dzFixed = z->dx(i);  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
-      return ((std::real(x->val()))?(dyFixed):(dzFixed));
+      if (std::real(x->val()))
+      {
+        ScalarT dyFixed = y->dx(i);  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
+        return dyFixed;
+      }
+      else
+      {
+        ScalarT dzFixed = z->dx(i);  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
+        return dzFixed;
+      }
     };
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
     {
       int numDerivs=derivs.size();
-      std::vector<ScalarT> yDerivs_;
-      std::vector<ScalarT> zDerivs_;
-      yDerivs_.resize(numDerivs,0.0);
-      zDerivs_.resize(numDerivs,0.0);
-
-      ScalarT xVal = this->childrenAstNodes_[0]->val();
-      ScalarT yFixed, zFixed;
-      this->childrenAstNodes_[1]->dx2(yFixed,yDerivs_);
-      this->childrenAstNodes_[2]->dx2(zFixed,zDerivs_);
-
-      Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
-      result = ((std::real(xVal))?(yFixed):(zFixed));
-
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
+      if (std::real(this->childrenAstNodes_[0]->val()))
+      {
+        this->childrenAstNodes_[1]->dx2(result,derivs);
+      }
+      else
+      {
+        this->childrenAstNodes_[2]->dx2(result,derivs);
+      }
       for (int ii=0;ii<numDerivs;ii++)
       {
-        ScalarT dyFixed = yDerivs_[ii];  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
-        ScalarT dzFixed = zDerivs_[ii];  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
-        derivs[ii] = ((std::real(xVal))?(dyFixed):(dzFixed));
+        Xyce::Util::fixNan(derivs[ii]);
+        Xyce::Util::fixInf(derivs[ii]);
       }
+      Xyce::Util::fixNan(result);
+      Xyce::Util::fixInf(result);
     };
 
     // For the x-part (the conditional), only real part is used.  But y and z can be complex.
@@ -4255,15 +4257,25 @@ class limitOp : public astNode<ScalarT>
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
       bpTimes_.clear();
       computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
       computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
-
-      return ((std::real(xFixed)<std::real(yFixed))?
-          std::real(yFixed):
-          ((std::real(xFixed)>std::real(zFixed))?std::real(zFixed):std::real(xFixed)));
+      if (std::real(xFixed)<std::real(yFixed))
+      {
+        return std::real(yFixed);
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if (std::real(xFixed)>std::real(zFixed))
+        {
+          return std::real(zFixed);
+        }
+        else
+        {
+          return std::real(xFixed);
+        }
+      }
     };
 
     virtual ScalarT dx (int i)
@@ -4273,11 +4285,24 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
-      ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
-      return ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
+      if((std::real(xFixed)<std::real(yFixed)))
+      {
+        return 0.0;
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if((std::real(xFixed)>std::real(zFixed)))
+        {
+          return 0.0;
+        }
+        else
+        {
+          ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
+          return dxFixed;
+        }
+      }
     };
 
     virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
@@ -4286,29 +4311,35 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      int numDerivs = derivs.size();
-      std::vector<ScalarT> xDerivs_;
-      xDerivs_.resize(numDerivs,0.0);
-
-      ScalarT xFixed;
-      x->dx2(xFixed, xDerivs_);
-      Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
-
-      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
       bpTimes_.clear();
       computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
       computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
 
-      result = ((std::real(xFixed)<std::real(yFixed))?
-          std::real(yFixed):
-          ((std::real(xFixed)>std::real(zFixed))?std::real(zFixed):std::real(xFixed)));
-
-      for (int ii=0;ii<numDerivs;ii++)
+      ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+      if (std::real(xFixed) < std::real(yFixed))
       {
-        ScalarT dxFixed = xDerivs_[ii]; Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
-        derivs[ii] = ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
+        result = std::real(yFixed);
+        int numDerivs = derivs.size();
+        for (int ii=0;ii<numDerivs;ii++) { derivs[ii] = 0.0; }
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if((std::real(xFixed)>std::real(zFixed)))
+        {
+          result = std::real(zFixed);
+          int numDerivs = derivs.size();
+          for (int ii=0;ii<numDerivs;ii++) { derivs[ii] = 0.0; }
+        }
+        else
+        {
+          x->dx2(xFixed, derivs); Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+
+          result = std::real(xFixed);
+          int numDerivs = derivs.size();
+          for (int ii=0;ii<numDerivs;ii++) { Xyce::Util::fixNan(derivs[ii]); Xyce::Util::fixInf(derivs[ii]); }
+        }
       }
     };
 
