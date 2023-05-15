@@ -805,6 +805,19 @@ std::string Expression::get_original_expression () const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::generateExpressionString
+// Purpose       : Generates a completely new expression string from the AST.
+// Special Notes : This does NOT modify the internal expression string.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/17/2023
+//-----------------------------------------------------------------------------
+void Expression::generateExpressionString (std::string & expStr)
+{
+  newExpPtr_->generateExpressionString (expStr);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::update
 // Purpose       : Update expression for .STEP, etc.
 //

@@ -93,6 +93,8 @@ protected:
     int oldFilePos,
     int oldLineNumber);
 
+  void processSubcircuitGlobals (CircuitContext & circContext );
+
   // Expand a subcircuit instance by adding the devices and
   // device models that compose the subcircuit to the main
   // (top level) circuit. Prepend device names and nodes with

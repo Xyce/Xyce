@@ -339,9 +339,8 @@ class aunifOp : public astNode<ScalarT>
       std::string tmp1,tmp2,tmp3;
       this->childrenAstNodes_[0]->generateExpressionString(tmp1);
       this->childrenAstNodes_[1]->generateExpressionString(tmp2);
-      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
       str = "aunif("; 
-      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += tmp1 + "," + tmp2;
       str += ")";
     }
     virtual void output(std::ostream & os, int indent=0)
@@ -449,9 +448,8 @@ class unifOp : public astNode<ScalarT>
       std::string tmp1,tmp2,tmp3;
       this->childrenAstNodes_[0]->generateExpressionString(tmp1);
       this->childrenAstNodes_[1]->generateExpressionString(tmp2);
-      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
       str = "unif("; 
-      str += tmp1 + "," + tmp2 + "," + tmp3;
+      str += tmp1 + "," + tmp2;
       str += ")";
     }
     virtual void output(std::ostream & os, int indent=0)

@@ -1637,8 +1637,14 @@ class paramOp: public astNode<ScalarT>
 
     virtual void generateExpressionString (std::string & str)
     {
-      str = paramName_;
-      //this->childrenAstNodes_[0]->generateExpressionString(str);
+      if ( paramType_ == DOT_GLOBAL_PARAM ) 
+      {
+        str = paramName_;
+      }
+      else
+      {
+        this->childrenAstNodes_[0]->generateExpressionString(str);
+      }
     }
 
     virtual void output(std::ostream & os, int indent=0)

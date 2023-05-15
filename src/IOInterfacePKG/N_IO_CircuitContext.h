@@ -280,6 +280,7 @@ public:
 #endif
 
   bool getUqEnabled ();
+  void setUqEnabled () { uqEnabled_ = true; }
 
   // Look for a function with tag functionName in resolvedFunctions_.
   // Check current context and recursively check parent
@@ -444,6 +445,8 @@ public:
 
   // Correct total number of devices after processing K-devices:
   void augmentTotalDeviceCount(int kLineCount, int coupledICount, int YDeviceCount);
+
+  void printOutContextParams(std::string & extra);
 
 private:
   CircuitContext();

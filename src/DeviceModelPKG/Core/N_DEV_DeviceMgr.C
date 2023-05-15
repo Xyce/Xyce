@@ -2476,6 +2476,7 @@ struct SweepParam_equal
 // Diagnostic output for global params, serial version.
 //-----------------------------------------------------------------------------
 void printOutGlobalParamsInfoSerial(
+    std::string & extra,
   std::vector<Util::Expression> & expressionVec,
   std::vector<std::string> & expNameVec,
   GlobalParameterMap & global_parameter_map,
@@ -2484,9 +2485,11 @@ void printOutGlobalParamsInfoSerial(
   {
   for (int ii=0;ii< expNameVec.size(); ++ii)
   {
-    std::cout << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
+    std::cout << extra << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
     std::cout << " = " << expressionVec[ii].get_expression() << std::endl;
 
+    if ( !(deviceEntityDependVec[ii].empty()))
+    {
     for (int jj=0;jj< deviceEntityDependVec[ii].size();jj++)
     {
       std::string entityName;
@@ -2500,15 +2503,16 @@ void printOutGlobalParamsInfoSerial(
         DeviceModel * model = dynamic_cast<DeviceModel *>(deviceEntityDependVec[ii][jj].entityPtr);
         entityName = model->getName();
       }
-      std::cout << "  entity["<<jj<<"] = " << entityName;
+      std::cout << extra << "  entity["<<jj<<"] = " << entityName;
       std::cout <<std::endl;
       for (int kk=0;kk< deviceEntityDependVec[ii][jj].parameterVec.size(); kk++)
       {
-        std::cout << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
+        std::cout << extra << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
         std::cout <<std::endl;
       }
     }
     std::cout <<std::endl;
+    }
   }
   }
 }
@@ -2517,6 +2521,7 @@ void printOutGlobalParamsInfoSerial(
 // Diagnostic output for global params, parallel version.
 //-----------------------------------------------------------------------------
 void printOutGlobalParamsInfo(
+    std::string & extra,
   std::vector<Util::Expression> & expressionVec,
   std::vector<std::string> & expNameVec,
   GlobalParameterMap & global_parameter_map,
@@ -2533,9 +2538,11 @@ void printOutGlobalParamsInfo(
     {
       if (proc == procID)
       {
-        std::cout << "expNameVec for proc = " << procID << std::endl;
+        std::cout << extra << "expNameVec for proc = " << procID << std::endl;
 
-        printOutGlobalParamsInfoSerial(
+        std::string extra2 = extra + std::string("proc ") + std::to_string(procID) + std::string(" :");
+
+        printOutGlobalParamsInfoSerial(extra2,
             expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec);
       }
     }
@@ -2554,9 +2561,24 @@ void printOutGlobalParamsInfo(
 //-----------------------------------------------------------------------------
 void mergeGlobals(
   UserDefinedParams & globals_, 
-  UserDefinedParams & subcktGlobals_
+  UserDefinedParams & subcktGlobals_,
+   Parallel::Communicator & parallel_comm
     )
 {
+  //if (DEBUG_DEVICE)
+  if (false)
+  {
+    std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
+    std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
+    std::vector< std::vector<entityDepend> > & subcktDeviceEntityDependVec = subcktGlobals_.deviceEntityDependVec;
+    GlobalParameterMap & global_parameter_map = subcktGlobals_.paramMap;
+
+    std::string extra("mergeGlobal: ");
+    printOutGlobalParamsInfo(extra,
+        subcktExpressionVec, subcktExpNameVec, global_parameter_map, subcktDeviceEntityDependVec,parallel_comm);
+
+  }
+
   if (!(subcktGlobals_.paramMap.empty()))
   {
     GlobalParameterMap & paramMap = globals_.paramMap;
@@ -2697,6 +2719,9 @@ void sortGlobals(
 // Special Notes : Helper function for DeviceMgr::getRandomParams.  
 //                 Originally this code was inside that function.
 //
+//                 Prior to this call, the size of expressionVec,expNameVec & 
+//                 deviceEntityDependVec must be the same size on all procs.
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/12/2023
@@ -2746,11 +2771,337 @@ void pruneGlobals(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : resolveParam
+//
+// Purpose       : Resolve (global) parameter that depencies on other global
+//                 parameters.
+//
+// Special Notes : This is only needed in parllel, for "subcircuit global"
+//                 parameters.   These parameters (as of this writing) only
+//                 happen when applying "local variation" with expression-based
+//                 random operators.  This process turns subcircuit .params
+//                 (which normally are constant) into .global_params
+//                 (which are allowed to change).
+//
+//                 This is a helper function for broadcastSubcktGlobals.
+//
+//                 Ordinarily, parameters are fully resolved in the parser,
+//                 specifically in functions like CircuitContext::resolve
+//                 and its subordinate functions.
+//
+//                 However, in Xyce's current design it is necessary for the full
+//                 set of global parameters to be known on every processor, at
+//                 least for UQ methods.  At the end of parsing, only proc 0
+//                 has a full set, and they must be broadcast to the other
+//                 processors.
+//
+//                 When they are broadcast, the expressions are sent as strings.
+//                 The strings that are sent are generated from fully resolved
+//                 expressions.  So, *most* external dependencies just become
+//                 part of that string.  Any .param will be converted into a raw
+//                 number.  But, for global_params (i.e. variable) it is necessary
+//                 for them to be attached as an external AST.  These external
+//                 global param dependencies are not included in the newly
+//                 generated string, so they must be re-resolved after they've
+//                 been received by the non-0  processor.
+//
+//                 If everything has been done properly, they should only
+//                 depend on globals, and they should be able to find those
+//                 globals in the device manager globals_ containers.  Also,
+//                 to get to this point they must have been successfully
+//                 resolved on proc 0 during parsing.  So, if they don't resolve
+//                 successfully here, it won't be because of a netlist problem.
+//                 It will instead be a mistake in the code design.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 05/16/2023
+//-----------------------------------------------------------------------------
+bool resolveParam(
+  UserDefinedParams &  globals_,
+  const std::string & paramName,
+  Util::Expression & expression,
+  const std::vector<std::string> & unresolvedParams
+    )
+{
+  std::vector<Util::Expression> & expressionVec = globals_.expressionVec;
+  std::vector<std::string> & expNameVec = globals_.expNameVec;
+  std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
+  GlobalParameterMap & global_parameter_map = globals_.paramMap;
+
+  for (int ii=0;ii<unresolvedParams.size();ii++)
+  {
+    GlobalParameterMap::iterator global_param_it = global_parameter_map.find(unresolvedParams[ii]);
+    if (global_param_it != global_parameter_map.end())
+    {
+      std::vector<std::string>::iterator name_it =
+        std::find(expNameVec.begin(), expNameVec.end(), unresolvedParams[ii]);
+      if (name_it != expNameVec.end())
+      {
+        int index = std::distance( expNameVec.begin(), name_it );
+        Util::Expression & expToBeAttached = expressionVec[index];
+        expression.attachParameterNode(unresolvedParams[ii], expToBeAttached);
+      }
+      else
+      {
+        //enumParamType paramType=DOT_PARAM; // possibly this should be type GLOBAL
+        //expression.make_constant(unresolvedParams[ii], global_param_it->second, paramType);
+        expression.make_constant(unresolvedParams[ii], global_param_it->second);
+      }
+    }
+    else
+    {
+      Report::UserError() << "Could not find " << unresolvedParams[ii] << " in " << paramName;
+      return false;
+    }
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::broadcastSubcktGlobals
+//
+// Purpose       : Send the full list of subcircuit global parameters from
+//                 proc 0 to the other processors.
+//
+// Special Notes : Helper function for the DeviceMgr::getRandomParams function.
+//
+//                 Historically, Xyce only allowed global parameters to come
+//                 from the top level of the netlist.  global_params from
+//                 subcircuits was not allowed.
+//
+//                 However, in order to support local variation for UQ
+//                 methods, it is necessary to support "global" parameters
+//                 from subcircuits.  A better name would be "variable"
+//                 parameters.  Subcircuit global parameters are parameters
+//                 that were originally declared using a (non-global)
+//                 .param statement, but that got converted to "global"
+//                 during parsing, due to dependence on local random
+//                 operators such as AGAUSS.
+//
+//                 In the current parser design, the top level of the netlist
+//                 is (mostly) processed on proc 0 during the first parser pass.
+//                 These top-level parameters are broadcast to the other
+//                 processors at the end of pass 1.
+//
+//                 Subcircuits, in contrast, are expanded during pass 2.
+//                 With respect to parameter resolution (handled in the
+//                 CircuitContext::resolve function), *all* subcircuits are
+//                 resolved on proc 0.  On other processors, expanded
+//                 subcirrcuits are resolved as needed.  The result is that
+//                 proc 0 has a complete vector of all the subcircuit global
+//                 params, and other processors have incompletely vectors.
+//                 Currently, the UQ methods in Xyce assume that every
+//                 processor has a full vector.  If the vectors are
+//                 inconsistent from processor to processor, the current
+//                 code will fail.
+//
+//                 This function performs a broadcast to ensure that all
+//                 processors have the same vectors of subcircuit params.
+//
+//                 After to this call, the size of expressionVec,expNameVec &
+//                 deviceEntityDependVec must be the same size on all procs.
+//
+//                 NOTE: possible fragile aspects of this function include:
+//
+//                 1. It assumes that the ONLY use case that will produce
+//                 subcircuit globals is local variation via random operators.
+//                 As such, it assumes that the only subcircuit params we need
+//                 to broadcast are of EXPR type.  So, it is oriented towards
+//                 the expNameVec and expressionVec.  It adds params to the
+//                 paramMap as well (which can also contain DBL type params),
+//                 but it doesn't broadcast from it.
+//
+//                 2. Expressions are broadcast as strings, and then reparsed
+//                 via the expression library. They may need a "resolve" step.
+//                 For simple cases (like expressions that are just agauss()),
+//                 this isn't necessary.  If they need a resolve step, I think
+//                 that should work from here.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 05/16/2023
+//-----------------------------------------------------------------------------
+void DeviceMgr::broadcastSubcktGlobals(Parallel::Communicator & parallel_comm)
+{
+  if (Parallel::is_parallel_run(parallel_comm.comm()))
+  {
+
+    std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
+    std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
+    std::vector< std::vector<entityDepend> > & subcktDeviceEntityDependVec = subcktGlobals_.deviceEntityDependVec;
+
+    int procID = parallel_comm.procID();
+
+    std::vector<std::string> tmpExpNames;
+    std::vector<std::string> tmpExpressionStringVec;
+
+    //  broadcast subckt expNameVec
+    {
+      int byteCount = 0;
+      int bsize=0;
+
+      if (procID == 0)
+      {
+        int size = subcktExpNameVec.size();
+        byteCount += sizeof( int );
+        std::vector<std::string>::const_iterator it = subcktExpNameVec.begin();
+        std::vector<std::string>::const_iterator end = subcktExpNameVec.end();
+        for (; it != end; ++it)
+        {
+          byteCount += sizeof( int );
+          byteCount += it->length();
+        }
+        bsize = byteCount + 100;
+      }
+
+      parallel_comm.bcast( &bsize, 1, 0 );
+      char * nameBuffer = new char[bsize];
+
+      int pos =0;
+      if (procID == 0)
+      {
+        int numExpNameVecSize = subcktExpNameVec.size();
+        parallel_comm.pack( &numExpNameVecSize, 1, nameBuffer, bsize, pos );
+
+        for (int ii=0;ii<subcktExpNameVec.size();ii++)
+        {
+          int length = subcktExpNameVec[ii].length();
+          parallel_comm.pack( &length, 1, nameBuffer, bsize, pos );
+          parallel_comm.pack( subcktExpNameVec[ii].c_str(), length, nameBuffer, bsize, pos );
+        }
+      }
+      parallel_comm.bcast( nameBuffer, bsize, 0);
+
+      if (procID != 0)
+      {
+        int numExpNameVecSize = 0;
+        parallel_comm.unpack( nameBuffer, bsize, pos, &numExpNameVecSize, 1 );
+        for (int ii=0; ii<numExpNameVecSize; ++ii)
+        {
+          int length=0;
+          parallel_comm.unpack( nameBuffer, bsize, pos, &length, 1 );
+          std::string paramName(std::string( ( nameBuffer + pos ), length ));
+          pos += length;
+          tmpExpNames.push_back(paramName);
+        }
+      }
+      delete [] nameBuffer;
+    }
+
+    //  broadcast subckt expressionVec.
+    {
+      int byteCount = 0;
+      int bsize=0;
+
+      if (procID == 0)
+      {
+        int expressionVecSize = subcktExpressionVec.size();
+        tmpExpressionStringVec.resize(expressionVecSize);
+        {
+          for(int ii=0;ii<expressionVecSize;ii++)
+          {
+            std::string exprString;
+            subcktExpressionVec[ii].generateExpressionString(exprString); // regenerates the string, gets rid of .param dependencies
+            tmpExpressionStringVec[ii] = exprString;
+            byteCount += sizeof( int );
+            byteCount += exprString.length();
+          }
+        }
+        bsize = byteCount + 100;
+      }
+
+      parallel_comm.bcast( &bsize, 1, 0 );
+      char * exprBuffer = new char[bsize];
+
+      int pos =0;
+      if (procID == 0)
+      {
+        int expressionVecSize = subcktExpressionVec.size();
+        parallel_comm.pack( &expressionVecSize, 1, exprBuffer, bsize, pos );
+
+        for (int ii=0;ii<expressionVecSize;ii++)
+        {
+          int length = tmpExpressionStringVec[ii].length();
+          parallel_comm.pack( &length, 1, exprBuffer, bsize, pos );
+          parallel_comm.pack( tmpExpressionStringVec[ii].c_str(), length, exprBuffer, bsize, pos );
+        }
+      }
+      parallel_comm.bcast( exprBuffer, bsize, 0);
+
+      if (procID != 0)
+      {
+        int expressionVecSize = 0;
+        parallel_comm.unpack( exprBuffer, bsize, pos, &expressionVecSize, 1 );
+        for (int ii=0; ii<expressionVecSize; ++ii)
+        {
+          int length=0;
+          parallel_comm.unpack( exprBuffer, bsize, pos, &length, 1 );
+          std::string exprString(std::string( ( exprBuffer + pos ), length ));
+          pos += length;
+          tmpExpressionStringVec.push_back(exprString);
+        }
+      }
+
+      delete [] exprBuffer;
+    }
+
+    // now figure it all out
+    if (procID != 0)
+    {
+      for (int ii=0;ii<tmpExpNames.size();ii++)
+      {
+        std::vector<std::string>::iterator name_it =
+          std::find(subcktExpNameVec.begin(), subcktExpNameVec.end(), tmpExpNames[ii]);
+
+        if (name_it == subcktExpNameVec.end())
+        {
+          subcktExpNameVec.push_back(tmpExpNames[ii]);
+          std::string & expressionString = tmpExpressionStringVec[ii];
+          Util::Expression expression(expressionGroup_, expressionString);
+          subcktExpressionVec.push_back(expression);
+          subcktDeviceEntityDependVec.push_back(std::vector<entityDepend>(0));
+        }
+      }
+
+      for (int ii=0;ii<subcktExpNameVec.size();ii++)
+      {
+        Util::Expression & expression = subcktExpressionVec[ii];
+
+        // this code is to check if things are resolved or not
+        const std::vector<std::string> unresolvedParams = expression.getUnresolvedParams();
+        if (!(unresolvedParams.empty()))
+        {
+          bool resolved = false;
+          std::string & nameOfParamBeingResolved = subcktExpNameVec[ii];
+          if (!(resolveParam( globals_,nameOfParamBeingResolved, expression, unresolvedParams)))
+          {
+            resolved = resolveParam( subcktGlobals_,nameOfParamBeingResolved, expression, unresolvedParams);
+          }
+          else
+          {
+            resolved = true;
+          }
+          if (!resolved)
+          {
+            Report::UserError() << "Failed to resolve " << subcktExpNameVec[ii];
+          }
+        }
+
+        double val;
+        expression.evaluateFunction(val);
+        subcktGlobals_.paramMap[tmpExpNames[ii]] = val;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getRandomParams
 //
-// Purpose       : To conduct Hspice-style sampling analysis, it is necessary 
-//                 to gather all the parameters (global and/or device) which 
-//                 depend upon expressions containing operators such as 
+// Purpose       : To conduct Hspice-style sampling analysis, it is necessary
+//                 to gather all the parameters (global and/or device) which
+//                 depend upon expressions containing operators such as
 //                 AGAUSS, GAUSS, AUNIF, UNIF, RAND and LIMIT
 //
 // Special Notes : Setup function, called once.
@@ -2772,12 +3123,22 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 
   if (false) // useful debug
   {
-    printOutGlobalParamsInfo(expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);
+    std::string extra("DeviceMgr::getRandomParams: ");
+    printOutGlobalParamsInfo(extra,expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);
   }
 
-  mergeGlobals( globals_, subcktGlobals_);
+  if (false)
+  {
+    std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
+    std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
+    std::vector< std::vector<entityDepend> > & subcktDeviceEntityDependVec = subcktGlobals_.deviceEntityDependVec;
+    pruneGlobals(subcktExpNameVec, subcktExpressionVec, subcktDeviceEntityDependVec,parallel_comm);
+  }
+
+  broadcastSubcktGlobals(parallel_comm);
+  mergeGlobals( globals_, subcktGlobals_,parallel_comm);
   sortGlobals( expNameVec, expressionVec, deviceEntityDependVec);
- 
+
   //  this minAll should not be necessary, but just being extra-safe.
   bool emptyExprVec = expressionVec.empty();
   if (Parallel::is_parallel_run(parallel_comm.comm()))
@@ -2785,28 +3146,14 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
     int tmpEmpty = emptyExprVec?1:0; int globalEmpty = 0;
     parallel_comm.minAll(&tmpEmpty, &globalEmpty, 1);
     emptyExprVec = (globalEmpty==0)?false:true;
-  } 
+  }
 
-  if (! ( emptyExprVec) ) 
+  if (! ( emptyExprVec) )
   {
-    pruneGlobals(expNameVec, expressionVec, deviceEntityDependVec,parallel_comm);
+    pruneGlobals(expNameVec, expressionVec, deviceEntityDependVec,parallel_comm); // is this necessary?
 
     for (int ii=0;ii<expressionVec.size();ii++)
     {
-#if 0
-      // ERK. Issue #306 work led to adding this if-statement.  Some of the params
-      // being sampled had zero dependencies in large PDK test circuit.  
-      // This if-statement ensures that they are excluded from the sampling study.
-      bool empty = deviceEntityDependVec[ii].empty();
-      if (Parallel::is_parallel_run(parallel_comm.comm()))
-      {
-        int tmpEmpty = empty?1:0; int globalEmpty = 0;
-        parallel_comm.minAll(&tmpEmpty, &globalEmpty, 1);
-        empty = (globalEmpty==0)?false:true;
-      }
-
-      if ( !empty )
-#endif
       {
         GlobalParameterMap::iterator global_param_it = global_parameter_map.find(expNameVec[ii]);
         populateSweepParam(expressionVec[ii], expNameVec[ii], SamplingParams, ii, global_param_it);
@@ -2815,24 +3162,24 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
           // new code to set up the "master" global parameter dependency map.
           // May need to separate this code when refactoring the above code for parallel.
           //
-          // The goal for the masterGlobalParamDependencies container is 
+          // The goal for the masterGlobalParamDependencies container is
           // to only contain unique objects.
           //
           // So in this container, each entity is unique, ie only appears once.
-          // This is enforced by having the container be a std::unordered_map, 
+          // This is enforced by having the container be a std::unordered_map,
           // and using the entityPtr as the key, or "first" part of the pair.
           //
           // The parameter vector is the value, or "second" part of the pair.
           // So each parameterVec is associated with a specific entity (model or instance).
           //
-          // The elements of this parameter vector are also unique.  So, 
+          // The elements of this parameter vector are also unique.  So,
           // each parameter in the vector will appear at most once. This uniqueness
           // is enforced by the code below.
           //
-          // The params in the parameterVec ONLY include parameters that 
-          // have one or more .param/.global_param dependencies.  Any params 
-          // that lack these dependencies have been excluded.  This screening 
-          // happened upstream, in the device entity, during the DeviceEntity::setParams 
+          // The params in the parameterVec ONLY include parameters that
+          // have one or more .param/.global_param dependencies.  Any params
+          // that lack these dependencies have been excluded.  This screening
+          // happened upstream, in the device entity, during the DeviceEntity::setParams
           // and subordinate  DeviceEntity::setDependentParameter functions,
           // when the globals_.deviceEntityDependVec object was set up.
           std::vector<entityDepend> & edVec = globals_.deviceEntityDependVec[ii];
@@ -2840,7 +3187,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
           {
             entityDepend & ed = edVec[ie];
 
-            std::unordered_map<DeviceEntity *, std::vector<Depend> >::iterator mgpDepIter = 
+            std::unordered_map<DeviceEntity *, std::vector<Depend> >::iterator mgpDepIter =
               masterGlobalParamDependencies.find(ed.entityPtr);
 
             if(mgpDepIter!=masterGlobalParamDependencies.end())
@@ -2885,11 +3232,11 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       {
         const std::vector<Depend> & depVec = (*(modelVector_[ii])).getDependentParams();
         std::string entityName = (*(modelVector_[ii])).getName();
-        for (int jj=0;jj<depVec.size();jj++) 
+        for (int jj=0;jj<depVec.size();jj++)
         {
           std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
           GlobalParameterMap::iterator global_param_it = global_parameter_map.end();
-          populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams, -1, global_param_it); 
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceModelSamplingParams, -1, global_param_it);
         }
       }
     }
@@ -2900,8 +3247,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
     // ERK Note: this parallel reduction may be unneccessary.  As of this writing,
     // I am not 100% sure what the distribution strategy is for device models.
     //
-    // So, I am writing this assuming that 
-    //   (1) models are not global, 
+    // So, I am writing this assuming that
+    //   (1) models are not global,
     //   (2) the same model may appear on 2 or more processors
     //
     if (Parallel::is_parallel_run(parallel_comm.comm()))
@@ -2940,7 +3287,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
           int pos = 0;
           char * paramBuffer = new char[bsize];
 
-          if (proc == procID) 
+          if (proc == procID)
           {
             parallel_comm.pack( &numDevParam, 1, paramBuffer, bsize, pos );
             for (int ii=0;ii<deviceModelSamplingParams.size();ii++)
@@ -2949,15 +3296,15 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
             }
             parallel_comm.bcast( paramBuffer, bsize, proc );
           }
-          else 
+          else
           {
             parallel_comm.bcast( paramBuffer, bsize, proc );
             int devParams = 0;
             parallel_comm.unpack( paramBuffer, bsize, pos, &devParams, 1 );
             Xyce::Analysis::SweepParam tmpSweepParam;
-            for (int i=0; i<devParams; ++i) 
+            for (int i=0; i<devParams; ++i)
             {
-              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm); 
+              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm);
               externalDeviceSamplingParams.push_back( tmpSweepParam );
             }
           }
@@ -2982,11 +3329,11 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
         const std::vector<Depend> & depVec = (*(instancePtrVec_[ii])).getDependentParams();
         const InstanceName & instName = (*(instancePtrVec_[ii])).getName();
         const std::string entityName = instName.getEncodedName(); // ERK. Check this!
-        for (int jj=0;jj<depVec.size();jj++) 
-        { 
+        for (int jj=0;jj<depVec.size();jj++)
+        {
           std::string fullName = entityName + Xyce::Util::separator + depVec[jj].name;
           GlobalParameterMap::iterator global_param_it = global_parameter_map.end();
-          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams, -2, global_param_it); 
+          populateSweepParam( *(depVec[jj].expr), fullName, deviceSamplingParams, -2, global_param_it);
         }
       }
     }
@@ -3028,7 +3375,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
           int pos = 0;
           char * paramBuffer = new char[bsize];
 
-          if (proc == procID) 
+          if (proc == procID)
           {
             parallel_comm.pack( &numDevParam, 1, paramBuffer, bsize, pos );
             for (int ii=0;ii<deviceSamplingParams.size();ii++)
@@ -3037,15 +3384,15 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
             }
             parallel_comm.bcast( paramBuffer, bsize, proc );
           }
-          else 
+          else
           {
             parallel_comm.bcast( paramBuffer, bsize, proc );
             int devParams = 0;
             parallel_comm.unpack( paramBuffer, bsize, pos, &devParams, 1 );
             Xyce::Analysis::SweepParam tmpSweepParam;
-            for (int i=0; i<devParams; ++i) 
+            for (int i=0; i<devParams; ++i)
             {
-              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm); 
+              Xyce::unpack(tmpSweepParam, paramBuffer, bsize, pos, &parallel_comm);
               externalDeviceSamplingParams.push_back( tmpSweepParam );
             }
           }
@@ -3073,7 +3420,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 
 //-----------------------------------------------------------------------------
 // Function      : DeviceMgr::resetScaledParams()
-// Purpose       : 
+// Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL

@@ -576,6 +576,8 @@ public:
 // private:
 //   bool getParamNoReduce(const std::string &name, double &value) const;
 
+  void broadcastSubcktGlobals(Parallel::Communicator & parallel_comm);
+
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 

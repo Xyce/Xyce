@@ -146,6 +146,8 @@ public:
   std::string get_expression (void) const;
   std::string get_original_expression (void) const;
 
+  void generateExpressionString (std::string & expStr);
+
   bool updateForStep ();
 
   bool evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);

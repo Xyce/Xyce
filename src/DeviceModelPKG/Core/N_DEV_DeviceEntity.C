@@ -2302,7 +2302,7 @@ void DeviceEntity::setParams(const std::vector<Param> &params)
       }
       else
       {
-        Report::UserError() << "Xyce::Device::DeviceEntity::setDependentParameter.  Unable to find parameter " << it->first;
+        Report::UserError() << "Xyce::Device::DeviceEntity::setParams.  Unable to find parameter " << it->first;
       }
     }
 

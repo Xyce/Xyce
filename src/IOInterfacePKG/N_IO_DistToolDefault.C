@@ -430,6 +430,12 @@ void DistToolDefault::distributeDevices()
   }
   else
   {
+#if 0
+    {
+      int procID = pdsCommPtr_->procID();
+      std::cout << "about to call receiveCircuitData.  proc = " << procID <<std::endl;
+    }
+#endif
     // Wait to receive the circuit data from processor 0.
     receiveCircuitData();
   }
@@ -726,6 +732,17 @@ DistToolDefault::processDeviceBuffer()
 
     CircuitContext* circuit_context = circuitBlock_.getCircuitContextPtr();
 
+#if 0
+    if (circuit_context->getUqEnabled())
+    {
+      std::cout << "DistToolDefault::processDeviceBuffer().  uqEnabled = TRUE" <<std::endl;
+    }
+    else
+    {
+      std::cout << "DistToolDefault::processDeviceBuffer().  uqEnabled = FALSE" <<std::endl;
+    }
+#endif
+
     // process received device lines, contexts info, and exit calls
     for (ib=0 ; ib<bufs_.size() ; ++ib)
     {
@@ -798,8 +815,24 @@ DistToolDefault::processDeviceBuffer()
 
             // send to cktblk
             circuit_context->setContext( subcircuitName, prefix, nodes );
+#if 0
+            {
+              int procID = pdsCommPtr_->procID();
+              std::cout << "calling circuit_context->resolve from processDeviceBuffer. proc = " << procID <<std::endl;
+              std::string extra = "Before: proc = " + std::to_string(procID) + " ";
+              circuit_context->printOutContextParams(extra);
+            }
+#endif
             circuit_context->resolve( params );
-
+#if 0
+            {
+              int procID = pdsCommPtr_->procID();
+              std::string extra = "After: proc = " + std::to_string(procID) + " ";
+              circuit_context->printOutContextParams(extra);
+              std::cout << "about to call processSubcircuitGlobals from processDeviceBuffer.  proc = " << procID <<std::endl;
+            }
+#endif
+            processSubcircuitGlobals(*circuit_context);
             break;
           }
 
@@ -935,6 +968,68 @@ void DistToolDefault::restorePrevssfInfo(
   ssfPtr_->setLineNumber(oldLineNumber);
 
   return;
+}
+
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+void DistToolDefault::processSubcircuitGlobals (
+    CircuitContext & circContext 
+    )
+{
+  // At this stage, the parameters of the current context are resolved.
+  // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
+  // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
+  Util::UParamList::const_iterator paramIter    = circContext.getContextGlobals().begin(); 
+  Util::UParamList::const_iterator paramIterEnd = circContext.getContextGlobals().end();
+  const unordered_map<std::string, std::string> * globalParamAliasMap = circContext.getGlobalParamAliasMapPtr ();
+
+#if 0
+  int procID = pdsCommPtr_->procID();
+    std::cout << "processSubcircuitGlobals. " 
+    << " Size of context globals = " << circContext.getContextGlobals().size() << " proc = " << procID 
+    <<std::endl;
+#endif
+
+
+  for(;paramIter!=paramIterEnd;++paramIter)
+  {
+    Util::Param parameter = *paramIter;
+    std::string tag = parameter.uTag();
+    Xyce::Util::toUpper(tag);
+    // if it is in the alias map, then it is not fully resolved and we don't want it
+    // we only want fully resolved global params (i.e. including the subcircuit prefix)
+    if ( globalParamAliasMap->find(tag) == globalParamAliasMap->end() )  
+    {
+      if (DEBUG_IO) { std::cout << "Adding subcircuit global param: " << tag << std::endl; }
+      addResolvedGlobalParams_.insert(parameter);
+    }
+  } 
+
+  // ERK.  It doesn't work to save the new globals here and pass them over to the 
+  // device package later. They must be sent to the device manager NOW, before any 
+  // "handleDeviceLines" are called.  This is because, "handleDeviceLine" will 
+  // potentially add models.  Apparently, the Xyce device package resolves model 
+  // parameters immediately, as they are added, so all the globals are needed now.
+  // They will be distributed in parallel later, as needed by the device package.
+#if 0 
+  {
+    int procID = pdsCommPtr_->procID();
+
+    Util::UParamList::const_iterator begin = addResolvedGlobalParams_.begin();
+    Util::UParamList::const_iterator end   = addResolvedGlobalParams_.end ();
+
+    int ii=0;
+    for (; begin != end; ++begin, ++ii)
+    {
+      std::cout << "DistTool, about to call DeviceMgr::addSubcktGlobalPars: param["<<ii<<"] = "  <<
+        begin->uTag() 
+        << " proc = " << procID
+        <<std::endl;
+    }
+  }
+#endif 
+  circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
+  addResolvedGlobalParams_.clear();
 }
 
 //--------------------------------------------------------------------------
@@ -1076,10 +1171,27 @@ bool DistToolDefault::expandSubcircuitInstance(
   if (DEBUG_IO) 
   { std::cout << "Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
 
+#if 0
+  {
+    int procID = pdsCommPtr_->procID();
+    std::string extra = "Before: proc = " + std::to_string(procID) + " ";
+    circuitContext_->printOutContextParams(extra);
+  }
+#endif
   result = circuitContext_->resolve(subcircuitInstanceParams);
+#if 0
+  {
+    int procID = pdsCommPtr_->procID();
+    std::string extra = "After: proc = " + std::to_string(procID) + " ";
+    circuitContext_->printOutContextParams(extra);
+  }
+#endif
   if (!result)
     return result;
 
+  processSubcircuitGlobals(*circuitContext_);
+
+#if 0
   // At this stage, the parameters of the current context are resolved.
   // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
   // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
@@ -1106,7 +1218,26 @@ bool DistToolDefault::expandSubcircuitInstance(
   // potentially add models.  Apparently, the Xyce device package resolves model 
   // parameters immediately, as they are added, so all the globals are needed now.
   // They will be distributed in parallel later, as needed by the device package.
+#if 0 
+  {
+    int procID = pdsCommPtr_->procID();
+
+    Util::UParamList::const_iterator begin = addResolvedGlobalParams_.begin();
+    Util::UParamList::const_iterator end   = addResolvedGlobalParams_.end ();
+
+    int ii=0;
+    for (; begin != end; ++begin, ++ii)
+    {
+      std::cout << "DistTool, about to call DeviceMgr::addSubcktGlobalPars: param["<<ii<<"] = "  <<
+        begin->uTag() 
+        << " proc = " << procID
+        <<std::endl;
+    }
+  }
+#endif 
   circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
+  addResolvedGlobalParams_.clear();
+#endif
 
   // Add any .IC or .NODESET statements for this subcircuit to the top level 
   // option block and resolve any parameters in the current context.
