@@ -274,10 +274,8 @@ public:
   // parameter value to the empty string if it is not found.
   getGlobalParamStatus getResolvedGlobalParameter(Util::Param & parameter) const;
 
-#if 1
   // might not need this
   bool checkForResolvedGlobalParameter(const Util::Param & parameter) const;
-#endif
 
   bool getUqEnabled ();
   void setUqEnabled () { uqEnabled_ = true; }

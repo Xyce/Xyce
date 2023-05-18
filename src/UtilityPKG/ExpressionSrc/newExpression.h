@@ -59,6 +59,7 @@
 #include <ast.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
+#include <checkGroundName.h>
 
 namespace Xyce {
 namespace Util {
@@ -1128,49 +1129,6 @@ private:
   std::unordered_map<unsigned long int,
     std::vector< std::pair< Teuchos::RCP<astNode<usedType> >, int > > > astParents_;
 };
-
-//-------------------------------------------------------------------------
-// Function      : checkGroundName
-// Purpose       : checks if the name of a voltage node is a synonym for ground
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 9/3/2020
-//-------------------------------------------------------------------------
-inline bool checkGroundNodeName(const std::string & name)
-{
-  std::string tmpName = name;
-  Xyce::Util::toUpper(tmpName);
-
-  if (tmpName == std::string("0")) { return true; }
-
-  if (Xyce::Util::preprocessFilter.size() >= Xyce::IO::PreprocessType::NUM_PREPROCESS)
-  {
-  if (Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND])
-  {
-    if (tmpName == std::string("GND")) { return true; }
-    if (tmpName == std::string("GND!")) { return true; }
-    if (tmpName == std::string("GROUND")) { return true; }
-  }
-  }
-
-  bool thisIsGround=false;
-  if (tmpName.size() > 1)
-  {
-    std::size_t lastColonIndex = tmpName.find_last_of(":");
-    std::size_t last = tmpName.size()-1;
-    if (lastColonIndex < last)
-    {
-      std::string endOfName = tmpName.substr(lastColonIndex,last);
-      if (endOfName == ":0") { thisIsGround=true; }
-      else if (endOfName == ":GND") { thisIsGround=true; }
-      else if (endOfName == ":GND!") { thisIsGround=true; }
-      else if (endOfName == ":GROUND") { thisIsGround=true; }
-    }
-  }
-
-  return thisIsGround;
-}
 
 }
 }

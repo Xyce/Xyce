@@ -92,7 +92,7 @@ class agaussOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -208,7 +208,7 @@ class gaussOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -325,7 +325,7 @@ class aunifOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -434,7 +434,7 @@ class unifOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -518,7 +518,7 @@ class randOp : public astNode<ScalarT>
       return ret;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -610,7 +610,7 @@ class twoArgLimitOp : public astNode<ScalarT>
     };
 
     // ERK check this
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = value_;
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }

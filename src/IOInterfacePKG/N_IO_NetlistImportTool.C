@@ -398,20 +398,15 @@ int NetlistImportTool::constructCircuitFromNetlist(
       // Perform initial pass through the circuit file to generate hierarchical context object.
       // Read in the circuit context and circuit options on the root processor.
       mainCircuitBlock_->parseNetlistFilePass1(options_manager); 
-#if  0
-      // ERK.  Comments to possibly remove later, related to issue 24.
-      //
-      // My work on issue 24 has to do with resolving parameters.  These are resolved in each circuit 
-      // context via the CircuitContext::resolve function call.
-      //
+
       // For the top level context, CircuitContext::resolve is called on proc 0 during the first pass.
       // The top level contains lots of global information that will be needed on all processors, so a
       // global broadcast is performed after this.
       //
       // One of the things included in that global broadcast is the list of global parameters, which until 
       // recently were only allowed at the top level of the netlist.  This list of global parameters will 
-      // later be passed over to the device manager.  non-global parameters are not saved at all.
-#endif
+      // later be passed over to the device manager.  Non-global parameters are not passed
+      // over to the device manager and are thrown away once parsing is done.
     }
 
     // Just in case an error was reported in parsing the netlist.
@@ -452,14 +447,6 @@ int NetlistImportTool::constructCircuitFromNetlist(
 
   // Distribute the circuit context and circuit options to all other processors.
   distributionTool_->broadcastGlobalData();
-#if 0
-  // ERK.  Comments to possibly remove later, related to issue 24.
-  // From here (the distributionTool_->broadcastGlobalData() call)
-  // all the global parameters (among other things) from the top level context are broadcast to other processors.
-  //
-  // Note, the total device *count* is determined during the first pass, I think.   If this is the case, that 
-  // means that a skeleton of the subcircuit heirarchy must be traversed.  The count is needed for the distribution.
-#endif
 
   // Now we know what devices and models are used in the netlist, so create the device configuration.
   // NOTE:  This configuration is created without the mutual inductors and inductor, hence the 'false' argument.
@@ -482,32 +469,29 @@ int NetlistImportTool::constructCircuitFromNetlist(
     Stats::TimeBlock _distributeTimer(_distributeStat);
 
     // Distribute and instantiate the circuit devices.
-    distributionTool_->distributeDevices();   
+    distributionTool_->distributeDevices();
 
-#if 0
-    // ERK.  Comments to possibly remove later, related to issue 24.
+    // subcircuit "CircuitContext::resolve" calls will happen here, under the
+    // distributeDevices call (above). Each subckt instance is handled kind of
+    // like a device and expanded as those lines are encountered.  They are
+    // handled by the function DistToolDefault::expandSubcircuitInstance,
+    // which subsequently calls CircuitContext::resolve.  Resolve is also
+    // called (on proc != 0) after circuit context data is unpacked in parallel.
     //
-    // all the subcircuit "CircuitContext::resolve" calls will happen here, under the distributeDevices call. 
-    // Each subckt instance is handled like a device and expanded as those lines are encountered.  
-    // They are handled by the function DistToolDefault::expandSubcircuitInstance, which subsequently calls CircuitContext::resolve.
+    // This means that for the top-level context, "CircuitContext::resolve"
+    // is called in the first pass on proc0, and can be broadcast to all procs,
+    // via the "broadcastGlobalData" function call.
     //
-    // This means that for the top-level context, "CircuitContext::resolve" is called in the first pass on proc0, and can 
-    // be broadcast to all procs, via the "broadcastGlobalData" function call. 
+    // But for subordinate contexts, "CircuitContext::resolve" is called in
+    // the second pass, and also on proc 0. So, the .param and
+    // .global_param containers are complete at this point on proc 0.
+    // On other processors, the param containers are partial, only
+    // containing what was needed for on-proc devices and models.
     //
-    // For all subordinate contexts, "CircuitContext::resolve" is called in the second pass, but also on proc 0, like before.
-    // So, the .param and .global_param containers are complete at this point, and on proc zero.  
-    // But .global_params aren't broadcast in parallel at this stage.  They need to be.
-    //
-    // Other stuff (not .global_params) from this second pass gets sent around in parallel, but the focus for that parallel communication is on sending device metadata.
-    //
-    // So, any .params that needed to be converted to .global_params down in subordinate subcircuits during ::resolve
-    // will need to be broadcast in parallel, much like above.  
-    //
-    // All processors ultimately need a single master list of global parameters in the device package.  All non-global params get thrown away once parsing is done.
-    //
-    // So, this is one practical reason that global_params have previously only been allowed in the top level netlist.  
-    // The machinery for handling subcircuit global_params doesn't exist.
-#endif
+    // .global_params (which are converted from .params inside subcircuit when
+    // they include random operators like AGAUSS for UQ) aren't broadcast in parallel
+    // at this stage.   Off-processor globals aren't needed until the UQ setup
+    // phase, and are thus broadcast later in the device manager.
   }
 
   // register additional circuit options after distribution

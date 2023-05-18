@@ -289,6 +289,11 @@ public:
     return parametricData_.getMap();
   }
 
+  const std::unordered_map <std::string, int> & getDependentParamExcludeMap()
+  {
+    return dependentParamExcludeMap_;
+  }
+
   void resetScaledParams()
   {
     dependentScaleParamExcludeMap_.clear();

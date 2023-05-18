@@ -1101,7 +1101,7 @@ void newExpression::setupDerivatives_ ()
 
         const std::string & node = voltOp->getVoltageNode();
 
-        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        //if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground.  Not necessary now
         {
           std::string nodeUpperCase = node; Xyce::Util::toUpper(nodeUpperCase);
           std::unordered_map<std::string, int>::iterator mapIter;
@@ -1349,7 +1349,7 @@ void newExpression::setupVariousAstArrays()
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
 
-        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        //if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground.  Not necessary now.
         {
         if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
@@ -1946,7 +1946,7 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       {
         for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
 
-        astNodePtr_->dx2(result,derivs);
+        astNodePtr_->dx2(result,derivs,numDerivs_);
 
         // this block was in evaluateFunction
         Util::fixNan(result);
@@ -2027,8 +2027,9 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
         if (false) // ERK.  This code block is kept around for debug purposes.  It normally isn't used.
         {
           // this is a test, to use with unit tests to ensure that the "result" evaluation in dx2 matches that of val().
+          int numDerivs = 0;
           std::vector<usedType> derivs; // if empty, then dx2 should run OK.
-          astNodePtr_->dx2(result, derivs);
+          astNodePtr_->dx2(result, derivs, numDerivs);
         }
         else
         {

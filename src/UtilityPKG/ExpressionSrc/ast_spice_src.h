@@ -169,7 +169,7 @@ class spicePulseOp : public astNode<ScalarT>
       return 0.0;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -410,7 +410,7 @@ class spiceSinOp : public astNode<ScalarT>
       return dSource_dt;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       ScalarT dSource_dt = 0.0;
       if (!freqGiven_ && finalTime_ != 0.0)  
@@ -421,7 +421,7 @@ class spiceSinOp : public astNode<ScalarT>
 
       //ScalarT time = std::real(this->time_->val());
       ScalarT time;
-      this->time_->dx2(time,derivs); // ERK check this!
+      this->time_->dx2(time,derivs,numDerivs); // ERK check this!
       time = std::real(time);
 
       ScalarT tdVal = this->childrenAstNodes_[3]->val();
@@ -628,7 +628,7 @@ class spiceExpOp : public astNode<ScalarT>
       return 0.0;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -809,7 +809,7 @@ class spiceSffmOp : public astNode<ScalarT>
       return 0.0;
     }
  
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }

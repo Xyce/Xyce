@@ -2275,7 +2275,12 @@ void DeviceMgr::setupDependentEntities ()
   InstanceVector::iterator end =instancePtrVec_.end();
   for (iter=begin; iter!=end;++iter)
   {
-    const std::vector<Depend> & depParams = (*iter)->getDependentParams();
+    const std::vector<Depend> & depParams =
+      (*iter)->getDependentParams();
+
+    const std::unordered_map <std::string, int> & dependentParamExcludeMap =
+      (*iter)->getDependentParamExcludeMap();
+
     if (!(depParams.empty()))
     {
       dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
@@ -2285,7 +2290,26 @@ void DeviceMgr::setupDependentEntities ()
     bool solnDep=false, timeDep=false, freqDep=false; 
     for (int ii=0;ii<depParams.size();ii++)
     {
-      if (depParams[ii].expr->isSolutionDependent()) { solnDep=true; }
+      // Only set the solnDep flag if :
+      // (1) the expression is solution dependent and
+      // (2) this parameter has not been tagged for exclusion from this list.
+      // Most solution-dependent parameters (but not all) are just handled directly in
+      // the device, so they don't need to be updated from the deviceMgr. Hence,
+      // they are kept out of this list.
+      if (depParams[ii].expr->isSolutionDependent())
+      {
+        if ( !(dependentParamExcludeMap.empty()) )
+        {
+          if ( dependentParamExcludeMap.find( depParams[ii].name ) == dependentParamExcludeMap.end() )
+          {
+            solnDep=true;
+          }
+        }
+        else
+        {
+          solnDep=true;
+        }
+      }
       if (depParams[ii].expr->isTimeDependent() && !(  depParams[ii].expr->isSolutionDependent())) { timeDep=true; }
       if (depParams[ii].expr->isFreqDependent()  && !(  depParams[ii].expr->isSolutionDependent())) { freqDep=true; }
     }

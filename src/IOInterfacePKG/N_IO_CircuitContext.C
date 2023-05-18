@@ -146,11 +146,7 @@ CircuitContext::CircuitContext(
     resolvedGlobalParams_(),
     multiplierSet_(false),
     multiplierParameter_("",""),
-#if 0
-    uqEnabled_(true) // test. change back to false b4 commit!  This needs to be same on all procs
-#else
     uqEnabled_(false)
-#endif
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  exprGroup =  Teuchos::rcp(new Xyce::Util::baseExpressionGroup ());
   expressionGroup_ = exprGroup;
@@ -165,10 +161,6 @@ CircuitContext::CircuitContext(
   Util::Expression expression(expressionGroup_, expressionString);
   multiplierParameter_.setTag(std::string("M"));
   multiplierParameter_.setVal(expression);
-
-#if 0
-  std::cout << "In CircuitContext::CirccuitContext constructor.  uqEnabled = FALSE" <<std::endl;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -814,9 +806,6 @@ void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsT
            || (iter->getName() == "PCE"))
     {
       uqEnabled_ = true;
-#if 0
-      std::cout << "CircuitContext::categorizeParams.  uqEnabled is TRUE" <<std::endl;
-#endif
 
       Util::ParamList::iterator iterPar = iter->begin();
       Util::ParamList::iterator endPar  = iter->end ();
@@ -1013,69 +1002,48 @@ void CircuitContext::addFunction(FunctionBlock const& function)
 }
 
 //----------------------------------------------------------------------------
+// Function       : CircuitContext::printOutContextParams
+// Purpose        : debug output
+// Special Notes  : 
+// Scope          :
+// Creator        : Eric Keiter
+// Creation Date  : 5/14/2023
 //----------------------------------------------------------------------------
 void CircuitContext::printOutContextParams(std::string & extra)
 {
   if ( !(currentContextPtr_->unresolvedParams_.empty()) )
   {
-//Util::UParamList unresolvedParams_;
     Util::UParamList::const_iterator it = currentContextPtr_->unresolvedParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->unresolvedParams_.end(); 
-    for (int ii=0; it != end; ++it, ii++)
-    {
-      std::cout << extra << "context unresolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl;
-    }
+    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context unresolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
   else
-  {
-      std::cout << extra << "context unresolvedParams_ is empty " <<std::endl;
-  }
+  { std::cout << extra << "context unresolvedParams_ is empty " <<std::endl; }
 
   if( !( currentContextPtr_->unresolvedGlobalParams_.empty() ) )
   {
-//Util::UParamList unresolvedGlobalParams_;
     Util::UParamList::const_iterator it = currentContextPtr_->unresolvedGlobalParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->unresolvedGlobalParams_.end();
-    for (int ii=0; it != end; ++it, ii++)
-    {
-      std::cout << extra << "context unresolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl;
-    }
+    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context unresolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
   else
-  {
-    std::cout << extra << "context unresolvedGlobalParams_ is empty" << std::endl;
-  }
+  { std::cout << extra << "context unresolvedGlobalParams_ is empty" << std::endl; }
 
   if ( !(currentContextPtr_->resolvedParams_.empty()) )
   {
-//Util::UParamList resolvedParams_;
     Util::UParamList::const_iterator it = currentContextPtr_->resolvedParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->resolvedParams_.end();
-    for (int ii=0; it != end; ++it, ii++)
-    {
-      std::cout << extra << "context resolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl;
-    }
+    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context resolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
-  else
-  {
-    std::cout << extra << "context resolvedParams_ is empty" <<std::endl;
-  }
+  else { std::cout << extra << "context resolvedParams_ is empty" <<std::endl; }
 
   if ( !(currentContextPtr_->resolvedGlobalParams_.empty() ) )
   {
-//Util::UParamList resolvedGlobalParams_;
     Util::UParamList::const_iterator it = currentContextPtr_->resolvedGlobalParams_.begin(); 
     Util::UParamList::const_iterator end = currentContextPtr_->resolvedGlobalParams_.end();
-    for (int ii=0; it != end; ++it, ii++)
-    {
-      std::cout << extra << "context resolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl;
-    }
+    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context resolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
-  else
-  {
-    std::cout << extra << "context resolvedGlobalParams_ is empty" <<std::endl;
-  }
-
+  else { std::cout << extra << "context resolvedGlobalParams_ is empty" <<std::endl; }
 }
 
 //----------------------------------------------------------------------------
@@ -1095,24 +1063,10 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       subcircuitInstanceParams.empty() &&
       currentContextPtr_->resolved_)
   {
-#if 0
-    std::cout << "CircuitContext::resolve.  Nothing to do, as it is already resolved" <<std::endl;
-#endif
     // If there are no subcircuit parameters and this context has already
     // been resolved, then no work to do.
     return true;
   }
-#if 0
-  else
-  {
-    std::cout << "CircuitContext::resolve.  Something to do, as it is NOT already resolved" <<std::endl;
-  }
-
-  //{
-    //std::string tmp("Before clear: ");
-    //printOutContextParams(tmp);
-  //}
-#endif
 
   if (DEBUG_IO)
   {
@@ -1128,24 +1082,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
   currentContextPtr_->resolvedFunctions_.clear();
   currentContextPtr_->globalParamAliasMap_.clear();
 
-#if 0
-  {
-    std::string tmp("After clear: ");
-    printOutContextParams(tmp);
-  }
-#endif
-
   bool uqEnabledLocal = getUqEnabled();
-#if 0
-  if(uqEnabledLocal)
-  {
-    std::cout << "CircuitContext::resolve. uqEnabledLocal = TRUE" <<std::endl;
-  }
-  else
-  {
-    std::cout << "CircuitContext::resolve. uqEnabledLocal = FALSE" <<std::endl;
-  }
-#endif
 
 // BEFORE this while loop starts, add the subcircuitParameters to unresolvedParams.  
 // and the subcircuitInstanceParameters to resolvedParams.
@@ -2648,7 +2585,12 @@ getGlobalParamStatus CircuitContext::getResolvedGlobalParameter(Util::Param & pa
 // Function       : CircuitContext::checkForResolvedGlobalParameter
 //
 // Purpose        : Look for a global parameter see if it is present in any context
-// Special Notes  :
+// Special Notes  : Debug function.
+//
+//                  This is very similar to "getResolvedGlobalParameter" except that
+//                  it doesn't do any work such as "setVal".  It just checks if 
+//                  something exists.
+//
 // Scope          : public
 // Creator        : Eric Keiter
 // Creation Date  : 04/19/2023
@@ -3718,17 +3660,6 @@ Pack<IO::CircuitContext>::pack(
   int predictedPos = pos+Pack<IO::CircuitContext>::packedByteCount( circuit_context );
 #endif
 
-#if 0
-  if ( circuit_context.uqEnabled_ )
-  {
-    std::cout << "In Pack<IO::CircuitContext>::pack function.  uqEnabledFlag = TRUE" <<std::endl;
-  }
-  else
-  {
-    std::cout << "In Pack<IO::CircuitContext>::pack function.  uqEnabledFlag = FALSE" <<std::endl;
-  }
-#endif
-
   // pack name
   length = circuit_context.name_.length();
   comm->pack( &length, 1, buf, bsize, pos );
@@ -4047,17 +3978,6 @@ Pack<IO::CircuitContext>::unpack(
   }
 
   circuit_context.currentContextPtr_ = &circuit_context;
-
-#if 0
-  if ( circuit_context.uqEnabled_ )
-  {
-    std::cout << "In Pack<IO::CircuitContext>::unpack function.  uqEnabledFlag = TRUE" <<std::endl;
-  }
-  else
-  {
-    std::cout << "In Pack<IO::CircuitContext>::unpack function.  uqEnabledFlag = FALSE" <<std::endl;
-  }
-#endif
 }
 
 //-----------------------------------------------------------------------------

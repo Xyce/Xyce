@@ -43,7 +43,8 @@ template <typename ScalarT>                                                     
 class NAME ## Op : public astNode<ScalarT>                                             \
 {                                                                                      \
   public:                                                                              \
-    NAME ## Op (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {       \
+    NAME ## Op (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), localDerivsSize_(0) \
+  {       \
           leftConst_ = this->childrenAstNodes_[0]->numvalType(); };                    \
                                                                                        \
     virtual ScalarT val() { return std::NAME(this->childrenAstNodes_[0]->val()); }     \
@@ -56,7 +57,7 @@ class NAME ## Op : public astNode<ScalarT>                                      
       return DX;                                                                       \
     }                                                                                  \
                                                                                        \
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)   \
     {                                                                                  \
       ScalarT leftVal, leftDx;                                                         \
       if (leftConst_)                                                                  \
@@ -68,10 +69,8 @@ class NAME ## Op : public astNode<ScalarT>                                      
       }                                                                                \
       else                                                                             \
       {                                                                                \
-        int numDerivs=derivs.size();                                                   \
-        std::vector<ScalarT> lefDerivs_;                                               \
-        lefDerivs_.resize(numDerivs,0.0);                                              \
-        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);                           \
+        if (localDerivsSize_ < numDerivs) { lefDerivs_.resize(numDerivs,0.0); localDerivsSize_ = numDerivs; }      \
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_,numDerivs);                 \
         result= std::NAME(leftVal);                                                    \
         for (int i=0;i<numDerivs;i++) { ScalarT leftDx=lefDerivs_[i]; derivs[i]=DX; }  \
       }                                                                                \
@@ -117,6 +116,8 @@ class NAME ## Op : public astNode<ScalarT>                                      
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); }       \
                                                                                        \
     bool leftConst_;                                                                   \
+    std::vector<ScalarT> lefDerivs_;                                                   \
+    int localDerivsSize_; \
 };
 
 AST_OP_MACRO( sqrt, (leftDx/(2.*std::sqrt(leftVal))),true)
@@ -139,7 +140,7 @@ template <typename ScalarT>
 class tanhOp : public astNode<ScalarT> 
 { 
   public: 
-  tanhOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+  tanhOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), localDerivsSize_(0) {};
 
   virtual ScalarT val() 
   { 
@@ -163,14 +164,16 @@ class tanhOp : public astNode<ScalarT>
     return retdx;
   } 
 
-  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
   {
-    int numDerivs = derivs.size();
-    std::vector<ScalarT> lefDerivs_;
-    lefDerivs_.resize(numDerivs,0.0);
+    if (localDerivsSize_ < numDerivs)
+    { 
+      lefDerivs_.resize(numDerivs,0.0); 
+      localDerivsSize_ = numDerivs;
+    }
 
     ScalarT arg;
-    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_);
+    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_,numDerivs);
 
     if      (std::real(arg) > +20) { result = +1.0; }
     else if (std::real(arg) < -20) { result = -1.0; }
@@ -222,13 +225,15 @@ class tanhOp : public astNode<ScalarT>
     visitor.visit( castToThis ); // 2nd dispatch
     this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
   }
+  std::vector<ScalarT> lefDerivs_;
+  int localDerivsSize_;
 };
 
 template <typename ScalarT> 
 class atanhOp : public astNode<ScalarT> 
 {
   public: 
-  atanhOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+  atanhOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left), localDerivsSize_(0) {};
 
   virtual ScalarT val() 
   { 
@@ -255,17 +260,20 @@ class atanhOp : public astNode<ScalarT>
     return retdx;
   } 
 
-  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+  virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
   {
     ScalarT Epsilon = 1.e-12;
 
     // derivs
-    int numDerivs = derivs.size();
-    std::vector<ScalarT> lefDerivs_;
-    lefDerivs_.resize(numDerivs,0.0);
+    //if (lefDerivs_.size() < numDerivs) 
+    if (localDerivsSize_ < numDerivs)
+    { 
+      lefDerivs_.resize(numDerivs,0.0); 
+      localDerivsSize_ = numDerivs;
+    }
 
     ScalarT arg;
-    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_);
+    this->childrenAstNodes_[0]->dx2(arg,lefDerivs_,numDerivs);
     if (std::real(arg) >= (std::real(Epsilon) - 1.0) && std::real(arg) <= (1.0 - std::real(Epsilon)))
     {
       for (int i=0;i<numDerivs;i++) { derivs[i] = (lefDerivs_[i]/(1.- arg*arg)); }
@@ -312,6 +320,8 @@ class atanhOp : public astNode<ScalarT>
     visitor.visit( castToThis ); // 2nd dispatch
     this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
   }
+  std::vector<ScalarT> lefDerivs_;
+  int localDerivsSize_;
 };
 
 #endif
