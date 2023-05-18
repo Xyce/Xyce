@@ -24,7 +24,8 @@
 //
 // Purpose        : Declare the circuit "context".
 //
-// Special Notes  :
+// Special Notes  : The circuit context class is arranged in a hierarchy 
+//                  which corresponds to the subcircuit hierarchy.
 //
 // Creator        : Lon Waters
 //
@@ -66,6 +67,25 @@ namespace Xyce {
 namespace IO {
 
 typedef Device::DeviceCountMap DeviceCountMap;
+
+struct resolveStatus
+{
+  resolveStatus(): success(false), convertToGlobal(false)
+  {};
+
+  bool success;
+  bool convertToGlobal;
+};
+
+struct getGlobalParamStatus
+{
+  getGlobalParamStatus(): success(false), subcktGlobal(false), prefix("")
+  {};
+
+  bool success;
+  bool subcktGlobal;
+  std::string prefix;
+};
 
 //----------------------------------------------------------------------------
 // Class          : CircuitContext
@@ -162,6 +182,7 @@ public:
   const std::string& getCurrentContextName() const;
   const std::string& getPrefix() const;
   unordered_map<std::string, std::string> *getNodeMapPtr() const;
+  unordered_map<std::string, std::string> * getGlobalParamAliasMapPtr () const;
   void setParentContextPtr( CircuitContext * const ptr );
   const CircuitContext * getParentContextPtr() const;
   CircuitContext * getCurrentContextPtr() const;
@@ -220,21 +241,20 @@ public:
   bool globalNode (const std::string &nodeName) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  bool resolveParameter(Util::Param& parameter, bool replaceRandomNodes=false) const;
+  void resolveParameter(Util::Param& parameter, resolveStatus & rsArg) const;
 
   // ERK. new version, with no exceptions strings (i.e. function arguments)
-  bool resolveGlobalParameter(Util::Param& parameter) const;
+  void resolveGlobalParameter(Util::Param& parameter, resolveStatus & rsArg) const;
 
   // ERK. new function for new expression.
-  bool resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs) const; 
+  void resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs, resolveStatus & rsArg) const; 
 
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved
   // otherwise return false.
-  bool resolveStrings(Util::Expression & expression,
-                      std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
-
-  bool resolveStringsForDevParams(Util::Expression & expression,
+  void resolveStrings(
+      const std::string & paramBeingResolvedTag, // mostly for debugging
+      Util::Expression & expression, resolveStatus & rs,
                       std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
 
   // Determine if expressionString has any unresolved functions and
@@ -252,7 +272,13 @@ public:
   // Check current context and recursively check parent
   // contexts. Return the parameter if it is found, set the
   // parameter value to the empty string if it is not found.
-  bool getResolvedGlobalParameter(Util::Param & parameter) const;
+  getGlobalParamStatus getResolvedGlobalParameter(Util::Param & parameter) const;
+
+  // might not need this
+  bool checkForResolvedGlobalParameter(const Util::Param & parameter) const;
+
+  bool getUqEnabled ();
+  void setUqEnabled () { uqEnabled_ = true; }
 
   // Look for a function with tag functionName in resolvedFunctions_.
   // Check current context and recursively check parent
@@ -376,6 +402,12 @@ public:
     return resolvedGlobalParams_;
   }
 
+  const Util::UParamList &getContextGlobals() const
+  {
+    //if (currentContextPtr_) { 
+    return currentContextPtr_->getGlobals(); 
+  }
+
   bool getContextMultiplierSet() 
   {
     bool retval=false;
@@ -411,6 +443,8 @@ public:
 
   // Correct total number of devices after processing K-devices:
   void augmentTotalDeviceCount(int kLineCount, int coupledICount, int YDeviceCount);
+
+  void printOutContextParams(std::string & extra);
 
 private:
   CircuitContext();
@@ -479,6 +513,7 @@ private:
   Util::UParamList resolvedParams_;
   Util::UParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
+  unordered_map<std::string, std::string> globalParamAliasMap_;
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 
@@ -488,6 +523,8 @@ private:
 
   bool multiplierSet_;
   Util::Param multiplierParameter_;
+
+  bool uqEnabled_;
 };
 
 //----------------------------------------------------------------------------
@@ -562,6 +599,19 @@ inline const std::string& CircuitContext::getPrefix() const
 inline unordered_map<std::string, std::string> * CircuitContext::getNodeMapPtr() const
 {
   return &(currentContextPtr_->nodeMap_);
+}
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::getNodeMapPtr
+// Purpose        :
+// Special Notes  :
+// Scope          : public
+// Creator        : Lon Waters
+// Creation Date  : 08/05/2003
+//----------------------------------------------------------------------------
+inline unordered_map<std::string, std::string> * CircuitContext::getGlobalParamAliasMapPtr () const
+{
+  return &(currentContextPtr_->globalParamAliasMap_);
 }
 
 //----------------------------------------------------------------------------

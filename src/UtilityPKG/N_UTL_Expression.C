@@ -774,37 +774,11 @@ bool Expression::setTemperature   (const double & temp)
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
-// Purpose       : Returns a string of the expression, post replacements
+// Purpose       : Returns the most up-to-date string of the expression,
+//                 including modifications.
 //
-//                 This is primarily used as a diagnostic.  
-//
-// Special Notes : In the old expression library, the returned string was 
-//                 potentially modified, as part of its process for resolving
-//                 functions and parameters.  So it wasn't necessarily the same
-//                 string as was originally passed into the expression library.
-//
-//                 In the new expression library that is not the case.  In the
-//                 new expression library functions and parameters are not 
-//                 resolved via string substitution.  They are resolved by 
-//                 attaching nodes to the AST.  So nowadays, this function
-//                 returns 100% the same thing as the function "get_input".
-//
-//                 There maybe a few use cases where this would be useful 
-//                 in the newExpression library.  Adding a feature to it where
-//                 it created a new expression string from the AST would not 
-//                 be too hard; it would be akin to what is already done for 
-//                 dumping the expression tree but in a more compact form.
-//
-//                 One use case where it would still be useful would be for 
-//                 params that are *not* attached (like const params), 
-//                 and also for node aliases. 
-//
-//                 But setting this up is not a high priority at the moment.
-//
-//                 The function should probably have a more descriptive name.
-//                 From the name alone, it was hard for me to understand the
-//                 difference between this and get_input. (which is part of why
-//                 they are for now equivalent)
+// Special Notes : This was originally for debugging, but it now is used 
+//                 in various non-debugging ways in the netlist parser.
 //
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
@@ -813,6 +787,34 @@ bool Expression::setTemperature   (const double & temp)
 std::string Expression::get_expression () const
 {
   return newExpPtr_->getExpressionString();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::get_original_expression
+// Purpose       : Returns the original string of the expression, without modifications.
+//
+// Special Notes : mostly for debugging.
+//
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+std::string Expression::get_original_expression () const
+{
+  return newExpPtr_->getOriginalExpressionString();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::generateExpressionString
+// Purpose       : Generates a completely new expression string from the AST.
+// Special Notes : This does NOT modify the internal expression string.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 5/17/2023
+//-----------------------------------------------------------------------------
+void Expression::generateExpressionString (std::string & expStr)
+{
+  newExpPtr_->generateExpressionString (expStr);
 }
 
 //-----------------------------------------------------------------------------
@@ -992,6 +994,12 @@ bool Expression::replace_name ( const std::string & old_name,
   return newExpPtr_->replaceName( old_name, new_name );
 }
 
+bool Expression::replaceParameterName ( const std::string & old_name,
+                                        const std::string & new_name)
+{
+  return newExpPtr_->replaceParameterName( old_name, new_name );
+}
+
 //-----------------------------------------------------------------------------
 // Function      : Expression::isTimeDependent
 // Purpose       : Return true if expression is either explicitly OR implicitly
@@ -1044,21 +1052,34 @@ bool Expression::isSolutionDependent() const
 //-----------------------------------------------------------------------------
 // Function      : Expression::isRandomDependent
 // Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
-// Special Notes : This is only based on local dependence, from parsing.
+//
+// Special Notes : This is only based on local dependence, from parsing as well 
+//                 as nodes that have been "replaced".  This excludes parts of 
+//                 the tree that have been "attached".  
 // Scope         :
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
-  if ( !(newExpPtr_->getLocalAgaussOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalGaussOpVec().empty()) ) { return true; }
-  if ( !(newExpPtr_->getLocalAunifOpVec().empty()) ) { return true; }
-  if ( !(newExpPtr_->getLocalUnifOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalRandOpVec().empty())  ) { return true; }
-  if ( !(newExpPtr_->getLocalTwoArgLimitOpVec().empty()) ) { return true; }
+  return newExpPtr_->getIsShallowRandomDependent();
+}
 
-  return false;
+//-----------------------------------------------------------------------------
+// Function      : Expression::isOriginalRandomDependent
+//
+// Purpose       : Return true if expression dependent on GAUSS, AGAUSS or RAND
+//
+// Special Notes : This is only based on local dependence, from parsing. It 
+//                 excludes nodes that have been replaced, and also excludes 
+//                 nodes that have been attached.
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Expression::isOriginalRandomDependent() const
+{
+  return newExpPtr_->getIsOriginalShallowRandomDependent();
 }
 
 //-----------------------------------------------------------------------------

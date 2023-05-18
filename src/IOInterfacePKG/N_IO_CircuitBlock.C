@@ -25,14 +25,18 @@
 // Purpose        : Define the circuit level containers for holding netlist
 //                  circuit data and the associated circuit level methods.
 //
-// Special Notes  :
+// Special Notes  : This class is arranged in a hierarchy of one or more 
+//                  CircuitBlock objects.  This hierarchy corresponds to the 
+//                  netlist file hierarchy.
+//
+//                  Subcircuit hierarchy is handled by another class, the 
+//                  CircuitContext.  As subcircuits are always completely 
+//                  contained in a single file, the ownership pattern has 
+//                  CircuitContext(s) owned by CircuitBlock(s).
 //
 // Creator        : Lon Waters, SNL
 //
 // Creation Date  : 09/06/2001
-//
-//
-//
 //
 //-----------------------------------------------------------------------------
 
@@ -968,6 +972,30 @@ void CircuitBlock::addGlobalParams(const Util::OptionBlock & options)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : CircuitBlock::registerGlobalParams
+// Purpose       : 
+// Special Notes :
+// Creator       : Eric Keiter
+// Creation Date : 04/27/2023
+//-----------------------------------------------------------------------------
+void CircuitBlock::registerGlobalParams(Util::UParamList & globalParams)
+{
+  deviceManager_.addGlobalPars(globalParams);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CircuitBlock::registerSubcktGlobalParams
+// Purpose       : 
+// Special Notes :
+// Creator       : Eric Keiter
+// Creation Date : 04/27/2023
+//-----------------------------------------------------------------------------
+void CircuitBlock::registerSubcktGlobalParams(Util::UParamList & globalParams)
+{
+  deviceManager_.addSubcktGlobalPars(globalParams);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : CircuitBlock::addOptions
 // Purpose       : Add a set of options corresponding to a .OPTIONS netlist
 //                 line to the circuit.
@@ -1754,7 +1782,9 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
         }
 
         Util::Param& parameter = (*iterPar);
-        circuitContext_.resolveParameter(parameter);
+        resolveStatus paramResolveStatus;
+        circuitContext_.resolveParameter(parameter,paramResolveStatus);
+
         if(parameter.getType() == Xyce::Util::EXPR)
         {
           Util::Expression & expressionToModify = parameter.getValue<Util::Expression>();
@@ -1779,10 +1809,6 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
 //--------------------------------------------------------------------------
 void CircuitBlock::updateAliasNodeMapHelper()
 {
-  // Needed for call to circuitContext_.resolveStrings() but this value is
-  // then otherwise unused within this function.
-  std::vector<std::string> exceptionStrings; 
-
   // Find the entries in aliasNodeMapHelper_ that are expressions (e.g.,
   // start with '}' and store them in a vector (expStrings)
   std::vector<std::string> expStrings; 
@@ -1812,19 +1838,13 @@ void CircuitBlock::updateAliasNodeMapHelper()
       // parameters defined in .GLOBAL_PARAM statement or may
       // be due to function arguments if the expression is the
       // body of a function defined in a .FUNC statement.
-      bool stringsResolved = circuitContext_.resolveStrings(expression, exceptionStrings);
+      resolveStatus stringResolveStatus;
+      std::string tmp("");
+      circuitContext_.resolveStrings(tmp,expression, stringResolveStatus);
+      bool stringsResolved = stringResolveStatus.success;
 
       // Resolve functions in the expression.
       bool functionsResolved = circuitContext_.resolveFunctions(expression);
-
-      // resolve variables in the function body
-    
-      const std::vector<std::string> & strings = expression.getUnresolvedParams();
-      if ( !(strings.empty()) )
-      //if ( expression.get_num(XEXP_STRING) > 0 )
-      {
-        circuitContext_.resolveStrings(expression, exceptionStrings);
-      }
 
       if (stringsResolved && functionsResolved)
       {
@@ -1921,7 +1941,7 @@ bool CircuitBlock::parseIncludeFile(
     ssfPtr_ = ssfMap_[includeFile].second;
 
     if (DEBUG_IO) {
-      Xyce::dout() << "  CircuitBlock::parseIncludeFile: found eisting ssFT " << std::endl
+      Xyce::dout() << "  CircuitBlock::parseIncludeFile: found existing ssFT " << std::endl
                    << " \t its file name is " << ssfPtr_->getFileName() << std::endl
                    << "\t its current location is " << ssfPtr_->getFilePosition() << std::endl
                    << "\t its current line number is " << ssfPtr_->getLineNumber() << std::endl

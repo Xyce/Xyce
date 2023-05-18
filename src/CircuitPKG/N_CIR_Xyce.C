@@ -519,6 +519,8 @@ bool Simulator::doAllocations_()
   Util::subscribe<Analysis::StepEvent>(*analysisManager_,  *outputManagerAdapter_);
   Util::subscribe<Analysis::StepEvent>(*analysisManager_, *deviceManager_);
 
+  Util::subscribe<Analysis::AnalysisEvent>(*analysisManager_, *deviceManager_);
+
   Device::registerOpBuilders(*opBuilderManager_, comm_, *deviceManager_);
   IO::registerOpBuilders(*opBuilderManager_, comm_, *outputManager_, *analysisManager_);
   IO::registerOpBuilders(*opBuilderManager_, comm_, *measureManager_);

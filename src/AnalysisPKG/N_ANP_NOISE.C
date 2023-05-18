@@ -747,12 +747,12 @@ bool NOISE::doLoopProcess()
       updateCurrentFreq_(currentStep);
     }
 
+    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish
+      (AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::NOISE, currentFreq_, currentStep));
+
     updateACLinearSystem_C_and_G_();
     updateACLinearSystemFreq_();
     updateACLinearSystemMagAndPhase_();
-
-    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish
-      (AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::NOISE, currentFreq_, currentStep));
 
     bool stepAttemptStatus;
     {

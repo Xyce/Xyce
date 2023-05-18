@@ -396,13 +396,6 @@ void evaluateApproximationPCE(
 }
 #endif
 
-#if 0
-void histrogram( 
-    //std::ofstream & fout, 
-    std::ostream & fout, 
-    const std::string & name, const std::vector<double> function );
-#endif
-
 } // namespace UQ
 } // namespace Analysis
 } // namespace Xyce

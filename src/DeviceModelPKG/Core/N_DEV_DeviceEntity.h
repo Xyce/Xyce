@@ -199,6 +199,10 @@ public:
 
   bool setParameterRandomExpressionTerms(const std::string & paramName, int opIndex, int astType, double value, bool override_original);
 
+  bool updateSolutionDependentParameters ();
+  bool updateTimeDependentParameters ();
+  bool updateFreqDependentParameters ();
+
   bool updateGlobalAndDependentParameters (
       bool globalParameterChanged,
       bool timeChanged, 
@@ -283,6 +287,11 @@ public:
   const ParameterMap &getParameterMap() const 
   {
     return parametricData_.getMap();
+  }
+
+  const std::unordered_map <std::string, int> & getDependentParamExcludeMap()
+  {
+    return dependentParamExcludeMap_;
   }
 
   void resetScaledParams()

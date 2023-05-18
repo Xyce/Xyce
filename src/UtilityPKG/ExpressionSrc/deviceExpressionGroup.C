@@ -124,7 +124,6 @@ void deviceExpressionGroup::setSolutionLIDs(
 bool deviceExpressionGroup::setupGroup(newExpression &expr)
 {
   lidVec_.clear();
-
   bool success = true;
 
   if (lidMap_.empty() && !(expr.voltOpVec_.empty())) { success = false; }
@@ -140,11 +139,8 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
 
-        if ( !Xyce::Util::checkGroundNodeName(node) ) 
-        {
-          if (lidMap_.find(node) != lidMap_.end()) { lidVec_.push_back( lidMap_[node] ); }
-          else { success = false; }
-        }
+        if (lidMap_.find(node) != lidMap_.end()) { lidVec_.push_back( lidMap_[node] ); }
+        else { success = false; }
       }
     }
 
@@ -175,7 +171,6 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
 bool deviceExpressionGroup::putValues(newExpression & expr)
 {
   bool noChange=true;
-
   int index=0;
   const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
 
@@ -185,15 +180,10 @@ bool deviceExpressionGroup::putValues(newExpression & expr)
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp
         = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
-
-      const std::string & node = voltOp->getVoltageNode();
-      if ( !Xyce::Util::checkGroundNodeName(node) ) 
-      {
-        usedType & val = voltOp->getVoltageVal();
-        usedType oldval = val;
-        if (nextSolVector && index < lidVec_.size()) { val = (*nextSolVector)[lidVec_[index]]; index++; }
-        if(val != oldval) noChange=false;
-      }
+      usedType & val = voltOp->getVoltageVal();
+      usedType oldval = val;
+      if (nextSolVector && index < lidVec_.size()) { val = (*nextSolVector)[lidVec_[index]]; index++; }
+      if(val != oldval) noChange=false;
     }
   }
 

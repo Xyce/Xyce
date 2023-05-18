@@ -684,11 +684,16 @@ bool DistToolBase::handleDeviceLine( TokenVector const& deviceLine,
 // Function       : DistToolBase::instantiateDevice
 // Purpose        : Extract data from tokenized device and place all data about
 //                  the device in Topology.
+//
 // Special Notes  : This method is misnamed as it does not actually instantiate
 //                  the device.  That is done after partitioning (if parallel)
 //                  and is called from Topology.
-//                  This actually fills the DeviceBlock which is stored in
-//                  Topology.
+//
+//                  This fills the DeviceBlock which is used by
+//                  Topology.  The function circuitBlock_.addTableData(device) 
+//                  passes the DeviceBlock object "device" to topology via a 
+//                  call to "topology_.addDevice"
+//
 // Scope          : private
 // Creator        : Lon Waters
 // Creation Date  : 07/28/2003
@@ -803,7 +808,6 @@ bool DistToolBase::instantiateDevice(
     // THIS IS AN AWFUL HACK!  It means that *ANY* device that has
     // "SOLN_DEP" parameters must be hacked in here or they can't be used
     // in a subcircuit!
-
     if ((device.getNetlistDeviceType() == "B" || 
          device.getNetlistDeviceType() == "S" || 
          device.getNetlistDeviceType() == "R" || 
@@ -1199,9 +1203,10 @@ void DistToolBase::find_IC_NODESET_OptionBlock(const std::string& modelName,
                 }
                 iterPar->setTag( newTag );
               }
-  
+ 
               // Resolve any local params.
-              circuitContext_->resolveParameter((*iterPar));
+              resolveStatus stringResolveStatus;
+              circuitContext_->resolveParameter((*iterPar), stringResolveStatus);
             }
   
             // Add this new option block to the current list.

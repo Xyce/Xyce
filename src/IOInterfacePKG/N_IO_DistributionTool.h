@@ -48,6 +48,7 @@
 
 #include <N_IO_fwd.h>
 #include <N_PDS_fwd.h>
+#include <N_UTL_fwd.h>
 
 namespace Xyce {
 namespace IO {
@@ -72,6 +73,9 @@ public:
   // Return any additional option blocks after device distribution.
   virtual std::list<Util::OptionBlock>& getAdditionalOptions() = 0;
 
+#if 1
+  virtual Util::UParamList & getAdditionalGlobalParams()  = 0;
+#endif
 };
 
 } // namespace IO

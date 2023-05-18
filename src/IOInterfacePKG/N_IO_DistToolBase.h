@@ -50,6 +50,7 @@
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_DistributionTool.h>
 #include <N_IO_ParsingMgr.h>
+#include <N_UTL_Param.h>
 
 namespace Xyce {
 namespace IO {
@@ -74,6 +75,8 @@ public:
   virtual bool broadcastGlobalData();
 
   std::list<Util::OptionBlock>& getAdditionalOptions() { return addOptions_; }
+
+  Util::UParamList & getAdditionalGlobalParams() { return addResolvedGlobalParams_; }
 
 protected:
 
@@ -150,6 +153,10 @@ protected:
   // This list will be used to collect .IC and .NODESET statements from subcircuits
   // during device distribution.
   std::list<Util::OptionBlock>  addOptions_;
+
+  // this container will contain global parameters from subcircuits.  
+  // These aren't known until subcircuits are resolved in pass 2
+  Util::UParamList addResolvedGlobalParams_; 
 
   // global data
   CircuitBlock &                circuitBlock_;

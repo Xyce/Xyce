@@ -22,10 +22,9 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Step analysis class
+// Purpose        : Analysis Event class
 //
-// Special Notes  : Specify any "hidden" or subtle details of the class here.
-//                  Portability details, error handling information, etc.
+// Special Notes  : 
 //
 // Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
 //

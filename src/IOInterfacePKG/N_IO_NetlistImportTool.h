@@ -55,6 +55,7 @@
 #include <N_IO_FFTMgr.h>
 #include <N_IO_ParsingMgr.h>
 #include <N_UTL_OptionBlock.h>
+#include <N_UTL_Param.h>
 #include <N_UTL_Stats.h>
 #include <N_PDS_Comm.h>
 
@@ -291,6 +292,12 @@ void registerGlobalParams(Device::DeviceMgr &device_manager, It begin, It end)
   {
     device_manager.addGlobalPar(*begin);
   }
+}
+
+
+inline void registerGlobalParams(Device::DeviceMgr &device_manager, const Util::UParamList & globalParams)
+{
+  device_manager.addGlobalPars(globalParams);
 }
 
 bool registerCircuitOptions(PkgOptionsMgr &options_manager, std::list<Util::OptionBlock> &option_block_list);

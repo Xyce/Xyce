@@ -101,14 +101,33 @@ DistToolDefault::DistToolDefault(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DistToolDefault::circuitDeviceLine
-// Purpose       : Send a circuit device line to current proc
-// Special Notes :
+// Function      : DistToolDefault::sendCircuitDeviceLine
+// Purpose       : Send a circuit device line to current processor
+//
+// Special Notes : This function is only called from proc 0.
+//
+//                 The variable currProc_, or "current processor" refers 
+//                 to the processor that will be receiving data.
+//                 The data is a tokenized line.   The data hasn't been parsed yet.
+//
+//                 It is parsed by "handleDeviceLine" and subordinate function calls
+//                 under that function.   Thus the parsing of this line 
+//                 (and subsequent device allocations, setup, etc) happens 
+//                 after this distribution, on the processor that receives it.
+//
+//                 If currProc_ == 0, then it doesn't make sense to send anything, as 
+//                 that would mean sending from proc 0 to proc 0.  In this special case 
+//                 the function returns false, to indicate nothing was sent.
+//
+//                 currProc_ is incremented every time this function is called.  
+//                 So, when called many times each processor is receiving data 
+//                 on a first-come, first-serve basis.
+//
 // Scope         : public
 // Creator       :
 // Creation Date :
 //-----------------------------------------------------------------------------
-bool DistToolDefault::circuitDeviceLine(TokenVector & deviceLine )
+bool DistToolDefault::sendCircuitDeviceLine(TokenVector & deviceLine )
 {
   if (Parallel::is_parallel_run(pdsCommPtr_->comm()))
   {
@@ -384,7 +403,7 @@ void DistToolDefault::distributeDevices()
       if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
       {
         // parse locally if distool does not distribute
-        if( !circuitDeviceLine( line ) )
+        if( !sendCircuitDeviceLine( line ) )
         {
           handleDeviceLine( line, libSelect, libInside );
         }
@@ -399,7 +418,7 @@ void DistToolDefault::distributeDevices()
       for( int i = 0; i < n; ++i )
       {
         // parse locally if not distributed to another processor
-        if( !circuitDeviceLine( circuitContext_->getMILine( i ) ) )
+        if( !sendCircuitDeviceLine( circuitContext_->getMILine( i ) ) )
         {
           handleDeviceLine( circuitContext_->getMILine( i ), libSelect, libInside );
         }
@@ -780,7 +799,7 @@ DistToolDefault::processDeviceBuffer()
             // send to cktblk
             circuit_context->setContext( subcircuitName, prefix, nodes );
             circuit_context->resolve( params );
-
+            processSubcircuitGlobals(*circuit_context);
             break;
           }
 
@@ -875,7 +894,7 @@ bool DistToolDefault::parseIncludeFile(std::string const& includeFile,
     if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
     {
       // parse locally if distool does not distribute
-      if( !circuitDeviceLine( line ) )
+      if( !sendCircuitDeviceLine( line ) )
       {
         handleDeviceLine( line, libSelect, libInside);
       }
@@ -916,6 +935,66 @@ void DistToolDefault::restorePrevssfInfo(
   ssfPtr_->setLineNumber(oldLineNumber);
 
   return;
+}
+
+//--------------------------------------------------------------------------
+// Function      : DistToolDefault::processSubcircuitGlobals
+//
+// Purpose       : 
+//
+// Special Notes : Subcircuit globals are an unusual special case.  
+//                 Normally globals (variable) params can only come from 
+//                 top-level netlists, not subcircuits.  Those
+//                 orthodox globals are handled in netlist pass 1.
+//
+//                 The special case where they can exist is for local
+//                 variation in UQ. (like sampling analysis).  When local 
+//                 variation is enabled, it is possible for .params that 
+//                 are local to a subcircuit to be transformed into a global.
+//                 As subcircuits are handled in pass 2, this is a pass 2
+//                 operation.
+//
+//                 Note, for pass-1 globals, they are saved and then broadcast 
+//                 to all processors near the end of that pass, and then 
+//                 sent to the device package..  However, for pass-2, that 
+//                 pattern doesn't (currently) work.  Models are allocated 
+//                 on the fly in pass-2, and resolved immediately, meaning 
+//                 that all the globals need to be available right away.
+//                 So, that is why there is a registration call at the end 
+//                 of this function.
+//
+//                 They are (for now) only needed locally on processor.  
+//                 They are broadcast later in the device package, to 
+//                 enable UQ, which needs them on every proc.
+//
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/14/2023
+//--------------------------------------------------------------------------
+void DistToolDefault::processSubcircuitGlobals (CircuitContext & circContext)
+{
+  // At this stage, the parameters of the current context are resolved.
+  // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
+  // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
+  Util::UParamList::const_iterator paramIter    = circContext.getContextGlobals().begin(); 
+  Util::UParamList::const_iterator paramIterEnd = circContext.getContextGlobals().end();
+  const unordered_map<std::string, std::string> * globalParamAliasMap = circContext.getGlobalParamAliasMapPtr ();
+
+  for(;paramIter!=paramIterEnd;++paramIter)
+  {
+    Util::Param parameter = *paramIter;
+    std::string tag = parameter.uTag();
+    Xyce::Util::toUpper(tag);
+    // if it is in the alias map, then it is not fully resolved and we don't want it
+    // we only want fully resolved global params (i.e. including the subcircuit prefix)
+    if ( globalParamAliasMap->find(tag) == globalParamAliasMap->end() )  
+    {
+      if (DEBUG_IO) { std::cout << "Adding subcircuit global param: " << tag << std::endl; }
+      addResolvedGlobalParams_.insert(parameter);
+    }
+  } 
+
+  circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
+  addResolvedGlobalParams_.clear();
 }
 
 //--------------------------------------------------------------------------
@@ -1054,9 +1133,14 @@ bool DistToolDefault::expandSubcircuitInstance(
   std::vector<Device::Param> subcircuitInstanceParams;
   subcircuitInstance.getInstanceParameters(subcircuitInstanceParams);
 
+  if (DEBUG_IO) 
+  { std::cout << "Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
+
   result = circuitContext_->resolve(subcircuitInstanceParams);
   if (!result)
     return result;
+
+  processSubcircuitGlobals(*circuitContext_);
 
   // Add any .IC or .NODESET statements for this subcircuit to the top level 
   // option block and resolve any parameters in the current context.
@@ -1084,7 +1168,7 @@ bool DistToolDefault::expandSubcircuitInstance(
     if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
     {
       // parse locally if distool does not distribute
-      if( !circuitDeviceLine( line ) )
+      if( !sendCircuitDeviceLine( line ) )
       {
         handleDeviceLine( line, libSelect, libInside );
       }
@@ -1103,7 +1187,7 @@ bool DistToolDefault::expandSubcircuitInstance(
     {
       // parse locally if distool does not distribute; normally the
       // DistToolDefault::instantiateDevices() performs this step
-      if( !circuitDeviceLine( circuitContext_->getMILine( i ) ) )
+      if( !sendCircuitDeviceLine( circuitContext_->getMILine( i ) ) )
       {
         handleDeviceLine( circuitContext_->getMILine( i ), libSelect, libInside );
       }

@@ -69,7 +69,9 @@ ParsingMgr::ParsingMgr(
     redefinedParamsFlag_( command_line.argExists("-redefined_params") ),
     redefinedParams_ (RedefinedParamsSetting::IGNORE),
     implicitSubcktMultiplierFlag_(command_line.argExists("-subckt_multiplier")),
-    implicitSubcktMultiplier_(true)
+    implicitSubcktMultiplier_(true),
+    localVariationFlagExists_(command_line.argExists("-local_variation")),
+    localVariationFlag_(true)
 {
   bool hspiceAllFlag = false;
 
@@ -205,6 +207,40 @@ ParsingMgr::ParsingMgr(
     }
   }
 
+  if (localVariationFlagExists_)
+  {
+    std::string localVariationStr = command_line.getArgumentValue("-local_variation");
+
+    Util::toLower(localVariationStr);
+    Util::Param parameter(std::string("LOCAL_VARIATION"),localVariationStr);
+
+    if ( parameter.isInteger() )
+    {
+      localVariationFlag_ = (parameter.getImmutableValue<int>()==1)?true:false;
+    }
+    else if ( parameter.isBool () )
+    {
+      localVariationFlag_ = parameter.getImmutableValue<bool>();
+    }
+    else
+    {
+      ExtendedString stringVal ( parameter.stringValue() );
+      stringVal.toUpper();
+      if (stringVal == "TRUE")
+      {
+        localVariationFlag_ = true;
+      }
+      else if (stringVal == "FALSE")
+      {
+        localVariationFlag_ = false;
+      }
+      else
+      {
+        Report::UserFatal0() << "Invalid value " << stringVal << " for -local_variation command line option";
+      }
+    }
+  }
+
   // These variables are used, in lieu of passing const references to the
   // ParsingMgr into various Util functions like isValue() and Value()
   // and ExpressionInternals::tokenize_.  
@@ -228,7 +264,13 @@ ParsingMgr::~ParsingMgr()
 //-----------------------------------------------------------------------------
 // Function      : ParsingMgr::setParserOptions
 // Purpose       :
-// Special Notes :
+// Special Notes : ERK. Many parsing related issues would ideally be handled 
+//                 here. Currently (5/2023) this isn't possible, because 
+//                 they would be needed too early. 
+//
+//                 There needs to be a new parser pass, before all the others, 
+//                 that only handles ".options parser".
+//
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 09/25/07
@@ -241,7 +283,7 @@ bool ParsingMgr::setParserOptions(const Util::OptionBlock & OB)
 
     if (tag == "MODEL_BINNING")
     {
-      modelBinningFlag_ = static_cast<bool>((*it).getImmutableValue<int>());
+      modelBinningFlag_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if (tag == "SCALE")
     {

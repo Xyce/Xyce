@@ -239,7 +239,9 @@ class astNode : public staticsContainer
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) = 0;
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs) = 0;
+
+    virtual void generateExpressionString (std::string & str) = 0;
 
     virtual void output(std::ostream & os, int indent=0) = 0;
     virtual void compactOutput(std::ostream & os) = 0;
@@ -433,7 +435,7 @@ class numval : public astNode<ScalarT>
 
     virtual ScalarT dx(int i) {return 0.0;}
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number;
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
@@ -443,6 +445,13 @@ class numval : public astNode<ScalarT>
     virtual bool getIsComplex () { return false; }
 
     ScalarT number;
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::stringstream ss;
+      ss << std::real(number);
+      str = ss.str();
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -480,7 +489,7 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     virtual std::complex<double> val() {return number;}
     virtual std::complex<double> dx(int i) {return (std::complex<double>(0.0,0.0));}
 
-    virtual void dx2(std::complex<double> & result, std::vector<std::complex<double> > & derivs)
+    virtual void dx2(std::complex<double> & result, std::vector<std::complex<double> > & derivs, int numDerivs)
     {
       result = number;
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),std::complex<double>(0.0,0.0)); }
@@ -490,6 +499,22 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
     virtual bool getIsComplex () { return (std::imag(number) != 0.0) ; }
 
     std::complex<double> number;
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      if (std::imag(number)!=0.0)
+      {
+        std::stringstream ss;
+        ss << "(" << std::real(number) << "+" << std::imag(number) << "J)";
+        str = ss.str();
+      }
+      else
+      {
+        std::stringstream ss;
+        ss << std::real(number);
+        str = ss.str();
+      }
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -616,7 +641,7 @@ class powOp : public astNode<ScalarT>
 {
   public:
     powOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), localDerivsSize_(0)
     {
       rightConst_ = this->childrenAstNodes_[1]->numvalType();
       leftConst_ = this->childrenAstNodes_[0]->numvalType();
@@ -638,22 +663,24 @@ class powOp : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
       Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       std::vector<ScalarT> & retVal = derivs;
 
-      int numDerivs = derivs.size();
-      std::vector<ScalarT> lefDerivs_;
-      std::vector<ScalarT> rigDerivs_;
-      lefDerivs_.resize(numDerivs,0.0);
-      rigDerivs_.resize(numDerivs,0.0);
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        rigDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
 
       ScalarT leftVal, righVal;
-      lef->dx2(leftVal,lefDerivs_);
-      rig->dx2(righVal,rigDerivs_);
+      lef->dx2(leftVal,lefDerivs_,numDerivs);
+      rig->dx2(righVal,rigDerivs_,numDerivs);
       result  = std::pow(leftVal, righVal);
 
       if (rightConst_ && !leftConst_)
@@ -689,6 +716,14 @@ class powOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "(pow(" + tmp1 + "," + tmp2 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -727,6 +762,11 @@ class powOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -736,7 +776,7 @@ class atan2Op : public astNode<ScalarT>
 {
   public:
     atan2Op (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), localDerivsSize_(0)
     {
       rightConst_ = this->childrenAstNodes_[1]->numvalType();
       leftConst_ = this->childrenAstNodes_[0]->numvalType();
@@ -759,23 +799,33 @@ class atan2Op : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
       Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       std::vector<ScalarT> & retVal = derivs;
 
+#if 0
       int numDerivs = derivs.size();
       std::vector<ScalarT> lefDerivs_;
       std::vector<ScalarT> rigDerivs_;
       lefDerivs_.resize(numDerivs,0.0);
       rigDerivs_.resize(numDerivs,0.0);
+#else
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        rigDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
+#endif
 
       ScalarT leftVal;
       ScalarT righVal;
-      lef->dx2(leftVal,lefDerivs_);
-      rig->dx2(righVal,rigDerivs_);
+      lef->dx2(leftVal,lefDerivs_,numDerivs);
+      rig->dx2(righVal,rigDerivs_,numDerivs);
 
       result = std::atan2(std::real(leftVal), std::real(righVal));
 
@@ -803,6 +853,14 @@ class atan2Op : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "(atan2(" + tmp1 + "," + tmp2 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -841,6 +899,11 @@ class atan2Op : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -865,7 +928,7 @@ class phaseOp : public astNode<ScalarT>
       return ret;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) )
@@ -883,6 +946,13 @@ class phaseOp : public astNode<ScalarT>
     void setPhaseOutputUsesRadians( bool usesRadians )
     {
       phaseOutputUsesRadians_ = usesRadians;
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Ph(" + tmp1 + "))";
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -936,7 +1006,7 @@ class realOp : public astNode<ScalarT>
       return ret;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) )
@@ -948,6 +1018,13 @@ class realOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Re(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -997,7 +1074,7 @@ class imagOp : public astNode<ScalarT>
       return ret;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) )
@@ -1009,6 +1086,13 @@ class imagOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(Img(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1046,7 +1130,8 @@ template <typename ScalarT>
 class maxOp : public astNode<ScalarT>
 {
   public:
-    maxOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right) {};
+    maxOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right),
+      localDerivsSize_(0) {};
 
     virtual ScalarT val()
     { return std::max( std::real(this->childrenAstNodes_[0]->val()), std::real(this->childrenAstNodes_[1]->val()) ); }
@@ -1057,17 +1142,27 @@ class maxOp : public astNode<ScalarT>
       return cmp?(std::real(this->childrenAstNodes_[1]->dx(i))):(std::real(this->childrenAstNodes_[0]->dx(i)));
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
+#if 0
       int numDerivs = derivs.size();
       std::vector<ScalarT> lefDerivs_;
       std::vector<ScalarT> rigDerivs_;
       lefDerivs_.resize(numDerivs,0.0);
       rigDerivs_.resize(numDerivs,0.0);
+#else
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        rigDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
+#endif
 
       ScalarT leftVal, rightVal;
-      this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
-      this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
+      this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_,numDerivs);
+      this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_,numDerivs);
 
       result = std::max( std::real(leftVal), std::real(rightVal));
 
@@ -1079,6 +1174,13 @@ class maxOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(max(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1113,6 +1215,12 @@ class maxOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
+
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -1121,7 +1229,8 @@ template <typename ScalarT>
 class minOp : public astNode<ScalarT>
 {
   public:
-    minOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right) {};
+    minOp ( Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right ): astNode<ScalarT>(left,right),
+      localDerivsSize_(0) {};
 
     virtual ScalarT val() { return std::min( std::real(this->childrenAstNodes_[0]->val()), std::real(this->childrenAstNodes_[1]->val()) ); }
 
@@ -1131,8 +1240,9 @@ class minOp : public astNode<ScalarT>
       return (!cmp)?(std::real(this->childrenAstNodes_[0]->dx(i))):(std::real(this->childrenAstNodes_[1]->dx(i)));
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
+#if 0
       int numDerivs = derivs.size();
       std::vector<ScalarT> lefDerivs_;
       std::vector<ScalarT> rigDerivs_;
@@ -1141,6 +1251,17 @@ class minOp : public astNode<ScalarT>
       ScalarT leftVal, rightVal;
       this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
       this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
+#else
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        rigDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
+      ScalarT leftVal, rightVal;
+      this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_,numDerivs);
+      this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_,numDerivs);
+#endif
 
       result = std::min( std::real(leftVal), std::real(rightVal) );
       bool cmp = std::real(rightVal) < std::real(leftVal) ;
@@ -1151,6 +1272,13 @@ class minOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(min(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1185,6 +1313,11 @@ class minOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant()
     { return (this->childrenAstNodes_[0]->getIsTreeConstant() && this->childrenAstNodes_[1]->getIsTreeConstant()); }
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -1202,13 +1335,20 @@ class unaryNotOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i) {return 0.0;}
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = ((std::real(this->childrenAstNodes_[0]->val())==0)?1:0);
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // this operator only uses the real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(~(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1246,22 +1386,39 @@ template <typename ScalarT>
 class unaryMinusOp : public astNode<ScalarT>
 {
   public:
-    unaryMinusOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left) {};
+    unaryMinusOp (Teuchos::RCP<astNode<ScalarT> > &left): astNode<ScalarT>(left),
+        localDerivsSize_(0) {};
 
     virtual ScalarT val() { return (-(this->childrenAstNodes_[0]->val())); }
     virtual ScalarT dx(int i) { return (-(this->childrenAstNodes_[0]->dx(i))); }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
+#if 0
       int numDerivs = derivs.size();
       std::vector<ScalarT> lefDerivs_;
       lefDerivs_.resize(numDerivs,0.0);
-      this->childrenAstNodes_[0]->dx2(result,lefDerivs_);
+#else
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
+#endif
+      this->childrenAstNodes_[0]->dx2(result,lefDerivs_,numDerivs);
       result *=  -1.0;
       for (int i=0;i<numDerivs;i++) { derivs[i] = (-(lefDerivs_[i])); }
     }
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(-(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1292,6 +1449,10 @@ class unaryMinusOp : public astNode<ScalarT>
 
     virtual bool getIsTreeConstant() { return (this->childrenAstNodes_[0]->getIsTreeConstant()); }
     virtual bool numvalType() { return (this->childrenAstNodes_[0]->numvalType()); };
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -1306,12 +1467,19 @@ class unaryPlusOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (+(this->childrenAstNodes_[0]->dx(i))); }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
-      this->childrenAstNodes_[0]->dx2(result,derivs);
+      this->childrenAstNodes_[0]->dx2(result,derivs,numDerivs);
     }
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "(+(" + tmp1 + "))";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1387,16 +1555,21 @@ class globalParamLayerOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
-      paramNode_->dx2(result,derivs);
+      paramNode_->dx2(result,derivs,numDerivs);
     }
 
     virtual bool getIsComplex () 
     { 
       Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       return paramNode_->getIsComplex(); 
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      this->childrenAstNodes_[0]->generateExpressionString(str);
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1516,7 +1689,7 @@ class paramOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & paramNode_ = this->childrenAstNodes_[0];
       if (isVar_)
@@ -1528,10 +1701,22 @@ class paramOp: public astNode<ScalarT>
           if(derivIndex_>-1) { derivs[derivIndex_] = 1.0; }
         }
       }
-      else { paramNode_->dx2(result,derivs); }
+      else { paramNode_->dx2(result,derivs,numDerivs); }
     }
 
     virtual bool getIsComplex () { return this->childrenAstNodes_[0]->getIsComplex(); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      if ( paramType_ == DOT_GLOBAL_PARAM ) 
+      {
+        str = paramName_;
+      }
+      else
+      {
+        this->childrenAstNodes_[0]->generateExpressionString(str);
+      }
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1698,7 +1883,7 @@ class voltageOp: public astNode<ScalarT>
       return retval;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = voltageVal_;
       if ( !(derivs.empty() ) )
@@ -1709,6 +1894,11 @@ class voltageOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "V(" + voltageNode_ + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1783,7 +1973,7 @@ class currentOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -1794,6 +1984,11 @@ class currentOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "I(" + currentDevice_ + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1863,7 +2058,7 @@ class sparamOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -1874,6 +2069,18 @@ class sparamOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "SParam(";
+      int size=sparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += sparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -1947,7 +2154,7 @@ class yparamOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -1958,6 +2165,18 @@ class yparamOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "YParam(";
+      int size=yparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += yparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2031,7 +2250,7 @@ class zparamOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2042,6 +2261,18 @@ class zparamOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "ZParam(";
+      int size=zparamArgs_.size();
+      for (int ii=0;ii<size;ii++)
+      {
+        str += zparamArgs_[ii];
+        if (size>1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2118,7 +2349,7 @@ class leadCurrentOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2129,6 +2360,11 @@ class leadCurrentOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "I(" + leadCurrentDevice_ + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2198,7 +2434,7 @@ class powerOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2209,6 +2445,11 @@ class powerOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "P(" + powerDevice_ + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2274,7 +2515,7 @@ class internalDevVarOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2285,6 +2526,11 @@ class internalDevVarOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "N(" + internalDevVarDevice_ + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2350,7 +2596,7 @@ class dnoNoiseVarOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2361,6 +2607,18 @@ class dnoNoiseVarOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "DNO(";
+      int size = noiseDevices_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        str += noiseDevices_[ii]; 
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2434,7 +2692,7 @@ class dniNoiseVarOp: public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2445,6 +2703,18 @@ class dniNoiseVarOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "DNI(";
+      int size = noiseDevices_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        str += noiseDevices_[ii]; 
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2508,7 +2778,7 @@ class oNoiseOp: public astNode<ScalarT>
     virtual ScalarT val() {return number_;}
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2519,6 +2789,11 @@ class oNoiseOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "ONOISE";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2560,7 +2835,7 @@ class iNoiseOp: public astNode<ScalarT>
     iNoiseOp (): astNode<ScalarT>(), number_(0.0), derivIndex_(-1) {};
     virtual ScalarT val() {return number_;}
     virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = number_;
       if ( !(derivs.empty() ) )
@@ -2571,6 +2846,11 @@ class iNoiseOp: public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "INOISE";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -2648,7 +2928,8 @@ class funcOp: public astNode<ScalarT>
       nodeResolved_(false),
       argsResolved_(false),
       sdtNodesResolved_(false),
-      ddtNodesResolved_(false)
+      ddtNodesResolved_(false),
+      localDerivsSize_(0)
     {};
 
     //-------------------------------------------------------------------------------
@@ -2827,10 +3108,10 @@ class funcOp: public astNode<ScalarT>
     }
 
     //-------------------------------------------------------------------------------
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       std::vector<ScalarT> & dfdx = derivs;
-      int numDerivs = derivs.size();
+      //int numDerivs = derivs.size();
 
       if (nodeResolved_ && argsResolved_)
       {
@@ -2846,7 +3127,7 @@ class funcOp: public astNode<ScalarT>
           // For this phase, the funcArgs are in the "full" form -
           //   ie, if they represent an AST tree, we use the whole tree to evaluate.
           setArgs();
-          functionNode_->dx2(result,dfdx);
+          functionNode_->dx2(result,dfdx,numDerivs);
           unsetArgs();
 
           // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
@@ -2873,9 +3154,18 @@ class funcOp: public astNode<ScalarT>
             int index=-ii-1;
 
             ScalarT pval;
+#if 0
             std::vector<ScalarT> dpdx_;
             dpdx_.resize(numDerivs,0.0);
-            funcArgs_[ii]->dx2(pval,dpdx_); // usually zero ...
+#else
+            //if (dpdx_.size() < numDerivs) 
+            if (localDerivsSize_ < numDerivs)
+            { 
+              dpdx_.resize(numDerivs,0.0); 
+              localDerivsSize_ = numDerivs;
+            }
+#endif
+            funcArgs_[ii]->dx2(pval,dpdx_,numDerivs); // usually zero ...
 
             for (int jj=0;jj<numDerivs;jj++)
             {
@@ -2892,6 +3182,23 @@ class funcOp: public astNode<ScalarT>
           } // restore
         }
       }
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = funcName_ + "(";
+      int size = funcArgs_.size();
+      for (int ii=0;ii<size;++ii) 
+      { 
+        std::string tmp1;
+        funcArgs_[ii]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1)
+        {
+          str += ",";
+        }
+      }
+      str += ")";
     }
 
     //-------------------------------------------------------------------------------
@@ -3015,6 +3322,16 @@ class funcOp: public astNode<ScalarT>
         if(dummyFuncArgs_.size() == funcArgs_.size())
           for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
       }
+      else
+      {
+        if(!(funcArgs_.empty()))
+        {
+          for (int ii=0;ii<funcArgs_.size();++ii)
+          {
+            funcArgs_[ii]->accept(visitor, funcArgs_[ii]);
+          }
+        }
+      }
     } // 2nd dispatch
 
     bool getNodeResolved() { return nodeResolved_; }
@@ -3084,6 +3401,10 @@ class funcOp: public astNode<ScalarT>
     bool argsResolved_;
     bool sdtNodesResolved_;
     bool ddtNodesResolved_;
+#if 1
+    std::vector<ScalarT> dpdx_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -3098,7 +3419,7 @@ class pwrsOp : public astNode<ScalarT>
 {
   public:
     pwrsOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), localDerivsSize_(0)
     {
       rightConst_ = this->childrenAstNodes_[1]->numvalType();
       leftConst_ = this->childrenAstNodes_[0]->numvalType();
@@ -3167,21 +3488,33 @@ class pwrsOp : public astNode<ScalarT>
       return  retVal;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & lef = this->childrenAstNodes_[0];
       Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       ScalarT leftVal;
       ScalarT righVal;
+
+#if 0
       std::vector<ScalarT> lefDerivs_;
       std::vector<ScalarT> rigDerivs_;
-
       int numDerivs=derivs.size();
       lefDerivs_.resize(numDerivs,0.0);
       rigDerivs_.resize(numDerivs,0.0);
       lef->dx2(leftVal,lefDerivs_);
       rig->dx2(righVal,rigDerivs_);
+#else
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        rigDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_  = numDerivs;
+      }
+      lef->dx2(leftVal,lefDerivs_,numDerivs);
+      rig->dx2(righVal,rigDerivs_,numDerivs);
+#endif
 
       if (std::real(leftVal) >= 0)     { result = std::pow(leftVal, righVal); }
       else if (std::real(leftVal) < 0) { result = -std::pow(-(leftVal), righVal); }
@@ -3190,7 +3523,7 @@ class pwrsOp : public astNode<ScalarT>
       {
         if (rightConst_ && !leftConst_)
         {
-          lef->dx2(leftVal,lefDerivs_);
+          lef->dx2(leftVal,lefDerivs_,numDerivs);
           righVal = rig->val();
           if (std::real(leftVal) >= 0)
           {
@@ -3226,7 +3559,6 @@ class pwrsOp : public astNode<ScalarT>
         }
         else
         {
-
           if (std::real(leftVal) >= 0)
           {
             for (int ii=0;ii<numDerivs;ii++)
@@ -3257,6 +3589,14 @@ class pwrsOp : public astNode<ScalarT>
         }
       }
       return isComplex;
+    }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "pwrs(" + tmp1 + "," + tmp2 + ")";
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -3298,6 +3638,11 @@ class pwrsOp : public astNode<ScalarT>
   private:
     bool rightConst_;
     bool leftConst_;
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -3326,13 +3671,20 @@ class sgnOp : public astNode<ScalarT>
       return ScalarT(0.0);
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "sgn(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3370,7 +3722,8 @@ template <typename ScalarT>
 class signOp : public astNode<ScalarT>
 {
   public:
-    signOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right): astNode<ScalarT>(left,right) {};
+    signOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right): astNode<ScalarT>(left,right),
+        localDerivsSize_(0) {};
 
     virtual ScalarT val()
     {
@@ -3393,7 +3746,7 @@ class signOp : public astNode<ScalarT>
       return (y*dx);
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       ScalarT y = 0.0;
 
@@ -3401,11 +3754,24 @@ class signOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & rig = this->childrenAstNodes_[1];
 
       ScalarT righVal=rig->val();
+
+#if 0
       std::vector<ScalarT> lefDerivs_;
       int numDerivs = derivs.size();
       lefDerivs_.resize(numDerivs,0.0);
       ScalarT leftVal;
       lef->dx2(leftVal,lefDerivs_);
+#else
+      //if (lefDerivs_.size() < numDerivs)
+      if (localDerivsSize_ < numDerivs)
+      {
+        lefDerivs_.resize(numDerivs,0.0);
+        localDerivsSize_ = numDerivs;
+      }
+      ScalarT leftVal;
+      lef->dx2(leftVal,lefDerivs_,numDerivs);
+#endif
+
 
       double realRightVal = std::real(righVal);
       y = ( (realRightVal>0)?+1:y );
@@ -3419,10 +3785,17 @@ class signOp : public astNode<ScalarT>
         ScalarT dx = (std::real(leftVal)) >= 0 ?  lefDerivs_[i] : ScalarT(-lefDerivs_[i]);
         derivs[i] = (y*dx);
       }
-
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part of right, and mag(left)
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "sign(" + tmp1 + "," + tmp2 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3457,6 +3830,10 @@ class signOp : public astNode<ScalarT>
       this->childrenAstNodes_[0]->accept(visitor, this->childrenAstNodes_[0]); 
       this->childrenAstNodes_[1]->accept(visitor, this->childrenAstNodes_[1]);
     }
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    int localDerivsSize_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -3467,7 +3844,8 @@ class fmodOp : public astNode<ScalarT>
 {
   public:
     fmodOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), bpTol_(0.0)
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false), bpTol_(0.0),
+      localDerivsSizeLef_(0), localDerivsSizeRig_(0)
     {
       rightConst_ = this->childrenAstNodes_[1]->numvalType();
       leftConst_ = this->childrenAstNodes_[0]->numvalType();
@@ -3508,22 +3886,23 @@ class fmodOp : public astNode<ScalarT>
       return leftDx-rightDx*floorRes;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
-
+#if 0
       int numDerivs = derivs.size();
-      ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;
       std::vector<ScalarT> lefDerivs_;
       std::vector<ScalarT> rigDerivs_;
+#endif
+      ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;
       if (leftConst_)
       {
         leftVal = this->childrenAstNodes_[0]->val();
       }
       else
       {
-        lefDerivs_.resize(numDerivs,0.0);
-        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_);
+        if (localDerivsSizeLef_ < numDerivs) { lefDerivs_.resize(numDerivs,0.0); localDerivsSizeLef_ = numDerivs; }
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_,numDerivs);
       }
       if (rightConst_)
       {
@@ -3531,8 +3910,8 @@ class fmodOp : public astNode<ScalarT>
       }
       else
       {
-        rigDerivs_.resize(numDerivs,0.0);
-        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_);
+        if (localDerivsSizeRig_ < numDerivs) { rigDerivs_.resize(numDerivs,0.0); localDerivsSizeRig_ = numDerivs;}
+        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_,numDerivs);
       }
 
       double res = fabs((std::real(leftVal))/(std::real(rightVal)));
@@ -3570,6 +3949,14 @@ class fmodOp : public astNode<ScalarT>
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual bool getIsComplex () { return false; } // val() only considers real parts
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "fmod(" + tmp1 + "," + tmp2 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3613,6 +4000,12 @@ class fmodOp : public astNode<ScalarT>
     std::vector<Teuchos::RCP<astNode<ScalarT> > > timeOpVec_;
     double bpTol_;
     std::vector<Xyce::Util::BreakPoint> bpTimes_;
+#if 1
+    std::vector<ScalarT> lefDerivs_;
+    std::vector<ScalarT> rigDerivs_;
+    int localDerivsSizeLef_;
+    int localDerivsSizeRig_;
+#endif
 };
 
 //-------------------------------------------------------------------------------
@@ -3628,13 +4021,20 @@ class roundOp : public astNode<ScalarT>
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "nint(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3680,13 +4080,20 @@ class ceilOp : public astNode<ScalarT>
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "ceil(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3731,13 +4138,20 @@ class floorOp : public astNode<ScalarT>
     // derivative is undefined at integers and 0.0 elsewhere
     virtual ScalarT dx(int i) { return  0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "floor(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3786,13 +4200,20 @@ class intOp : public astNode<ScalarT>
 
     virtual ScalarT dx(int i) { return  0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
     }
 
     virtual bool getIsComplex () { return false; } // val() only considers real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "int(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3841,11 +4262,16 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
-      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-      return ((std::real(x->val()))?(yFixed):(zFixed));
+      if (std::real(x->val()))
+      {
+        ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+        return yFixed;
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        return zFixed;
+      }
     };
 
     virtual ScalarT dx (int i)
@@ -3854,43 +4280,48 @@ class ifStatementOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
-      ScalarT dyFixed = y->dx(i);  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
-      ScalarT dzFixed = z->dx(i);  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
-      return ((std::real(x->val()))?(dyFixed):(dzFixed));
+      if (std::real(x->val()))
+      {
+        ScalarT dyFixed = y->dx(i);  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
+        return dyFixed;
+      }
+      else
+      {
+        ScalarT dzFixed = z->dx(i);  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
+        return dzFixed;
+      }
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
-      int numDerivs=derivs.size();
-      std::vector<ScalarT> yDerivs_;
-      std::vector<ScalarT> zDerivs_;
-      yDerivs_.resize(numDerivs,0.0);
-      zDerivs_.resize(numDerivs,0.0);
-
-      ScalarT xVal = this->childrenAstNodes_[0]->val();
-      ScalarT yFixed, zFixed;
-      this->childrenAstNodes_[1]->dx2(yFixed,yDerivs_);
-      this->childrenAstNodes_[2]->dx2(zFixed,zDerivs_);
-
-      Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
-      result = ((std::real(xVal))?(yFixed):(zFixed));
-
-      // not "fixing" x->val() b/c it is the result of a conditional, which is 1 or 0.
-      // The correct place to fix this is in the comparison operators.  Fix later.
+      if (std::real(this->childrenAstNodes_[0]->val()))
+      {
+        this->childrenAstNodes_[1]->dx2(result,derivs,numDerivs);
+      }
+      else
+      {
+        this->childrenAstNodes_[2]->dx2(result,derivs,numDerivs);
+      }
       for (int ii=0;ii<numDerivs;ii++)
       {
-        ScalarT dyFixed = yDerivs_[ii];  Xyce::Util::fixNan(dyFixed);  Xyce::Util::fixInf(dyFixed);
-        ScalarT dzFixed = zDerivs_[ii];  Xyce::Util::fixNan(dzFixed);  Xyce::Util::fixInf(dzFixed);
-        derivs[ii] = ((std::real(xVal))?(dyFixed):(dzFixed));
+        Xyce::Util::fixNan(derivs[ii]);
+        Xyce::Util::fixInf(derivs[ii]);
       }
+      Xyce::Util::fixNan(result);
+      Xyce::Util::fixInf(result);
     };
 
     // For the x-part (the conditional), only real part is used.  But y and z can be complex.
     virtual bool getIsComplex () { return ((this->childrenAstNodes_[1])->getIsComplex() || (this->childrenAstNodes_[2])->getIsComplex()); }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "if(" + tmp1 + "," + tmp2 + "," + tmp3 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -3957,15 +4388,25 @@ class limitOp : public astNode<ScalarT>
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
       bpTimes_.clear();
       computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
       computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
-
-      return ((std::real(xFixed)<std::real(yFixed))?
-          std::real(yFixed):
-          ((std::real(xFixed)>std::real(zFixed))?std::real(zFixed):std::real(xFixed)));
+      if (std::real(xFixed)<std::real(yFixed))
+      {
+        return std::real(yFixed);
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if (std::real(xFixed)>std::real(zFixed))
+        {
+          return std::real(zFixed);
+        }
+        else
+        {
+          return std::real(xFixed);
+        }
+      }
     };
 
     virtual ScalarT dx (int i)
@@ -3975,42 +4416,58 @@ class limitOp : public astNode<ScalarT>
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
       ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
-      ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
       ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
-      return ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
+      if((std::real(xFixed)<std::real(yFixed)))
+      {
+        return 0.0;
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if((std::real(xFixed)>std::real(zFixed)))
+        {
+          return 0.0;
+        }
+        else
+        {
+          ScalarT dxFixed = x->dx(i); Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
+          return dxFixed;
+        }
+      }
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       Teuchos::RCP<astNode<ScalarT> > & x = (this->childrenAstNodes_[0]);
       Teuchos::RCP<astNode<ScalarT> > & y = (this->childrenAstNodes_[1]);
       Teuchos::RCP<astNode<ScalarT> > & z = (this->childrenAstNodes_[2]);
 
-      int numDerivs = derivs.size();
-      std::vector<ScalarT> xDerivs_;
-      xDerivs_.resize(numDerivs,0.0);
-
-      ScalarT xFixed;
-      x->dx2(xFixed, xDerivs_);
-      Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
-
-      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
-      ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
-
       bpTimes_.clear();
       computeBreakPoint ( x, y, timeOpVec_, bpTol_, bpTimes_);
       computeBreakPoint ( x, z, timeOpVec_, bpTol_, bpTimes_);
 
-      result = ((std::real(xFixed)<std::real(yFixed))?
-          std::real(yFixed):
-          ((std::real(xFixed)>std::real(zFixed))?std::real(zFixed):std::real(xFixed)));
-
-      for (int ii=0;ii<numDerivs;ii++)
+      ScalarT xFixed = x->val();  Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+      ScalarT yFixed = y->val();  Xyce::Util::fixNan(yFixed);  Xyce::Util::fixInf(yFixed);
+      if (std::real(xFixed) < std::real(yFixed))
       {
-        ScalarT dxFixed = xDerivs_[ii]; Xyce::Util::fixNan(dxFixed); Xyce::Util::fixInf(dxFixed);
-        derivs[ii] = ((std::real(xFixed)<std::real(yFixed))?0.0:((std::real(xFixed)>std::real(zFixed))?0.0:(dxFixed)));
+        result = std::real(yFixed);
+        for (int ii=0;ii<numDerivs;ii++) { derivs[ii] = 0.0; }
+      }
+      else
+      {
+        ScalarT zFixed = z->val();  Xyce::Util::fixNan(zFixed);  Xyce::Util::fixInf(zFixed);
+        if((std::real(xFixed)>std::real(zFixed)))
+        {
+          result = std::real(zFixed);
+          for (int ii=0;ii<numDerivs;ii++) { derivs[ii] = 0.0; }
+        }
+        else
+        {
+          x->dx2(xFixed, derivs, numDerivs); Xyce::Util::fixNan(xFixed);  Xyce::Util::fixInf(xFixed);
+
+          result = std::real(xFixed);
+          for (int ii=0;ii<numDerivs;ii++) { Xyce::Util::fixNan(derivs[ii]); Xyce::Util::fixInf(derivs[ii]); }
+        }
       }
     };
 
@@ -4030,6 +4487,15 @@ class limitOp : public astNode<ScalarT>
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual bool getIsComplex () { return false; } // val() only uses real parts
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2,tmp3;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      this->childrenAstNodes_[2]->generateExpressionString(tmp3);
+      str = "limit(" + tmp1 + "," + tmp2 + "," + tmp3 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -4098,7 +4564,7 @@ class stpOp : public astNode<ScalarT>
 
     virtual ScalarT dx (int i) { return 0.0; }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
@@ -4120,6 +4586,13 @@ class stpOp : public astNode<ScalarT>
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
 
     virtual bool getIsComplex () { return false; } // val() only uses real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "stp(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -4178,12 +4651,11 @@ class urampOp : public astNode<ScalarT>
       return ((std::real(this->childrenAstNodes_[0]->val()))>0)?1.0:0.0;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       double leftVal = std::real(this->childrenAstNodes_[0]->val());
       result = ((leftVal)>0)?(leftVal):0.0;
 
-      int numDerivs = derivs.size();
       for (int ii=0;ii<numDerivs;ii++)
       {
         derivs[ii] = ((leftVal)>0)?1.0:0.0;
@@ -4191,6 +4663,13 @@ class urampOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; } // val() only uses real part
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "uramp(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -5088,10 +5567,10 @@ class tableOp : public astNode<ScalarT>
     //-------------------------------------------------------------------------------
     // ERK FIX THIS
     //-------------------------------------------------------------------------------
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
-      for(int ii=0;ii<derivs.size();ii++)
+      for(int ii=0;ii<numDerivs;ii++)
       {
         derivs[ii] = dx(ii);
       }
@@ -5246,6 +5725,15 @@ class tableOp : public astNode<ScalarT>
     // this yet.   Update if that changes.
     //virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "table(" + tmp1 + ")"; // FIX THIS!
+
+      std::vector<std::string> errStr(1,std::string("AST node (table) doesn't have generateExpressionString function yet")); yyerror(errStr);
+    }
 
     virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
@@ -5439,7 +5927,7 @@ class scheduleOp : public astNode<ScalarT>
       return dydx;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
@@ -5448,6 +5936,14 @@ class scheduleOp : public astNode<ScalarT>
     // in practice so far, schedule is only used for setting up time windows (i.e. real, not complex)
     // It also isn't generally used in outputs.
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "schedule(" + tmp1 + ")";
+      std::vector<std::string> errStr(1,std::string("AST node (schedule) doesn't have generateExpressionString function yet")); yyerror(errStr);
+    }
 
     virtual void output(std::ostream & os, int indent=0) // FIX THIS
     {
@@ -5598,7 +6094,7 @@ class sdtOp : public astNode<ScalarT>
       return dIdx;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       if (this->processSuccessfulStepFlag)
       {
@@ -5631,8 +6127,7 @@ class sdtOp : public astNode<ScalarT>
       }
 
       sdtStateData<ScalarT> & state = this->getSdtState();
-      int numDerivs = derivs.size();
-      this->childrenAstNodes_[0]->dx2(state.val2, derivs);
+      this->childrenAstNodes_[0]->dx2(state.val2, derivs,numDerivs);
 
       ScalarT dIdVal2 = 0.5*deltaT;
       ScalarT deltaI = (state.val1+state.val2)*dIdVal2;
@@ -5644,6 +6139,13 @@ class sdtOp : public astNode<ScalarT>
 
     // in practice this is (so far) only used in transient simulation, so real valued, not complex.
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "sdt(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -5768,7 +6270,7 @@ class ddtOp : public astNode<ScalarT>
       return ddt_dx;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       if (this->processSuccessfulStepFlag)
       {
@@ -5780,7 +6282,6 @@ class ddtOp : public astNode<ScalarT>
         }
       }
 
-      int numDerivs =  derivs.size();
       ScalarT time = 0.0;
       ScalarT deltaT = 0.0;
       ddtStateData<ScalarT> & state = this->getDdtState();
@@ -5801,7 +6302,7 @@ class ddtOp : public astNode<ScalarT>
 
           // for now, hardwire to backward Euler
           ScalarT ddt_dVal2 = 1.0/deltaT;
-          this->childrenAstNodes_[0]->dx2(state.val2, derivs);
+          this->childrenAstNodes_[0]->dx2(state.val2, derivs,numDerivs);
           timeDerivative_ = (state.val2-state.val1)*ddt_dVal2;
 
           for(int ii=0;ii<numDerivs;ii++)
@@ -5821,6 +6322,13 @@ class ddtOp : public astNode<ScalarT>
 
     // in practice this is (so far) only used in transient simulation, so real valued, not complex.
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      str = "ddt(" + tmp1 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -6020,7 +6528,7 @@ class ddxOp : public astNode<ScalarT>
       return ret;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); }
@@ -6028,6 +6536,14 @@ class ddxOp : public astNode<ScalarT>
 
     // revisit this.  Going with typeid is probably good enough for now.
     virtual bool getIsComplex () { return (typeid(ScalarT) == typeid(std::complex<double>)) ; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      std::string tmp1,tmp2;
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);
+      str = "ddx(" + tmp1 + "," + tmp2 + ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -6085,7 +6601,7 @@ class specialsOp : public astNode<ScalarT>
       return retval;
     };
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = value_;
       if ( !(derivs.empty() ) )
@@ -6096,6 +6612,11 @@ class specialsOp : public astNode<ScalarT>
     }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = type_;
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -6146,10 +6667,15 @@ class piConstOp : public astNode<ScalarT>
 
     virtual ScalarT val() { return ScalarT(M_PI); };
     virtual ScalarT dx (int i) { return ScalarT(0.0); };
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  { result = ScalarT(M_PI);
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs) { result = ScalarT(M_PI);
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); } }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "PI";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -6181,10 +6707,15 @@ class CtoKConstOp : public astNode<ScalarT>
 
     virtual ScalarT val() { return ScalarT(CONSTCtoK); };
     virtual ScalarT dx (int i) { return ScalarT(0.0); };
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)  { result = ScalarT(CONSTCtoK);
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs) { result = ScalarT(CONSTCtoK);
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0); } }
 
     virtual bool getIsComplex () { return false; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = std::to_string(std::real(CONSTCtoK));
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {

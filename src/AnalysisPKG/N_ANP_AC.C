@@ -962,11 +962,11 @@ bool AC::doLoopProcess()
       updateCurrentFreq_(currentStep);
     }
 
+    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::AC, currentFreq_, currentStep));
+
     updateLinearSystem_C_and_G_();
     updateLinearSystemFreq_();
     updateLinearSystemMagAndPhase_();
-
-    static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::AC, currentFreq_, currentStep));
 
     bool stepAttemptStatus;
     {

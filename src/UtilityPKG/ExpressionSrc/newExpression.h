@@ -59,6 +59,7 @@
 #include <ast.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
+#include <checkGroundName.h>
 
 namespace Xyce {
 namespace Util {
@@ -119,6 +120,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {};
 
@@ -126,6 +129,7 @@ public:
   newExpression ( std::string const & exp, Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_(exp),
+    originalExpressionString_(exp),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -167,6 +171,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -185,6 +191,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_(expressionString_),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -226,6 +233,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -249,6 +258,7 @@ public:
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
+    originalExpressionString_(expressionString_),
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
@@ -290,6 +300,8 @@ public:
     getTheSeedCalledBefore_(false),
     savedResult_(0.0),
     phaseOutputUsesRadians_(false),
+    isShallowRandomDependent_(false),
+    isOriginalShallowRandomDependent_(false),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("DT")));
@@ -345,6 +357,7 @@ public:
   newExpression (const newExpression & right) :
     group_(right.group_),
     expressionString_(right.expressionString_),
+    originalExpressionString_(right.originalExpressionString_),
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
@@ -452,6 +465,8 @@ public:
     getTheSeedCalledBefore_(right.getTheSeedCalledBefore_),
     savedResult_(right.savedResult_),
     phaseOutputUsesRadians_(right.phaseOutputUsesRadians_),
+    isShallowRandomDependent_(right.isShallowRandomDependent_),
+    isOriginalShallowRandomDependent_(right.isOriginalShallowRandomDependent_),
     opVectors_(paramOpVec_,funcOpVec_, voltOpVec_, currentOpVec_, leadCurrentOpVec_, bsrcCurrentOpVec_, powerOpVec_, internalDevVarOpVec_, dnoNoiseDevVarOpVec_, dniNoiseDevVarOpVec_, oNoiseOpVec_, iNoiseOpVec_, sdtOpVec_, ddtOpVec_, srcAstNodeVec_, stpAstNodeVec_, compAstNodeVec_, limitAstNodeVec_, phaseOpVec_, sparamOpVec_, yparamOpVec_, zparamOpVec_, agaussOpVec_, gaussOpVec_, aunifOpVec_, unifOpVec_, randOpVec_, twoArgLimitOpVec_, isTimeDependent_, isTempDependent_, isVTDependent_, isFreqDependent_, isGminDependent_, isScheduleDependent_)
   {
     dtNodePtr_   = right.dtNodePtr_;
@@ -469,6 +484,7 @@ public:
   {
     group_ = right.group_;
     expressionString_ = right.expressionString_;
+    originalExpressionString_ = right.originalExpressionString_;
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
@@ -575,6 +591,8 @@ public:
     getTheSeedCalledBefore_ = right.getTheSeedCalledBefore_;
     savedResult_ = right.savedResult_;
     phaseOutputUsesRadians_ = right.phaseOutputUsesRadians_;
+    isShallowRandomDependent_ = right.isShallowRandomDependent_;
+    isOriginalShallowRandomDependent_ = right.isOriginalShallowRandomDependent_;
 
     dtNodePtr_   = right.dtNodePtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -741,14 +759,29 @@ public:
     }
   };
 
+  // Create a new expression string from the AST
+  // This is useful if the AST has been modified, and needs to be re-parsed.
+  // This can happen, sometimes, with the handling of local variation via random operators.
+  // In that case, nodes of the AST are replaced, and then a completely new independent copy 
+  // of the expression may be needed.
+  void generateExpressionString (std::string & expStr)
+  {
+    if ( !(Teuchos::is_null(astNodePtr_)) )
+    {
+      astNodePtr_->generateExpressionString(expStr);
+    }
+  }
+
   std::vector< Teuchos::RCP<astNode<usedType> > > & getSrcNodeVec() { return srcAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getStpNodeVec() { return stpAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getCompNodeVec() { return compAstNodeVec_;}
   std::vector< Teuchos::RCP<astNode<usedType> > > & getLimitNodeVec() { return limitAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
+  const std::string & getOriginalExpressionString() { return originalExpressionString_; }
 
   bool replaceName ( const std::string & old_name, const std::string & new_name);
+  bool replaceParameterName ( const std::string & paramName, const std::string & newParamName);
 
   double getTime() { return std::real(timeNodePtr_->val()); };
 
@@ -790,6 +823,11 @@ public:
   bool getDeviceCurrentDependent() { return isDeviceCurrentDependent_; }
   bool getLeadCurrentDependent() { return isLeadCurrentDependent_; }
   bool getLeadCurrentDependentExcludeBsrc() { return isLeadCurrentDependentExcludeBsrc_; }
+
+  bool getIsShallowRandomDependent() { return isShallowRandomDependent_; }
+  bool getIsOriginalShallowRandomDependent() { return isOriginalShallowRandomDependent_; }
+  void setIsShallowRandomDependent() { isShallowRandomDependent_ = true; }
+  void setIsOriginalShallowRandomDependent() { isOriginalShallowRandomDependent_ = true; }
 
   // this function is only used to determine function arguments of a function prototype
   // So if we have .func abc(x,y) {x+y+10}
@@ -902,6 +940,7 @@ private:
 
   mutable Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
+  std::string originalExpressionString_; // unmodified by "replace" procedures
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
@@ -1067,6 +1106,9 @@ private:
   usedType savedResult_;
   bool phaseOutputUsesRadians_;
 
+  bool isShallowRandomDependent_; // true if the the local AST contains random operator.
+  bool isOriginalShallowRandomDependent_; // true if the original local AST, before any node replacements contains random operator
+
   opVectorContainers<usedType> opVectors_;
   std::vector<usedType> oldSolVals_;
 
@@ -1087,49 +1129,6 @@ private:
   std::unordered_map<unsigned long int,
     std::vector< std::pair< Teuchos::RCP<astNode<usedType> >, int > > > astParents_;
 };
-
-//-------------------------------------------------------------------------
-// Function      : checkGroundName
-// Purpose       : checks if the name of a voltage node is a synonym for ground
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 9/3/2020
-//-------------------------------------------------------------------------
-inline bool checkGroundNodeName(const std::string & name)
-{
-  std::string tmpName = name;
-  Xyce::Util::toUpper(tmpName);
-
-  if (tmpName == std::string("0")) { return true; }
-
-  if (Xyce::Util::preprocessFilter.size() >= Xyce::IO::PreprocessType::NUM_PREPROCESS)
-  {
-  if (Xyce::Util::preprocessFilter[Xyce::IO::PreprocessType::REPLACE_GROUND])
-  {
-    if (tmpName == std::string("GND")) { return true; }
-    if (tmpName == std::string("GND!")) { return true; }
-    if (tmpName == std::string("GROUND")) { return true; }
-  }
-  }
-
-  bool thisIsGround=false;
-  if (tmpName.size() > 1)
-  {
-    std::size_t lastColonIndex = tmpName.find_last_of(":");
-    std::size_t last = tmpName.size()-1;
-    if (lastColonIndex < last)
-    {
-      std::string endOfName = tmpName.substr(lastColonIndex,last);
-      if (endOfName == ":0") { thisIsGround=true; }
-      else if (endOfName == ":GND") { thisIsGround=true; }
-      else if (endOfName == ":GND!") { thisIsGround=true; }
-      else if (endOfName == ":GROUND") { thisIsGround=true; }
-    }
-  }
-
-  return thisIsGround;
-}
 
 }
 }

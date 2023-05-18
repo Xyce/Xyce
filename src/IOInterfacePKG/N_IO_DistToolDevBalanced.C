@@ -135,14 +135,14 @@ DistToolDevBalanced::DistToolDevBalanced(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : DistToolDevBalanced::circuitDeviceLine
+// Function      : DistToolDevBalanced::sendCircuitDeviceLine
 // Purpose       : Send a circuit device line to current proc
 // Special Notes :
 // Scope         : public
 // Creator       :
 // Creation Date :
 //-----------------------------------------------------------------------------
-bool DistToolDevBalanced::circuitDeviceLine(TokenVector & deviceLine )
+bool DistToolDevBalanced::sendCircuitDeviceLine(TokenVector & deviceLine )
 {
   if (Parallel::is_parallel_run(pdsCommPtr_->comm()))
   {
@@ -456,7 +456,7 @@ void DistToolDevBalanced::distributeDevices()
       if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
       {
         // parse locally if distool does not distribute
-        if( !circuitDeviceLine( line ) )
+        if( !sendCircuitDeviceLine( line ) )
         {
           handleDeviceLine( line, libSelect, libInside );
         }
@@ -471,7 +471,7 @@ void DistToolDevBalanced::distributeDevices()
       for( int i = 0; i < n; ++i )
       {
         // parse locally if not distributed to another processor
-        if( !circuitDeviceLine( circuitContext_->getMILine( i ) ) )
+        if( !sendCircuitDeviceLine( circuitContext_->getMILine( i ) ) )
         {
           handleDeviceLine( circuitContext_->getMILine( i ), libSelect, libInside );
         }
@@ -957,7 +957,7 @@ bool DistToolDevBalanced::parseIncludeFile(std::string const& includeFile,
     if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
     {
       // parse locally if distool does not distribute
-      if( !circuitDeviceLine( line ) )
+      if( !sendCircuitDeviceLine( line ) )
       {
         handleDeviceLine( line, libSelect, libInside);
       }
@@ -1166,7 +1166,7 @@ bool DistToolDevBalanced::expandSubcircuitInstance(
     if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
     {
       // parse locally if distool does not distribute
-      if( !circuitDeviceLine( line ) )
+      if( !sendCircuitDeviceLine( line ) )
       {
         handleDeviceLine( line, libSelect, libInside );
       }
@@ -1185,7 +1185,7 @@ bool DistToolDevBalanced::expandSubcircuitInstance(
     {
       // parse locally if distool does not distribute; normally the
       // DistToolDevBalanced::instantiateDevices() performs this step
-      if( !circuitDeviceLine( circuitContext_->getMILine( i ) ) )
+      if( !sendCircuitDeviceLine( circuitContext_->getMILine( i ) ) )
       {
         handleDeviceLine( circuitContext_->getMILine( i ), libSelect, libInside );
       }

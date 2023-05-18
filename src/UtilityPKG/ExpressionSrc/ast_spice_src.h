@@ -169,7 +169,7 @@ class spicePulseOp : public astNode<ScalarT>
       return 0.0;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -231,6 +231,20 @@ class spicePulseOp : public astNode<ScalarT>
     virtual void setBreakPointTol(double tol) { bpTol_ = tol; }
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_pulse("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -396,7 +410,7 @@ class spiceSinOp : public astNode<ScalarT>
       return dSource_dt;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       ScalarT dSource_dt = 0.0;
       if (!freqGiven_ && finalTime_ != 0.0)  
@@ -407,7 +421,7 @@ class spiceSinOp : public astNode<ScalarT>
 
       //ScalarT time = std::real(this->time_->val());
       ScalarT time;
-      this->time_->dx2(time,derivs); // ERK check this!
+      this->time_->dx2(time,derivs,numDerivs); // ERK check this!
       time = std::real(time);
 
       ScalarT tdVal = this->childrenAstNodes_[3]->val();
@@ -460,6 +474,20 @@ class spiceSinOp : public astNode<ScalarT>
     }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_sin("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -600,7 +628,7 @@ class spiceExpOp : public astNode<ScalarT>
       return 0.0;
     }
 
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -632,6 +660,20 @@ class spiceExpOp : public astNode<ScalarT>
     }
 
     virtual void setStartingTimeStep(double timeStep) { startingTimeStep_ = timeStep; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_exp("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -767,7 +809,7 @@ class spiceSffmOp : public astNode<ScalarT>
       return 0.0;
     }
  
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs) 
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)
     {
       result = val();
       if ( !(derivs.empty() ) ) { std::fill(derivs.begin(),derivs.end(),0.0);  }
@@ -777,6 +819,20 @@ class spiceSffmOp : public astNode<ScalarT>
     virtual bool getIsComplex () { return false; }
 
     virtual void setFinalTime(double finalTime) { finalTime_ = finalTime; }
+
+    virtual void generateExpressionString (std::string & str)
+    {
+      str = "spice_sffm("; 
+      int size = this->childrenAstNodes_.size();
+      for (int ii=0;ii<size;++ii)
+      {
+        std::string tmp1;
+        this->childrenAstNodes_[0]->generateExpressionString(tmp1);
+        str += tmp1;
+        if (size > 1 && ii < size-1) { str += ","; }
+      }
+      str += ")";
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
