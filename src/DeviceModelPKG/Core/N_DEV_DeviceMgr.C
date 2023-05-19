@@ -3362,6 +3362,8 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
       }
     }
 
+    std::sort(deviceSamplingParams.begin(), deviceSamplingParams.end(), SweepParam_lesser());
+
     // if parallel, get a combined vector of random instance params from all processors.
     if (Parallel::is_parallel_run(parallel_comm.comm()))
     {
