@@ -2098,6 +2098,8 @@ void CircuitContext::resolveGlobalParameter(Util::Param& parameter, resolveStatu
       return;
     }
 
+    if(brandNewExpression) { delete expressionPtr; }
+
     rsArg.success = stringsResolved && functionsResolved;
     return;
   }
