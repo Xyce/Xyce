@@ -2035,7 +2035,7 @@ void CircuitContext::resolveGlobalParameter(Util::Param& parameter, resolveStatu
   {
     if (DEBUG_IO)
     {
-      Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
+      Xyce::dout() << "CircuitContext::resolveGlobalParameter parameter " << parameter.uTag()
                    << " has expression value " << std::endl;
     }
 
@@ -2079,7 +2079,7 @@ void CircuitContext::resolveGlobalParameter(Util::Param& parameter, resolveStatu
     // Resolve functions in the expression.
     bool functionsResolved = resolveFunctions(expression);
 
-    parameter.setVal(expression);
+    if (brandNewExpression) { parameter.setVal(expression); }
 
     if (DEBUG_IO) 
     {
