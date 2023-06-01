@@ -185,5 +185,13 @@
   for use on the std::unordered\_map object.  This code was fixed to use
   the correct accessor function for the map. \\ \hline
 
+ \textbf{Xyce Project Backlog/611}: 
+   The devConMap is not implemented in any of the BSIM CMG devices & 
+   The devConMap is a data structure provided by each device model to enable 
+   the topology package to perform the "no DC path to ground" diagnostic.
+   The BSIMCMG devices did not have this set up, and so circuits using 
+   these devices would sometimes produce spurious warning messages.  
+   This has been fixed.  \\ \hline
+
 \end{longtable}
 }
