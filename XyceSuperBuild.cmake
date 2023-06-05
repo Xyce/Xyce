@@ -30,6 +30,7 @@ endif()
 find_package(LAPACK 3.5.0)
 # Change separator in LAPACK_LIBARIES to avoid ';' being converted to a space
 string(REPLACE ";" "|" LAPACK_LIBRARIES "${LAPACK_LIBRARIES}")
+string(REPLACE ";" "|" BLAS_LIBRARIES "${BLAS_LIBRARIES}")
 
 if(NOT LAPACK_LIBRARIES)
   if(WIN32)
