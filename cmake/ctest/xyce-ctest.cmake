@@ -10,7 +10,7 @@ set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
 set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 
 find_program(HNAME NAMES hostname)
-execute_process(COMMAND "${HNAME}"
+execute_process(COMMAND "${HNAME}" "-s"
   OUTPUT_VARIABLE myhost
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
