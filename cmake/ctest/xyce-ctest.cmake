@@ -10,7 +10,7 @@ set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
 set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 
 find_program(HNAME NAMES hostname)
-execute_process(COMMAND "${HNAME}" "-f"
+execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE myhost
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -29,7 +29,7 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 set(MODEL "Experimental")
 
-ctest_start(${MODEL} TRACK ${MODEL})
+ctest_start(${MODEL} GROUP ${MODEL})
 ctest_configure()
 ctest_build()
 ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)
