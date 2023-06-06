@@ -22,5 +22,6 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 set(MODEL "Experimental")
 
+ctest_start(${MODEL} TRACK ${MODEL})
 ctest_configure()
 ctest_build()
