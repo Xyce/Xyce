@@ -7,6 +7,7 @@ set(CTEST_DROP_SITE "joseki-srn.sandia.gov/CDash")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
 set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
+set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 
 set(CMAKE_BUILD_TYPE "Release")
 
