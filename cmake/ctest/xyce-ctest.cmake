@@ -33,11 +33,6 @@ set(CTEST_BUILD_NAME "glh_Intel64_RHEL7_Serial-cmake-cde-gcc")
 # used for invocation of parallel make
 set(CTEST_BUILD_FLAGS "-j16")
 
-# this script should be invoked via jenkins which is assumed to have
-# performed the clone/update of the code
-set(DONOTCLONE TRUE)
-set(DONOTUPDATE TRUE)
-
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 set(MODEL "Experimental")
