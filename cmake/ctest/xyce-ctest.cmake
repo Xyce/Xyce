@@ -9,6 +9,13 @@ set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
 set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 
+find_program(HNAME NAMES hostname)
+execute_process(COMMAND "${HNAME}" "-f"
+  OUTPUT_VARIABLE myhost
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+set(CTEST_SITE "${myhost}")
+
 set(CMAKE_BUILD_TYPE "Release")
 
 set(CTEST_BUILD_NAME "glh_Intel64_RHEL7_Serial-cmake-cde-gcc")
@@ -25,3 +32,4 @@ set(MODEL "Experimental")
 ctest_start(${MODEL} TRACK ${MODEL})
 ctest_configure()
 ctest_build()
+ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)
