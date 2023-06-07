@@ -29,6 +29,7 @@ libExpressionSrc_la_SOURCES = \
   ast_random.h \
 	astRandEnum.h \
   ast_visitor.h \
+	checkGroundName.h \
   expressionGroup.h \
   newExpression.h \
   deviceExpressionGroup.h \

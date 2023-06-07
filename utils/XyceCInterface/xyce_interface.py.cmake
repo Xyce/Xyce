@@ -126,7 +126,7 @@ class xyce_interface:
     return (status, names)
 
   def getDACDeviceNames( self ):
-    basename = "YADC"
+    basename = "YDAC"
     cBaseName = c_char_p(basename.encode('utf-8'))
     cNumDeviceNames = c_int( 0 )
     cMaxDeviceNameLength = c_int( 0 )
@@ -243,6 +243,9 @@ class xyce_interface:
     cvarName = c_char_p(varName.encode('utf-8'))
     cValue = c_double(0.0)
     status = self.lib.xyce_obtainResponse( byref(self.xycePtr), cvarName, byref(cValue) )
+    if( status == 0):
+      # name lookup failed so return zero
+      return( status, 0.0)
     return (status, (cValue.value))
 
   def getTimeVoltagePairsADCsz( self ):

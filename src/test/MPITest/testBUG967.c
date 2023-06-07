@@ -45,8 +45,10 @@ int main(int narg, char**arg)
   for (i=0; i < nrecvs; i++){
     MPI_Wait(req + i, &status);
     procs_from[i] = status.MPI_SOURCE;
-    printf("%d wait source %d count %lu \n",
-           my_proc, status.MPI_SOURCE, status._ucount);
+    int count;
+    MPI_Get_count(&status, MPI_INT, &count);
+    printf("%d wait source %d count %d \n",
+           my_proc, status.MPI_SOURCE, count);
   }
 
   for (i = 0; i < nrecvs; i++)

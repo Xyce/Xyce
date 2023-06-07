@@ -59,6 +59,7 @@ using std::unordered_map;
 #include <N_UTL_fwd.h>
 
 #include <N_ANP_StepEvent.h>
+#include <N_ANP_AnalysisEvent.h>
 #include <N_LOA_Loader.h>
 #include <N_DEV_ArtificialParameters.h>
 #include <N_DEV_DeviceOptions.h>
@@ -88,6 +89,9 @@ bool getParamAndReduce(
   const std::string &   name,
   std::complex<double> & val);
 
+typedef Util::Listener<Analysis::StepEvent> StepEventListener;
+typedef Util::Listener<Analysis::AnalysisEvent> AnalysisEventListener;
+
 //-----------------------------------------------------------------------------
 // Class         : DeviceMgr
 // Purpose       :
@@ -95,7 +99,9 @@ bool getParamAndReduce(
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 3/16/00
 //-----------------------------------------------------------------------------
-class DeviceMgr : public Util::Listener<Analysis::StepEvent>
+class DeviceMgr : public StepEventListener,
+                  public AnalysisEventListener
+
 {
   friend struct ArtificialParameters::ArtificialParameter;
   friend bool getParamAndReduce(Parallel::Machine comm, const DeviceMgr &device_manager, const std::string &name, double &value);
@@ -126,6 +132,7 @@ private:
 
 public:
   void notify(const Analysis::StepEvent &event);
+  void notify(const Analysis::AnalysisEvent &analysis_event);
 
   bool registerAnalysisManager(Analysis::AnalysisManager *analysis_manager);
 
@@ -441,6 +448,8 @@ public:
   void setVoltageLimiterFlag ( bool flagVal );
 
   void addGlobalPar(const Util::Param &param);
+  void addGlobalPars(const Util::UParamList & ioGlobalParams);
+  void addSubcktGlobalPars(const Util::UParamList & ioGlobalParams);
   const double *findGlobalPar(const std::string &name) const;
 
   // functions related to options registration
@@ -567,10 +576,11 @@ public:
 // private:
 //   bool getParamNoReduce(const std::string &name, double &value) const;
 
+  void broadcastSubcktGlobals(Parallel::Communicator & parallel_comm);
+
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 
-  void updateDependentParams();
   void resetScaledParams();
 
 private:
@@ -583,7 +593,7 @@ private:
   bool updatePrimaryState_();
   bool updateSecondaryState_();
 
-  void updateDependentParameters_();
+  void updateSolutionDependentParameters_();
 
   // Do the actual solve/calculation for the external devices
   void updateExternalDevices_();
@@ -608,6 +618,7 @@ private:
   MatrixLoadData                matrixLoadData_;        ///< temporary jacobian load structures:
   SolverState                   solState_;              ///< real time solver data:
   UserDefinedParams &           globals_;               ///< global variables
+  UserDefinedParams &           subcktGlobals_;         ///< global variables from subcircuits
   bool                          externalInitJctFlag_;
   bool                          externalStateFlag_;
 
@@ -658,7 +669,10 @@ private:
   IndependentSourceVector       indepSourceInstanceBackupPtrVec_;
 
   InstanceVector                testJacDevicePtrVec_;   ///< Devices under jacobian test
-  EntityVector                  dependentPtrVec_;
+  EntityVector                  dependentPtrVec_;     ///< Instances and Models that have dependent params (dependent on anything)
+  EntityVector                  solnDepEntityPtrVec_; ///< Instances and Models that have solution-dependent params
+  EntityVector                  timeDepEntityPtrVec_; ///< Instances and Models that have time-dependent params
+  EntityVector                  freqDepEntityPtrVec_; ///< Instances and Models that have freq-dependent params
 
   std::set<std::string>         devicesNeedingLeadCurrentLoads_;
 
@@ -724,8 +738,15 @@ inline void DeviceMgr::setVoltageLimiterFlag ( bool flagVal )
 bool registerPkgOptionsMgr(DeviceMgr &device_manager, IO::PkgOptionsMgr &options_manager);
 void registerOpBuilders(Util::Op::BuilderManager &builder_manager, Parallel::Machine comm, DeviceMgr &device_manager);
 
-void addGlobalParameter(SolverState &solver_state, double temp, UserDefinedParams &global, const Util::Param &param,
+void addGlobalParameter(
+    UserDefinedParams &global, const Util::Param &param,
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
+
+void addGlobalParameters(
+    UserDefinedParams &global, 
+    const Util::UParamList & ioGlobalParams,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & expressionGroup);
+
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device

@@ -37,6 +37,8 @@
 #ifndef ast_visitor_H
 #define ast_visitor_H
 
+#include <checkGroundName.h>
+
 // fwd declarations
 template <typename ScalarT> struct opVectorContainers;
 
@@ -253,7 +255,10 @@ class getInterestingOpsVisitor : public nodeVisitor<ScalarT>
     if ( !(astNode->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
     { ovc.paramOpVector.push_back(astNode); }
   }
-  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode)     { ovc.voltOpVector.push_back(astNode); }
+  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode)
+  { // don't bother if this is ground
+   if ( !Xyce::Util::checkGroundNodeName( astNode->getVoltageNode()) ) { ovc.voltOpVector.push_back(astNode); }
+  }
   void visit(Teuchos::RCP<currentOp<ScalarT> > & astNode)     { ovc.currentOpVector.push_back(astNode); }
   void visit(Teuchos::RCP<sparamOp<ScalarT> > & astNode)      { ovc.sparamOpVector.push_back(astNode); }
   void visit(Teuchos::RCP<yparamOp<ScalarT> > & astNode)      { ovc.yparamOpVector.push_back(astNode); }
@@ -323,7 +328,10 @@ class getVoltageOpsVisitor : public nodeVisitor<ScalarT>
   public:
   getVoltageOpsVisitor (std::vector<Teuchos::RCP<astNode<ScalarT> > > & tmp) : voltVec(tmp) {}
   std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltVec;
-  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode) { voltVec.push_back(astNode); }
+  void visit(Teuchos::RCP<voltageOp<ScalarT> > & astNode)
+  {  // don't bother if this is ground
+    if ( !Xyce::Util::checkGroundNodeName( astNode->getVoltageNode()) ) { voltVec.push_back(astNode); }
+  }
 };
 
 template <typename ScalarT>

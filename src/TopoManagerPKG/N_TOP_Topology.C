@@ -1178,7 +1178,7 @@ void Topology::finalOutput()
     std::ofstream output_stream(filename.c_str(), std::ios_base::out);
 
     if (output_stream.fail())
-      Report::UserWarning() << "Unable to open names file" <<std::endl;
+      Report::UserWarning() << "Unable to open circuit graph file" <<std::endl;
 
     output_stream << oss.str() << std::endl;
   }
@@ -1194,7 +1194,7 @@ void Topology::finalOutput()
     std::ofstream output_stream(filename.c_str(), std::ios_base::out);
 
     if (output_stream.fail())
-      Report::UserWarning() << "Unable to open names file" <<std::endl;
+      Report::UserWarning() << "Unable to open device graph file" <<std::endl;
 
     output_stream << oss.str() << std::endl;
   }
@@ -1465,7 +1465,7 @@ bool Topology::restoreRestartNodes(
 
 //-----------------------------------------------------------------------------
 // Function      : Topology::outputNameFile
-// Purpose       : This is a kludgy function designed to output all the
+// Purpose       : This is a function designed to output all the
 //                 solution variable indices and their respective names
 //                 to a file.
 //

@@ -44,7 +44,8 @@ class NAME : public astNode<ScalarT>                                            
 {                                                                                      \
   public:                                                                              \
     NAME (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):   \
-        astNode<ScalarT>(left,right) {                                                 \
+        astNode<ScalarT>(left,right), localDerivsSizeLef_(0), localDerivsSizeRig_(0)   \
+  {                                                 \
           rightConst_ = this->childrenAstNodes_[1]->numvalType();                      \
           leftConst_ = this->childrenAstNodes_[0]->numvalType();                       \
         };                                                                             \
@@ -62,20 +63,17 @@ class NAME : public astNode<ScalarT>                                            
       if (!rightConst_) { rightDx =this->childrenAstNodes_[1]->dx(i); } else {rightDx=0.0; }      \
       return DX; }                                                                     \
                                                                                        \
-    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs)                  \
+    virtual void dx2(ScalarT & result, std::vector<ScalarT> & derivs, int numDerivs)   \
     {                                                                                  \
-      int numDerivs = derivs.size();                                                   \
-      std::vector<ScalarT> lefDerivs_;                                                 \
-      std::vector<ScalarT> rigDerivs_;                                                 \
       ScalarT leftVal, rightVal, leftDx=0.0, rightDx=0.0;                              \
       if (leftConst_) { leftVal = this->childrenAstNodes_[0]->val(); }                 \
       else {                                                                           \
-        lefDerivs_.resize(numDerivs,0.0);                                              \
-        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_); }                         \
+        if (localDerivsSizeLef_ < numDerivs) { lefDerivs_.resize(numDerivs,0.0); localDerivsSizeLef_ = numDerivs; } \
+        this->childrenAstNodes_[0]->dx2(leftVal,lefDerivs_,numDerivs); }               \
       if (rightConst_) { rightVal = this->childrenAstNodes_[1]->val(); }               \
       else {                                                                           \
-        rigDerivs_.resize(numDerivs,0.0);                                              \
-        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_); }                        \
+        if (localDerivsSizeRig_ < numDerivs) { rigDerivs_.resize(numDerivs,0.0);  localDerivsSizeRig_ = numDerivs;}      \
+        this->childrenAstNodes_[1]->dx2(rightVal,rigDerivs_,numDerivs); }              \
       result=VAL;                                                                      \
       for (int i=0;i<numDerivs;i++) {                                                  \
         if (!leftConst_)  { leftDx = lefDerivs_[i]; }                                  \
@@ -85,6 +83,14 @@ class NAME : public astNode<ScalarT>                                            
                                                                                        \
     virtual bool getIsComplex ()                                                       \
     { return (this->childrenAstNodes_[1]->getIsComplex() || this->childrenAstNodes_[0]->getIsComplex()); }    \
+                                                                                       \
+    virtual void generateExpressionString (std::string & str)                          \
+    {                                                                                  \
+      std::string tmp1,tmp2;                                                           \
+      this->childrenAstNodes_[0]->generateExpressionString(tmp1);                      \
+      this->childrenAstNodes_[1]->generateExpressionString(tmp2);                      \
+      str = "(" + tmp1 + std::string(FCTCODE) + tmp2 + ")";                            \
+    }                                                                                  \
                                                                                        \
     virtual void output(std::ostream & os, int indent=0)                               \
     {                                                                                  \
@@ -118,6 +124,10 @@ class NAME : public astNode<ScalarT>                                            
                                                                                        \
     bool rightConst_;                                                                  \
     bool leftConst_;                                                                   \
+    std::vector<ScalarT> lefDerivs_;                                                   \
+    std::vector<ScalarT> rigDerivs_;                                                   \
+    int localDerivsSizeLef_; \
+    int localDerivsSizeRig_; \
 };
 
 AST_BIN_OP_MACRO(

@@ -7001,6 +7001,29 @@ d_QB_dV_si_s(0.0),
     numIntVars = 2 + 0;
     numExtVars = 4;
 
+    // Manually added devConMap.  This did not come from ADMS.
+    // The devConMap is used by Xyce to perform the "no DC path to ground" diagnostic.
+    // The index to the devConMap corresponds to the vector of external nodes.
+    // The RHS value groups nodes together to indicate DC paths.  So, for example, 
+    // if multiple map entries are set to "1", they are all electrically connected 
+    // during the DC calculation.
+    //
+    // This model is using the same devConMap as other MOSFET models. 
+    //
+    // The source and drain (index=0 and 2) are connected to each other.   
+    //
+    // The gate (index=1) is assumed to be disconnected during the DC 
+    // calculation, as the only current thu it is capacitive.  This is an 
+    // incorrect assumption when rgatemod != 0.  However, at this stage 
+    // we don't know the value for rgatemod and the default is 0.  
+    //
+    // The body (index=3) is assumed to be disconnected.  
+    devConMap.resize(4);
+    devConMap[0] = 1;
+    devConMap[1] = 2;
+    devConMap[2] = 1;
+    devConMap[3] = 3;
+
   // Right now, we only have store for limited probes and output vars...
   setNumStoreVars(0+70);
 

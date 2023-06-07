@@ -25,7 +25,8 @@
 // Purpose        : Declare the circuit level containers for holding netlist
 //                  circuit data and the associated circuit level methods.
 //
-// Special Notes  :
+// Special Notes  : The circuit block class is arranged in a hierarchy 
+//                  which corresponds to the netlist file hierarchy.
 //
 // Creator        : Lon Waters, SNL
 //
@@ -259,6 +260,9 @@ public:
 
   void addParams(const Util::OptionBlock &options);
   void addGlobalParams(const Util::OptionBlock &options);
+
+  void registerGlobalParams(Util::UParamList & globalParams);
+  void registerSubcktGlobalParams(Util::UParamList & globalParams);
 
   // Search the subcircuitInstanceTable of the current circuit block for the
   // subcircuit of the given name. If it is not found, recursively

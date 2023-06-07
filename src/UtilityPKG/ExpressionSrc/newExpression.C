@@ -542,6 +542,27 @@ bool newExpression::replaceParameterNode(
 {
   bool retval=false;
 
+#if 0
+  {
+  std::string upperExpressionString = expressionString_;
+  Xyce::Util::toUpper(upperExpressionString);
+  std::string upperAttachExpressionString = expPtr->getExpressionString();
+  Xyce::Util::toUpper(upperAttachExpressionString);
+  std::string upperParamName = paramName;
+  Xyce::Util::toUpper(upperParamName);
+  std::cout << "newExpression::replaceParameterNode.  Expression = " << upperExpressionString << " replacing param = " << paramName << " with " << upperAttachExpressionString << std::endl;
+
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpIter = paramOpMap_.begin();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpEnd  = paramOpMap_.end();
+  std::cout << "newExpression::replaceParameterNode.  Before replacement, paramOpMap contains:" <<std::endl;
+  int ii=0;
+  for (; paramOpIter!= paramOpEnd; ++paramOpIter, ++ii)
+  {
+    std::cout << "newExpression::replaceParameterNode.  Before replacement, ii = " << ii << "  " << paramOpIter->first << std::endl;
+  }
+  }
+#endif
+
   if ( !(Teuchos::is_null(expPtr)) )
   {
     std::string paramNameUpper=paramName;
@@ -562,15 +583,11 @@ bool newExpression::replaceParameterNode(
 
         if ( !(Teuchos::is_null( expPtr->getAst() ))) // if the new Ast is valid then do replacement on each
         {
-#if 0
-          bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst() );
-#else
           bool repacementsAccomplished = node->replaceMeInTheParents( expPtr->getAst(), astParents_ );
-#endif
 
           if (!repacementsAccomplished)
           {
-            // when "replacementsAccomplishments" is negative, that means that the node did not have parents.
+            // when "repacementsAccomplished" is negative, that means that the node did not have parents.
             // The one node in the AST with no parents is the top one, astNodePtr_.
             if (node == astNodePtr_)
             {
@@ -585,10 +602,50 @@ bool newExpression::replaceParameterNode(
         }
       }
       // replace substrings
-      FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
 
-      astArraysSetup_ = false; // this should trigger a call to setupVariousAstArrays later, but just in case calling it now.
+      {
+      // ERK.  These erases should not be necessary, as the setupVariousAstArrays is being called, below
+      std::vector<std::string>::iterator it = std::find(unresolvedParamNameVec_.begin(), unresolvedParamNameVec_.end(), paramNameUpper);
+      if (it != unresolvedParamNameVec_.end())
+      {
+        int index = std::distance(unresolvedParamNameVec_.begin(),it);
+        unresolvedParamNameVec_.erase(unresolvedParamNameVec_.begin()+index);
+      }
+
+      it = std::find(globalParamNameVec_.begin(), globalParamNameVec_.end(), paramNameUpper);
+      if (it != globalParamNameVec_.end())
+      {
+        int index = std::distance(globalParamNameVec_.begin(),it);
+        globalParamNameVec_.erase(globalParamNameVec_.begin()+index);
+        isVariableDependent_ = !(globalParamNameVec_.empty());
+      }
+      }
+
+      // update the expression string. This originally was done just by searching 
+      // and replacing substrings in the original expression string.  But this 
+      // doesn't work when some of the strings have similar names, other than a 
+      // suffix or a prefix.  For example, if you want to replace "M" with "(2+3)" in the 
+      // string "M+2*M_2".  The result you want is "(2+3)+2*M_2", but the result you get
+      // is "(2+3)+2*(2+3)_2", which is wrong, and also not parsable.
+      //FindReplace(expressionString_ , paramNameUpper, newParamNameUpper);
+      //
+      // So, this is now done by generating a new string from the AST: 
+      generateExpressionString (expressionString_);
+
+      // the point of this function is to modify the AST, but do so in such a way that once it is done, 
+      // the AST will look as though it was never modified, and was originally like this.  
+      // In other words, there isn't an external depedency like there would be from an attachment.  
+      //
+      // However, with this modified AST, the "various Ast arrays" still
+      // need to be re-computed.  The function "setupVariousAstArrays" won't do this work unless 
+      // (1) astArraysSetup is false, and (2) externalDependencies_ is true.  But, once done, as we 
+      // want this to look like this was the original, unmodified AST, the externalDependencies_ 
+      // boolean should be reset back to whatever it was before this.
+      astArraysSetup_ = false; 
+      bool tmpExtDep = externalDependencies_;
+      externalDependencies_ = true;  // temporarily force this to be true
       setupVariousAstArrays ();
+      externalDependencies_ = tmpExtDep; //reset to whatever it was before
 
       // update the "local" arrays.  The main reason for calling this function 
       // is to support "local" variations via random operators.
@@ -631,6 +688,16 @@ bool newExpression::replaceParameterNode(
             expPtr->getLocalTwoArgLimitOpVec().begin(), expPtr->getLocalTwoArgLimitOpVec().end());
       }
 
+      // update the isShallowRandomDependent boolean
+      if ( !(localAgaussOpVec_.empty()) ||
+         !(localGaussOpVec_.empty())||
+         !(localAunifOpVec_.empty())||
+         !(localUnifOpVec_.empty()) ||
+         !(localRandOpVec_.empty()) ||
+         !(localTwoArgLimitOpVec_.empty())  
+         )
+      { isShallowRandomDependent_ = true; }
+
       // local SDT and DDT arrays.  They probably aren't relevant to 
       // the main use cases of this function. 
       if ( !(expPtr->getLocalSdtOpVec().empty()) ) 
@@ -644,8 +711,6 @@ bool newExpression::replaceParameterNode(
         localDdtOpVec_.insert(localDdtOpVec_.end(), 
             expPtr->getLocalDdtOpVec().begin(), expPtr->getLocalDdtOpVec().end());
       }
-
-
 
       // This debug output is occasionally useful, so keeping it around.  It can be used to 
       // check that the expression string and AST were both updated correctly.
@@ -661,7 +726,97 @@ bool newExpression::replaceParameterNode(
       Xyce::Report::UserError() << "newExpression::replaceParameterNode.  Could not find param = " << paramName << std::endl;
     }
   }
+
+#if 0
+  {
+  std::string upperExpressionString = expressionString_;
+  Xyce::Util::toUpper(upperExpressionString);
+  std::cout << "newExpression::replaceParameterNode.  After replacement, Expression = " << upperExpressionString << std::endl;
+
+
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpIter = paramOpMap_.begin();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator paramOpEnd  = paramOpMap_.end();
+
+  std::cout << "newExpression::replaceParameterNode.  After replacement, paramOpMap contains:" <<std::endl;
+  int ii=0;
+  for (; paramOpIter!= paramOpEnd; ++paramOpIter, ++ii)
+  {
+    std::cout << "newExpression::replaceParameterNode.  After replacement, ii = " << ii << "  " << paramOpIter->first << std::endl;
+
+  }
+
+  }
+#endif
+
   return retval;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::replaceParameterName
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/25/2023
+//-------------------------------------------------------------------------------
+bool newExpression::replaceParameterName
+  ( const std::string & paramName, const std::string & newParamName)
+{
+  {
+    std::string paramNameUpper=paramName;
+    Xyce::Util::toUpper(paramNameUpper);
+
+    std::string newParamNameUpper=newParamName;
+    Xyce::Util::toUpper(newParamNameUpper);
+
+    if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
+      int size = nodeVec.size();
+      for (int ii=0;ii<size;ii++) // loop over all the nodes with this name
+      {
+        Teuchos::RCP<astNode<usedType> > & node  = nodeVec[ii];
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (node);
+        parOp->setName(newParamNameUpper);
+      }
+      paramOpMap_[newParamNameUpper] = nodeVec;
+      paramOpMap_.erase(paramNameUpper);
+
+      std::vector<std::string>::iterator paramIter;
+      paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
+      if (paramIter != paramNameVec_.end()) // found it
+      {
+        int index = std::distance(paramNameVec_.begin(),paramIter);
+        paramNameVec_[index] = newParamNameUpper;
+      }
+
+      paramIter = std::find(globalParamNameVec_.begin(),globalParamNameVec_.end(), paramNameUpper);
+      if (paramIter != globalParamNameVec_.end()) // found it
+      {
+        int index = std::distance(globalParamNameVec_.begin(),paramIter);
+        globalParamNameVec_[index] = newParamNameUpper;
+      }
+
+      paramIter = std::find(unresolvedParamNameVec_.begin(),unresolvedParamNameVec_.end(), paramNameUpper);
+      if (paramIter != unresolvedParamNameVec_.end()) // found it
+      {
+        int index = std::distance(unresolvedParamNameVec_.begin(),paramIter);
+        unresolvedParamNameVec_[index] = newParamNameUpper;
+      }
+      
+      // update the expression string. Previously, this was a search-replace operation 
+      // on the original string, but that didn't work very well.
+      //FindReplace(expressionString_ , paramNameUpper, expPtr->getExpressionString());
+      // This is now instead done by generating a new string from the AST: 
+      generateExpressionString (expressionString_);
+    }
+    else
+    {
+      Xyce::Report::UserError() << "newExpression::replaceParameterName.  Could not find param = " << paramName << std::endl;
+    }
+  }
+
+  return true;
 }
 
 //-------------------------------------------------------------------------------
@@ -722,6 +877,7 @@ void newExpression::clear ()
   // copied from destructor
 
   expressionString_ = std::string("");
+  originalExpressionString_ = std::string("");
   parsed_ = false;
   derivsSetup_ = false;
   astArraysSetup_ = false;
@@ -835,6 +991,10 @@ bool newExpression::make_constant (
   Xyce::Util::toUpper(paramNameUpper);
   bool retval=false;
 
+#if 0
+  Xyce::dout() << "newExpression::make_constant for " << var << ". setting " << var << " to value = " << val << std::endl;
+#endif
+
   if ( paramOpMap_.find( paramNameUpper ) != paramOpMap_.end() )
   {
     std::vector<Teuchos::RCP<astNode<usedType> > > & nodeVec = paramOpMap_[paramNameUpper];
@@ -879,17 +1039,18 @@ bool newExpression::make_constant (
   }
   else
   {
-    Xyce::Report::UserError()
-      << "newExpression::make_constant  ERROR.  Could not find parameter "
-      << paramNameUpper
-      << " in expression: " << expressionString_ <<std::endl;
-  }
-
     if (false) // ERK.  This debug output is occasionally useful, so keeping it around.
     {
       Xyce::dout() << "newExpression::make_constant for " << var << ". Expression tree for " << expressionString_ << std::endl;
       dumpParseTree(Xyce::dout());
     }
+
+    Xyce::Report::UserError()
+      << "newExpression::make_constant  ERROR.  Could not find parameter "
+      << paramNameUpper
+      << " in expression: " << expressionString_ <<std::endl;
+
+  }
 
   return retval;
 }
@@ -940,7 +1101,7 @@ void newExpression::setupDerivatives_ ()
 
         const std::string & node = voltOp->getVoltageNode();
 
-        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        //if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground.  Not necessary now
         {
           std::string nodeUpperCase = node; Xyce::Util::toUpper(nodeUpperCase);
           std::unordered_map<std::string, int>::iterator mapIter;
@@ -1188,7 +1349,7 @@ void newExpression::setupVariousAstArrays()
         Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
 
-        if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground
+        //if ( !Xyce::Util::checkGroundNodeName(node) ) // don't bother if this is ground.  Not necessary now.
         {
         if ( voltOpMap_.find(node) == voltOpMap_.end() )
         {
@@ -1785,7 +1946,7 @@ bool newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       {
         for (int ii=0;ii<derivIndexVec_.size();ii++) { derivIndexVec_[ii].first->setDerivIndex(derivIndexVec_[ii].second); }
 
-        astNodePtr_->dx2(result,derivs);
+        astNodePtr_->dx2(result,derivs,numDerivs_);
 
         // this block was in evaluateFunction
         Util::fixNan(result);
@@ -1866,8 +2027,9 @@ bool newExpression::evaluateFunction (usedType &result, bool efficiencyOn)
         if (false) // ERK.  This code block is kept around for debug purposes.  It normally isn't used.
         {
           // this is a test, to use with unit tests to ensure that the "result" evaluation in dx2 matches that of val().
+          int numDerivs = 0;
           std::vector<usedType> derivs; // if empty, then dx2 should run OK.
-          astNodePtr_->dx2(result, derivs);
+          astNodePtr_->dx2(result, derivs, numDerivs);
         }
         else
         {

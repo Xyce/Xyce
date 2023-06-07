@@ -547,9 +547,6 @@ bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<Sweep
     }
   }
 
-  // ERK. this call is necessary to ensure sweeps and homotopy play well together.
-  loader.updateDependentParams();
-
   return reset;
 }
 

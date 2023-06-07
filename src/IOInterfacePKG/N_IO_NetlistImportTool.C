@@ -329,8 +329,19 @@ void NetlistImportTool::populateMetadata(
 
 //-------------------------------------------------------------------------
 // Function      : NetlistImportTool::constructCircuitFromNetlist
-// Purpose       : Construct a circuit from a netlist.
-// Special Notes :
+//
+// Purpose       : Construct a circuit from a netlist.  
+//
+// Special Notes : This function contains two passes of the netlist.
+//
+//                 The first is entirely on proc0, and gathers device 
+//                 counts and global information.  The global info is 
+//                 broadcast to all procs.
+//
+//                 The second pass distributes devices in parallel 
+//                 and expands subcircuits.  How they are distributed 
+//                 depends on which distribution manager is selected.
+//
 // Creator       : Lon Waters
 // Creation Date : 07/28/2000
 //-------------------------------------------------------------------------
@@ -386,7 +397,16 @@ int NetlistImportTool::constructCircuitFromNetlist(
     {
       // Perform initial pass through the circuit file to generate hierarchical context object.
       // Read in the circuit context and circuit options on the root processor.
-      mainCircuitBlock_->parseNetlistFilePass1(options_manager);
+      mainCircuitBlock_->parseNetlistFilePass1(options_manager); 
+
+      // For the top level context, CircuitContext::resolve is called on proc 0 during the first pass.
+      // The top level contains lots of global information that will be needed on all processors, so a
+      // global broadcast is performed after this.
+      //
+      // One of the things included in that global broadcast is the list of global parameters, which until 
+      // recently were only allowed at the top level of the netlist.  This list of global parameters will 
+      // later be passed over to the device manager.  Non-global parameters are not passed
+      // over to the device manager and are thrown away once parsing is done.
     }
 
     // Just in case an error was reported in parsing the netlist.
@@ -433,7 +453,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   Device::registerDevices(circuitContext_.getDeviceCountMap(), mainCircuitBlock_->getLevelSet(), false);
 
   // register the global parameters
-  registerGlobalParams(device_manager, circuitContext_.getGlobals().begin(), circuitContext_.getGlobals().end());
+  registerGlobalParams(device_manager, circuitContext_.getGlobals());
 
   // register circuit options
   // NOTE:  This method does not process distribution options, since they were processed above.
@@ -442,12 +462,36 @@ int NetlistImportTool::constructCircuitFromNetlist(
   mainCircuitBlock_->setModelBinningFlag( parsingMgr_.getModelBinningFlag() );
   mainCircuitBlock_->setLengthScale( parsingMgr_.getLengthScale() );
 
+
+  // Perform second pass
   {
     Stats::StatTop _distributeStat("Distribute Devices");
     Stats::TimeBlock _distributeTimer(_distributeStat);
 
     // Distribute and instantiate the circuit devices.
     distributionTool_->distributeDevices();
+
+    // subcircuit "CircuitContext::resolve" calls will happen here, under the
+    // distributeDevices call (above). Each subckt instance is handled kind of
+    // like a device and expanded as those lines are encountered.  They are
+    // handled by the function DistToolDefault::expandSubcircuitInstance,
+    // which subsequently calls CircuitContext::resolve.  Resolve is also
+    // called (on proc != 0) after circuit context data is unpacked in parallel.
+    //
+    // This means that for the top-level context, "CircuitContext::resolve"
+    // is called in the first pass on proc0, and can be broadcast to all procs,
+    // via the "broadcastGlobalData" function call.
+    //
+    // But for subordinate contexts, "CircuitContext::resolve" is called in
+    // the second pass, and also on proc 0. So, the .param and
+    // .global_param containers are complete at this point on proc 0.
+    // On other processors, the param containers are partial, only
+    // containing what was needed for on-proc devices and models.
+    //
+    // .global_params (which are converted from .params inside subcircuit when
+    // they include random operators like AGAUSS for UQ) aren't broadcast in parallel
+    // at this stage.   Off-processor globals aren't needed until the UQ setup
+    // phase, and are thus broadcast later in the device manager.
   }
 
   // register additional circuit options after distribution

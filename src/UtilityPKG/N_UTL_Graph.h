@@ -658,7 +658,7 @@ Graph<Key1Type, DataType, Index>::checkGraphState() const
     {
       // check index in all maps
       Index testIndex = adjacencyGraph_[i][j];
-      Key1Type key1val = keys1_[ testIndex ];
+      Key1Type key1val = keys1_.at( testIndex );
       if(keys1_.count(testIndex) == 0)
       {
         return 1;

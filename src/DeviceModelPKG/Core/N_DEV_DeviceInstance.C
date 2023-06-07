@@ -192,12 +192,16 @@ void DeviceInstance::registerDepSolnLIDs(
   }
   for (int i = 0; i < size; ++i)
   {
-    if (depSolnLIDVecRef[i].size() != 1)
+    if ( (depSolnLIDVecRef[i]).empty() )
     {
-      UserError0(*this) << "Problem with value for " << expVarNames[i]
-                        << ".  This may be an incorrect usage of a lead current in place of a current through a voltage source.";
+      UserError0(*this) << "Problem with value for " << expVarNames[i] 
+        << " in " << getName().getEncodedName()
+        << ".  This may be an incorrect usage of a lead current in place of a current through a voltage source.";
     }
-    expVarLIDs[i] = depSolnLIDVecRef[i][0];
+    else
+    {
+      expVarLIDs[i] = depSolnLIDVecRef[i][0];
+    }
   }
 
   DeviceEntity::applyDepSolnLIDs(); // new for newExpression
@@ -226,7 +230,16 @@ void DeviceInstance::registerDepSolnGIDs(
   int size = expVarGIDs.size();
   for (int i = 0; i < size; ++i)
   {
-    expVarGIDs[i] = varList[i][0];
+    if ( (varList[i]).empty() )
+    {
+      UserError0(*this) << "Problem with value for " << expVarNames[i]
+        << " in " << getName().getEncodedName()
+        << ".  This may be an incorrect usage of a lead current in place of a current through a voltage source.";
+    }
+    else
+    {
+      expVarGIDs[i] = varList[i][0];
+    }
   }
 }
 

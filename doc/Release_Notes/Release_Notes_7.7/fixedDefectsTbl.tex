@@ -174,6 +174,28 @@
   could be deleted before they were stored in parameter objects
   resulting in a null pointer for the expression.  This issue
   has been fixed. \\ \hline
+  
+  
+\textbf{Xyce Project Bugs/59}: Mixed-Signal Segmentation Fault &
+  The Python interface to Xyce was incorrectly using an ADC 
+  base name when trying to get DAC devices.  This has been fixed. \\ \hline
+
+\textbf{Xyce Project Bugs/60}: Error building with Xyce\_GRAPH\_DEBUG=ON &
+  The bracket operator used in a block of debugging code was incorrect
+  for use on the std::unordered\_map object.  This code was fixed to use
+  the correct accessor function for the map. \\ \hline
+
+ \textbf{Xyce Project Backlog/611}: 
+   The devConMap is not implemented in any of the BSIM CMG devices & 
+   The devConMap is a data structure provided by each device model to enable 
+   the topology package to perform the "no DC path to ground" diagnostic.
+   The BSIMCMG devices did not have this set up, and so circuits using 
+   these devices would sometimes produce spurious warning messages.  
+   This has been fixed.  \\ \hline
+
+   \textbf{Xyce Project Bugs/61}: Circuit causes Segfault &
+   \Xyce{} would get a segmentation fault when the netlist specified a Bsrc that depended on the current thru another Bsrc, that happened to be a current-source style Bsrc.  Behavioral sources can either be current or voltage sources, depending on the netlist specification.  When specified as a voltage source, they have an internal current variable, which is accessible by other behavioral sources.   When specified as a current source, they do not.  \Xyce{} was not catching this mistake early enough and this was resulting in a memory error.  This has been fixed. \\ \hline
+
 
 
 \end{longtable}

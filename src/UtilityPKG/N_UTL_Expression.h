@@ -144,6 +144,9 @@ public:
   bool setTemperature   (const double & temp);
 
   std::string get_expression (void) const;
+  std::string get_original_expression (void) const;
+
+  void generateExpressionString (std::string & expStr);
 
   bool updateForStep ();
 
@@ -160,11 +163,13 @@ public:
   const std::string & get_input (void) const;
 
   bool replace_name (const std::string & old_name, const std::string & new_name);  // this is for voltage names
+  bool replaceParameterName (const std::string & old_name, const std::string & new_name);  // this is for parameter names  
 
   bool isTimeDependent() const;
   bool isFreqDependent() const;
   bool isSolutionDependent() const;
   bool isRandomDependent() const;
+  bool isOriginalRandomDependent() const;
   void dumpParseTree();
 
   static void seedRandom(long seed);

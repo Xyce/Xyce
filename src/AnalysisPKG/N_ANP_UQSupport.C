@@ -1297,37 +1297,6 @@ long getTheSeed(
   return theSeed;
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// print a histrogram.  doesn't work yet 
-//-----------------------------------------------------------------------------
-void histrogram( 
-    //std::ofstream & fout, 
-    std::ostream & fout, 
-    const std::string & name, 
-    const std::vector<double> function )
-{
-  int numSamples = function.size();
-
-  std::map<int, int> hist{};
-  for(int is=0; is<numSamples; ++is)
-  {
-    ++hist[std::round(function[is])];
-  }
-  //int dS = numSamples/50;
-  int dS = 10;
-
-  if (dS<=0) {dS = 1;}
-
-  for(auto p : hist)
-  {
-    fout << std::setw(2)
-         << p.first << ' ' << std::string(p.second/dS, '*') << '\n';
-  }
-  fout << std::endl;
-}
-#endif
-
 } // namespace UQ
 } // namespace Analysis
 } // namespace Xyce

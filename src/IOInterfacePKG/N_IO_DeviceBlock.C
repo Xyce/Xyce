@@ -613,7 +613,9 @@ bool DeviceBlock::extractBasicDeviceData( const TokenVector & parsedInputLine , 
           if (p_orig.possibleParam())
           {
             primaryParameter.setVal(std::string("{" + p_orig + "}"));
-            if (!circuitContext_.resolveParameter(primaryParameter))
+            resolveStatus paramResolveStatus;
+            circuitContext_.resolveParameter(primaryParameter, paramResolveStatus);
+            if (! (paramResolveStatus.success) )
               primaryParameter.setVal(std::string(p_orig));
           }
         }
@@ -1997,7 +1999,9 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
         if (p_orig.possibleParam())
         {
           parameter.setVal(std::string("{" + p_orig + "}"));
-          if (!circuitContext_.resolveParameter(parameter))
+          resolveStatus paramResolveStatus;
+          circuitContext_.resolveParameter(parameter,paramResolveStatus);
+          if (!(paramResolveStatus.success))
             parameter.setVal(std::string(p_orig));
         }
         parameter.setGiven( true );
@@ -2026,7 +2030,9 @@ void DeviceBlock::extractInstanceParameters( const TokenVector & parsedInputLine
           if (p_orig.possibleParam())
           {
             parameter.setVal(std::string("{" + p_orig + "}"));
-            if (!circuitContext_.resolveParameter(parameter))
+            resolveStatus paramResolveStatus;
+            circuitContext_.resolveParameter(parameter,paramResolveStatus);
+            if (!(paramResolveStatus.success))
               parameter.setVal(std::string(p_orig));
           }
           parameter.setGiven( true );
@@ -2314,7 +2320,9 @@ bool DeviceBlock::setParameterValues()
          parameter.isTableFileTypeQuoted()  || 
          parameter.isStringTypeQuoted()  )
     {
-      if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes)) 
+      resolveStatus paramResolveStatus;
+      circuitContext_.resolveParameter(parameter, paramResolveStatus);
+      if (!(paramResolveStatus.success))
         parameterErrorOutput(parameter);
       setInstanceParameter( ii, parameter ); 
     }
@@ -2326,7 +2334,9 @@ bool DeviceBlock::setParameterValues()
         {
           ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
           parameter.setVal(std::string("{" + p_orig + "}"));
-          if (!circuitContext_.resolveParameter(parameter,replaceRandomNodes))
+          resolveStatus paramResolveStatus;
+          circuitContext_.resolveParameter(parameter, paramResolveStatus);
+          if (!(paramResolveStatus.success))
             parameter.setVal(std::string(p_orig));
         }
       }
@@ -2579,8 +2589,9 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
          parameter.isTableFileTypeQuoted()  || 
          parameter.isStringTypeQuoted()  )
     { 
-
-      resolved[ii] = (circuitContext_.resolveParameter(parameter))?1:0;
+      resolveStatus paramResolveStatus;
+      circuitContext_.resolveParameter(parameter, paramResolveStatus);
+      resolved[ii] = (paramResolveStatus.success)?1:0;
       subckt_x_params[ii] = parameter; 
     }
     else
@@ -2591,7 +2602,9 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
         {
           ExtendedString p_orig(parameter.stringValue()); p_orig.toUpper();
           parameter.setVal(std::string("{" + p_orig + "}"));
-          resolved[ii] = (circuitContext_.resolveParameter(parameter))?1:0;
+          resolveStatus paramResolveStatus;
+          circuitContext_.resolveParameter(parameter,paramResolveStatus);
+          resolved[ii] = (paramResolveStatus.success)?1:0;
           if (!resolved[ii])
           {
             parameter.setVal(std::string(p_orig)); // this just restores the strings w/o curly braces
@@ -2874,7 +2887,9 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
       {
         // ERK. not necessary to add the curly braces.
         param.setVal(std::string("{" + p_orig + "}"));
-        if (!circuitContext_.resolveParameter(param))
+        resolveStatus paramResolveStatus;
+        circuitContext_.resolveParameter(param,paramResolveStatus);
+        if (!(paramResolveStatus.success))
           param.setVal(std::string(p_orig)); // this just restores the strings w/o curly braces.  Not necessary either.
       }
     }
@@ -2889,7 +2904,9 @@ bool DeviceBlock::extractMIDeviceData( const TokenVector & parsedInputLine )
       // At this point, the inductance really should be resolved
       if (param.hasExpressionValue())
       {
-        if (!circuitContext_.resolveParameter(param))
+        resolveStatus paramResolveStatus;
+        circuitContext_.resolveParameter(param,paramResolveStatus);
+        if (!(paramResolveStatus.success))
         {
           Report::UserError()
             << "Could not resolve parameter " 
