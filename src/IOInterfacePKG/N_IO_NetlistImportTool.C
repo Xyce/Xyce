@@ -314,10 +314,10 @@ NetlistImportTool::~NetlistImportTool()
 
 //-------------------------------------------------------------------------
 // Function      : NetlistImportTool::populateMetadata
-// Purpose       : 
+// Purpose       :
 // Special Notes :
-// Creator       : 
-// Creation Date : 
+// Creator       :
+// Creation Date :
 //-------------------------------------------------------------------------
 void NetlistImportTool::populateMetadata(
   IO::PkgOptionsMgr &   options_manager)
@@ -330,16 +330,16 @@ void NetlistImportTool::populateMetadata(
 //-------------------------------------------------------------------------
 // Function      : NetlistImportTool::constructCircuitFromNetlist
 //
-// Purpose       : Construct a circuit from a netlist.  
+// Purpose       : Construct a circuit from a netlist.
 //
 // Special Notes : This function contains two passes of the netlist.
 //
-//                 The first is entirely on proc0, and gathers device 
-//                 counts and global information.  The global info is 
+//                 The first is entirely on proc0, and gathers device
+//                 counts and global information.  The global info is
 //                 broadcast to all procs.
 //
-//                 The second pass distributes devices in parallel 
-//                 and expands subcircuits.  How they are distributed 
+//                 The second pass distributes devices in parallel
+//                 and expands subcircuits.  How they are distributed
 //                 depends on which distribution manager is selected.
 //
 // Creator       : Lon Waters
@@ -381,7 +381,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
     expressionGroup_
     );
 
-  // Register the mutual inductors here, they are handled differently than every other 
+  // Register the mutual inductors here, they are handled differently than every other
   // device right now.
   Device::registerMutualInductors();
 
@@ -397,14 +397,14 @@ int NetlistImportTool::constructCircuitFromNetlist(
     {
       // Perform initial pass through the circuit file to generate hierarchical context object.
       // Read in the circuit context and circuit options on the root processor.
-      mainCircuitBlock_->parseNetlistFilePass1(options_manager); 
+      mainCircuitBlock_->parseNetlistFilePass1(options_manager);
 
       // For the top level context, CircuitContext::resolve is called on proc 0 during the first pass.
       // The top level contains lots of global information that will be needed on all processors, so a
       // global broadcast is performed after this.
       //
-      // One of the things included in that global broadcast is the list of global parameters, which until 
-      // recently were only allowed at the top level of the netlist.  This list of global parameters will 
+      // One of the things included in that global broadcast is the list of global parameters, which until
+      // recently were only allowed at the top level of the netlist.  This list of global parameters will
       // later be passed over to the device manager.  Non-global parameters are not passed
       // over to the device manager and are thrown away once parsing is done.
     }
@@ -412,7 +412,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
     // Just in case an error was reported in parsing the netlist.
     N_ERH_ErrorMgr::safeBarrier(comm);
   }
- 
+
   // If we are only performing a device count, we can exit here.
   if (command_line.argExists("-count"))
   {
@@ -441,8 +441,8 @@ int NetlistImportTool::constructCircuitFromNetlist(
   // register distribution options before creating distribution tool
   registerDistOptions(options_manager, mainCircuitBlock_->getOptionsTable());
 
-  distributionTool_ = DistToolFactory::create(&pds_comm, distOptions_, 
-                                              *mainCircuitBlock_, ssfMap_, 
+  distributionTool_ = DistToolFactory::create(&pds_comm, distOptions_,
+                                              *mainCircuitBlock_, ssfMap_,
                                               iflMap_, externalNetlistParams, parsingMgr_);
 
   // Distribute the circuit context and circuit options to all other processors.
@@ -495,7 +495,9 @@ int NetlistImportTool::constructCircuitFromNetlist(
   }
 
   // register additional circuit options after distribution
-  registerCircuitOptions(options_manager, distributionTool_->getAdditionalOptions());
+  // In practice this is IC and NODESET statements from inside of subcircuits.
+  // The majority of "options" are handled on the previous call to registerCircuitOptions.
+  registerICOptions(options_manager, distributionTool_->getAdditionalOptions());
 
   // Check for name collisions between devices
   checkNodeDevConflicts(device_names, pds_comm);
@@ -599,7 +601,7 @@ bool NetlistImportTool::registerSTEPOptions(
 //-----------------------------------------------------------------------------
 bool NetlistImportTool::setDISTOptions( const Util::OptionBlock& distOptions )
 {
-  distOptions_ = distOptions; 
+  distOptions_ = distOptions;
 
   return true;
 }
@@ -736,8 +738,8 @@ void printLineDiagnostics(
             parameter.getValue<Util::Expression>().getUnresolvedParams(strings);
             parameter.getValue<Util::Expression>().getSpecials(special);
           }
-          else if ( ((parameter.getType()) == Util::DBLE) || 
-                    ((parameter.getType()) == Util::INT) || 
+          else if ( ((parameter.getType()) == Util::DBLE) ||
+                    ((parameter.getType()) == Util::INT) ||
                     ((parameter.getType()) == Util::CMPLX) )
           {
           }
@@ -749,7 +751,7 @@ void printLineDiagnostics(
           const std::string &varType = parameter.tag();
 
           // Note: for I and V, the check for (varType.size() == 2 || varType.size() == 3) && varType[0] == ...)
-          // is needed to support operators like IR, II, IM, IP and IDB.  
+          // is needed to support operators like IR, II, IM, IP and IDB.
           if ((varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I')) && parameter.getImmutableValue<int>() > 0)
           {
             // any devices found in this I(xxx) structure need to be communicated to the device manager
@@ -1381,7 +1383,7 @@ struct Sorter
   using first_argument_type = Util::OptionBlock;
   using second_argument_type = Util::OptionBlock;
 
-  bool operator()(const Util::OptionBlock &s0, const Util::OptionBlock &s1) const 
+  bool operator()(const Util::OptionBlock &s0, const Util::OptionBlock &s1) const
   {
     int s0_order = 0;
     int s1_order = 0;
@@ -1394,7 +1396,7 @@ struct Sorter
     }
     return s0_order < s1_order;
   }
-  bool operator()(const Util::OptionBlock *s0, const Util::OptionBlock *s1) const 
+  bool operator()(const Util::OptionBlock *s0, const Util::OptionBlock *s1) const
   {
     int s0_order = 0;
     int s1_order = 0;
@@ -1412,21 +1414,116 @@ struct Sorter
 //-----------------------------------------------------------------------------
 // Function      : registerCircuitOptions
 // Purpose       : register options
-// Special Notes :
+//
+// Special Notes : This function handles most "dot" commands.  This includes
+//                 all the .OPTIONS statements, as well as command statements
+//                 like .TRAN and .PRINT.
+//
+//                 .OPTIONS commands are allowed to be specified in multiple
+//                 statements, so ultimately .OPTIONS statements with the same
+//                 "name" are merged together to form a single option_block
+//                 superset.  This is done in the PkgOptionsMgr class.  This means that this:
+//
+//                 .options timeint reltol=1.0e-4
+//                 .options timeint abstol=1.0e-7
+//
+//                 is equivalent to:
+//
+//                 .options timeint reltol=1.0e-4 abstol=1.0e-7
+//
+//                 Most non-.OPTIONS commands (like .TRAN) are not allowed to
+//                 be specified multiple times.  So, they are not "merged", but
+//                 instead use the original "submitOptions" command.
+//
+//                 The submitOptions command IMMEDIATELY sends the option_block
+//                 to the relevant processor functions.  In contrast, the "mergeOptions"
+//                 command doesn't call processor functions at all; it just buffers and
+//                 merges the data.  It is sent to the processor functions in a second
+//                 call, submitMergedOptions.
+//
+//                 There is at least one non-.OPTIONS command, .PRINT, which can be
+//                 specified multiple times.  But that is usually in support of
+//                 multiple output formats and/or analysis types, and thus is more
+//                 complex than a simple merge. As such, the output manager takes
+//                 care of that, as of this writing.  So it is appropriate for
+//                 all .PRINTs to NOT be merged at this point.
+//
 // Scope         : private
-// Creator       :
-// Creation Date :
+// Creator       : ?? and Eric Keiter, SNL
+// Creation Date : Refactored by ERK 6/8/2023
 //-----------------------------------------------------------------------------
-bool
-registerCircuitOptions(
+bool registerCircuitOptions(
+  PkgOptionsMgr &                       options_manager,
+  std::list<Util::OptionBlock> &        option_block_list)
+{
+  option_block_list.sort( Sorter() );
+
+  // The .OPTIONS blocks must be processed first.  These are allowed to be "merged".
+  // if .OPTIONS option_blocks and non-.OPTIONS option_blocks were in different
+  // containers, then the if-statement for "getIsOptionsStatement" would not be necessary.
+  bool foundOptions=false;
+  for (std::list<Util::OptionBlock>::iterator it = option_block_list.begin(), end = option_block_list.end(); it != end; ++it)
+  {
+    if (it->getName() != "DIST")
+    {
+      if (it->getIsOptionsStatement())
+      {
+        foundOptions=true;
+        options_manager.mergeOptions(*it);
+      }
+    }
+  }
+
+  if (foundOptions)
+  {
+    options_manager.submitMergedOptions();
+  }
+
+  // The non-.OPTIONS blocks must be processed second.
+  // The "merged" blocks are not submitted until the "submitMergedOptions" function is called, so a separate loop is necessary.
+  //
+  // The handling of SENS and SENSITIVITY in the output manager depends
+  // on the .OPTIONS SENSITIVITY statement being processed first, before .SENS.
+  // The same is true for .MEASURE.  It requires that ".options MEASURE"
+  // be processed before any ".MEASURE" statement.
+  for (std::list<Util::OptionBlock>::iterator it = option_block_list.begin(), end = option_block_list.end(); it != end; ++it)
+  {
+    if (it->getName() != "DIST")
+    {
+      if ( !(it->getIsOptionsStatement()) )
+      {
+        options_manager.submitOptions(*it);
+      }
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : registerICOptions
+// Purpose       : register IC and NODESET statements from subcircuits
+//
+// Special Notes : special version of "registerCircuitOptions", which is called
+//                 after subcircuits are resolved.  It is for "options" that
+//                 come from subcircuits.  In practice, these are only IC and
+//                 NODESET statements.
+//
+// Scope         : private
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/8/2023
+//-----------------------------------------------------------------------------
+bool registerICOptions(
   PkgOptionsMgr &                       options_manager,
   std::list<Util::OptionBlock> &        option_block_list)
 {
   option_block_list.sort( Sorter() );
   for (std::list<Util::OptionBlock>::iterator it = option_block_list.begin(), end = option_block_list.end(); it != end; ++it)
   {
-    if (it->getName() != "DIST")
+    if (!(it->getIsOptionsStatement()))
+    {
       options_manager.submitOptions(*it);
+    }
   }
 
   return true;
@@ -1440,8 +1537,7 @@ registerCircuitOptions(
 // Creator       :
 // Creation Date :
 //-----------------------------------------------------------------------------
-bool
-registerDistOptions(
+bool registerDistOptions(
   PkgOptionsMgr &                       options_manager,
   std::list<Util::OptionBlock> &        option_block_list)
 {
@@ -1449,7 +1545,9 @@ registerDistOptions(
   for (std::list<Util::OptionBlock>::iterator it = option_block_list.begin(), end = option_block_list.end(); it != end; ++it)
   {
     if (it->getName() == "DIST")
-     options_manager.submitOptions(*it);
+    {
+      options_manager.submitOptions(*it);
+    }
   }
 
   return true;

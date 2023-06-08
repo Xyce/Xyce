@@ -2936,7 +2936,6 @@ bool CircuitContext::findBinnedModel(
         }
       }
 
-
       // for the case of L & NFIN geometric parameters 
       if (LNFINfound)
       {
@@ -2969,8 +2968,7 @@ bool CircuitContext::findBinnedModel(
           }
         }
       }
-
-    }
+    } //prefix if-statement
     else // if prefix no longer matches, we are done, and have probably failed.
     {
       done=true;

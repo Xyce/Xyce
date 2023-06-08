@@ -101,6 +101,7 @@ OptionBlock & OptionBlock::operator=(const OptionBlock & right)
     expressionsAllowed_ = right.expressionsAllowed_;
     netlistLocation_ = right.netlistLocation_;
     params_ = right.params_;
+    isOptionsStatement_ = right.isOptionsStatement_;
   }
 
   return *this;
@@ -204,6 +205,9 @@ Pack<Util::OptionBlock>::packedByteCount(
   for (i = 0; i < size; ++i, ++it_tpL)
     byteCount += Xyce::packedByteCount(*it_tpL);
 
+  //----- options boolean
+  byteCount += sizeof(int);
+
   return byteCount;
 
 }
@@ -243,6 +247,11 @@ Pack<Util::OptionBlock>::pack(const Util::OptionBlock &option_block, char * buf,
   Util::ParamList::const_iterator it_tpL;
   for (i = 0, it_tpL = option_block.params_.begin(); i < size; ++i, ++it_tpL)
     Pack<Util::Param>::pack(*it_tpL, buf, bsize, pos, comm );
+
+  //----- pack options boolean
+  if (option_block.isOptionsStatement_) { i = 1; }
+  else { i = 0; }
+  comm->pack( &i, 1, buf, bsize, pos );
 
   if (DEBUG_TOPOLOGY)
     Xyce::dout() << "Packed " << pos << " of " << bsize << " bytes for OptionBlock: " << option_block.getName() << std::endl;
@@ -290,6 +299,14 @@ Pack<Util::OptionBlock>::unpack(Util::OptionBlock &option_block, char * pB, int 
     Pack<Util::Param>::unpack(param, pB, bsize, pos, comm );
     option_block.params_.push_back( param );
   }
+
+  //----- unpack options boolean
+  i = 0;
+  comm->unpack( pB, bsize, pos, &i, 1 );
+  if (i==0)
+    option_block.isOptionsStatement_ = false;
+  else
+    option_block.isOptionsStatement_ = true;
 
   if (DEBUG_TOPOLOGY)
     Xyce::dout() << "Unpacked " << pos << " of " << bsize << " bytes for OptionBlock: " << option_block.getName() << std::endl;

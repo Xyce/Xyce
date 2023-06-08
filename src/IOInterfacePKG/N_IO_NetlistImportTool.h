@@ -302,6 +302,8 @@ inline void registerGlobalParams(Device::DeviceMgr &device_manager, const Util::
 
 bool registerCircuitOptions(PkgOptionsMgr &options_manager, std::list<Util::OptionBlock> &option_block_list);
 
+bool registerICOptions(PkgOptionsMgr &options_manager, std::list<Util::OptionBlock> &option_block_list);
+
 bool registerDistOptions(PkgOptionsMgr &options_manager, std::list<Util::OptionBlock> &option_block_list);
 
 } // namespace IO

@@ -67,25 +67,28 @@ class OptionBlock
       ALLOW_EXPRESSIONS = true
     };
 
-    OptionBlock(const std::string &name = "internal", ExpressionsAllowed expressions_allowed = ALLOW_EXPRESSIONS, const NetlistLocation &netlist_location = NetlistLocation())
+    OptionBlock(const std::string &name = "internal", ExpressionsAllowed expressions_allowed = ALLOW_EXPRESSIONS, const NetlistLocation &netlist_location = NetlistLocation(), bool optionStatement=false)
       : name_(name),
         expressionsAllowed_(expressions_allowed),
         netlistLocation_(netlist_location),
-        params_()
+        params_(),
+        isOptionsStatement_(optionStatement)
     {}
 
-    OptionBlock(const std::string &name, ExpressionsAllowed expressions_allowed, const std::string &netlist_filename, int line_number)
+    OptionBlock(const std::string &name, ExpressionsAllowed expressions_allowed, const std::string &netlist_filename, int line_number, bool optionStatement=false)
       : name_(name),
         expressionsAllowed_(expressions_allowed),
         netlistLocation_(netlist_filename, line_number),
-        params_()
+        params_(),
+        isOptionsStatement_(optionStatement)
     {}
 
     OptionBlock(const OptionBlock & right)
       : name_(right.name_),
         expressionsAllowed_(right.expressionsAllowed_),
         netlistLocation_(right.netlistLocation_),
-        params_(right.params_)
+        params_(right.params_),
+        isOptionsStatement_(right.isOptionsStatement_)
     {}
 
     virtual ~OptionBlock()
@@ -129,6 +132,8 @@ class OptionBlock
 
     void removeParam(const std::string& tagName);
 
+    void clearParams() { params_.clear(); }
+
     const std::string &getName() const 
     {
       return name_;
@@ -139,11 +144,17 @@ class OptionBlock
       return netlistLocation_;
     }
 
+    bool getIsOptionsStatement () const
+    { 
+      return isOptionsStatement_;
+    }
+
   private:
     std::string           name_;
     ExpressionsAllowed    expressionsAllowed_;
     NetlistLocation       netlistLocation_;
-    ParamList             params_;                        ///< Must allow multiple duplicate entries
+    ParamList             params_;              ///< Must allow multiple duplicate entries
+    bool                  isOptionsStatement_;  ///< true if this option block is an .OPTIONS statement, false otherwise (e.g. .PRINT) 
 };
 
 // compare contained lists
