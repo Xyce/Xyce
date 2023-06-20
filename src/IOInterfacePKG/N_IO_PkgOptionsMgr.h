@@ -45,6 +45,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_UTL_fwd.h>
+#include <N_UTL_OptionBlock.h>
 #include <N_IO_fwd.h>
 
 #include <N_UTL_Param.h>
