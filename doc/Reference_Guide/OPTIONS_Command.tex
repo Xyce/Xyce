@@ -65,9 +65,20 @@ Exceptions to this format are the \texttt{OUTPUT} and \texttt{RESTART}
 options, which use their own format. They are defined under their
 respective descriptions.
 
-The designator \texttt{pkg} refers loosely to a {\em module} in the
-code.  Thus, the term is used here as identifying a specific module to
-be controlled via {\em options} set in the netlist input file.
+The designator \texttt{pkg} refers loosely to a {\em module} in the code.  For most 
+  designators, multiple \texttt{.OPTIONS} statements are allowed.  So for example, 
+  the netlist may contain multiple \texttt{.OPTIONS DEVICE} commands, and Xyce will 
+  parse and apply all of them.  If any parameters are specified more than once, Xyce
+  will issue a warning.  The warning will include which parameter value is being 
+  used. 
+
+The \texttt{OUTPUT} and \texttt{RESTART} options have a different enough 
+  format that they can only be specified once.  Extra \texttt{OUTPUT} 
+  and \texttt{RESTART} option statements (beyond the first one) will be ignored.
+
+\texttt{.OPTIONS} statements are only permitted in the top level of the netlist.    
+Any \texttt{.OPTIONS} statemets inside of subcircuits will result in a warning, 
+and otherwise will be ignored.
 
 \end{Command}
 
