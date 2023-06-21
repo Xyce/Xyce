@@ -25,8 +25,8 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # make sure the custom xyce regression testing script is found
-find_program(XYCE_REGR_SCRIPT NAMES run_xyce_regression
-  PATHS ${WORKSPACE}/tests/Xyce_Regression/TestScripts
+find_program(XYCE_REGR_SCRIPT run_xyce_regression
+  HINTS $ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts
   REQUIRED)
   
 # Release or Debug
