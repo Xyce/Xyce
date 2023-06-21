@@ -971,7 +971,9 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     Instance & inst = *(*it);
 
     SourceData *dataPtr = inst.dcSourceData_; // by default assume the DC value.
-    if ((HBSpecified_ || getSolverState().tranopFlag || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
+
+
+    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !inst.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
     {
       dataPtr = inst.tranSourceData_;
     }
