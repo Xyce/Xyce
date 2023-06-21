@@ -4,8 +4,11 @@
 # hard-code most things for now, later will convert to arguments
 # passed in via the ctest command line.
 
-# screen output level
-#   0 - almost no screen output (default)
+# arguments, specified via "-D"
+#   -DVERBOSITY=<integer 0-5>
+
+# verbosity level
+#   0 - no specific screen output (default)
 #   5 - all screen output available
 if(NOT VERBOSITY)
   set(VERBOSITY 0)
@@ -31,7 +34,7 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
 
 # find the custom perl script to create the results XML file
 find_program(XYCE_CDASH_GEN summary-dart.pl
-  HINTS $ENV{WORKSPACE}/Scripts/reporting/summary-dart.pl
+  HINTS $ENV{WORKSPACE}/Scripts/reporting
   REQUIRED)
 
 # Release or Debug
@@ -66,8 +69,8 @@ ctest_build()
 
 # run the custom xyce regression test script
 execute_process(COMMAND ${XYCE_REGR_SCRIPT}
-  --output=$ENV{WORKSPACE}/build/Xyce_Regression/
-  --xyce_test=$ENV{WORKSPACE}/tests/Xyce_Regression/
+  --output=$ENV{WORKSPACE}/build/Xyce_Regression
+  --xyce_test=$ENV{WORKSPACE}/tests/Xyce_Regression
   --xyce_verify=$ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts/xyce_verify.pl
   --ignoreparsewarnings
   --taglist="+serial?klu?weekly?nightly-verbose?noverbose?nonfree?rad?qaspr?athena?fft?stokhos?amesos2basker?amesos2klu2?xdm+library"
@@ -76,15 +79,24 @@ execute_process(COMMAND ${XYCE_REGR_SCRIPT}
   RESULT_VARAIBLE xyce_reg_result)
 
 # run the perl script to generated and submit results to the dashboard
+if(VERBOSITY GREATER 2)
+  message("[V2]: XYCE_CDASH_GEN = ${XYCE_CDASH_GEN}")
+  message("[V2]:   CTEST_SITE = ${CTEST_SITE}")
+  message("[V2]:   MYBUILDNAME = $ENV{MYBUILDNAME}")
+  message("[V2]:   branch = $ENV{branch}")
+  message("[V2]:   WORKSPACE = $ENV{WORKSPACE}")
+  message("[V2]:   TESTSET = $ENV{TESTSET}")
+endif()
 execute_process(COMMAND ${XYCE_CDASH_GEN}
-  ${HNAME}
+  ${OUPUT_VARIABLE_CTEST_SITE}
   $ENV{MYBUILDNAME}
   $ENV{branch}
   $ENV{WORKSPACE}/build/regr_test_results_all
   $ENV{TESTSET})
 
 # submit results to the dashboard
-ctest_submit(BUILD_ID cdash_bld_id
-  RETRY_COUNT 10 RETRY_DELAY 30)
+##ctest_submit(BUILD_ID cdash_bld_id
+##  RETRY_COUNT 10 RETRY_DELAY 30)
 
+# this only works if cdash version > 2.6 or so
 message("Build ID for cdash: ${cdash_bld_id}")
