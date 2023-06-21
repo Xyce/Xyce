@@ -65,7 +65,7 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
   REQUIRED)
 
 # find the custom perl script to create the results XML file
-find_program(XYCE_CDASH_GEN summary-dart.pl
+find_program(XYCE_CDASH_GEN summary-dart-nosubmit.pl
   HINTS $ENV{WORKSPACE}/Scripts/reporting
   REQUIRED)
 
@@ -151,7 +151,7 @@ endif()
 
 # this will likely fail if the "Testing" subdirectory contains more
 # than just "Temporary" and the directory with the build ID as it's
-# name, usually given by <yyyymmdd-time>
+# name, usually given by <yyyymmdd-timestamp>
 foreach(dir ${TESTSUBDIRS})
   if(NOT ${dir} STREQUAL "Temporary")
     set(submissionDir ${dir})
