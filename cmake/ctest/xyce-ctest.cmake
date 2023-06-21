@@ -24,9 +24,14 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# make sure the custom xyce regression testing script is found
+# find the custom xyce regression testing script
 find_program(XYCE_REGR_SCRIPT run_xyce_regression
   HINTS $ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts
+  REQUIRED)
+
+# find the custom perl script to create the results XML file
+find_program(XYCE_CDASH_GEN summar-dart.pl
+  HINTS $ENV{WORKSPACE}/Scripts/reporting/summary-dart.pl
   REQUIRED)
   
 # Release or Debug
@@ -69,6 +74,14 @@ execute_process(COMMAND ${XYCE_REGR_SCRIPT}
   --resultfile=$ENV{WORKSPACE}/build/regr_test_results_all
   $ENV{WORKSPACE}/build/src/Xyce
   RESULT_VARAIBLE xyce_reg_result)
+
+# run the perl script to generated and submit results to the dashboard
+execute_process(COMMAND ${XYCE_CDASH_GEN}
+  ${HNAME}
+  $ENV{MYBUILDNAME}
+  $ENV{branch}
+  $ENV{WORKSPACE}/build/regr_test_results_all
+  $ENV{TESTSET})
 
 # submit results to the dashboard
 ctest_submit(BUILD_ID cdash_bld_id
