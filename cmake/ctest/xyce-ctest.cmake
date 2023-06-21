@@ -28,7 +28,7 @@ execute_process(COMMAND "${HNAME}"
 set(CMAKE_BUILD_TYPE "Release")
 
 # this is used as the "Build Name" column on the dashboard
-set(CTEST_BUILD_NAME "glh_Intel64_RHEL7_Serial-cmake-cde-gcc")
+set(CTEST_BUILD_NAME "glh_Intel64_RHEL7_Serial-cmake-cde-gcc-librarytests")
 
 # used for invocation of parallel make
 set(CTEST_BUILD_FLAGS "-j16")
