@@ -24,6 +24,11 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# make sure the custom xyce regression testing script is found
+find_program(XYCE_REGR_SCRIPT NAMES run_xyce_regression
+  PATHS ${WORKSPACE}/tests/Xyce_Regression/TestScripts
+  REQUIRED)
+  
 # Release or Debug
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -53,6 +58,17 @@ ctest_configure()
 
 # this runs make
 ctest_build()
+
+# run the custom xyce regression test script
+execute_process(COMMAND ${XYCE_REGR_SCRIPT}
+  --output=${WORKSPACE}/build/Xyce_Regression/
+  --xyce-test=${WORKSPACE}/tests/Xyce_Regression/
+  --xyce_verify=${WORKSPACE}/tests/Xyce_Regression/TestScripts/xyce_verify.pl
+  --ignoreparsewarnings 
+  --taglist="+serial?klu?weekly?nightly-verbose?noverbose?nonfree?rad?qaspr?athena?fft?stokhos?amesos2basker?amesos2klu2?xdm+library"
+  --resultfile=${WORKSPACE}/build/regr_test_results_all
+  ${WORKSPACE}/build/src/Xyce
+  RESULT_VARAIBLE xyce_reg_result)
 
 # submit results to the dashboard
 ctest_submit(BUILD_ID cdash_bld_id
