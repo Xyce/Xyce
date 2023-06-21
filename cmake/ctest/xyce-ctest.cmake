@@ -55,4 +55,7 @@ ctest_configure()
 ctest_build()
 
 # submit results to the dashboard
-ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)
+ctest_submit(BUILD_ID buildID
+  RETRY_COUNT 10 RETRY_DELAY 30)
+
+message("Build ID for cdash: ${buildID}")
