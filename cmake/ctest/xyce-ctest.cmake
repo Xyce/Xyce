@@ -84,7 +84,7 @@ if(VERBOSITY GREATER 2)
   message("[V2]:   CTEST_SITE = ${CTEST_SITE}")
   message("[V2]:   MYBUILDNAME = $ENV{MYBUILDNAME}")
   message("[V2]:   branch = $ENV{branch}")
-  message("[V2]:   WORKSPACE = $ENV{WORKSPACE}")
+  message("[V2]:   output file name = $ENV{WORKSPACE}/build/regr_test_results_all")
   message("[V2]:   TESTSET = $ENV{TESTSET}")
 endif()
 execute_process(COMMAND ${XYCE_CDASH_GEN}
