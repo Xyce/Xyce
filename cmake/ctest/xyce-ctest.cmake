@@ -30,10 +30,10 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
   REQUIRED)
 
 # find the custom perl script to create the results XML file
-find_program(XYCE_CDASH_GEN summar-dart.pl
+find_program(XYCE_CDASH_GEN summary-dart.pl
   HINTS $ENV{WORKSPACE}/Scripts/reporting/summary-dart.pl
   REQUIRED)
-  
+
 # Release or Debug
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -69,7 +69,7 @@ execute_process(COMMAND ${XYCE_REGR_SCRIPT}
   --output=$ENV{WORKSPACE}/build/Xyce_Regression/
   --xyce_test=$ENV{WORKSPACE}/tests/Xyce_Regression/
   --xyce_verify=$ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts/xyce_verify.pl
-  --ignoreparsewarnings 
+  --ignoreparsewarnings
   --taglist="+serial?klu?weekly?nightly-verbose?noverbose?nonfree?rad?qaspr?athena?fft?stokhos?amesos2basker?amesos2klu2?xdm+library"
   --resultfile=$ENV{WORKSPACE}/build/regr_test_results_all
   $ENV{WORKSPACE}/build/src/Xyce
