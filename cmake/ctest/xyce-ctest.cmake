@@ -61,13 +61,13 @@ ctest_build()
 
 # run the custom xyce regression test script
 execute_process(COMMAND ${XYCE_REGR_SCRIPT}
-  --output=${WORKSPACE}/build/Xyce_Regression/
-  --xyce_test=${WORKSPACE}/tests/Xyce_Regression/
-  --xyce_verify=${WORKSPACE}/tests/Xyce_Regression/TestScripts/xyce_verify.pl
+  --output=$ENV{WORKSPACE}/build/Xyce_Regression/
+  --xyce_test=$ENV{WORKSPACE}/tests/Xyce_Regression/
+  --xyce_verify=$ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts/xyce_verify.pl
   --ignoreparsewarnings 
   --taglist="+serial?klu?weekly?nightly-verbose?noverbose?nonfree?rad?qaspr?athena?fft?stokhos?amesos2basker?amesos2klu2?xdm+library"
-  --resultfile=${WORKSPACE}/build/regr_test_results_all
-  ${WORKSPACE}/build/src/Xyce
+  --resultfile=$ENV{WORKSPACE}/build/regr_test_results_all
+  $ENV{WORKSPACE}/build/src/Xyce
   RESULT_VARAIBLE xyce_reg_result)
 
 # submit results to the dashboard
