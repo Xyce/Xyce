@@ -1014,7 +1014,8 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 
 Device *Traits::factory(const Configuration &configuration, const FactoryBlock &factory_block)
 {
-  return new DeviceMaster<Traits>(configuration, factory_block, factory_block.solverState_, factory_block.deviceOptions_);
+
+  return new Master(configuration, factory_block, factory_block.solverState_, factory_block.deviceOptions_);
 }
 
 void
