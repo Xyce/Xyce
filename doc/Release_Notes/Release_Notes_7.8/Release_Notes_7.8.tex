@@ -90,8 +90,7 @@ please visit the \XyceTM{} web page at
 
 \item Xyce now ...
 
-
-\item  \Xyce{} can now handle the sources that specify both DC and transient values during source stepping. Previously, source stepping does not apply to these sources. This leads to improved robustness and convergence of source stepping for DC op.
+\item  \Xyce{} can now handle the sources that specify both DC and transient values during source stepping. Source stepping is one of the solver techniques that \Xyce{} automatically attempts when trying to solve the DCOP. Previously, source stepping does not apply to these sources. It now uses the DC value in this case. This leads to improved robustness and convergence of source stepping in circuits using these sources for the DC op calculation.
 
 \end{XyceItemize}
 
