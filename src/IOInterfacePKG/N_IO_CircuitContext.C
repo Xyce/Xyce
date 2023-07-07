@@ -1047,6 +1047,67 @@ void CircuitContext::printOutContextParams(std::string & extra)
 }
 
 //----------------------------------------------------------------------------
+// Function       : CircuitContext::insertSubcircuitGlobal
+//
+// Purpose        : Handles special case of "global" (i.e. variable) params 
+//                  that come from subcircuits.
+//
+// Special Notes  : As of this writing, this can only happen for params that 
+//                  depend on random operators such as agauss.  These can 
+//                  either be parameters that are declared inside the 
+//                  subcircuit via .param, or params that are passed in 
+//                  as subcircuit arguments from the "X" line.
+//
+//                  Initially, this code was inline inside of the "resolve" 
+//                  function, but there are (at least) 2 circumstances in 
+//                  which it needs to be invoked.  So, it is now its own 
+//                  function.
+// Scope          :
+// Creator        : Eric Keiter
+// Creation Date  : 07/07/2023
+//----------------------------------------------------------------------------
+void CircuitContext::insertSubcircuitGlobal( Util::Param & parameter)
+{
+  // if this is a subcircuit global param, then insert both the orginal name as well as the
+  // fully resolved name.  this makes subsequent lookups easier.  The originals will be
+  // discarded later.
+  currentContextPtr_->resolvedGlobalParams_.insert(parameter);
+  if (currentContextPtr_->parentContextPtr_ != NULL)  // if this isn't at the top, convert to full name
+  {
+    std::string fullyResolvedTag = currentContextPtr_->subcircuitPrefix_ ;
+    if (fullyResolvedTag != "")  // double check
+    {
+      std::string originalTag = parameter.uTag();
+      unordered_map<std::string, std::string>::iterator iter = 
+        currentContextPtr_->globalParamAliasMap_.find(originalTag);
+      if (iter == currentContextPtr_->globalParamAliasMap_.end())
+      {
+        fullyResolvedTag += Xyce::Util::separator + originalTag;
+        parameter.setTag( fullyResolvedTag );
+        currentContextPtr_->globalParamAliasMap_[originalTag] = fullyResolvedTag;
+        currentContextPtr_->resolvedGlobalParams_.insert(parameter);
+
+        // find a better way to do this.  The resolved_ boolean is set to false 
+        // here, b/c we  know that this subcircuit definition contains random 
+        // parameters that (1) must be converted to global and (2) will need to 
+        // be unique for each subcircuit instances.  This means (for now) that 
+        // the entire subcircuit must be re-resolved every time it is expanded 
+        // into a new instance.  But in reality, only the random parameters 
+        // really need re-resolution, not the whole subckt.
+        currentContextPtr_->resolved_ = false;
+
+        if (DEBUG_IO)
+        {
+          std::cout << "Parameter " << parameter.uTag() 
+            << " is converted to global, but WAS successfully resolved! value = " 
+          << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")" << std::endl;
+        }
+      }
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
 // Function       : CircuitContext::resolve
 // Purpose        : Resolve parameters in the current context.
 // Special Notes  : rewrite.
@@ -1200,40 +1261,58 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       Util::UParamList::const_iterator urParamIter = asYetUnresolvedParameters.find( parameter );
       if ( urParamIter != asYetUnresolvedParameters.end() ) { asYetUnresolvedParameters.erase(urParamIter); } 
 
-      switch (parsingMgr_.getRedefinedParams()) 
+      // check if this parameter is an expression-based parameter which includes a random operator.
+      // If so, it should be converted to a "subcircuit global".
+      bool parameterConvertedToGlobal=false;
+      if(uqEnabledLocal && parameter.getType() == Xyce::Util::EXPR)
       {
-      // now add to resolved, using the user-specified precedence
-      case RedefinedParamsSetting::IGNORE:  // this is also default, below
-        addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
-        break;
+        Util::Expression & expression = parameter.getValue<Util::Expression>();
+        bool isRandom = expression.isRandomDependent();
+        if (isRandom)
+        {
+          parameterConvertedToGlobal=true;
+          insertSubcircuitGlobal(parameter);
+        }
+      }
 
-      case RedefinedParamsSetting::WARNING:
-        addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
-        break;
+      // if this parameter was not converted to a subcircuit global, 
+      // then add to the resolved params container, while using the user-specified precedence.
+      if (!parameterConvertedToGlobal)
+      {
+        switch (parsingMgr_.getRedefinedParams()) 
+        {
+        case RedefinedParamsSetting::IGNORE:  // this is also default, below
+          addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      case RedefinedParamsSetting::ERROR:
-        addParamUseError (parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case RedefinedParamsSetting::WARNING:
+          addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      case RedefinedParamsSetting::USEFIRST:
-        addParamUseFirst (parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case RedefinedParamsSetting::ERROR:
+          addParamUseError (parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      case  RedefinedParamsSetting::USEFIRSTWARN:
-        addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case RedefinedParamsSetting::USEFIRST:
+          addParamUseFirst (parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      case RedefinedParamsSetting::USELAST:
-        addParamUseLast (parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case  RedefinedParamsSetting::USEFIRSTWARN:
+          addParamUseFirstWarn(parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      case  RedefinedParamsSetting::USELASTWARN:
-        addParamUseLastWarn(parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case RedefinedParamsSetting::USELAST:
+          addParamUseLast (parameter, currentContextPtr_->resolvedParams_);
+          break;
 
-      default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
-        addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
-        break;
+        case  RedefinedParamsSetting::USELASTWARN:
+          addParamUseLastWarn(parameter, currentContextPtr_->resolvedParams_);
+          break;
+
+        default:  // equivalent to RedefinedParamsSetting::IGNORE, above.
+          addParamUseFirst(parameter, currentContextPtr_->resolvedParams_);
+          break;
+        }
       }
     }
   }
@@ -1305,44 +1384,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             if (parameter.getType() == Xyce::Util::EXPR) { std::cout << " and does have Xyce::Util::EXPR type" <<std::endl; }
             else { std::cout << " and doesn't have Xyce::Util::EXPR type" <<std::endl; }
           }
-
-          // if this is a subcircuit global param, then insert both the orginal name as well as the
-          // fully resolved name.  this makes subsequent lookups easier.  The originals will be
-          // discarded later.
-          currentContextPtr_->resolvedGlobalParams_.insert(parameter);
-          if (currentContextPtr_->parentContextPtr_ != NULL)  // if this isn't at the top, convert to full name
-          {
-            std::string fullyResolvedTag = currentContextPtr_->subcircuitPrefix_ ;
-            if (fullyResolvedTag != "")  // double check
-            {
-              std::string originalTag = parameter.uTag();
-              unordered_map<std::string, std::string>::iterator iter = 
-                currentContextPtr_->globalParamAliasMap_.find(originalTag);
-              if (iter == currentContextPtr_->globalParamAliasMap_.end())
-              {
-                fullyResolvedTag += Xyce::Util::separator + originalTag;
-                parameter.setTag( fullyResolvedTag );
-                currentContextPtr_->globalParamAliasMap_[originalTag] = fullyResolvedTag;
-                currentContextPtr_->resolvedGlobalParams_.insert(parameter);
-
-                // find a better way to do this.  The resolved_ boolean is set to false 
-                // here, b/c we  know that this subcircuit definition contains random 
-                // parameters that (1) must be converted to global and (2) will need to 
-                // be unique for each subcircuit instances.  This means (for now) that 
-                // the entire subcircuit must be re-resolved every time it is expanded 
-                // into a new instance.  But in reality, only the random parameters 
-                // really need re-resolution, not the whole subckt.
-                currentContextPtr_->resolved_ = false;
-
-                if (DEBUG_IO)
-                {
-                  std::cout << "Parameter " << parameter.uTag() 
-                    << " is converted to global, but WAS successfully resolved! value = " 
-                  << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")" << std::endl;
-                }
-              }
-            }
-          }
+          insertSubcircuitGlobal(parameter);
         }
         else
         {
