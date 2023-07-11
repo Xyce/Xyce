@@ -53,6 +53,7 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  */
 
 void bye_bye(i)
+    int i;
 {
     printf ("inv = %d\n",1/i);
 }
