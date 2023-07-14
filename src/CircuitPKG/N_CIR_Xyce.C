@@ -1195,6 +1195,16 @@ Simulator::RunStatus Simulator::initializeLate()
                << Util::nameValuePair("DeviceTotalCount", std::accumulate(global_device_count_map.begin(), global_device_count_map.end(), 0, IO::DeviceCountMapSum()));
 
     IO::printDeviceCount(Xyce::lout(), global_device_count_map);
+
+    // If there are no devices, there is nothing to do here
+    if (global_device_count_map.size() == 0)
+    {
+      Xyce::lout() << std::endl;
+
+      reportTotalElapsedTime ();
+
+      return DONE;
+    }
   }
 
   if (commandLine_.argExists("-norun") || commandLine_.argExists("-namesfile") || 
