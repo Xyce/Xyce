@@ -134,6 +134,10 @@ MatrixPtr Matrix;
 #endif
 #define DEBUG
 
+void spColInd(MatrixPtr,int);
+void spRowInd(MatrixPtr,int);
+void spSetIndex(MatrixPtr);
+
 void spCheckInd ( MatrixPtr Matrix , char *msg)
 {
     int I, J, K, Size = Matrix->Size;
