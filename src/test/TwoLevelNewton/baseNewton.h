@@ -53,7 +53,13 @@
 // Function to be called if memory runs out:
 void _new_handler (void)
 {
+#if defined(HAVE_WINDOWS_H)
+  // shared library builds under Windows can't have a __cdel function 
+  // call into a C++ class function.  So just emit this error to cout.
+  std::cout << "OUT OF MEMORY (error in 'new')";
+#else
   Xyce::Report::UserFatal0() << "OUT OF MEMORY (error in 'new')";
+#endif
 }
 
 //-----------------------------------------------------------------------------
