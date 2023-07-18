@@ -125,21 +125,38 @@ endif()
 
 
 # ---- And the installation of them. ----------------
-     # A word to the wise about Windows:
-     # A Static library named "xyce" will produce a file named xyce.lib.
-     # A Shared library named "xyce" will produce two files, one named xyce.dll
-     # and another named xyce.lib, which is not the same as the static library.
-     # It is an interface library.  Interface libraries may be quite foriegn to
-     # Unix programmers. For right now the only way I can tell xyce.lib the
-     # static library apart from xyce.lib the interface library is that the
-     # interface library is smaller in size.  Which isn't a very clear
-     # distinction.  MORAL: if you would like to build both a static and shared
-     # library, use names such as xyce-static and xyce-shared to make things
-     # explicit.
-set_target_properties ( XyceLib PROPERTIES
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+  # if we are building shared libraries under windows then a byproduct will
+  # be an interface library with a suffix ".lib" that is used in linking 
+  # the executable to the dynamic library ".dll"  This interface library is 
+  # needed and should not be confused with a static library which also ends
+  # in ".lib" under Windwos.  So to avoid confusion, make the shared library
+  # name xyce-share.dll and xyce-share.lib for the interface library under 
+  # Windows. 
+  #
+  # A word to the wise about Windows:
+  # A Static library named "xyce" will produce a file named xyce.lib.
+  # A Shared library named "xyce" will produce two files, one named xyce.dll
+  # and another named xyce.lib, which is not the same as the static library.
+  # It is an interface library.  Interface libraries may be quite foriegn to
+  # Unix programmers. For right now the only way I can tell xyce.lib the
+  # static library apart from xyce.lib the interface library is that the
+  # interface library is smaller in size.  Which isn't a very clear
+  # distinction.  MORAL: if you would like to build both a static and shared
+  # library, use names such as xyce-static and xyce-shared to make things
+  # explicit.
+  
+  set_target_properties ( XyceLib PROPERTIES
+	 		OUTPUT_NAME xyce-share
+			CLEAN_DIRECT_OUTPUT ON)
+else()
+  set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
-# The above was first added in 2008.
+endif()
+
+# Keep this in mind if Xyce needs to support building both static and shared libraries
+# in the same build tree.
 #
 # According to <https://gitlab.kitware.com/cmake/community/-/wikis/FAQ>, the
 # above is not needed: "One more detail is needed with CMake 2.6.x and lower
