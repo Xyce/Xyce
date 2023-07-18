@@ -61,6 +61,7 @@
 #include <N_NLS_NOX_XyceTests.h>
 #include <N_NLS_SensitivityResiduals.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_HspiceBools.h>
 #include <N_PDS_Comm.h>
 
 
@@ -819,428 +820,255 @@ int Interface::mosfetContinuationSolve ( ParameterSet* paramsPtr )
     return (paramsPtr->getStatusTestReturnCode());
 }
 
+
 //-----------------------------------------------------------------------------
-// Function      : Interface::mosfetContinuationSolve2 
+// Function      : Interface::sourceSteppingSolve2
 // Purpose       : 
-// Return Type   : 
 // Special Notes : This corresponds to 
-//                    .options nonlin continuation=newmos or 
-//                    .options nonlin continuation=4
+//                    .options nonlin continuation=sourcestep2 or 
+//                    .options nonlin continuation=35
 // Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date : 2/21/2004
+// Creator       : Heidi Thornquist
+// Creation Date : 5/10/2023
 //-----------------------------------------------------------------------------
-int Interface::mosfetContinuationSolve2 ( ParameterSet* paramsPtr )
+int Interface::sourceSteppingSolve2 ( ParameterSet* paramsPtr )
 {
   Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
 
-  // Create the continuation parameter names
-  std::string gain = "mosfet:gainscale";
-  std::string nonlinear = "mosfet:nltermscale";
-  std::string size = "mosfet:sizescale";
+  // Get the sources and DC values from the loader
+  std::map<std::string, std::pair<double,int> > sourceNames =
+    nonlinearEquationLoader_->getSourceDeviceNamesDCVal(pdsMgrPtr_->getPDSComm()->comm());
 
-  // Create Parameter Vector and get the stepper parameter list.
-  LOCA::ParameterVector locaPVec;
-  Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
-
-  // Continuation solve from alpha2 (gain) = 0.0 -> 1.0
-  //                    with alpha1 (nlterm) = 0.0 (constant)
-  //                    sizeScale = 0.0 (constant)
-  locaPVec.addParameter(gain, 0.0);
-  locaPVec.addParameter(nonlinear, 0.0);
-  locaPVec.addParameter(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-  stepperList.set("Continuation Parameter", gain);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-
-  // Initialize parameters in xyce
-  groupPtr_->computeF();
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-
-  // Kick out if continuation failed
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-
-  // Increment Param Number Tracking
-  isFirstContinuationParam_ = false;
-  firstSolveComplete_ = true;
-
-  // Copy out the solution and use it in the next run
-  groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
-
-  // Continuation solve from alpha1 (nlterm) = 0.0 -> 1.0
-  //                    with alpha2 (gain) = 1.0 (constant)
-  //                    with size   (scale) = 0.0 (constant)
-  stepperList.set("Continuation Parameter", nonlinear);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-  locaPVec.setValue(gain, 1.0);
-  locaPVec.setValue(nonlinear, 0.0);
-  locaPVec.setValue(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  locaStatus = stepperPtr_->run();
-
-  // Kick out if continuation failed
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-
-  // Copy out the solution and use it in the next run
-  groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
-
-  // Continuation solve from alpha1 (nlterm) = 1.0 -> 1.0
-  //                    with alpha2 (gain) = 1.0 (constant)
-  //                    with size   (scale) = 0.0 -> 1.0
-  stepperList.set("Continuation Parameter", size);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-  locaPVec.setValue(gain, 1.0);
-  locaPVec.setValue(nonlinear, 1.0);
-  locaPVec.setValue(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  locaStatus = stepperPtr_->run();
-
-  // Return the solution status
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-  else
-    return (paramsPtr->getStatusTestReturnCode());
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Interface::mosfetContinuationSolve3 
-// Purpose       : (5) Mosfet:BSIM3:Inverter specific continuation 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=bsim3inv1 or 
-//                    .options nonlin continuation=5
-// Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date : 2/25/2004
-//-----------------------------------------------------------------------------
-int Interface::mosfetContinuationSolve3 ( ParameterSet* paramsPtr )
-{
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
-
-  // Create the continuation parameter names
-  //std::string gain = "mosfet:gainscale";
-  std::string nonlinear = "mosfet:nltermscale";
-  std::string size = "mosfet:sizescale";
-
-  // Create Parameter Vector and get the stepper parameter list.
-  LOCA::ParameterVector locaPVec;
-  Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
-
-  // Continuation solve from alpha2 (gain) = 0.0 -> 1.0
-  //                    with alpha1 (nlterm) = 0.0 (constant)
-  //                    sizeScale = 0.0 (constant)
-  //locaPVec.addParameter(gain, 0.0);
-  locaPVec.addParameter(nonlinear, 0.0);
-  locaPVec.addParameter(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-  stepperList.set("Continuation Parameter", nonlinear);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-
-  // Initialize parameters in xyce
-  groupPtr_->computeF();
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-
-  // Kick out if continuation failed
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-
-  // Increment Param Number Tracking
-  isFirstContinuationParam_ = false;
-  firstSolveComplete_ = true;
-
-  // Copy out the solution and use it in the next run
-  groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
-
-  // Continuation solve from alpha1 (nlterm) = 0.0 -> 1.0
-  //                    with alpha2 (gain) = 1.0 (constant)
-  //                    with size   (scale) = 0.0 (constant)
-  stepperList.set("Continuation Parameter", size);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-  //locaPVec.setValue(gain, 1.0);
-  locaPVec.setValue(nonlinear, 1.0);
-  locaPVec.setValue(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  locaStatus = stepperPtr_->run();
-
-  // Return the solution status
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-  else
-    return (paramsPtr->getStatusTestReturnCode());
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Interface::mosfetContinuationSolve4 
-// Purpose       : (6) Mosfet:BSIM3:Inverter specific continuation 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=bsim3inv2 or 
-//                    .options nonlin continuation=6
-// Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date : 2/25/2004
-//-----------------------------------------------------------------------------
-int Interface::mosfetContinuationSolve4 ( ParameterSet* paramsPtr )
-{
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
-
-  // Create the continuation parameter names
-  std::string gain = "mosfet:gainscale";
-  std::string nonlinear = "mosfet:nltermscale";
-  std::string size = "mosfet:sizescale";
-
-  // Create Parameter Vector and get the stepper parameter list.
-  LOCA::ParameterVector locaPVec;
-  Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
-
-  // Continuation solve
-  locaPVec.addParameter(gain, 1.0);
-  locaPVec.addParameter(nonlinear, 1.0);
-  locaPVec.addParameter(size, 0.0);
-  groupPtr_->setParams(locaPVec);
-  stepperList.set("Continuation Parameter", size);
-  stepperList.set("Initial Value", 0.0);
-  stepperList.set("Max Value", 1.0);
-
-  // Initialize parameters in xyce
-  groupPtr_->computeF();
-
-  // Do the continuation run
-  resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-
-  // Return the solution status
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-  else
+  // Loop over the sources to how many are nonzero
+  int numHomotopyContinuationRuns = 0;
+  for (std::map<std::string, std::pair<double,int> >::iterator it = sourceNames.begin(); it != sourceNames.end(); ++it)
   {
-    firstSolveComplete_ = true;
-    return (paramsPtr->getStatusTestReturnCode());
+    double dcVal = (it->second).first;
+    if (dcVal != 0.0)
+      numHomotopyContinuationRuns++;
   }
-}
+  
+  if (DEBUG_NONLINEAR)
+    dout() << "Number of nonzero sources for sequential source stepping = " << numHomotopyContinuationRuns << std::endl;
 
-//-----------------------------------------------------------------------------
-// Function      : Interface::mosfetContinuationSolve5 
-// Purpose       : 
-// Return Type   : 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=test or 
-//                    .options nonlin continuation=8
-// Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date : 2/25/2004
-//-----------------------------------------------------------------------------
-int Interface::mosfetContinuationSolve5 ( ParameterSet* paramsPtr )
-{
-  // Get some initial objects
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
+  // If the netlist does not have any nonzero sources, then source stepping can't be used.
+  if (!numHomotopyContinuationRuns)
+    return (-1);
+
+  // If the netlist defines a large number of nonzero sources, sequential
+  // source stepping will take a long time.  Perform simultaneous source
+  // stepping instead.
+  if (numHomotopyContinuationRuns > 20)
+  {
+    return sourceSteppingSolve ( paramsPtr );
+  } 
+
+  // the following set of if-statemtents call functions that
+  // allocate augmented linear systems for various scenarios.
+  // It is important that the augmented systems get allocated
+  // after the paramter (above) have been set.
+  bool usedOP=false;
+  bool usedNODESET=false;
+  bool usedIC=false;
+
+  if ((usemode_) && (mode_ != Nonlinear::TRANSIENT))
+  {   
+    if (ICspecified_)
+    { 
+      usedIC=icCont (paramsPtr);
+    }
+    else if (NODESETspecified_)
+    {
+      usedNODESET=nodesetCont1 (paramsPtr);
+    }
+  }
+
+  // Initialize parameters in xyce
+  if (!usedOP && !usedNODESET) // (usedOP and usedNODESET have already loaded F)
+  {
+    groupPtr_->computeF();
+  }
+
+  nonlinearEquationLoader_->setDisableInitJctFlags(true);
+
+  // Create Parameter Vector and get the stepper parameter list.
   Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
+  Teuchos::ParameterList& predictorList = locaList->sublist("Predictor");
+  Teuchos::ParameterList& stepSizeList = locaList->sublist("Step Size");
+  
+  stepperList.set("Max Steps", 400);
+  stepperList.set("Max Nonlinear Iterations", 20);
+
+  std::string srcscale = "SRCSCALE";
+  stepperList.set("Continuation Parameter", srcscale);
+  stepperList.set("Continuation Method", "Natural");
+
+  stepSizeList.set("Method", "Adaptive");
+  predictorList.set("Method", "Constant");
+
+  std::vector<std::string> names;
+  std::vector<double> maxVal;
+  std::vector<double> numAdj;
+  std::vector<bool> isVoltage;
+
+  if (usedOP || usedNODESET)
+  {
+    const N_NLS_LOCA::Group & conLocaGrp =
+      dynamic_cast<const N_NLS_LOCA::Group&>(solverPtr_->getSolutionGroup());
+    *groupPtr_ = const_cast<N_NLS_LOCA::Group&>(conLocaGrp);
+    solverPtr_ = Teuchos::null;
+  }
+
+  int numIsrc = 0;
+
+  // Sort names according to source type and number of adjacent devices
+  for (std::map<std::string, std::pair<double,int> >::iterator it = sourceNames.begin(); it != sourceNames.end(); ++it)
+  {
+    double dcVal = (it->second).first;
+    int currAdj = (it->second).second;
+
+    if (dcVal != 0.0)
+    {
+      // Collect all non-zero sources, voltage sources before current sources
+      // Find the last separator in the name before checking that it is a voltage source
+      bool isVsrc = false;
+      std::string::size_type lastColon = (it->first).find_last_of( Xyce::Util::separator );
+      if ((lastColon != std::string::npos) && (lastColon + 1 < (it->first).length()))
+      {
+        if ( (it->first)[ lastColon+1 ] == 'V')
+          isVsrc = true;
+      }
+      else
+      {
+        if ( (it->first)[0] == 'V' )
+          isVsrc = true;
+      }
+
+      if ( isVsrc )
+      {
+        // Sort in increasing order of number of adjacencies.
+        std::vector<bool>::iterator it_isVoltage = isVoltage.begin();
+        std::vector<std::string>::iterator it_names = names.begin();
+        std::vector<double>::iterator it_maxVal = maxVal.begin();
+        std::vector<double>::iterator it_numAdj = numAdj.begin();
+        int i = 0, numCurrVsrcs = names.size() - numIsrc;
+        while ( (i<numCurrVsrcs) && (*it_numAdj<currAdj) )
+        {
+          it_isVoltage++;
+          it_names++;
+          it_maxVal++;
+          it_numAdj++;
+          i++;
+        }
+        isVoltage.insert( it_isVoltage, true );
+        names.insert( it_names, it->first );
+        maxVal.insert( it_maxVal, dcVal );
+        numAdj.insert( it_numAdj, currAdj );
+        
+        if (DEBUG_NONLINEAR) 
+          dout() << "Adding voltage source " << it->first << " with DC value " << dcVal << " and " << currAdj << " adjacencies." << std::endl; 
+      }
+      else
+      {
+        if (DEBUG_NONLINEAR)
+          dout() << "Adding current source " << it->first << " with DC value " << dcVal << " and " << currAdj << " adjacencies." << std::endl; 
+
+        isVoltage.push_back( false );
+        names.push_back( it->first );
+        maxVal.push_back( dcVal );
+        numAdj.push_back( currAdj );
+        numIsrc++;
+      }
+    }
+  }
+
+  std::vector<double> scalVal( numHomotopyContinuationRuns );
+
   LOCA::ParameterVector locaPVec;
 
-  // Create storage for continuation objects
-  int numHomotopyContinuationRuns = 1;
-  std::vector<std::string> names(numHomotopyContinuationRuns);
-  std::vector<double> initialVal(numHomotopyContinuationRuns);
-  std::vector<double> finalVal(numHomotopyContinuationRuns);
-  std::vector<double> minVal(numHomotopyContinuationRuns);
-  std::vector<double> maxVal(numHomotopyContinuationRuns);
+  // Initialize loca parameter vector to initial value of zero
+  locaPVec.addParameter(srcscale, 0.0);
+  for (int i = 0; i < numHomotopyContinuationRuns; ++i)
+    locaPVec.addParameter(names[i], 0.0);
 
-  // Set up continuation steps
-  // ***************************************************
-  // Changes vals below for continuation
-  // ***************************************************
-  names[0] = "mosfet:gainscale";
-  //names[1] = "mosfet:nltermscale";
-  //names[2] = "mosfet:sizescale";
-  //names[2] = "mosfet:l";
-  initialVal[0] = 0.0;
-  //initialVal[1] = 0.0;
-  //initialVal[2] = 0.0;
-  finalVal[0] = 1.0;
-  //finalVal[1] = 1.0;
-  //finalVal[2] = 1.0;
-  // ***************************************************
-  std::string n1 = "mosfet:nltermscale";
-  locaPVec.addParameter(n1, 0.0);
-  //std::string n2 = "mosfet:sizescale";
-  //locaPVec.addParameter(n2, 0.0);
-  // ***************************************************
-  // ***************************************************
-
-  // Ste up max/min bounds
-  for (int i = 0; i < names.size(); ++i) {
-    if (finalVal[i] > initialVal[i]) {
-      minVal[i] = initialVal[i];
-      maxVal[i] = finalVal[i];
-    }
-    else {
-      minVal[i] = finalVal[i];
-      maxVal[i] = initialVal[i];
-    }
-  }
-
-  // Initialize loca parameter vector
-  for (int i = 0; i < names.size(); ++i)
-    locaPVec.addParameter(names[i], initialVal[i]);
+  groupPtr_->setParams(locaPVec);
 
   LOCA::Abstract::Iterator::IteratorStatus locaStatus;
 
-  LOCA::StatusTest::Wrapper test(paramsPtr->getStatusTests());
-
   // Loop over the number of homotopy steps
-  for (int hs = 0; hs < names.size(); ++hs) {
-    for (int i = 0; i < names.size(); ++i) {
-      if (i >= hs)
-        locaPVec.setValue(names[i], initialVal[i]);
-      else
-        locaPVec.setValue(names[i], finalVal[i]);
+  for (int hs = 0; hs < numHomotopyContinuationRuns; ++hs)
+  {
+    // Set initial parameter values for this continuation run
+    locaPVec.setValue(srcscale, 0.0);
+
+    double scale = 1.0;
+    if (numAdj[hs] > 2)
+      scale = std::sqrt( (double)(numAdj[hs]) );
+
+    for (int i = 0; i < hs; ++i ) 
+    {
+      locaPVec.setValue(names[i], maxVal[i]); 
+      scalVal[i] = 1.0;
+    }
+    locaPVec.setValue(names[hs], 0.0);
+    scalVal[hs] = -1.0;  // Only scale this source
+    for (int i = hs+1; i < numHomotopyContinuationRuns; ++i)
+    {
+      locaPVec.setValue(names[i], 0.0);   
+      scalVal[i] = 0.0;
     }
     groupPtr_->setParams(locaPVec);
-    stepperList.set("Continuation Parameter", names[hs]);
-    stepperList.set("Initial Value", initialVal[hs]);
-    stepperList.set("Min Value", minVal[hs]);
-    stepperList.set("Max Value", maxVal[hs]);
+    groupPtr_->setSourceNamesAndScalings(names,scalVal);
 
-    // Initialize parameters in xyce
-    groupPtr_->computeF();
+    if (DEBUG_NONLINEAR)
+      dout() << "Setting groupPtr_->setSourceName to: " << names[hs] << " and value to " << maxVal[hs] << " with " << numAdj[hs] << " adjacencies, with a scale of " << scale << std::endl;
+
+    stepperList.set("Initial Value", 0.0);
+    stepperList.set("Min Value", -1.0);
+    stepperList.set("Max Value", 1.0);
+
+    if (isVoltage[hs])
+    {
+      // Scale voltage sources faster than current sources
+      stepSizeList.set("Min Step Size", 1.0e-4/scale);
+      stepSizeList.set("Initial Step Size", 0.2/scale);
+      
+      if (DEBUG_NONLINEAR)
+      {
+        dout() << "Setting Min Step Size to " << 1.0e-4/scale << std::endl;
+        dout() << "Setting Initial Step Size to " << 0.2/scale << std::endl;
+      }
+    }
+    else
+    {
+      // Scale current sources slower than voltage sources
+      stepSizeList.set("Initial Step Size", 1.0e-3);
+      stepSizeList.set("Min Step Size", 1.0e-5);
+    }
+    stepSizeList.set("Max Step Size", 0.2);
+    stepSizeList.set("Aggressiveness", 1.0/scale);
+    
+    if (DEBUG_NONLINEAR)
+      dout() << "Setting Aggressiveness to " << 1.0/scale << std::endl;
 
     // Do the continuation run
     resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
     locaStatus = stepperPtr_->run();
 
-    // Kick out if continuation failed
-    if (locaStatus != LOCA::Abstract::Iterator::Finished)
-      return (-1);
-
-    // Increment Param Number Tracking
-    isFirstContinuationParam_ = false;
-    firstSolveComplete_ = true;
-
-    // Copy out the solution and use it in the next run
-    groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
-  }
-
-  // Return converged solver code
-  return (paramsPtr->getStatusTestReturnCode());
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Interface::mosfetContinuationSolve6 
-// Purpose       : 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=power or 
-//                    .options nonlin continuation=10
-// Scope         : public
-// Creator       : Roger Pawlowski, Eric Keiter
-// Creation Date : 2/25/2004
-//-----------------------------------------------------------------------------
-int Interface::mosfetContinuationSolve6 ( ParameterSet* paramsPtr )
-{
-  // Get some initial objects
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
-  Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
-  LOCA::ParameterVector locaPVec;
-
-  // Create storage for continuation objects
-  int numHomotopyContinuationRuns = 4;
-  std::vector<std::string> names(numHomotopyContinuationRuns);
-  std::vector<double> initialVal(numHomotopyContinuationRuns);
-  std::vector<double> finalVal(numHomotopyContinuationRuns);
-  std::vector<double> minVal(numHomotopyContinuationRuns);
-  std::vector<double> maxVal(numHomotopyContinuationRuns);
-
-  // Set up continuation steps
-  // ***************************************************
-  // Changes vals below for continuation
-  // ***************************************************
-  names[0] = stepperList.get("Power Node", "VA:V0");
-  names[1] = "mosfet:gainscale";
-  names[2] = "mosfet:nltermscale";
-  names[3] = "mosfet:sizescale";
-  initialVal[0] = 0.0;
-  initialVal[1] = 0.0;
-  initialVal[2] = 0.0;
-  initialVal[3] = 0.0;
-  finalVal[0] = 1.0;
-  finalVal[1] = 1.0;
-  finalVal[2] = 1.0;
-  finalVal[3] = 1.0;
-  // ***************************************************
-  //std::string n1 = "mosfet:nltermscale";
-  //locaPVec.addParameter(n1, 0.0);
-  //std::string n2 = "mosfet:sizescale";
-  //locaPVec.addParameter(n2, 0.0);
-  // ***************************************************
-  // ***************************************************
-
-  // Set up max/min bounds
-  for (int i = 0; i < names.size(); ++i) {
-    if (finalVal[i] > initialVal[i]) {
-      minVal[i] = initialVal[i];
-      maxVal[i] = finalVal[i];
+    if (usedIC || usedNODESET)
+    {
+      groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
     }
-    else {
-      minVal[i] = finalVal[i];
-      maxVal[i] = initialVal[i];
-    }
-  }
-
-  // Initialize loca parameter vector
-  for (int i = 0; i < names.size(); ++i)
-    locaPVec.addParameter(names[i], initialVal[i]);
-
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus;
-
-  // Loop over the number of homotopy steps
-  for (int hs = 0; hs < names.size(); ++hs) {
-    for (int i = 0; i < names.size(); ++i) {
-      if (i >= hs)
-        locaPVec.setValue(names[i], initialVal[i]);
-      else
-        locaPVec.setValue(names[i], finalVal[i]);
-    }
-    groupPtr_->setParams(locaPVec);
-    stepperList.set("Continuation Parameter", names[hs]);
-    stepperList.set("Initial Value", initialVal[hs]);
-    stepperList.set("Min Value", minVal[hs]);
-    stepperList.set("Max Value", maxVal[hs]);
-
-    // Initialize parameters in xyce
-    groupPtr_->computeF();
-
-    // Do the continuation run
-    resetStepper(globalDataPtr_, groupPtr_, locaStatusTestPtr_, paramsPtr->getAllParams());
-    locaStatus = stepperPtr_->run();
 
     // Kick out if continuation failed
     if (locaStatus != LOCA::Abstract::Iterator::Finished)
       return (-1);
 
-    firstSolveComplete_ = true;
-
     // Copy out the solution and use it in the next run
     groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
   }
+
+  nonlinearEquationLoader_->setDisableInitJctFlags(false);
 
   // Return converged solver code
   return (paramsPtr->getStatusTestReturnCode());
@@ -1415,64 +1243,6 @@ int Interface::pseudoTransientSolve ( ParameterSet* paramsPtr )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Interface::artificialParameterHomotopy 
-// Purpose       : 
-// Special Notes : This corresponds to 
-//                    .options nonlin continuation=art or 
-//                    .options nonlin continuation=33
-// Scope         : 
-// Creator       :
-// Creation Date :
-//-----------------------------------------------------------------------------
-int Interface::artificialParameterHomotopy ( ParameterSet* paramsPtr )
-{
-#ifdef Xyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT
-  Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
-  Teuchos::ParameterList& locaUtilsList = locaList->sublist("Utilities");
-
-  Teuchos::RCP<LOCA::Homotopy::Group> hGrp =
-    Teuchos::rcp(new LOCA::Homotopy::Group(*locaList, globalDataPtr_, groupPtr_, 1.0, 0.0));
-
-  hGrp->computeF();
-
-  locaList->sublist("Predictor").set("Secant", 0.999);
-  locaList->sublist("Stepper").set("Max Value", 0.999);
-
-  resetStepper(globalDataPtr_, hGrp, locaStatusTestPtr_, paramsPtr->getAllParams());
-
-  LOCA::Abstract::Iterator::IteratorStatus locaStatus = stepperPtr_->run();
-  firstSolveComplete_ = true;
-
-  Teuchos::RCP<LOCA::Homotopy::Group> hGrp2 =
-    Teuchos::rcp(new LOCA::Homotopy::Group(*locaList, globalDataPtr_, groupPtr_, 0.1, 1.0));
-
-  locaList->sublist("Predictor").set("Secant", 0.999);
-  locaList->sublist("Stepper").set("Initial Value", 0.999);
-  locaList->sublist("Stepper").set("Max Value", 1.0);
-  locaList->sublist("Step Size").set("Method", "Constant");
-  locaList->sublist("Step Size").set("Initial Step Size", 0.0001);
-  locaList->sublist("Step Size").set("Min Step Size", 0.0001);
-
-  resetStepper(globalDataPtr_, hGrp2, locaStatusTestPtr_, paramsPtr->getAllParams());
-
-  locaStatus = stepperPtr_->run();
-
-  // Return the solution status
-  if (locaStatus != LOCA::Abstract::Iterator::Finished)
-    return (-1);
-  else
-    return (paramsPtr->getStatusTestReturnCode());
-
-#else
-  Report::UserFatal0() << "Nonlinear Solver (NOX::Interface) Artificial parameter continuation requires "
-    << "building xyce with the define: -DXyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT to "
-    << "allow LOCA to augment the diagonal of Jacobian! Either rebuild Xyce or do not "
-    << "run Xyce with \"continuation=33\"";
-  return -1;
-#endif
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Interface::sourceSteppingSolve
 // Purpose       : 
 // Special Notes : This corresponds to 
@@ -1559,7 +1329,9 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
   if (locaStatus != LOCA::Abstract::Iterator::Finished)
     return (-1);
   else
+  {
     return (paramsPtr->getStatusTestReturnCode());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1704,7 +1476,6 @@ int Interface::solve (Nonlinear::NonLinearSolver * nlsTmpPtr)
     }
     else
     {
-
       // Setting the nonContinuation flag is required to prevent incorrect
       // Device::DeviceMgr::setParam calls.
       if (solverType==0)
@@ -1738,42 +1509,20 @@ int Interface::solve (Nonlinear::NonLinearSolver * nlsTmpPtr)
       else if (solverType == 3)  // GMIN stepping, simple specification
       {
         return gminSteppingSolve ( paramsPtr );
-      }
-      // (4) Mosfet specific continuation (ERK, new 2/21/2004)
-      else if (solverType == 4)
-      {
-        return mosfetContinuationSolve2 (paramsPtr);
-      }
-      // (5) Mosfet:BSIM3:Inverter specific continuation (RPP, new 2/25/2004)
-      else if (solverType == 5)
-      {
-        return mosfetContinuationSolve3 (paramsPtr);
-      }
-      // (6) Mosfet:BSIM3:Inverter specific continuation (RPP, new 2/25/2004)
-      else if (solverType == 6)
-      {
-        return mosfetContinuationSolve4 (paramsPtr);
-      }  // Block gainscale was solverType 7, but it has been rmoved
-      else if (solverType == 8)
-      {
-        return mosfetContinuationSolve5 (paramsPtr);
-      } // Pseudo Transient
-      else if (solverType == 9)
+      } 
+      else if (solverType == 9) // Pseudo Transient
       {
         return pseudoTransientSolve( paramsPtr );
-      }  // continuation = 4 + power node
-      else if (solverType == 10)
-      {
-        return mosfetContinuationSolve6 (paramsPtr);
-      }
-      else if (solverType == 33)  // artificial parameter
-      {
-        return artificialParameterHomotopy (paramsPtr);
-      } 
+      }  
       else if (solverType == 34)  // source stepping, simple specification
       {
         return sourceSteppingSolve ( paramsPtr );
-      }// End of if (solverType == )
+      }
+      else if (solverType == 35)  // source stepping, sequential ramping
+      {
+        return sourceSteppingSolve2 (paramsPtr);
+      }
+      // End of if (solverType == )
     }
   } // try
   catch (const char* error_msg) 

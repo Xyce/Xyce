@@ -153,6 +153,9 @@ public:
   void setNonContinuationFlag (bool value);
   bool getNonContinuationFlag ();
 
+  void setSourceNamesAndScalings( const std::vector<std::string>& srcNames, const std::vector<double>& scales ) 
+  { srcNames_ = srcNames; srcScales_ = scales; }
+
 private:
 
   //! Keep a reference to the loader to set parameters.
@@ -183,6 +186,9 @@ private:
   // Flag to indicate if this is a traditional newton solve or not.
   bool nonContinuationSolve_;
 
+  // Source names and values being stepped during sequential source stepping
+  std::vector<std::string> srcNames_;
+  std::vector<double> srcScales_;
 };
 
 }}} // namespace N_NLS_LOCA

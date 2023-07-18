@@ -1591,6 +1591,84 @@ bool DeviceMgr::deleteDeviceInstance(const std::string & name)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getSourceDeviceNamesDCVal
+// Purpose       : Return the fully expanded names for the source devices in
+//                 independentSourceMap_ and the DC value.  These will be used 
+//                 to perform source stepping for the DCOP calculation.
+// Special Notes : This list is distributed in parallel and needs to be broadcast
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 5/2/23
+//-----------------------------------------------------------------------------
+std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCVal(Parallel::Machine comm) const
+{
+  std::map<std::string, std::pair<double,int> > globalSources, localSources;
+  IndependentSourceMap::const_iterator it = independentSourceMap_.begin();
+  IndependentSourceMap::const_iterator it_end = independentSourceMap_.end();
+  for ( ; it != it_end; ++it )
+  {
+    // Determine how many devices are adjacent to this one.
+    NodeID sourceNode( it->first, _DNODE );
+    std::vector<NodeID> adjNodes;
+    topology_.returnAdjIDs( sourceNode, adjNodes );
+    int numAdjDevices = 0;
+    for (std::vector<NodeID>::iterator adj_it = adjNodes.begin(); adj_it!= adjNodes.end(); ++adj_it)
+    {
+      std::vector<NodeID> adjDevs;
+      topology_.returnAdjIDs( *adj_it, adjDevs);
+      numAdjDevices += adjDevs.size();
+    }
+    it->second->processParams();
+    it->second->updateSource();
+    localSources[ it->first ] = std::make_pair( it->second->getDefaultParam(), numAdjDevices );
+  }
+
+  // Collect the global list of source devices
+  if (Parallel::is_parallel_run(comm))
+  {
+    int numSources = localSources.size();
+    std::vector<int> procSources( Parallel::size(comm) );
+    procSources[Parallel::rank(comm)] = numSources;
+    Parallel::AllReduce(comm, MPI_SUM, &procSources[0], Parallel::size(comm));
+
+    std::map<std::string, std::pair<double,int> >::iterator map_it = localSources.begin();
+    std::map<std::string, std::pair<double,int> >::iterator map_end = localSources.end();
+
+    for (int proc=0; proc < Parallel::size(comm); ++proc)
+    {
+      for (int pNumSources=0; pNumSources<procSources[proc]; ++pNumSources)
+      {
+        int numAdj = 0;
+        double dcVal = 0.0;
+        std::string sourceName;
+        if ((proc == Parallel::rank(comm)) && (map_it != map_end))
+        {
+          // Get the source name and value, then increment the iterator
+          sourceName = map_it->first;
+          dcVal = (map_it->second).first;
+          numAdj = (map_it->second).second;
+          map_it++;
+        }
+        // Broadcast the source name and value
+        Parallel::Broadcast( comm, sourceName, proc ); 
+        Parallel::Broadcast( comm, &dcVal, 1, proc );
+        Parallel::Broadcast( comm, &numAdj, 1, proc );
+
+        // Add it to the global map
+        globalSources[ sourceName ] = std::make_pair( dcVal, numAdj ); 
+      }
+    }
+  }
+  else
+  {
+    return localSources;
+  }
+ 
+  // Return the sources on all processors, if run in parallel
+  return globalSources;  
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::debugOutput1
 // Purpose       :
 // Special Notes :

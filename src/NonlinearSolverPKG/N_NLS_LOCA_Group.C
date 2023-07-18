@@ -37,6 +37,8 @@
 
 #include <Xyce_config.h>
 
+#include <algorithm>
+
 #include <N_ANP_AnalysisManager.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_OutputMgr.h>
@@ -108,7 +110,9 @@ Group::Group(const Group& source, NOX::CopyType type) :
   scalingVecPtr(source.scalingVecPtr),
   useAugmentLinSys_(source.useAugmentLinSys_),
   augmentLSStrategy_(source.augmentLSStrategy_),
-  nonContinuationSolve_(source.nonContinuationSolve_)
+  nonContinuationSolve_(source.nonContinuationSolve_),
+  srcNames_(source.srcNames_),
+  srcScales_(source.srcScales_)
 {
   tmpVectorPtr = sharedSystemPtr_->getLasSystem()->builder().createVector();
 }
@@ -186,6 +190,8 @@ Group::operator=(const Group& source)
     scalingVecPtr = source.scalingVecPtr;
   useAugmentLinSys_ = source.useAugmentLinSys_;
   augmentLSStrategy_ = source.augmentLSStrategy_;
+  srcNames_ = source.srcNames_;
+  srcScales_ = source.srcScales_;
   return *this;
 }
 
@@ -237,11 +243,31 @@ NOX::Abstract::Group::ReturnType Group::computeF()
     for (int i = 0; i < params.length(); ++i) 
     {
       std::string label = params.getLabel(i);
-      loader.setParam(label, params.getValue(i));
+     
+      // Intercept source-stepping and set scale source value on source node 
+      if (label == "SRCSCALE")
+      {
+        //std::cout << "Scaling " << srcNames_.size() << " sources by value: " << params.getValue(i) << std::endl;
+        // Scale all the current active sources by this parameter
+        for (int j = 0; j < srcNames_.size(); ++j)
+        {
+          if (srcScales_[j] < 0.0)
+            loader.scaleDevice( srcNames_[j], params.getValue(i) );
+          else
+            loader.scaleDevice( srcNames_[j], srcScales_[j] );
+        }
+      }
+      else if (std::find(srcNames_.begin(), srcNames_.end(), label) != srcNames_.end() )
+      {
+        // No-op this is taken care of by SRCSCALE
+      }
+      else
+      {
+        loader.setParam(label, params.getValue(i));
+      }
 
       if (label == "GSTEPPING" && useAugmentLinSys_)
         augmentLSStrategy_->setProgressVariable(params.getValue(i));
-
     }
   }
 
@@ -270,13 +296,32 @@ NOX::Abstract::Group::ReturnType Group::computeJacobian()
   // setParam calls are not happening for transient!
   if (!nonContinuationSolve_)
   {
-    for (int i = 0; i < params.length(); ++i) {
+    for (int i = 0; i < params.length(); ++i) 
+    {
       std::string label = params.getLabel(i);
-      loader.setParam(label, params.getValue(i));
 
+      // Intercept source-stepping and set scaled source value on source node 
+      if (label == "SRCSCALE")
+      {
+        // Scale all the current active sources by this parameter
+        for (int j = 0; j < srcNames_.size(); ++j)
+        {
+          if (srcScales_[j] < 0.0)
+            loader.scaleDevice( srcNames_[j], params.getValue(i) );
+          else
+            loader.scaleDevice( srcNames_[j], srcScales_[j] );
+        }
+      }
+      else if (std::find(srcNames_.begin(), srcNames_.end(), label) != srcNames_.end() )
+      {
+        // No-op this is taken care of by SRCSCALE
+      }
+      else
+      { 
+        loader.setParam(label, params.getValue(i));
+      }
       if (label == "GSTEPPING" && useAugmentLinSys_)
         augmentLSStrategy_->setProgressVariable(params.getValue(i));
-
     }
   }
 

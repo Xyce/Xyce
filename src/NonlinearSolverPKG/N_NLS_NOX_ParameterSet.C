@@ -621,7 +621,9 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
     // 1 = Natural Parameter Continuation
     // 2 = Mosfet Specific Dual Parameter Continuation
     // 3 = gmin stepping.
-    // 33 = Artificial Parameter Continuation
+    // 9 = pseudo-transient
+    // 34 = Source stepping (simultaneous)
+    // 35 = Source stepping (sequential)
     else if (tag == "CONTINUATION")
     {
       continuationSpecified_=true;
@@ -649,37 +651,13 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
         {
           noxSolver = 3;
         }
-        else if (p.substr(0,6) == "NEWMOS")
-        {
-          noxSolver = 4;
-        }
-        else if (p.substr(0,9) == "BSIM3INV1")
-        {
-          noxSolver = 5;
-        }
-        else if (p.substr(0,9) == "BSIM3INV2")
-        {
-          noxSolver = 6;
-        }
-        else if (p.substr(0,9) == "BLOCKGAIN")
-        {
-          noxSolver = 7;
-        }
-        else if (p.substr(0,4) == "TEST")
-        {
-          noxSolver = 8;
-        }
         else if (p.substr(0,6) == "PSEUDO")
         {
           noxSolver = 9;
         }
-        else if (p.substr(0,5) == "POWER")
+        else if (p.substr(0,11) == "SOURCESTEP2")
         {
-          noxSolver = 10;
-        }
-        else if (p.substr(0,3) == "ART")
-        {
-          noxSolver = 33;
+          noxSolver = 35;
         }
         else if (p.substr(0,10) == "SOURCESTEP")
         {
@@ -691,18 +669,6 @@ bool ParameterSet::parseOptionBlock_(const Util::OptionBlock& OB)
             << "Unknown specification in .options for 'continuation': "
             << it_tpL->stringValue();
         }
-
-	// Bail out if option 33 (artif. homotopy) is chosen but
-	// required support is not built in.
-#ifndef Xyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT
-        if (noxSolver == 33)
-        {
-          Report::UserFatal0() << "Nonlinear Solver (NOX::Interface) Artificial parameter continuation requires "
-                                     << "building xyce with the define: -DXyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT to "
-                                     << "allow LOCA to augment the diagonal of Jacobian! Either rebuild Xyce or do not "
-                                     << "run Xyce with \"continuation=33\"";
-        }
-#endif
       }
     }
 

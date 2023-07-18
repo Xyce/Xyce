@@ -787,6 +787,41 @@ void NonlinearEquationLoader::homotopyStepFailure ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::getSourceDeviceNamesDCVal
+// Purpose       : Pass through function to get the fully expanded source device
+//                 names from the device manager and the DC values of those devices.
+//                 Collect source device names across processors if running in parallel
+// Special Notes : This is used by source stepping in the DCOP calculation
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 05/02/23
+//-----------------------------------------------------------------------------
+std::map<std::string, std::pair<double,int> > NonlinearEquationLoader::getSourceDeviceNamesDCVal(Parallel::Machine comm) const
+{
+  return deviceManager_.getSourceDeviceNamesDCVal(comm);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::scaleDevice
+// Purpose       : Function that scales the default device parameter
+// Special Notes : This is used by source stepping in the DCOP calculation
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 05/02/23
+//-----------------------------------------------------------------------------
+bool NonlinearEquationLoader::scaleDevice( std::string& instance, double scale )
+{
+  bool success = true;
+  Device::DeviceEntity* device = deviceManager_.getDeviceEntity( instance );
+  if (device)
+  {
+    success = device->scaleDefaultParam( scale );
+    success &= device->processParams();
+  }
+  return success;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::allDevsConverged
 // Purpose       : Check whether any device has taken an action that renders
 //                  normal convergence checks invalid (i.e. that the current
