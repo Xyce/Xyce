@@ -127,6 +127,12 @@ if(Xyce_PLUGIN_SUPPORT)
     message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
     set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
   endif()
+  if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+    # if building a shared library under windows automatically export all 
+    # symbols in the resulting "dll"  This is not optimal but will work 
+    # until a detailed code markup is done.
+    set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
+  endif()
 endif()
 
 add_subdirectory(src)

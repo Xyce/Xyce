@@ -124,8 +124,8 @@ void add_fast_row_index (MatrixPtr, int, int, ElementPtr);
 void spSetIndex(MatrixPtr Matrix);
 void spColInd(MatrixPtr Matrix, int Col);
 void spRowInd(MatrixPtr Matrix, int Row);
+void spExpandFormat( MatrixPtr);
 
-
 /*
  *  CLEAR MATRIX
  *
