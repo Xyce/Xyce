@@ -125,6 +125,24 @@ endif()
 
 
 # ---- And the installation of them. ----------------
+# Keep this in mind if Xyce needs to support building both static and shared libraries
+# in the same build tree.
+#
+# According to <https://gitlab.kitware.com/cmake/community/-/wikis/FAQ>, the
+# above is not needed: "One more detail is needed with CMake 2.6.x and lower
+# (but not CMake 2.8 or higher). If you are building your shared and static
+# libraries in the same directory, you will also need the following to keep
+# your shared and static libraries from clobbering each other during the
+# build."
+#
+# From <https://cmake.org/cmake/help/cmake2.6docs.html>:
+# "When a library is built, CMake by default generates code to remove any
+# existing library using all possible names. This is needed to support
+# libraries that switch between STATIC and SHARED by a user option. However
+# when using OUTPUT_NAME to build a static and shared library of the same name
+# using different logical target names the two targets will remove each other's
+# files. This can be prevented by setting the CLEAN_DIRECT_OUTPUT property to 1."
+
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
   # if we are building shared libraries under windows then a byproduct will
   # be an interface library with a suffix ".lib" that is used in linking 
@@ -149,31 +167,14 @@ if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
   set_target_properties ( XyceLib PROPERTIES
 	 		OUTPUT_NAME xyce-share
 			CLEAN_DIRECT_OUTPUT ON)
+  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget)
 else()
   set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
+  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
 endif()
 
-# Keep this in mind if Xyce needs to support building both static and shared libraries
-# in the same build tree.
-#
-# According to <https://gitlab.kitware.com/cmake/community/-/wikis/FAQ>, the
-# above is not needed: "One more detail is needed with CMake 2.6.x and lower
-# (but not CMake 2.8 or higher). If you are building your shared and static
-# libraries in the same directory, you will also need the following to keep
-# your shared and static libraries from clobbering each other during the
-# build."
-#
-# From <https://cmake.org/cmake/help/cmake2.6docs.html>:
-# "When a library is built, CMake by default generates code to remove any
-# existing library using all possible names. This is needed to support
-# libraries that switch between STATIC and SHARED by a user option. However
-# when using OUTPUT_NAME to build a static and shared library of the same name
-# using different logical target names the two targets will remove each other's
-# files. This can be prevented by setting the CLEAN_DIRECT_OUTPUT property to 1."
-
-install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
 install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
 
 # Add header files needed by other codes to link against libxyce.*
