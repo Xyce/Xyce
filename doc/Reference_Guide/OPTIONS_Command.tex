@@ -169,21 +169,24 @@ for \texttt{ABSTOL} is 1e-9 and the default for \texttt{RHSTOL} is 1e-4.
 
 The continuation selections listed in Table~\ref{ContinuationPKG}
 provide methods for controlling continuation and bifurcation analysis.
-These override the defaults and any that were set simply in the
+These override the default settings that were given in the
 continuation package.  This option block is only used if the nonlinear
 solver or transient nonlinear solver enable continuation through the
 \texttt{CONTINUATION} flag.
 
-There are two specialized homotopy methods that can be set in the nonlinear
-solver options line.  One is MOSFET-based homotopy, which is specific to MOSFET
-circuits.  This is specified using \texttt{continuation=2} or
-\texttt{continuation=mos}.  The other is GMIN stepping, which is specified
-using \texttt{continuation=3} or \texttt{continuation=gmin}.  For either of
-these methods, while it is possible to modify their default LOCA options, it is
+There are several specialized homotopy methods that can be set in the nonlinear
+solver options line, \texttt{.options nonlin}.  One is MOSFET-based homotopy, 
+which is specific to MOSFET circuits.  This is specified using \texttt{continuation=2} or
+\texttt{continuation=mos}.  Another is GMIN stepping, which is specified
+using \texttt{continuation=3} or \texttt{continuation=gmin}.  Lastly, source stepping
+can be done simultaneously, using \texttt{continuation=34} or \texttt{continuation=sourcestep},
+or sequentially using \texttt{continuation=35} or \texttt{continuation=sourcestep2}.
+For any of these methods, while it is possible to modify their default LOCA options, it is
 generally not necessary to do so. Note that \Xyce{} automatically attempts GMIN
-stepping if the inital attempt to find the DC operating point fails. If GMIN
-stepping is specified in the netlist, \Xyce{} will not attempt to find a DC
-operating point without GMIN stepping. 
+stepping if the inital attempt to find the DC operating point fails.  In addition,
+\Xyce{} will attempt simultaneous source stepping if GMIN fails to find a DC operating
+point.  If any of the specialized homotopy methods are specified in the netlist,
+\Xyce{} will attempt to find a DC operating point only using that method. 
 
 LOCA options are set using the \texttt{.OPTIONS LOCA} command.\index{\texttt{.OPTIONS}!\texttt{LOCA}}
 
