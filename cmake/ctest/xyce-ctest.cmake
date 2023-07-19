@@ -111,8 +111,8 @@ endif()
 
 # the following are likely pretty invariant
 set(CTEST_PROJECT_NAME "Xyce")
-set(CTEST_DROP_METHOD "http")
-set(CTEST_DROP_SITE "joseki-srn.sandia.gov/CDash")
+set(CTEST_DROP_METHOD "https")
+set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
 # begin ctest procedures. MODEL should be one of Nighlty, Weekly,
