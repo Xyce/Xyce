@@ -387,16 +387,25 @@ Source stepping is a type of continuation commonly available in circuit simulato
 Like SPICE, \Xyce{} automatically attempts source stepping if the initial
 operating point fails, and if the subsequent attempt at GMIN stepping~\ref{continuation_gmin} 
 also fails.  As such, it is not typically necessary to manually 
-specify source stepping in a \Xyce{} netlist.
+specify source stepping in a \Xyce{} netlist.  
 
-However, source stepping may be manually specified by setting
-\texttt{continuation=34} or more conveniently, \texttt{continuation=sourcestep}. If it 
-is manually specified,\Xyce{} will \emph{not} attempt to find a DC operating 
+\Xyce{} provides two different source stepping approaches:  simultaneous and sequential.  
+Simultaneous source stepping includes all the sources at the same time during the 
+continuation and is used by default in the DC operating point strategy.  
+Sequential source stepping performs continuation on one source at a time until all sources 
+achieve their DC value.  Sequential source stepping can provide a robust alternative
+when circuits fail to converge to a DC operating point with simultaneous source stepping.
+
+Source stepping may be manually specified by setting
+\texttt{continuation=34} or \texttt{continuation=35} for simultaneous or sequential source
+stepping, respectively.  Alternatively, it may also be specified by setting \texttt{continuation=sourcestep}
+or \texttt{continuation=sourcestep2} for simultaneous or sequential source stepping, respectively. 
+If it is manually specified,\Xyce{} will \emph{not} attempt to find a DC operating 
 point using any other method; it will attempt source stepping, and if that fails 
 it will exit with error, not attempting any other method. 
-Figure~\ref{sourceStep_netlist} provides a netlist example of source stepping.
+Figure~\ref{sourceStep_netlist} provides a netlist example of simultaneous source stepping.
 
-Note that a less convenient method to accomplish source stepping is described in 
+Note that a less convenient method to accomplish simultaneous source stepping is described in 
 section~\ref{continuation_scaling}.
 
 \begin{figure}[htbp]
