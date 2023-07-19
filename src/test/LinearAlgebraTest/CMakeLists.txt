@@ -6,5 +6,7 @@ if( BUILD_TESTING )
      set_tests_properties( testBlockLinearSystems PROPERTIES
           REQUIRED_FILES "hb_matrix1.mm"
           REQUIRED_FILES "hb_rhs1.mm" )
+     get_target_property(XyceLibDir XyceLib BINARY_DIR )
+     set_tests_properties( testBlockLinearSystems PROPERTIES ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${XyceLibDir}")
      file( COPY hb_matrix1.mm hb_rhs1.mm DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
