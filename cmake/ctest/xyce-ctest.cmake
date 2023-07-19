@@ -80,8 +80,10 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
   HINTS $ENV{WORKSPACE}/tests/Xyce_Regression/TestScripts
   REQUIRED)
 
-# find the custom perl script to create the results XML file
-if($CDASHVER STREQUAL "3p1")
+# find the custom perl script to create the results XML file. note
+# that different versions of cdash can require slight different
+# formats for the XML files.
+if(${CDASHVER} STREQUAL "3p1")
   find_program(XYCE_CDASH_GEN summary-dart-nosubmit.cdash-v3p1.pl
     HINTS $ENV{WORKSPACE}/Scripts/reporting
     REQUIRED)
