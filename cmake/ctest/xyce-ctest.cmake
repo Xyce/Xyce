@@ -3,7 +3,8 @@
 
 # arguments, specified via "-D"
 #   -DVERBOSITY=<0-5>
-#   -DDASHSUBMIT=<TRUE|FALSE>   # mostly for debugging to avoid cdash submission
+#   -DDASHSUBMIT=<TRUE|FALSE>    # mostly for debugging to avoid cdash submission
+#   -DCDASHVER="version string"  # should be either 3p1 or not set
 
 # verbosity level
 #   0 - no specific screen output (default)
@@ -80,9 +81,15 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
   REQUIRED)
 
 # find the custom perl script to create the results XML file
-find_program(XYCE_CDASH_GEN summary-dart-nosubmit.pl
-  HINTS $ENV{WORKSPACE}/Scripts/reporting
-  REQUIRED)
+if($CDASHVER STREQUAL "3p1")
+  find_program(XYCE_CDASH_GEN summary-dart-nosubmit.cdash-v3p1.pl
+    HINTS $ENV{WORKSPACE}/Scripts/reporting
+    REQUIRED)
+else()
+  find_program(XYCE_CDASH_GEN summary-dart-nosubmit.pl
+    HINTS $ENV{WORKSPACE}/Scripts/reporting
+    REQUIRED)
+endif()
 
 # this is used as the "Build Name" column on the dashboard
 set(CTEST_BUILD_NAME "$ENV{MYBUILDNAME}")
@@ -109,11 +116,20 @@ else()
   set(TESTGROUP "Experimental")
 endif()
 
-# the following are likely pretty invariant
 set(CTEST_PROJECT_NAME "Xyce")
+
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
+
+##set(CTEST_DROP_METHOD "https")
+##set(CTEST_DROP_SITE "charon-cdash.sandia.gov")
+##set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
+
+# the following are likely pretty invariant
+##set(CTEST_DROP_METHOD "http")
+##set(CTEST_DROP_SITE "joseki-srn.sandia.gov/CDash")
+##set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
 # begin ctest procedures. MODEL should be one of Nighlty, Weekly,
 # Continuous or Experimental. this can use custom categories via the
