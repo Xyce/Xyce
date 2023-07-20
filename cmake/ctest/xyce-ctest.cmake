@@ -4,7 +4,7 @@
 # arguments, specified via "-D"
 #   -DVERBOSITY=<0-5>
 #   -DDASHSUBMIT=<TRUE|FALSE>    # mostly for debugging to avoid cdash submission
-#   -DCDASHVER="version string"  # should be either 3p1 or not set
+#   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
 
 # verbosity level
 #   0 - no specific screen output (default)
@@ -16,6 +16,12 @@ endif()
 # default TRUE
 if(NOT DEFINED DASHSUBMIT)
   set(DASHSUBMIT TRUE)
+endif()
+
+# the version of cdash matters for the custom Test.xml file that is
+# generated
+if(NOT DEFINED CDASHVER)
+  set(CDASHVER 0.0)
 endif()
 
 # macro to list the contents of a specified subdirectory
@@ -83,7 +89,7 @@ find_program(XYCE_REGR_SCRIPT run_xyce_regression
 # find the custom perl script to create the results XML file. note
 # that different versions of cdash can require slight different
 # formats for the XML files.
-if(${CDASHVER} STREQUAL "3p1")
+if(${CDASHVER} EQUAL 3.1)
   find_program(XYCE_CDASH_GEN summary-dart-nosubmit.cdash-v3p1.pl
     HINTS $ENV{WORKSPACE}/Scripts/reporting
     REQUIRED)
