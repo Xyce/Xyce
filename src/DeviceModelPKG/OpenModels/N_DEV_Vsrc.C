@@ -352,6 +352,8 @@ Instance::Instance(
     fNegEquNegNodePtr(0),
     fBraEquBraVarPtr(0),
 #endif
+   
+    firstTimeload(true),
     port(0),
     Z0(50.0),
     PORTgiven (false),
@@ -447,6 +449,47 @@ Instance::Instance(
   }
 
   processParams();
+
+
+/*  if (tranSourceData_ != 0)
+  {
+
+    tranSourceData_->updateSource();
+    double  val = tranSourceData_->returnSource();
+
+    if ( !DCSOURCETYPEgiven )
+    { 
+//      tranSourceData_->updateSource();
+//      double  val = tranSourceData_->returnSource();
+      setParam("DCV0", val,  true);
+    }
+    else
+    {
+      dcSourceData_->updateSource();
+      double valDC = dcSourceData_->returnSource();
+
+
+
+      if ( valDC != val )
+      {
+        if (ACSpecified_)
+        {
+          UserWarning(*this) << "The value specified in the DC field and the value from transient specification at time 0 is not consistent. Using the value in the DC field = " << valDC << " for DCOP calculation in .AC analysis";
+        }
+        else
+        {
+          setParam("DCV0", val,  true);
+          UserWarning(*this) << "The value specified in the DC field and the value from transient specification at time 0 is not consistent. Using the value from transient specification at time 0 =  " << val << " for DCOP calculation";
+        }
+
+      }
+
+    }
+
+
+  }   */
+
+//  processParams();
 
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
@@ -1222,7 +1265,24 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     // Get the value for the source.
     SourceData *dataPtr  = vi.dcSourceData_; // by default assume the DC value
 
-    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !vi.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
+
+    if ( (getSolverState().tranopFlag && !vi.DCSOURCETYPEgiven && getSolverState().locaEnabledFlag ) && vi.tranSourceData_ != 0)
+    {
+
+      if (vi.firstTimeload)
+      {
+        double  val = vi.tranSourceData_->returnSource();
+
+        vi.setParam("DCV0", val,  true);
+
+        vi.dcSourceData_->setParams (&vi.DCV0);
+
+        vi.firstTimeload = false;
+      }
+    }   
+
+    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ) ) || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
+//    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !vi.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
     {
       dataPtr            = vi.tranSourceData_;
     }
