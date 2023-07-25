@@ -176,10 +176,10 @@ endif()
 
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set");
+  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
 endif()
 if(NOT DEFINED ENV{branch})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set");
+  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set")
 endif()
 
 message("executing custom xyce regression report script, ${XYCE_CDASH_GEN}")
