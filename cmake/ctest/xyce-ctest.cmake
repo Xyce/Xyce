@@ -113,6 +113,10 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 
 # note that "Weekly" is just a Nightly category with a different group
 # name
+if(NOT DEFINED ENV{TESTSET})
+  message(FATAL_ERROR "ERROR: You must set the environment variable TESTSET to one of Nighlty, Weekly or Experimental")
+endif()
+
 if($ENV{TESTSET} STREQUAL "Nightly")
   set(MODEL "Nightly")
   set(TESTGROUP "Nightly")
@@ -129,15 +133,6 @@ set(CTEST_PROJECT_NAME "Xyce")
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
-
-##set(CTEST_DROP_METHOD "https")
-##set(CTEST_DROP_SITE "charon-cdash.sandia.gov")
-##set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
-
-# the following are likely pretty invariant
-##set(CTEST_DROP_METHOD "http")
-##set(CTEST_DROP_SITE "joseki-srn.sandia.gov/CDash")
-##set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
 # begin ctest procedures. MODEL should be one of Nighlty, Weekly,
 # Continuous or Experimental. this can use custom categories via the
@@ -178,6 +173,15 @@ if(VERBOSITY GREATER 1)
   message("[VERB2]:   output file name = $ENV{WORKSPACE}/build/regr_test_results_all")
   message("[VERB2]:   TESTSET = $ENV{TESTSET}")
 endif()
+
+# error check
+if(NOT DEFINED ENV{MYBUILDNAME})
+  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
+endif()
+if(NOT DEFINED ENV{branch})
+  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set")
+endif()
+
 message("executing custom xyce regression report script, ${XYCE_CDASH_GEN}")
 execute_process(COMMAND ${XYCE_CDASH_GEN}
   ${CTEST_SITE}

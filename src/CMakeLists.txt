@@ -13,7 +13,13 @@ if( Xyce_REACTION_PARSER )
 
      add_flex_bison_dependency( XyceReactionLexer XyceReactionParser )
 
-     include_directories( ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
+     # check for the updated flex/bison installation includ directory
+     # and add it to the include list to avoid the system default
+     # older version(s)
+     find_path(XYCE_FLEX_INCLUDE_PATH NAMES FlexLexer.h
+       HINTS /projects/xyce/flexbison/include)
+
+     include_directories( ${XYCE_FLEX_INCLUDE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core )
 endif()
 
 bison_target( XyceExpressionParser
