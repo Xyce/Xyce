@@ -5,7 +5,8 @@ configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 # add it to the include list to avoid the system default older
 # version(s)
 find_path(XYCE_FLEX_INCLUDE_PATH NAMES FlexLexer.h
-  HINTS /projects/xyce/flexbison/include)
+  HINTS /projects/xyce/flexbison/include
+  HINTS ${FLEX_DIR}/include)
 
 ####
 # Bison and Flex modules don't work in just any directory. Under the covers,
@@ -31,7 +32,11 @@ flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l"
 
 add_flex_bison_dependency( XyceExpressionLexer XyceExpressionParser  )
 
-include_directories( ${XYCE_FLEX_INCLUDE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+if(XYCE_FLEX_INCLUDE_PATH)
+  include_directories( ${XYCE_FLEX_INCLUDE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+else()
+  include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+endif()
 
 #End bison and Flex non-sense.
 
