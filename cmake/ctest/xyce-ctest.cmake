@@ -24,6 +24,14 @@ if(NOT DEFINED CDASHVER)
   set(CDASHVER 0.0)
 endif()
 
+# error check
+if(NOT DEFINED ENV{MYBUILDNAME})
+  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
+endif()
+if(NOT DEFINED ENV{branch})
+  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set")
+endif()
+
 # macro to list the contents of a specified subdirectory
 #    dirname - full spec for directory to list
 #    result  - return value containing cmake list of subdirectories within
@@ -172,14 +180,6 @@ if(VERBOSITY GREATER 1)
   message("[VERB2]:   branch = $ENV{branch}")
   message("[VERB2]:   output file name = $ENV{WORKSPACE}/build/regr_test_results_all")
   message("[VERB2]:   TESTSET = $ENV{TESTSET}")
-endif()
-
-# error check
-if(NOT DEFINED ENV{MYBUILDNAME})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
-endif()
-if(NOT DEFINED ENV{branch})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set")
 endif()
 
 message("executing custom xyce regression report script, ${XYCE_CDASH_GEN}")
