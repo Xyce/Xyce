@@ -32,6 +32,8 @@ flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l"
 
 add_flex_bison_dependency( XyceExpressionLexer XyceExpressionParser  )
 
+# on systems using a native flex, or where FLEX_DIR is specified by
+# the developer, the path may not be set so handle that here.
 if(XYCE_FLEX_INCLUDE_PATH)
   include_directories( ${XYCE_FLEX_INCLUDE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
 else()
