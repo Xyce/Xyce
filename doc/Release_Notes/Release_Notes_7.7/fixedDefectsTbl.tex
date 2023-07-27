@@ -193,6 +193,13 @@
    these devices would sometimes produce spurious warning messages.  
    This has been fixed.  \\ \hline
 
+ \textbf{Xyce Project Backlog/631}: 
+  Expression-based local variation doesn't always work with subcircuit arguments & 
+  When expression-based local variation was applied to a subcircuit argument, it 
+  was handled incorrectly.  This meant that subcircuit arguments that should have 
+  had a random distribution were fixed to the mean value during sampling.  
+  This has been fixed.  \\ \hline
+
    \textbf{Xyce Project Bugs/61}: Circuit causes Segfault &
    \Xyce{} would get a segmentation fault when the netlist specified a Bsrc that depended on the current thru another Bsrc, that happened to be a current-source style Bsrc.  Behavioral sources can either be current or voltage sources, depending on the netlist specification.  When specified as a voltage source, they have an internal current variable, which is accessible by other behavioral sources.   When specified as a current source, they do not.  \Xyce{} was not catching this mistake early enough and this was resulting in a memory error.  This has been fixed. \\ \hline
 
