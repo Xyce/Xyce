@@ -1266,7 +1266,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     SourceData *dataPtr  = vi.dcSourceData_; // by default assume the DC value
 
 
-    if ( (getSolverState().tranopFlag && !vi.DCSOURCETYPEgiven && getSolverState().locaEnabledFlag ) && vi.tranSourceData_ != 0)
+    if ( (getSolverState().tranopFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && vi.tranSourceData_ != 0)
     {
 
       if (vi.firstTimeload)
@@ -1281,8 +1281,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       }
     }   
 
-    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ) ) || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
-//    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !vi.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
+    if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && vi.tranSourceData_ != 0 )
     {
       dataPtr            = vi.tranSourceData_;
     }
