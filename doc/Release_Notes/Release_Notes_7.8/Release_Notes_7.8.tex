@@ -87,10 +87,11 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-
 \item Xyce now ...
 
-\item  \Xyce{} can now handle the sources that specify both DC and transient values during source stepping. Source stepping is one of the solver techniques that \Xyce{} automatically attempts when trying to solve the DCOP. Previously, source stepping does not apply to these sources. It now uses the DC value in this case. This leads to improved robustness and convergence of source stepping in circuits using these sources for the DC op calculation.
+\item  \Xyce{} can now handle the sources that specify both DC and transient values during source stepping. Source stepping is one of the solver techniques that \Xyce{} automatically attempts when trying to solve the DC operating point (DCOP). Previously, source stepping does not apply to these sources. It now uses the DC value in this case. This leads to improved robustness and convergence of source stepping in circuits using these sources for the DCOP calculation.
+
+\item \Xyce{} now provides a sequential source stepping algorithm that will ramp up non-zero DC sources in sequence, which can be more robust than the default simultaneous source stepping algorithm.  This new source stepping approach can be called directly using \texttt{.options nonlin continuation=35} or \texttt{.options nonlin continuation=sourcestep2}.  It will not replace simultaneous source stepping in the default DCOP strategy at this time.
 
 \end{XyceItemize}
 

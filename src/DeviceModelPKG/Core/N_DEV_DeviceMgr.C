@@ -1603,6 +1603,7 @@ bool DeviceMgr::deleteDeviceInstance(const std::string & name)
 std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCVal(Parallel::Machine comm) const
 {
   std::map<std::string, std::pair<double,int> > globalSources, localSources;
+  std::map<std::string, std::vector<NodeID> > localSourceAdj;
   IndependentSourceMap::const_iterator it = independentSourceMap_.begin();
   IndependentSourceMap::const_iterator it_end = independentSourceMap_.end();
   for ( ; it != it_end; ++it )
@@ -1611,6 +1612,7 @@ std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCV
     NodeID sourceNode( it->first, _DNODE );
     std::vector<NodeID> adjNodes;
     topology_.returnAdjIDs( sourceNode, adjNodes );
+    localSourceAdj[ it->first ] = adjNodes;
     int numAdjDevices = 0;
     for (std::vector<NodeID>::iterator adj_it = adjNodes.begin(); adj_it!= adjNodes.end(); ++adj_it)
     {
@@ -1623,9 +1625,92 @@ std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCV
     localSources[ it->first ] = std::make_pair( it->second->getDefaultParam(), numAdjDevices );
   }
 
-  // Collect the global list of source devices
+  // Collect the global list of source devices and their number of device adjacencies
   if (Parallel::is_parallel_run(comm))
   {
+    // Communicate adjacent nodes to local sources to get correct device adjacency counts 
+    // from off-processor owned devices
+    std::map<std::string, std::vector<NodeID> >::iterator map_adj_it = localSourceAdj.begin();
+    std::map<std::string, std::vector<NodeID> >::iterator map_adj_end = localSourceAdj.end(); 
+
+    // Count the number of adjacent nodes
+    int numSourceAdj = 0;
+    while ( map_adj_it != map_adj_end )
+    {
+      numSourceAdj += (map_adj_it->second).size();
+      map_adj_it++;
+    }
+    std::vector<int> procAdj( Parallel::size(comm) );
+    procAdj[Parallel::rank(comm)] = numSourceAdj;  
+    Parallel::AllReduce(comm, MPI_SUM, &procAdj[0], Parallel::size(comm));
+
+    // Reset iterators
+    map_adj_it = localSourceAdj.begin();
+    map_adj_end = localSourceAdj.end();
+    std::vector<NodeID>::iterator adjNode_it, adjNode_end;
+
+    // Loop overall processors
+    for (int proc=0; proc < Parallel::size(comm); ++proc)
+    {
+      if (procAdj[proc])
+      {
+        if (proc == Parallel::rank(comm))
+        {
+          adjNode_it = (map_adj_it->second).begin();
+          adjNode_end = (map_adj_it->second).end();
+        }
+ 
+        int pNumAdj = 0;
+ 
+        // For any processor that has a source, broadcast adjacent node
+        while (pNumAdj<procAdj[proc])
+        {
+          std::string adjName;
+
+          if (proc == Parallel::rank(comm))
+            adjName = adjNode_it->first;
+
+          // Broadcast the adjacency name 
+          Parallel::Broadcast( comm, adjName, proc );
+
+          int numAdj = 0;
+
+          // Compute the global number of adjacent nodes
+          // NOTE:  There may be redundancies for nodes that are attached to more than one source device
+          if (proc != Parallel::rank(comm))
+          {
+            NodeID adjNode( adjName, _VNODE );
+            std::vector<NodeID> tmpNodes;
+            topology_.returnAdjIDs( adjNode, tmpNodes );
+            numAdj = tmpNodes.size();
+          }
+          Parallel::AllReduce(comm, MPI_SUM, &numAdj, 1);
+      
+          if (proc == Parallel::rank(comm))
+          {
+            // Update adjacencies for localSources 
+            localSources[ map_adj_it->first ].second += numAdj;
+
+            // Update pointers
+            adjNode_it++;
+
+            // If we are at the end of this vector of adjacent nodes, increment outer iterator
+            if (adjNode_it == adjNode_end)        
+            {
+              map_adj_it++;
+              if (map_adj_it != map_adj_end)
+              {
+                adjNode_it = (map_adj_it->second).begin();
+                adjNode_end = (map_adj_it->second).end();
+              }
+            }
+          } 
+   
+          pNumAdj++; 
+        }
+      }
+    }
+
     int numSources = localSources.size();
     std::vector<int> procSources( Parallel::size(comm) );
     procSources[Parallel::rank(comm)] = numSources;
