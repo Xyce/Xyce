@@ -262,6 +262,7 @@ Instance::Instance(
     gotParams(false),
     ACMAG(1.0),
     ACPHASE(0.0),
+    firstTimeload(true),
     freqVarsLoaded(false)
 {
   numIntVars = 0;
@@ -973,7 +974,25 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     SourceData *dataPtr = inst.dcSourceData_; // by default assume the DC value.
 
 
-    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !inst.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
+    if ( (getSolverState().tranopFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && inst.tranSourceData_ != 0)
+    {
+
+      if (inst.firstTimeload)
+      {
+        double  val = inst.tranSourceData_->returnSource();
+
+        inst.setParam("DCV0", val,  true);
+
+        inst.dcSourceData_->setParams (&inst.DCV0);
+
+        inst.firstTimeload = false;
+      }
+    }
+
+    if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && inst.tranSourceData_ != 0 )
+
+
+//    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !inst.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
     {
       dataPtr = inst.tranSourceData_;
     }

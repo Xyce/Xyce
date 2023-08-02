@@ -191,7 +191,9 @@ private:
   double freq, v0;
   double phase;
 
-                   
+
+  bool firstTimeload;
+
   bool freqVarsLoaded;
   int size_;
   Teuchos::RCP<N_UTL_FFTInterface<std::vector<double> > > ftInterface_;
