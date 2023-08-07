@@ -450,47 +450,6 @@ Instance::Instance(
 
   processParams();
 
-
-/*  if (tranSourceData_ != 0)
-  {
-
-    tranSourceData_->updateSource();
-    double  val = tranSourceData_->returnSource();
-
-    if ( !DCSOURCETYPEgiven )
-    { 
-//      tranSourceData_->updateSource();
-//      double  val = tranSourceData_->returnSource();
-      setParam("DCV0", val,  true);
-    }
-    else
-    {
-      dcSourceData_->updateSource();
-      double valDC = dcSourceData_->returnSource();
-
-
-
-      if ( valDC != val )
-      {
-        if (ACSpecified_)
-        {
-          UserWarning(*this) << "The value specified in the DC field and the value from transient specification at time 0 is not consistent. Using the value in the DC field = " << valDC << " for DCOP calculation in .AC analysis";
-        }
-        else
-        {
-          setParam("DCV0", val,  true);
-          UserWarning(*this) << "The value specified in the DC field and the value from transient specification at time 0 is not consistent. Using the value from transient specification at time 0 =  " << val << " for DCOP calculation";
-        }
-
-      }
-
-    }
-
-
-  }   */
-
-//  processParams();
-
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
   processParams();
@@ -812,7 +771,23 @@ bool Instance::loadDAEBVector ()
 {
   // Get the value for the source.
   SourceData *dataPtr  = dcSourceData_; // by default assume the DC value.
-  if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag || !DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && tranSourceData_ != 0 )
+
+  if ( (getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && tranSourceData_ != 0)
+  {
+
+    if (firstTimeload)
+    {
+      double  val = tranSourceData_->returnSource();
+
+      setParam("DCV0", val,  true);
+
+      dcSourceData_->setParams (&DCV0);
+
+      firstTimeload = false;
+    }
+  }
+
+  if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && tranSourceData_ != 0 )
   {
     dataPtr = tranSourceData_;
   }

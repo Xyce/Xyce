@@ -778,7 +778,22 @@ bool Instance::loadDAEBVector ()
 
   // get the source value:
   SourceData *dataPtr = dcSourceData_; // by default assume the DC value.
-  if ((HBSpecified_ || ( getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag || !DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && tranSourceData_ != 0 )
+  if ( (getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && tranSourceData_ != 0)
+  {
+
+    if (firstTimeload)
+    {
+      double  val = tranSourceData_->returnSource();
+
+      setParam("DCV0", val,  true);
+
+      dcSourceData_->setParams (&DCV0);
+
+      firstTimeload = false;
+    }
+  }
+
+  if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && tranSourceData_ != 0 )
   {
     dataPtr = tranSourceData_;
   }
