@@ -859,10 +859,20 @@ DistToolDevBalanced::processDeviceBuffer()
               params.push_back( param );
             }
 
+            // New function call to make global parameters fully work on subckt parametesr. (see issue 609)
+            // This call will resolve the X line subcircuit params.
+            bool subcktSuccess = Xyce::IO::setSubcircuitInstanceParameterVals(
+              params, 
+              *circuitContext_, 
+              subcircuitName, 
+              netlistFilename_, 
+              0); // fix this!  Need correct line number!
+              //subcircuitInstance.getLineNumber());
+
             // send to cktblk
             circuitContext_->setContext( subcircuitName, prefix, nodes );
             circuitContext_->resolve( params );
-
+            processSubcircuitGlobals(*circuitContext_);
             break;
           }
 
@@ -1000,6 +1010,250 @@ void DistToolDevBalanced::restorePrevssfInfo(
   return;
 }
 
+#if 1
+//--------------------------------------------------------------------------
+// Function      : DistToolDevBalanced::expandSubcircuitInstance
+// Purpose       : Expand a subcircuit instance by adding the devices and
+//                 device models that compose the subcircuit to the main
+//                 (top level) circuit.
+// Special Notes :
+// Creator       : Lon Waters
+// Creation Date : 12/28/2001
+//--------------------------------------------------------------------------
+bool DistToolDevBalanced::expandSubcircuitInstance(
+  IO::DeviceBlock &     subcircuitInstance,
+  const std::string &   libSelect,
+  std::vector<std::string> & libInside)
+{
+  // Set subcircuitPrefix.
+  std::string subcircuitPrefix;
+  if ( circuitContext_->getPrefix() != "" )
+  {
+    subcircuitPrefix = circuitContext_->getPrefix() +
+      parsingMgr_.getSeparator() + subcircuitInstance.getInstanceName().getEncodedName();
+  }
+  else
+  {
+    subcircuitPrefix = subcircuitInstance.getInstanceName().getEncodedName();
+  }
+
+  // Find the subcircuit corresponding to this instance.
+  CircuitBlock* subcircuitPtr = currentCircuitPtr_->findSubcircuit(subcircuitInstance.getModelName());
+  if ( subcircuitPtr == NULL )
+  {
+    Report::UserError0().at(netlistFilename_, subcircuitInstance.getLineNumber())
+      << "Subcircuit " << subcircuitInstance.getModelName()
+      << " has not been defined for instance " << subcircuitInstance.getInstanceName();
+    return false;
+  }
+
+  // For hierarchical circuits, set the pointers accordingly. 
+  parentCircuitPtr_ = currentCircuitPtr_;
+  currentCircuitPtr_ = subcircuitPtr;
+  CircuitBlock* oldParentCircuitPtr = parentCircuitPtr_;
+
+  // get the list of X nodes
+  const std::vector< std::string >& subcircuitInstanceNodes =
+    subcircuitInstance.getNodeValues();
+
+  // Set the context for this subcircuit instance.
+  std::string subcircuitName(subcircuitInstance.getModelName());
+  bool cresult = circuitContext_->setContext(subcircuitName, subcircuitPrefix, subcircuitInstanceNodes);
+  if (!cresult)
+  {
+    Report::UserError0().at(netlistFilename_, subcircuitInstance.getLineNumber())
+      << "Error invoking subcircuit " << subcircuitInstance.getModelName()
+      << " instance " << subcircuitInstance.getInstanceName();
+    return false;
+  }
+
+  // get the list of .SUBCKT nodes
+  std::vector<std::string> subcircuitNodes = circuitContext_->getNodeList();
+
+  // Make sure the subcircuit instance and subcircuit definition agree on the
+  // number of nodes.
+  if ( subcircuitInstanceNodes.size() != subcircuitNodes.size() )
+  {
+    Report::UserError0() << "Number of nodes for subcircuit instance " << subcircuitInstance.getInstanceName()
+                         << " does not agree with number of nodes in subcircuit "
+                         << circuitContext_->getCurrentContextName();
+    return false;
+  }
+
+  // these iterators loop over the nodes in this context (i.e. the real node
+  // connected to the interface nodes)
+  std::vector<std::string>::const_iterator circuitInstanceNodeIt = subcircuitInstanceNodes.begin();
+  std::vector<std::string>::const_iterator endCircuitInstanceNodeIt = subcircuitInstanceNodes.end();
+
+  // these iterators loop over the subcircuits interface nodes
+  std::vector<std::string>::iterator subcircuitNodeInterfaceIt = subcircuitNodes.begin();
+  std::vector<std::string>::iterator endSubcircuitNodeInterfaceIt = subcircuitNodes.end();
+
+  // add the interface nodes of this subcircuit to the aliasNodeMap so that
+  // we can look up the aliases later if needed
+  while( ( circuitInstanceNodeIt != endCircuitInstanceNodeIt ) &&
+         ( subcircuitNodeInterfaceIt != endSubcircuitNodeInterfaceIt ) )
+  {
+    std::string key( subcircuitPrefix + parsingMgr_.getSeparator() + *subcircuitNodeInterfaceIt );
+
+    if ( ( mainCircuitPtr_->getAliasNodeMapHelper() ).find( key ) !=
+         ( mainCircuitPtr_->getAliasNodeMapHelper() ).end() )
+    {
+      (mainCircuitPtr_->getAliasNodeMap())[key] = *circuitInstanceNodeIt;
+
+      if (DEBUG_IO)
+        Xyce::dout() << "DistToolDevBalanced::expandSubcircuitInstance.  Found node alias:  " << key << " ==> " << *circuitInstanceNodeIt << std::endl;
+    }
+
+    circuitInstanceNodeIt++;
+    subcircuitNodeInterfaceIt++;
+  }
+
+  // Save the current file pointer and netlist filename for later. 
+  SpiceSeparatedFieldTool * oldssf = ssfPtr_;
+  std::string oldNetlistFilename = netlistFilename_;
+
+  // Locate the subcircuit in the netlist file. It can either be in
+  // the file currently being read, or in a separate include file.
+  SpiceSeparatedFieldTool * newssf = ssfPtr_;
+
+  if (subcircuitPtr->getNetlistFilename() != netlistFilename_)
+  { // The subcircuit is in an include file.
+    // Get SSF from Pass 1's ssf map
+    if( ssfMap_.count( subcircuitPtr->getNetlistFilename()) )
+      newssf = ssfMap_[subcircuitPtr->getNetlistFilename()].second;
+    else
+    {
+      Report::UserError().at(netlistFilename_, subcircuitInstance.getLineNumber())
+        << "Can't find include file " << subcircuitPtr->getNetlistFilename();
+    }
+
+    netlistFilename_ = subcircuitPtr->getNetlistFilename();
+  }
+
+  // Store old positions in the parent netlist file.
+  std::streampos oldLoc = oldssf->getFilePosition();
+  int oldLine = oldssf->getLineNumber();
+
+  // Set file pointer to location of subcircuit.
+  // Set the position of the subcircuit in its file.
+  ssfPtr_ = newssf;
+  ssfPtr_->setLocation( subcircuitPtr->getStartPosition() );
+  ssfPtr_->setLineNumber( subcircuitPtr->getLineStartPosition() );
+
+  // Resolve parameters and functions in the current context.
+  bool result;
+  std::vector<Device::Param> subcircuitInstanceParams;
+  subcircuitInstance.getInstanceParameters(subcircuitInstanceParams);
+
+  {
+  // Tell the distribution tool that the context has changed.
+  // New location for this call (earlier in this function)
+  circuitStart( subcircuitName, subcircuitInstanceNodes, subcircuitPrefix, subcircuitInstanceParams );
+  }
+
+
+  {
+  // new function call, to resolve the subcircuit params.  
+  // Must be after circuitStart, which packs off the unprocessed subcircuit parameters, 
+  // but before the circuitContext_->resolve function call.
+  // The previous context must be restored, temporarily.
+  circuitContext_->restorePreviousContext();
+  bool subcktSuccess = Xyce::IO::setSubcircuitInstanceParameterVals(
+      subcircuitInstanceParams, 
+      *circuitContext_, 
+      subcircuitName, 
+      netlistFilename_, 
+      subcircuitInstance.getLineNumber());
+
+  cresult = circuitContext_->setContext(subcircuitName, subcircuitPrefix, subcircuitInstanceNodes);
+  if (!cresult)
+  {
+    Report::UserError0().at(netlistFilename_, subcircuitInstance.getLineNumber())
+      << "Error invoking subcircuit " << subcircuitInstance.getModelName()
+      << " instance " << subcircuitInstance.getInstanceName();
+    return false;
+  }
+  }
+
+  if (DEBUG_IO) 
+  { Xyce::dout() << "DistToolDevBalanced::expandSubcircuitInstance.  Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
+
+  result = circuitContext_->resolve(subcircuitInstanceParams);
+  if (!result)
+    return result;
+
+  processSubcircuitGlobals(*circuitContext_);
+
+  // Add any .IC or .NODESET statements for this subcircuit to the top level
+  // option block and resolve any parameters in the current context.
+  // Pass in local nodes and instance nodes so that the IC/NODESET node is identified properly.
+  find_IC_NODESET_OptionBlock( subcircuitInstance.getModelName(), subcircuitPrefix,
+                               subcircuitNodes, subcircuitInstanceNodes );
+
+  // Instantiate the devices in this subcircuit instance.
+  TokenVector line;
+
+  // If this is a simple single-device subcircuit, jump to the device line directly
+  if ( subcircuitPtr->getSimpleSingleDevice() )
+  {
+    //std::cout << "Subcircuit " <<  subcircuitInstance.getModelName() << " is a simple single device subcircuit!" << std::endl;
+    ssfPtr_->setLocation( subcircuitPtr->getDevicePosition() );
+    ssfPtr_->setLineNumber( subcircuitPtr->getDeviceLine() );
+  }
+
+  while (getLine(line, libSelect, libInside))
+  {
+    if (!line.empty() && compare_nocase(line[0].string_.c_str(), ".ends") != 0)
+    {
+      // parse locally if distool does not distribute
+      if( !sendCircuitDeviceLine( line ) )
+      {
+        handleDeviceLine( line, libSelect, libInside );
+      }
+    }
+    // There was only one device to parse and distribute, so move on.
+    if ( subcircuitPtr->getSimpleSingleDevice() )
+      break;
+  }
+
+  // send MIs if present
+  if( circuitContext_->haveMutualInductances() )
+  {
+    // Distribute each YMI?!name device line, end of circuit
+    int n = circuitContext_->getNumMILines();
+    for( int i = 0; i < n; ++i )
+    {
+      // parse locally if distool does not distribute; normally the
+      // DistToolDevBalanced::instantiateDevices() performs this step
+      if( !sendCircuitDeviceLine( circuitContext_->getMILine( i ) ) )
+      {
+        handleDeviceLine( circuitContext_->getMILine( i ), libSelect, libInside );
+      }
+    }
+  }
+
+  // Return to previous context and line numbers.
+  circuitContext_->restorePreviousContext();
+
+  // Return file pointer to parent file pointers and location.
+  ssfPtr_ = oldssf;
+  ssfPtr_->setLocation( oldLoc );
+  ssfPtr_->setLineNumber( oldLine );
+  netlistFilename_ = oldNetlistFilename;
+
+  // For hierarchical circuits, reset the pointers accordingly. 
+  currentCircuitPtr_ = parentCircuitPtr_;
+  parentCircuitPtr_ = oldParentCircuitPtr;
+
+  // Tell the distribution tool that the current context has ended and
+  // to switch back to the previous context.
+  circuitEnd();
+
+  // Only get here on success.
+  return true;
+}
+#else
 //--------------------------------------------------------------------------
 // Function      : DistToolDevBalanced::expandSubcircuitInstance
 // Purpose       : Expand a subcircuit instance by adding the devices and
@@ -1212,6 +1466,7 @@ bool DistToolDevBalanced::expandSubcircuitInstance(
   // Only get here on success.
   return true;
 }
+#endif
 
 
 } // namespace IO

@@ -57,6 +57,29 @@ namespace IO {
 
 enum ModelFoundState {MODEL_FOUND, MODEL_NOT_SPECIFIED, MODEL_NOT_FOUND};
 
+void paramErrorOutput(
+    Device::Param & parameter, 
+    const std::string & deviceName,
+    const std::string & netlistFilename,
+     int lineNumber
+    );
+
+bool setSubcircuitInstanceParameterVals(
+  std::vector<Xyce::Device::Param> & subckt_x_params,
+  CircuitContext & circuitContext_,
+  const std::string & deviceName,
+  const std::string & netlistFilename,
+  int lineNumber
+    );
+
+bool resolveSubcircuitInstParamStrings(
+      Xyce::Device::Param & parameter,
+      std::vector<Xyce::Device::Param> & subckt_x_params,
+  const std::string & deviceName,
+  const std::string & netlistFilename,
+  int lineNumber
+  );
+
 class DeviceBlock
 {
 private:

@@ -2592,7 +2592,7 @@ bool DeviceMgr::parameterExists(
   { \
     std::vector<Xyce::Analysis::SweepParam> tmpParams; expr.FUNC(tmpParams);  \
     if ( !(tmpParams.empty()) )  {\
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
+      if (DEBUG_DEVICE) Xyce::dout() << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
       for(int jj=0;jj<tmpParams.size();jj++) {  \
         tmpParams[jj].globalIndex = INDEX; \
         tmpParams[jj].gpIter = GPITER; \
@@ -2602,7 +2602,7 @@ bool DeviceMgr::parameterExists(
     } \
     else  \
     {  \
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " does not contain " << #OP << std::endl; \
+      if (DEBUG_DEVICE) Xyce::dout() << "Parameter " << paramName << " does not contain " << #OP << std::endl; \
     }\
   }
 
@@ -2672,8 +2672,8 @@ void printOutGlobalParamsInfoSerial(
   {
   for (int ii=0;ii< expNameVec.size(); ++ii)
   {
-    std::cout << extra << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
-    std::cout << " = " << expressionVec[ii].get_expression() << std::endl;
+    Xyce::dout() << extra << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
+    Xyce::dout() << " = " << expressionVec[ii].get_expression() << std::endl;
 
     if ( !(deviceEntityDependVec[ii].empty()))
     {
@@ -2690,15 +2690,17 @@ void printOutGlobalParamsInfoSerial(
         DeviceModel * model = dynamic_cast<DeviceModel *>(deviceEntityDependVec[ii][jj].entityPtr);
         entityName = model->getName();
       }
-      std::cout << extra << "  entity["<<jj<<"] = " << entityName;
-      std::cout <<std::endl;
+      Xyce::dout() << extra << "  entity["<<jj<<"] = " << entityName;
+      Xyce::dout() <<std::endl;
       for (int kk=0;kk< deviceEntityDependVec[ii][jj].parameterVec.size(); kk++)
       {
-        std::cout << extra << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
-        std::cout <<std::endl;
+        Xyce::dout() << extra << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
+        Xyce::dout() <<std::endl;
+
+        deviceEntityDependVec[ii][jj].parameterVec[kk].expr->dumpParseTree();
       }
     }
-    std::cout <<std::endl;
+    Xyce::dout() <<std::endl;
     }
   }
   }
@@ -2725,7 +2727,7 @@ void printOutGlobalParamsInfo(
     {
       if (proc == procID)
       {
-        std::cout << extra << "expNameVec for proc = " << procID << std::endl;
+        Xyce::dout() << extra << "expNameVec for proc = " << procID << std::endl;
 
         std::string extra2 = extra + std::string("proc ") + std::to_string(procID) + std::string(" :");
 
@@ -2753,7 +2755,8 @@ void mergeGlobals(
     )
 {
   //if (DEBUG_DEVICE)
-  if (false)
+  if (false) // useful debug
+  //if (true)
   {
     std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
     std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
@@ -3309,6 +3312,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
 
   if (false) // useful debug
+  //if (true) // useful debug
   {
     std::string extra("DeviceMgr::getRandomParams: ");
     printOutGlobalParamsInfo(extra,expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);

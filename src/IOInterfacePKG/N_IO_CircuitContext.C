@@ -745,7 +745,7 @@ void CircuitContext::addGlobalParams(
 void  CircuitContext::categorizeParams( std::list<Util::OptionBlock> &  optionsTable)
 {
   if (DEBUG_IO)
-    std::cout << "CircuitContext::categorizeParams.  ERK:DEBUG option table contents:" <<std::endl;
+    Xyce::dout() << "CircuitContext::categorizeParams.  ERK:DEBUG option table contents:" <<std::endl;
 
   {
   std::list<Util::OptionBlock>::iterator  iter = optionsTable.begin();
@@ -1015,35 +1015,35 @@ void CircuitContext::printOutContextParams(std::string & extra)
   {
     Util::UParamList::const_iterator it = currentContextPtr_->unresolvedParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->unresolvedParams_.end(); 
-    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context unresolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
+    for (int ii=0; it != end; ++it, ii++) { Xyce::dout() << extra << "context unresolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
   else
-  { std::cout << extra << "context unresolvedParams_ is empty " <<std::endl; }
+  { Xyce::dout() << extra << "context unresolvedParams_ is empty " <<std::endl; }
 
   if( !( currentContextPtr_->unresolvedGlobalParams_.empty() ) )
   {
     Util::UParamList::const_iterator it = currentContextPtr_->unresolvedGlobalParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->unresolvedGlobalParams_.end();
-    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context unresolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
+    for (int ii=0; it != end; ++it, ii++) { Xyce::dout() << extra << "context unresolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
   else
-  { std::cout << extra << "context unresolvedGlobalParams_ is empty" << std::endl; }
+  { Xyce::dout() << extra << "context unresolvedGlobalParams_ is empty" << std::endl; }
 
   if ( !(currentContextPtr_->resolvedParams_.empty()) )
   {
     Util::UParamList::const_iterator it = currentContextPtr_->resolvedParams_.begin();
     Util::UParamList::const_iterator end = currentContextPtr_->resolvedParams_.end();
-    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context resolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
+    for (int ii=0; it != end; ++it, ii++) { Xyce::dout() << extra << "context resolvedParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
-  else { std::cout << extra << "context resolvedParams_ is empty" <<std::endl; }
+  else { Xyce::dout() << extra << "context resolvedParams_ is empty" <<std::endl; }
 
   if ( !(currentContextPtr_->resolvedGlobalParams_.empty() ) )
   {
     Util::UParamList::const_iterator it = currentContextPtr_->resolvedGlobalParams_.begin(); 
     Util::UParamList::const_iterator end = currentContextPtr_->resolvedGlobalParams_.end();
-    for (int ii=0; it != end; ++it, ii++) { std::cout << extra << "context resolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
+    for (int ii=0; it != end; ++it, ii++) { Xyce::dout() << extra << "context resolvedGlobalParams_["<<ii<<"] = " << it->uTag() <<std::endl; }
   }
-  else { std::cout << extra << "context resolvedGlobalParams_ is empty" <<std::endl; }
+  else { Xyce::dout() << extra << "context resolvedGlobalParams_ is empty" <<std::endl; }
 }
 
 //----------------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ void CircuitContext::insertSubcircuitGlobal( Util::Param & parameter)
 
         if (DEBUG_IO)
         {
-          std::cout << "Parameter " << parameter.uTag() 
+          Xyce::dout() << "Parameter " << parameter.uTag() 
             << " is converted to global, but WAS successfully resolved! value = " 
           << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")" << std::endl;
         }
@@ -1131,7 +1131,23 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
   if (DEBUG_IO)
   {
-    Xyce::dout() << " CircuitContext::resolve has something to do..." << std::endl;
+    Xyce::dout() << "CircuitContext::resolve";
+
+    if ( !(currentContextPtr_->name_.empty() ) ) 
+    {
+      Xyce::dout() << " (name = " << currentContextPtr_->name_ << ")" ; 
+      if (currentContextPtr_->parentContextPtr_ != NULL)
+      {
+        Xyce::dout() << " (parent = " << currentContextPtr_->parentContextPtr_->name_ << ")" ; 
+      }
+    }
+    else { Xyce::dout() << " (top level)"; }
+
+    Xyce::dout() << " has something to do..." << std::endl;
+    for (int ii=0;ii<subcircuitInstanceParams.size();ii++)
+    {
+      Xyce::dout() << "CircuitContext::resolve  subcircuitInstanceParams["<<ii<<"] = " << subcircuitInstanceParams[ii] <<std::endl;
+    }
   }
 
   currentContextPtr_->resolved_ = true;
@@ -1359,10 +1375,10 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         {
           if (DEBUG_IO)
           {
-            std::cout << "Parameter " << parameter.uTag() << " is converted to global, but WAS NOT successfully resolved! value = " 
+            Xyce::dout() << "Parameter " << parameter.uTag() << " is converted to global, but WAS NOT successfully resolved! value = " 
               << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")";
-            if (parameter.getType() == Xyce::Util::EXPR) { std::cout << " and does have Xyce::Util::EXPR type" <<std::endl; }
-            else { std::cout << " and doesn't have Xyce::Util::EXPR type" <<std::endl; }
+            if (parameter.getType() == Xyce::Util::EXPR) { Xyce::dout() << " and does have Xyce::Util::EXPR type" <<std::endl; }
+            else { Xyce::dout() << " and doesn't have Xyce::Util::EXPR type" <<std::endl; }
           }
           asYetUnresolvedGlobalParameters.insert(parameter);
         }
@@ -1378,11 +1394,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         {
           if (DEBUG_IO)
           {
-            std::cout << "Parameter " << parameter.uTag() 
+            Xyce::dout() << "Parameter " << parameter.uTag() 
               << " is converted to global, but WAS successfully resolved! value = " 
               << "EXPR("<< parameter.getValue<Util::Expression>().get_expression()<< ")";
-            if (parameter.getType() == Xyce::Util::EXPR) { std::cout << " and does have Xyce::Util::EXPR type" <<std::endl; }
-            else { std::cout << " and doesn't have Xyce::Util::EXPR type" <<std::endl; }
+            if (parameter.getType() == Xyce::Util::EXPR) { Xyce::dout() << " and does have Xyce::Util::EXPR type" <<std::endl; }
+            else { Xyce::dout() << " and doesn't have Xyce::Util::EXPR type" <<std::endl; }
           }
           insertSubcircuitGlobal(parameter);
         }
@@ -1560,6 +1576,11 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         Report::UserError0() << functionNameAndArgs << " contains an undefined parameter or function.";
       }
     }
+  }
+
+  if (DEBUG_IO)
+  {
+    Xyce::dout() << "End of CircuitContext::resolve" << std::endl;
   }
 
   return true;
@@ -1930,7 +1951,18 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
     if (DEBUG_IO)
     {
       Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
-                   << " has expression value, which is " << parameter.stringValue() << std::endl;
+                   << " has expression value, which is " << parameter.stringValue() ;
+
+      if ( !(currentContextPtr_->name_.empty() ) ) 
+      {
+        Xyce::dout() << " (name = " << currentContextPtr_->name_ << ")" ; 
+        if (currentContextPtr_->parentContextPtr_ != NULL)
+        {
+          Xyce::dout() << " (parent = " << currentContextPtr_->parentContextPtr_->name_ << ")" ; 
+        }
+      }
+      else { Xyce::dout() << " (top level)"; }
+                     Xyce::dout() << std::endl;
     }
 
     bool brandNewExpression = false;
@@ -2006,7 +2038,15 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
         if (DEBUG_IO) 
         { 
            Xyce::dout() << "CircuitContext::resolveParameter: After all expression handling, get_expression for " << parameter.uTag() << " returns "
-               << expression.get_expression() << std::endl;
+               << expression.get_expression() 
+            << " isVoltDep = " << ((isVoltDep)?(std::string("true")):(std::string("false")))
+            << " isDevCurDep = " << ((isDevCurDep)?(std::string("true")):(std::string("false")))
+            << " isLeadCurDep = " << ((isLeadCurDep)?(std::string("true")):(std::string("false")))
+            << " isVarDep = " << ((isVarDep)?(std::string("true")):(std::string("false")))
+            << " isSpecialsDep = " << ((isSpecialsDep)?(std::string("true")):(std::string("false")))
+            << " isRandom= " << ((isRandom)?(std::string("true")):(std::string("false")))
+               << std::endl;
+
           debugResolveParameterOutput2(parameter); 
         }
       }
@@ -2029,7 +2069,14 @@ void CircuitContext::resolveParameter(Util::Param& parameter, resolveStatus & rs
         if (DEBUG_IO)
         {
           Xyce::dout() << " CircuitContext::resolveParameter --  Resetting parameter value from " << parameter.stringValue()
-            << " to " << value << " because it is resolved and not a function" << std::endl;
+            << " to " << value << " because it is resolved and not a function or expression." 
+            << " isVoltDep = " << ((isVoltDep)?(std::string("true")):(std::string("false")))
+            << " isDevCurDep = " << ((isDevCurDep)?(std::string("true")):(std::string("false")))
+            << " isLeadCurDep = " << ((isLeadCurDep)?(std::string("true")):(std::string("false")))
+            << " isVarDep = " << ((isVarDep)?(std::string("true")):(std::string("false")))
+            << " isSpecialsDep = " << ((isSpecialsDep)?(std::string("true")):(std::string("false")))
+            << " isRandom= " << ((isRandom)?(std::string("true")):(std::string("false")))  
+            << std::endl;
         }
       }
     }
@@ -2379,7 +2426,8 @@ void CircuitContext::resolveStrings(
       bool parameterFound = getResolvedParameter(expressionParameter);
       if (parameterFound)
       {
-        if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], false); }
+        if (DEBUG_IO) 
+        { debugResolveStringsOutput( expressionParameter, strings[i], false); }
 
         if ( expressionParameter.getType() == Xyce::Util::STR ||  
              expressionParameter.getType() == Xyce::Util::DBLE)
@@ -2404,7 +2452,7 @@ void CircuitContext::resolveStrings(
           bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
           if (parsingMgr_.getLocalVariationFlag() && isOriginalRandom)
           {
-            std::string copyExprString = expToBeAttached.get_expression(); 
+            std::string copyExprString = expToBeAttached.get_expression();
             Util::Param copiedParam(strings[i],copyExprString);
 
             resolveStatus rsTmp;
@@ -2418,7 +2466,10 @@ void CircuitContext::resolveStrings(
             }
             else
             {
-              Report::DevelFatal()<< "Failure parsing random expression = " << copyExprString << ", which is a copied expression that needs to replace " << strings[i] << " in " << expression.get_expression() << ".  The original string for the copied parameter was " << expToBeAttached.get_original_expression() << " and the parameter being applied is " << parameterName << " to the param " << paramBeingResolvedTag <<std::endl;
+              Report::DevelFatal()<< "CircuitContext::resolveStrings:  Failure parsing random expression = " << copyExprString 
+                << ", which is a copied expression that needs to replace " << strings[i] << " in " << expression.get_expression() 
+                << ".  The original string for the copied parameter was " << expToBeAttached.get_original_expression() 
+                << " and the parameter being applied is " << parameterName << " to the param " << paramBeingResolvedTag <<std::endl;
             }
           }
           else
@@ -2436,7 +2487,8 @@ void CircuitContext::resolveStrings(
         getGlobalParamStatus getResolvedGPstatus = getResolvedGlobalParameter(expressionParameter);
         if (getResolvedGPstatus.success)
         {
-          if (DEBUG_IO) { debugResolveStringsOutput( expressionParameter, strings[i], true); }
+          if (DEBUG_IO) 
+          { debugResolveStringsOutput( expressionParameter, strings[i], true); }
 
           // the param to be attached is a global, which means it is always Util::EXPR type, 
           // which means it can always be attached.
@@ -2444,7 +2496,7 @@ void CircuitContext::resolveStrings(
           bool isOriginalRandom = expToBeAttached.isOriginalRandomDependent();
           if (parsingMgr_.getLocalVariationFlag() && isOriginalRandom)
           {
-            std::string copyExprString = expToBeAttached.get_expression(); 
+            std::string copyExprString = expToBeAttached.get_expression();
             Util::Param copiedParam(strings[i],copyExprString);
 
             resolveStatus rsTmp;
@@ -2458,7 +2510,9 @@ void CircuitContext::resolveStrings(
             }
             else
             {
-              Report::DevelFatal()<< "Failure parsing random expression = " << copyExprString << ", which is a copied expression that needs to replace " << strings[i] << " in " << expression.get_expression() << ".  The original string for the copied parameter was " << expToBeAttached.get_original_expression() << " and the parameter being applied is " << parameterName << " to the param " << paramBeingResolvedTag <<std::endl;
+              Report::DevelFatal()<< "CircuitContext::resolveStrings: Failure parsing random expression = " << copyExprString << ", which is a copied expression that needs to replace " 
+                << strings[i] << " in " << expression.get_expression() << ".  The original string for the copied parameter was " << expToBeAttached.get_original_expression() 
+                << " and the global parameter being applied is " << parameterName << " to the param " << paramBeingResolvedTag <<std::endl;
             }
           }
           else
@@ -2492,7 +2546,8 @@ void CircuitContext::resolveStrings(
           }
           else
           {
-            if (DEBUG_IO) { std::cout << "CircuitContext::resolveStrings failed to find " << parameterName << std::endl; }
+            if (DEBUG_IO) 
+            { Xyce::dout() << "CircuitContext::resolveStrings failed to find " << parameterName << std::endl; }
             unresolvedStrings = true;
           }
         }

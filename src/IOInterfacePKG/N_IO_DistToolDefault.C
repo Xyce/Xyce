@@ -129,6 +129,13 @@ DistToolDefault::DistToolDefault(
 //-----------------------------------------------------------------------------
 bool DistToolDefault::sendCircuitDeviceLine(TokenVector & deviceLine )
 {
+  if (DEBUG_IO) 
+  {
+  Xyce::dout() << "Begin DistToolDefault::sendCircuitDeviceLine:  ";
+  for (unsigned int i = 0; i < deviceLine.size(); ++i) { Xyce::dout() << deviceLine[i].string_ << " "; }
+  Xyce::dout() <<std::endl;
+  }
+
   if (Parallel::is_parallel_run(pdsCommPtr_->comm()))
   {
     if( currProc_ != 0 )
@@ -216,11 +223,12 @@ bool DistToolDefault::sendCircuitDeviceLine(TokenVector & deviceLine )
           }
         }
       }
-
       return true;
     }
     else
+    {
       return false;
+    }
   }
 
   return false;
@@ -368,8 +376,9 @@ void DistToolDefault::distributeDevices()
 {
   Xyce::Parallel::Machine comm = pdsCommPtr_->comm();
 
-  if (DEBUG_IO) {
-    Xyce::dout() << "Pass 2 parsing of netlist file and distributing devices: " <<
+  if (DEBUG_IO) 
+  {
+    Xyce::dout() << "Begin DistToolDefault::distributeDevices.  Pass 2 parsing of netlist file and distributing devices: " <<
       circuitBlock_.getNetlistFilename() << std::endl;
   }
 
@@ -490,7 +499,9 @@ void DistToolDefault::distributeDevices()
   }
 
   if (DEBUG_IO)
-    Xyce::dout() << "Done with pass 2 netlist file parsing and device distribution" << std::endl;
+  {   
+    Xyce::dout() << "End DistToolDefault::distributeDevices.  Done with pass 2 netlist file parsing and device distribution" << std::endl;
+  }
 
   // Just in case an error was reported in parsing the netlist.
   N_ERH_ErrorMgr::safeBarrier(comm);
@@ -591,7 +602,6 @@ bool DistToolDefault::packSubcircuitData( std::string const & subcircuitName,
   return true;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : DistToolDefault::receiveCircuitData
 // Purpose       : receive all data from proc 0 and store it in device buffer
@@ -644,7 +654,9 @@ bool DistToolDefault::receiveCircuitData()
     return ok;
   }
   else
+  {
     return true;
+  }
 }
 
 
@@ -714,8 +726,7 @@ DistToolDefault::send(
 // Creator       :
 // Creation Date :
 //-----------------------------------------------------------------------------
-bool
-DistToolDefault::processDeviceBuffer()
+bool DistToolDefault::processDeviceBuffer()
 {
   if (Parallel::is_parallel_run(pdsCommPtr_->comm()))
   {
@@ -796,7 +807,17 @@ DistToolDefault::processDeviceBuffer()
               params.push_back( param );
             }
 
-            // send to cktblk
+            // New function call to make global parameters fully work on subckt parametesr. (see issue 609)
+            // This call will resolve the X line subcircuit params.
+            bool subcktSuccess = Xyce::IO::setSubcircuitInstanceParameterVals(
+              params, 
+              *circuitContext_, 
+              subcircuitName, 
+              netlistFilename_, 
+              0); // fix this!  Need correct line number!
+              //subcircuitInstance.getLineNumber());
+
+            // set context to the unpacked subckt and resolve
             circuit_context->setContext( subcircuitName, prefix, nodes );
             circuit_context->resolve( params );
             processSubcircuitGlobals(*circuit_context);
@@ -872,7 +893,7 @@ bool DistToolDefault::parseIncludeFile(std::string const& includeFile,
   setFileName(includeFile);
 
   if (DEBUG_IO)
-    Xyce::dout() << "Parsing include file Pass 2: " << includeFile << std::endl;
+    Xyce::dout() << "DistToolDefault::parseIncludeFile.  Parsing include file Pass 2: " << includeFile << std::endl;
 
   // Find SSF for file
   if( !ssfMap_.count( includeFile ) )
@@ -905,7 +926,7 @@ bool DistToolDefault::parseIncludeFile(std::string const& includeFile,
   restorePrevssfInfo(oldssfPtr, old_netlistFilename, oldFilePos, oldLineNumber);
 
   if (DEBUG_IO)
-    Xyce::dout() << "Done with include file Pass 2: " << includeFile << std::endl;
+    Xyce::dout() << "DistToolDefault::parseIncludeFile.  Done with include file Pass 2: " << includeFile << std::endl;
 
   return true; // Only get here on success.
 }
@@ -938,66 +959,6 @@ void DistToolDefault::restorePrevssfInfo(
 }
 
 //--------------------------------------------------------------------------
-// Function      : DistToolDefault::processSubcircuitGlobals
-//
-// Purpose       : 
-//
-// Special Notes : Subcircuit globals are an unusual special case.  
-//                 Normally globals (variable) params can only come from 
-//                 top-level netlists, not subcircuits.  Those
-//                 orthodox globals are handled in netlist pass 1.
-//
-//                 The special case where they can exist is for local
-//                 variation in UQ. (like sampling analysis).  When local 
-//                 variation is enabled, it is possible for .params that 
-//                 are local to a subcircuit to be transformed into a global.
-//                 As subcircuits are handled in pass 2, this is a pass 2
-//                 operation.
-//
-//                 Note, for pass-1 globals, they are saved and then broadcast 
-//                 to all processors near the end of that pass, and then 
-//                 sent to the device package..  However, for pass-2, that 
-//                 pattern doesn't (currently) work.  Models are allocated 
-//                 on the fly in pass-2, and resolved immediately, meaning 
-//                 that all the globals need to be available right away.
-//                 So, that is why there is a registration call at the end 
-//                 of this function.
-//
-//                 They are (for now) only needed locally on processor.  
-//                 They are broadcast later in the device package, to 
-//                 enable UQ, which needs them on every proc.
-//
-// Creator       : Eric Keiter, SNL
-// Creation Date : 5/14/2023
-//--------------------------------------------------------------------------
-void DistToolDefault::processSubcircuitGlobals (CircuitContext & circContext)
-{
-  // At this stage, the parameters of the current context are resolved.
-  // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
-  // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
-  Util::UParamList::const_iterator paramIter    = circContext.getContextGlobals().begin(); 
-  Util::UParamList::const_iterator paramIterEnd = circContext.getContextGlobals().end();
-  const unordered_map<std::string, std::string> * globalParamAliasMap = circContext.getGlobalParamAliasMapPtr ();
-
-  for(;paramIter!=paramIterEnd;++paramIter)
-  {
-    Util::Param parameter = *paramIter;
-    std::string tag = parameter.uTag();
-    Xyce::Util::toUpper(tag);
-    // if it is in the alias map, then it is not fully resolved and we don't want it
-    // we only want fully resolved global params (i.e. including the subcircuit prefix)
-    if ( globalParamAliasMap->find(tag) == globalParamAliasMap->end() )  
-    {
-      if (DEBUG_IO) { std::cout << "Adding subcircuit global param: " << tag << std::endl; }
-      addResolvedGlobalParams_.insert(parameter);
-    }
-  } 
-
-  circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
-  addResolvedGlobalParams_.clear();
-}
-
-//--------------------------------------------------------------------------
 // Function      : DistToolDefault::expandSubcircuitInstance
 // Purpose       : Expand a subcircuit instance by adding the devices and
 //                 device models that compose the subcircuit to the main
@@ -1011,7 +972,6 @@ bool DistToolDefault::expandSubcircuitInstance(
   const std::string &   libSelect,
   std::vector<std::string> & libInside)
 {
-
   // Set subcircuitPrefix.
   std::string subcircuitPrefix;
   if ( circuitContext_->getPrefix() != "" )
@@ -1089,7 +1049,7 @@ bool DistToolDefault::expandSubcircuitInstance(
       (mainCircuitPtr_->getAliasNodeMap())[key] = *circuitInstanceNodeIt;
 
       if (DEBUG_IO)
-        Xyce::dout() << "Found node alias:  " << key << " ==> " << *circuitInstanceNodeIt << std::endl;
+        Xyce::dout() << "DistToolDefault::expandSubcircuitInstance.  Found node alias:  " << key << " ==> " << *circuitInstanceNodeIt << std::endl;
     }
 
     circuitInstanceNodeIt++;
@@ -1133,8 +1093,38 @@ bool DistToolDefault::expandSubcircuitInstance(
   std::vector<Device::Param> subcircuitInstanceParams;
   subcircuitInstance.getInstanceParameters(subcircuitInstanceParams);
 
+  {
+  // Tell the distribution tool that the context has changed.
+  // New location for this call (earlier in this function)
+  circuitStart( subcircuitName, subcircuitInstanceNodes, subcircuitPrefix, subcircuitInstanceParams );
+  }
+
+
+  {
+  // new function call, to resolve the subcircuit params.  
+  // Must be after circuitStart, which packs off the unprocessed subcircuit parameters, 
+  // but before the circuitContext_->resolve function call.
+  // The previous context must be restored, temporarily.
+  circuitContext_->restorePreviousContext();
+  bool subcktSuccess = Xyce::IO::setSubcircuitInstanceParameterVals(
+      subcircuitInstanceParams, 
+      *circuitContext_, 
+      subcircuitName, 
+      netlistFilename_, 
+      subcircuitInstance.getLineNumber());
+
+  cresult = circuitContext_->setContext(subcircuitName, subcircuitPrefix, subcircuitInstanceNodes);
+  if (!cresult)
+  {
+    Report::UserError0().at(netlistFilename_, subcircuitInstance.getLineNumber())
+      << "Error invoking subcircuit " << subcircuitInstance.getModelName()
+      << " instance " << subcircuitInstance.getInstanceName();
+    return false;
+  }
+  }
+
   if (DEBUG_IO) 
-  { std::cout << "Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
+  { Xyce::dout() << "DistToolDefault::expandSubcircuitInstance.  Calling CircuitContext::resolve for " << subcircuitPrefix << std::endl; }
 
   result = circuitContext_->resolve(subcircuitInstanceParams);
   if (!result)
@@ -1147,10 +1137,6 @@ bool DistToolDefault::expandSubcircuitInstance(
   // Pass in local nodes and instance nodes so that the IC/NODESET node is identified properly.
   find_IC_NODESET_OptionBlock( subcircuitInstance.getModelName(), subcircuitPrefix,
                                subcircuitNodes, subcircuitInstanceNodes );
-
-  // Tell the distribution tool that the context has changed.
-  circuitStart( subcircuitName, subcircuitInstanceNodes, subcircuitPrefix,
-                subcircuitInstanceParams );
 
   // Instantiate the devices in this subcircuit instance.
   TokenVector line;
