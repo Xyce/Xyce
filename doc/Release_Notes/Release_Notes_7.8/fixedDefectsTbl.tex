@@ -43,7 +43,14 @@
   \textbf{Xyce Project Backlog/571}: Modify \Xyce{} parser so that it can handle multiple \texttt{.options} statements for the same component (for example, support \texttt{.options timeint} statements) 
   &  Most SPICE-style simulators use the \texttt{.option} (non-plural) command, and allow the netlist to have multiple \texttt{.option} comamnds.   \Xyce{} historically was different in two respects.  One difference is that \Xyce{} uses a plural \texttt{.options} command, and another difference is a required keyword to identify the part of the code to which the block of options is applied.  Also, finally, \Xyce{} was designed to only have a single \texttt{.options} statement of each type.  So, for example, at most one \texttt{.options device} statement, at most one \texttt{.options timeint} statement, etc.  Unforutunately, recent versions of \Xyce{} silently accepted multiple \texttt{.options} statements, and behaved differently depending on the keyword.  For example, if the netlist contained multiple \texttt{.options timeint} statements, \Xyce{} would only use one of them and silently ignore the others.  In contrast, if the netlist contained multiple \texttt{.options device} statements, it would use them all, but would ignore duplicate parameters.  This was confusing for users of other simulators, and has been fixed.  \Xyce{} now treats multiple statements as a combined single statement, and issues warnings for duplicate parameters.
   \\\hline
-  
+ 
+ \textbf{Xyce Project Backlog/631}: 
+  Expression-based local variation doesn't always work with subcircuit arguments & 
+  When expression-based local variation was applied to a subcircuit argument, it 
+  was handled incorrectly.  This meant that subcircuit arguments that should have 
+  had a random distribution were fixed to the mean value during sampling.  
+  This has been fixed.  \\ \hline
+
   \textbf{Xyce Project Backlog/637}: Support shared library build of \Xyce{} under Windows.
   &  Modify the cmake build system to support building a shared library version of xyce, \texttt{xyce-share.dll}, so that 
   Xyce functionality can be accessed as a library from other applications.
