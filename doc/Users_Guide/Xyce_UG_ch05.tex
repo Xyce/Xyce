@@ -27,7 +27,6 @@ modify models.  Sections include:
 \item Section~\ref{Model_Def}, {\em Model Definition}
 \item Section~\ref{Subcircuit_Sect}, {\em Subcircuit Creation}
 \item Section~\ref{Model_Organization}, {\em Model Organization}
-\item Section~\ref{Model_Interpolation}, {\em Model Interpolation}
 \item Section~\ref{subcircuit_multiplier}, {\em Subcircuit Multiplier \texttt{M}}
 \end{XyceItemize}
 }
@@ -399,89 +398,6 @@ Q1 collector base emitter Q2N2222
 
 The exact format and usage of the \texttt{.LIB} command is documented in the
 \Xyce{} Reference Guide\ReferenceGuide{}.
-
-\section{Model Interpolation}
-\label{Model_Interpolation}
-\index{model!model interpolation}
-\index{model!tempmodel}
-
-Traditionally, SPICE simulators handle thermal effects by coding
-the temperature dependence of model parameters into each device.  These
-expressions modify the nominal device parameters given in the
-\texttt{.MODEL} card when the ambient temperature is not equal to
-\textrmb{TNOM}, the temperature at which the nominal device parameters
-were extracted.
-
-These temperature correction equations may be reasonable at
-temperatures close to \textrmb{TNOM}, but Sandia users of \Xyce{} have
-found them inadequate when simulations must be performed over a wide
-range of temperatures.  To address this inadequacy, \Xyce{} implements
-a model interpolation option that allows the user to specify multiple
-\texttt{.MODEL} cards, each extracted from real device measurements at
-a different \textrmb{TNOM}.  From these model cards, \Xyce{} will
-interpolate parameters based on the ambient temperature using either
-piecewise linear or quadratic interpolation.
-
-Interpolation of models is accessed through the model parameter
-\textrmb{TEMPMODEL} in the models that support this capability.  In the netlist,
-a base model is specified, and is followed by multiple models at other
-temperatures.  
-
-Interpolation of model cards in this fashion is implemented in the BJT
-level 1, JFET, MESFET, and MOSFETS levels 1-6, 10, and 18.
-
-The use of model interpolation is best shown by example:
-
-\begin{vquote}
-Jtest 1a 2a 3 SA2108 TEMP= 40
-*
-.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = 27
-+ LEVEL=2 BETA= 0.003130 VTO = -1.9966 PB = 1.046
-+ LAMBDA = 0.00401 DELTA = 0.578; THETA = 0;
-+ IS = 1.393E-10          RS = 1e-3)
-*
-.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = -55
-+ LEVEL=2 BETA = 0.00365 VTO = -1.9360 PB = 0.304
-+ LAMBDA = 0.00286 DELTA = 0.2540 THETA = 0.0
-+ IS = 1.393E-10 RD = 0.0 RS = 1e-3)
-* 
-.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = 90
-+ LEVEL=2 BETA = 0.002770 VTO = -2.0350 PB = 1.507
-+ LAMBDA = 0.00528 DELTA = 0.630 THETA = 0.0
-+ IS = 1.393E-10          RS = 5.66)
-\end{vquote}
-
-Note that the model names are all identical for the three \texttt{.MODEL} lines,
-and that they all specify \texttt{TEMPMODEL=QUADRATIC}, but with different
-\textrmb{TNOM}.  For parameters that appear in all three \texttt{.MODEL} lines,
-the value of the parameter will be interpolated using the \texttt{TEMP=} value
-in the device line in the first line, which is 40$^\circ$C in this example.
-For parameters that are not interpolated, such as \textrmb{RD}, it is not
-necessary to include these in the second and third \texttt{.MODEL} lines.
-
-The only valid arguments for \textrmb{TEMPMODEL} are \textrmb{QUADRATIC} and
-\textrmb{PWL} (piecewise linear).  The quadratic method includes a limiting
-feature that prevents the parameter value from exceeding the range of values
-specified in the \texttt{.MODEL} lines.  For example, the \textrmb{RS} value in
-the example would take on negative values for most of the interval between -55
-and 27, as the value at 90 is very high.  This truncation is necessary as
-parameters can easily take on values (such as the negative resistance of
-\textrmb{RS} in this example) that will cause a \Xyce{} failure.
-
-With the BJT parameters \textrmb{IS} and \textrmb{ISE}, interpolation is done
-not on the parameter itself, but on the the log of the parameter.  This
-provides excellent interpolation of these two parameters, that vary over
-many orders of magnitude, for quadratic and piecewise linear
-temperature dependence.
-
-The interpolation scheme used for model interpolation bases the interpolation
-on the difference between the ambient temperature and the \textrmb{TNOM} value
-of the first model card in the netlist, which can sometimes lead to poorly
-conditioned interpolation.  Thus it is often best that the first model card in
-the netlist be the one that has the ``middle'' \textrmb{TNOM}, as in the example
-above.  This assures that no matter where in the range of temperature values
-the ambient temperature lies, it is a minimal distance from the base point of
-the interpolation.
 
 \section{Subcircuit Multiplier \texttt{M}}
 \label{subcircuit_multiplier}
