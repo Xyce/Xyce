@@ -24,7 +24,7 @@ for more information on using subcircuits with the \texttt{X} device.
 \format
 \begin{alltt}
 .SUBCKT <name> [node]*
-+ [PARAMS: [<name>=<value>]* ]
++ [PARAMS:] [<name>=<value>]* 
 \ldots
 .ENDS
 \end{alltt}
@@ -62,12 +62,11 @@ An optional list of nodes. This is not mandatory since it is
 feasible to define a subcircuit without any interface nodes.
 
 \argument{PARAMS:}
-Keyword that provides values to subcircuits as arguments for use as
-expressions in the subcircuit.  Parameters defined in the \texttt{PARAMS:}
-section may be used in expressions within the body of the subcircut and
-will take the default values specified in the subcircuit definition unless
-overridden by a \texttt{PARAMS:} section when the subcircuit is
-instantiated.
+Optional keyword that precedes the list of subcircuit parameters.
+Parameters specified on the subcircuit instance line are treated as
+being local to individual subcircuit instances.  
+They can be used inside a subcircuit in the same manner as a .param inside the subcircuit definition.
+Parameters defined on the instance line override identically named parameters in the subcircuit definition.
 
 \end{Arguments}
 
