@@ -833,6 +833,35 @@ int Interface::mosfetContinuationSolve ( ParameterSet* paramsPtr )
 //-----------------------------------------------------------------------------
 int Interface::sourceSteppingSolve2 ( ParameterSet* paramsPtr )
 {
+  // the following set of if-statemtents call functions that
+  // allocate augmented linear systems for various scenarios.
+  // It is important that the augmented systems get allocated
+  // after the paramter (above) have been set.
+  bool usedOP=false;
+  bool usedNODESET=false;
+  bool usedIC=false;
+
+  if ((usemode_) && (mode_ != Nonlinear::TRANSIENT))
+  {   
+    if (ICspecified_)
+    { 
+      usedIC=icCont (paramsPtr);
+    }
+    else if (NODESETspecified_)
+    {
+      usedNODESET=nodesetCont1 (paramsPtr);
+    }
+  }
+
+  // Initialize parameters in xyce
+  if (!usedOP && !usedNODESET) // (usedOP and usedNODESET have already loaded F)
+  {
+    groupPtr_->computeF();
+  }
+
+  nonlinearEquationLoader_->setDisableInitJctFlags(true);
+
+  // Create Parameter Vector and get the stepper parameter list.
   Teuchos::RCP<Teuchos::ParameterList> locaList = paramsPtr->getLocaParams();
 
   // Get the sources and DC values from the loader
@@ -863,35 +892,6 @@ int Interface::sourceSteppingSolve2 ( ParameterSet* paramsPtr )
     return sourceSteppingSolve ( paramsPtr );
   } 
 
-  // the following set of if-statemtents call functions that
-  // allocate augmented linear systems for various scenarios.
-  // It is important that the augmented systems get allocated
-  // after the paramter (above) have been set.
-  bool usedOP=false;
-  bool usedNODESET=false;
-  bool usedIC=false;
-
-  if ((usemode_) && (mode_ != Nonlinear::TRANSIENT))
-  {   
-    if (ICspecified_)
-    { 
-      usedIC=icCont (paramsPtr);
-    }
-    else if (NODESETspecified_)
-    {
-      usedNODESET=nodesetCont1 (paramsPtr);
-    }
-  }
-
-  // Initialize parameters in xyce
-  if (!usedOP && !usedNODESET) // (usedOP and usedNODESET have already loaded F)
-  {
-    groupPtr_->computeF();
-  }
-
-  nonlinearEquationLoader_->setDisableInitJctFlags(true);
-
-  // Create Parameter Vector and get the stepper parameter list.
   Teuchos::ParameterList& stepperList = locaList->sublist("Stepper");
   Teuchos::ParameterList& predictorList = locaList->sublist("Predictor");
   Teuchos::ParameterList& stepSizeList = locaList->sublist("Step Size");

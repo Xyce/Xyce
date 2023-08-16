@@ -1620,6 +1620,7 @@ std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCV
       topology_.returnAdjIDs( *adj_it, adjDevs);
       numAdjDevices += adjDevs.size();
     }
+    it->second->updateDependentParameters();
     it->second->processParams();
     it->second->updateSource();
     localSources[ it->first ] = std::make_pair( it->second->getDefaultParam(), numAdjDevices );
