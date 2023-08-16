@@ -188,11 +188,17 @@ else()
   install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget COMPONENT Core )
 endif()
 
-install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
-  RUNTIME_DEPENDENCIES 
-  DIRECTORIES "/usr/local/" "/opt/local" ${Xyce_INSTALLER_LIBPATH}
-  LIBRARY DESTINATION lib 
-  COMPONENT Core )
+if ( CMAKE_HOST_WIN32)
+  # having the installer package runtime dependencies doesn't work
+  # well under Windows because it returns system libraries too.
+  install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
+else()
+  install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
+    RUNTIME_DEPENDENCIES 
+    DIRECTORIES "/usr/local/" "/opt/local" ${Xyce_INSTALLER_LIBPATH}
+    LIBRARY DESTINATION lib 
+    COMPONENT Core )
+endif()
 
 # Add header files needed by other codes to link against libxyce.*
 #
