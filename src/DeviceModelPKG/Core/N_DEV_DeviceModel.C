@@ -154,7 +154,7 @@ void DeviceModel::setModParams(const std::vector<Param> &params)
   }
   else
   {
-    UserError(*this) << "The temperature interpolation capability, invoked by TEMPMODEL=QUADRATIC in a .MODEL statement, is no longer a supported feature in Xyce" << std::endl;
+    UserError(*this) << "The temperature interpolation capability, invoked by TEMPMODEL=QUADRATIC in a .MODEL statement, is no longer a supported feature in Xyce.  If TEMPMODEL was not specified, this unsupported feature is also implied by duplicate model statements." << std::endl;
   }
 }
 
