@@ -180,15 +180,25 @@ if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
   set_target_properties ( XyceLib PROPERTIES
 	 		OUTPUT_NAME xyce-share
 			CLEAN_DIRECT_OUTPUT ON)
-  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget)
+  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget COMPONENT Core )
 else()
   set_target_properties ( XyceLib PROPERTIES
 			OUTPUT_NAME xyce
 			CLEAN_DIRECT_OUTPUT ON)
-  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
+  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget COMPONENT Core )
 endif()
 
-install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
+if ( CMAKE_HOST_WIN32)
+  # having the installer package runtime dependencies doesn't work
+  # well under Windows because it returns system libraries too.
+  install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
+else()
+  install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
+    RUNTIME_DEPENDENCIES 
+    DIRECTORIES "/usr/local/" "/opt/local" ${Xyce_INSTALLER_LIBPATH}
+    LIBRARY DESTINATION lib 
+    COMPONENT Core )
+endif()
 
 # Add header files needed by other codes to link against libxyce.*
 #
@@ -282,7 +292,8 @@ install(FILES
     UtilityPKG/N_UTL_TypeIndex.h
     UtilityPKG/N_UTL_Xyce.h
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
-DESTINATION include)
+DESTINATION include
+COMPONENT Core  )
 
 # When Charon uses a specific part Xyce as a TPL, it links to code deep in
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
@@ -324,7 +335,8 @@ if(${TriBITS_prefix} STREQUAL "tcad-charon")
     UtilityPKG/N_UTL_Listener.h
     UtilityPKG/N_UTL_Timer.h
     UtilityPKG/N_UTL_WallTime.h
-  DESTINATION include)
+  DESTINATION include
+  COMPONENT Core )
 endif()
 
 # valid Cmake config package & version names are:
@@ -361,6 +373,8 @@ install(EXPORT XyceLibTarget
     Xyce::
   DESTINATION
     ${ConfigPackageLocation}
+  COMPONENT 
+    Core
 )
 
 install(
@@ -370,5 +384,5 @@ install(
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
-    Devel
+    Core
 )
