@@ -859,6 +859,8 @@ int Interface::sourceSteppingSolve2 ( ParameterSet* paramsPtr )
     groupPtr_->computeF();
   }
 
+  nonlinearEquationLoader_->resetScaledParams();
+
   nonlinearEquationLoader_->setDisableInitJctFlags(true);
 
   // Create Parameter Vector and get the stepper parameter list.
@@ -1067,6 +1069,8 @@ int Interface::sourceSteppingSolve2 ( ParameterSet* paramsPtr )
     // Copy out the solution and use it in the next run
     groupPtr_->copy(*(stepperPtr_->getSolutionGroup()));
   }
+
+  nonlinearEquationLoader_->resetScaledParams();
 
   nonlinearEquationLoader_->setDisableInitJctFlags(false);
 
