@@ -66,20 +66,23 @@ please visit the \XyceTM{} web page at
 
 
 \newpage
-\section{New Features and Enhancements}
 
-\subsubsection*{XDM}
+\section*{Highlights}
 \begin{XyceItemize}
+\item Xyce now handles local variation with the same netlist convention as
+      HSPICE and other simulators.  This allows users to more easily simulate
+      things like mismatch using commercial PDKs.
 
-\item XDM now ... 
-
-\item XDM now ...
-
-
-
+\item The parser, expression library and device package have undergone various
+      efficiency improvements with respect to parameter handling.  In the case
+      of the parser, this speeds up parsing in many cases.  For the device
+      package, it speeds up analysis.  In the case of the expression library, it
+      often speeds up both parsing and analysis.
 \end{XyceItemize}
 
-\subsubsection*{New Devices and Device Model Improvements}
+\section{New Features and Enhancements}
+
+\subsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
 \item The Xyce diode now supports sidewall effects supported by other
   simulators such as ngspice and HSPICE.
@@ -89,60 +92,81 @@ please visit the \XyceTM{} web page at
   binaries.
 \end{XyceItemize}
 
-\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\subsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
 
-\item The expression library \texttt{TABLE} and \texttt{SPLINE} operators now support a ``downsampling'' feature, in which the user can request that a large data file can automatically have the number of points used by the source reduced.  For \texttt{TABLE} based sources, which are based on a PWL linear approximation, this can dramatically speed up simulations, as the number of required breakpoints is reduced.
+\item The expression library \texttt{TABLE} and \texttt{SPLINE} operators now
+     support a ``downsampling'' feature, in which the user can request that a
+     large data file can automatically have the number of points used by the
+     source reduced.  For \texttt{TABLE} based sources, which are based on a
+     PWL linear approximation, this can dramatically speed up simulations, as
+     the number of required breakpoints is reduced.
 
-\item The random operators in the expression library (such as \texttt{AGAUSS} and \texttt{AUNIF}) now support implicit local and global variation, consistent with other simulators.
+\item The random operators in the expression library (such as \texttt{AGAUSS}
+     and \texttt{AUNIF}) now support implicit local and global variation,
+     consistent with other simulators.
 
-\item Parameter handling in the parser has been refactored. As a result, the parsing and setup time for large process design kits (PDKs) has been improved.
+\item Parameter handling in the parser has been refactored. As a result, the
+     parsing and setup time for large process design kits (PDKs) has been
+     improved.
 
 \end{XyceItemize}
 
-\subsubsection*{Interface Improvements}
+\subsection*{Interface Improvements}
 \begin{XyceItemize}
-\item Subcircuit multipliers (\texttt{M=}) previously had to have a fixed value.  
-  Now, they can be treated like any other parameter, and can change during a simulation 
-  using commands such as \texttt{.STEP}. 
+\item Subcircuit multipliers (\texttt{M=}) previously had to have a fixed value.
+  Now, they can be treated like any other parameter, and can change during a simulation
+  using commands such as \texttt{.STEP}.
 
 \item Formatting errors in unused subcircuit definitions (\texttt{.SUBCKT}) will no
   longer emit errors, only warnings.  This is limited to issues in the (\texttt{.SUBCKT})
   line of the netlist.  If additional parsing issues are found within the subcircuit
   definition, they may still result in an error being emitted from the simulator.
- 
-\item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in 
-  debugging of user circuits.  This option can be used to output nodes with extreme 
-  solution values, voltages, currents and discontinuities during a simulation. 
-  Additionally, it can provide information on continuation methods used during 
-  the DC Operating point calculation.  See the Reference Guide section 2.1.25.2 
+
+\item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in
+  debugging of user circuits.  This option can be used to output nodes with extreme
+  solution values, voltages, currents and discontinuities during a simulation.
+  Additionally, it can provide information on continuation methods used during
+  the DC Operating point calculation.  See the Reference Guide section 2.1.25.2
   and chapter 10 the User's Guide for more details.
 
-\item The third argument (\texttt{num\_sigma}) to the random expression operators \texttt{AGAUSS} and \texttt{GAUSS} is now optional.
+\item The third argument (\texttt{num\_sigma}) to the random expression
+     operators \texttt{AGAUSS} and \texttt{GAUSS} is now optional.
 
-\item The metrics tracking and reporting feature now has an option to include 
+\item The metrics tracking and reporting feature now has an option to include
   error messages. When enabled, the tracking data reported by Xyce is encoded as
   a JSON string. If certain error conditions occur, the JSON string may now
   include a list of diagnostic messages. These error messages will be encoded as
-  an array under the tag name “ErrorMessages” next to the “audit” field 
-  (e.g. {“audit”:\{\dots\},”ErrorMessages”:[\dots]}). 
+  an array under the tag name “ErrorMessages” next to the “audit” field
+  (e.g. {“audit”:\{\dots\},”ErrorMessages”:[\dots]}).
 
-\item Expressions are now allowed on the following analysis lines: \texttt{.TRAN}, \texttt{.DC} and \texttt{.AC}.
+\item Expressions are now allowed on the following analysis lines:
+     \texttt{.TRAN}, \texttt{.DC} and \texttt{.AC}.
 
-\item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now contain comments.
+\item Data files read in via the expression library operators such as
+     \texttt{TABLE} and \texttt{TABLEFILE} can now contain comments.
 
-\item Data files read in via the expression library operators such as \texttt{TABLE} and \texttt{TABLEFILE} can now include dashes in the filename.
+\item Data files read in via the expression library operators such as
+     \texttt{TABLE} and \texttt{TABLEFILE} can now include dashes in the
+     filename.
 
-\item When running a fequency domain analysis such as \texttt{.HB} or \texttt{.AC}, complex-valued expressions on the \texttt{.PRINT} line will now automatically output both the real and imaginary parts.  
+\item When running a frequency domain analysis such as \texttt{.HB} or
+     \texttt{.AC}, complex-valued expressions on the \texttt{.PRINT} line will
+     now automatically output both the real and imaginary parts.
 
-\item \texttt{.params} can now be complex-valued.  When used in a real-valued context, only the real part will be used, but in complex (i.e. frequency domain) contexts, complex arithmetic is performed.
+\item \texttt{.params} can now be complex-valued.  When used in a real-valued
+     context, only the real part will be used, but in complex (i.e. frequency
+     domain) contexts, complex arithmetic is performed.
 
 \end{XyceItemize}
 
-\subsubsection*{Important Announcements}
+
+\subsection*{XDM}
 \begin{XyceItemize}
-\item new announcements 
+\item Fixed bug where an instance of a SPECTRE device is not translated as an
+    instance or a comment if it appears after a definition of a SPECTRE device.
 \end{XyceItemize}
+
 
 \newpage
 \section{Defects Fixed in this Release}
@@ -218,6 +242,18 @@ LLC, a wholly owned subsidiary of Honeywell International, Inc., for
 the U.S. Department of Energy's National Nuclear Security
 Administration under contract DE-NA0003525.
 
-SAND2023-XXXX O
+\vspace{0.2in}
+\noindent
+\parbox{\textwidth}
+{
+    \includegraphics[height=0.6in]{DOEbwlogo}
+    \hfill
+    \includegraphics[height=0.5in]{NNSA_logo}
+    \hfill
+    \includegraphics[height=0.5in]{snllineblk}
+}
+\vspace{0.1in}
+
+\parbox{\textwidth}{\hfill SAND2023-07328 O}
 \end{document}
 

@@ -83,6 +83,7 @@ case $BUILDNAME in
             cp -v $INTEL_PATH/compiler/lib/intel64_lin/libirng.so*  $LIBDIR
             cp -v $INTEL_PATH/compiler/lib/intel64_lin/libcilkrts.so*  $LIBDIR
         fi
+        chmod -R a+x $LIBDIR
         ;;
 
     Intel64_OSX*icc* )
