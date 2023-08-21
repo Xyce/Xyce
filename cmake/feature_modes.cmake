@@ -1,5 +1,5 @@
 # For communicating the exact version of Xyce to the code
-set(Xyce_RELEASE                   TRUE CACHE BOOL "Set to TRUE to designate a release version")
+set(Xyce_RELEASE                   FALSE CACHE BOOL "Set to TRUE to designate a release version")
 set(Xyce_QUALIFICATION             FALSE CACHE BOOL "Set to TRUE to designate a qualification release")
 if(Xyce_RELEASE)
      set(RELEASE_CHARACTER "R")
