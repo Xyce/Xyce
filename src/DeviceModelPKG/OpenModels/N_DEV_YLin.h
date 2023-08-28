@@ -45,6 +45,8 @@
 #include <N_DEV_DeviceMaster.h>
 #include <N_UTL_Op.h>
 
+#include <N_UTL_Interpolators.h>
+
 namespace Xyce {
 namespace Device {
 namespace YLin {
@@ -304,7 +306,7 @@ private:
   bool                                                IscFD_;          ///< Touchstone file contains frequency-doman short-circuit current data
   std::vector< std::vector<std::complex<double> > >   inputIscFDVec_;  ///< Vector of vectors of per-port frequency-doman short-circuit currents
 
-  bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
+//  bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
   std::vector<double>                iscTDTimeVec_;   ///< Vector of times at which per-port time-domain short-circuit currents are given
   std::vector< std::vector<double> > inputIscTDVec_;  ///< Vector of vectors of per-port time-domain short-circuit currents.
 
@@ -313,6 +315,18 @@ private:
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;
 
   void interpLin( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result,  std::vector<std::complex<double> >  & Iscvals );
+
+  int interpolation_ ;
+
+  int extrapolationHigh_, extrapolationLow_;
+
+  void interpData( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result,  std::vector<std::complex<double> >  & Iscvals );
+
+  bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
+
+  Util::interpolator<double> * yInterpolator;
+//  Util::interpolator<double> * IscInterpolator;
+
 };
 
 
