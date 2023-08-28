@@ -123,19 +123,18 @@ option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
 
-if(Xyce_PLUGIN_SUPPORT)
-  if(NOT BUILD_SHARED_LIBS)
-    message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
-    set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
-  endif()
-  if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
-    # if building a shared library under windows automatically export all 
-    # symbols in the resulting "dll"  This is not optimal but will work 
-    # until a detailed code markup is done.
-    set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
-  endif()
+if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
+  message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
+  set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
 endif()
 
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+  # if building a shared library under windows automatically export all 
+  # symbols in the resulting "dll"  This is not optimal but will work 
+  # until a detailed code markup is done.
+  set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
+endif()
+  
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)
