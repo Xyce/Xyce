@@ -1740,7 +1740,8 @@ Model::Model(
     interpolation_(1),
     extrapolationHigh_(1),
     extrapolationLow_(1),
-    IscTD_(false)
+    IscTD_(false),
+    yInterpolator(0)
 {
   // Set params to constant default values.
   setDefaultParams();
@@ -1994,12 +1995,8 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 //----------------------------------------------------------------------------
 void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals  )
 {
-//  std::vector<std::complex<double> > 
-//  result.resize ( freqData[0].yth_.size());
 
-//  int fsize = freqData.size();
-
-  // Perform linear interpolation or extrapolation
+// Perform interpolation or extrapolation
 
          
   if (Iscvals.empty())
@@ -2009,24 +2006,22 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
   double fmin = freqVec_[0];
   double fmax = freqVec_[numFreq_ - 1];
 
-//  double f0;
-//  double f1;
-
-//  int n0;
-//  int n1;
-
   result.shape(numPorts_, numPorts_);
 
-   std::cout << "interpolation method = " << interpolation_   <<   std::endl;
+
+  std::vector<double> yreal,  yimag;
+
+  yreal.resize(numFreq_ );
+
+  yimag.resize(numFreq_ );
+
+
+  double y0, y1;
 
   if (freq <= fmin)
   {
 // Use fmin constant data
 //    sparams = (ymat_[0]);
-
-// if we want to use the same extra/interpolation
-//    n0 = 0;
-//    n1 = 1;
 
     result = inputNetworkDataVec_[0];
 
@@ -2045,70 +2040,54 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
   else
   {
 
-  std::vector<double> yreal,  yimag;
+    double y0, y1;
 
-  yreal.resize(numFreq_ );
-
-  yimag.resize(numFreq_ );
-
-
-  double y0, y1;
-
-  for (int i=0; i< numPorts_ ; i++)
-  {
-
-    for (int j=0; j< numPorts_ ; j++)
+    for (int i=0; i< numPorts_ ; i++)
     {
 
-      for (int n=0; n< numFreq_ ; n++)
+      for (int j=0; j< numPorts_ ; j++)
       {
-        yreal[n] = ((inputNetworkDataVec_[n])(i, j)).real();
-        yimag[n] = ((inputNetworkDataVec_[n])(i, j)).imag();
+
+        for (int n=0; n< numFreq_ ; n++)
+        {
+          yreal[n] = ((inputNetworkDataVec_[n])(i, j)).real();
+          yimag[n] = ((inputNetworkDataVec_[n])(i, j)).imag();
+        }
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yreal );
+        yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yimag );
+        yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
+
+        result(i,j) = {  y0,  y1  };
+
       }
 
-      yInterpolator->clear();
-      yInterpolator->init( freqVec_,   yreal );
-      yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
-
-
-      yInterpolator->clear();
-      yInterpolator->init( freqVec_,   yimag );
-      yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
-
-      result(i,j) = {  y0,  y1  };
-
-
-      std::cout << "y" << i << j << " = " <<  result(i,j) << std::endl;
-
-    }
-
-    if (IscFD_)
-    {
-
-      for (int n=0; n< numFreq_ ; n++)
+      if (IscFD_)
       {
-        yreal[n] = (inputIscFDVec_[n][i]).real();
 
-        yimag[n] = (inputIscFDVec_[n][i]).imag();
+        for (int n=0; n< numFreq_ ; n++)
+        {
+          yreal[n] = (inputIscFDVec_[n][i]).real();
+
+          yimag[n] = (inputIscFDVec_[n][i]).imag();
+        }
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yreal );
+        yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yimag );
+        yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
+
+        Iscvals[i] = {  y0,  y1  };
       }
-      yInterpolator->clear();
-      yInterpolator->init( freqVec_,   yreal );
-      yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
-
-
-      yInterpolator->clear();
-      yInterpolator->init( freqVec_,   yimag );
-      yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
-
-      Iscvals[i] = {  y0,  y1  };
-
-      std::cout << "isc" << i  << " = " <<  Iscvals[i] << std::endl;
     }
-  }
-      
 
   }
-
 
 }
 
