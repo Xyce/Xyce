@@ -103,76 +103,79 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   # of the following is making a correspondence between a line output
   # by "Xyce -capabilities" and a tag to use when invoking
   # run_xyce_regression.
-  set(TAGLIST "+serial?klu" PARENT_SCOPE)
+  set(myTagList "+serial?klu")
   if("$ENV{TESTSET}" STREQUAL "Weekly"
       OR "$ENV{TESTSET}" STREQUAL "QA"
       OR "$ENV{TESTSET}" STREQUAL "FINAL")
 
-    set(TAGLIST "${TAGLIST}?weekly?nightly" PARENT_SCOPE)
+    set(myTagList "${myTagList}?weekly?nightly")
   else()
-    set(TAGLIST "${TAGLIST}+nightly" PARENT_SCOPE)
+    set(myTagList "${myTagList}+nightly")
   endif()
 
   string(FIND "${term_cap_out}" "Verbose" res_var)
   if(${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}-verbose?noverbose" PARENT_SCOPE)
+    set(myTagList "${myTagList}-verbose?noverbose")
   else()
-    set(TAGLIST "${TAGLIST}?verbose-noverbose" PARENT_SCOPE)
+    set(myTagList "${myTagList}?verbose-noverbose")
   endif()
 
   string(FIND "${term_cap_out}" "Non-Free device models" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?nonfree" PARENT_SCOPE)
+    set(myTagList "${myTagList}?nonfree")
   endif()
 
   string(FIND "${term_cap_out}" "Radiation models" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?rad" PARENT_SCOPE)
+    set(myTagList "${myTagList}?rad")
     string(FIND "${term_cap_out}" "Reaction parser" res_var)
     if(NOT ${res_var} EQUAL -1)
-      set(TAGLIST "${TAGLIST}?qaspr" PARENT_SCOPE)
+      set(myTagList "${myTagList}?qaspr")
     endif()
   endif()
 
   string(FIND "${term_cap_out}" "ATHENA" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?athena" PARENT_SCOPE)
+    set(myTagList "${myTagList}?athena")
   endif()
 
   string(FIND "${term_cap_out}" "FFT" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?fft" PARENT_SCOPE)
+    set(myTagList "${myTagList}?fft")
   endif()
 
   string(FIND "${term_cap_out}" "C++14" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?cxx14" PARENT_SCOPE)
+    set(myTagList "${myTagList}?cxx14")
   endif()
 
   string(FIND "${term_cap_out}" "Stokhos enabled" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?stokhos" PARENT_SCOPE)
+    set(myTagList "${myTagList}?stokhos")
   endif()
 
   string(FIND "${term_cap_out}" "ROL enabled" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?rol" PARENT_SCOPE)
+    set(myTagList "${myTagList}?rol")
   endif()
 
   string(REGEX MATCH "Amesos2.*Basker.*enabled" out_var "${term_cap_out}")
   if(out_var)
-    set(TAGLIST "${TAGLIST}?amesos2basker" PARENT_SCOPE)
+    set(myTagList "${myTagList}?amesos2basker")
   endif()
 
   string(REGEX MATCH "Amesos2.*KLU2.*enabled" out_var "${term_cap_out}")
   if(out_var)
-    set(TAGLIST "${TAGLIST}?amesos2klu" PARENT_SCOPE)
+    set(myTagList "${myTagList}?amesos2klu")
   endif()
 
   find_program(XDMBDLEXE NAMES xdm_bdl)
   if(NOT ${XDMBDLEXE} STREQUAL "XDMBDLEXE-NOTFOUND")
-    set(TAGLIST "${TAGLIST}?xdm" PARENT_SCOPE)
+    set(myTagList "${myTagList}?xdm")
   endif()
+
+  # set parent TAGLIST from function-local variable
+  set(TAGLIST "${myTagList}" PARENT_SCOPE)
 
 endfunction()
 
