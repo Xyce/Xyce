@@ -192,6 +192,11 @@ public:
   void homotopyStepSuccess(const std::vector<std::string> & paramNames, const std::vector<double> & paramVals);
   void homotopyStepFailure();
 
+  // Functions needed by the sequential source-stepping homotopy, which cycles through sources
+  // instead of using VSRCSCALE
+  std::map<std::string, std::pair<double,int> > getSourceDeviceNamesDCVal(Parallel::Machine comm) const;
+  bool scaleDevice( std::string& instance, double scale );
+
   // voltage limiter toggle functions
   bool getVoltageLimiterStatus();
   void setVoltageLimiterStatus(bool voltageLimterStatus);

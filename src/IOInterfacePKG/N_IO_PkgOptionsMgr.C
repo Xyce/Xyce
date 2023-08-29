@@ -87,30 +87,26 @@ PkgOptionsMgr::~PkgOptionsMgr()
 // Function      : PkgOptionsMgr::addOptionsProcessor
 // Purpose       : Register an object for recieving options
 //
-// Special Notes : The design of this function and the other 'submit' function
-//                 is intended to be robust enough that it doesn't matter
-//                 which call is done first.  If the options are submitted
-//                 first, then the addOptionsProcessor function will send
-//                 them out to the various registration functors.  If the
-//                 registration functors are submitted first, then when the
-//                 options are submitted, they'll be sent out.
+// Special Notes : Called before parsing starts as it sets up a container of 
+//                 functions ("processors") that are used during parsing.  These
+//                 processor functions are known at compile time, so this is fine.
+//
+//                 Functions such as "submitOptions", "mergeOptions" and 
+//                 "submitMergedOptions" are there to handle the specific 
+//                 option_blocks that come from the netlist.  Also, they make 
+//                 use of the "processor" functions that are recorded here.  
+//                 So, they are called during parsing, and *must* be called
+//                 after all the addOptionsProcessor calls.
 //
 // Scope         : public
 // Creator       : Robert Hoekstra, SNL
 // Creation Date : 1/28/2003
 //-----------------------------------------------------------------------------
-bool
-PkgOptionsMgr::addOptionsProcessor(
+bool PkgOptionsMgr::addOptionsProcessor(
   const std::string &   option_block_name,
   PkgOptionsReg *       processor)
 {
   processorMap_.insert(ProcessorMap::value_type(option_block_name, processor));
-
-  // Call the processor functions if they are interested in this circuit
-  std::pair<OptionsMap::iterator, OptionsMap::iterator> range = optionsMap_.equal_range(option_block_name);
-  for (OptionsMap::iterator it = range.first; it != range.second; ++it)
-    (*processor)((*it).second);
-
   return true;
 }
 
@@ -126,22 +122,80 @@ bool PkgOptionsMgr::submitOptions(
   const Util::OptionBlock &     option_block)
 {
   const std::string &option_block_name = option_block.getName();
-
   Util::OptionBlock dispatch_option_block;
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
   {
-    if ((*it).tag() == "SINGLETON" && (*it).getImmutableValue<int>()
-        && optionsMap_.count(option_block_name))
-      Report::UserError().at(option_block.getNetlistLocation()) << "Only 1 option line of type " << option_block_name << " allowed";
-    else
-      dispatch_option_block.addParam(*it);
+    dispatch_option_block.addParam(*it);
   }
-
-  optionsMap_.insert(OptionsMap::value_type(option_block_name, dispatch_option_block));
 
   std::pair<ProcessorMap::iterator, ProcessorMap::iterator> range = processorMap_.equal_range(option_block_name);
   for (ProcessorMap::iterator it = range.first; it != range.second; ++it)
     (*(*it).second)(dispatch_option_block);
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PkgOptionsMgr::mergeOptions
+// Purpose       : Add to the database of option blocks.
+// Special Notes : Certian option blocks are merged by this function.
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/07/2023
+//-----------------------------------------------------------------------------
+bool PkgOptionsMgr::mergeOptions(const Util::OptionBlock & option_block)
+{
+  const std::string &option_block_name = option_block.getName();
+  std::unordered_map<std::string, Util::OptionBlock>::iterator obIter = mergedOptionsMap_.find ( option_block_name );
+
+  if (obIter == mergedOptionsMap_.end())
+  {
+    Util::OptionBlock tmpBlock(option_block);
+    tmpBlock.clearParams();
+    mergedOptionsMap_[option_block_name] = tmpBlock;
+    obIter = mergedOptionsMap_.find ( option_block_name );
+  }
+
+  for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
+  {
+    const std::string &parameter_name = it->tag();
+    Util::Param *parameterPtr = Util::findParameter( obIter->second.begin(), obIter->second.end(), parameter_name);
+    if (parameterPtr == NULL)
+    {
+      obIter->second.addParam(*it);
+    }
+    else
+    {
+      IO::ParamWarning(option_block, *parameterPtr) << " duplicate " << option_block_name 
+        << " parameter.  Using the first value found = " << parameterPtr->stringValue() << std::endl;
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PkgOptionsMgr::submitMergedOptions
+// Purpose       : submit merged option blocks to various processing functions.
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/07/2023
+//-----------------------------------------------------------------------------
+bool PkgOptionsMgr::submitMergedOptions()
+{
+  std::unordered_map<std::string, Util::OptionBlock>::iterator iter = mergedOptionsMap_.begin();
+  std::unordered_map<std::string, Util::OptionBlock>::iterator end  = mergedOptionsMap_.end();
+
+  for (; iter!=end;iter++)
+  {
+    std::string option_block_name = iter->first;
+    std::pair<ProcessorMap::iterator, ProcessorMap::iterator> range = processorMap_.equal_range(option_block_name);
+    for (ProcessorMap::iterator it = range.first; it != range.second; ++it)
+    {
+      (*(*it).second)(iter->second);
+    }
+  }
 
   return true;
 }
@@ -155,8 +209,7 @@ bool PkgOptionsMgr::submitOptions(
 // Creator       : Lon Waters, SNL
 // Creation Date : 10/05/2001
 //-----------------------------------------------------------------------------
-bool
-extractOptionsData(
+bool extractOptionsData(
   PkgOptionsMgr &       options_manager,
   CircuitBlock &        circuit_block,
   const std::string &   netlist_filename,
@@ -248,6 +301,17 @@ extractOptionsData(
     }
   }
 
+  bool thisIsAnOptionsStatement=true;
+  if ( equal_nocase(optionName, "OUTPUT") || equal_nocase(optionName, "RESTART") )
+  {
+    // This technically isn't true. These are options statements.  However, the 
+    // "thisIsAnOptionsStatement" boolean is only used to determine if multiple 
+    // "options" statements are allowed.  Because OUTPUT and RESTART have the 
+    // goofy "INITIAL_INTERVAL" specification, there isn't a rational way to allow 
+    // multiple options statements for OUTPUT and RESTART.
+    thisIsAnOptionsStatement=false; 
+  }
+
   Util::OptionBlock option_block(
       optionName,
     (  equal_nocase(optionName, "SENSITIVITY") || 
@@ -255,7 +319,7 @@ extractOptionsData(
        equal_nocase(optionName, "EMBEDDEDSAMPLES") ||
        equal_nocase(optionName, "PCES" )
        ) ? Util::OptionBlock::ALLOW_EXPRESSIONS : Util::OptionBlock::NO_EXPRESSIONS,
-      netlist_filename, parsed_line[0].lineNumber_);
+      netlist_filename, parsed_line[0].lineNumber_,thisIsAnOptionsStatement);
 
   // Create an option block to temporarily store the default options.
   Util::OptionBlock defaultOptions;

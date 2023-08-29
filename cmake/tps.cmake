@@ -487,6 +487,7 @@ endif()
 
 # If the Intel MKL is not being used, try to find FFTW.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
+     set(FFTW_USE_STATIC_LIBS true)
      find_package(FFTW)
      if(FFTW_FOUND)
           message(STATUS "Looking for FFT libraries - found FFTW")
@@ -563,6 +564,6 @@ include(CTest)
 if(BUILD_TESTING)
      # If the wrong version of GTest is found, try setting GTest_DIR or GTEST_ROOT to the install
      # directory of the desired verstion of GTest; specify when invoking cmake to configure.
-     find_package(GTest REQUIRED)
+     find_package(GTest )
      include(GoogleTest)
 endif()

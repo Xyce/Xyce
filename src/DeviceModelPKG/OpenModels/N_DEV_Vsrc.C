@@ -352,6 +352,8 @@ Instance::Instance(
     fNegEquNegNodePtr(0),
     fBraEquBraVarPtr(0),
 #endif
+   
+    firstTimeload(true),
     port(0),
     Z0(50.0),
     PORTgiven (false),
@@ -769,7 +771,23 @@ bool Instance::loadDAEBVector ()
 {
   // Get the value for the source.
   SourceData *dataPtr  = dcSourceData_; // by default assume the DC value.
-  if ((HBSpecified_ || getSolverState().tranopFlag || getSolverState().transientFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && tranSourceData_ != 0 )
+
+  if ( (getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && tranSourceData_ != 0)
+  {
+
+    if (firstTimeload)
+    {
+      double  val = tranSourceData_->returnSource();
+
+      setParam("DCV0", val,  true);
+
+      dcSourceData_->setParams (&DCV0);
+
+      firstTimeload = false;
+    }
+  }
+
+  if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && tranSourceData_ != 0 )
   {
     dataPtr = tranSourceData_;
   }
@@ -1220,8 +1238,25 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     Instance & vi = *(*it);
 
     // Get the value for the source.
-    SourceData *dataPtr  = vi.dcSourceData_; // by default assume the DC value.
-    if ((HBSpecified_ || getSolverState().tranopFlag || getSolverState().transientFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && vi.tranSourceData_ != 0 )
+    SourceData *dataPtr  = vi.dcSourceData_; // by default assume the DC value
+
+
+    if ( (getSolverState().tranopFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && vi.tranSourceData_ != 0)
+    {
+
+      if (vi.firstTimeload)
+      {
+        double  val = vi.tranSourceData_->returnSource();
+
+        vi.setParam("DCV0", val,  true);
+
+        vi.dcSourceData_->setParams (&vi.DCV0);
+
+        vi.firstTimeload = false;
+      }
+    }   
+
+    if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !vi.DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && vi.tranSourceData_ != 0 )
     {
       dataPtr            = vi.tranSourceData_;
     }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
 
@@ -104,7 +104,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
      "RelWithDebInfo" "MinSizeRel")
 endif()
 
-project(Xyce VERSION 7.7.0 LANGUAGES CXX C)
+project(Xyce VERSION 7.8.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -118,17 +118,23 @@ endif()
 if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
+
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
 
-if(Xyce_PLUGIN_SUPPORT)
-  if(NOT BUILD_SHARED_LIBS)
-    message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
-    set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
-  endif()
+if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
+  message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
+  set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
 endif()
 
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+  # if building a shared library under windows automatically export all 
+  # symbols in the resulting "dll"  This is not optimal but will work 
+  # until a detailed code markup is done.
+  set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
+endif()
+  
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)

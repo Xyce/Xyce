@@ -1117,21 +1117,22 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
 
       if (!found)
       {
-        UserError(*this) << "Global parameter " << *iterVariable << " in " <<
-          par.tag() << " = " << dependentParam.expr->get_expression() << " not found";
 #if 0
+        Xyce::dout() << "Global parameter " << *iterVariable << " in " << par.tag() << " = " << dependentParam.expr->get_expression() << " not found" << std::endl;
         for (int ii=0;ii<variables.size();ii++)
         {
-          std::cout << "variables["<<ii<<"] = " << variables[ii] << std::endl;
+          Xyce::dout() << "variables["<<ii<<"] = " << variables[ii] << std::endl;
         }
         GlobalParameterMap::iterator tmpIter = globals_.paramMap.begin();
         for ( int ii=0; tmpIter != globals_.paramMap.end(); ++tmpIter, ++ii)
         {
-          std::cout << "globals["<<ii<<"] = " << tmpIter->first <<std::endl;
+          Xyce::dout() << "globals["<<ii<<"] = " << tmpIter->first <<std::endl;
         }
-          //dependentParam.expr->dumpParseTree();
-          exit(0);
+        dependentParam.expr->dumpParseTree();
+          //exit(0);
 #endif
+        UserError(*this) << "Global parameter " << *iterVariable << " in " <<
+          par.tag() << " = " << dependentParam.expr->get_expression() << " not found";
       }
       else 
       {

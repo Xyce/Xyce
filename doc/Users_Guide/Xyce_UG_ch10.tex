@@ -81,7 +81,11 @@ invoked with \texttt{.options nonlin continuation=3} or \texttt{.options nonlin
 continuation=gmin}. See Section~\ref{continuation_gmin} for more information and an
 example of GMIN stepping.
 
-\Xyce{} also invokes the SPICE ``source stepping'' method automatically when a DC operating point calculation fails both normal Newton's method and the automatic GMIN stepping attempt.  This is an example of natural parameter continuation that steps through a scale factor that is applied to all DC voltage sources in the circuit.  It is described in Section~\ref{continuation_source}.
+\Xyce{} also invokes the SPICE ``source stepping'' method automatically when a DC 
+operating point calculation fails both normal Newton's method and the automatic 
+GMIN stepping attempt.  This is an example of natural parameter continuation that 
+steps through a scale factor that is applied to all sources in the circuit.  It is 
+described in Section~\ref{continuation_source}.
 
 Another basic type of continuation in \Xyce{} is accessed by setting
 \texttt{.options nonlin continuation=1}. This allows the user to sweep existing
@@ -194,7 +198,7 @@ Figure~\ref{Continuation_Netlist_sourceStepping2} shows a natural
 parameter continuation netlist with parameters pertinent to the
 continuation algorithm highlighted in red.  For this example, a
 special parameter \texttt{VSRCSCALE} is being swept from zero to one.
-This parameter is applied as a scaling factor for all DC 
+This parameter is applied as a scaling factor for all DC and transient 
 sources in the netlist.  As a result, this example demonstrates an
 explicit invocation of ``source stepping'' like the one that both
 \Xyce{} and SPICE apply automatically as part of their DC operating
@@ -239,7 +243,7 @@ R2 2 0 100
 \end{vquote}
 \end{minipage}
 }
-\caption[Example natural parameter continuation netlist]{Example natural parameter continuation netlist implementing source stepping over all DC vsources. This particular example of source stepping shows a circuit that does not require continuation to run.\label{Continuation_Netlist_sourceStepping2}}
+\caption[Example natural parameter continuation netlist]{Example natural parameter continuation netlist implementing source stepping over all voltage sources. This particular example of source stepping shows a circuit that does not require continuation to run.\label{Continuation_Netlist_sourceStepping2}}
 \end{centering}
 \end{figure}
 
@@ -320,8 +324,9 @@ This netlist reproduces MOSFET continuation with a manual specification. \label{
 
 GMIN stepping is a type of continuation commonly available in circuit simulators.
 Like SPICE, \Xyce{} automatically attempts GMIN stepping if the initial
-operating point fails, and if the attempt at GMIN stepping fails, it will subsequently attempt source stepping~\ref{continuation_source}.  As such, it is not typically necessary to manually 
-specify GMIN stepping in a \Xyce{} netlist.
+operating point fails, and if the attempt at GMIN stepping fails, it will subsequently 
+attempt source stepping~\ref{continuation_source}.  As such, it is not typically necessary 
+to manually specify GMIN stepping in a \Xyce{} netlist.
 
 However, GMIN stepping may be manually specified by setting
 \texttt{continuation=3} or more conveniently, \texttt{continuation=gmin}. If it 
@@ -387,17 +392,34 @@ Source stepping is a type of continuation commonly available in circuit simulato
 Like SPICE, \Xyce{} automatically attempts source stepping if the initial
 operating point fails, and if the subsequent attempt at GMIN stepping~\ref{continuation_gmin} 
 also fails.  As such, it is not typically necessary to manually 
-specify source stepping in a \Xyce{} netlist.
+specify source stepping in a \Xyce{} netlist.  
 
-However, source stepping may be manually specified by setting
-\texttt{continuation=34} or more conveniently, \texttt{continuation=sourcestep}. If it 
-is manually specified,\Xyce{} will \emph{not} attempt to find a DC operating 
+\Xyce{} provides two different source stepping approaches:  simultaneous and sequential.  
+Simultaneous source stepping includes all the sources at the same time during the 
+continuation and is used by default in the DC operating point strategy.  
+Sequential source stepping performs continuation on one source at a time until all sources 
+achieve their DC value.  Sequential source stepping can provide a robust alternative
+when circuits fail to converge to a DC operating point with simultaneous source stepping.
+
+Source stepping may be manually specified by setting
+\texttt{continuation=34} or \texttt{continuation=35} for simultaneous or sequential source
+stepping, respectively.  Alternatively, it may also be specified by setting \texttt{continuation=sourcestep}
+or \texttt{continuation=sourcestep2} for simultaneous or sequential source stepping, respectively. 
+If it is manually specified,\Xyce{} will \emph{not} attempt to find a DC operating 
 point using any other method; it will attempt source stepping, and if that fails 
 it will exit with error, not attempting any other method. 
-Figure~\ref{sourceStep_netlist} provides a netlist example of source stepping.
+Figure~\ref{sourceStep_netlist} provides a netlist example of simultaneous source stepping.
 
-Note that a less convenient method to accomplish source stepping is described in 
+Note that a less convenient method to accomplish simultaneous source stepping is described in 
 section~\ref{continuation_scaling}.
+
+Note also that any, or all of the DC, AC and transient values can be specified in voltage
+and current sources. Simultaneous and sequential source stepping apply to all sources. 
+The DC and transient values are related to the DC operating point calculation. The value 
+that is scaled during source stepping depends on analysis type. For example, for transient 
+analysis, the initial value of the transient specification is always used in DC operating
+point calculation and source stepping. For AC analysis, the DC value is used during source 
+stepping. If a source only has transient specification, the initial transient value is used.
 
 \begin{figure}[htbp]
 \begin{centering}
@@ -494,7 +516,7 @@ Pseudo transient continuation is very similar to GMIN stepping, in
 that both algorithms involve placing large artificial terms on the
 Jacobian matrix diagonal, and progressively making these terms smaller
 until the original circuit problem is recovered.  One difference is,
-rather than doing a series on Newton solves, pseudo transient does a
+rather than doing a series of Newton solves, pseudo transient does a
 single nonlinear solve while progressively modifying the pseudo
 transient parameter. Figure~\ref{pseudo_netlist_frag} provides an
 example of pseudo transient continuation options.
@@ -609,7 +631,7 @@ the same as the ones described in the natural parameter
 section~\ref{locaParameterExplanation}.  However, two of them must be specified to non-default
 values to enable an arclength calculation.   Specifically, the \texttt{stepper} 
 parameter must be set to \texttt{1} or \texttt{ARC}, and the \texttt{predictor} 
-parameter must be set to \texttt{2} or \texttt{SECANT}. 
+parameter must be set to \texttt{1} or \texttt{SECANT}.
 
 %%% Local Variables:
 %%% mode: latex

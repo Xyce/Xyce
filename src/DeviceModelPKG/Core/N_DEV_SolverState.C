@@ -421,9 +421,9 @@ bool setupSolverInfo(
     && !solver_state.firstSolveComplete
     && resetFlag;
 
-  if (solver_state.dcopFlag)
+  if (solver_state.ltraDevices_)
   {
-    if (solver_state.ltraDevices_)
+    if (solver_state.dcopFlag || (solver_state.ltraTimeHistorySize_==0))
     {
       solver_state.ltraTimeIndex_ = 0;
       solver_state.ltraTimeHistorySize_ = 10;

@@ -332,7 +332,19 @@ bool DeviceBlock::extractData( std::string const& fileName,
     // the parameter values can be set.
     if (isSubcircuit)
     {
-      setSubcircuitInstanceParameterValues();
+      // To fix issue 609 ("Global parameters that are applied to subcircuit 
+      // instance parameters don't work in parallel")
+      // this function call cannot happen here. It must happen later.
+      //
+      // This function (DeviceBlock::extractData) is called before parallel communication 
+      // in the case of subcircuits.  In the case of other device lines, it is called 
+      // after parallel communication.  If it had been called after parallel communication 
+      // for subcircuits, then this function call could have remained in place.
+      //
+      // But, subcircuits are a special case, and much of their information is needed 
+      // in the first pass.  So, extractData is called before for subcircuits.
+      //
+      //setSubcircuitInstanceParameterValues();
     }
     else
     {
@@ -2267,9 +2279,25 @@ void DeviceBlock::issueUnrecognizedParameterError(
 //-----------------------------------------------------------------------------
 void DeviceBlock::parameterErrorOutput(Device::Param & parameter)
 {
+  return paramErrorOutput(
+      parameter, 
+      getInstanceName().getEncodedName(),
+      getNetlistFilename(),
+      getLineNumber()
+      );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void paramErrorOutput(Device::Param & parameter, const std::string & deviceName,
+    const std::string & netlistFilename,
+     int lineNumber)
+{
   std::ostringstream msg;
   msg << "Parameter " << parameter.uTag() << " for device "
-      << getInstanceName().getEncodedName() << " contains unrecognized symbol";
+      //<< getInstanceName().getEncodedName() 
+      << deviceName
+      << " contains unrecognized symbol";
 
   if (parameter.getType() == Xyce::Util::EXPR)
   {
@@ -2288,8 +2316,7 @@ void DeviceBlock::parameterErrorOutput(Device::Param & parameter)
 
     if (strings.size() + funcs.size() > 0)
     {
-      Report::UserError().at(getNetlistFilename(), getLineNumber())
-        << msg.str();
+      Report::UserError().at(netlistFilename, lineNumber) << msg.str();
     }
   }
 }
@@ -2434,6 +2461,45 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
     std::vector<Xyce::Device::Param> & subckt_x_params
     )
 {
+  return resolveSubcircuitInstParamStrings(
+      parameter, subckt_x_params,
+      getInstanceName().getEncodedName(),
+      getNetlistFilename(),
+      getLineNumber()
+      );
+}
+
+//----------------------------------------------------------------------------
+// Function       : resolveSubcircuitInstParamStrings
+// Purpose        : stand-alone (outside of device block class) version of the
+//                  DeviceBlock::resolveSubcircuitInstanceParamStrings.
+//
+// Special Notes  : This stand-alone version was necessary for resolution of 
+//                  issue 609, which was entitled "Global parameters that are
+//                  applied to subcircuit instance parameters don't work in 
+//                  parallel"
+//
+//                  The cause of issue 609 wasa that subcircuit parameters 
+//                  were being resolved too early, before parallel communication.
+//                  This was fine if they were simple, but if they had an external 
+//                  AST attachments, this information was lost during parallel 
+//                  communication.
+//
+//                  The fix for this issue was to perform this parameter reseolution 
+//                  after parallel communication, rather than before.
+//
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 8/10/2023
+//----------------------------------------------------------------------------
+bool resolveSubcircuitInstParamStrings(
+  Xyce::Device::Param & parameter,
+    std::vector<Xyce::Device::Param> & subckt_x_params,
+  const std::string & deviceName,
+  const std::string & netlistFilename,
+  int lineNumber
+    )
+{
   bool success = true;
   if (parameter.getType() == Xyce::Util::EXPR)
   {
@@ -2445,9 +2511,9 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
       {
         if (strings[jj] == parameter.tag() ) 
         {
-          Report::UserError().at(getNetlistFilename(), getLineNumber())
+          Report::UserError().at(netlistFilename, lineNumber)
             << "Parameter " << parameter.tag() << " for subcircuit " 
-            << getInstanceName() << " refers to itself and cannot be resolved" ;
+            << deviceName << " refers to itself and cannot be resolved" ;
           return false;
           //continue; // can't refer to itself
         }
@@ -2464,7 +2530,7 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
             if (!expression.make_constant(strings[jj], paramIter->getImmutableValue<double>(),paramType))
             {
               Report::UserWarning0() << "Problem converting subcircuit " 
-                << getInstanceName() << " instance parameter " << parameter.tag() << " to its value.";
+                << deviceName << " instance parameter " << parameter.tag() << " to its value.";
             }
           }
           else if (paramIter->getType() == Xyce::Util::CMPLX)
@@ -2473,7 +2539,7 @@ bool DeviceBlock::resolveSubcircuitInstanceParamStrings(
             if (!expression.make_constant(strings[jj], paramIter->getImmutableValue< std::complex<double> >(),paramType))
             {
               Report::UserWarning0() << "Problem converting subcircuit " 
-                << getInstanceName() << " instance parameter " << parameter.tag() << " to its value.";
+                << deviceName << " instance parameter " << parameter.tag() << " to its value.";
             }
           }
           else if (paramIter->getType() == Xyce::Util::EXPR)
@@ -2575,8 +2641,25 @@ void debugSubcircuitParamOutput(Xyce::Device::Param & parameter)
 //-----------------------------------------------------------------------------
 bool DeviceBlock::setSubcircuitInstanceParameterValues()
 {
-  std::vector<Xyce::Device::Param> & subckt_x_params = deviceData_.getDevBlock().params;
+  return setSubcircuitInstanceParameterVals( 
+      deviceData_.getDevBlock().params, 
+      circuitContext_,
+ getInstanceName().getEncodedName(),
+ getNetlistFilename(),
+ getLineNumber()
+      );
+}
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool setSubcircuitInstanceParameterVals(
+  std::vector<Xyce::Device::Param> & subckt_x_params,
+  CircuitContext & circuitContext_,
+  const std::string & deviceName,
+  const std::string & netlistFilename,
+  int lineNumber
+      )
+{
   std::vector<int> resolved(subckt_x_params.size(),0);
 
   for (int ii=0; ii<subckt_x_params.size(); ii++)
@@ -2621,7 +2704,7 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
     if(!resolved[ii])
     {
       Xyce::Device::Param parameter = subckt_x_params[ii]; // copy
-      if (resolveSubcircuitInstanceParamStrings(parameter, subckt_x_params))
+      if (resolveSubcircuitInstParamStrings( parameter, subckt_x_params, deviceName, netlistFilename, lineNumber))
       {
         resolved[ii] = 1;
         subckt_x_params[ii] = parameter; 
@@ -2636,7 +2719,12 @@ bool DeviceBlock::setSubcircuitInstanceParameterValues()
   {
     if (!(resolved[ii]))
     {
-      parameterErrorOutput(subckt_x_params[ii]);
+      paramErrorOutput(
+          subckt_x_params[ii],
+          deviceName,
+          netlistFilename,
+          lineNumber
+          );
     }
   }
 

@@ -2,73 +2,100 @@
 # copyright, readme, license, etc.
 install ( FILES ${Xyce_SOURCE_DIR}/distribution/README.TXT
             DESTINATION doc
-            OPTIONAL )
+            OPTIONAL COMPONENT Documentation )
 
+# install optionally specified libraries (mainly to support Intel MKL issues)
+install ( FILES ${Xyce_INSTALL_EXTRA_LIBS} DESTINATION lib COMPONENT Core )
 
 #Use a build-appropriate license file:
 if ( Xyce_RAD_MODELS )
   set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.ECILicense.txt" )
-else ( Xyce_RAD_MODELS )
+  install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.ECILicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
+else()
   if ( Xyce_NONFREE_MODELS )
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.NonFreeLicense.txt" )
-  else ( Xyce_NONFREE_MODELS )
+    install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.NonFreeLicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
+  else ()
     set ( CPACK_RESOURCE_FILE_LICENSE "${Xyce_SOURCE_DIR}/distribution/CPack.OSLicense.txt" )
-  endif ( Xyce_NONFREE_MODELS )
-endif ( Xyce_RAD_MODELS )
+    install ( FILES "${Xyce_SOURCE_DIR}/distribution/CPack.OSLicense.txt"
+            DESTINATION doc
+            OPTIONAL COMPONENT Documentation )
+  endif ()
+endif ()
 
 set ( CPACK_RESOURCE_FILE_README "${Xyce_SOURCE_DIR}/distribution/CPack.Description.txt" )
 
 # set packaging variables
-set ( Xyce_INSTALL_NAME "Xyce ${Xyce_VERSION_STRING_LONG}" )
-set ( CPACK_PACKAGE_NAME "${Xyce_INSTALL_NAME}" )
+set( Xyce_BaseName "Xyce")
+if (Xyce_RAD_MODELS)
+  set( Xyce_BaseName "${Xyce_BaseName}Rad")
+elseif (Xyce_NONFREE_MODELS)
+  set( Xyce_BaseName "${Xyce_BaseName}")
+else ()
+  set( Xyce_BaseName "${Xyce_BaseName}OpenSource")
+endif ()
+if( Xyce_PARALLEL_MPI )
+  set( Xyce_BaseName "${Xyce_BaseName}OMPI")
+endif ()
+
+
+set ( Xyce_INSTALL_NAME "${Xyce_BaseName}_${Xyce_VERSION_STRING_SHORT}" )
+if( NOT DEFINED CPACK_PACKAGE_NAME)
+  set ( CPACK_PACKAGE_NAME "${Xyce_INSTALL_NAME}" )
+endif()
 set ( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Xyce Parallel Electronic Simulator" )
 set ( CPACK_PACKAGE_VENDOR "Sandia National Laboratories" )
 set ( CPACK_PACKAGE_VERSION_MAJOR "${Xyce_VERSION_MAJOR}" )
 set ( CPACK_PACKAGE_VERSION_MINOR "${Xyce_VERSION_MINOR}" )
 if ( Xyce_VERSION_PATCH)
   set ( CPACK_PACKAGE_VERSION_PATCH "${Xyce_VERSION_PATCH}" )
-else ( Xyce_VERSION_PATCH)
+else()
   set ( CPACK_PACKAGE_VERSION_PATCH "0" )
-endif ( Xyce_VERSION_PATCH)
+endif()
 
+# not all generators support this option.  In fact it may
+# be only the Windows NSIS one that does.  So use with caution
 set ( CPACK_PACKAGE_INSTALL_DIRECTORY "${Xyce_INSTALL_NAME}" )
 
 # generator specific settings
 
 if ( CMAKE_HOST_UNIX )
+  # set default install location on unix to /usr/local
+  set (CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/${Xyce_INSTALL_NAME}")
 
   if ( CMAKE_HOST_APPLE )
-
     # OSX bundle directives
-    set ( CPACK_GENERATOR "PackageMaker" )
-
-  else ( CMAKE_HOST_APPLE )
-
-  # rpm directives if nothing specified
+    if( NOT DEFINED CPACK_GENERATOR)
+      set ( CPACK_GENERATOR "productbuild" )
+    endif()
+  else()
+    # rpm directives if nothing specified
     SET( CPACK_GENERATOR "${GEN_TYPE}" )
-
-  endif ( CMAKE_HOST_APPLE )
+  endif()
 
   set ( CPACK_RPM_PACKAGE_DESCRIPTION "For more information, visit http://xyce.sandia.gov ." )
+  SET (CPACK_PACKAGE_DESCRIPTION_FILE "${Xyce_SOURCE_DIR}/distribution/CPack.Description.txt")
   set ( CPACK_RPM_PACKAGE_LICENSE "GPLv3" )
+  SET( CPACK_RPM_PACKAGE_RELOCATABLE "true")
   SET( CPACK_DEBIAN_FILE_NAME "Xyce-${Xyce_VERSION_STRING_LONG}.deb" )
   SET( CPACK_DEBIAN_PACKAGE_ARCHITECHTURE "i386" )
   SET( CPACK_DEBIAN_PACKAGE_MAINTAINER "Sandia National Laboratories" )
 
   if ( Xyce_VERSION_EXTRA )
-
     set ( CPACK_RPM_PACKAGE_NAME "Xyce-${Xyce_VERSION_EXTRA}" )
     SET( CPACK_DEBIAN_PACKAGE_NAME "Xyce-${Xyce_VERSION_EXTRA}")
     set(CPACK_ARCHIVE_FILE_NAME "Xyce-${Xyce_VERSION_EXTRA}")
-  else ( Xyce_VERSION_EXTRA )
-
+  else()
     set ( CPACK_RPM_PACKAGE_NAME "Xyce" )
     SET( CPACK_DEBIAN_PACKAGE_NAME "Xyce")
     set(CPACK_ARCHIVE_FILE_NAME "Xyce")
-
-  endif ( Xyce_VERSION_EXTRA )
-
-endif ( CMAKE_HOST_UNIX )
+  endif()
+  
+endif()
 
 
 if ( CMAKE_HOST_WIN32 )
@@ -81,6 +108,14 @@ if ( CMAKE_HOST_WIN32 )
   set ( CPACK_NSIS_CONTACT "xyce-support@sandia.gov" )
   set ( CPACK_NSIS_MODIFY_PATH OFF )
 
+  #
+  # All of the following extra install() calls
+  # are probably not needed with the use of 
+  # install(TARGETS Xyce ... RUNTIME_DEPENDENCIES ) in Xyce/src/CMakeLists.txt
+  # However removal of these lines will need to be tested under Windows first
+  # All lines from here to just before the "registry settings" line
+  #
+  
   # there is probably a better way to do this with
   # file(GET_RUNTIME_DEPENDENCIES...)
   # but that requires cmake 3.17.3 or higher.  For now
@@ -131,4 +166,4 @@ if ( CMAKE_HOST_WIN32 )
           Delete \\\"$DESKTOP\\\\Xyce ${Xyce_VERSION_STRING_LONG} Command Prompt.lnk\\\" "
 )
 
-endif ( CMAKE_HOST_WIN32 )
+endif()

@@ -262,6 +262,7 @@ Instance::Instance(
     gotParams(false),
     ACMAG(1.0),
     ACPHASE(0.0),
+    firstTimeload(true),
     freqVarsLoaded(false)
 {
   numIntVars = 0;
@@ -777,7 +778,22 @@ bool Instance::loadDAEBVector ()
 
   // get the source value:
   SourceData *dataPtr = dcSourceData_; // by default assume the DC value.
-  if ((HBSpecified_ || getSolverState().tranopFlag || getSolverState().transientFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && tranSourceData_ != 0 )
+  if ( (getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && tranSourceData_ != 0)
+  {
+
+    if (firstTimeload)
+    {
+      double  val = tranSourceData_->returnSource();
+
+      setParam("DCV0", val,  true);
+
+      dcSourceData_->setParams (&DCV0);
+
+      firstTimeload = false;
+    }
+  }
+
+  if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && tranSourceData_ != 0 )
   {
     dataPtr = tranSourceData_;
   }
@@ -971,7 +987,27 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     Instance & inst = *(*it);
 
     SourceData *dataPtr = inst.dcSourceData_; // by default assume the DC value.
-    if ((HBSpecified_ || getSolverState().tranopFlag || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
+
+
+    if ( (getSolverState().tranopFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && getSolverState().locaEnabledFlag && inst.tranSourceData_ != 0)
+    {
+
+      if (inst.firstTimeload)
+      {
+        double  val = inst.tranSourceData_->returnSource();
+
+        inst.setParam("DCV0", val,  true);
+
+        inst.dcSourceData_->setParams (&inst.DCV0);
+
+        inst.firstTimeload = false;
+      }
+    }
+
+    if ((HBSpecified_ || (( getSolverState().tranopFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) )   && !getSolverState().locaEnabledFlag ) || getSolverState().transientFlag ) && inst.tranSourceData_ != 0 )
+
+
+//    if ((HBSpecified_ || (getSolverState().tranopFlag && (!getSolverState().locaEnabledFlag ||  !inst.DCSOURCETYPEgiven ) ) || getSolverState().transientFlag || (ACSpecified_ && !inst.DCSOURCETYPEgiven ) ) && inst.tranSourceData_ != 0 )
     {
       dataPtr = inst.tranSourceData_;
     }
@@ -1012,7 +1048,8 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 
 Device *Traits::factory(const Configuration &configuration, const FactoryBlock &factory_block)
 {
-  return new DeviceMaster<Traits>(configuration, factory_block, factory_block.solverState_, factory_block.deviceOptions_);
+
+  return new Master(configuration, factory_block, factory_block.solverState_, factory_block.deviceOptions_);
 }
 
 void

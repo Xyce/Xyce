@@ -681,12 +681,6 @@ void SerialLSUtil::generateRowColData()
 
   numGlobalNZs_ = 0;
 
-#ifdef Xyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT
-    //add in diagonal for homotopy support
-    for( int i = 0; i < numGlobalRows_; ++i )
-      rowList_ColList_[i].push_back( rowList_GID_[i] );
-#endif
-
   //--- sort list of col indices and get rid of redundancies
   //    generate num of NZs data
   for( int i = 0; i < numRows; ++i )
@@ -800,7 +794,11 @@ void SerialLSUtil::extractAllGIDsFromTopology()
 
   } 
 
-  // Make sure the nonlinGIDVector_ has unique entries.
+  // Make sure the vsrcGIDVector_ and nonlinGIDVector_ have unique entries.
+  // First sort, then erase duplicates.
+  std::sort( vsrcGIDVector_.begin(), vsrcGIDVector_.end() );
+  vsrcGIDVector_.erase(std::unique(vsrcGIDVector_.begin(), vsrcGIDVector_.end()), vsrcGIDVector_.end());
+
   // First sort, then erase duplicates, then remove ground node GID.
   std::sort( nonlinGIDVector_.begin(), nonlinGIDVector_.end() );
   nonlinGIDVector_.erase(std::unique(nonlinGIDVector_.begin(), nonlinGIDVector_.end() ), nonlinGIDVector_.end() ); 
@@ -809,7 +807,6 @@ void SerialLSUtil::extractAllGIDsFromTopology()
     if ( nonlinGIDVector_.front() == -1 )
       nonlinGIDVector_.erase( nonlinGIDVector_.begin() );
   }
-
 }
 
 } // namespace Topo

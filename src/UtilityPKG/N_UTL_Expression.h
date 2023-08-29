@@ -128,12 +128,13 @@ public:
   const std::vector<std::string> & getLeadCurrents        () const;
   const std::vector<std::string> & getLeadCurrentsExcludeBsrc () const;
 
-  bool getVariableDependent() ;
-  bool getVoltageNodeDependent() ;
-  bool getDeviceCurrentDependent() ;
-  bool getLeadCurrentDependent() ;
-  bool getLeadCurrentDependentExcludeBsrc() ;
-  bool getSpecialsDependent() ;
+  bool getVariableDependent() const;
+  void setVariableDependent(bool val);
+  bool getVoltageNodeDependent() const;
+  bool getDeviceCurrentDependent() const;
+  bool getLeadCurrentDependent() const;
+  bool getLeadCurrentDependentExcludeBsrc() const;
+  bool getSpecialsDependent() const;
 
   bool getScheduleDependent() const;
 

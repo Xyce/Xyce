@@ -1286,6 +1286,38 @@ std::ostream &operator<<(std::ostream & os, const Param & p)
 
 } // namespace Util
 
+//-----------------------------------------------------------------------------
+// Function      : debugPackExprParam
+// Purpose       : debug output function (created while fixing issue 609)
+// Special Notes :
+// Scope         : stand-alone, public in this file
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/12/2023
+//-----------------------------------------------------------------------------
+void debugPackExprParam(
+    const Util::Param & param,
+    std::string funcName)
+{
+  const bool isVoltDep = param.getValue<Util::Expression>().getVoltageNodeDependent();
+  const bool isDevCurDep = param.getValue<Util::Expression>().getDeviceCurrentDependent();
+  const bool isVarDep = param.getValue<Util::Expression>().getVariableDependent();
+  const bool isLeadCurDep= param.getValue<Util::Expression>().getLeadCurrentDependent();
+  const bool isSpecialsDep = param.getValue<Util::Expression>().getSpecialsDependent();
+  const bool isRandom = param.getValue<Util::Expression>().isRandomDependent();
+  const bool isOriginalRandom = param.getValue<Util::Expression>().isOriginalRandomDependent();
+
+  Xyce::dout() << funcName 
+        << " param " << param.tag() 
+        << " expression = " << param.getValue<Util::Expression>().get_expression()
+        << " isVoltDep = " << ((isVoltDep)?(std::string("true")):(std::string("false")))
+        << " isDevCurDep = " << ((isDevCurDep)?(std::string("true")):(std::string("false")))
+        << " isLeadCurDep = " << ((isLeadCurDep)?(std::string("true")):(std::string("false")))
+        << " isVarDep = " << ((isVarDep)?(std::string("true")):(std::string("false")))
+        << " isSpecialsDep = " << ((isSpecialsDep)?(std::string("true")):(std::string("false")))
+        << " isRandom= " << ((isRandom)?(std::string("true")):(std::string("false")))
+        << " isOriginalRandom= " << ((isOriginalRandom)?(std::string("true")):(std::string("false")))
+           << std::endl;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Param::unpack
@@ -1321,10 +1353,12 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
       break;
 
     case Util::STR:
+    {
       comm->unpack( pB, bsize, pos, &length, 1 );
       param.setVal(std::string( (pB+pos), length ));
       pos += length;
-      break;
+    }
+    break;
 
     case Util::DBLE: 
     {
@@ -1371,6 +1405,7 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
     break;
 
     case Util::EXPR:
+    {
       comm->unpack( pB, bsize, pos, &length, 1 );
       // ERK.  This expression is allocated with the base group, which is easy 
       // to create, but doesn't do anything.  But, this doesn't matter.  .param 
@@ -1379,11 +1414,13 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, P
       // attached to are the ones that need a meaningful group class.
       param.setVal(Util::Expression(Teuchos::rcp(new Xyce::Util::baseExpressionGroup()), std::string( (pB+pos), length )));
       pos += length;
+
+      //debugPackExprParam(param, std::string("Pack<Util::Param>::unpack"));
+    }
       break;
 
     case Util::STR_VEC:
     {
-
       comm->unpack( pB, bsize, pos, &vector_size, 1 );
       param.setVal(std::vector<std::string>());
       std::vector<std::string> &x = param.getValue<std::vector<std::string> >();
@@ -1476,9 +1513,11 @@ Pack<Util::Param>::packedByteCount(const Util::Param &param)
       byteCount += param.getValue<Util::Expression>().get_expression().length() + sizeof(int);
       break;
     case Util::STR_VEC:
+      {
       byteCount += sizeof(int);
       for (size_t i = 0; i < param.getValue<std::vector<std::string> >().size(); i++) {
         byteCount += param.getValue<std::vector<std::string> >()[i].length() + sizeof(int);
+      }
       }
       break;
     case Util::DBLE_VEC:
@@ -1527,9 +1566,11 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
       break;
 
     case Util::STR:
+      {
       length = param.getValue<std::string>().length();
       comm->pack( &length, 1, buf, bsize, pos );
       comm->pack( param.getValue<std::string>().c_str(), length, buf, bsize, pos );
+      }
       break;
 
     case Util::DBLE:
@@ -1552,10 +1593,8 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
     case Util::BOOL:
     {
       int i;
-      if (param.getValue<bool>())
-        i = 1;
-      else
-        i = 0;
+      if (param.getValue<bool>()) { i = 1; }
+      else { i = 0; }
       comm->pack( &i, 1, buf, bsize, pos );
     }
       break;
@@ -1565,10 +1604,14 @@ Pack<Util::Param>::pack(const Util::Param &param, char * buf, int bsize, int & p
       break;
 
     case Util::EXPR:
+      {
       tmp = param.getValue<Util::Expression>().get_expression();
       length = tmp.length();
       comm->pack( &length, 1, buf, bsize, pos );
       comm->pack( tmp.c_str(), length, buf, bsize, pos );
+
+      //debugPackExprParam(param, std::string("Pack<Util::Param>::pack"));
+      }
       break;
 
     case Util::STR_VEC:

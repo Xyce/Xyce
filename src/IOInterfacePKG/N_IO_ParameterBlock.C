@@ -297,7 +297,9 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
             parameter.set(component, 0.0);
             tmpParamVec.push_back(parameter);
             if (DEBUG_IO)
-              Xyce::dout() << "parameter = " << parameter << std::endl;
+            {
+              Xyce::dout() << "ParameterBlock::extractModelData.  parameter = " << parameter << std::endl;
+            }
 
             linePosition += 2;
             
@@ -316,7 +318,9 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
             numBlocks = blockIndex;
           } // end of while loop.
           if (DEBUG_IO)
-            Xyce::dout() << "numBlocks = " << numBlocks << std::endl;
+          {
+            Xyce::dout() << "ParameterBlock::extractModelData.  numBlocks = " << numBlocks << std::endl;
+          }
 
           inputCompositeParamVecMap[paramBase].resize(numBlocks);
           int iblock=0;
@@ -325,7 +329,7 @@ bool ParameterBlock::extractModelData(TokenVector const& parsedInputLine)
             inputCompositeParamVecMap[paramBase][iblock] = tmpParamVec;
             if (DEBUG_IO)
             {
-              Xyce::dout() << "paramBase = " << paramBase;
+              Xyce::dout() << "ParameterBlock::extractModelData.  paramBase = " << paramBase;
               Xyce::dout() << "  iblock = " << iblock << std::endl;
               for (size_t ieric=0;ieric<tmpParamVec.size();++ieric)
               {
@@ -593,12 +597,12 @@ void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
   // Process the metadata.
   if (DEBUG_IO)
   {
-    Xyce::dout() << "BEFORE adding final params:"<<std::endl;
+    Xyce::dout() << "ParameterBlock::addDefaultModelParameters. BEFORE adding final params:"<<std::endl;
     for (const auto &modelDataParam : modelData.params)
     {
       Xyce::dout() << modelDataParam;
     }
-    Xyce::dout() << "End of BEFORE parameter List"<<std::endl;
+    Xyce::dout() << "ParameterBlock::addDefaultModelParameters. End of BEFORE parameter List"<<std::endl;
   }
 
   for (const auto &param : modelParameterPtr)
@@ -701,12 +705,12 @@ void ParameterBlock::addDefaultModelParameters(CircuitMetadata & metadata )
 
   if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
   {
-    Xyce::dout() << "AFTER adding final default params:"<<std::endl;
+    Xyce::dout() << "ParameterBlock::addDefaultModelParameters. AFTER adding final default params:"<<std::endl;
     for (const auto &modelDataParam : modelData.params)
     {
       Xyce::dout() << modelDataParam;
     }
-    Xyce::dout() << "End of AFTER parameter List"<<std::endl;
+    Xyce::dout() << "ParameterBlock::addDefaultModelParameters. End of AFTER parameter List"<<std::endl;
   }
 
   defaultApplied_ = true;
@@ -885,7 +889,8 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
   for ( i = 0; i < numParameters; ++i )
   {
     parameterPtr = findParameter(expressionValuedParams_[i]);
-    if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
+    //if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
+    if (DEBUG_IO)
     {
       Xyce::dout() << " setParameterValues, processing expressionValuedParams[" << i << "]" << std::endl;
       if (parameterPtr == NULL)
@@ -939,7 +944,8 @@ void ParameterBlock::setParameterValues(CircuitContext* contextPtr)
 
       }
     }
-    if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
+    //if (DEBUG_IO && isActive(Diag::IO_DEVICE_PARAMETERS))
+    if (DEBUG_IO)
     {
       Xyce::dout() << " after resolution, "  << std::endl;
       Xyce::dout() << "   Tag is " << parameterPtr->uTag() << std::endl;

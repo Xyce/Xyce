@@ -424,6 +424,67 @@ DistToolBase::setCircuitOptions()
   }
 }
 
+//--------------------------------------------------------------------------
+// Function      : DistToolBase::processSubcircuitGlobals
+//
+// Purpose       : 
+//
+// Special Notes : Subcircuit globals are an unusual special case.  
+//                 Normally globals (variable) params can only come from 
+//                 top-level netlists, not subcircuits.  Those
+//                 orthodox globals are handled in netlist pass 1.
+//
+//                 The special case where they can exist is for local
+//                 variation in UQ. (like sampling analysis).  When local 
+//                 variation is enabled, it is possible for .params that 
+//                 are local to a subcircuit to be transformed into a global.
+//                 As subcircuits are handled in pass 2, this is a pass 2
+//                 operation.
+//
+//                 Note, for pass-1 globals, they are saved and then broadcast 
+//                 to all processors near the end of that pass, and then 
+//                 sent to the device package..  However, for pass-2, that 
+//                 pattern doesn't (currently) work.  Models are allocated 
+//                 on the fly in pass-2, and resolved immediately, meaning 
+//                 that all the globals need to be available right away.
+//                 So, that is why there is a registration call at the end 
+//                 of this function.
+//
+//                 They are (for now) only needed locally on processor.  
+//                 They are broadcast later in the device package, to 
+//                 enable UQ, which needs them on every proc.
+//
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/14/2023
+//--------------------------------------------------------------------------
+void DistToolBase::processSubcircuitGlobals (CircuitContext & circContext)
+{
+  // At this stage, the parameters of the current context are resolved.
+  // If there are any in the "resolveGlobalParams" container, they should be copied/moved 
+  // over to a master "globals" container at this point, and renamed/aliased to use the prefix.
+  Util::UParamList::const_iterator paramIter    = circContext.getContextGlobals().begin(); 
+  Util::UParamList::const_iterator paramIterEnd = circContext.getContextGlobals().end();
+  const unordered_map<std::string, std::string> * globalParamAliasMap = circContext.getGlobalParamAliasMapPtr ();
+
+  for(;paramIter!=paramIterEnd;++paramIter)
+  {
+    Util::Param parameter = *paramIter;
+    std::string tag = parameter.uTag();
+    Xyce::Util::toUpper(tag);
+    // if it is in the alias map, then it is not fully resolved and we don't want it
+    // we only want fully resolved global params (i.e. including the subcircuit prefix)
+    if ( globalParamAliasMap->find(tag) == globalParamAliasMap->end() )  
+    {
+      if (DEBUG_IO) 
+      { Xyce::dout() << "DistToolDefault::processSubcircuitGlobals.  Adding subcircuit global param: " << tag << std::endl; }
+      addResolvedGlobalParams_.insert(parameter);
+    }
+  } 
+
+  circuitBlock_.registerSubcktGlobalParams(addResolvedGlobalParams_);
+  addResolvedGlobalParams_.clear();
+}
+
 //----------------------------------------------------------------------------
 // Function       : DistToolBase::getLine
 // Purpose        :
@@ -474,16 +535,12 @@ bool DistToolBase::getLine( TokenVector &line,
 
     if (DEBUG_IO) 
     {
-      Xyce::dout() << "Pass 2 read netlist line:  "<< std::endl;
-      for (unsigned int i = 0; i < line.size(); ++i)
-      {
-        Xyce::dout() << line[i].string_ << " ";
-      }
-      Xyce::dout() << std::endl;
+      Xyce::dout() << "DistToolBase::getLine. Pass 2 read netlist line:  ";
+      for (unsigned int ii = 0; ii < line.size(); ++ii) { Xyce::dout() << line[ii].string_ << " "; } Xyce::dout() << std::endl;
 
       if (eof)
       {
-        Xyce::dout() << "We are at the end of file, size of line is " << line.size()
+        Xyce::dout() << "DistToolBase::getLine. We are at the end of file, size of line is " << line.size()
                      << std::endl;
       }
     }
@@ -581,7 +638,7 @@ bool DistToolBase::getLine( TokenVector &line,
 
           if (DEBUG_IO)
           {
-            Xyce::dout() << "Netlist Parse 2:  ";
+            Xyce::dout() << "DistToolBase::getLine. Netlist Parse 2:  ";
             Xyce::dout() << "removing component " << ES1 << ".  All nodes on the device";
             Xyce::dout() << " are the same."  << std::endl;
           }
@@ -613,7 +670,9 @@ bool DistToolBase::getLine( TokenVector &line,
           {
             int result = this->parseIncludeFile(includeFile, libSelect_new);
             if (!result)
+            {
               return result;
+            }
           }
           else if (libInside_new != "")
           {
@@ -905,7 +964,7 @@ bool DistToolBase::instantiateDevice(
             if (names[i] != newName)
             {
               if (DEBUG_IO)
-                Xyce::dout() << "Replacing " << names[i] << " with " << newName << std::endl;
+                Xyce::dout() << "DistToolBase::instantiateDevice. Replacing " << names[i] << " with " << newName << std::endl;
 
               actualName.push_back(newName);
               tmpName = ";" + newName;
@@ -921,7 +980,7 @@ bool DistToolBase::instantiateDevice(
           for (i=0 ; i<actualName.size() ; ++i)
           {
             if (DEBUG_IO)
-              Xyce::dout() << "Replacing ;"<<actualName[i]<<" with " << actualName[i] << std::endl;
+              Xyce::dout() << "DistToolBase::instantiateDevice. Replacing ;"<<actualName[i]<<" with " << actualName[i] << std::endl;
 
             newName = actualName[i];
             tmpName = ";" + newName;

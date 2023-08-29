@@ -1591,6 +1591,170 @@ bool DeviceMgr::deleteDeviceInstance(const std::string & name)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getSourceDeviceNamesDCVal
+// Purpose       : Return the fully expanded names for the source devices in
+//                 independentSourceMap_ and the DC value.  These will be used 
+//                 to perform source stepping for the DCOP calculation.
+// Special Notes : This list is distributed in parallel and needs to be broadcast
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 5/2/23
+//-----------------------------------------------------------------------------
+std::map<std::string, std::pair<double,int> > DeviceMgr::getSourceDeviceNamesDCVal(Parallel::Machine comm) const
+{
+  std::map<std::string, std::pair<double,int> > globalSources, localSources;
+  std::map<std::string, std::vector<NodeID> > localSourceAdj;
+  IndependentSourceMap::const_iterator it = independentSourceMap_.begin();
+  IndependentSourceMap::const_iterator it_end = independentSourceMap_.end();
+  for ( ; it != it_end; ++it )
+  {
+    // Determine how many devices are adjacent to this one.
+    NodeID sourceNode( it->first, _DNODE );
+    std::vector<NodeID> adjNodes;
+    topology_.returnAdjIDs( sourceNode, adjNodes );
+    localSourceAdj[ it->first ] = adjNodes;
+    int numAdjDevices = 0;
+    for (std::vector<NodeID>::iterator adj_it = adjNodes.begin(); adj_it!= adjNodes.end(); ++adj_it)
+    {
+      std::vector<NodeID> adjDevs;
+      topology_.returnAdjIDs( *adj_it, adjDevs);
+      numAdjDevices += adjDevs.size();
+    }
+    it->second->updateDependentParameters();
+    it->second->processParams();
+    it->second->updateSource();
+    localSources[ it->first ] = std::make_pair( it->second->getDefaultParam(), numAdjDevices );
+  }
+
+  // Collect the global list of source devices and their number of device adjacencies
+  if (Parallel::is_parallel_run(comm))
+  {
+    // Communicate adjacent nodes to local sources to get correct device adjacency counts 
+    // from off-processor owned devices
+    std::map<std::string, std::vector<NodeID> >::iterator map_adj_it = localSourceAdj.begin();
+    std::map<std::string, std::vector<NodeID> >::iterator map_adj_end = localSourceAdj.end(); 
+
+    // Count the number of adjacent nodes
+    int numSourceAdj = 0;
+    while ( map_adj_it != map_adj_end )
+    {
+      numSourceAdj += (map_adj_it->second).size();
+      map_adj_it++;
+    }
+    std::vector<int> procAdj( Parallel::size(comm) );
+    procAdj[Parallel::rank(comm)] = numSourceAdj;  
+    Parallel::AllReduce(comm, MPI_SUM, &procAdj[0], Parallel::size(comm));
+
+    // Reset iterators
+    map_adj_it = localSourceAdj.begin();
+    map_adj_end = localSourceAdj.end();
+    std::vector<NodeID>::iterator adjNode_it, adjNode_end;
+
+    // Loop overall processors
+    for (int proc=0; proc < Parallel::size(comm); ++proc)
+    {
+      if (procAdj[proc])
+      {
+        if (proc == Parallel::rank(comm))
+        {
+          adjNode_it = (map_adj_it->second).begin();
+          adjNode_end = (map_adj_it->second).end();
+        }
+ 
+        int pNumAdj = 0;
+ 
+        // For any processor that has a source, broadcast adjacent node
+        while (pNumAdj<procAdj[proc])
+        {
+          std::string adjName;
+
+          if (proc == Parallel::rank(comm))
+            adjName = adjNode_it->first;
+
+          // Broadcast the adjacency name 
+          Parallel::Broadcast( comm, adjName, proc );
+
+          int numAdj = 0;
+
+          // Compute the global number of adjacent nodes
+          // NOTE:  There may be redundancies for nodes that are attached to more than one source device
+          if (proc != Parallel::rank(comm))
+          {
+            NodeID adjNode( adjName, _VNODE );
+            std::vector<NodeID> tmpNodes;
+            topology_.returnAdjIDs( adjNode, tmpNodes );
+            numAdj = tmpNodes.size();
+          }
+          Parallel::AllReduce(comm, MPI_SUM, &numAdj, 1);
+      
+          if (proc == Parallel::rank(comm))
+          {
+            // Update adjacencies for localSources 
+            localSources[ map_adj_it->first ].second += numAdj;
+
+            // Update pointers
+            adjNode_it++;
+
+            // If we are at the end of this vector of adjacent nodes, increment outer iterator
+            if (adjNode_it == adjNode_end)        
+            {
+              map_adj_it++;
+              if (map_adj_it != map_adj_end)
+              {
+                adjNode_it = (map_adj_it->second).begin();
+                adjNode_end = (map_adj_it->second).end();
+              }
+            }
+          } 
+   
+          pNumAdj++; 
+        }
+      }
+    }
+
+    int numSources = localSources.size();
+    std::vector<int> procSources( Parallel::size(comm) );
+    procSources[Parallel::rank(comm)] = numSources;
+    Parallel::AllReduce(comm, MPI_SUM, &procSources[0], Parallel::size(comm));
+
+    std::map<std::string, std::pair<double,int> >::iterator map_it = localSources.begin();
+    std::map<std::string, std::pair<double,int> >::iterator map_end = localSources.end();
+
+    for (int proc=0; proc < Parallel::size(comm); ++proc)
+    {
+      for (int pNumSources=0; pNumSources<procSources[proc]; ++pNumSources)
+      {
+        int numAdj = 0;
+        double dcVal = 0.0;
+        std::string sourceName;
+        if ((proc == Parallel::rank(comm)) && (map_it != map_end))
+        {
+          // Get the source name and value, then increment the iterator
+          sourceName = map_it->first;
+          dcVal = (map_it->second).first;
+          numAdj = (map_it->second).second;
+          map_it++;
+        }
+        // Broadcast the source name and value
+        Parallel::Broadcast( comm, sourceName, proc ); 
+        Parallel::Broadcast( comm, &dcVal, 1, proc );
+        Parallel::Broadcast( comm, &numAdj, 1, proc );
+
+        // Add it to the global map
+        globalSources[ sourceName ] = std::make_pair( dcVal, numAdj ); 
+      }
+    }
+  }
+  else
+  {
+    return localSources;
+  }
+ 
+  // Return the sources on all processors, if run in parallel
+  return globalSources;  
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::debugOutput1
 // Purpose       :
 // Special Notes :
@@ -2429,7 +2593,7 @@ bool DeviceMgr::parameterExists(
   { \
     std::vector<Xyce::Analysis::SweepParam> tmpParams; expr.FUNC(tmpParams);  \
     if ( !(tmpParams.empty()) )  {\
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
+      if (DEBUG_DEVICE) Xyce::dout() << "Parameter " << paramName << " contains "<< #OP << std::endl;  \
       for(int jj=0;jj<tmpParams.size();jj++) {  \
         tmpParams[jj].globalIndex = INDEX; \
         tmpParams[jj].gpIter = GPITER; \
@@ -2439,7 +2603,7 @@ bool DeviceMgr::parameterExists(
     } \
     else  \
     {  \
-      if (DEBUG_DEVICE) std::cout << "Parameter " << paramName << " does not contain " << #OP << std::endl; \
+      if (DEBUG_DEVICE) Xyce::dout() << "Parameter " << paramName << " does not contain " << #OP << std::endl; \
     }\
   }
 
@@ -2509,8 +2673,8 @@ void printOutGlobalParamsInfoSerial(
   {
   for (int ii=0;ii< expNameVec.size(); ++ii)
   {
-    std::cout << extra << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
-    std::cout << " = " << expressionVec[ii].get_expression() << std::endl;
+    Xyce::dout() << extra << "expNameVec["<<ii<<"] = " << expNameVec[ii] ;
+    Xyce::dout() << " = " << expressionVec[ii].get_expression() << std::endl;
 
     if ( !(deviceEntityDependVec[ii].empty()))
     {
@@ -2527,15 +2691,17 @@ void printOutGlobalParamsInfoSerial(
         DeviceModel * model = dynamic_cast<DeviceModel *>(deviceEntityDependVec[ii][jj].entityPtr);
         entityName = model->getName();
       }
-      std::cout << extra << "  entity["<<jj<<"] = " << entityName;
-      std::cout <<std::endl;
+      Xyce::dout() << extra << "  entity["<<jj<<"] = " << entityName;
+      Xyce::dout() <<std::endl;
       for (int kk=0;kk< deviceEntityDependVec[ii][jj].parameterVec.size(); kk++)
       {
-        std::cout << extra << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
-        std::cout <<std::endl;
+        Xyce::dout() << extra << "    Depend["<<kk<<"].name = " << deviceEntityDependVec[ii][jj].parameterVec[kk].name;
+        Xyce::dout() <<std::endl;
+
+        deviceEntityDependVec[ii][jj].parameterVec[kk].expr->dumpParseTree();
       }
     }
-    std::cout <<std::endl;
+    Xyce::dout() <<std::endl;
     }
   }
   }
@@ -2562,7 +2728,7 @@ void printOutGlobalParamsInfo(
     {
       if (proc == procID)
       {
-        std::cout << extra << "expNameVec for proc = " << procID << std::endl;
+        Xyce::dout() << extra << "expNameVec for proc = " << procID << std::endl;
 
         std::string extra2 = extra + std::string("proc ") + std::to_string(procID) + std::string(" :");
 
@@ -2590,7 +2756,8 @@ void mergeGlobals(
     )
 {
   //if (DEBUG_DEVICE)
-  if (false)
+  if (false) // useful debug
+  //if (true)
   {
     std::vector<Util::Expression> & subcktExpressionVec = subcktGlobals_.expressionVec;
     std::vector<std::string> & subcktExpNameVec = subcktGlobals_.expNameVec;
@@ -3146,6 +3313,7 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
   std::vector< std::vector<entityDepend> > & deviceEntityDependVec = globals_.deviceEntityDependVec;
 
   if (false) // useful debug
+  //if (true) // useful debug
   {
     std::string extra("DeviceMgr::getRandomParams: ");
     printOutGlobalParamsInfo(extra,expressionVec, expNameVec, global_parameter_map, deviceEntityDependVec,parallel_comm);

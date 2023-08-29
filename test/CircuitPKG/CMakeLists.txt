@@ -13,3 +13,7 @@ if(GTest_FOUND)
      # Wrap the GTest tests with CTest
      gtest_discover_tests( XyceSimulatorUnitTests TEST_PREFIX XyceSimulatorUnit:)
 endif()
+
+get_target_property(XyceBuildDir Xyce BINARY_DIR)
+add_test(NAME RunXyce COMMAND Xyce -capabilities WORKING_DIR ${XyceBuildDir} )
+

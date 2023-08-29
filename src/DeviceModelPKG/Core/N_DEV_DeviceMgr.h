@@ -525,6 +525,8 @@ public:
     return devicesNeedingLeadCurrentLoads_;
   }
 
+  std::map<std::string, std::pair<double,int> > getSourceDeviceNamesDCVal(Parallel::Machine comm) const;
+
   bool updateStateArrays();
   bool startTimeStep(
     bool                          beginIntegrationFlag,

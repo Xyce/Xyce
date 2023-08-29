@@ -1527,14 +1527,6 @@ void ParLSUtil::generateRowColData()
 
   numLocalNZs_ = 0;
 
-#ifdef Xyce_NOX_LOCA_ARTIFICIAL_HOMOTOPY_SUPPORT
-    //add in diagonal for homotopy support
-    for( int i = 0; i < numLocalRows_; ++i )
-      rowList_ColList_[i].push_back( rowList_GID_[i] );
-    for( int i = 0; i < numExternRows_; ++i )
-      rowList_ColList_[i+numLocalRows_].push_back( rowList_ExternGID_[i].first );
-#endif
-
   //--- sort list of col indices and get rid of redundancies
   //    generate num of NZs data
   for( int i = 0; i < numRows; ++i )
@@ -1695,7 +1687,11 @@ void ParLSUtil::extractAllGIDsFromTopology()
     }
   } 
 
-  // Make sure the nonlinGIDVector_ has unique entries.
+  // Make sure the vsrcGIDVector_ and nonlinGIDVector_ have unique entries.
+  // First sort, then erase duplicates
+  std::sort( vsrcGIDVector_.begin(), vsrcGIDVector_.end() );
+  vsrcGIDVector_.erase(std::unique(vsrcGIDVector_.begin(), vsrcGIDVector_.end()), vsrcGIDVector_.end());
+          
   // First sort, then erase duplicates, then remove ground node GID.
   std::sort( nonlinGIDVector_.begin(), nonlinGIDVector_.end() );
   nonlinGIDVector_.erase(std::unique(nonlinGIDVector_.begin(), nonlinGIDVector_.end() ), nonlinGIDVector_.end() );

@@ -1,6 +1,13 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
 
+# check for the updated flex/bison installation includ directory and
+# add it to the include list to avoid the system default older
+# version(s)
+find_path(XYCE_FLEX_INCLUDE_PATH NAMES FlexLexer.h
+  HINTS /projects/xyce/flexbison/include
+  HINTS ${FLEX_DIR}/include)
+
 ####
 # Bison and Flex modules don't work in just any directory. Under the covers,
 # they are CMake2 style, where they use include_directories.
@@ -25,7 +32,13 @@ flex_target( XyceExpressionLexer "UtilityPKG/ExpressionSrc/ExpressionLexer.l"
 
 add_flex_bison_dependency( XyceExpressionLexer XyceExpressionParser  )
 
-include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+# on systems using a native flex, or where FLEX_DIR is specified by
+# the developer, the path may not be set so handle that here.
+if(XYCE_FLEX_INCLUDE_PATH)
+  include_directories( ${XYCE_FLEX_INCLUDE_PATH} ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+else()
+  include_directories( ${CMAKE_CURRENT_BINARY_DIR}/UtilityPKG/ExpressionSrc )
+endif()
 
 #End bison and Flex non-sense.
 
@@ -125,21 +138,8 @@ endif()
 
 
 # ---- And the installation of them. ----------------
-     # A word to the wise about Windows:
-     # A Static library named "xyce" will produce a file named xyce.lib.
-     # A Shared library named "xyce" will produce two files, one named xyce.dll
-     # and another named xyce.lib, which is not the same as the static library.
-     # It is an interface library.  Interface libraries may be quite foriegn to
-     # Unix programmers. For right now the only way I can tell xyce.lib the
-     # static library apart from xyce.lib the interface library is that the
-     # interface library is smaller in size.  Which isn't a very clear
-     # distinction.  MORAL: if you would like to build both a static and shared
-     # library, use names such as xyce-static and xyce-shared to make things
-     # explicit.
-set_target_properties ( XyceLib PROPERTIES
-			OUTPUT_NAME xyce
-			CLEAN_DIRECT_OUTPUT ON)
-# The above was first added in 2008.
+# Keep this in mind if Xyce needs to support building both static and shared libraries
+# in the same build tree.
 #
 # According to <https://gitlab.kitware.com/cmake/community/-/wikis/FAQ>, the
 # above is not needed: "One more detail is needed with CMake 2.6.x and lower
@@ -156,7 +156,50 @@ set_target_properties ( XyceLib PROPERTIES
 # using different logical target names the two targets will remove each other's
 # files. This can be prevented by setting the CLEAN_DIRECT_OUTPUT property to 1."
 
-install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget)
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+  # if we are building shared libraries under windows then a byproduct will
+  # be an interface library with a suffix ".lib" that is used in linking 
+  # the executable to the dynamic library ".dll"  This interface library is 
+  # needed and should not be confused with a static library which also ends
+  # in ".lib" under Windwos.  So to avoid confusion, make the shared library
+  # name xyce-share.dll and xyce-share.lib for the interface library under 
+  # Windows. 
+  #
+  # A word to the wise about Windows:
+  # A Static library named "xyce" will produce a file named xyce.lib.
+  # A Shared library named "xyce" will produce two files, one named xyce.dll
+  # and another named xyce.lib, which is not the same as the static library.
+  # It is an interface library.  Interface libraries may be quite foriegn to
+  # Unix programmers. For right now the only way I can tell xyce.lib the
+  # static library apart from xyce.lib the interface library is that the
+  # interface library is smaller in size.  Which isn't a very clear
+  # distinction.  MORAL: if you would like to build both a static and shared
+  # library, use names such as xyce-static and xyce-shared to make things
+  # explicit.
+  
+  set_target_properties ( XyceLib PROPERTIES
+	 		OUTPUT_NAME xyce-share
+			CLEAN_DIRECT_OUTPUT ON)
+  install(TARGETS XyceLib DESTINATION bin EXPORT XyceLibTarget COMPONENT Core )
+else()
+  set_target_properties ( XyceLib PROPERTIES
+			OUTPUT_NAME xyce
+			CLEAN_DIRECT_OUTPUT ON)
+  install(TARGETS XyceLib DESTINATION lib EXPORT XyceLibTarget COMPONENT Core )
+endif()
+
+
+# NOTE:  using "RUNTIME_DEPENDENCIES" should help with packaging the binary
+# But it fails in unhelpful ways such as including system libraries under
+# windows and getting confused with multiple copies of dependent libraries 
+# under Linux.  For now we will not use it but just note that it was tried and
+# can be less-then-helpful
+#install(TARGETS Xyce COMPONENT Core DESTINATION bin EXPORT XyceTarget 
+#    RUNTIME_DEPENDENCIES 
+#    DIRECTORIES "/usr/local/" "/opt/local" ${Xyce_INSTALLER_LIBPATH}
+#    LIBRARY DESTINATION lib 
+#    COMPONENT Core )
+
 install(TARGETS Xyce DESTINATION bin EXPORT XyceTarget)
 
 # Add header files needed by other codes to link against libxyce.*
@@ -251,7 +294,8 @@ install(FILES
     UtilityPKG/N_UTL_TypeIndex.h
     UtilityPKG/N_UTL_Xyce.h
     ${CMAKE_BINARY_DIR}/src/Xyce_config.h
-DESTINATION include)
+DESTINATION include
+COMPONENT Core  )
 
 # When Charon uses a specific part Xyce as a TPL, it links to code deep in
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
@@ -293,7 +337,8 @@ if(${TriBITS_prefix} STREQUAL "tcad-charon")
     UtilityPKG/N_UTL_Listener.h
     UtilityPKG/N_UTL_Timer.h
     UtilityPKG/N_UTL_WallTime.h
-  DESTINATION include)
+  DESTINATION include
+  COMPONENT Core )
 endif()
 
 # valid Cmake config package & version names are:
@@ -330,6 +375,8 @@ install(EXPORT XyceLibTarget
     Xyce::
   DESTINATION
     ${ConfigPackageLocation}
+  COMPONENT 
+    Core
 )
 
 install(
@@ -339,5 +386,5 @@ install(
   DESTINATION
     ${ConfigPackageLocation}
   COMPONENT
-    Devel
+    Core
 )

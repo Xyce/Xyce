@@ -94,15 +94,10 @@ namespace N_NLS_NOX {
       int stdNewtonSolve ( ParameterSet* paramsPtr );
       int naturalParameterContinuationSolve ( ParameterSet* paramsPtr );
       int mosfetContinuationSolve ( ParameterSet* paramsPtr );
-      int mosfetContinuationSolve2 ( ParameterSet* paramsPtr );
-      int mosfetContinuationSolve3 ( ParameterSet* paramsPtr );
-      int mosfetContinuationSolve4 ( ParameterSet* paramsPtr );
-      int mosfetContinuationSolve5 ( ParameterSet* paramsPtr );
-      int mosfetContinuationSolve6 ( ParameterSet* paramsPtr );
       int gminSteppingSolve ( ParameterSet* paramsPtr );
       int pseudoTransientSolve ( ParameterSet* paramsPtr );
-      int artificialParameterHomotopy ( ParameterSet* paramsPtr );
       int sourceSteppingSolve ( ParameterSet* paramsPtr );
+      int sourceSteppingSolve2 ( ParameterSet* paramsPtr );
 
       int takeFirstSolveStep (Xyce::Nonlinear::NonLinearSolver * nlsTmpPtr = NULL);
       int takeOneSolveStep ();

@@ -313,7 +313,7 @@ private:
 
   static std::vector< std::vector<int> > jacStamp;
   static std::vector< std::vector<int> > jacStampPDE;
-
+  bool firstTimeload;
   int port;
   double Z0;
 

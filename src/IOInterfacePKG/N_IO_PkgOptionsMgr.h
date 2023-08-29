@@ -45,6 +45,7 @@
 
 // ----------   Xyce Includes   ----------
 #include <N_UTL_fwd.h>
+#include <N_UTL_OptionBlock.h>
 #include <N_IO_fwd.h>
 
 #include <N_UTL_Param.h>
@@ -124,6 +125,9 @@ public:
 
   bool submitOptions(const Util::OptionBlock & options);
 
+  bool mergeOptions(const Util::OptionBlock & options);
+  bool submitMergedOptions();
+
   void addCommandParser(const std::string &name, ParseFunction parse_function)
   {
     commandParserMap_[name] = parse_function;
@@ -151,8 +155,42 @@ public:
   }
 
 private:
+ 
+   // ProcessorMap is defined to be a multimap of functions.
+   // The key is the options type, like TIMEINT, NONLIN or DEVICE.
+   // This means that multiple functions can be associated with a particular type.
+   // ie, TIMEINT might have processing functions in multiple packages, 
+   // as they all might need the information.
   ProcessorMap                  processorMap_;
-  OptionsMap                    optionsMap_;
+
+  // OptionsMap is defined to be a multimap of option blocks.  
+   // The key is the options type, like TIMEINT, NONLIN or DEVICE.
+  // This multimap stores one or more option blocks for each type.
+  //
+  // So, at least for this container, multiple ".options timeint" statements are allowed.
+  // However, most packages are written to expect a single option block, 
+  // so multiple blocks doesn't really work.  This needs to be transformed 
+  // into a map, with a single merged option block, with warnings 
+  // for duplicate params.
+  //
+  // Also, note that as of this writing, the optionsMap_ is not really used in practice.
+  // option blocks are submitted to different packages via the processor functions contained in the processorMap.
+  // The processor functions are called in BOTH the "submitOptions" function and also the "addOptionsProcessor" function.
+  //
+  // In the addOptionsProcessor function, the optionsMap_ is used for these calls.  The processorMap_ is added to in this function but not used.
+  // In the submitOptions function, the processorMap_ is used in this function for these calls.  The optionsMaps_ is interted to, but not used.
+  //
+  // The design up until this point allows the order to not matter (much).
+  //
+  // But if we want to have merged option_blocks, then the order will matter.  And, in practice, the order is fixed at this point.
+  // In practice, addOptionsProcessor is ALWAYS called prior to any submitOption calls. 
+  // This means that the optionsMap_ is useless, for one thing.  
+#if 0 
+  OptionsMap                    optionsMap_;         
+#endif
+
+  std::unordered_map<std::string, Util::OptionBlock> mergedOptionsMap_;
+
   CommandParserMap              commandParserMap_;
   Util::OptionsMetadataMap      optionsMetadata_;
 };

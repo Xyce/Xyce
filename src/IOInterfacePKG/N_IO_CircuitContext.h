@@ -220,6 +220,8 @@ public:
   void setLocation( const NetlistLocation& loc ); 
   NetlistLocation getLocation() const; 
 
+  void insertSubcircuitGlobal( Util::Param & parameter);
+
   // Resolve the parameters and functions in the curren context. Since this
   // operation is dependent on a given subcircuit instance, the resolution
   // for a given context may occur repeatedly.

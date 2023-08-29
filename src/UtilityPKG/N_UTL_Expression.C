@@ -641,7 +641,7 @@ void Expression::getPowerCalcs       (std::vector<std::string> & powerCalcs) con
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getVariableDependent() 
+bool Expression::getVariableDependent() const
 {
   return newExpPtr_->getVariableDependent();
 }
@@ -654,7 +654,7 @@ bool Expression::getVariableDependent()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getVoltageNodeDependent() 
+bool Expression::getVoltageNodeDependent() const
 {
   return newExpPtr_->getVoltageNodeDependent();
 }
@@ -667,7 +667,7 @@ bool Expression::getVoltageNodeDependent()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getDeviceCurrentDependent() 
+bool Expression::getDeviceCurrentDependent() const
 {
   return newExpPtr_->getDeviceCurrentDependent();
 }
@@ -680,7 +680,7 @@ bool Expression::getDeviceCurrentDependent()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getLeadCurrentDependent() 
+bool Expression::getLeadCurrentDependent() const
 {
   return newExpPtr_->getLeadCurrentDependent();
 }
@@ -693,7 +693,7 @@ bool Expression::getLeadCurrentDependent()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getLeadCurrentDependentExcludeBsrc() 
+bool Expression::getLeadCurrentDependentExcludeBsrc() const
 {
   return newExpPtr_->getLeadCurrentDependentExcludeBsrc();
 }
@@ -706,7 +706,7 @@ bool Expression::getLeadCurrentDependentExcludeBsrc()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 2020
 //-----------------------------------------------------------------------------
-bool Expression::getSpecialsDependent() 
+bool Expression::getSpecialsDependent() const
 {
   bool retval =   
     (newExpPtr_->getTimeDependent()) ||
