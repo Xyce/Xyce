@@ -103,79 +103,75 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   # of the following is making a correspondence between a line output
   # by "Xyce -capabilities" and a tag to use when invoking
   # run_xyce_regression.
-  set(TAGLIST "+serial?klu")
+  set(TAGLIST "+serial?klu" PARENT_SCOPE)
   if("$ENV{TESTSET}" STREQUAL "Weekly"
       OR "$ENV{TESTSET}" STREQUAL "QA"
       OR "$ENV{TESTSET}" STREQUAL "FINAL")
 
-    set(TAGLIST "${TAGLIST}?weekly?nightly")
+    set(TAGLIST "${TAGLIST}?weekly?nightly" PARENT_SCOPE)
   else()
-    set(TAGLIST "${TAGLIST}+nightly")
+    set(TAGLIST "${TAGLIST}+nightly" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "Verbose" res_var)
   if(${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}-verbose?noverbose")
+    set(TAGLIST "${TAGLIST}-verbose?noverbose" PARENT_SCOPE)
   else()
-    set(TAGLIST "${TAGLIST}?verbose-noverbose")
+    set(TAGLIST "${TAGLIST}?verbose-noverbose" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "Non-Free device models" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?nonfree")
+    set(TAGLIST "${TAGLIST}?nonfree" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "Radiation models" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?rad")
+    set(TAGLIST "${TAGLIST}?rad" PARENT_SCOPE)
     string(FIND "${term_cap_out}" "Reaction parser" res_var)
     if(NOT ${res_var} EQUAL -1)
-      set(TAGLIST "${TAGLIST}?qaspr")
+      set(TAGLIST "${TAGLIST}?qaspr" PARENT_SCOPE)
     endif()
   endif()
 
   string(FIND "${term_cap_out}" "ATHENA" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?athena")
+    set(TAGLIST "${TAGLIST}?athena" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "FFT" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?fft")
+    set(TAGLIST "${TAGLIST}?fft" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "C++14" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?cxx14")
+    set(TAGLIST "${TAGLIST}?cxx14" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "Stokhos enabled" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?stokhos")
+    set(TAGLIST "${TAGLIST}?stokhos" PARENT_SCOPE)
   endif()
 
   string(FIND "${term_cap_out}" "ROL enabled" res_var)
   if(NOT ${res_var} EQUAL -1)
-    set(TAGLIST "${TAGLIST}?rol")
+    set(TAGLIST "${TAGLIST}?rol" PARENT_SCOPE)
   endif()
 
   string(REGEX MATCH "Amesos2.*Basker.*enabled" out_var "${term_cap_out}")
   if(out_var)
-    set(TAGLIST "${TAGLIST}?amesos2basker")
+    set(TAGLIST "${TAGLIST}?amesos2basker" PARENT_SCOPE)
   endif()
 
   string(REGEX MATCH "Amesos2.*KLU2.*enabled" out_var "${term_cap_out}")
   if(out_var)
-    set(TAGLIST "${TAGLIST}?amesos2klu")
+    set(TAGLIST "${TAGLIST}?amesos2klu" PARENT_SCOPE)
   endif()
 
   find_program(XDMBDLEXE NAMES xdm_bdl)
   if(NOT ${XDMBDLEXE} STREQUAL "XDMBDLEXE-NOTFOUND")
-    set(TAGLIST "${TAGLIST}?xdm")
-  endif()
-
-  if(VERBOSITY GREATER 1)
-    message("[VERB2]: TAGLIST=\"${TAGLIST}\"")
+    set(TAGLIST "${TAGLIST}?xdm" PARENT_SCOPE)
   endif()
 
 endfunction()
@@ -263,6 +259,10 @@ ctest_build()
 
 # generate the taglist for the regression testing scripg
 GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
+
+if(VERBOSITY GREATER 1)
+  message("[VERB2]: TAGLIST=\"${TAGLIST}\"")
+endif()
 
 # run the custom xyce regression test script
 message("executing custom xyce regression test script, ${XYCE_REGR_SCRIPT}...")
