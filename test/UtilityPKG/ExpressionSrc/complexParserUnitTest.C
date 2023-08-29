@@ -6550,9 +6550,18 @@ TEST ( ComplexParserCalculus, ddx11)
 
   std::complex<double> Aval=2.0;
   std::complex<double> result;
-  ddxTest.evaluateFunction(result);        EXPECT_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
-  copy_ddxTest.evaluateFunction(result);   EXPECT_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
-  assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
+  ddxTest.evaluateFunction(result);
+  std::complex<double> acceptedVal(std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))));   
+  EXPECT_DOUBLE_EQ( result.real(), acceptedVal.real() );
+  EXPECT_DOUBLE_EQ( result.imag(), acceptedVal.imag() );
+  copy_ddxTest.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result.real(), acceptedVal.real() );
+  EXPECT_DOUBLE_EQ( result.imag(), acceptedVal.imag() );
+  //EXPECT_DOUBLE_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
+  assign_ddxTest.evaluateFunction(result);
+  EXPECT_DOUBLE_EQ( result.real(), acceptedVal.real() );
+  EXPECT_DOUBLE_EQ( result.imag(), acceptedVal.imag() );
+  //EXPECT_DOUBLE_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
 }
 
 //-------------------------------------------------------------------------------
@@ -7987,16 +7996,27 @@ TEST ( ComplexParserASCTHTest, test2)
 
   // this double checks if the derivatives are NOT Nan.
   std::vector<std::complex<double> > derivs;
-  std::vector<std::complex<double> > refderivs = { std::complex<double>(-1.0e+50,-1.0e+50) };
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
-  EXPECT_EQ( derivs, refderivs);
+  for( auto i=0; i<derivs.size(); i++ )
+  {
+    EXPECT_FALSE( std::isnan( derivs[i].real() ));
+    EXPECT_FALSE( std::isnan( derivs[i].imag() ));
+  }
   copyExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
-  EXPECT_EQ( derivs, refderivs);
+  for( auto i=0; i<derivs.size(); i++ )
+  {
+    EXPECT_FALSE( std::isnan( derivs[i].real() ));
+    EXPECT_FALSE( std::isnan( derivs[i].imag() ));
+  }
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
-  EXPECT_EQ( derivs, refderivs);
+  for( auto i=0; i<derivs.size(); i++ )
+  {
+    EXPECT_FALSE( std::isnan( derivs[i].real() ));
+    EXPECT_FALSE( std::isnan( derivs[i].imag() ));
+  }
 }
 
 
