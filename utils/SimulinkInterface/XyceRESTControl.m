@@ -135,7 +135,9 @@ function flaskFile = findFlaskOSSpecificLoc( )
     end
   elseif (isunix)
     % look for local PIP install locaiton
-    potentialFlaskLocation = '~/.local/bin/flask';
+    usrName = getenv('USER');
+    potentialFlaskLocation = ["/ascldap/users", usrName, ".local/bin/flask"];
+    potentialFlaskLocation = join(potentialFlaskLocation,'/');
     ans = exist(potentialFlaskLocation);
     if( ans == 2)
       flaskFile = potentialFlaskLocation;
@@ -173,7 +175,14 @@ function val = startXyceRest( fig )
     display("flask process is");
     display(fig.UserData.FlaskProcess);
   elseif (isunix)
-    
+    % FLASK_APP=/fgs/rlschie/XyceDevelopment/INSTALL_SHARED/share/XyceRest.py ~/.local/bin/flask run
+    flaskCommand = join(["FLASK_APP=", fig.UserData.XyceRestFileLocation, " ", fig.UserData.FlaskLocation, " run &"], '');
+    [ retcode, output ] = system(flaskCommand);
+    psCommand = "ps -au $USER | grep flask | grep -v grep | cut -c1-7";
+    [ retcode, output ] = system(psCommand);
+    fig.UserData.FlaskProcess = output;
+    display("flask process is");
+    display(fig.UserData.FlaskProcess);
   end
 end
 
@@ -184,6 +193,8 @@ function val = stopXyceRest( fig )
     killCommand = append( 'kill -9 ', fig.UserData.FlaskProcess);
     [retcode, output ] = system(killCommand);
   elseif( isunix)
+    killCommand = append( 'kill -9 ', fig.UserData.FlaskProcess);
+    [retcode, output ] = system(killCommand);
   end
 end
 
