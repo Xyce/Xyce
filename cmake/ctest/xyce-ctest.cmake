@@ -260,7 +260,7 @@ ctest_configure()
 # this runs make
 ctest_build()
 
-# generate the taglist for the regression testing scripg
+# generate the taglist for the regression testing script
 GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
 
 if(VERBOSITY GREATER 1)
