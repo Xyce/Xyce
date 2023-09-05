@@ -23,6 +23,12 @@ class xyce_interface:
           libName=os.path.join(libdir, "libxycecinterface.dylib" )
           print("Trying to load " + libName )
           self.lib = CDLL(libName,RTLD_GLOBAL)
+        elif sys.platform.startswith('win32'):
+          libdir=libdir.removesuffix('lib')
+          libdir=os.path.join(libdir,'bin')
+          libName=os.path.join(libdir, "xycecinterface.dll" )
+          print("Trying to load library " + libName )
+          self.lib = CDLL(libName,RTLD_GLOBAL)
         else:
           libName=os.path.join(libdir, "libxycecinterface.so" )
           print("Trying to load " + libName )
