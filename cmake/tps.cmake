@@ -537,7 +537,7 @@ message(DEBUG "[DEBUG]: TMP_FLEX_DIR = ${TMP_FLEX_DIR}")
 # updated otherwise the previous value will be used.
 unset(FLEX_INCLUDE_DIR CACHE)
 find_path(FLEX_INCLUDE_DIR FlexLexer.h
-  PATHS ${TMP_FLEX_DIR} ${TMP_FLEX_DIR}/../include
+  HINTS ${TMP_FLEX_DIR} ${TMP_FLEX_DIR}/../include
   REQUIRED
   NO_DEFAULT_PATH)
 
