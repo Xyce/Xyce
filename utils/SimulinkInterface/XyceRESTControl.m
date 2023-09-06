@@ -117,10 +117,20 @@ function flaskFile = findFlaskOSSpecificLoc( )
   valFound = '';
   % on a mac look in ~/Library/Python/3.9/bin
   % under linux look in ~/.local/bin
-  % windows \Users\Username\AppData\Local\Programs\Python\Python311
+  % windows \Users\Username\AppData\Local\Programs\Python\Python311 has python 
+  % but packages are locally installed in a much more arcane path. 
+  % "pip show flask" reports the exact location so that might help.
   flaskFile='';
   if (ispc)
     %
+    potentialFlaskLocation = "C:/Users/rlschie/AppData/Local//Packages//PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages//Python311/Scripts/flask.exe";
+    %[status, cmdout] = system("pip show flask")
+    %display('looking for flask in')
+    %display(potentialFlaskLocation)
+    ans = exist(potentialFlaskLocation);
+    if( ans == 2)
+      flaskFile = potentialFlaskLocation;
+    end
   elseif (ismac)
     % look for local PIP install locaiton
     pipPyVer = strip(ls('~/Library/Python'));
@@ -154,10 +164,11 @@ function val = startXyceRest( fig )
     % use fig.UserData.XyceLocation to get REST file location
     fig.UserData.XyceRestFileLocation = fig.UserData.XyceLocation;
     if (ispc)
-      fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin\Xyce.exe", "share\XyceRest.py");      
+      %display(fig.UserData.XyceLocation);
+      fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin\Xyce.exe", "share\XyceRest.py");
+      %display(fig.UserData.XyceRestFileLocation);
     elseif (ismac)
       fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
-
     elseif (isunix)
       fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
     end
@@ -165,15 +176,23 @@ function val = startXyceRest( fig )
 
   % start flask and get the PID so we can stop it later.
   if (ispc)
-      
+    flaskCommand = join([fig.UserData.FlaskLocation, " --app ", fig.UserData.XyceRestFileLocation, " run &"]);
+    %display(flaskCommand)
+    [ retcode, output ] = system(flaskCommand);
+    psCommand = 'powershell -Command "Get-Process -Name flask | Format-List ID"';
+    [ retcode, output ] = system(psCommand);
+    lenOutput = length(output);
+    fig.UserData.FlaskProcess = output(7:lenOutput-4);
+    %display("flask process is:")
+    %display(fig.UserData.FlaskProcess)
   elseif (ismac)
     flaskCommand = join([fig.UserData.FlaskLocation, " --app ", fig.UserData.XyceRestFileLocation, " run &"]);
     [ retcode, output ] = system(flaskCommand);
     psCommand = "ps -au $USER | grep flask | grep -v grep | cut -c7-11";
     [ retcode, output ] = system(psCommand);
     fig.UserData.FlaskProcess = output;
-    display("flask process is");
-    display(fig.UserData.FlaskProcess);
+    %display("flask process is");
+    %display(fig.UserData.FlaskProcess);
   elseif (isunix)
     % FLASK_APP=/fgs/rlschie/XyceDevelopment/INSTALL_SHARED/share/XyceRest.py ~/.local/bin/flask run
     flaskCommand = join(["FLASK_APP=", fig.UserData.XyceRestFileLocation, " ", fig.UserData.FlaskLocation, " run &"], '');
@@ -181,14 +200,19 @@ function val = startXyceRest( fig )
     psCommand = "ps -au $USER | grep flask | grep -v grep | cut -c1-7";
     [ retcode, output ] = system(psCommand);
     fig.UserData.FlaskProcess = output;
-    display("flask process is");
-    display(fig.UserData.FlaskProcess);
+    %display("flask process is");
+    %display(fig.UserData.FlaskProcess);
   end
 end
 
 function val = stopXyceRest( fig )
   val = true;
   if (ispc)
+    %killCommand = append('powershell.exe -Command "taskkill /F /IM flask.exe"');
+    killCommand = append('powershell.exe -Command "Stop-Process -Force -Id ', fig.UserData.FlaskProcess, '"');
+    %display("kill command is:");
+    %display(killCommand);
+    [retcode, output ] = system(killCommand);
   elseif( ismac)
     killCommand = append( 'kill -9 ', fig.UserData.FlaskProcess);
     [retcode, output ] = system(killCommand);
