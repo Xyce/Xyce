@@ -83,7 +83,7 @@ function(CONVERTTESTXML inputfn subdirname track)
   file(WRITE "$ENV{WORKSPACE}/build/Testing/${subdirname}/Test.xml" ${out_contents})
 endfunction()
 
-# macro to execute a Xyce executable with the "-capability" option in
+# function to execute a Xyce executable with the "-capability" option in
 # order to obtain a list of capabilities subsequently used when
 # executign the run_xyce_regression script
 function(GET_XYCE_CAPABILITIES xyce_exe)
@@ -104,7 +104,12 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   # of the following is making a correspondence between a line output
   # by "Xyce -capabilities" and a tag to use when invoking
   # run_xyce_regression.
-  set(myTagList "+serial?klu")
+  string(FIND "${term_cap_out}" "Parallel with MPI" res_var)
+  if(${res_var} EQUAL -1)
+    set(myTagList "+serial?klu")
+  else()
+    set(myTagList "+parallel")
+  endif()
   if("$ENV{TESTSET}" STREQUAL "Weekly"
       OR "$ENV{TESTSET}" STREQUAL "QA"
       OR "$ENV{TESTSET}" STREQUAL "FINAL")
