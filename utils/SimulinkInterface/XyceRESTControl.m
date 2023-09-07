@@ -2,29 +2,48 @@
 function XyceRESTControl
 
   % Create figure window
-  mainFig = uifigure('Name', 'XyceRESTControl', 'CloseRequestFcn', @quitXyceRestControl);
+  mainFig = uifigure('Name', 'XyceRESTControl', 'CloseRequestFcn', @quitXyceRestControl, 'Position', [50, 100, 200, 300]);
 
   %layout 
-  gl = uigridlayout(mainFig,[4 1]);
+  gl = uigridlayout(mainFig,[4 2]);
+  gl.RowHeight = {'1x','1x','1x','1x'};
+  gl.ColumnWidth = {'1x','5x'};
 
   % buttons for finding Xyce and Flask
   selXyceBt = uibutton(gl, 'Text', 'Locate Xyce', 'ToolTip', 'Locate Xyce on your system.', 'ButtonPushedFcn', @findXyce);
   selXyceBt.Layout.Row = 1;
-  selXyceBt.Layout.Column = 1;
+  selXyceBt.Layout.Column = 2;
   selFlaskBt = uibutton(gl, 'Text', 'Locate Flask', 'ToolTip', 'Locate Python Flask on your system.', 'ButtonPushedFcn', @findFlask);
   selFlaskBt.Layout.Row = 2;
-  selFlaskBt.Layout.Column = 1;
+  selFlaskBt.Layout.Column = 2;
 
   % button to start/stop the running flask & Xyce process
   startStopBt = uibutton(gl, 'Text', 'Start', 'ToolTip', 'Start XyceRest Interface', 'Enable', 'off','ButtonPushedFcn', @toggleRunning);
   startStopBt.Layout.Row = 3;
-  startStopBt.Layout.Column = 1;
+  startStopBt.Layout.Column = 2;
 
   % button to quit
   quitBt = uibutton(gl, 'Text', 'Quit', 'ToolTip', 'Quit XyceRest Interface', 'ButtonPushedFcn', @quitXyceRestControl);
   quitBt.Layout.Row = 4;
-  quitBt.Layout.Column = 1;
+  quitBt.Layout.Column = 2;
+  
+  % status lamps
+  xyceStatusLamp = uilamp(gl, 'ToolTip', 'Indicates if Xyce is found and ready.');
+  xyceStatusLamp.Layout.Row = 1;
+  xyceStatusLamp.Layout.Column = 1;
+  xyceStatusLamp.Color = 'red';
 
+  flaskStatusLamp = uilamp(gl, 'ToolTip', 'Indicates if Flask is found and ready.');
+  flaskStatusLamp.Layout.Row = 2;
+  flaskStatusLamp.Layout.Column = 1;
+  flaskStatusLamp.Color = 'red';
+  
+  runningStatusLamp = uilamp(gl, 'ToolTip', 'Indicates if Xyce REST interface is running.');
+  runningStatusLamp.Layout.Row = 3;
+  runningStatusLamp.Layout.Column = 1;
+  runningStatusLamp.Color = 'red';
+  
+  
 
   % Store needed data in a structure in UserData.  This allows each UI element to access
   % the data as needed.  
@@ -38,7 +57,10 @@ function XyceRESTControl
     'FlaskReady', false, ...
     'Running', false, ...
     'FlaskProcess', '', ...
-    'StartStopBt', startStopBt);
+    'StartStopBt', startStopBt, ...
+    'XyceLamp', xyceStatusLamp, ...
+    'FlaskLamp', flaskStatusLamp, ...
+    'RunningLamp', runningStatusLamp );
   
   % initialize
   initializeState(mainFig)
@@ -51,7 +73,15 @@ function findXyce(src,event)
   fig = ancestor(src,"figure","toplevel");
   [FileName, Path ] = uigetfile('*');
   fig.UserData.XyceLocation = strip(append(Path, FileName));
+  % user selected a file, but we should check that we can 
+  % find Xyce and XyceRest.py before assuming this is true.
   fig.UserData.XyceReady = true;
+  xyceLamp = fig.UserData.XyceLamp;
+  if( fig.UserData.XyceReady )
+    xyceLamp.Color = 'green';
+  else
+    xyceLamp.Color = 'red';
+  end
   if( fig.UserData.XyceReady && fig.UserData.FlaskReady )
     aUIButton = fig.UserData.StartStopBt;
     aUIButton.Enable = 'on';
@@ -64,7 +94,14 @@ function findFlask(src,event)
   fig = ancestor(src,"figure","toplevel");
   [FileName, Path ] = uigetfile('*');
   fig.UserData.FlaskLocation = append(Path, FileName);
+  % user picked a file but we should do some sort of check to verify it is flask
   fig.UserData.FlaskReady = true;
+  flaskLamp = fig.UserData.FlaskLamp;
+  if( fig.UserData.FlaskReady )
+    flaskLamp.Color = 'green';
+  else
+    flaskLamp.Color = 'red';
+  end
   if( fig.UserData.XyceReady && fig.UserData.FlaskReady )
     aUIButton = fig.UserData.StartStopBt;
     aUIButton.Enable = 'on';
@@ -81,6 +118,8 @@ function toggleRunning(src,event)
       fig.UserData.Running = true;
       aUIButton = fig.UserData.StartStopBt;
       aUIButton.Text = 'Stop';
+      runningLamp = fig.UserData.RunningLamp;
+      runningLamp.Color = 'green';
     end
   else
     result = stopXyceRest(fig );
@@ -88,6 +127,8 @@ function toggleRunning(src,event)
       fig.UserData.Running = false;
       aUIButton = fig.UserData.StartStopBt;
       aUIButton.Text = 'Start';
+      runningLamp = fig.UserData.RunningLamp;
+      runningLamp.Color = 'red';
     end
   end
   
@@ -232,6 +273,7 @@ function initializeState( topFig )
     display('Xyce found');
     topFig.UserData.XyceLocation = xyceFound;
     topFig.UserData.XyceReady = true;
+    topFig.UserData.XyceLamp.Color = 'green';
   end
   
   % check for Flask 
@@ -246,6 +288,7 @@ function initializeState( topFig )
     display('Flask found.');
     topFig.UserData.FlaskLocation = flaskFound;
     topFig.UserData.FlaskReady = true;
+    topFig.UserData.FlaskLamp.Color = 'green';
   end
   
   if( topFig.UserData.XyceReady && topFig.UserData.FlaskReady )
