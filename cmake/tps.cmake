@@ -512,43 +512,6 @@ endif()
 message(STATUS "Looking for flex and Bison")
 find_package(FLEX REQUIRED)
 find_package(BISON 3.0.4 REQUIRED)
-# The 3.0.4 specifies the minimum version.  That is ok at the moment, as Bison
-# has been functional for many versions (through 3.6 at the time of this
-# writing).  Historically, though, new versions have had backward
-# incompatibility issues.  If that occurs again, the BISON_VERSION variable
-# will have to be probed for a certain range.
-
-# If there are multiple flex installations on a system FindFLEX.cmake
-# will not set FLEX_INCLUDE_DIR correctly according to where
-# FLEX_EXECUTABLE is. For example, on cee/ascic there is a system
-# installation of flex in /usr and one in /project/xyce/flexbison. If
-# your path points to /projects/xyce/flexbison first then it finds
-# /projects/xyce/flexbison/bin/flex but then proceeds to set
-# FLEX_INCLUDE_DIR to /usr/include instead of
-# /projects/xyce/flexbison/include. This causes problems because the
-# compilation pulls in the old include file. The following attempts to
-# remedy this by resetting the FLEX_INCLUDE_DIR to correspond to the
-# locaiton of FLEX_EXECUTABLE.
-get_filename_component(TMP_FLEX_DIR ${FLEX_EXECUTABLE} DIRECTORY)
-message(DEBUG "[DEBUG]: TMP_FLEX_DIR = ${TMP_FLEX_DIR}")
-
-# variable must be "unset" since once a cache variable is set, in
-# FindFLEX.cmake in this case, it must be cleared prior to being
-# updated otherwise the previous value will be used.
-unset(FLEX_INCLUDE_DIR CACHE)
-find_path(FLEX_INCLUDE_DIR FlexLexer.h
-  HINTS ${TMP_FLEX_DIR} ${TMP_FLEX_DIR}/../include
-  REQUIRED
-  NO_DEFAULT_PATH)
-
-# note that this is consistent with how FindFLEX.cmake does it,
-# setting the cache variable FLEX_INCLUDE_DIR via find_path() and then
-# setting the non-cache variable, FLEX_INCLUDE_DIRS from it. cmake
-# code should be using the FLEX_INCLUDE_DIRS variable as documented in
-# FindFLEX.cmake but both are set her for safety and consistency
-set(FLEX_INCLUDE_DIRS ${FLEX_INCLUDE_DIR})
-message(DEBUG "[DEBUG]: FLEX_INCLUDE_DIR = ${FLEX_INCLUDE_DIR}")
-message(DEBUG "[DEBUG]: FLEX_INCLUDE_DIRS = ${FLEX_INCLUDE_DIRS}")
 
 # Find CURL
 if (Xyce_USE_CURL)
