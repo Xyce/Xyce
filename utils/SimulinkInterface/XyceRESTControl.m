@@ -160,14 +160,22 @@ function flaskFile = findFlaskOSSpecificLoc( )
   % under linux look in ~/.local/bin
   % windows \Users\Username\AppData\Local\Programs\Python\Python311 has python 
   % but packages are locally installed in a much more arcane path. 
-  % "pip show flask" reports the exact location so that might help.
+  % "pip show flask" reports the exact package location so that might help.
   flaskFile='';
   if (ispc)
     %
-    potentialFlaskLocation = "C:/Users/rlschie/AppData/Local//Packages//PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages//Python311/Scripts/flask.exe";
-    %[status, cmdout] = system("pip show flask")
-    %display('looking for flask in')
-    %display(potentialFlaskLocation)
+    %potentialFlaskLocation = "C:/Users/rlschie/AppData/Local//Packages//PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages//Python311/Scripts/flask.exe";
+    [status, cmdout] = system("pip show flask");
+    locationStart = strfind(cmdout, 'Location:');
+    locationEnd = strfind(cmdout, 'local-packages');
+    location = cmdout(locationStart+10:locationEnd+13);
+    pythonLongVer = regexp(location, 'Python\.\d\.\d\d', 'match');
+    pythonLongVer = pythonLongVer{1};
+    pythonVer = replace(pythonLongVer,'.', '');
+    potentialFlaskLocation = [location, pythonVer, "Scripts", "flask.exe"];
+    potentialFlaskLocation = join( potentialFlaskLocation, '\');
+    %display('looking for flask in');
+    %display(potentialFlaskLocation);
     ans = exist(potentialFlaskLocation);
     if( ans == 2)
       flaskFile = potentialFlaskLocation;
