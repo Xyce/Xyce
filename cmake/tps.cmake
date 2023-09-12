@@ -512,28 +512,6 @@ endif()
 message(STATUS "Looking for flex and Bison")
 find_package(FLEX REQUIRED)
 find_package(BISON 3.0.4 REQUIRED)
-# The 3.0.4 specifies the minimum version.  That is ok at the moment, as Bison
-# has been functional for many versions (through 3.6 at the time of this
-# writing).  Historically, though, new versions have had backward
-# incompatibility issues.  If that occurs again, the BISON_VERSION variable
-# will have to be probed for a certain range.
-
-# If there are multiple flex installations on a system FindFLEX.cmake
-# will not set FLEX_INCLUDE_DIR correctly according to where
-# FLEX_EXECUTABLE is. For example, on cee/ascic there is a system
-# installation of flex in /usr and one in /project/xyce/flexbison. If
-# your path points to /projects/xyce/flexbison first then it finds
-# /projects/xyce/flexbison/bin/flex but then proceeds to set
-# FLEX_INCLUDE_DIR to /usr/include instead of
-# /projects/xyce/flexbison/include. This causes problems because the
-# compilation pulls in the old include file. The following attempts to
-# remedy this by resetting the FLEX_INCLUDE_DIR to correspond to the
-# locaiton of FLEX_EXECUTABLE.
-string(REGEX MATCH "(.*)/.*/flex" TMP_MATCHVAR ${FLEX_EXECUTABLE})
-find_path(TMP_FLEX_INCLUDE_DIR FlexLexer.h
-  HINTS ${CMAKE_MATCH_1}/include)
-set(FLEX_INCLUDE_DIR ${TMP_FLEX_INCLUDE_DIR})
-message(DEBUG "[DEBUG]: FLEX_INCLUDE_DIR = ${FLEX_INCLUDE_DIR}")
 
 # Find CURL
 if (Xyce_USE_CURL)

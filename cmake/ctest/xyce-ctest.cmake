@@ -4,6 +4,7 @@
 # arguments, specified via "-D"
 #   -DVERBOSITY=<0-5>
 #   -DDASHSUBMIT=<TRUE|FALSE>    # mostly for debugging to avoid cdash submission
+#   -DCMAKE_ARGS_LIST="-DVAR1=VAL1;-DVAR2=VAL2;..."
 #   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
 
 cmake_minimum_required(VERSION 3.23)
@@ -224,8 +225,6 @@ else()
   set(CTEST_BUILD_FLAGS "-j8")
 endif()
 
-set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-
 # note that "Weekly" is just a Nightly category with a different group
 # name
 if(NOT DEFINED ENV{TESTSET})
@@ -248,6 +247,29 @@ set(CTEST_PROJECT_NAME "Xyce")
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
+
+
+if(VERBOSITY GREATER 4)
+  message("[VERB5]: CMAKE_ARGS_LIST = ${CMAKE_ARGS_LIST}")
+endif()
+set(XYCE_CMAKE_CONF_ARG "")
+foreach(cmakeopt IN LISTS CMAKE_ARGS_LIST)
+  set(XYCE_CMAKE_CONF_ARG "${XYCE_CMAKE_CONF_ARG} ${cmakeopt}")
+endforeach()
+if(VERBOSITY GREATER 4)
+  message("[VERB5]: XYCE_CMAKE_CONF_ARG = ${XYCE_CMAKE_CONF_ARG}")
+endif()
+
+# generate the cmake configuration command
+find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
+set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} \"-GUnix Makefiles\"")
+set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
+set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${CTEST_SOURCE_DIRECTORY}")
+
+if(VERBOSITY GREATER 1)
+  message("[VERB1]: CTEST_CONFIGURE_COMMAND = ${CTEST_CONFIGURE_COMMAND}")
+endif()
 
 # begin ctest procedures. MODEL should be one of Nighlty, Weekly,
 # Continuous or Experimental. this can use custom categories via the
