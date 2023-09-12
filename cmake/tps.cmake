@@ -487,7 +487,6 @@ endif()
 
 # If the Intel MKL is not being used, try to find FFTW.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
-     set(FFTW_USE_STATIC_LIBS true)
      find_package(FFTW)
      if(FFTW_FOUND)
           message(STATUS "Looking for FFT libraries - found FFTW")
