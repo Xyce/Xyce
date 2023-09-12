@@ -329,9 +329,6 @@ ctest_build()
 # generate the taglist for the regression testing script
 GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
 
-# doing a library build, hard-coded for now
-set(TAGLIST "${TAGLIST}+library")
-
 # determine if this was a parallel build, if that is the case testing
 # actually consists of two phases, 1) testing with "mpirun" and then
 # 2) running serial tests that don't have the "nompi" tag directly
