@@ -530,13 +530,6 @@ endif()
 find_package(Git)
 
 #
-# Look for optional Matlab application to use the mex compiler for Simulink interface
-#
-if (Xyce_SIMULINK)
-     find_package(Matlab)
-endif()
-
-#
 # Look for optional Dakota libraries to build integrated Xyce-Dakota binary
 #
 if (Xyce_DAKOTA OR Xyce_Dakota)

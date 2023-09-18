@@ -58,9 +58,6 @@ set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction
 # Support for Charon coupling
 set(Xyce_CHARON                    FALSE CACHE BOOL "Enable Charon device support")
 
-# Enable Simulink interface
-option(Xyce_SIMULINK               "Enable Simulink interface" OFF)
-
 # Verbose output
 set(Xyce_VERBOSE_CONDUCTANCE       FALSE CACHE BOOL "Enable verbose output for ???")
 set(Xyce_VERBOSE_LINEAR            FALSE CACHE BOOL "Enable verbose output in the linear solver")

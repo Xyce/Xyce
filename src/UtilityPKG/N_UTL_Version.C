@@ -229,10 +229,6 @@ std::string Version::getCapabilities()
   capabilities += "Build compiler is C++14 compliant\n";
 #endif
 
-#ifdef Xyce_SIMULINK
-  capabilities += "Simulink enabled\n";
-#endif
-
 #ifdef Xyce_STOKHOS_ENABLE
   capabilities += "Stokhos enabled\n";
 #endif
