@@ -52,6 +52,7 @@ function XyceRESTControl
   mainFig.UserData = struct( ...
     'XyceLocation', '', ...
     'XyceRestFileLocation', '', ...
+    'XyceRestFileLocationQuoted', '', ...
     'FlaskLocation', '', ...
     'XyceReady', false, ...
     'FlaskReady', false, ...
@@ -67,21 +68,45 @@ function XyceRESTControl
 
 end
 
+%
+function setExpectedRESTFileLoc(src)
+  fig = ancestor(src,"figure","toplevel");
+  % use fig.UserData.XyceLocation to get REST file location
+  fig.UserData.XyceRestFileLocation = fig.UserData.XyceLocation;
+  if (ispc)
+    %display(fig.UserData.XyceLocation);
+    fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin\Xyce.exe", "share\XyceRest.py");
+  elseif (ismac)
+    fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
+  elseif (isunix)
+    fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
+  end
+  fig.UserData.XyceRestFileLocationQuoted = join( ['"',fig.UserData.XyceRestFileLocation, '"'], '');
+end
+
 % 
 % function to let user find Xyce -- attached to Button
 function findXyce(src,event)
   fig = ancestor(src,"figure","toplevel");
   [FileName, Path ] = uigetfile('*');
   fig.UserData.XyceLocation = strip(append(Path, FileName));
+ 
+  setExpectedRESTFileLoc(src);
+
   % user selected a file, but we should check that we can 
   % find Xyce and XyceRest.py before assuming this is true.
-  fig.UserData.XyceReady = true;
-  xyceLamp = fig.UserData.XyceLamp;
-  if( fig.UserData.XyceReady )
-    xyceLamp.Color = 'green';
+  pyStatus = exist(fig.UserData.XyceRestFileLocation, 'file');
+  if( (exist(fig.UserData.XyceLocation, 'file') == 2) && (exist(fig.UserData.XyceRestFileLocation, 'file') == 2))
+    fig.UserData.XyceReady = true;
+    fig.UserData.XyceLamp.Color = 'green';
+  elseif( (exist(fig.UserData.XyceLocation, 'file') == 2) && (exist(fig.UserData.XyceRestFileLocation, 'file') == 0))
+    fig.UserData.XyceReady = false;
+    fig.UserData.XyceLamp.Color = 'yellow';
   else
-    xyceLamp.Color = 'red';
+    fig.UserData.XyceReady = false;
+    fig.UserData.XyceLamp.Color = 'red';
   end
+
   if( fig.UserData.XyceReady && fig.UserData.FlaskReady )
     aUIButton = fig.UserData.StartStopBt;
     aUIButton.Enable = 'on';
@@ -164,7 +189,6 @@ function flaskFile = findFlaskOSSpecificLoc( )
   flaskFile='';
   if (ispc)
     %
-    %potentialFlaskLocation = "C:/Users/rlschie/AppData/Local//Packages//PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0/LocalCache/local-packages//Python311/Scripts/flask.exe";
     [status, cmdout] = system("pip show flask");
     locationStart = strfind(cmdout, 'Location:');
     locationEnd = strfind(cmdout, 'local-packages');
@@ -209,23 +233,11 @@ function val = startXyceRest( fig )
   val = true;
   flaskCommand = "";
   psCommand = "";
-  if( strcmp(fig.UserData.XyceRestFileLocation,''))
-    % use fig.UserData.XyceLocation to get REST file location
-    fig.UserData.XyceRestFileLocation = fig.UserData.XyceLocation;
-    if (ispc)
-      %display(fig.UserData.XyceLocation);
-      fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin\Xyce.exe", "share\XyceRest.py");
-      %display(fig.UserData.XyceRestFileLocation);
-    elseif (ismac)
-      fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
-    elseif (isunix)
-      fig.UserData.XyceRestFileLocation = replace(fig.UserData.XyceLocation, "bin/Xyce", "share/XyceRest.py");
-    end
-  end
 
   % start flask and get the PID so we can stop it later.
   if (ispc)
-    flaskCommand = join([fig.UserData.FlaskLocation, " --app ", fig.UserData.XyceRestFileLocation, " run &"]);
+    flaskCommand = join([fig.UserData.FlaskLocation, ' --app ', fig.UserData.XyceRestFileLocationQuoted, ' run &']);
+    %('flask command');
     %display(flaskCommand)
     [ retcode, output ] = system(flaskCommand);
     psCommand = 'powershell -Command "Get-Process -Name flask | Format-List ID"';
@@ -279,9 +291,21 @@ function initializeState( topFig )
     display('Xyce not found.');
   else
     display('Xyce found');
+    setExpectedRESTFileLoc(topFig);
     topFig.UserData.XyceLocation = xyceFound;
     topFig.UserData.XyceReady = true;
-    topFig.UserData.XyceLamp.Color = 'green';
+    if( (exist(topFig.UserData.XyceLocation, 'file') == 2) && (exist(topFig.UserData.XyceRestFileLocation, 'file') == 2))
+      topFig.UserData.XyceReady = true;
+      topFig.UserData.XyceLamp.Color = 'green';
+      display('Xyce REST interface found')
+    elseif( (exist(topFig.UserData.XyceLocation, 'file') == 2) && (exist(topFig.UserData.XyceRestFileLocation, 'file') == 0))
+      topFig.UserData.XyceReady = false;
+      topFig.UserData.XyceLamp.Color = 'yellow';
+      display('Xyce REST interface not found.');
+    else
+      topFig.UserData.XyceReady = false;
+      topFig.UserData.XyceLamp.Color = 'red';
+    end
   end
   
   % check for Flask 
