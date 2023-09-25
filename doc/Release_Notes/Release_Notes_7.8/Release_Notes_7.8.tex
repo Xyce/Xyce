@@ -98,6 +98,8 @@ please visit the \XyceTM{} web page at
 \begin{XyceItemize}
 \item \Xyce{} can now handle multiple \texttt{.OPTIONS} statements for the same keyword.   So, for example, if the netlist contains more than one \texttt{.OPTIONS TIMEINT} commands, \Xyce{} will combine all these statements internally into a single combined \texttt{.OPTIONS TIMEINT} statement.  Previously, Xyce's behavior in this respect was undefined.  For example, if the netlist contained multiple \texttt{.options timeint} statements, \Xyce{} would only use one of them and silently ignore the others.  This was confusing for users of other simulators, and has been fixed.  \Xyce{} now treats multiple statements as a combined single statement, and issues warnings for duplicate parameters.
 
+\item The \texttt{.GLOBAL} statement now supports multiple global nodes on the same line.  Previously each specified node needed its own unique \texttt{.GLOBAL} statement.
+
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
