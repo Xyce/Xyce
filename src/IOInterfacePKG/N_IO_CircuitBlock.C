@@ -1286,14 +1286,20 @@ bool CircuitBlock::handleLinePass1(
         Report::UserError().at(netlistFilename_, line[0].lineNumber_)
           << "Attempt to assign global node inside of subcircuit";
       }
-      if (line.size() != 2)
+      if (line.size() < 2)
       {
         Report::UserError().at(netlistFilename_, line[0].lineNumber_)
-          << "Syntax error in .global, should be .global <node>";
+          << "Syntax error in .global, should be .global <node1> [ node2 ... ]";
       }
-      ExtendedString ES2(line[1].string_);
-      ES2.toUpper();
-      circuitContext_.addGlobalNode ( ES2 );
+      else
+      {
+        for (int ii=1;ii<line.size();ii++)
+        {
+          ExtendedString ES2(line[ii].string_);
+          ES2.toUpper();
+          circuitContext_.addGlobalNode ( ES2 );
+        }
+      }
     }
 
     else if (ES1 == ".FUNC")
