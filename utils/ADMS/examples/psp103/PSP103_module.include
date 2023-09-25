@@ -646,7 +646,7 @@
     //  --------------------------------------------------------------------------------------------------------------
     //  Other Parameters
     //  --------------------------------------------------------------------------------------------------------------
-        `MPRnb(DTA            ,0.0        ,"K"                                  ,"Temperature offset w.r.t. ambient temperature")
+        `MPRnb_BOTH(DTA            ,0.0        ,"K"                                  ,"Temperature offset w.r.t. ambient temperature")
 
     //  --------------------------------------------------------------------------------------------------------------
     //  Variables
@@ -1106,6 +1106,7 @@
                 NSUBEDGEO_i = `CLIP_LOW(NSUBEDGEO, 1.0e20);
                 LPEDGE_i    = `CLIP_LOW(LPEDGE, 1.0e-10);
 
+`ifndef _XYCE_HACK
                 // Transistor temperature
                 TR_i        = `CLIP_LOW(TR, -273.0);
                 TKR         = `KELVINCONVERSION + TR_i;
@@ -1123,7 +1124,7 @@
 
                 // JUNCAP2
                 `include "JUNCAP200_InitModel.include"
-
+`endif
             end // initial_model
 
             //  --------------------------------------------------------------------------------------------------------------
@@ -1174,6 +1175,26 @@
                 SCB_i        = `CLIP_LOW(SCB, 0.0);
                 SCC_i        = `CLIP_LOW(SCC, 0.0);
                 NGCON_i      =  (NGCON < 1.5) ? 1.0 : 2.0;
+
+`ifdef _XYCE_HACK
+                // Transistor temperature
+                TR_i        = `CLIP_LOW(TR, -273.0);
+                TKR         = `KELVINCONVERSION + TR_i;
+                TKA         =  $temperature + DTA;
+                rTa         =  TKA / TKR;
+                delTa       =  TKA - TKR;
+                phita       =  TKA * `KBOL / `QELE;
+                inv_phita   =  1.0 / phita;
+                `ifdef SelfHeating
+                // do nothing
+                `else // SelfHeating
+                TKD         =  TKA;
+                `TempInitialize
+                `endif // SelfHeating
+
+                // JUNCAP2
+                `include "JUNCAP200_InitModel.include"
+`endif
 
                 // Geometrical device variables
                     // Transistor geometry
