@@ -322,6 +322,8 @@ private:
 
   void interpData( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result,  std::vector<std::complex<double> >  & Iscvals );
 
+  void extrapolateData( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result,  std::vector<std::complex<double> >  & Iscvals , int extrapolation );
+
   bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
 
   Util::interpolator<double> * yInterpolator;
