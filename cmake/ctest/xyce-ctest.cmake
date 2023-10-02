@@ -383,10 +383,8 @@ if(MPI_TESTING)
 
 else()
 
-  if(MPI_TESTING)
-    # if this is a parallel build but serial run, set things accordingly
-    string(REPLACE "+parallel" "+serial-nompi" TAGLIST ${TAGLIST})
-  endif()
+  # if this is a parallel build but serial run, set things accordingly
+  string(REPLACE "+parallel" "+serial-nompi" TAGLIST ${TAGLIST})
 
   RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/regr_test_results_all"
     ${CTEST_BINARY_DIRECTORY}/src/Xyce)
