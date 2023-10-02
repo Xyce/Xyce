@@ -487,7 +487,6 @@ endif()
 
 # If the Intel MKL is not being used, try to find FFTW.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
-     set(FFTW_USE_STATIC_LIBS true)
      find_package(FFTW)
      if(FFTW_FOUND)
           message(STATUS "Looking for FFT libraries - found FFTW")
@@ -512,11 +511,6 @@ endif()
 message(STATUS "Looking for flex and Bison")
 find_package(FLEX REQUIRED)
 find_package(BISON 3.0.4 REQUIRED)
-# The 3.0.4 specifies the minimum version.  That is ok at the moment, as Bison
-# has been functional for many versions (through 3.6 at the time of this
-# writing).  Historically, though, new versions have had backward
-# incompatibility issues.  If that occurs again, the BISON_VERSION variable
-# will have to be probed for a certain range.
 
 # Find CURL
 if (Xyce_USE_CURL)
@@ -534,13 +528,6 @@ else()
 endif()
 
 find_package(Git)
-
-#
-# Look for optional Matlab application to use the mex compiler for Simulink interface
-#
-if (Xyce_SIMULINK)
-     find_package(Matlab)
-endif()
 
 #
 # Look for optional Dakota libraries to build integrated Xyce-Dakota binary
@@ -564,6 +551,6 @@ include(CTest)
 if(BUILD_TESTING)
      # If the wrong version of GTest is found, try setting GTest_DIR or GTEST_ROOT to the install
      # directory of the desired verstion of GTest; specify when invoking cmake to configure.
-     find_package(GTest )
+     find_package(GTest)
      include(GoogleTest)
 endif()

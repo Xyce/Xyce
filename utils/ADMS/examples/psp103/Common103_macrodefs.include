@@ -140,6 +140,7 @@ b    = temp;
 `define MPRoo(nam,def,uni,lwr,upr,des) (*units=uni                            , desc=des*) parameter real    nam=def from(lwr:upr);
 `define MPRoz(nam,def,uni,        des) (*units=uni                            , desc=des*) parameter real    nam=def from(  0:inf);
 `define MPRnb(nam,def,uni,        des) (*units=uni                            , desc=des*) parameter real    nam=def;
+`define MPRnb_BOTH(nam,def,uni,        des) (*units=uni                            , desc=des, type="instance", xyceAlsoModel="yes"*) parameter real    nam=def;
 `define MPIcc(nam,def,uni,lwr,upr,des) (*units=uni                            , desc=des*) parameter integer nam=def from[lwr:upr];
 `define MPIco(nam,def,uni,lwr,upr,des) (*units=uni                            , desc=des*) parameter integer nam=def from[lwr:upr);
 `define MPIcz(nam,def,uni,        des) (*units=uni                            , desc=des*) parameter integer nam=def from[  0:inf);

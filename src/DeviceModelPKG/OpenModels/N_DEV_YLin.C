@@ -54,6 +54,9 @@
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
+
+//#include <N_UTL_Interpolators.h>
+
 namespace Xyce {
 namespace Device {
 namespace YLin {
@@ -139,6 +142,25 @@ void Traits::loadModelParameters(ParametricData<YLin::Model> &p)
     .setUnit(U_NONE)
     .setCategory(CAT_NONE)
     .setDescription("Format of ISC Time Domain File");
+
+  p.addPar("INTERPOLATION", 1, &YLin::Model::interpolation_ )
+//    .setGivenMember(&YLin::Model::interpGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("Interpolation method");
+
+
+  p.addPar("HIGHPASS",  1, &YLin::Model::extrapolationHigh_ )
+//    .setGivenMember(&YLin::Model::interpGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("method to extrapolate higher frequency points" );
+
+  p.addPar("LOWPASS",  1, &YLin::Model::extrapolationLow_ )
+//    .setGivenMember(&YLin::Model::interpGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("method to extrapolate lower frequency points");
 }
 
 //-----------------------------------------------------------------------------
@@ -1714,8 +1736,12 @@ Model::Model(
     freqVec_(0),
     defaultOptionLine_(false),
     expectedNumElementsPerNetworkDataLine_(0),
-    IscFD_(false),
-    IscTD_(false)
+    IscFD_(false), 
+    interpolation_(1),
+    extrapolationHigh_(1),
+    extrapolationLow_(1),
+    IscTD_(false),
+    yInterpolator(0)
 {
   // Set params to constant default values.
   setDefaultParams();
@@ -1749,6 +1775,23 @@ Model::Model(
     paramType_= ParamType::Y;
     dataFormat_= DataFormat::RI;
   }
+
+
+
+  switch (interpolation_ )
+  {
+    case 1:
+      yInterpolator = new Util::linear<double>();
+      break;
+
+    case 2:
+      yInterpolator = new Util::akima<double>();
+      break;
+
+    default:
+      UserFatal(*this) << "Unsupported interpolation method. ";
+      break;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1773,6 +1816,10 @@ Model::~Model()
   {
     delete (*it);
   }
+
+  yInterpolator->clear();
+  delete yInterpolator;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1839,6 +1886,7 @@ void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 
              
 
+     
 void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals  )
 {
 //  std::vector<std::complex<double> > 
@@ -1932,6 +1980,113 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
       y1 = inputIscFDVec_[n1][i];
       Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
     }
+  }
+
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : Model::interpData
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Ting Mei
+// Creation Date : 8/2023
+//----------------------------------------------------------------------------
+void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals  )
+{
+
+// Perform interpolation or extrapolation
+
+         
+  if (Iscvals.empty())
+    Iscvals.resize(numPorts_ );
+
+
+  double fmin = freqVec_[0];
+  double fmax = freqVec_[numFreq_ - 1];
+
+  result.shape(numPorts_, numPorts_);
+
+
+  std::vector<double> yreal,  yimag;
+
+  yreal.resize(numFreq_ );
+
+  yimag.resize(numFreq_ );
+
+
+  double y0, y1;
+
+  if (freq <= fmin)
+  {
+// Use fmin constant data
+//    sparams = (ymat_[0]);
+
+    result = inputNetworkDataVec_[0];
+
+    if (IscFD_)
+      Iscvals = inputIscFDVec_[0];
+
+  }
+  else if (freq >= fmax)
+  {
+    result = inputNetworkDataVec_[numFreq_ - 1];
+
+    if (IscFD_)
+      Iscvals = inputIscFDVec_[numFreq_ - 1];
+
+  }
+  else
+  {
+
+    double y0, y1;
+
+    for (int i=0; i< numPorts_ ; i++)
+    {
+
+      for (int j=0; j< numPorts_ ; j++)
+      {
+
+        for (int n=0; n< numFreq_ ; n++)
+        {
+          yreal[n] = ((inputNetworkDataVec_[n])(i, j)).real();
+          yimag[n] = ((inputNetworkDataVec_[n])(i, j)).imag();
+        }
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yreal );
+        yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yimag );
+        yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
+
+        result(i,j) = {  y0,  y1  };
+
+      }
+
+      if (IscFD_)
+      {
+
+        for (int n=0; n< numFreq_ ; n++)
+        {
+          yreal[n] = (inputIscFDVec_[n][i]).real();
+
+          yimag[n] = (inputIscFDVec_[n][i]).imag();
+        }
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yreal );
+        yInterpolator->eval( freqVec_,  yreal,  freq, y0 );
+
+        yInterpolator->clear();
+        yInterpolator->init( freqVec_,   yimag );
+        yInterpolator->eval( freqVec_,  yimag,  freq, y1 );
+
+        Iscvals[i] = {  y0,  y1  };
+      }
+    }
+
   }
 
 }
@@ -2037,7 +2192,9 @@ bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
     Teuchos::SerialDenseVector<int,std::complex<double> > Fvec( inst.model_.numPorts_ );
     Teuchos::SerialDenseVector<int,std::complex<double> > Xvec( Teuchos::View, &port_vals[0], inst.model_.numPorts_ );
 
-    inst.model_.interpLin( frequency,  inst.yvals, inst.Iscvals );
+    inst.model_.interpData( frequency,  inst.yvals, inst.Iscvals );
+
+//    inst.model_.interpLin( frequency,  inst.yvals, inst.Iscvals );
                                     
 
     Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),

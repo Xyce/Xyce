@@ -20,8 +20,12 @@ if(GTest_FOUND)
      gtest_discover_tests( XyceCInterfaceUnitTests TEST_PREFIX XyceCInterfaceUnit:)
 endif()
 
+if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
+  install( TARGETS xycecinterface DESTINATION bin OPTIONAL)
+else()
+  install( TARGETS xycecinterface DESTINATION lib OPTIONAL)
+endif()
 
-install( TARGETS xycecinterface DESTINATION lib OPTIONAL)
 configure_file(xyce_interface.py.cmake xyce_interface.py @ONLY )
 install( FILES N_CIR_XyceCInterface.h DESTINATION include OPTIONAL)
 install( FILES ${CMAKE_CURRENT_BINARY_DIR}/xyce_interface.py DESTINATION share OPTIONAL)
