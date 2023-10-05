@@ -2015,29 +2015,13 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
 
   yimag.resize(numFreq_ );
 
-
-//  double y0, y1;
-
-//  if (freq <= fmin)
   if (freq < fmin)
   {
-// Use fmin constant data
-//    sparams = (ymat_[0]);
-
-//    result = inputNetworkDataVec_[0];
-
-//    if (IscFD_)
-//      Iscvals = inputIscFDVec_[0];
 
     extrapolateData( freq, result, Iscvals, extrapolationLow_ );
   }
-//  else if (freq >= fmax)
   else if (freq > fmax)
   {
-//    result = inputNetworkDataVec_[numFreq_ - 1];
-
-//    if (IscFD_)
-//      Iscvals = inputIscFDVec_[numFreq_ - 1];
 
     extrapolateData( freq, result, Iscvals , extrapolationHigh_);
   }
@@ -2122,7 +2106,6 @@ void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::
    
   double f0, f1;
 
-//  if (freq <= fmin)
   if (freq < fmin)
   {
     n = 0;
@@ -2146,14 +2129,6 @@ void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::
 
   result.shape(numPorts_, numPorts_);
 
-//  std::vector<double> yreal,  yimag;
-
-//  yreal.resize(numFreq_ );
-
-//  yimag.resize(numFreq_ );
-
-
-//  double y0, y1;
 
   if ( extrapolation == 0)
   {
@@ -2164,7 +2139,6 @@ void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::
     if (IscFD_)
       Iscvals.assign( numPorts_ , 0.0 ); 
 
-    //    extrapolateData( freq, result, IscVals, extrapolationLow_ );
   }
   else if ( extrapolation == 1)
   {
@@ -2173,32 +2147,29 @@ void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::
     if (IscFD_)
       Iscvals = inputIscFDVec_[n];
 
-    //    extrapolateData( freq, result, IscVals, extrapolationHigh_);
   }
   else if ( extrapolation == 2)
   {
 
-  for (int i=0; i< numPorts_ ; i++)
-  {
-
-    for (int j=0; j< numPorts_ ; j++)
+    for (int i=0; i< numPorts_ ; i++)
     {
-      y0 = (inputNetworkDataVec_[n0])(i, j);
-      y1 = (inputNetworkDataVec_[n1])(i, j);
-      result(i, j)= y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
+
+      for (int j=0; j< numPorts_ ; j++)
+      {
+        y0 = (inputNetworkDataVec_[n0])(i, j);
+        y1 = (inputNetworkDataVec_[n1])(i, j);
+        result(i, j)= y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
+
+      }
+
+      if (IscFD_)
+      {
+        y0 = inputIscFDVec_[n0][i];
+        y1 = inputIscFDVec_[n1][i];
+        Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
+      }
 
     }
-
-    if (IscFD_)
-    {
-      y0 = inputIscFDVec_[n0][i];
-      y1 = inputIscFDVec_[n1][i];
-      Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
-    }
-
-  }
-
-
 
   }
   else
@@ -2207,22 +2178,6 @@ void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::
     return;
   }
 
-
-  for (int i=0; i< numPorts_ ; i++)
-  {
-
-    for (int j=0; j< numPorts_ ; j++)
-    {
-      std::cout << "result " << i  << j << " = " << result(i, j) << std::endl; 
-    }
-
-    if (IscFD_)
-    {
-
-      std::cout << "Isc " << i<< " = " << Iscvals[i] << std::endl; 
-    }
-
-  }
 }
 
 
