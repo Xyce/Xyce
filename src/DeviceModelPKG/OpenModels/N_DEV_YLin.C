@@ -2029,7 +2029,7 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
 //    if (IscFD_)
 //      Iscvals = inputIscFDVec_[0];
 
-//    extrapolateData( freq, result, Iscvals, extrapolationLow_ );
+    extrapolateData( freq, result, Iscvals, extrapolationLow_ );
   }
 //  else if (freq >= fmax)
   else if (freq > fmax)
@@ -2039,7 +2039,7 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
 //    if (IscFD_)
 //      Iscvals = inputIscFDVec_[numFreq_ - 1];
 
-//    extrapolateData( freq, result, Iscvals , extrapolationHigh_);
+    extrapolateData( freq, result, Iscvals , extrapolationHigh_);
   }
   else
   {
