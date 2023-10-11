@@ -64,8 +64,7 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
-# The following does not appear to be used anywhere. Assuming it's not, it should be removed.
-#add_library(trilinos INTERFACE IMPORTED GLOBAL)
+find_package(Trilinos REQUIRED)
 
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")

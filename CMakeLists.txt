@@ -13,7 +13,7 @@ endif()
 # system and sets up some critical variables.  Therefore, make an initial call
 # to "project" with "NONE" as the compiler set, then find Trilinos, then set up
 # the compilers and call project again.
-project(Xyce NONE)
+project(Xyce CXX C)
 
 # A TriBITS project that performs a coupled build with Trilinos, like Charon,
 # changes the names of all the Trilinos variables.  Therefore, we have to jump
@@ -64,25 +64,6 @@ else()
   set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
   set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
 endif()
-
-# If the user explicitly set the compilers, use those; otherwise use the same
-# compilers as Trilinos.
-if( DEFINED CMAKE_C_COMPILER )
-  message( "Using the user-defined C compiler: ${CMAKE_C_COMPILER}" )
-else()
-  message( STATUS "Using the ${TriBITS_prefix} C compiler: ${${TriBITS_prefix}_C_COMPILER}" )
-  set( CMAKE_C_COMPILER ${${TriBITS_prefix}_C_COMPILER} )
-endif()
-
-if( DEFINED CMAKE_CXX_COMPILER )
-  message( "Using the user-defined C++ compiler: ${CMAKE_CXX_COMPILER}" )
-else()
-  message( STATUS "Using the ${TriBITS_prefix} C++ compiler: ${${TriBITS_prefix}_CXX_COMPILER}" )
-  set( CMAKE_CXX_COMPILER ${${TriBITS_prefix}_CXX_COMPILER} )
-endif()
-
-enable_language(C)
-enable_language(CXX)
 
 # Set a default build type if none was specified (using the fact that
 # CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
