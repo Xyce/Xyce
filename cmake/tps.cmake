@@ -64,7 +64,7 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
-find_package(Trilinos REQUIRED)
+find_package(${TriBITS_prefix} REQUIRED)
 
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
