@@ -70,35 +70,54 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{XDM}
 \begin{XyceItemize}
-
-\item XDM now ... 
-
-\item XDM now ...
-
-
-
+\item XDM did not change in this release, so new installers were not generated.
 \end{XyceItemize}
 
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
-\item The PSP103 model has been modified so that the DTA parameter can be specified on the instance line.  Previously it was exclusively a model parameter.
+\item The PSP103 model has been modified so that the DTA parameter can be
+     specified on the instance line.  Previously it was exclusively a model
+     parameter.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item Xyce now ...
+\item  \Xyce{} can now handle the sources that involve transient specifications
+     during source stepping. Source stepping is one of the solver techniques
+     that \Xyce{} automatically attempts when trying to solve the DC operating
+     point (DCOP). Previously, source stepping would only apply to DC sources
+     that had no transient specifications. It now applies to sources that
+     involve transient specifications, with or without DC specifications. When
+     a source has inconsistent DC and transient specifications, the value used
+     in the source stepping depends on the analysis type. See the \Xyce{} Users
+     Guide for details. This leads to improved robustness and convergence of
+     source stepping in circuits using these sources for the DCOP calculation.
 
-\item  \Xyce{} can now handle the sources that involve transient specifications during source stepping. Source stepping is one of the solver techniques that \Xyce{} automatically attempts when trying to solve the DC operating point (DCOP). Previously, source stepping can only apply to DC sources that have no transient specifications. It now applies to sources that involve transient specifications with or without DC specifications. When a source has inconsistent DC and transient specifications, the value used in the source stepping depends on the analysis type. See \Xyce{} Users guide for details. This leads to improved robustness and convergence of source stepping in circuits using these sources for the DCOP calculation.
-
-\item \Xyce{} now provides a sequential source stepping algorithm that will ramp up sources with non-zero DC value in sequence, which can be more robust than the default simultaneous source stepping algorithm.  This new source stepping approach can be called directly using \texttt{.options nonlin continuation=35} or \texttt{.options nonlin continuation=sourcestep2}.  It will not replace simultaneous source stepping in the default DCOP strategy at this time.
+\item \Xyce{} now provides a sequential source stepping algorithm that will
+     ramp up sources with non-zero DC value in sequence, which can be more
+     robust than the default simultaneous source stepping algorithm.  This new
+     source stepping approach can be called directly using \texttt{.options
+     nonlin continuation=35} or \texttt{.options nonlin
+     continuation=sourcestep2}.  It will not replace simultaneous source
+     stepping in the default DCOP strategy at this time.
 
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-\item \Xyce{} can now handle multiple \texttt{.OPTIONS} statements for the same keyword.   So, for example, if the netlist contains more than one \texttt{.OPTIONS TIMEINT} commands, \Xyce{} will combine all these statements internally into a single combined \texttt{.OPTIONS TIMEINT} statement.  Previously, Xyce's behavior in this respect was undefined.  For example, if the netlist contained multiple \texttt{.options timeint} statements, \Xyce{} would only use one of them and silently ignore the others.  This was confusing for users of other simulators, and has been fixed.  \Xyce{} now treats multiple statements as a combined single statement, and issues warnings for duplicate parameters.
+\item \Xyce{} can now handle multiple \texttt{.OPTIONS} statements for the same
+     keyword.   So, for example, if the netlist contains more than one
+     \texttt{.OPTIONS TIMEINT} command, \Xyce{} will combine all the statements
+     into a single, combined \texttt{.OPTIONS TIMEINT} statement.  Previously,
+     Xyce's behavior in this respect was undefined.  For example, if the
+     netlist contained multiple \texttt{.options timeint} statements, \Xyce{}
+     would only use one of them and silently ignore the others.  \Xyce{} now
+     treats multiple statements as a combined single statement, consistent with
+     other simulators, and issues warnings for duplicate parameters.
 
-\item The \texttt{.GLOBAL} statement now supports multiple global nodes on the same line.  Previously each specified node needed its own unique \texttt{.GLOBAL} statement.
+\item The \texttt{.GLOBAL} statement now supports multiple global nodes on the
+     same line.  Previously each specified node needed its own unique
+     \texttt{.GLOBAL} statement.
 
 \end{XyceItemize}
 
@@ -119,7 +138,7 @@ The following platforms have been subject to certification testing for the
 \Xyce{} version 7.8 release.
 \begin{XyceItemize}
   \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
-  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Microsoft Windows 11${}^{\mbox{\textregistered}}$, x86-64 (serial)
   \item Apple${}^{\mbox{\textregistered}}$ macOS, x86-64 (serial and parallel)
 \end{XyceItemize}
 
