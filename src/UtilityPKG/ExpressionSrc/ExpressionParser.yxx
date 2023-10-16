@@ -29,7 +29,7 @@
 // This feature throws off "deprecated" warnings in more recent version so of Bison.
 // Starting in Bison 3.3, the proper way to define the class name is:  %define api.parser.class {ExpressionParser}
 // For Xyce, the minimum version of Bison is 3.0.4, so we have to live with this warning.
-%define parser_class_name "ExpressionParser"
+%define api.parser.class {ExpressionParser}
 %locations
 %defines
 %define api.prefix {XyceExpression}

@@ -52,7 +52,7 @@ class ReactionLexer;
 %lex-param {ReactionLexer *theLexer}
 %lex-param {std::map<std::string, int> &theSpeciesIDs}
 
-%define parser_class_name "ReactionParser"
+%define api.parser.class {ReactionParser}
 %locations
 %defines
 
