@@ -1332,7 +1332,7 @@ ScalarT calcIIIVMob (MobInfo<ScalarT> & min)
   {
     //hole mobility
 
-    ScalarT ratio = hole0FieldMob*abs(min.epar)/holeVSat;
+    ScalarT ratio = hole0FieldMob*std::abs(min.epar)/holeVSat;
 
     mobil = hole0FieldMob/(1.0+ratio);
   }
@@ -1340,13 +1340,13 @@ ScalarT calcIIIVMob (MobInfo<ScalarT> & min)
   {
     //electron mobility
 
-    ScalarT fieldRatio = pow(pow(abs(min.epar),0.75)/fieldSat,4.0);
+    ScalarT fieldRatio = pow(pow(std::abs(min.epar),0.75)/fieldSat,4.0);
 
     ScalarT vfRatio = electronVSat;
 
     ScalarT eMobNumerator = electron0FieldMob + vfRatio*fieldRatio;
 
-    ScalarT eMobDenominator = 1.0 + abs(min.epar)*fieldRatio;
+    ScalarT eMobDenominator = 1.0 + std::abs(min.epar)*fieldRatio;
 
     mobil = eMobNumerator/eMobDenominator;
   }

@@ -483,7 +483,7 @@ ScalarT DevicePDEInstance::FDCarrierFlux(ScalarT n1,
 
   ScalarT concProduct = n1*n2;
 
-  if(n1*n2 < 0.0)concProduct = abs(buffer);
+  if(n1*n2 < 0.0)concProduct = std::abs(buffer);
 
   ScalarT fluxPrefactor = -mu*(-z*(V1-V2)+buffer)/h*sqrt(concProduct);
 
@@ -493,7 +493,7 @@ ScalarT DevicePDEInstance::FDCarrierFlux(ScalarT n1,
   //If commonFactor AND commonFactor relative to fdFactor becomes large enough, the formulas can produce
   //overflow.  However, really, fluxNumerator/fluxDenominator -> 1.0.  Capture this event.
 
-  if(abs(commonFactor) > 50.0 || abs(fdFactor) > 50.00)
+  if(std::abs(commonFactor) > 50.0 || std::abs(fdFactor) > 50.00)
     {
       fluxNumerator = 1.0;
       if(fdFactor < 0.0)
