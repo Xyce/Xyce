@@ -41,8 +41,6 @@
 #include <N_MPDE_WarpedPhaseCondition.h>
 #include <N_PDS_Comm.h>
 
-using std::max;
-
 Teuchos::RCP<std::vector<int> > N_MPDE_WarpedPhaseCondition::getPhaseGraph() const
 {
   if ((warpMPDEOSCOUT_ == -1) && (warpPhase_ != 0))
@@ -140,7 +138,7 @@ N_MPDE_WarpedPhaseCondition::getPhaseCondition(
     int xwmLID = bX.pmap()->globalToLocalIndex(warpMPDEOSCOUT_+shiftm);
     double xwp = bX[xwpLID];
     double xwm = bX[xwmLID];
-    double max_xw = max(abs(xwp),abs(xwm));
+    double max_xw = std::max(std::abs(xwp),std::abs(xwm));
     double invh2 = 1.0 / ((fastTimes[BlockCount] - fastTimes[BlockCount-1]) + (fastTimes[1] - fastTimes[0]));
       tmpPhaseValue = omega*(xwp - xwm)*(1.0 / max_xw) - warpPhaseCoeff_ ;
     }
