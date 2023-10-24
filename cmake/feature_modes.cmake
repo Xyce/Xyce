@@ -4,7 +4,7 @@ set(Xyce_QUALIFICATION             TRUE CACHE BOOL "Set to TRUE to designate a q
 if(Xyce_RELEASE)
      set(RELEASE_CHARACTER "R")
      if(Xyce_QUALIFICATION)
-          set(QUALIFICATION_CHARACTER "D")
+          set(QUALIFICATION_CHARACTER "Q")
      endif()
 else()
      set(RELEASE_CHARACTER "D")
