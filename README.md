@@ -2,18 +2,36 @@
 
 [![Xyce](doc/Common_Guide_Files/xyce_flat_white.png)](https://xyce.sandia.gov)
 
-## About Xyce
+## About the Xyce&trade; Parallel Electronic Simulator
 
-[Xyce](https://xyce.sandia.gov) (z&#x012B;s, rhymes with "spice") is an open
-source, SPICE-compatible, high-performance analog circuit simulator, capable of
-solving extremely large circuit problems by supporting large-scale parallel
-computing platforms. It also supports serial execution on all common desktop
-platforms, and small-scale parallel runs on Unix-like systems. In addition to
-analog electronic simulation, Xyce has also been used to investigate more
-general network systems, such as neural networks and power grids. In providing
-an Open Source version of Xyce to the external community, Sandia hopes to
-contribute a robust and modern electronic simulator to users and researchers in
-the field.
+[Xyce](https://xyce.sandia.gov)&trade; (z&#x012B;s, rhymes with "spice") is an
+open-source, SPICE-compatible, high-performance analog circuit simulator. Xyce
+supports the standard analysis capabilities found in other SPICE-like codes,
+such as DC, transient, AC, and small-signal noise analyses; it also has less
+common capabilities, such as harmonic balance, sensitivity analysis, and
+uncertainty propagation techniques. Xyce supplies industry-standard compact
+models and can support custom models via its Verilog-A model compiler. Foundry
+process-development kits (PDKs) in other SPICE syntax can be used via the XDM
+netlist translator, which is included as part of the Xyce package. In addition
+to supporting use on all common desktop platforms (Mac, Windows, Linux), Xyce
+can also be compiled to run in a large-scale parallel mode to provide scalable,
+numerically accurate analog simulation for large-scale circuit simulation.
+
+### Citing Xyce
+
+If you use Xyce in your work, please cite it using the metadata provided at the
+[DOE CODE entry](https://www.osti.gov/doecode/biblio/2462) for Xyce. Citations
+in various formats, including APA and BibTeX, are provided at the bottom of
+that page. The DOI entry for Xyce is
+[10.11578/dc.20171025.1421](https://doi.org/10.11578/dc.20171025.1421).
+
+__Brief Citation__:\
+Eric R. Keiter, Richard L. Schiek, Heidi K. Thornquist, Ting Mei, Jason C.
+Verley, Karthik V. Aadithya, Gary J. Templet, Joshua D. Schickling, Gary L.
+Hennigan. "Xyce&trade; Parallel Electronic Simulator." Computer software.
+October 03, 2013. DOI: 10.11578/dc.20171025.1421.
+
+### More About Xyce
 
 While designed to be SPICE-compatible, Xyce is not a derivative of SPICE. Xyce
 was designed from scratch to be a parallel simulation code, written in C++ and
@@ -30,7 +48,12 @@ steady-state (`.DC`), transient (`.TRAN`), small-signal frequency domain
 in a number of ways, including support for a large number of non-traditional
 models, such as neuron and reaction network models. Xyce also supports Harmonic
 Balance analysis (`.HB`), random sampling analysis, sensitivity calculations,
-and post processing of the simulation metrics (`.FOUR` and `.MEASURE`).
+and post processing of the simulation metrics (`.FOUR` and `.MEASURE`). In
+addition to analog electronic simulation, Xyce has also been used to
+investigate more general network systems, such as neural networks and power
+grids. In providing an Open Source version of Xyce to the external community,
+Sandia hopes to contribute a robust and modern electronic simulator to users
+and researchers in the field.
 
 ## Binaries Installers, Building and More
 
