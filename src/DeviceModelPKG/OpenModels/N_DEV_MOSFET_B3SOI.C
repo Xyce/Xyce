@@ -8837,6 +8837,7 @@ bool Instance::updateIntermediateVars ()
   delTemp_orig = delTemp;
 
   // note initJctFlag will only be true for dcop.
+//  if (getDeviceOptions().b3soiVoltageLimiterFlag)
   if (getSolverState().initJctFlag_ && !OFF && getDeviceOptions().voltageLimiterFlag)
   {
     if (getSolverState().inputOPFlag)
@@ -9298,6 +9299,7 @@ bool Instance::updateIntermediateVars ()
       Ves = ves;
       Ves_orig = ves_orig;
       Vps = vps;
+      Vps_orig = vps_orig;
 
       wdios = paramPtr->wdios;
       wdiod = paramPtr->wdiod;
@@ -12038,6 +12040,29 @@ bool Instance::updateIntermediateVars ()
                     +(gbT + dIgb_dT)   * (delTemp - delTemp_orig));
 
 //  spice has:
+
+/*      if ( li_Body == 1070)
+      {  std::cout << " origFlag = "       <<  origFlag  <<  std::endl;
+
+        std::cout << "  Vbs - Vbs_orig = "  << Vbs - Vbs_orig << std::endl;
+
+        std::cout << "  Vgs - Vgs_orig = "  <<  Vgs - Vgs_orig << std::endl;
+
+        std::cout << "  Vds - Vds_orig  = " <<  Vds - Vds_orig << std::endl;
+        
+        std::cout << "  Vps = "  << Vps <<  " Vps_orig = " << Vps_orig << std::endl;
+        std::cout << "  Vps - Vps_orig = "  << Vps - Vps_orig << std::endl;
+
+        std::cout << "  Ves - Ves_orig  = "  << Ves - Ves_orig << std::endl;
+
+        std::cout << "  delTemp - delTemp_orig = " << delTemp - delTemp_orig << std::endl;
+        
+        std::cout << "  cbody_Jdxp = "  <<  cbody_Jdxp   << std::endl;
+
+        
+        std::cout << "  Vbd - Vbd_orig = "  << Vbd - Vbd_orig << std::endl;
+      }       */
+
 //  cgate = Igb - (dIgb_dVb * Vbs + dIgb_dVe * Ves + dIgb_dVg
 //                   * Vgs + dIgb_dVd * Vds + dIgb_dT * delTemp); // v3.0
 
@@ -14336,6 +14361,7 @@ bool Instance::loadDAEFVector ()
   double Coef_substrate=0.0;
   double Coef_temp=0.0;
 
+//  Gmin = getDeviceOptions().gmin;
   Gmin = getDeviceOptions().gmin * 1e-6;
   geltd = grgeltd;
 
@@ -17577,6 +17603,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double Coef_f_substrate=0.0;
     double Coef_f_temp=0.0;
 
+//    mi.Gmin = getDeviceOptions().gmin;
     mi.Gmin = getDeviceOptions().gmin * 1e-6;
     mi.geltd = mi.grgeltd;
 
@@ -17815,6 +17842,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double iGmin_bs_Jdxp = mi.model_.dtype*mi.Gmin*(mi.vbs-mi.vbs_orig);
     double iGmin_gd_Jdxp = mi.model_.dtype*mi.Gmin*(mi.vgd-mi.vgd_orig);
 
+//    if (getDeviceOptions().b3soiVoltageLimiterFlag)
     if (getDeviceOptions().voltageLimiterFlag && !mi.origFlag)
     {
       if (mi.soiMod != 2)
@@ -17823,6 +17851,17 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
         (mi.model_.dtype*(mi.ceqbody_Jdxp )
           - iGmin_bs_Jdxp)* mi.numberParallel;
       }
+
+/*      if ( mi.li_Body == 1070)
+      { 
+
+        std::cout << " ceqbody_Jdxp = "  << mi.ceqbody_Jdxp << std::endl;
+
+        std::cout << " iGmin_bs_Jdxp = "  <<  iGmin_bs_Jdxp << std::endl;
+
+        std::cout << "  Coef_f_body_Jdxp = " <<      Coef_f_body_Jdxp << std::endl;    
+
+      }                            */
 
       Coef_f_gatePrime_Jdxp  -=
           (mi.model_.dtype*(mi.ceqgate_Jdxp - mi.ceqgcrg_Jdxp)
