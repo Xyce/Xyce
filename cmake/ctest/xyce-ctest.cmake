@@ -4,8 +4,9 @@
 # arguments, specified via "-D"
 #   -DVERBOSITY=<0-5>
 #   -DDASHSUBMIT=<TRUE|FALSE>    # mostly for debugging to avoid cdash submission
-#   -DCMAKE_ARGS_LIST="-DVAR1=VAL1;-DVAR2=VAL2;..."
+#   -DCMAKE_ARGS_LIST="-DVAR1=VAL1;-DVAR2=VAL2;..."  # arguments to pass directly to cmake
 #   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
+#   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
 
 cmake_minimum_required(VERSION 3.23)
@@ -238,6 +239,10 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   find_program(XDMBDLEXE NAMES xdm_bdl)
   if(NOT ${XDMBDLEXE} STREQUAL "XDMBDLEXE-NOTFOUND")
     set(myTagList "${myTagList}?xdm")
+  endif()
+
+  if(NOT "${RXR_APPEND_TAGS}" STREQUAL "")
+    set(myTagList "${myTagList}${RXR_APPEND_TAGS}")
   endif()
 
   # set parent TAGLIST from function-local variable
