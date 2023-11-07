@@ -190,6 +190,8 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   string(FIND "${term_cap_out}" "Non-Free device models" res_var)
   if(NOT ${res_var} EQUAL -1)
     set(myTagList "${myTagList}?nonfree")
+  else()
+    set(myTagList "${myTagList}-nonfree")
   endif()
 
   string(FIND "${term_cap_out}" "Radiation models" res_var)
@@ -200,7 +202,6 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
       set(myTagList "${myTagList}?qaspr")
     endif()
   else()
-    # binary doesn't support radiation models
     set(myTagList "${myTagList}-rad")
   endif()
 
