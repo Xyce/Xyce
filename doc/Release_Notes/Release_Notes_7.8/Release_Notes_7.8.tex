@@ -12,6 +12,7 @@
 \usepackage{ltxtable, multirow}
 \usepackage{Xyce}
 \usepackage{geometry}
+\usepackage{eso-pic}
 
 \pdfcatalog {/PageMode /UseNone}
 \renewcommand{\arraystretch}{1.2}
@@ -36,14 +37,18 @@ Version \XyceVersionVar{} Release Notes}
 
 \date{\today}
 
-% Approved April TBD 2023
-% SAND Number SAND2023-TBD
-
 % ---------------------------------------------------------------------------- %
 % Start the document
 
 \begin{document}
 \maketitle
+
+\AddToShipoutPictureBG*{%
+  \AtPageUpperLeft{%
+    \hspace{\dimexpr\paperwidth-1in\relax}%
+    \raisebox{-0.5in}{%
+         \makebox[0pt][r]{\textsf{SAND2023-13932R}}%
+}}}
 
 The \XyceTM{} Parallel Electronic Simulator has been written to support the
 simulation needs of Sandia National Laboratories' electrical designers.
@@ -201,6 +206,5 @@ LLC, a wholly owned subsidiary of Honeywell International, Inc., for
 the U.S. Department of Energy's National Nuclear Security
 Administration under contract DE-NA0003525.
 
-SAND2023-XXXX O
 \end{document}
 
