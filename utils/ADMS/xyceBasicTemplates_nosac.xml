@@ -2276,7 +2276,7 @@ other variables does not get propagated into a variable's
 
 <admst:template match="collectLimiters">
   <admst:variable name="thisModule" select="%(.)"/>
-  <admst:for-each select="assignment[rhs/function/name='\$limit']">
+  <admst:for-each select="assignment[not(nilled(rhs/function/[name='\$limit']))]">
     <admst:push into="../@limiters" select="." onduplicate="ignore"/>
   </admst:for-each>
   <admst:for-each select="@limiters">
@@ -4758,6 +4758,8 @@ other variables does not get propagated into a variable's
    =================================================================-
   -->
   <admst:template match="limiterAssignment">
+    <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+    <admst:variable name="skipFunctionPrecomp" select="y"/>
     <admst:choose>
       <admst:when test="[$globalCurrentScope='sensitivity']">
         <!-- The probeVars for "typed" limiters must be pre-multiplied by the
@@ -4849,6 +4851,7 @@ other variables does not get propagated into a variable's
         <admst:text format="d_%(printTerm(lhs))_d%($rhsprobe/nature)_%($rhsprobe/branch/pnode)_%($rhsprobe/branch/nnode) = d_probeVars[%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)][%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];\n\n"/>
       </admst:otherwise>
     </admst:choose>
+    <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
   </admst:template>
 <!--
    =================================================================-
