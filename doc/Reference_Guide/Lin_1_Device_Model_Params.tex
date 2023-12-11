@@ -13,4 +13,21 @@ INTERPOLATION & Interpolation method. Supported methods:
 \item 1 (linear)
 \item 2 (akima spline)
 \end{XyceItemize}   & -- & 1   \\ \hline
+
+HIGHPASS & extrapolation method for higher frequency points. Supported methods:
+\begin{XyceItemize}
+\item 0 (cut off)
+\item 1 (use highest frequency point)
+\item 2 (linear extrapolation using highest 2 points)
+\end{XyceItemize}   & -- & 1   \\ \hline
+
+
+LOWPASS & extrapolation method for lower frequency points. Supported methods:
+\begin{XyceItemize}
+\item 0 (cut off)
+\item 1 (use lowest frequency point)
+\item 2 (linear extrapolation using lowest 2 points)
+\end{XyceItemize}   & -- & 1   \\ \hline
+
+
 \end{DeviceParamTableGenerated}

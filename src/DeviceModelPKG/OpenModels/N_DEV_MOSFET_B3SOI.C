@@ -8837,6 +8837,7 @@ bool Instance::updateIntermediateVars ()
   delTemp_orig = delTemp;
 
   // note initJctFlag will only be true for dcop.
+
   if (getSolverState().initJctFlag_ && !OFF && getDeviceOptions().voltageLimiterFlag)
   {
     if (getSolverState().inputOPFlag)
@@ -9298,6 +9299,7 @@ bool Instance::updateIntermediateVars ()
       Ves = ves;
       Ves_orig = ves_orig;
       Vps = vps;
+      Vps_orig = vps_orig;
 
       wdios = paramPtr->wdios;
       wdiod = paramPtr->wdiod;
@@ -14336,6 +14338,7 @@ bool Instance::loadDAEFVector ()
   double Coef_substrate=0.0;
   double Coef_temp=0.0;
 
+//  Gmin = getDeviceOptions().gmin;
   Gmin = getDeviceOptions().gmin * 1e-6;
   geltd = grgeltd;
 
@@ -17577,6 +17580,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double Coef_f_substrate=0.0;
     double Coef_f_temp=0.0;
 
+//    mi.Gmin = getDeviceOptions().gmin;
     mi.Gmin = getDeviceOptions().gmin * 1e-6;
     mi.geltd = mi.grgeltd;
 

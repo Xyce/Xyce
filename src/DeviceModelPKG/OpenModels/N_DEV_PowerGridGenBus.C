@@ -1101,7 +1101,7 @@ bool Instance::loadDAEdFdx ()
     dFdx[li_VI2][VI2_Q_Offset] -= 1.0;
 
     // jacobiam term that come from the VMag constraint
-    double jacTerm = (VMag_ - abs(VR1-VR2)) > 0 
+    double jacTerm = (VMag_ - std::abs(VR1-VR2)) > 0 
                          ?  (VR2 - VR1) / sqrt(VMag_*VMag_ - (VR1-VR2)*(VR1-VR2)) : 1e10*(VR2 - VR1); 
     Xyce::dout() << "Jacobian term = " << jacTerm << std::endl; 
     dFdx[li_VI1][VI1_VR1_Offset] += jacTerm;

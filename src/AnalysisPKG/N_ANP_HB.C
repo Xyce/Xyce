@@ -1448,7 +1448,7 @@ bool HB::setFreqPointsAPFT_()
 
       indexMatrix (j, i) = static_cast<double>(idxValues - (numFreqs_[j] - 1)/2 );
       nextIndex = idxMod;
-      sumIndex += abs(idxValues - (numFreqs_[j] - 1)/2 );
+      sumIndex += std::abs(idxValues - (numFreqs_[j] - 1)/2 );
 
     }
 
@@ -1543,7 +1543,7 @@ bool HB::setFreqPointsAPFT_()
   posfreqPoints_.erase(std::unique(posfreqPoints_.begin(), posfreqPoints_.end() ), posfreqPoints_.end() );
 
 
-  if (abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
+  if (std::abs( posfreqPoints_[0]) < 2.0*Util::MachineDependentParams::MachinePrecision() )
     posfreqPoints_.erase( posfreqPoints_.begin()); 
 
   size_ = ( posfreqPoints_.size() ) *2 + 1;
@@ -1808,7 +1808,7 @@ bool HB::setFreqPointsDia_()
       indexMatrix (j, i) = static_cast<double>(idxValues - (numFreqs_[j] - 1)/2 );
       nextIndex = idxMod;
 
-      sumIndex += abs(idxValues - (numFreqs_[j] - 1)/2 );
+      sumIndex += std::abs(idxValues - (numFreqs_[j] - 1)/2 );
     }
 
 

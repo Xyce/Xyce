@@ -1886,7 +1886,7 @@ void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 
              
 
-     
+ 
 void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals  )
 {
 //  std::vector<std::complex<double> > 
@@ -2015,27 +2015,15 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
 
   yimag.resize(numFreq_ );
 
-
-  double y0, y1;
-
-  if (freq <= fmin)
+  if (freq < fmin)
   {
-// Use fmin constant data
-//    sparams = (ymat_[0]);
 
-    result = inputNetworkDataVec_[0];
-
-    if (IscFD_)
-      Iscvals = inputIscFDVec_[0];
-
+    extrapolateData( freq, result, Iscvals, extrapolationLow_ );
   }
-  else if (freq >= fmax)
+  else if (freq > fmax)
   {
-    result = inputNetworkDataVec_[numFreq_ - 1];
 
-    if (IscFD_)
-      Iscvals = inputIscFDVec_[numFreq_ - 1];
-
+    extrapolateData( freq, result, Iscvals , extrapolationHigh_);
   }
   else
   {
@@ -2090,6 +2078,109 @@ void Model::interpData( double freq,  Teuchos::SerialDenseMatrix<int, std::compl
   }
 
 }
+
+
+//-----------------------------------------------------------------------------
+// Function      : Model:: extrapolateData
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Ting Mei
+// Creation Date : 8/2023
+//----------------------------------------------------------------------------
+void Model::extrapolateData( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals, int extrapolation )
+{
+
+// Perform extrapolation
+
+
+  if (Iscvals.empty())
+    Iscvals.resize(numPorts_ );
+
+  double fmin = freqVec_[0];
+  double fmax = freqVec_[numFreq_ - 1];
+
+  std::complex<double> y0, y1;
+
+  int n0, n1, n ;
+   
+  double f0, f1;
+
+  if (freq < fmin)
+  {
+    n = 0;
+
+    n0 = 0;    
+
+    n1 = 1;
+  }
+  else
+  {
+    n =  numFreq_ - 1;
+
+    n0 =  numFreq_ - 2;
+
+    n1 =  numFreq_ - 1;
+  }
+
+
+  f0 = freqVec_[n0];
+  f1 = freqVec_[n1];
+
+  result.shape(numPorts_, numPorts_);
+
+
+  if ( extrapolation == 0)
+  {
+     // Use cut off
+
+    result.putScalar ( 0.0 );
+
+    if (IscFD_)
+      Iscvals.assign( numPorts_ , 0.0 ); 
+
+  }
+  else if ( extrapolation == 1)
+  {
+    result = inputNetworkDataVec_[n];
+
+    if (IscFD_)
+      Iscvals = inputIscFDVec_[n];
+
+  }
+  else if ( extrapolation == 2)
+  {
+
+    for (int i=0; i< numPorts_ ; i++)
+    {
+
+      for (int j=0; j< numPorts_ ; j++)
+      {
+        y0 = (inputNetworkDataVec_[n0])(i, j);
+        y1 = (inputNetworkDataVec_[n1])(i, j);
+        result(i, j)= y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
+
+      }
+
+      if (IscFD_)
+      {
+        y0 = inputIscFDVec_[n0][i];
+        y1 = inputIscFDVec_[n1][i];
+        Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
+      }
+
+    }
+
+  }
+  else
+  {
+    UserFatal(*this) << "Unsupported extrapolation method. ";
+    return;
+  }
+
+}
+
+
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Master::loadDAEVectors
