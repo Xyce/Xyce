@@ -5,5 +5,5 @@ set( Trilinos_ENABLE_ShyLU_NodeBasker        ON  CACHE BOOL "" )
 set( TPL_ENABLE_METIS                        ON  CACHE BOOL "" )
 
 # NOTES
-# ShyLU-Basker requires OpenMP, which does not work on MacOS
+# ShyLU-Basker requires OpenMP
 # The OMP_NUM_THREADS environment variable must be set to a reasonable number

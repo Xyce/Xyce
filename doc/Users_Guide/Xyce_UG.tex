@@ -33,7 +33,7 @@
      \DeclareOldFontCommand{\sc}{\normalfont\scshape}{\@nomath\sc}
 }
 
-\newcommand{\ReferenceGuide}{~\cite{Xyce_Reference_Guide_7_7}}
+\newcommand{\ReferenceGuide}{~\cite{Xyce_Reference_Guide_7_8}}
 
 \newenvironment{NetlistFigure}[2]
 {\def\mycaption{#1}\def\mylabel{#2}\begin{figure}[H]\begin{centering}\begin{Sbox}\begin{minipage}{0.8\textwidth}\begin{vquote}}
@@ -69,7 +69,7 @@
 \makeindex
 
 % Set stuff for the Xyce package:
-\XyceVersion{7.7}
+\XyceVersion{7.8}
 \XyceDocName{\XyceTM{} Users' Guide}
 
 % ---------------------------------------------------------------------------- %
@@ -78,13 +78,13 @@
 %
 \title{\XyceTitle{} Parallel Electronic Simulator\\Users' Guide, Version \XyceVersionVar}
 \author{Eric R. Keiter,
-            Thomas V. Russo,
-            Richard L. Schiek,\\
-            Heidi K. Thornquist,
+            Richard L. Schiek,
+            Heidi K. Thornquist,\\
             Ting Mei,
-            Jason C. Verley\\
-            Karthik V. Aadithya,
-            Joshua D. Schickling
+            Jason C. Verley,
+            Karthik V. Aadithya,\\
+            Joshua D. Schickling,
+            Gary L. Hennigan
 }
 \date{}
 
@@ -92,11 +92,8 @@
 % Set some things we need for SAND reports. These are mandatory
 %
 \opt{sand}{
-  \SANDnum{SAND2023-05926}
-\SANDprintDate{July 2023}
-\SANDauthor{
-     Eric R. Keiter, Thomas V. Russo, Richard L. Schiek, Heidi K. Thornquist, Ting Mei,\\%
-     Jason C. Verley, Karthik V. Aadithya, Joshua D. Schickling}
+  \SANDnum{SAND2023-13274}
+\SANDprintDate{November 2023}
 }
 
 \begin{document}
@@ -224,10 +221,9 @@ achieved as the number of processors grows.
 %%%
 %%% End of Text
 %%%
-%\addcontentsline{toc}{chapter}{Bibliography}
 \cleardoublepage
 \opt{report}{
-\pdfbookmark[0]{Bibliography}{Bib}
+\addcontentsline{toc}{chapter}{Bibliography}
 }
 \bibliographystyle{unsrt}
 \bibliography{circuit}
@@ -235,8 +231,6 @@ achieved as the number of processors grows.
 %% Appendix:
 %% Third Party License Information
 \appendix
-\setcounter{chapter}{0}
-\renewcommand{\thechapter}{\Alph{chapter}}
 \chapter{Third Party Licenses}
 \input{third_party_license}
 
@@ -244,9 +238,10 @@ achieved as the number of processors grows.
 %% Index
 %%
 \cleardoublepage
-\pdfbookmark[0]{Index}{Index}
+\addcontentsline{toc}{chapter}{Index}
 \printindex
 \opt{sand}{
+\addcontentsline{toc}{chapter}{Distribution List}
 \include{Xyce_UG_dist}
 }
 \cleardoublepage

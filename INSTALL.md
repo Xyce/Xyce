@@ -8,11 +8,6 @@ capabilities, it is recommended to use the Autotools build, as documented on
 the [Xyce Building
 Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
 
-At the time of this writing, the CMake system will build only against the
-develop branch of Trilinos. We are targeting the Trilinos 14 release, which
-will have a rewritten CMake system, already on Trilinos develop, that required
-changes in the Xyce CMake system.
-
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 
@@ -166,24 +161,17 @@ contain only the libraries needed by Xyce. For the parallel version, be sure to
 understand the serial build process prior to reading the [Building Trilinos
 with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 
-As mentioned, since the CMake build system is being updated, we require a
-version of Trilinos near their development head. At the time of the Xyce 7.6
-release, the specific SHA we test is
-`b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5`. Earlier versions will likely not
-work with Xyce's CMake build system.
+As mentioned, the CMake build system is being updated. At the time of this
+writing, we test against the 14.4 release of Trilinos. Earlier versions will
+likely not work with Xyce's CMake build system.
 
 To obtain a working Trilinos build, you can clone it from the [Trilinos GitHub
-Page](https://github.com/trilinos/trilinos) and checkout `b91cc3dcd9`.
-Alternatively, you can use this [direct
-link](https://github.com/trilinos/Trilinos/archive/b91cc3dcd9c94fd57cb6d4b7b7baf49292aa1df5.tar.gz).
-If you use a git clone, you can obtain just the `b91cc3dcd9` files (and a
-faster download) by running:
-```sh
-git clone --shallow-since 2022-09-15 --branch develop https://github.com/trilinos/Trilinos.git
-(cd Trilinos ; git checkout b91cc3dcd9)
-```
-After checking out the specific SHA, above, you will get a warning from git about
-being in a detached HEAD state. This is ok as we are just building the code.
+Page](https://github.com/trilinos/trilinos) and checkout
+`trilinos-release-14-4-0`. After checking out the specific tag, above, you will
+get a warning from git about being in a "detached HEAD" state. This is ok as we
+are just building the code. Alternatively, you can use this
+[direct link](https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-14-4-0.tar.gz)
+to download just the release files, which is a smaller (and faster) download.
 
 In order to build Trilinos, first create a "build" directory in a convenient
 location. The name does not matter, and can be something simple like
