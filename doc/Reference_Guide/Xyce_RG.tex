@@ -55,15 +55,15 @@ Xyce_RG_dist
 %
 % Set the title, author, and date
 %
-\title{\XyceTitle{} Parallel Electronic Simulator\\Reference Guide, Version 7.7}
+\title{\XyceTitle{} Parallel Electronic Simulator\\Reference Guide, Version 7.8}
 \author{Eric R. Keiter,
-            Thomas V. Russo,
-            Richard L. Schiek,\\
-            Heidi K. Thornquist,
+            Richard L. Schiek,
+            Heidi K. Thornquist,\\
             Ting Mei,
-            Jason C. Verley\\
-            Karthik V. Aadithya,
-            Joshua D. Schickling
+            Jason C. Verley,
+            Karthik V. Aadithya,\\
+            Joshua D. Schickling,
+            Gary L. Hennigan
 }
 \date{}
 
@@ -71,11 +71,8 @@ Xyce_RG_dist
 % Set some things we need for SAND reports. These are mandatory
 %
 \opt{sand}{
-\SANDnum{SAND2023-05819}
-\SANDprintDate{July 2023}
-\SANDauthor{
-     Eric R. Keiter, Thomas V. Russo, Richard L. Schiek, Heidi K.  Thornquist, Ting Mei,\\%
-     Jason C. Verley, Karthik V. Aadithya, Joshua D. Schickling}
+\SANDnum{SAND2023-13759}
+\SANDprintDate{November 2023}
 }
 
 \begin{document}
@@ -160,10 +157,9 @@ better served by the \Xyce{} Users' Guide\UsersGuide.
 %%%
 %%% End of Text
 %%%
-%\addcontentsline{toc}{chapter}{Bibliography}
 \cleardoublepage
 \opt{report}{
-\pdfbookmark[0]{Bibliography}{Bib}
+\addcontentsline{toc}{chapter}{Bibliography}
 }
 \bibliographystyle{unsrt}
 \bibliography{circuit}
@@ -171,7 +167,6 @@ better served by the \Xyce{} Users' Guide\UsersGuide.
 %%% Appendix:
 %%% Third Party License Information
 \appendix
-\renewcommand{\thechapter}{\Alph{chapter}}
 \chapter{Third Party Licenses}
 \input{third_party_license}
 
@@ -179,9 +174,10 @@ better served by the \Xyce{} Users' Guide\UsersGuide.
 %% Index
 %%
 \cleardoublepage
-\pdfbookmark[0]{Index}{Index}
+\addcontentsline{toc}{chapter}{Index}
 \printindex
 \opt{sand}{
+\addcontentsline{toc}{chapter}{Distribution}
 \include{Xyce_RG_dist}
 }
 \cleardoublepage

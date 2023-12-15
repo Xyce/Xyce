@@ -41,20 +41,42 @@
   \\\hline
 
 \textbf{Xyce Backlog Bugs/64}: LTRA device does not properly initialize history vector when UIC/NOOP is used &
-  The lossy transmission line device (LTRA) was not bein intialized correctly, for transient simulations that skipped the DCOP calculation.  As a result, transient simulations using this device would crash if the netlist contained a \texttt{UIC} or \texttt{NOOP} keyword on the \texttt{.TRAN} line.  This has been fixed.
- \\ \hline
+  The lossy transmission line device (LTRA) was not bein intialized correctly,
+  for transient simulations that skipped the DCOP calculation.  As a result,
+  transient simulations using this device would crash if the netlist contained
+  a \texttt{UIC} or \texttt{NOOP} keyword on the \texttt{.TRAN} line.  This has
+  been fixed.  \\ \hline
 
-  \textbf{Xyce Project Backlog/571}: Modify \Xyce{} parser so that it can handle multiple \texttt{.options} statements for the same component (for example, support \texttt{.options timeint} statements) 
-  &  Most SPICE-style simulators use the \texttt{.option} (non-plural) command, and allow the netlist to have multiple \texttt{.option} comamnds.   \Xyce{} historically was different in two respects.  One difference is that \Xyce{} uses a plural \texttt{.options} command, and another difference is a required keyword to identify the part of the code to which the block of options is applied.  Also, finally, \Xyce{} was designed to only have a single \texttt{.options} statement of each type.  So, for example, at most one \texttt{.options device} statement, at most one \texttt{.options timeint} statement, etc.  Unforutunately, recent versions of \Xyce{} silently accepted multiple \texttt{.options} statements, and behaved differently depending on the keyword.  For example, if the netlist contained multiple \texttt{.options timeint} statements, \Xyce{} would only use one of them and silently ignore the others.  In contrast, if the netlist contained multiple \texttt{.options device} statements, it would use them all, but would ignore duplicate parameters.  This was confusing for users of other simulators, and has been fixed.  \Xyce{} now treats multiple statements as a combined single statement, and issues warnings for duplicate parameters.
+  \textbf{Xyce Project Backlog/571}: Modify \Xyce{} parser so that it can
+  handle multiple \texttt{.options} statements for the same component (for
+  example, support \texttt{.options timeint} statements) &
+  Most SPICE-style simulators use the \texttt{.option} (non-plural) command,
+  and allow the netlist to have multiple \texttt{.option} comamnds.   \Xyce{}
+  historically was different in two respects.  One difference is that \Xyce{}
+  uses a plural \texttt{.options} command, and another difference is a required
+  keyword to identify the part of the code to which the block of options is
+  applied.  Also, finally, \Xyce{} was designed to only have a single
+  \texttt{.options} statement of each type.  So, for example, at most one
+  \texttt{.options device} statement, at most one \texttt{.options timeint}
+  statement, etc.  Unforutunately, recent versions of \Xyce{} silently accepted
+  multiple \texttt{.options} statements, and behaved differently depending on
+  the keyword.  For example, if the netlist contained multiple \texttt{.options
+  timeint} statements, \Xyce{} would only use one of them and silently ignore
+  the others.  In contrast, if the netlist contained multiple \texttt{.options
+  device} statements, it would use them all, but would ignore duplicate
+  parameters.  This was confusing for users of other simulators, and has been
+  fixed.  \Xyce{} now treats multiple statements as a combined single
+  statement, and issues warnings for duplicate parameters.
   \\\hline
  
  \textbf{Xyce Project Backlog/609}: 
-  Global parameters that are applied to subcircuit instance parameters don't work in parallel
-  & 
-  If a subcircuit instance parameter (on the \texttt{X} line) depended on a \texttt{.param} or \texttt{.global\_param}, 
-  and that parameter was a variable, this dependency worked in serial, but not parallel.    In this case``variable'' means 
-  parameters that are allowed to change, as part of a \texttt{.STEP} sweep, or as part of a sampling method.
-  This was related to the order of operations in the parser.  This has been fixed.  \\ \hline
+  Global parameters that are applied to subcircuit instance parameters don't work in parallel & 
+  If a subcircuit instance parameter (on the \texttt{X} line) depended on a
+  \texttt{.param} or \texttt{.global\_param}, and that parameter was a
+  variable, this dependency worked in serial, but not parallel.  In this case,
+  ``variable'' means parameters that are allowed to change as part of a
+  \texttt{.STEP} sweep, or as part of a sampling method.  This was related to
+  the order of operations in the parser.  This has been fixed.  \\ \hline
 
  \textbf{Xyce Project Backlog/631}: 
   Expression-based local variation doesn't always work with subcircuit arguments & 
@@ -64,9 +86,9 @@
   This has been fixed.  \\ \hline
 
   \textbf{Xyce Project Backlog/637}: Support shared library build of \Xyce{} under Windows.
-  &  Modify the cmake build system to support building a shared library version of xyce, \texttt{xyce-share.dll}, so that 
-  Xyce functionality can be accessed as a library from other applications.
-  \\\hline
+  &  Modify the cmake build system to support building a shared library version
+  of xyce, \texttt{xyce-share.dll}, so that Xyce functionality can be accessed
+  as a library from other applications.  \\\hline
 
 
 \end{longtable}
