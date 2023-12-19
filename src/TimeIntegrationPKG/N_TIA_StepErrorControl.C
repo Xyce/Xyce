@@ -1049,6 +1049,40 @@ void StepErrorControl::setBreakPoint(double time)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : StepErrorControl::setBreakPoints
+// Purpose       : public method to set a group of SIMPLE breakpoints
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 12/7/2023
+//-----------------------------------------------------------------------------
+void StepErrorControl::setBreakPoints(const std::vector<double>& times)
+{
+  // Save a copy of the currentPauseBP, as all the sorting, etc that is about to happen may break it.
+  Util::BreakPoint savedCurrentPauseBP(finalTime, Xyce::Util::BreakPoint::PAUSE);
+  if ( !(breakPoints_.empty()) && currentPauseBP != breakPoints_.end() ) // if not valid don't do this
+  {
+    savedCurrentPauseBP = *currentPauseBP;
+  }
+
+  // If the breakPoint vector is not empty, it is sorted and probably has the initial timepoint and final timepoint.
+  // If so, insert the new breakpoints after the first breakpoint in the list.
+  std::vector<Util::BreakPoint>::iterator bp_iter = breakPoints_.begin();
+  if (breakPoints_.size())
+    bp_iter++;
+
+  // Copy vector into breakpoint times, sort and check that they are unique, wrt tolerance comparison.
+  breakPoints_.insert( bp_iter, times.begin(), times.end() );
+  std::sort ( breakPoints_.begin(), breakPoints_.end(), breakPointLess_ );
+  std::vector<Util::BreakPoint>::iterator it = std::unique ( breakPoints_.begin(), breakPoints_.end(), breakPointEqual_ );
+  breakPoints_.resize( std::distance( breakPoints_.begin(), it ) );
+
+  // Now, if the iterator pointing to the currentPause time was mangled by 
+  // all the above work, find it again and restore
+  currentPauseBP = std::find(breakPoints_.begin(), breakPoints_.end(), savedCurrentPauseBP);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : StepErrorControl::doubleCheckEndBreakPoint
 // Purpose       : check that last iterator is at the final time and is a PAUSE BP
 // Special Notes :

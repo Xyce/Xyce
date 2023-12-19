@@ -816,20 +816,14 @@ bool Transient::doInit()
     if (solveAdjointSensitivityFlag_ && adjointTimePointsGiven_ )
     {
       TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-      for (int it=0;it<adjointTimePoints_.size();++it)
-      {
-        sec.setBreakPoint (adjointTimePoints_[it]);
-      }
+      sec.setBreakPoints( adjointTimePoints_ );
     }
   }
 
   if (outputTimePointsGiven_ )
   {
     TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-    for (int it=0;it<outputTimePoints_.size();++it)
-    {
-      sec.setBreakPoint (outputTimePoints_[it]);
-    }
+    sec.setBreakPoints( outputTimePoints_ );
 
     double next_output_time = outputTimePoints_[0];
     analysisManager_.setNextOutputTime(next_output_time);
@@ -839,10 +833,7 @@ bool Transient::doInit()
   if (userBreakPointsGiven_)
   {
     TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-    for (int it=0;it<userBreakPoints_.size();++it)
-    {
-      sec.setBreakPoint (userBreakPoints_[it]);
-    }
+    sec.setBreakPoints( userBreakPoints_ );
   }
 
   initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;

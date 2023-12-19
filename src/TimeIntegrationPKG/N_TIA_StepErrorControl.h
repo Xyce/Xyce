@@ -141,6 +141,9 @@ class StepErrorControl
   void setBreakPoint(double bp);
   void doubleCheckEndBreakPoint();
 
+  // add a set of breakpoints
+  void setBreakPoints(const std::vector<double>& times);
+
   // signal that pause breakpoint has been reached
   void simulationPaused(double initial_time);
 
