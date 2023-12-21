@@ -167,6 +167,39 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 }
 
 //-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getCurrentSolutionGID_
+// Purpose       : Same as getSolutionGID_ but only for device current solution vars
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 12/20/2023
+//-------------------------------------------------------------------------------
+int mainXyceExpressionGroup::getCurrentSolutionGID_(const std::string & nodeName)
+{
+
+  // ERK check this for parallel.
+
+  int tmpGID=-1;
+  std::vector<int> svGIDList1, dummyList;
+  char type1;
+
+  std::string nodeNameUpper = nodeName;
+  Xyce::Util::toUpper(nodeNameUpper);
+
+  // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
+  bool foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
+  int found2 = static_cast<int>(foundLocal2);
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1); // is this necessary?
+
+  if(svGIDList1.size()==1)
+  {
+    tmpGID = svGIDList1.front();
+  }
+
+  return tmpGID;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getSolutionVal
 // Purpose       : 
 // Special Notes : double precision version
@@ -213,18 +246,68 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::
 
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
 
-  // ERK.  To Do:
-  // need to add logic to see if this is frequency domain situation or not.
-  // If not, don't bother getting the imaginary part.
-  //
-  // Xyce currently uses a real equivalent form for everything, rather than std::complex.
-  //
-  // For now, however, just set imag to zero.
-
+  // The parts of Xyce likely to use this class currently use
+  // a real equivalent form for everything, rather than std::complex.
+  // So, set imag to zero.
   retval = std::complex<double>(real_val,imag_val);
   return (tmpGID>=0);
 }
 
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getCurrentVal
+// Purpose       :
+// Special Notes : double precision version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 12/20/2023
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::
+  getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval )
+{
+  retval = 0.0;
+  int tmpGID = -1;
+
+  tmpGID = getCurrentSolutionGID_(deviceName);
+  if (tmpGID >= 0)
+  {
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector) { retval = nextSolVector->getElementByGlobalIndex(tmpGID, 0); }
+  }
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &retval, 1);
+
+  return (tmpGID>=0);
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getCurrentVal
+// Purpose       :
+// Special Notes : std::complex<double> precision version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 12/20/2023
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::
+  getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
+{
+  double real_val=0.0;
+  double imag_val=0.0;
+  int tmpGID = -1;
+
+  tmpGID = getCurrentSolutionGID_(deviceName);
+  if (tmpGID >= 0)
+  {
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector) { real_val = nextSolVector->getElementByGlobalIndex(tmpGID, 0); }
+  }
+
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
+
+  // The parts of Xyce likely to use this class currently use
+  // a real equivalent form for everything, rather than std::complex.
+  // So, set imag to zero.
+  retval = std::complex<double>(real_val,imag_val);
+  return (tmpGID>=0);
+}
 
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getParameterVal

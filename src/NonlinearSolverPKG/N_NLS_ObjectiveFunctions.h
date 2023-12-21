@@ -75,6 +75,8 @@ template <typename ScalarT>
 public:  
   objectiveFunctionData() :
     numExpVars(0),
+    numNodes(0),
+    numDevs(0),
     expVal(0.0),
     objFuncString(""),
     expPtr(0),
@@ -85,6 +87,8 @@ public:
 
 public:
   int            numExpVars;  // size of the numVarDerivs array
+  int            numNodes; // size of the nodes array
+  int            numDevs; // size of the devs array
   std::vector<std::string> expVarNames; // need this to get the GIDs
   std::vector<int>    expVarGIDs;  // need this even with new expression lib, to populate the dOdX vector
 
@@ -368,6 +372,9 @@ inline void setupObjectiveFunctions (
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), nodes.begin(), nodes.end());
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), instances.begin(), instances.end());
 
+    objVec[iobj]->numNodes = nodes.size();
+    objVec[iobj]->numDevs = instances.size();
+
     // now handle params and global params
     const std::vector<std::string> & strings = objVec[iobj]->expPtr->getUnresolvedParams();
 
@@ -446,34 +453,43 @@ inline void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData<ScalarT> *
     Parallel::Machine & comm,
     Topo::Topology & top, IO::OutputMgr & output_manager)
 {
-  int found(0);
-  int found2(0);
-  int foundAliasNode(0);
-  bool foundLocal(false);
-  bool foundLocal2(false);
-  bool foundAliasNodeLocal(false);
 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
+    int found(0);
+    int found2(0);
+    int foundAliasNode(0);
+    bool foundAliasNodeLocal(false);
+    bool foundLocal(false);
+    bool foundLocal2(false);
+
     // set up the gid's:
     objVec[iobj]->expVarGIDs.resize( objVec[iobj]->numExpVars, -1);
+
+    int numNodes = objVec[iobj]->numNodes;
+    int numDevs = objVec[iobj]->numDevs;
 
     for (int i = 0; i < objVec[iobj]->numExpVars; ++i)
     {
       std::vector<int> svGIDList1, dummyList;
       char type1;
 
-      // look for this variable as a node first.
-      foundLocal = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_VNODE), svGIDList1, dummyList, type1);
+      if (i < numNodes) // if true, this means it is a voltage node
+      {
+        foundLocal = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_VNODE), svGIDList1, dummyList, type1);
+      }
+      else if (i>=numNodes && i< (numNodes + numDevs)) // if true, this means it is a device current
+      {
+        // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
+        foundLocal2 = false;
+        if (!found)
+        {
+          foundLocal2 = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_DNODE), svGIDList1, dummyList, type1);
+        }
+      }
+
       found = static_cast<int>(foundLocal);
       Xyce::Parallel::AllReduce(comm, MPI_LOR, &found, 1);
-
-      // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
-      foundLocal2 = false;
-      if (!found)
-      {
-        foundLocal2 = top.getNodeSVarGIDs(NodeID(objVec[iobj]->expVarNames[i], Xyce::_DNODE), svGIDList1, dummyList, type1);
-      }
       found2 = static_cast<int>(foundLocal2);
       Xyce::Parallel::AllReduce(comm, MPI_LOR, &found2, 1);
 
