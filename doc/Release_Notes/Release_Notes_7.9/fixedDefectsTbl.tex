@@ -1,0 +1,40 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy's National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+    \caption{Fixed Defects.  The Xyce team has multiple issue
+     trackers, and the table below indicates fixed issues by
+     indentifying both the tracker and the issue number.  Further,
+     some issues are reported by open source users on GitHub and these
+     issues may be tracked using multiple issue numbers.} \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
+     SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endhead
+
+  \textbf{Xyce Project Backlog/xxx}: Description
+  &  Details
+  \\\hline
+
+\textbf{Xyce Project Backlog/740}: Adjoint, output, and user-provided breakpoints present a scaling issue for
+extremely long lists & A user can request output using \texttt{.options output}
+in the form of a list of time points.  If this list was very long (10k+ values),
+then processing the list would result in a substantial slowdown in the setup time of the 
+simulation.  This has been fixed. \\ \hline
+
+\end{longtable}
+}
