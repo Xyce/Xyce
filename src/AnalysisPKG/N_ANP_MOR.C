@@ -383,15 +383,16 @@ bool MOR::doInit()
 
   // Getting the GIDs for the port list in the order specified in the .MOR line
   // This is used to permute the bMatEntriesVec_ in the order specified by the user.
-  std::vector<int> gidPosEntries( hsize );
-  for (int i=0; i<hsize; ++i)
+  std::vector<int> gidPosEntries( numPorts_, -1 );
+  for (int i=0; i<numPorts_; ++i)
   {
     std::vector<int> svGIDList1, dummyList;
     char type1;
     topology_.getNodeSVarGIDs(NodeID(portList_[i],_VNODE), svGIDList1, dummyList, type1);
 
     // Grab the GID for this port.
-    gidPosEntries[i] = svGIDList1.front();
+    if (svGIDList1.size())
+      gidPosEntries[i] = svGIDList1.front();
   }
 
   // Use the base map to get the global IDs
@@ -400,24 +401,27 @@ bool MOR::doInit()
   Teuchos::RCP<Parallel::ParMap> BaseMap = Teuchos::rcp(pdsManager.getParallelMap( Parallel::SOLUTION ), false);
 
   // Find the voltage source corresponding to each port and place the LID in the bMatEntriesVec_.
-  bMatEntriesVec_.resize( hsize );
-  for (int i=0; i<hsize; ++i)
+  bMatEntriesVec_.resize( numPorts_, -1 );
+  for (int i=0; i<numPorts_; ++i)
   {
     int gid = gidPosEntries[i];
-    bool found = false;
-    for (int j=0; j<hsize; ++j)
+    if (gid > -1)
     {
-      if (gid == BaseMap->localToGlobalIndex(bMatPosEntriesVec_[j]))
+      bool found = false;
+      for (int j=0; j<hsize; ++j)
       {
-        bMatEntriesVec_[i] = tempVec[j];
-        found = true;
-        break;
+        if (gid == BaseMap->localToGlobalIndex(bMatPosEntriesVec_[j]))
+        {
+          bMatEntriesVec_[i] = tempVec[j];
+          found = true;
+          break;
+        }
       }
-    }
-    if (!found)
-    {
-      Report::UserError() << "Did not find voltage source corresponding to port";
-      return false;
+      if (!found)
+      {
+        Report::UserError() << "Did not find voltage source corresponding to port";
+        return false;
+      }
     }
   }
 
@@ -502,24 +506,26 @@ bool MOR::doInit()
   for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
   {
      // Get the number of non-zero entries in this row.
-     numEntries = GPtr_->getLocalRowLength( bMatEntriesVec_[i] );
-     if ( numEntries != 1 )
+     if (bMatEntriesVec_[i] > -1)
      {
-       Report::UserError0() << "Supposed voltage source row has too many entries, cannot continue MOR analysis";
-       return false;
-     }
+       numEntries = GPtr_->getLocalRowLength( bMatEntriesVec_[i] );
+       if ( numEntries != 1 )
+       {
+         Report::UserError0() << "Supposed voltage source row has too many entries, cannot continue MOR analysis";
+         return false;
+       }
 
-     // Extract out rows of G based on indices in bMatEntriesVec_.
-     GPtr_->getLocalRowCopy(bMatEntriesVec_[i], length, numEntries, &coeffs[0], &colIndices[0]);
+       // Extract out rows of G based on indices in bMatEntriesVec_.
+       GPtr_->getLocalRowCopy(bMatEntriesVec_[i], length, numEntries, &coeffs[0], &colIndices[0]);
 
-     // If the coefficient for this voltage source is positive, make it negative.
-     if ( coeffs[0] > 0.0 )
-     {
-       coeffs[0] *= -1.0;
-       GPtr_->putLocalRow(bMatEntriesVec_[i], length, &coeffs[0], &colIndices[0]);
+       // If the coefficient for this voltage source is positive, make it negative.
+       if ( coeffs[0] > 0.0 )
+       {
+         coeffs[0] *= -1.0;
+         GPtr_->putLocalRow(bMatEntriesVec_[i], length, &coeffs[0], &colIndices[0]);
+       }
      }
   }
-
 
   ///  Xyce::dout() << "Printing GPtr (after scaling): " << std::endl;
   ///  GPtr_->print(Xyce::dout());
@@ -566,7 +572,9 @@ bool MOR::reduceSystem()
   BPtr_ = Teuchos::rcp( new Linear::EpetraMultiVector( BaseMap, numPorts_ ) );
   for (unsigned int j=0; j < bMatEntriesVec_.size(); ++j)
   {
-    BPtr_->setElementByGlobalIndex( BaseMap.localToGlobalIndex(bMatEntriesVec_[j]), -1.0, j );
+    // Check if this LID is on this processor
+    if (bMatEntriesVec_[j] > -1)
+      BPtr_->setElementByGlobalIndex( BaseMap.localToGlobalIndex(bMatEntriesVec_[j]), -1.0, j );
   }
 
   ///  Xyce::dout() << "Printing out BPtr" << std::endl;
@@ -589,6 +597,7 @@ bool MOR::reduceSystem()
   {
     Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess; 
   }
 
   // Perform numeric factorization
@@ -597,6 +606,7 @@ bool MOR::reduceSystem()
   {
     Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess; 
   }
 
   // Perform solve for R = inv(G + s0*C)*B
@@ -605,6 +615,7 @@ bool MOR::reduceSystem()
   {
     Xyce::dout() << "Amesos solve exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess; 
   }
 
   // Create an Epetra_Operator object to apply the operator inv(G + s0*C)*C
@@ -712,6 +723,7 @@ bool MOR::reduceSystem()
   }
   catch (const std::exception &e) {
     bsuccess = false; // Anything else is a failure.
+    return bsuccess;
   }
 
   // Get the basis vectors back from the iteration object
@@ -784,7 +796,6 @@ bool MOR::reduceSystem()
 
       evalOrigTransferFunction();
       evalRedTransferFunction();
-
 
       Teuchos::SerialDenseMatrix<int, double>  H_diff, totaltol, errOverTol;
 
@@ -956,7 +967,7 @@ if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
       else
         D(i,i) = 1.0;
     }
-    Xyce::dout() << " the scaling matrix "  <<  std::endl;
+//    Xyce::dout() << " the scaling matrix "  <<  std::endl;
 
 //    D.print(Xyce::dout());
 
@@ -1058,7 +1069,7 @@ bool MOR::evalOrigTransferFunction()
     updateOrigLinearSystemFreq_();
 
     stepAttemptStatus = solveOrigLinearSystem_();
-
+ 
     currentStep++;
 
     if (stepAttemptStatus)
@@ -1136,13 +1147,13 @@ bool MOR::createOrigLinearSystem_()
 
   Parallel::Manager &pdsManager = *analysisManager_.getPDSManager();
 
-  Parallel::ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
-  Parallel::ParMap &oBaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION_OVERLAP_GND);
+  Parallel::ParMap &baseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
   const Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
+  int offset = baseMap.maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
 
-  std::vector<RCP<Parallel::ParMap> > blockMaps = Linear::createBlockParMaps(numBlocks, BaseMap, oBaseMap);
+  RCP<Parallel::ParMap> blockMap = Linear::createBlockParMap(numBlocks, baseMap, 0, 0, offset);
 
   std::vector<std::vector<int> > blockPattern(2);
   blockPattern[0].resize(2);
@@ -1150,8 +1161,7 @@ bool MOR::createOrigLinearSystem_()
   blockPattern[1].resize(2);
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
-  int offset = Linear::generateOffset( BaseMap );
-  Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], *baseFullGraph);
+  Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph);
 
   sCpG_REFMatrixPtr_ = Teuchos::rcp ( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
 
@@ -1170,12 +1180,14 @@ bool MOR::createOrigLinearSystem_()
   sCpG_REFMatrixPtr_->block( 0, 0 ).add(*GPtr_);
   sCpG_REFMatrixPtr_->block( 1, 1 ).add(*GPtr_);
 
+  sCpG_REFMatrixPtr_->assembleGlobalMatrix();
+
   // Create solver factory
   Amesos amesosFactory;
 
   // Create block vectors
-  REFBPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMaps[0], Teuchos::rcp(&BaseMap, false) ) );
-  REFXPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMaps[0], Teuchos::rcp(&BaseMap, false) ) );
+  REFBPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMap, Teuchos::rcp(&baseMap, false) ) );
+  REFXPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMap, Teuchos::rcp(&baseMap, false) ) );
   REFXPtr_->putScalar( 0.0 );
 
   Teuchos::RCP<Linear::EpetraBlockMatrix> e_sCpG = Teuchos::rcp_dynamic_cast<Linear::EpetraBlockMatrix>(sCpG_REFMatrixPtr_);
@@ -1187,7 +1199,7 @@ bool MOR::createOrigLinearSystem_()
 
   if (linearStatus != 0)
   {
-    Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus;
+    Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus << std::endl;
     bsuccess = false;
   }
 
@@ -1245,7 +1257,7 @@ bool MOR::createRedLinearSystem_()
     blockPattern[1].resize(2);
     blockPattern[1][0] = 0; blockPattern[1][1] = 1;
    
-    int offset= Linear::generateOffset( *redMapPtr_ );
+    int offset = redMapPtr_->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
     Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
     sCpG_ref_redMatrixPtr_ = Teuchos::rcp( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
@@ -1265,6 +1277,9 @@ bool MOR::createRedLinearSystem_()
     sCpG_ref_redMatrixPtr_->block( 0, 0 ).add(*redGPtr_);
     sCpG_ref_redMatrixPtr_->block( 1, 1 ).add(*redGPtr_);
 
+    // In parallel, copy the entries of the blocks into the global matrix.
+    sCpG_ref_redMatrixPtr_->assembleGlobalMatrix();
+
     // Create solver factory
     Amesos amesosFactory;
 
@@ -1283,7 +1298,7 @@ bool MOR::createRedLinearSystem_()
 
     if (linearStatus != 0)
     {
-      Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus;
+      Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus << std::endl;
       return false;
     }
   }
@@ -1311,6 +1326,8 @@ bool MOR::updateOrigLinearSystemFreq_()
   sCpG_REFMatrixPtr_->block(1, 0).put( 0.0);
   sCpG_REFMatrixPtr_->block(1, 0).add(*CPtr_);
   sCpG_REFMatrixPtr_->block(1, 0).scale(omega);
+
+  sCpG_REFMatrixPtr_->assembleGlobalMatrix();
 
   return true;
 }
@@ -1377,33 +1394,43 @@ bool MOR::solveOrigLinearSystem_()
 
   if (linearStatus != 0)
   {
-    Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus;
+    Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess;
   }
 
   // Loop over number of I/O ports here
   for (unsigned int j=0; j < bMatEntriesVec_.size(); ++j)
   {
     REFBPtr_->putScalar( 0.0 );
-    (REFBPtr_->block( 0 ))[bMatEntriesVec_[j]] = -1.0;
+    if (bMatEntriesVec_[j] > -1)
+      (REFBPtr_->block( 0 ))[bMatEntriesVec_[j]] = -1.0;
 
     linearStatus = blockSolver_->Solve();
     if (linearStatus != 0)
     {
-      Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
+      Xyce::dout() << "Amesos solve exited with error: " << linearStatus << std::endl;
       bsuccess = false;
     }
 
     // Compute transfer function entries for all I/O
     for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
     {
+       std::vector<double> tmpVal(2,0.0), value(2,0.0);
+       if (bMatEntriesVec_[i] > -1)
+       {
+         tmpVal[0] = (REFXPtr_->block( 0 ))[bMatEntriesVec_[i]];
+         tmpVal[1] = (REFXPtr_->block( 1 ))[bMatEntriesVec_[i]];
+       }
+       Parallel::AllReduce(comm_, MPI_SUM, &tmpVal[0], &value[0], 2);
+
        // Populate H for all ports in L
        // L is the same as B and also a set of canonical basis vectors (e_i), so
        // we can pick off the appropriate entries of REFXPtr to place into H.
-       origH_(i,j) = std::complex<double>(-(REFXPtr_->block( 0 ))[bMatEntriesVec_[i]],
-                                          -(REFXPtr_->block( 1 ))[bMatEntriesVec_[i]]);
+       origH_(i,j) = std::complex<double>(-value[0], -value[1]);
     }
   }
+
   return bsuccess;
 }
 
@@ -1427,8 +1454,9 @@ bool MOR::solveRedLinearSystem_()
 
     if (linearStatus != 0)
     {
-      Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus;
+      Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus << std::endl;
       bsuccess = false;
+      return bsuccess;
     }
 
     // Create a multivector with the reduced B and L vectors.
@@ -1447,7 +1475,7 @@ bool MOR::solveRedLinearSystem_()
       linearStatus = blockRedSolver_->Solve();
       if (linearStatus != 0)
       {
-        Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
+        Xyce::dout() << "Amesos solve exited with error: " << linearStatus << std::endl;
         bsuccess = false;
       }
 
