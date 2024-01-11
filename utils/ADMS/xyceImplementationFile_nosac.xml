@@ -11,7 +11,7 @@
       Creation Date: 13 May 2008
 
 
-     Copyright 2002-2023 National Technology &amp; Engineering Solutions of
+     Copyright 2002-2024 National Technology &amp; Engineering Solutions of
      Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
      NTESS, the U.S. Government retains certain rights in this software.
 
@@ -138,7 +138,7 @@
   <!-- The output proper -->
   <admst:open file="$classname.C">
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology &amp; Engineering Solutions of
+//   Copyright 2002-2024 National Technology &amp; Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
