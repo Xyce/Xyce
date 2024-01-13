@@ -1,0 +1,402 @@
+// ****************************************************************************
+// *  BSIM-CMG 111.2.1 released on 06/06/2022                                 *
+// *  BSIM Common Multi-Gate Model (Verilog-A)                                *
+// ****************************************************************************
+
+// ****************************************************************************
+// *  Copyright © 2022 University of California                               *
+// *                                                                          *
+// *  Project director: Prof. Chenming Hu                                     *
+// *                                                                          *
+// *  Current developers: Girish Pahwa (Assistant Researcher)                 *
+// *                      Dinesh Rajasekharan (Postdoc)                       *
+// *                      Chetan Kumar Dabhi (Postdoc)                        *
+// *                      Chien-Ting Tung (Ph.D. student)                     *
+// ****************************************************************************
+
+// Parameter checking
+if (Leff <= 0.0) begin
+    $error("Fatal: Leff = %g is not positive.", Leff);
+end else if (Leff <= 1.0e-9) begin
+    $strobe("Warning: Leff = %g <= 1.0e-9.", Leff);
+end
+
+if (Leff1 <= 0.0) begin
+    $error("Fatal: Leff1 = %g is not positive.", Leff1);
+end else if (Leff1 <= 1.0e-9) begin
+    $strobe("Warning: Leff1 = %g <= 1.0e-9.", Leff1);
+end
+
+if (LeffCV <= 1.0e-9) begin
+    $strobe("Warning: LeffCV = %g <= 1.0e-9.", LeffCV);
+end
+
+if (BULKMOD != 0) begin
+    if (LeffCV_acc <= 1.0e-9) begin
+        $strobe("Warning: LeffCV_acc = %g <= 1.0e-9.", LeffCV_acc);
+    end
+end
+
+if (GEOMOD == 5) begin
+    if (WGAAeff1 <= 0.0) begin
+        $error("Fatal: WGAAeff1 = %g is not positive.", WGAAeff1);
+    end else if (WGAAeff1 <= 1.0e-9) begin
+        $strobe("Warning: WGAAeff1 = %g <= 1.0e-9.", WGAAeff1);
+    end
+    if (BULKMOD != 0) begin
+        if (WeffCV_acc <= 0.0) begin
+            $error("Fatal: WeffCV_acc = %g is not positive.", WeffCV_acc);
+        end else if (WGAAeff1 <= 1.0e-9) begin
+            $strobe("Warning: WeffCV_acc = %g <= 1.0e-9.", WeffCV_acc);
+        end
+    end
+end
+
+if (Weff0 <= 1.0e-9) begin
+    $strobe("Warning: Weff0 = %g <= 1.0e-9.", Weff0);
+end
+
+if (WeffCV0 <= 1.0e-9) begin
+    $strobe("Warning: WeffCV0 = %g <= 1.0e-9.", WeffCV0);
+end
+
+if (NBODY_i <= 0.0) begin
+    $error("Fatal: Effective  NBODY = %g is not positive.", NBODY_i);
+end else if (NBODY_i <= 1.0e18) begin
+    $strobe("Warning: NBODY_i = %g m^-3 may be too small.", NBODY_i);
+end
+
+if (NGATE_i < 0.0) begin
+    $error("Fatal: Effective  NGATE = %g is negative.", NGATE_i);
+end else if (NGATE_i != 0.0 && NGATE_i <= 1.0e24) begin
+    $strobe("Warning: Effective  NGATE = %g may be too small.", NGATE_i);
+end else if (NGATE_i > 1.0e31) begin
+    $error("Fatal: Effective  NGATE = %g is too high.", NGATE_i);
+end
+
+if (DVT0_i < 0.0) begin
+    $strobe("Warning: Effective  DVT0 = %g is negative.", DVT0_i);
+end
+
+if (PHIG_i <= 0.0) begin
+    $error("Fatal: Effective PHIG = %g is not positive.", PHIG_i);
+end
+
+if (VSAT_i <= 0.0) begin
+    $error("Fatal: Effective VSAT = %g is not positive.", VSAT_i);
+end
+
+if (VSAT1_i <= 0.0) begin
+    $error("Fatal: Effective VSAT1 = %g is not positive.", VSAT1_i);
+end
+
+if (ASYMMOD != 0 && VSAT1R_i <= 0.0) begin
+    $error("Fatal: Effective VSAT1R = %g is not positive.", VSAT1R_i);
+end
+
+if (DVT1_i <= 0.0) begin
+    $error("Fatal: Effective DVT1 = %g is not positive.", DVT1_i);
+end
+
+if (DVT1SS_i <= 0.0) begin
+    $error("Fatal: Effective DVT1SS = %g is not positive.", DVT1SS_i);
+end
+
+if (CDSC_i < 0.0) begin
+    $strobe("Warning: Effective CDSC = %g is negative.", CDSC_i);
+end
+
+if (CDSCD_i < 0.0) begin
+    $strobe("Warning: Effective CDSCD = %g is negative.", CDSCD_i);
+end
+
+if (ASYMMOD != 0 && CDSCDR_i < 0.0) begin
+    $strobe("Warning: Effective CDSCDR = %g is negative.", CDSCDR_i);
+end
+
+if (DSUB_i <= 0.0) begin
+    $error("Fatal: Effective DSUB = %g is not positive.", DSUB_i);
+end
+
+if (ETA0_i < 0.0) begin
+    $strobe("Warning: Effective ETA0 = %g is negative, setting it to 0", ETA0_i);
+    ETA0_i = 0.0;
+end
+
+if (ETA0R_i < 0.0) begin
+    $strobe("Warning: Effective ETA0R = %g is negative, setting it to 0", ETA0R_i);
+    ETA0R_i = 0.0;
+end
+
+if (LPE0_i < -Leff) begin
+    $strobe("Warning: Effective LPE0 = %g is less than -Leff. Clipping LPE0_i to 0", LPE0_i);
+    LPE0_i = 0.0;
+end
+
+if (K0SI_i < 0.0) begin
+    $strobe("Warning: Effective K0SI = %g is negative, setting it to 0.", K0SI_i);
+    K0SI_i = 0.0;
+end
+
+if (K2SI_i < 0.0) begin
+    $strobe("Warning: Effective K2SI = %g is negative, setting it to 0.", K2SI_i);
+    K2SI_i = 0.0;
+end
+
+if (BULKMOD != 0 && PHIBE_i < 0.2) begin
+    $strobe("Warning: Effective PHIBE = %g is less than 0.2, setting it to 0.2.", PHIBE_i);
+    PHIBE_i = 0.2;
+end
+
+if (BULKMOD != 0 && PHIBE_i > 1.2) begin
+    $strobe("Warning: Effective PHIBE = %g is larger than 1.2, setting it to 1.2.", PHIBE_i);
+    PHIBE_i = 1.2;
+end
+
+if (PSAT_i < 2.0) begin
+    $strobe("Warning: Effective PSAT = %g is less than 2.0, setting it to 2.0.", PSAT_i);
+    PSAT_i = 2.0;
+end
+
+if (PSATCV_i < 2.0) begin
+    $strobe("Warning: Effective PSATCV = %g is less than 2.0, setting it to 2.0.", PSATCV_i);
+    PSATCV_i = 2.0;
+end
+
+if (U0_i < 0.0) begin
+    $strobe("Warning: Effective U0 = %g is negative, setting it to the default value.", U0_i);
+    U0_i = 0.03;
+end
+
+if (UA_i < 0.0) begin
+    $strobe("Warning: Effective UA = %g is negative, setting it to 0.", UA_i);
+    UA_i = 0.0;
+end
+
+if (EU_i < 0.0) begin
+    $strobe("Warning: Effective EU = %g is negative, setting it to 0.", EU_i);
+    EU_i = 0.0;
+end
+
+if (UD_i < 0.0) begin
+    $strobe("Warning: Effective UD = %g is negative, setting it to 0.", UD_i);
+    UD_i = 0.0;
+end
+
+if (UCS_i < 0.0) begin
+    $strobe("Warning: Effective UCS = %g is negative, setting it to 0.", UCS_i);
+    UCS_i = 0.0;
+end
+
+if (ETAMOB_i < 0.0) begin
+    $strobe("Warning: Effective ETAMOB = %g is negative, setting it to 0", ETAMOB_i);
+    ETAMOB_i = 0.0;
+end
+
+if (RDSW_i < 0.0) begin
+    $strobe("Warning: Effective RDSW = %g is negative, setting it to 0", RDSW_i);
+    RDSW_i = 0.0;
+end
+
+if (RSW_i < 0.0) begin
+    $strobe("Warning: Effective RSW = %g is negative, setting it to 0", RSW_i);
+    RSW_i = 0.0;
+end
+
+if (RDW_i < 0.0) begin
+    $strobe("Warning: Effective RDW = %g is negative, setting it to 0", RDW_i);
+    RDW_i = 0.0;
+end
+
+if (PRWGD_i < 0.0) begin
+    $strobe("Warning: Effective PRWGD = %g is negative, setting it to 0", PRWGD_i);
+    PRWGD_i = 0.0;
+end
+
+if (PRWGS_i < 0.0) begin
+    $strobe("Warning: Effective PRWGS = %g is negative, setting it to 0", PRWGS_i);
+    PRWGS_i = 0.0;
+end
+
+if (PCLM_i < 0.0) begin
+    $strobe("Warning: Effective PCLM = %g is negative.", PCLM_i);
+end
+
+if (PDIBL1_i < 0.0) begin
+    $strobe("Warning: Effective PDIBL1 = %g is negative.", PDIBL1_i);
+end
+
+if (ASYMMOD != 0) begin
+    if (PDIBL1R_i < 0.0) begin
+        $strobe("Warning: Effective PDIBL1R = %g is negative.", PDIBL1R_i);
+    end
+    if (PDIBL2R_i < 0.0) begin
+        $strobe("Warning: Effective PDIBL2R = %g is negative.", PDIBL2R_i);
+    end
+    if (U0R_i < 0) begin
+        $strobe("Warning: Effective U0R = %g is negative, setting it to 0.", U0R_i);
+        U0R_i = 0.0;
+    end
+    if (UAR_i < 0.0) begin
+        $strobe("Warning: Effective UAR = %g is negative, setting it to 0.", UAR_i);
+        UAR_i = 0.0;
+    end
+    if (EUR_i < 0.0) begin
+        $strobe("Warning: Effective EUR = %g is negative, setting it to 0.", EUR_i);
+        EUR_i = 0.0;
+    end
+    if (UDR_i < 0.0) begin
+        $strobe("Warning: Effective UDR = %g is negative, setting it to 0.", UDR_i);
+        UDR_i = 0.0;
+    end
+end
+
+if (PDIBL2_i < 0.0) begin
+    $strobe("Warning: Effective PDIBL2 = %g is negative.", PDIBL2_i);
+end
+
+if (DROUT_i <= 0.0) begin
+    $error("Fatal: Effective DROUT = %g is non-positive.", DROUT_i);
+end
+
+if (MEXP_i < 2.0) begin
+    $strobe("Warning: Effective MEXP = %g < 2. Setting MEXP_i = 2.", MEXP_i);
+    MEXP_i = 2.0;
+end
+
+if (ASYMMOD != 0) begin
+    if (MEXPR_i < 2.0) begin
+        $strobe("Warning: Effective MEXPR = %g < 2. Setting MEXPR_i = 2.", MEXPR_i);
+        MEXPR_i = 2.0;
+    end
+end
+
+if (PTWG_i < 0.0) begin
+    $strobe("Warning: Effective PTWG = %g is negative, setting it to 0.", PTWG_i);
+    PTWG_i = 0.0;
+end
+
+if (CGIDL_i < 0.0) begin
+    $strobe("Warning: Effective CGIDL = %g < 0. Setting CGIDL_i = 0.", CGIDL_i);
+    CGIDL_i = 0.0;
+end
+
+if (CGISL_i < 0.0) begin
+    $strobe("Warning: Effective CGISL = %g < 0. Setting CGISL_i = 0.", CGISL_i);
+    CGISL_i = 0.0;
+end
+
+if (IGBMOD != 0) begin
+    if (NIGBINV_i <= 0.0) begin
+        $error("Fatal: Effective NIGBINV = %g is non-positive.", NIGBINV_i);
+    end
+    if (NIGBACC_i <= 0.0) begin
+        $error("Fatal: Effective NIGBACC = %g is non-positive.", NIGBACC_i);
+    end
+end
+
+if (IGCMOD != 0) begin
+    if (POXEDGE_i <= 0.0) begin
+        $error("Fatal: Effective POXEDGE = %g is non-positive.", POXEDGE_i);
+    end
+    if (PIGCD_i <= 0.0) begin
+        $error("Fatal: Effective PIGCD = %g is non-positive.", PIGCD_i);
+    end
+end
+
+if (IGCMOD != 0 || IGBMOD != 0) begin
+    if (TOXREF <= 0.0) begin
+        $error("Fatal: TOXREF = %g is non-positive.", TOXREF);
+    end
+end
+
+if (LINTIGEN >= (Leff / 2.0)) begin
+    $strobe("Warning: LINTIGEN = %g is too large - Leff for r/g current is negative. Re-setting LINTIGEN = 0.", LINTIGEN);
+    LINTIGEN_i = 0.0;
+end else begin
+    LINTIGEN_i = LINTIGEN;
+end
+
+if (NTGEN_i <= 0.0) begin
+    $error("Fatal: Effective NTGEN = %g is non-positive.", NTGEN_i);
+end
+
+if (NQSMOD == 1 && XRCRG1_i != 0.0) begin
+    if (XRCRG1_i < 1.0e-3) begin
+        $strobe("Warning: Effective XRCRG1 = %g. Gate resistance may be too large. Disabling NQS Gate Resistance.", XRCRG1_i);
+        XRCRG1_i = 0.0;
+    end
+end
+
+if (IIMOD == 2) begin
+    if (BETAII0_i < 0.0) begin
+        $strobe("Warning: Effective BETAII0 = %g is negative.", BETAII0_i);
+    end
+    if (BETAII1_i < 0.0) begin
+        $strobe("Warning: Effective BETAII1 = %g is negative.", BETAII1_i);
+    end
+    if (BETAII2_i < 0.0) begin
+        $strobe("Warning: Effective BETAII2 = %g is negative.", BETAII2_i);
+    end
+    if (ESATII_i < 0.0) begin
+        $strobe("Warning: Effective ESATII = %g is negative.", ESATII_i);
+    end
+    if (LII_i < 0.0) begin
+        $strobe("Warning: Effective LII = %g is negative.", LII_i);
+    end
+    if (SII1_i < 0.0) begin
+        $strobe("Warning: Effective SII1 = %g is negative.", SII1);
+    end
+    if (SII2_i < 0.0) begin
+        $strobe("Warning: Effective SII2 = %g is negative.", SII2_i);
+    end
+    if (SIID_i < 0.0) begin
+        $strobe("Warning: Effective SIID = %g is negative.", SIID_i);
+    end
+end
+
+if (EF <= 0.0) begin
+    $error("Fatal: EF = %g is non-positive.", EF);
+end else if (EF > 2.0) begin
+    $error("Fatal: EF = %g > 2.0.", EF);
+end
+
+if (CGSL_i < 0.0) begin
+    $strobe("Warning: Effective CGSL = %g is negative. Setting it to 0 ", CGSL_i);
+    CGSL_i = 0.0;
+end
+
+if (CGDL_i < 0.0) begin
+    $strobe("Warning: Effective CGDL = %g is negative. Setting it to 0 ", CGDL_i);
+    CGDL_i = 0.0;
+end
+
+if (CFS_i < 0.0) begin
+    $strobe("Warning: Effective CFS = %g is negative. Setting it to 0 ", CFS_i);
+    CFS_i = 0.0;
+end
+
+if (CFD_i < 0.0) begin
+    $strobe("Warning: Effective CFD = %g is negative. Setting it to 0 ", CFD_i);
+    CFD_i = 0.0;
+end
+
+if (CGBL_i < 0.0) begin
+    $strobe("Warning: Effective CGBL = %g is negative. Setting it to 0 ", CGBL_i);
+    CGBL_i = 0.0;
+end
+
+if (CKAPPAS_i <= 0.02) begin
+    $strobe("Warning: Effective CKAPPAS = %g is too small. Setting it to 0.02 ", CKAPPAS_i);
+    CKAPPAS_i = 0.02;
+end
+
+if (CKAPPAD_i <= 0.02) begin
+    $strobe("Warning: Effective CKAPPAD = %g is too small. Setting it to 0.02 ", CKAPPAD_i);
+    CKAPPAD_i = 0.02;
+end
+
+if (CKAPPAB_i <= 0.02) begin
+    $strobe("Warning: Effective CKAPPAB = %g is too small. Setting it to 0.02 ", CKAPPAB_i);
+    CKAPPAB_i = 0.02;
+end
