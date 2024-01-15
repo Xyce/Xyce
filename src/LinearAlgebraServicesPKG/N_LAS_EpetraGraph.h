@@ -61,6 +61,11 @@ class EpetraGraph : public Graph
 
 public:
 
+  EpetraGraph(const Parallel::ParMap & solution_overlap,
+              const Parallel::ParMap & solution_overlap_ground,
+              const std::vector<int>& numIndicesPerRow,
+              const std::vector<std::vector<int> >& rcData);
+
   // Basic constructor with map and number of entries per row
   EpetraGraph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow );
 

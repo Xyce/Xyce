@@ -107,6 +107,14 @@ Graph* createGraph( const Parallel::ParMap & map,
   return new EpetraGraph( map, maxNumIndicesPerRow );
 }
 
+Graph* createGraph( const Parallel::ParMap & solution_overlap,
+                    const Parallel::ParMap & solution_overlap_ground,
+                    const std::vector<int>& numIndicesPerRow,
+                    const std::vector<std::vector<int> >& rcData)
+{
+  return new EpetraGraph( solution_overlap, solution_overlap_ground, numIndicesPerRow, rcData );
+}
+
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
 {
   return new EpetraProblem( A, x, b );

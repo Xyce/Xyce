@@ -52,6 +52,31 @@
 namespace Xyce {
 namespace Linear {
 
+EpetraGraph::EpetraGraph(  const Parallel::ParMap & solution_overlap,
+              const Parallel::ParMap & solution_overlap_ground,
+              const std::vector<int>& numIndicesPerRow,
+              const std::vector<std::vector<int> >& rcData)
+  {
+    const Epetra_Map* epetraMap = dynamic_cast<const Parallel::EpetraParMap&>(solution_overlap).petraMap();
+    epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, &numIndicesPerRow[0] ) );
+
+    int numLocalRows_Overlap = rcData.size();
+    for(int i = 0; i < numLocalRows_Overlap; ++i)
+    {
+      std::vector<int>& rcData_i = const_cast<std::vector<int> &>(rcData[i]);
+      if( solution_overlap_ground.localToGlobalIndex(i) != -1 && numIndicesPerRow[i] )
+      {
+        if( rcData_i[0] == -1 )
+          epetraGraph_->InsertGlobalIndices( solution_overlap.localToGlobalIndex(i), numIndicesPerRow[i]-1, &rcData_i[1] );
+        else
+          epetraGraph_->InsertGlobalIndices( solution_overlap.localToGlobalIndex(i), numIndicesPerRow[i], &rcData_i[0] );
+      }
+    }
+    
+    epetraGraph_->FillComplete();
+    epetraGraph_->OptimizeStorage();
+  }
+
   EpetraGraph::EpetraGraph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow )
   {
     const Epetra_Map* epetraMap = dynamic_cast<const Parallel::EpetraParMap&>(map).petraMap();

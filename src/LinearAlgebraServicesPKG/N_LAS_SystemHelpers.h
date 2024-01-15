@@ -74,6 +74,11 @@ Graph* createGraph( const Parallel::ParMap & map,
 Graph* createGraph( const Parallel::ParMap & map,
                     int maxNumIndicesPerRow );
 
+Graph* createGraph( const Parallel::ParMap & solution_overlap,
+                    const Parallel::ParMap & solution_overlap_ground,
+                    const std::vector<int>& numIndicesPerRow,
+                    const std::vector<std::vector<int> >& rcData);
+
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
 
 Problem* createProblem( Operator* Op, MultiVector* x, MultiVector* b );

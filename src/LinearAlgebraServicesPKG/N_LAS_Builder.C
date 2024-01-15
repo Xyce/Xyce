@@ -392,20 +392,8 @@ bool Builder::generateGraphs()
   Parallel::ParMap * solnOvMap = pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP );
   Parallel::ParMap * solnMap = pdsMgr_->getParallelMap( Parallel::SOLUTION );
 
-  Graph * overlapGraph = Xyce::Linear::createGraph( *solnOvMap, arrayNZs );
+ Graph * overlapGraph = Xyce::Linear::createGraph( *solnOvMap, *solnOvGMap, arrayNZs, rcData );
 
-  for( int i = 0; i < numLocalRows_Overlap; ++i )
-  {
-    std::vector<int>& rcData_i = const_cast<std::vector<int> &>(rcData[i]);
-    if( solnOvGMap->localToGlobalIndex(i) != -1 && arrayNZs[i] )
-    {
-      if( rcData_i[0] == -1 )
-        overlapGraph->insertGlobalIndices( solnOvMap->localToGlobalIndex(i), arrayNZs[i]-1, &rcData_i[1] );
-      else
-        overlapGraph->insertGlobalIndices( solnOvMap->localToGlobalIndex(i), arrayNZs[i], &rcData_i[0] );
-    }
-  }
-  overlapGraph->fillComplete();
   pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, overlapGraph );
 
   if( pdsMgr_->getPDSComm()->isSerial() )
