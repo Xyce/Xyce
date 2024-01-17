@@ -1,3 +1,13 @@
 The following changes to the BSIMCMG 111.0.0 code were needed to make
 it work with Xyce/ADMS.
 
+1.  Modify main bsimcmg function name (in the bsimcmg.va file) to include 
+    level, and add attributes.  I'm following the convention of other BSIM CMG devices
+    in Xyce.  
+
+2.  Fix the `lexp macro to remove ADMS lexical error in the bsimcmg_macros.include file.
+    This macro uses a ternary operator, and it seems that in order for ADMS
+    to parse it properly, it needed more parenthesis.  I've encountered
+    similar problems parsing ternaries in other contexts, so this probably
+    isn't surprising.
+

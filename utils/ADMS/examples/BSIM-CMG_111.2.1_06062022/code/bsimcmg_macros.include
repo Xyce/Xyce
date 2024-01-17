@@ -39,7 +39,7 @@
 `define KboQ 8.617087e-5
 
 // Clamped exponential
-`define lexp(x) ((x > `EXPL_THRESHOLD) ? `MAX_EXPL * (1.0 + x - `EXPL_THRESHOLD) : (x < -`EXPL_THRESHOLD) ? `MIN_EXPL : exp(x))
+`define lexp(x) ((x > `EXPL_THRESHOLD) ? (`MAX_EXPL * (1.0 + x - `EXPL_THRESHOLD)):((x < -`EXPL_THRESHOLD) ? `MIN_EXPL : exp(x)))
 
 // Clamped logarithm
 `define lln(x) ((x > `N_MINLOG) ? ln(x) : `LN_N_MINLOG)
