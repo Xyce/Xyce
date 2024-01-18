@@ -29,6 +29,13 @@ analog function real ln_one_plus_exp;
 endfunction
 
 analog begin
+
+`ifdef insideADMS
+   @(initial_instance)
+   begin : initial_instance
+`else
+   begin : CMGBiasIndepCalc
+`endif //insideADMS 
     // Bias-independent calculations
     // Initialize variables for periodic steady state analysis
     `include "bsimcmg_initialization.include"
@@ -673,6 +680,7 @@ analog begin
             end
         end
     end
+  end
 
     // Parasitic source/drain-to-gate fringe capacitance
     if (CGEOMOD == 2) begin
