@@ -100,6 +100,8 @@ public:
 
     bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
 
+    bool setLinSol(const Util::OptionBlock & option_block);
+
     bool reduceSystem();
     bool evalOrigTransferFunction();
     bool evalRedTransferFunction();
@@ -186,6 +188,9 @@ private:
 
     bool sparsifyRedSystem_();
 
+    // Linear solver and nonlinear solver options
+    Util::OptionBlock saved_lsOB_;
+
     // Original system
     RCP<Linear::EpetraMatrix> CPtr_;
     RCP<Linear::EpetraMatrix> GPtr_;
@@ -195,8 +200,8 @@ private:
 
     // Original system, real-equivalent form
     RCP<Linear::BlockMatrix> sCpG_REFMatrixPtr_;
-    RCP<Linear::EpetraBlockVector> REFBPtr_;
-    RCP<Linear::EpetraBlockVector> REFXPtr_; // Store solution from Amesos here.
+    RCP<Linear::BlockVector> REFBPtr_;
+    RCP<Linear::BlockVector> REFXPtr_; // Store solution from Amesos here.
 
     // Reduced system (dense)
     Teuchos::SerialDenseMatrix<int, double> redC_;
@@ -205,7 +210,7 @@ private:
     Teuchos::SerialDenseMatrix<int, double> redL_;  // redL_ != redB_
 
     // Reduced system (sparse)
-    RCP<Linear::EpetraMatrix> redCPtr_, redGPtr_;
+    RCP<Linear::Matrix> redCPtr_, redGPtr_;
     RCP<Parallel::ParMap> redMapPtr_;
 
     // Reduced system, real-equivalent form (dense)
@@ -214,20 +219,22 @@ private:
 
     // Reduced system, real-equivalent form (sparse)
     RCP<Linear::BlockMatrix> sCpG_ref_redMatrixPtr_;
-    RCP<Linear::EpetraBlockVector> ref_redBPtr_;
-    RCP<Linear::EpetraBlockVector> ref_redXPtr_; // Store solution from Amesos here.
+    RCP<Linear::BlockVector> ref_redBPtr_;
+    RCP<Linear::BlockVector> ref_redXPtr_; // Store solution from Amesos here.
 
     // Transfer functions
     Teuchos::SerialDenseMatrix<int, std::complex<double> > origH_;
     Teuchos::SerialDenseMatrix<int, std::complex<double> > redH_;
 
     // Original system solver objects
-    RCP<Amesos_BaseSolver> blockSolver_, origSolver_;
-    RCP<Epetra_LinearProblem> blockProblem_, origProblem_;
+    RCP<Linear::Solver> blockSolver_;
+    RCP<Amesos_BaseSolver> origSolver_;
+    RCP<Linear::Problem> blockProblem_;
+    RCP<Epetra_LinearProblem> origProblem_;
 
     // Reduced system solver objects (sparse)
-    RCP<Amesos_BaseSolver> blockRedSolver_;
-    RCP<Epetra_LinearProblem> blockRedProblem_;
+    RCP<Linear::Solver> blockRedSolver_;
+    RCP<Linear::Problem> blockRedProblem_;
 };
 
 bool registerMORFactory(FactoryBlock &factory_block);
