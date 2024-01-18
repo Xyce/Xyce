@@ -268,3 +268,24 @@ end
 `define MPRcz(nam, def, uni, des) (* units = uni, desc = des *) parameter real nam = def from[0.0 : inf);
 `define MPRoz(nam, def, uni, des) (* units = uni, desc = des *) parameter real nam = def from(0.0 : inf);
 `define MPIcc(nam, def, uni, lwr, upr, des) (* units = uni, desc = des *) parameter integer nam = def from[lwr : upr];
+
+`ifdef __XYCE__
+// macros for both model and instance
+`define BPRco_BOTH(nam, def, uni, lwr, upr, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def from[lwr : upr);
+`define BPRoc_BOTH(nam, def, uni, lwr, upr, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def from(lwr : upr];
+`define BPRoz_BOTH(nam, def, uni, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def from(0.0 : inf);
+`define BPRcz_BOTH(nam, def, uni, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def from[0.0 : inf);
+`define BPRnb_BOTH(nam, def, uni, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def;
+`define BPRoo_BOTH(nam, def, uni, lwr, upr, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter real nam = def from(lwr : upr);
+`define BPIcc_BOTH(nam, def, uni, lwr, upr, des) (* units = uni, type = "instance", desc = des, xyceAlsoModel="yes" *) parameter integer nam = def from[lwr : upr];
+`define MPRnb_BOTH(nam, def, uni, des) (* units = uni, desc = des, xyceAlsoModel="yes" *) parameter real nam = def;
+`else
+`define BPRco_BOTH(nam, def, uni, lwr, upr, des) `BPRco(nam, def, uni, lwr, upr, des)
+`define BPRoc_BOTH(nam, def, uni, lwr, upr, des) `BPRoc(nam, def, uni, lwr, upr, des)
+`define BPRoz_BOTH(nam, def, uni, des) `BPRoz(nam, def, uni, des)
+`define BPRcz_BOTH(nam, def, uni, des) `BPRcz(nam, def, uni, des) 
+`define BPRnb_BOTH(nam, def, uni, des) `BPRnb(nam, def, uni, des)
+`define BPRoo_BOTH(nam, def, uni, lwr, upr, des) `BPRoo(nam, def, uni, lwr, upr, des)
+`define BPIcc_BOTH(nam, def, uni, lwr, upr, des) `BPIcc(nam, def, uni, lwr, upr, des)
+`define MPRnb_BOTH(nam, def, uni, des) `MPRnb(nam, def, uni, des)
+`endif // __XYCE__

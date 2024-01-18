@@ -1,4 +1,4 @@
-The following changes to the BSIMCMG 111.0.0 code were needed to make
+The following changes to the BSIMCMG 111.2.1 code were needed to make
 it work with Xyce/ADMS.
 
 1.  Modify main bsimcmg function name (in the bsimcmg.va file) to include 
@@ -10,4 +10,20 @@ it work with Xyce/ADMS.
     to parse it properly, it needed more parenthesis.  I've encountered
     similar problems parsing ternaries in other contexts, so this probably
     isn't surprising.
+
+3.  Add @initial_instance statement to a block of code near the beginning of bsimcmg_
+    body.include file.  Also, a corresponding "begin" and "end" statement has been 
+    added.  This was necessary as some of these variables are used in node collapse 
+    conditionals.  Also, it makes the code more efficient to execute these lines 
+    once, rather than at every function evaluation.
+
+4.  Convert some of the params to be both instance and model.  At the top of the
+    bsimcmg_parameters.include, there is a block of parameters identified to be
+    both model and instance parameters.  In order for this to work in ADMS/Xyce,
+    it is necessary to modify their attributes to include xyceAlsoModel="yes".
+    This is done with new macros (added to the bsimcmg_macros.include file)
+    that have the name suffix "_BOTH".
+
+
+
 
