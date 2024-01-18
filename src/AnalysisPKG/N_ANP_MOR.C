@@ -1283,6 +1283,8 @@ bool MOR::createRedLinearSystem_()
     sCpG_ref_redMatrixPtr_->block( 0, 0 ).add(*redGPtr_);
     sCpG_ref_redMatrixPtr_->block( 1, 1 ).add(*redGPtr_);
 
+    sCpG_ref_redMatrixPtr_->assembleGlobalMatrix();
+
     // Create a block vector
     ref_redBPtr_ = Teuchos::rcp ( Linear::createBlockVector( numBlocks, redBlockMapPtr, redMapPtr_ ) );
     ref_redXPtr_ = Teuchos::rcp ( Linear::createBlockVector( numBlocks, redBlockMapPtr, redMapPtr_ ) );
