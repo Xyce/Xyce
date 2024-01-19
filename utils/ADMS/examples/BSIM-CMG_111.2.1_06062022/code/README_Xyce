@@ -24,6 +24,11 @@ it work with Xyce/ADMS.
     This is done with new macros (added to the bsimcmg_macros.include file)
     that have the name suffix "_BOTH".
 
-
+5. The "t" thermal node declaration was moved so that it is the first
+   node declared after the required d, g, s, and e nodes.  This is
+   done because technique needed to make t an optional node only works
+   if it is assigned by ADMS as the first numbered node after the
+   required nodes.  This node is optional as a result of the module
+   testing the "$port_connected(t)" function.
 
 

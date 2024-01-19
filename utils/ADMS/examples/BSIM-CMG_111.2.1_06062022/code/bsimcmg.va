@@ -20,11 +20,17 @@
 module bsimcmg_111(d, g, s, e, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="111" xyceDeviceName="BSIM-CMG FINFET v111.2.1" xyceTypeVariable="TYPE" xycePTypeValue="0" *);
     inout d, g, s, e, t;
     electrical d, g, s, e;
+
+// XYCE:  Moved declaration to right after declaration of external nodes,
+// to facilitate the hack of making this an optional node.
+    thermal t;
+
     electrical di, si, di1, si1;
     electrical ge, gi;
     electrical q;
     electrical n;
-    thermal t;
+
+
     `include "bsimcmg_parameters.include"
     `include "bsimcmg_variables.include"
     `include "bsimcmg_body.include"
