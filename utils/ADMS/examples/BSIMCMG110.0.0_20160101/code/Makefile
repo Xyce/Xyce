@@ -22,8 +22,9 @@ all-source: N_DEV_ADMSbsimcmg_110.C
 clean:
 	rm -f $(CLEANFILES)
 
-N_DEV_ADMSbsimcmg_110.h N_DEV_ADMSbsimcmg_110.C: bsimcmg.va $(XyceADMSFILES) $(BSIMCMGDEPFILES)
+N_DEV_ADMSbsimcmg_110.h N_DEV_ADMSbsimcmg_110.C: bsimcmg.va $(XyceADMSFILES) $(BSIMCMGDEPFILES) insert_devconmap.patch
 	admsXml -D__XYCE__=1 -x -e $(ADMSDIR)/adms.implicit.xml -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceAnalogFunction_nosac.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml -e $(ADMSDIR)/xyceHeaderFile_nosac.xml -e $(ADMSDIR)/xyceOutVarsDoc.xml bsimcmg.va
+	patch -l N_DEV_ADMSbsimcmg_110.C insert_devconmap.patch
 	mv M_110_OutputVars.tex M_110_OutputVars.tex_borken
 	sed -e 's|\([TLA]\)_|\1\\_|g' < M_110_OutputVars.tex_borken > M_110_OutputVars.tex
 	rm M_110_OutputVars.tex_borken
