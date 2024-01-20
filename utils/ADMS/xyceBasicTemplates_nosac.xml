@@ -4599,10 +4599,38 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:otherwise>
         <admst:variable name="expression" select="($a1?$a2:$a3)"/>
-        <admst:variable name="expressionDeriv" select="($a1?$a2Deriv:$a3Deriv)"/>
-        <admst:variable name="expressionDeriv2" select="($a1?$a2Deriv2:$a3Deriv2)"/>
-        <admst:variable name="expressionDeriv12" select="($a1?$a2Deriv12:$a3Deriv12)"/>
-        <admst:variable name="expressionDerivX" select="($a1?$a2DerivX:$a3DerivX)"/>
+         <admst:choose>
+            <admst:when test="[$a2Deriv='0.0' and $a3Deriv='0.0']">
+              <admst:variable name="expressionDeriv" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv" select="($a1?$a2Deriv:$a3Deriv)"/>  
+            </admst:otherwise>
+        </admst:choose>
+         <admst:choose>
+            <admst:when test="[$a2Deriv2='0.0' and $a3Deriv2='0.0']">
+              <admst:variable name="expressionDeriv2" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv2" select="($a1?$a2Deriv2:$a3Deriv2)"/>  
+            </admst:otherwise>
+        </admst:choose>
+         <admst:choose>
+            <admst:when test="[$a2Deriv12='0.0' and $a3Deriv12='0.0']">
+              <admst:variable name="expressionDeriv12" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv12" select="($a1?$a2Deriv12:$a3Deriv12)"/>  
+            </admst:otherwise>
+        </admst:choose>
+         <admst:choose>
+            <admst:when test="[$a2DerivX='0.0' and $a3DerivX='0.0']">
+              <admst:variable name="expressionDerivX" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDerivX" select="($a1?$a2DerivX:$a3DerivX)"/>  
+            </admst:otherwise>
+        </admst:choose>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
