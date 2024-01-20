@@ -6751,6 +6751,24 @@ other variables does not get propagated into a variable's
           <admst:text format="; \n"/>
           <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
         </admst:when>
+        <admst:when test="function[name='\$error']">
+          <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+          <admst:variable name="skipFunctionPrecomp" select="y"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope ='sensitivity']">
+              <admst:text format="UserFatal(theInstance) "/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format="UserFatal(*this) "/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:for-each select="function/arguments">
+            <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
+          </admst:for-each>
+          <admst:text format=" &lt;&lt;  std::endl"/>
+          <admst:text format="; \n"/>
+          <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
+        </admst:when>
         <admst:when test="function[name='\$finish']">
           <admst:choose>
             <admst:when test="[$globalCurrentScope ='sensitivity']">
