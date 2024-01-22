@@ -1,6 +1,6 @@
---- N_DEV_ADMSHBT_X.C	2019-08-16 11:47:19.472992632 -0600
-+++ N_DEV_ADMSHBT_X.C	2019-08-16 11:51:30.857903048 -0600
-@@ -2458,9 +2458,51 @@
+--- N_DEV_ADMSHBT_X.C	2024-01-22 13:46:17.625298000 -0700
++++ N_DEV_ADMSHBT_X.C	2023-02-20 10:50:18.474084000 -0700
+@@ -3436,9 +3436,51 @@
  
    origFlag = true;
  
@@ -52,14 +52,14 @@
      if (!(getSolverState().dcopFlag)||(getSolverState().locaEnabledFlag && getSolverState().dcopFlag))
      {
        vbei_old = ((*extData.currStoVectorPtr))[li_store_admsProbeID_V_bii_ei];
-@@ -2481,10 +2523,11 @@
-     vbcx_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_V_bi_ci];
-   }
-   // -- code converted from analog/code block
--  {
--    double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
--    tVCrit = (adms_vt_nom*value_log_0);
--  }
+@@ -3459,10 +3501,11 @@
+      vbcx_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_V_bi_ci];
+ }
+ // -- code converted from analog/code block
+-{
+-double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
+-tVCrit = (adms_vt_nom*value_log_0);
+-}
 +  // Manually moved to above
 +  //{
 +  //  double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
