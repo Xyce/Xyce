@@ -1,6 +1,6 @@
---- N_DEV_ADMSvbic13_4t.C.orig	2021-12-15 08:16:09.443203524 -0700
-+++ N_DEV_ADMSvbic13_4t.C	2021-12-15 08:16:29.384169447 -0700
-@@ -2158,7 +2158,13 @@
+--- N_DEV_ADMSvbic13_4t.C	2024-01-22 13:32:33.666560000 -0700
++++ N_DEV_ADMSvbic13_4t.C	2023-02-20 10:50:18.602348000 -0700
+@@ -2190,7 +2190,13 @@
      li_store_admsProbeID_V_bx_cx(-1),
      li_store_admsProbeID_V_bx_bp(-1),
      li_store_admsProbeID_V_b_e(-1),
@@ -15,7 +15,7 @@
  
  {
      numIntVars = 10 + 0;
-@@ -2167,6 +2173,55 @@
+@@ -2199,6 +2205,55 @@
    // Right now, we only have store for limited probes and output vars...
    setNumStoreVars(8+0);
  
@@ -71,7 +71,7 @@
    // Do not allocate "branch" (lead current) vectors by default
    setNumBranchDataVars(0);
    numBranchDataVarsIfAllocated = 4;
-@@ -2412,11 +2467,17 @@
+@@ -2444,11 +2499,17 @@
  //-----------------------------------------------------------------------------
  void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
  {
@@ -89,7 +89,7 @@
      addInternalNode(symbol_table, li_ei, getName(), "ei");
      addInternalNode(symbol_table, li_bp, getName(), "bp");
      addInternalNode(symbol_table, li_si, getName(), "si");
-@@ -3723,6 +3784,16 @@
+@@ -3755,6 +3816,16 @@
       dt_et_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_Temp_dt_GND];
  }
  // -- code converted from analog/code block
