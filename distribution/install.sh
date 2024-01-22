@@ -8,7 +8,7 @@
 echo "-----------------------------------------------------------------------------"
 echo " Copyright Notice"
 echo 
-echo " Copyright (C) 2002-2017, Sandia Corporation, Albuquerque, NM, USA.  "
+echo " Copyright (C) 2002-2024, Sandia Corporation, Albuquerque, NM, USA.  "
 echo " See the output of Xyce -license for details. "
 echo "-----------------------------------------------------------------------------"
 echo
