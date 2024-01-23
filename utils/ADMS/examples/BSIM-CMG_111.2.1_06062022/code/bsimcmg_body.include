@@ -2771,83 +2771,83 @@ analog begin
 
     // Loading Ids, gate and drain charges
     if (sigvds > 0.0) begin
-        I(di, si) <+ devsign * ids;
+        I(di, si) <+ `MFACTOR_USE * devsign * ids;
     end else begin
-        I(si, di) <+ devsign * ids;
+        I(si, di) <+ `MFACTOR_USE * devsign * ids;
     end
     if (NQSMOD == 2) begin
-        I(gi, si) <+ devsign * gtau * -V(q);
-        I(di, si) <+ devsign * xdpart * gtau * V(q);
+        I(gi, si) <+ `MFACTOR_USE * devsign * gtau * -V(q);
+        I(di, si) <+ `MFACTOR_USE * devsign * xdpart * gtau * V(q);
     end else begin
-        I(di, si) <+ devsign * ddt(qd);
-        I(gi, si) <+ devsign * ddt(qg);
+        I(di, si) <+ `MFACTOR_USE * devsign * ddt(qd);
+        I(gi, si) <+ `MFACTOR_USE * devsign * ddt(qg);
     end
 
     // Loading other currents
     if (sigvds > 0.0) begin
-        I(di, si) <+ devsign * idsgen;
-        I(gi, si) <+ devsign * (igcs + igs);
-        I(gi, di) <+ devsign * (igcd + igd);
+        I(di, si) <+ `MFACTOR_USE * devsign * idsgen;
+        I(gi, si) <+ `MFACTOR_USE * devsign * (igcs + igs);
+        I(gi, di) <+ `MFACTOR_USE * devsign * (igcd + igd);
         if (BULKMOD != 0) begin
             if (GIDLMOD == 2 && (GEOMOD == 2 || GEOMOD == 3 || GEOMOD == 5)) begin
-                I(di, si) <+ devsign * (igidl + Iii);
-                I(si, di) <+ devsign * igisl;
-                I(di, e) <+ devsign * igidlb;
-                I(si, e) <+ devsign * igislb;
+                I(di, si) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+                I(si, di) <+ `MFACTOR_USE * devsign * igisl;
+                I(di, e) <+ `MFACTOR_USE * devsign * igidlb;
+                I(si, e) <+ `MFACTOR_USE * devsign * igislb;
             end else begin
-                I(di, e) <+ devsign * (igidl + Iii);
-                I(si, e) <+ devsign * igisl;
+                I(di, e) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+                I(si, e) <+ `MFACTOR_USE * devsign * igisl;
             end
-            I(gi, e) <+ devsign * (igbinv + igbacc);
+            I(gi, e) <+ `MFACTOR_USE * devsign * (igbinv + igbacc);
         end else begin
-            I(di, si) <+ devsign * (igidl + Iii);
-            I(si, di) <+ devsign * igisl;
+            I(di, si) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+            I(si, di) <+ `MFACTOR_USE * devsign * igisl;
         end
     end else begin
-        I(si, di) <+ devsign * idsgen;
-        I(gi, di) <+ devsign * (igcs + igs);
-        I(gi, si) <+ devsign * (igcd + igd);
+        I(si, di) <+ `MFACTOR_USE * devsign * idsgen;
+        I(gi, di) <+ `MFACTOR_USE * devsign * (igcs + igs);
+        I(gi, si) <+ `MFACTOR_USE * devsign * (igcd + igd);
         if (BULKMOD != 0) begin
             if (GIDLMOD == 2 && (GEOMOD == 2 || GEOMOD == 3 || GEOMOD == 5)) begin
-                I(si, di) <+ devsign * (igidl + Iii);
-                I(di, si) <+ devsign * igisl;
-                I(si, e) <+ devsign * igidlb;
-                I(di, e) <+ devsign * igislb;
+                I(si, di) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+                I(di, si) <+ `MFACTOR_USE * devsign * igisl;
+                I(si, e) <+ `MFACTOR_USE * devsign * igidlb;
+                I(di, e) <+ `MFACTOR_USE * devsign * igislb;
             end else begin
-                I(si, e) <+ devsign * (igidl + Iii);
-                I(di, e) <+ devsign * igisl;
+                I(si, e) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+                I(di, e) <+ `MFACTOR_USE * devsign * igisl;
             end
-            I(gi, e) <+ devsign * (igbinv + igbacc);
+            I(gi, e) <+ `MFACTOR_USE * devsign * (igbinv + igbacc);
         end else begin
-            I(si, di) <+ devsign * (igidl + Iii);
-            I(di, si) <+ devsign * igisl;
+            I(si, di) <+ `MFACTOR_USE * devsign * (igidl + Iii);
+            I(di, si) <+ `MFACTOR_USE * devsign * igisl;
         end
     end
     if (BULKMOD == 0) begin
-        I(gi, si) <+ devsign * igbs;
-        I(gi, di) <+ devsign * igbd;
+        I(gi, si) <+ `MFACTOR_USE * devsign * igbs;
+        I(gi, di) <+ `MFACTOR_USE * devsign * igbd;
     end
     if (BULKMOD != 0) begin
-        I(e, si) <+ devsign * Ies + V(e, si) * gmin;
-        I(e, di) <+ devsign * Ied + V(e, di) * gmin;
+        I(e, si) <+ `MFACTOR_USE * devsign * Ies + V(e, si) * gmin;
+        I(e, di) <+ `MFACTOR_USE * devsign * Ied + V(e, di) * gmin;
     end
-    I(e, si) <+ devsign * ddt(Qes);
-    I(e, di) <+ devsign * ddt(Qed);
-    I(e, ge) <+ devsign * ddt(Qeg);
+    I(e, si) <+ `MFACTOR_USE * devsign * ddt(Qes);
+    I(e, di) <+ `MFACTOR_USE * devsign * ddt(Qed);
+    I(e, ge) <+ `MFACTOR_USE * devsign * ddt(Qeg);
 
     // Loading other charges
-    I(ge, si) <+ ddt(qgs_parasitic);
-    I(ge, di) <+ ddt(qgd_parasitic);
-    I(d, s) <+ ddt(qds_fr);
+    I(ge, si) <+ `MFACTOR_USE * ddt(qgs_parasitic);
+    I(ge, di) <+ `MFACTOR_USE * ddt(qgd_parasitic);
+    I(d, s) <+ `MFACTOR_USE * ddt(qds_fr);
     if (CGEOMOD == 1) begin
-        I(ge, s) <+ ddt(qgs_fr);
-        I(ge, d) <+ ddt(qgd_fr);
+        I(ge, s) <+ `MFACTOR_USE * ddt(qgs_fr);
+        I(ge, d) <+ `MFACTOR_USE * ddt(qgd_fr);
     end
 
     // Accumulation charge for bulk FET
     if (BULKMOD != 0) begin
-        I(gi, si) <+ devsign * ddt(qg_acc);
-        I(e, si) <+ devsign * ddt(qb_acc);
+        I(gi, si) <+ `MFACTOR_USE * devsign * ddt(qg_acc);
+        I(e, si) <+ `MFACTOR_USE * devsign * ddt(qb_acc);
     end
 
     // Velocity saturation in source/drain resistances
@@ -2899,10 +2899,10 @@ analog begin
     // External source/drain resistance
     if (RDSMOD != 2 && RDrainGeo > 0) begin
         gdpr = 1.0 / Rdrain;
-        I(d, di1) <+ V(d, di1) * gdpr;
+        I(d, di1) <+ `MFACTOR_USE * V(d, di1) * gdpr;
         if (RDSMOD == 1 && RDLCW > 0) begin
             gvs_d = 1.0 / Rvs_d;
-            I(di1, di) <+ V(di1, di) * gvs_d;
+            I(di1, di) <+ `MFACTOR_USE * V(di1, di) * gvs_d;
         end else begin
             V(di1, di) <+ 0.0;
         end
@@ -2912,10 +2912,10 @@ analog begin
     end
     if (RDSMOD != 2 && RSourceGeo > 0) begin
         gspr = 1.0 / Rsource;
-        I(s, si1) <+ V(s, si1) * gspr;
+        I(s, si1) <+ `MFACTOR_USE * V(s, si1) * gspr;
         if (RDSMOD == 1 && RSLCW > 0) begin
             gvs_s = 1.0 / Rvs_s;
-            I(si1, si) <+ V(si1, si) * gvs_s;
+            I(si1, si) <+ `MFACTOR_USE * V(si1, si) * gvs_s;
         end else begin
             V(si1, si) <+ 0.0;
         end
@@ -2926,96 +2926,96 @@ analog begin
 
     // NQS gate resistance model
     if (NQSMOD == 1 && XRCRG1_i != 0.0) begin
-        I(ge, gi) <+ V(ge, gi) * gcrg;
+        I(ge, gi) <+ `MFACTOR_USE * V(ge, gi) * gcrg;
     end else begin
         V(ge, gi) <+ 0.0;
     end
     if (NQSMOD == 2) begin
-        I(q) <+ ddt(qg - qb);
-        I(q) <+ V(q) * gtau;
-        I(q) <+ 1.0e-9 * ddt(V(q));
+        I(q) <+ `MFACTOR_USE * ddt(qg - qb);
+        I(q) <+ `MFACTOR_USE * V(q) * gtau;
+        I(q) <+ `MFACTOR_USE * 1.0e-9 * ddt(V(q));
     end else begin
         V(q) <+ 0.0;
     end
 
     // Gate electrode resistance
     if (RGATEMOD != 0) begin
-        I(g, ge) <+ V(g, ge) * ggeltd;
+        I(g, ge) <+ `MFACTOR_USE * V(g, ge) * ggeltd;
     end else begin
         V(g, ge) <+ 0.0;
     end
 
     // Flicker noise
-    I(di, si) <+ flicker_noise(sigvds * FNPowerAt1Hz, EF, "1overf");
+    I(di, si) <+ flicker_noise(`MFACTOR_USE * sigvds * FNPowerAt1Hz, EF, "1overf");
 
     // Thermal noise for parasitics
     if (RDSMOD != 2 && RDrainGeo > 0) begin
-        I(d, di1) <+ white_noise(4.0 * Vtm * `q * gdpr, "rd");
+        I(d, di1) <+ white_noise(`MFACTOR_USE * 4.0 * Vtm * `q * gdpr, "rd");
         if (RDSMOD == 1 && RDLCW > 0) begin
-            I(di1, di) <+ white_noise(4.0 * Vtm * `q * gvs_d, "rd");
+            I(di1, di) <+ white_noise(`MFACTOR_USE * 4.0 * Vtm * `q * gvs_d, "rd");
         end
     end
     if (RDSMOD != 2 && RSourceGeo > 0) begin
-        I(s, si1) <+ white_noise(4.0 * Vtm * `q * gspr, "rs");
+        I(s, si1) <+ white_noise(`MFACTOR_USE * 4.0 * Vtm * `q * gspr, "rs");
         if (RDSMOD == 1 && RSLCW > 0) begin
-            I(si1, si) <+ white_noise(4.0 * Vtm * `q * gvs_s, "rs");
+            I(si1, si) <+ white_noise(`MFACTOR_USE * 4.0 * Vtm * `q * gvs_s, "rs");
         end
     end
     if (RGATEMOD != 0) begin
-        I(g, ge) <+ white_noise(4.0 * Vtm * `q * ggeltd, "rg");
+        I(g, ge) <+ white_noise(`MFACTOR_USE * 4.0 * Vtm * `q * ggeltd, "rg");
     end
 
     // Channel thermal noise and induced gate noise stamping
     if (TNOIMOD == 0) begin
-        I(di, si) <+ white_noise(sid, "id");
+        I(di, si) <+ white_noise(`MFACTOR_USE * sid, "id");
         V(n) <+ 0.0;
     end else begin
         // Additional node for correlated noise
-        I(n) <+ V(n);
-        I(n) <+ white_noise(sid, "corl");
-        I(di, si) <+ white_noise(sid * (1.0 - ctnoi * ctnoi), "id");
-        I(di, si) <+ ctnoi * V(n);
+        I(n) <+ `MFACTOR_USE * V(n);
+        I(n) <+ white_noise(`MFACTOR_USE * sid, "corl");
+        I(di, si) <+ white_noise(`MFACTOR_USE * sid * (1.0 - ctnoi * ctnoi), "id");
+        I(di, si) <+ `MFACTOR_USE * ctnoi * V(n);
         // Correlated Sig noise to S/D through capacitive coupling
-        I(gi, si) <+ ddt(0.7071 * sigrat * V(n));
-        I(gi, di) <+ ddt(0.7071 * sigrat * V(n));
+        I(gi, si) <+ ddt(`MFACTOR_USE * 0.7071 * sigrat * V(n));
+        I(gi, di) <+ ddt(`MFACTOR_USE * 0.7071 * sigrat * V(n));
     end
 
     // Gate current shot noise
     if (IGCMOD != 0) begin
         if (sigvds > 0.0) begin
-            I(gi, si) <+ white_noise(2.0 * `q * abs(igcs + igs), "igs");
-            I(gi, di) <+ white_noise(2.0 * `q * abs(igcd + igd), "igd");
+            I(gi, si) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igcs + igs), "igs");
+            I(gi, di) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igcd + igd), "igd");
         end else begin
-            I(gi, di) <+ white_noise(2.0 * `q * abs(igcs + igs), "igd");
-            I(gi, si) <+ white_noise(2.0 * `q * abs(igcd + igd), "igs");
+            I(gi, di) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igcs + igs), "igd");
+            I(gi, si) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igcd + igd), "igs");
         end
     end
     if (IGBMOD != 0) begin
         if (BULKMOD != 0) begin
-            I(gi, e)  <+ white_noise(2.0 * `q * abs(igbinv + igbacc), "igb");
+            I(gi, e)  <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igbinv + igbacc), "igb");
         end else begin
-            I(gi, si) <+ white_noise(2.0 * `q * abs(igbs), "igbs");
-            I(gi, di) <+ white_noise(2.0 * `q * abs(igbd), "igbd");
+            I(gi, si) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igbs), "igbs");
+            I(gi, di) <+ white_noise(`MFACTOR_USE * 2.0 * `q * abs(igbd), "igbd");
         end
     end
 
     // Self-heating
     if (SHMOD != 0 && RTH0 > 0.0) begin
-        Pwr(t) <+ -(devsign * sigvds * V(di, si) * ids);
+        Pwr(t) <+ -(`MFACTOR_USE * devsign * sigvds * V(di, si) * ids);
         if (RDSMOD != 2 && RDrainGeo > 0) begin
-            Pwr(t) <+ -V(d, di1) * V(d, di1) * gdpr;
+            Pwr(t) <+ `MFACTOR_USE * -V(d, di1) * V(d, di1) * gdpr;
             if (RDSMOD == 1 && RDLCW > 0) begin
-                Pwr(t) <+ -V(di1, di) * V(di1, di) * gvs_d;
+                Pwr(t) <+ `MFACTOR_USE * -V(di1, di) * V(di1, di) * gvs_d;
             end
         end
         if (RDSMOD != 2 && RSourceGeo > 0) begin
-            Pwr(t) <+ -V(s, si1) * V(s, si1) * gspr;
+            Pwr(t) <+ `MFACTOR_USE * -V(s, si1) * V(s, si1) * gspr;
             if (RDSMOD == 1 && RSLCW > 0) begin
-                Pwr(t) <+ -V(si1, si) * V(si1, si) * gvs_s;
+                Pwr(t) <+ `MFACTOR_USE * -V(si1, si) * V(si1, si) * gvs_s;
             end
         end
-        Pwr(t) <+ Temp(t) * gth;
-        Pwr(t) <+ ddt(Temp(t) * cth);
+        Pwr(t) <+ `MFACTOR_USE * Temp(t) * gth;
+        Pwr(t) <+ `MFACTOR_USE * ddt(Temp(t) * cth);
     end else begin
         Temp(t) <+ 0.0;
     end

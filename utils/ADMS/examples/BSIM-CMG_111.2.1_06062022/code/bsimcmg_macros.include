@@ -289,3 +289,11 @@ end
 `define BPIcc_BOTH(nam, def, uni, lwr, upr, des) `BPIcc(nam, def, uni, lwr, upr, des)
 `define MPRnb_BOTH(nam, def, uni, des) `MPRnb(nam, def, uni, des)
 `endif // __XYCE__
+
+`ifdef EXPLICIT_MFACTOR
+   `define IPM                         (*units="" , type="instance",  desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf) ;
+   `define MFACTOR_USE m
+`else //
+   `define IPM
+   `define MFACTOR_USE 1.0
+`endif
