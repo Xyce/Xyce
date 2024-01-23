@@ -2030,6 +2030,13 @@
 `MPRcz(QMFACTORCV, 0.0, "", "Charge dependence taking QM effects into account")
 `MPRcz(ALPHA_UFCM, 0.5556, "", "Mobile charge scaling term taking QM effects into account")
 
+`ifdef __XYCE__
+`MPRnb( LMIN           ,0.0            ,"m"                                                             ,"Minimum length for which this model should be used")
+`MPRnb( WMIN           ,0.0            ,"m"                                                             ,"Minimum width for which this model should be used")
+`MPRnb( LMAX           ,100.0            ,"m"                                                           ,"Maximum length for which this model should be used")
+`MPRnb( WMAX           ,100.0            ,"m"                                                             ,"Maximum width for which this model should be used")
+`endif
+
 // Gate-All-Around subband model
 `MPRcc(DIM1H, 3,"", 1, 3, "Max dimension for 1st subband (real number enables optimization)")
 
@@ -2278,3 +2285,11 @@
 `OPM(DITHDVG, "A", "dPower / dVg")
 `OPM(DITHDVS, "A", "dPower / dVs")
 `OPM(DITHDVD, "A", "dPower / dVd")
+
+`ifdef __XYCE__
+  // non-standard output vars requested by users
+  `OPP(VDSAT, "V", "Synonym for VDSSAT")
+  `OPP(VDS, "V", "Drain-source voltage")
+  `OPP(VGS, "V", "Gate-source voltage")
+  `OPP(VBS, "V", "Bulk-source voltage")
+`endif

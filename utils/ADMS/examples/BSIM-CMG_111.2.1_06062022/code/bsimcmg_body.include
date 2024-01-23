@@ -3260,4 +3260,11 @@ analog begin
     DITHDVG = ddx(ITH, V(gi));
     DITHDVS = ddx(ITH, V(si));
     DITHDVD = ddx(ITH, V(di));
+
+    `ifdef __XYCE__
+    VDSAT  =  Vdsat;                               // Drain-Source saturation Voltage (user-requested synonym)
+    VDS = vds;
+    VGS = vgs;
+    VBS = V(e,s);
+    `endif
 end
