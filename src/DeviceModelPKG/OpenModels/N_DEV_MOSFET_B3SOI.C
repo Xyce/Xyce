@@ -14338,8 +14338,12 @@ bool Instance::loadDAEFVector ()
   double Coef_substrate=0.0;
   double Coef_temp=0.0;
 
-//  Gmin = getDeviceOptions().gmin;
-  Gmin = getDeviceOptions().gmin * 1e-6;
+  if (!getDeviceOptions().b3soiScaledGminFlag)
+    Gmin = getDeviceOptions().gmin;
+  
+  else
+    Gmin = getDeviceOptions().gmin * 1e-6;
+
   geltd = grgeltd;
 
   // I have elected to add in the Gmin-based Jdxp terms right here.
@@ -17579,9 +17583,13 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double Coef_f_sourcePrime=0.0;
     double Coef_f_substrate=0.0;
     double Coef_f_temp=0.0;
+ 
 
-//    mi.Gmin = getDeviceOptions().gmin;
-    mi.Gmin = getDeviceOptions().gmin * 1e-6;
+    if (!getDeviceOptions().b3soiScaledGminFlag)
+      mi.Gmin = getDeviceOptions().gmin;
+    else
+      mi.Gmin = getDeviceOptions().gmin * 1e-6;
+
     mi.geltd = mi.grgeltd;
 
     // I have elected to add in the Gmin-based Jdxp terms right here.
