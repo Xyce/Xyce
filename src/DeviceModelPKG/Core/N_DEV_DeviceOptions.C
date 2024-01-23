@@ -105,6 +105,7 @@ DeviceOptions::DeviceOptions()
     testJacWarn (false),
     testJacDeviceNameGiven( false ),
     testJacDeviceName(""),
+    b3soiScaledGminFlag (true),
     voltageLimiterFlag (true),
     b3soiVoltageLimiterFlag (true),
     lambertWFlag (0),
@@ -233,6 +234,8 @@ bool DeviceOptions::setOptions(const Util::OptionBlock & option_block)
       testJacDeviceName = (*it).stringValue();
       testJacDeviceNameGiven = true;
     }
+    else if (tag == "B3SOIGMINSCALING")
+      b3soiScaledGminFlag   = static_cast<bool>((*it).getImmutableValue<int>());
     else if (tag == "VOLTLIM")
       voltageLimiterFlag    = static_cast<bool>((*it).getImmutableValue<int>());
     else if (tag == "B3SOIVOLTLIM")
@@ -465,6 +468,7 @@ DeviceOptions::populateMetadata(
   parameters.insert(Util::ParamMap::value_type("SENSDP", Util::Param("SENSDP", 1.0e-8)));
   parameters.insert(Util::ParamMap::value_type("TESTJACWARN", Util::Param("TESTJACWARN", 0)));
   parameters.insert(Util::ParamMap::value_type("TESTJACDEVICENAME", Util::Param("TESTJACDEVICENAME", "")));
+  parameters.insert(Util::ParamMap::value_type("B3SOIGMINSCALING", Util::Param("B3SOIGMINSCALING", 1)));
   parameters.insert(Util::ParamMap::value_type("VOLTLIM", Util::Param("VOLTLIM", 1)));
   parameters.insert(Util::ParamMap::value_type("B3SOIVOLTLIM", Util::Param("B3SOIVOLTLIM", 1)));
   parameters.insert(Util::ParamMap::value_type("ICFAC", Util::Param("ICFAC", 10000.0)));
@@ -547,6 +551,7 @@ std::ostream & operator<<(std::ostream & os, const DeviceOptions & devOp)
      << "\t\ttestJac_SqrtEta       = " << devOp.testJac_SqrtEta << "\n"
      << "\t\tdeviceSens_dp         = " << devOp.deviceSens_dp << "\n"
 
+     << "\t\tb3soiScaledGminFlag   = " << devOp.b3soiScaledGminFlag << "\n"
      << "\t\tvoltageLimiterFlag    = " << devOp.voltageLimiterFlag << "\n"
      << "\t\tb3soiVoltageLimiterFlag    = " << devOp.b3soiVoltageLimiterFlag << "\n"
      << "\t\tlambertWFlag          = " << devOp.lambertWFlag << "\n"

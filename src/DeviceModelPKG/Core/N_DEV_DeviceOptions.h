@@ -111,6 +111,7 @@ public:
   bool          testJacWarn;
   bool          testJacDeviceNameGiven;
   std::string   testJacDeviceName;
+  bool          b3soiScaledGminFlag;
   bool          voltageLimiterFlag;
   bool          b3soiVoltageLimiterFlag;
   int           lambertWFlag;
