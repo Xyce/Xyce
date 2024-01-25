@@ -81,6 +81,15 @@ please visit the \XyceTM{} web page at
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
 \item
+
+\item The voltage limiting in the BSIMSOI version 3 device model is
+improved which can lead to both robustness and performance improvements.
+The voltage limiting related calculations for body nodes were incorrect 
+which led to robustness issues when body nodes (5th or 6th node) are
+used (e.g., Sandia's CMOS PDK) and voltage limiting is activated during
+simulation. Fixing voltage limiting improves both convergence
+and runtime performance for these circuits.
+
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
