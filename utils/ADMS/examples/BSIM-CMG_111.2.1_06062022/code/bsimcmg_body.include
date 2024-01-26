@@ -2828,8 +2828,8 @@ analog begin
         I(gi, di) <+ `MFACTOR_USE * devsign * igbd;
     end
     if (BULKMOD != 0) begin
-        I(e, si) <+ `MFACTOR_USE * devsign * Ies + V(e, si) * gmin;
-        I(e, di) <+ `MFACTOR_USE * devsign * Ied + V(e, di) * gmin;
+        I(e, si) <+ `MFACTOR_USE * devsign * Ies + `MFACTOR_USE * V(e, si) * gmin;
+        I(e, di) <+ `MFACTOR_USE * devsign * Ied + `MFACTOR_USE * V(e, di) * gmin;
     end
     I(e, si) <+ `MFACTOR_USE * devsign * ddt(Qes);
     I(e, di) <+ `MFACTOR_USE * devsign * ddt(Qed);
