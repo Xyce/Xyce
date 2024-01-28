@@ -1,0 +1,205 @@
+// ****************************************************************************
+// *  BSIM-CMG 111.2.1 released on 06/06/2022                                 *
+// *  BSIM Common Multi-Gate Model (Verilog-A)                                *
+// ****************************************************************************
+
+// ****************************************************************************
+// *  Copyright © 2022 University of California                               *
+// *                                                                          *
+// *  Project director: Prof. Chenming Hu                                     *
+// *                                                                          *
+// *  Current developers: Girish Pahwa (Assistant Researcher)                 *
+// *                      Dinesh Rajasekharan (Postdoc)                       *
+// *                      Chetan Kumar Dabhi (Postdoc)                        *
+// *                      Chien-Ting Tung (Ph.D. student)                     *
+// ****************************************************************************
+
+// Source/drain resistances
+Dr = 0.0; Rdrain = 0.0; Rsource = 0.0; Rdsi = 0.0;
+
+// Temperature effects
+CJS_t = 0.0; CJSWS_t = 0.0; CJSWGD_t = 0.0;
+CJD_t = 0.0; CJSWD_t = 0.0; CJSWGS_t = 0.0;
+PBS_t = 0.0; PBSWS_t = 0.0; PBSWGS_t = 0.0;
+PBD_t = 0.0; PBSWD_t = 0.0; PBSWGD_t = 0.0;
+JSS_t = 0.0; JSWS_t = 0.0; JSWGS_t = 0.0;
+JSD_t = 0.0; JSWD_t = 0.0; JSWGD_t = 0.0;
+JTSS_t = 0.0; JTSD_t = 0.0;
+JTSSWS_t = 0.0; JTSSWD_t = 0.0;
+JTSSWGS_t = 0.0; JTSSWGD_t = 0.0;
+NJTS_t = 0.0; NJTSD_t = 0.0;
+NJTSSW_t = 0.0; NJTSSWD_t = 0.0;
+NJTSSWG_t = 0.0; NJTSSWGD_t = 0.0;
+RSDRR_t = 0.0; RDDRR_t = 0.0;
+UAR_t = 0.0; UC_t = 0.0; UCCV_t = 0.0; UCR_t = 0.0; UDR_t = 0.0;
+VSATR_t = 0.0; VSAT1R_t = 0.0; MEXPR_t = 0.0; PTWGR_t = 0.0;
+
+// Quantum mechanical correction
+Tcen0 = 0.0;
+
+// Midpoint potential and charge
+qba = 0.0; u0r = 0.0;
+
+// Geometry-dependent fringe capacitance
+Cfr_geo = 0.0;
+
+// Gate resistance
+ggeltd = 0.0;
+
+// Gate current
+igbinv = 0.0; igbacc = 0.0;
+igbs = 0.0; igbd = 0.0;
+igcs = 0.0; igcd = 0.0;
+igs = 0.0; igd = 0.0;
+
+// GIDL/GISL
+igisl = 0.0; igidl = 0.0; igislb = 0; igidlb = 0;
+AGIDLB_i = 0; BGIDLB_i = 0; BGIDLB_t = 0; CGIDLB_i = 0; EGIDLB_i = 0; PGIDLB_i = 0;
+AGISLB_i = 0; BGISLB_i = 0; BGISLB_t = 0; CGISLB_i = 0; EGISLB_i = 0; PGISLB_i = 0;
+
+// Impact ionization current
+Iii = 0.0;
+
+// Accumulation capacitance
+cox_acc = 0.0; qg_acc = 0.0; qb_acc = 0.0;
+
+// Parasitic capacitance
+qgs_ov = 0.0; qgd_ov = 0.0;
+
+// Junction current and capacitance
+Ies = 0.0; Ied = 0.0;
+Czbs = 0.0; Czbssw = 0.0; Czbsswg = 0.0;
+Czbd = 0.0; Czbdsw = 0.0; Czbdswg = 0.0;
+Qesj = 0.0; Qedj = 0.0;
+Isbs = 0.0; Isbd = 0.0;
+Nvtms = 0.0; Nvtmd = 0.0;
+SslpFwd = 0.0; IVjsmFwd = 0.0; VjsmFwd = 0.0; XExpBVS = 0.0;
+SslpRev = 0.0; IVjsmRev = 0.0; VjsmRev = 0.0;
+DslpFwd = 0.0; IVjdmFwd = 0.0; VjdmFwd = 0.0; XExpBVD = 0.0;
+DslpRev = 0.0; IVjdmRev = 0.0; VjdmRev = 0.0;
+vec1s = 0.0; pb21s = 0.0;
+vec2s = 0.0; pb22s = 0.0;
+vec3s = 0.0; pb23s = 0.0;
+vec1d = 0.0; pb21d = 0.0;
+vec2d = 0.0; pb22d = 0.0;
+vec3d = 0.0; pb23d = 0.0;
+
+// NQS gate resistance
+gcrg = 0.0; gtau = 0.0;
+
+// Thermal noise
+sid = 0.0;
+
+// Correlated thermal noise
+Dr0 = 0.0; ctnoi = 0.0; sigrat = 0.0;
+
+// Self-heating
+gth = 0.0; cth = 0.0;
+
+// Short channel effects
+CITR_i = 0.0; CDSCDR_i = 0.0; ETA0R_i = 0.0; DVTSHIFTR_i = 0.0;
+
+// Body effect
+veseff = 0.0;
+PHIBE_i = 0.0; K1_i = 0.0; K11_i = 0.0; K2SAT_i = 0.0; K2SAT1_i = 0.0;
+K2_i = 0.0; K21_i = 0.0;
+
+// Velocity satuation
+VSATR_i = 0.0; VSAT1R_i = 0.0; KSATIVR_i = 0.0; MEXPR_i = 0.0;
+PTWGR_i = 0.0; ATR_i = 0.0;
+
+// Mobility
+U0R_i = 0.0; UPR_i = 0.0; UAR_i = 0.0; UC_i = 0.0; UCR_i = 0.0; EUR_i = 0.0;
+UDR_i = 0.0; UTER_i = 0.0; UTLR_i = 0.0;
+UA1R_i = 0.0; UC1_i = 0.0; UC1R_i = 0.0; UD1R_i = 0.0;
+
+// DIBL
+PDIBL1R_i = 0.0; PDIBL2R_i = 0.0;
+
+// Channel length modulation
+PCLMR_i = 0.0;
+
+// Overlap capacitance
+CGSO_i = 0.0; CGDO_i = 0.0;
+
+// NQS gate resistance model & charge deficit model
+XRCRG1_i = 0.0; XRCRG2_i = 0.0;
+
+// Unified FinFET compact model
+Cins = 0.0; Ach = 0.0; Weff_UFCM = 0.0; WeffB = 0.0; rc = 0.0; Qdep_ov_Cins = 0.0;
+qi_acc_for_QM = 0.0; nq = 0.0;
+
+// GAAFET model
+Ach2 = 0.0; Ach3 = 0.0; Ach4 = 0.0; Ach5 = 0.0; Ach6 = 0.0; Weff2 = 0.0; Weff3 = 0.0; Weff4 = 0.0; Weff5 = 0.0; Weff6 = 0.0;
+qnds1 = 0.0; qnds2 = 0.0; qnds3 = 0.0; qndd1 = 0.0;
+qndd2 = 0.0; qndd3 = 0.0; nc3d = 1.0;
+d1 = 0.0; d2 = 0.0; d3 = 0.0;
+p1 = 0.0; p2 = 0.0; p3 = 0.0;
+ncq = 0.0; qe2 = 0.0; qe3 = 0.0;
+qnd10 = 0.0; qnd20 = 0.0; qnd30 = 0.0;
+DIMENSION1_i = 0.0; DIMENSION2_i = 0.0; DIMENSION3_i = 0.0; SSP1_i = 0.0; SSP2_i = 0.0; SSP3_i = 0.0;
+E2NOM_i = 0.0; E3NOM_i = 0.0; MFQ1NOM_i = 0.0; MFQ2NOM_i = 0.0; MFQ3NOM_i = 0.0;
+
+// Cryogenic model
+DevTemplow0 = 0.0; DevTemplow1 = 0.0; DevTempeff = 0.0; DevTemp1 = 0.0; delTemp1 = 0.0; delTRatio1 = 0.0; Vtmeff = 0.0;
+niln = 0.0;
+UDS_t = 0.0; UDD_t = 0.0; UA_tl = 0.0; UA_th = 0.0; UAR_tl = 0.0; UAR_th = 0.0; wl = 0.0; wh = 0.0;
+
+// S/D velocity saturation model
+Rvs_d = 0.0; Rvs_s = 0.0; rdstempvs = 0.0;
+gvs_s = 0.0; gvs_d = 0.0;
+
+//Others
+gspr = 0.0;
+gdpr = 0.0;
+
+//------ TVR/ERK beginning of temperature dependent intializations.
+TempLast = -999;  
+// Initialize all temp-dep vars, just to make them
+// have the right scope (they would be local if not initialized
+// here).
+//------
+
+// this first block was just copied from bsimcmg_variables.include.
+Tnom=0; TRatio=0; TRatio_m1=0; dvth_temp=0; delTemp=0; delTemp1=0; delTRatio1=0; ThetaSS=0;
+K0_t=0; K0SI_t=0; K2SI_t=0; K1_t=0; K2SAT_t=0; A1_t=0; A2_t=0;
+AIGBINV_t=0; AIGBACC_t=0; AIGC_t=0; AIGS_t=0; AIGD_t=0;
+BETA0_t=0; SII0_t=0; BGISL_t=0; BGISLB_t=0; BGIDL_t=0; BGIDLB_t=0; igtemp=0; PTWG_t=0; PTWGR_t=0;
+ALPHA0_t=0; ALPHA1_t=0; ALPHAII0_t=0; ALPHAII1_t=0;
+CJS_t=0; CJSWS_t=0; CJSWGD_t=0; CJD_t=0; CJSWD_t=0; CJSWGS_t=0;
+PBS_t=0; PBSWS_t=0; PBSWGS_t=0; PBD_t=0; PBSWD_t=0; PBSWGD_t=0;
+JSS_t=0; JSWS_t=0; JSWGS_t=0; JSD_t=0; JSWD_t=0; JSWGD_t=0;
+JTSS_t=0; JTSD_t=0; JTSSWS_t=0; JTSSWD_t=0; JTSSWGS_t=0; JTSSWGD_t=0;
+NJTS_t=0; NJTSD_t=0; NJTSSW_t=0; NJTSSWD_t=0; NJTSSWG_t=0; NJTSSWGD_t=0;
+K2_t=0;
+K0SISAT_t=0; K2SISAT_t=0;
+ETA0_t=0; ETA0CV_t=0; ETA0R_t=0;
+RSDR_t=0; RSDRR_t=0; RDDR_t=0; RDDRR_t=0;
+UA_t=0; UACV_t=0; UAR_t=0; UA_tl=0; UA_th=0; UACV_tl=0; UACV_th=0; UAR_tl=0; UAR_th=0; 
+wh=0; wl=0; UC_t=0; UCCV_t=0; UCR_t=0; UCS_t=0; UD_t=0; UDCV_t=0; UDR_t=0; U0R_t=0; 
+ETAMOB_t=0; EU_t=0; UDS_t=0; UDS_i=0; UDS1_i=0; UDD_t=0; UDD_i=0; UDD1_i=0; UDSeff_t=0; UDDeff_t=0;
+VSAT_t=0; VSATR_t=0; VSAT1_t=0; VSAT1R_t=0; VSATCV_t=0; MEXP_t=0; MEXPR_t=0;
+
+// this next block is from copying the code from the temperature dependent calculation, and then setting every variable referenced in it to zero.
+// I attempted to remove redundancies with the above "_t" block of variables.  Initially there were a lot.
+Vtm =0; Vtm0 =0; Tlow =0;
+T0 =0; T1 =0; T2 =0; T3 =0; T4 =0; T5 =0; T6 =0; T7 =0; T8 =0;
+Eg =0; Eg0 =0; ni =0; Nc =0; niln =0;
+kT =0; E0 =0; E0prime =0; E1 =0; E1prime =0; gam0 =0; gam1 =0; dvch_qm =0;
+
+Trat_ln =0; u0 =0; rdstemp =0; u0_cv =0; KSATIV_t =0; PCLM_t =0;
+
+TR0_i =0; rdstemp0 =0; rdstemp1 =0; PRT1_i=0; PRT_i=0; PRT1_i =0; PRT_i =0; 
+VSATR_i=0; ATR_i=0; AT2=0; VSAT1_i=0; AT_i=0; AT2=0; VSAT1R_i=0; VSATCV_i=0; ATCV_i=0; AT2CV=0;
+KSATIV_i=0; KSATIVT1=0; KSATIVT2=0; PCLM_i=0; PCLMT=0; UACV_tl =0; UACV_th =0;
+UACV_t =0; UDCV_t =0; PRT_i =0; PRT1_i=0;
+
+UCCV_i=0; UC1CV_i=0; 
+igsd_mult =0;
+vfbsd =0; vfbsdcv =0; vfbsdcv =0;
+phib =0; vbi =0;
+deltaPhi =0;
+eta_mu =0; eta_mu_cv =0;
+Tb =0;
+igentemp =0;
+//------ TVR/ERK end of temperature dependent intializations.
