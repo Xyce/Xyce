@@ -64,3 +64,6 @@ it work with Xyce/ADMS.
   inside an ifdef __XYCE__ block.  VDSAT is a duplicate of the VDSSAT
   variable originally present.
 
+- Created a patch file to add the "devConMap" structures.  This is to support Xyce's 
+  method for detecting "no DC path to ground" errors.
+
