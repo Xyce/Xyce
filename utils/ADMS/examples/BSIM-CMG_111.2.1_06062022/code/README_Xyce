@@ -1,34 +1,66 @@
 The following changes to the BSIMCMG 111.2.1 code were needed to make
 it work with Xyce/ADMS.
 
-1.  Modify main bsimcmg function name (in the bsimcmg.va file) to include 
-    level, and add attributes.  I'm following the convention of other BSIM CMG devices
-    in Xyce.  
+- Modify main bsimcmg function name (in the bsimcmg.va file) to include 
+  level, and add attributes.  I'm following the convention of other BSIM CMG devices
+  in Xyce.  
 
-2.  Fix the `lexp macro to remove ADMS lexical error in the bsimcmg_macros.include file.
-    This macro uses a ternary operator, and it seems that in order for ADMS
-    to parse it properly, it needed more parenthesis.  I've encountered
-    similar problems parsing ternaries in other contexts, so this probably
-    isn't surprising.
+- Fix the `lexp macro to remove ADMS lexical error in the bsimcmg_macros.include file.
+  This macro uses a ternary operator, and it seems that in order for ADMS
+  to parse it properly, it needed more parenthesis.  I've encountered
+  similar problems parsing ternaries in other contexts, so this probably
+  isn't surprising.
 
-3.  Add @initial_instance statement to a block of code near the beginning of bsimcmg_
-    body.include file.  Also, a corresponding "begin" and "end" statement has been 
-    added.  This was necessary as some of these variables are used in node collapse 
-    conditionals.  Also, it makes the code more efficient to execute these lines 
-    once, rather than at every function evaluation.
+- Add @initial_instance statement to a block of code near the beginning of bsimcmg_
+  body.include file.  Also, a corresponding "begin" and "end" statement has been 
+  added.  This was necessary as some of these variables are used in node collapse 
+  conditionals.  Also, it makes the code more efficient to execute these lines 
+  once, rather than at every function evaluation.
 
-4.  Convert some of the params to be both instance and model.  At the top of the
-    bsimcmg_parameters.include, there is a block of parameters identified to be
-    both model and instance parameters.  In order for this to work in ADMS/Xyce,
-    it is necessary to modify their attributes to include xyceAlsoModel="yes".
-    This is done with new macros (added to the bsimcmg_macros.include file)
-    that have the name suffix "_BOTH".
+- Convert some of the params to be both instance and model.  At the top of the
+  bsimcmg_parameters.include, there is a block of parameters identified to be
+  both model and instance parameters.  In order for this to work in ADMS/Xyce,
+  it is necessary to modify their attributes to include xyceAlsoModel="yes".
+  This is done with new macros (added to the bsimcmg_macros.include file)
+  that have the name suffix "_BOTH".
 
-5. The "t" thermal node declaration was moved so that it is the first
-   node declared after the required d, g, s, and e nodes.  This is
-   done because technique needed to make t an optional node only works
-   if it is assigned by ADMS as the first numbered node after the
-   required nodes.  This node is optional as a result of the module
-   testing the "$port_connected(t)" function.
+- The "t" thermal node declaration was moved so that it is the first
+  node declared after the required d, g, s, and e nodes.  This is
+  done because technique needed to make t an optional node only works
+  if it is assigned by ADMS as the first numbered node after the
+  required nodes.  This node is optional as a result of the module
+  testing the "$port_connected(t)" function.
 
+- The IPM macro has been defined in bsimcmg_macros.include, and
+  called in bsimcmg_body.include.   All contributions have been
+  multiplied by the defined constant "MFACTOR_USE".  If the constant
+  EXPLICIT_MFACTOR is defined, IPM declares an instance parameter "M"
+  and defines MFACTOR_USE to be "m".  If EXPLICIT_MFACTOR is not
+  defined, IPM is a null macro, and MFACTOR_USE is defined to be 1.0.
+
+  This allows the BSIM-CMG in Xyce to support a multiplicity, because
+  Xyce does not provide a global multiplicity factor usable by
+  devices, and all devices must define and use one themselves.
+
+- An optimization has been applied to improve performance of the model
+  when self-heating is not active.  All temperature dependent variables
+  that were previously computed unconditionally in the block "CMGTempDepCalc"
+  have been wrapped in a conditional that executes only if the temperature
+  has changed since the last call.  To accomplish this, however, also
+  required initializing all of those variables in the @(initial_instance)
+  block, so that ADMS will recognize them as having "global_instance" scope
+  instead of marking them local to the main analog block.  The variables are
+  all initialized to zero in that block, and a "LastTemp" variable set to
+  "-999" in order to assure that all temperature dependent variables are
+  correctly re-calculated upon the first call of updateIntermediateVars.
+
+  By doing it this way, we are also assured that the model will work correctly
+  in .STEP loops, because the @(initial_instance) code will wind up in Xyce's
+  "processParams" function, which will always be called whenever a .STEP loop
+  updates model or instance parameters.
+
+- Output variables for VDSAT, VDS, VGS, and VBS were added to the collection
+  already present in the BSIM-CMG 110 Verilog-A source code.  These are
+  inside an ifdef __XYCE__ block.  VDSAT is a duplicate of the VDSSAT
+  variable originally present.
 
