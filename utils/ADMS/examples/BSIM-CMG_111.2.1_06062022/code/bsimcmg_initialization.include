@@ -152,3 +152,54 @@ gvs_s = 0.0; gvs_d = 0.0;
 //Others
 gspr = 0.0;
 gdpr = 0.0;
+
+//------ TVR/ERK beginning of temperature dependent intializations.
+TempLast = -999;  
+// Initialize all temp-dep vars, just to make them
+// have the right scope (they would be local if not initialized
+// here).
+//------
+
+// this first block was just copied from bsimcmg_variables.include.
+Tnom=0; TRatio=0; TRatio_m1=0; dvth_temp=0; delTemp=0; delTemp1=0; delTRatio1=0; ThetaSS=0;
+K0_t=0; K0SI_t=0; K2SI_t=0; K1_t=0; K2SAT_t=0; A1_t=0; A2_t=0;
+AIGBINV_t=0; AIGBACC_t=0; AIGC_t=0; AIGS_t=0; AIGD_t=0;
+BETA0_t=0; SII0_t=0; BGISL_t=0; BGISLB_t=0; BGIDL_t=0; BGIDLB_t=0; igtemp=0; PTWG_t=0; PTWGR_t=0;
+ALPHA0_t=0; ALPHA1_t=0; ALPHAII0_t=0; ALPHAII1_t=0;
+CJS_t=0; CJSWS_t=0; CJSWGD_t=0; CJD_t=0; CJSWD_t=0; CJSWGS_t=0;
+PBS_t=0; PBSWS_t=0; PBSWGS_t=0; PBD_t=0; PBSWD_t=0; PBSWGD_t=0;
+JSS_t=0; JSWS_t=0; JSWGS_t=0; JSD_t=0; JSWD_t=0; JSWGD_t=0;
+JTSS_t=0; JTSD_t=0; JTSSWS_t=0; JTSSWD_t=0; JTSSWGS_t=0; JTSSWGD_t=0;
+NJTS_t=0; NJTSD_t=0; NJTSSW_t=0; NJTSSWD_t=0; NJTSSWG_t=0; NJTSSWGD_t=0;
+K2_t=0;
+K0SISAT_t=0; K2SISAT_t=0;
+ETA0_t=0; ETA0CV_t=0; ETA0R_t=0;
+RSDR_t=0; RSDRR_t=0; RDDR_t=0; RDDRR_t=0;
+UA_t=0; UACV_t=0; UAR_t=0; UA_tl=0; UA_th=0; UACV_tl=0; UACV_th=0; UAR_tl=0; UAR_th=0; 
+wh=0; wl=0; UC_t=0; UCCV_t=0; UCR_t=0; UCS_t=0; UD_t=0; UDCV_t=0; UDR_t=0; U0R_t=0; 
+ETAMOB_t=0; EU_t=0; UDS_t=0; UDS_i=0; UDS1_i=0; UDD_t=0; UDD_i=0; UDD1_i=0; UDSeff_t=0; UDDeff_t=0;
+VSAT_t=0; VSATR_t=0; VSAT1_t=0; VSAT1R_t=0; VSATCV_t=0; MEXP_t=0; MEXPR_t=0;
+
+// this next block is from copying the code from the temperature dependent calculation, and then setting every variable referenced in it to zero.
+// I attempted to remove redundancies with the above "_t" block of variables.  Initially there were a lot.
+Vtm =0; Vtm0 =0; Tlow =0;
+T0 =0; T1 =0; T2 =0; T3 =0; T4 =0; T5 =0; T6 =0; T7 =0; T8 =0;
+Eg =0; Eg0 =0; ni =0; Nc =0; niln =0;
+kT =0; E0 =0; E0prime =0; E1 =0; E1prime =0; gam0 =0; gam1 =0; dvch_qm =0;
+
+Trat_ln =0; u0 =0; rdstemp =0; u0_cv =0; KSATIV_t =0; PCLM_t =0;
+
+TR0_i =0; rdstemp0 =0; rdstemp1 =0; PRT1_i=0; PRT_i=0; PRT1_i =0; PRT_i =0; 
+VSATR_i=0; ATR_i=0; AT2=0; VSAT1_i=0; AT_i=0; AT2=0; VSAT1R_i=0; VSATCV_i=0; ATCV_i=0; AT2CV=0;
+KSATIV_i=0; KSATIVT1=0; KSATIVT2=0; PCLM_i=0; PCLMT=0; UACV_tl =0; UACV_th =0;
+UACV_t =0; UDCV_t =0; PRT_i =0; PRT1_i=0;
+
+UCCV_i=0; UC1CV_i=0; 
+igsd_mult =0;
+vfbsd =0; vfbsdcv =0; vfbsdcv =0;
+phib =0; vbi =0;
+deltaPhi =0;
+eta_mu =0; eta_mu_cv =0;
+Tb =0;
+igentemp =0;
+//------ TVR/ERK end of temperature dependent intializations.

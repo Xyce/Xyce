@@ -17,7 +17,8 @@
 // Variables
 integer devsign;
 real NFINtotal;
-real DevTemp, DevTemp1, DevTempeff, DevTemplow0, DevTemplow1, Tlow;
+// ERK/TVR: Add TempLast variable
+real DevTemp, TempLast, DevTemp1, DevTempeff, DevTemplow0, DevTemplow1, Tlow;
 real ids0, ids0_ov_dqi, ids, vgs, vds, vdsx, sigvds, vch, vch_cv, etaiv;
 real vgs_noswap, vds_noswap, vgd_noswap;
 real qd, qg, qs, qb;

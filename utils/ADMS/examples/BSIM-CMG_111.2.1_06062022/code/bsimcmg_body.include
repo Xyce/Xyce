@@ -924,600 +924,604 @@ analog begin
     end else begin
         DevTemp = $temperature + DTEMP;
     end
-    TRatio = DevTemp / Tnom;
-    TRatio_m1 = TRatio - 1.0;
-    delTemp = DevTemp - Tnom;
-    Vtm = `KboQ * DevTemp;
-    Vtm0 = `KboQ * Tnom;
-    Tlow = TLOW;
-    if (CRYOMOD != 0) begin
-        // Effective temperature for core model charge calculation at low temperatures
-        DevTemplow0 = `smoothminx(DevTemp, Tlow, DTLOW);
-        DevTemplow1 = `smoothminx((-KLOW1 * (DevTemp - TLOW1)), 0.0, DTLOW1);
-        if (CRYOMOD == 1) begin
-            T1 = `smoothminx(Tnom, Tlow, DTLOW);
-            T2 = `smoothminx((-KLOW1 * (Tnom - TLOW1)), 0.0, DTLOW1);
-            if (Tnom > Tlow) begin
-                T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tnom;
-            end else begin
-                T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tlow;
-            end
-            DevTempeff = `smoothminx(DevTemp, T3, 0.2);
-        end else begin
-            if (Tlow > 210) begin
-                $strobe("Warning: TLOW = %e is greater than 210 K. Set to 210 K", TLOW);
-                Tlow = 210;
-            end
-            wh = 0.5 + 0.5 * tanh(0.5 * (DevTemp - 210));
-            wl = 1.0 - wh;
-            if (Tnom > 210) begin
-                T1 = `smoothminx(210, Tlow, DTLOW);
-                T2 = `smoothminx((-KLOW1 * (210 - TLOW1)), 0.0, DTLOW1);
-                T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + 210;
-                DevTempeff = `smoothminx(DevTemp, T3, 0.2);
-            end else begin
-                T1 = `smoothminx(Tnom, Tlow, DTLOW);
-                T2 = `smoothminx((-KLOW1 * (Tnom - TLOW1)), 0.0, DTLOW1);
-                if (Tnom > Tlow) begin
-                    T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tnom;
-                end else begin
-                    T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tlow;
-                end
-                T4 = `smoothminx(DevTemp, T3, 0.2);
-                DevTempeff = wl * T4 + wh * DevTemp;
-            end
-            DevTemp1 = `smoothmaxx2(DevTemp, 210, 0.2);
-            delTemp1 = DevTemp1 - `smoothmaxx2(Tnom, 210, 0.2);
-            delTRatio1 = (DevTemp1 - 210) / Tnom;
-        end
-        Vtmeff = `KboQ * DevTempeff;
-    end
-    Eg = BG0SUB - TBGASUB * DevTemp * DevTemp / (DevTemp + TBGBSUB);
-    Eg0 = BG0SUB - TBGASUB * Tnom * Tnom / (Tnom + TBGBSUB);
-    T1 = (DevTemp / 300.15) * sqrt(DevTemp / 300.15);
-    ni = NI0SUB * T1 * `lexp(BG0SUB / (2.0 * `KboQ * 300.15) - Eg / (2.0 * Vtm));
-    if (CRYOMOD == 0) begin
-        Nc = NC0SUB * T1;
-    end else begin
-        Nc = NC0SUB * (DevTempeff / 300.15) * sqrt(DevTempeff / 300.15);
-        niln = `lln(NI0SUB * T1) + BG0SUB / (2.0 * `KboQ * 300.15) - Eg / (2.0 * Vtm);
-    end
-    ThetaSS = `hypsmooth((1.0 + TSS_i * delTemp - 1.0e-6), 1.0e-3);
+    if (DevTemp != TempLast)     begin : CMGTempDepCalc
+      TempLast =  DevTemp;
 
-    // Quantum mechanical Vth correction
-    kT = Vtm * `q;
-    T0 = `HBAR * `M_PI / (2.0 * Ach / Weff_UFCM);
-    E0 = T0 * T0 / (2.0 * mx);
-    E0prime = T0 * T0 / (2.0 * mxprime);
-    E1 = 4.0 * E0;
-    E1prime = 4.0 * E0prime;
-    T1 = gprime * mdprime / (gfactor * md);
-    gam0 = 1.0 + T1 * `lexp((E0 - E0prime) / kT);
-    gam1 = gam0 + `lexp((E0 - E1) / kT) + T1 * `lexp((E0 - E1prime) / kT);
-    T2 = -Vtm * `lln(gfactor * md / (`M_PI * `HBAR * `HBAR * Nc) * kT / (2.0 * Ach / Weff_UFCM) * gam1);
-    dvch_qm = QMFACTOR_i * (E0 / `q + T2);
+      TRatio = DevTemp / Tnom;
+      TRatio_m1 = TRatio - 1.0;
+      delTemp = DevTemp - Tnom;
+      Vtm = `KboQ * DevTemp;
+      Vtm0 = `KboQ * Tnom;
+      Tlow = TLOW;
+      if (CRYOMOD != 0) begin
+          // Effective temperature for core model charge calculation at low temperatures
+          DevTemplow0 = `smoothminx(DevTemp, Tlow, DTLOW);
+          DevTemplow1 = `smoothminx((-KLOW1 * (DevTemp - TLOW1)), 0.0, DTLOW1);
+          if (CRYOMOD == 1) begin
+              T1 = `smoothminx(Tnom, Tlow, DTLOW);
+              T2 = `smoothminx((-KLOW1 * (Tnom - TLOW1)), 0.0, DTLOW1);
+              if (Tnom > Tlow) begin
+                  T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tnom;
+              end else begin
+                  T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tlow;
+              end
+              DevTempeff = `smoothminx(DevTemp, T3, 0.2);
+          end else begin
+              if (Tlow > 210) begin
+                  $strobe("Warning: TLOW = %e is greater than 210 K. Set to 210 K", TLOW);
+                  Tlow = 210;
+              end
+              wh = 0.5 + 0.5 * tanh(0.5 * (DevTemp - 210));
+              wl = 1.0 - wh;
+              if (Tnom > 210) begin
+                  T1 = `smoothminx(210, Tlow, DTLOW);
+                  T2 = `smoothminx((-KLOW1 * (210 - TLOW1)), 0.0, DTLOW1);
+                  T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + 210;
+                  DevTempeff = `smoothminx(DevTemp, T3, 0.2);
+              end else begin
+                  T1 = `smoothminx(Tnom, Tlow, DTLOW);
+                  T2 = `smoothminx((-KLOW1 * (Tnom - TLOW1)), 0.0, DTLOW1);
+                  if (Tnom > Tlow) begin
+                      T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tnom;
+                  end else begin
+                      T3 = DevTemplow0 + DevTemplow1 - T1 - T2 + Tlow;
+                  end
+                  T4 = `smoothminx(DevTemp, T3, 0.2);
+                  DevTempeff = wl * T4 + wh * DevTemp;
+              end
+              DevTemp1 = `smoothmaxx2(DevTemp, 210, 0.2);
+              delTemp1 = DevTemp1 - `smoothmaxx2(Tnom, 210, 0.2);
+              delTRatio1 = (DevTemp1 - 210) / Tnom;
+          end
+          Vtmeff = `KboQ * DevTempeff;
+      end
+      Eg = BG0SUB - TBGASUB * DevTemp * DevTemp / (DevTemp + TBGBSUB);
+      Eg0 = BG0SUB - TBGASUB * Tnom * Tnom / (Tnom + TBGBSUB);
+      T1 = (DevTemp / 300.15) * sqrt(DevTemp / 300.15);
+      ni = NI0SUB * T1 * `lexp(BG0SUB / (2.0 * `KboQ * 300.15) - Eg / (2.0 * Vtm));
+      if (CRYOMOD == 0) begin
+          Nc = NC0SUB * T1;
+      end else begin
+          Nc = NC0SUB * (DevTempeff / 300.15) * sqrt(DevTempeff / 300.15);
+          niln = `lln(NI0SUB * T1) + BG0SUB / (2.0 * `KboQ * 300.15) - Eg / (2.0 * Vtm);
+      end
+      ThetaSS = `hypsmooth((1.0 + TSS_i * delTemp - 1.0e-6), 1.0e-3);
 
-    // Temperature dependence
-    Trat_ln = ln(TRatio);
-    if (CRYOMOD == 0) begin
-        T1 = U0_i * exp(UTE_i * Trat_ln);
-        u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
-        if (ASYMMOD == 1) begin
-            T1 = U0R_i * exp(UTER_i * Trat_ln);
-            U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
-            u0r = U0R_t;
-        end
-        UA_t = UA_i + `hypmax(UA1_i * delTemp, -UA_i, 1.0e-6);
-        EU_t = EU_i;
-        if (ASYMMOD != 0) begin
-            UAR_t = UAR_i + `hypmax(UA1R_i * delTemp, -UAR_i, 1.0e-6);
-        end
-        UD_t = UD_i * exp(UD1_i * Trat_ln);
-        if (ASYMMOD != 0) begin
-            UDR_t = UDR_i * exp(UD1R_i * Trat_ln);
-        end
-        UCS_t = UCS_i * exp(UCSTE_i * Trat_ln);
-        rdstemp = `hypsmooth((1.0 + PRT_i * delTemp - 1.0e-6), 1.0e-3);
-        `tempdep(VSAT_t, VSAT_i, -AT_i)
-        if (ASYMMOD != 0) begin
-            `tempdep(VSATR_t, VSATR_i, -ATR_i)
-            if (VSATR_t < 1000) begin
-                $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
-                VSATR_t = 1000;
-            end
-        end
-        if (CVMOD == 1) begin
-            T1 = U0CV_i * exp(UTECV_i * Trat_ln);
-            u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
-            UACV_t = UACV_i + `hypmax(UA1CV_i * delTemp, -UACV_i, 1.0e-6);
-            UDCV_t = UDCV_i * exp(UD1CV_i * Trat_ln);
-        end
-        `tempdep(VSAT1_t, VSAT1_i, -AT_i)
-        if (ASYMMOD != 0) begin
-            `tempdep(VSAT1R_t, VSAT1R_i, -AT_i)
-            if (VSAT1R_t < 1000) begin
-                $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
-                VSAT1R_t = 1000;
-            end
-        end
-        `tempdep(VSATCV_t, VSATCV_i, -ATCV_i)
-        MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp) - 2.0), 1.0e-3) + 2.0;
-        if (ASYMMOD != 0) begin
-            MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp) - 2.0), 1.0e-3) + 2.0;
-        end
-        KSATIV_t = KSATIV_i;
-        PCLM_t = PCLM_i;
-        dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1;
-    end else if (CRYOMOD == 1) begin
-        T1 = U0_i * exp((UTE_i + UTE1_i * TRatio) * Trat_ln);
-        u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
-        if (ASYMMOD == 1) begin
-            T1 = U0R_i * exp((UTER_i + UTE1_i * TRatio) * Trat_ln);
-            U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
-            u0r = U0R_t;
-        end
-        UA_t = UA_i * exp((UA1_i + UA2_i * TRatio) * Trat_ln);
-        if (ASYMMOD != 0) begin
-            UAR_t = UAR_i * exp((UA1R_i + UA2_i * TRatio) * Trat_ln);
-        end
-        UD_t = UD_i * exp((UD1_i + UD2_i * TRatio) * Trat_ln);
-        if (ASYMMOD != 0) begin
-            UDR_t = UDR_i * exp((UD1R_i + UD2_i * TRatio) * Trat_ln);
-        end
-        UCS_t = UCS_i * exp((UCSTE_i + UCSTE1 * TRatio) * Trat_ln);
-        UDS_t = UDS_i * (`lexp(UDS1_i * TRatio_m1) - 1);
-        UDD_t = UDD_i * (`lexp(UDD1_i * TRatio_m1) - 1);
-        UDSeff_t = 0.5 + UDS_t;
-        UDDeff_t = 0.5 + UDD_t;
-        `tempdep(EU_t, EU_i, EU1_i)
-        if (CVMOD == 1) begin
-            T1 = U0CV_i * exp((UTECV_i + UTE1CV_i * TRatio) * Trat_ln);
-            u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
-            UACV_t = UACV_i * exp((UA1CV_i + UA2CV_i * TRatio) * Trat_ln);
-            UDCV_t = UDCV_i * exp((UD1CV_i + UD2CV_i * TRatio) * Trat_ln);
-        end
-        if (PRT_i == PRT1_i) begin
-            T2 = 1.0 + PRT_i * delTemp;
-        end else if (TR0_i < Tnom) begin
-            rdstemp0 = 1 + PRT_i * delTemp;
-            rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
-            T3 = (PRT_i - PRT1_i) * (TR0_i - Tnom);
-            if (PRT1_i < PRT_i) begin
-                T2 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-            end else begin
-                T2 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-            end
-        end else begin
-            rdstemp1 = 1 + PRT1_i * (DevTemp - Tnom);
-            rdstemp0 = 1 + PRT_i * (DevTemp - TR0_i) + PRT1_i * (TR0_i - Tnom);
-            T3 = (PRT1_i - PRT_i) * (TR0_i - Tnom);
-            if (PRT1_i < PRT_i) begin
-                T2 = `smoothminx(rdstemp1, rdstemp0, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-            end else begin
-                T2 = `smoothmaxx2(rdstemp1, rdstemp0, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-            end
-        end
-        rdstemp = `hypsmooth((T2 - 1.0e-6), 1.0e-3);
-        `tempdep2(VSAT_t, VSAT_i, -AT_i, AT2)
-        if (ASYMMOD != 0) begin
-            `tempdep2(VSATR_t, VSATR_i, -ATR_i, AT2)
-            if (VSATR_t < 1000) begin
-                $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
-                VSATR_t = 1000;
-            end
-        end
-        `tempdep2(VSAT1_t, VSAT1_i, -AT_i, AT2)
-        if (ASYMMOD != 0) begin
-            `tempdep2(VSAT1R_t, VSAT1R_i, -AT_i, AT2)
-            if (VSAT1R_t < 1000) begin
-                $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
-                VSAT1R_t = 1000;
-            end
-        end
-        `tempdep2(VSATCV_t, VSATCV_i, -ATCV_i, AT2CV)
-        MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp + TMEXP2 * delTemp * delTemp) - 2.0), 1.0e-3) + 2.0;
-        if (ASYMMOD != 0) begin
-            MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp + TMEXP2 * delTemp * delTemp) - 2.0), 1.0e-3) + 2.0;
-        end
-        `tempdep2(KSATIV_t, KSATIV_i, KSATIVT1, KSATIVT2)
-        `tempdep(PCLM_t, PCLM_i, PCLMT)
-        dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1 + KT11 / (1 + `lexp(KT12 * (DevTemp - TVTH))) - KT11 / (1 + `lexp(KT12 * (Tnom - TVTH)));
-    end else begin
-        T1 = U0_i * exp((UTE_i + UTE1_i * delTRatio1) * Trat_ln);
-        u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
-        if (ASYMMOD == 1) begin
-            T1 = U0R_i * exp((UTER_i + UTE1_i * delTRatio1) * Trat_ln);
-            U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
-            u0r = U0R_t;
-        end
-        if (Tnom > 210) begin
-            T2 = 210 * (UA1_i / (UA_i + UA1_i * (210 - Tnom)) - UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
-            T1 = (UA_i + UA1_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2_i * (210 / Tnom));
-            UA_tl = T1 * pow(TRatio, T2 + UA2_i * TRatio);
-            UA_th = UA_i + UA1_i * delTemp;
-        end else begin
-            T2 = UA_i * pow(210 / Tnom, UA1_i + UA2_i * (210 / Tnom)) * (UA1_i / 210 + UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
-            T1 = UA_i * pow(210 / Tnom, UA1_i + UA2_i * (210 / Tnom)) - T2 * (210 - Tnom);
-            UA_tl = UA_i * pow(TRatio, UA1_i + UA2_i * TRatio);
-            UA_th = T1 + T2 * delTemp;
-        end
-        T0 = wl * UA_tl + wh * UA_th;
-        UA_t = `hypsmooth(T0, 1.0e-6);
-        if (ASYMMOD != 0) begin
-            if (Tnom > 210) begin
-                T2 = 210 * (UA1R_i / (UAR_i + UA1R_i * (210 - Tnom)) - UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
-                T1 = (UAR_i + UA1R_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2_i * (210 / Tnom));
-                UAR_tl = T1 * pow(TRatio, T2 + UA2_i * TRatio);
-                UAR_th = UAR_i + UA1R_i * delTemp;
-            end else begin
-                T2 = UAR_i * pow(210 / Tnom, UA1R_i + UA2_i * (210 / Tnom)) * (UA1R_i / 210 + UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
-                T1 = UAR_i * pow(210 / Tnom, UA1R_i + UA2_i * (210 / Tnom)) - T2 * (210 - Tnom);
-                UAR_tl = UAR_i * pow(TRatio, UA1R_i + UA2_i * TRatio);
-                UAR_th = T1 + T2 * delTemp;
-            end
-            T0 = wl * UAR_tl + wh * UAR_th;
-            UAR_t = `hypsmooth(T0, 1.0e-6);
-        end
-        UD_t = UD_i * exp((UD1_i + UD2_i * delTRatio1) * Trat_ln);
-        if (ASYMMOD != 0) begin
-            UDR_t = UDR_i * exp((UD1R_i + UD2_i * delTRatio1) * Trat_ln);
-        end
-        UCS_t = UCS_i * exp((UCSTE_i + UCSTE1_i * delTRatio1) * Trat_ln);
-        if (abs(UDS1_i * (Tnom - 210) / Tnom) < 1.0e-6) begin
-            UDS_t = UDS_i * (`lexp(UDS1_i * delTRatio1) - 1);
-        end else begin
-            UDS_t = UDS_i * (`lexp(UDS1_i * delTRatio1) - 1) / abs(`lexp(UDS1_i * (Tnom - 210) / Tnom) - 1);
-        end
-        if (abs(UDD1_i * (Tnom - 210) / Tnom) < 1.0e-6) begin
-            UDD_t = UDD_i * (`lexp(UDD1_i * delTRatio1) - 1);
-        end else begin
-            UDD_t = UDD_i * (`lexp(UDD1_i * delTRatio1) - 1) / abs(`lexp(UDD1_i * (Tnom - 210) / Tnom) - 1);
-        end
-        UDSeff_t = 0.5 + UDS_t;
-        UDDeff_t = 0.5 + UDD_t;
-        if (TEMPMOD != 0) begin
-            EU_t = EU_i + `hypmax((EU1_i * delTemp1), -EU_i, 1.0e-6);
-            VSAT_t = VSAT_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1* delTemp1), -VSAT_i, 1.0e-6);
-            if (ASYMMOD != 0) begin
-                VSATR_t = VSATR_i + `hypmax((-ATR_i * delTemp + AT2 * delTemp1* delTemp1), -VSATR_i, 1.0e-6);
-                if (VSATR_t < 1000) begin
-                    $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
-                    VSATR_t = 1000;
-                end
-            end
-            VSAT1_t = VSAT1_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1 * delTemp1), -VSAT1_i, 1.0e-6);
-            if (ASYMMOD != 0) begin
-                VSAT1R_t = VSAT1R_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1 * delTemp1), -VSAT1R_i, 1.0e-6);
-                if (VSAT1R_t < 1000) begin
-                    $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
-                    VSAT1R_t = 1000;
-                end
-            end
-            VSATCV_t = VSATCV_i + `hypmax((-ATCV_i * delTemp + AT2CV * delTemp1 * delTemp1), -VSATCV_i, 1.0e-6);
-            KSATIV_t = KSATIV_i + `hypmax((KSATIVT1 * delTemp1 + KSATIVT2 * delTemp1 * delTemp1), -KSATIV_i, 1.0e-6);
-            PCLM_t = PCLM_i + `hypmax((PCLMT * delTemp1), -PCLM_i, 1.0e-6);
-        end else begin
-            EU_t = EU_i * `hypsmooth((1.0 + EU1_i * delTemp1 - 1.0e-6), 1.0e-3);
-            VSAT_t = VSAT_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-            if (ASYMMOD != 0) begin
-                VSATR_t = VSATR_i * `hypsmooth((1.0 - ATR_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-                if (VSATR_t < 1000) begin
-                    $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
-                    VSATR_t = 1000;
-                end
-            end
-            VSAT1_t = VSAT1_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-            if (ASYMMOD != 0) begin
-                VSAT1R_t = VSAT1R_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-                if (VSAT1R_t < 1000) begin
-                    $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
-                    VSAT1R_t = 1000;
-                end
-            end
-            VSATCV_t = VSATCV_i * `hypsmooth((1.0 - ATCV_i * delTemp + AT2CV * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-            KSATIV_t = KSATIV_i * `hypsmooth((1.0 + KSATIVT1 * delTemp1 + KSATIVT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
-            PCLM_t = PCLM_i * `hypsmooth((1.0 + PCLMT * delTemp1 - 1.0e-6), 1.0e-3);
-        end
-        MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp + TMEXP2 * delTemp1 * delTemp1) - 2.0), 1.0e-3) + 2.0;
-        if (ASYMMOD != 0) begin
-            MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp + TMEXP2 * delTemp1 * delTemp1) - 2.0), 1.0e-3) + 2.0;
-        end
-        if (CVMOD == 1) begin
-            T1 = U0CV_i * exp((UTECV_i + UTE1CV_i * delTRatio1) * Trat_ln);
-            u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
-            if (Tnom > 210) begin
-                T2 = 210 * (UA1CV_i / (UACV_i + UA1CV_i * (210 - Tnom)) - UA2CV_i * (`lln(210 / Tnom) + 1) / Tnom);
-                T1 = (UACV_i + UA1CV_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2CV_i * (210 / Tnom));
-                UACV_tl = T1 * pow(TRatio, T2 + UA2CV_i * TRatio);
-                UACV_th = UACV_i + UA1CV_i * delTemp;
-            end else begin
-                T2 = UACV_i * pow(210 / Tnom, UA1CV_i + UA2CV_i * (210 / Tnom)) * (UA1CV_i / 210 + UA2CV_i * (`lln(210 / Tnom) + 1) / Tnom);
-                T1 = UACV_i * pow(210 / Tnom, UA1CV_i + UA2CV_i * (210 / Tnom)) - T2 * (210 - Tnom);
-                UACV_tl = UACV_i * pow(TRatio, UA1CV_i + UA2CV_i * TRatio);
-                UACV_th = T1 + T2 * delTemp;
-            end
-            T0 = wl * UACV_tl + wh * UACV_th;
-            UACV_t = `hypsmooth(T0, 1.0e-6);
-            UDCV_t = UDCV_i * exp((UD1CV_i + UD2CV_i * delTRatio1) * Trat_ln);
-        end
-        if (PRT_i == PRT1_i) begin
-            T2 = 1.0 + PRT_i * delTemp;
-        end else if (TR0_i < 210) begin
-            if (Tnom > 210) begin
-                rdstemp0 = 1 + PRT_i * delTemp;
-                rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
-                T3 = 1 + PRT_i * (210 - Tnom);
-                T4 = 1 + PRT1_i * (210 - TR0_i) + PRT_i * (TR0_i - Tnom);
-                if (PRT1_i < PRT_i) begin
-                    T5 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, T4, SPRT_i) + T3;
-                    T2 = `smoothminx(T5, rdstemp0, 1.0e-3);
-                end else begin
-                    T5 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, T4, SPRT_i) + T3;
-                    T2 = `smoothmaxx2(T5, rdstemp0, 1.0e-3);
-                end
-            end else if (Tnom > TR0_i) begin
-                rdstemp0 = 1 + PRT_i * delTemp;
-                rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
-                T3 = (PRT_i - PRT1_i) * (TR0_i - Tnom);
-                T4 = 1 + PRT_i * (210 - Tnom);
-                T5 = 1 + PRT1_i * (210 - TR0_i) + PRT_i * (TR0_i - Tnom);
-                if (PRT1_i < PRT_i) begin
-                    T6 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-                    T7 = `smoothminx(T4, T5, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-                    T8 = T7 + PRT_i * (DevTemp - 210);
-                    T2 = `smoothminx(T6, T8, 1.0e-3);
-                end else begin
-                    T6 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-                    T7 = `smoothmaxx2(T4, T5, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-                    T8 = T7 + PRT_i * (DevTemp - 210);
-                    T2 = `smoothmaxx2(T6, T8, 1.0e-3);
-                end
-            end else begin
-                rdstemp1 = 1 + PRT1_i * delTemp;
-                rdstemp0 = 1 + PRT_i * (DevTemp - TR0_i) + PRT1_i * (TR0_i - Tnom);
-                T3 = (PRT1_i - PRT_i) * (TR0_i - Tnom);
-                T4 = 1 + PRT1_i * (210 - Tnom);
-                T5 = 1 + PRT_i * (210 - TR0_i) + PRT1_i * (TR0_i - Tnom);
-                if (PRT1_i < PRT_i) begin
-                    T6 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-                    T7 = `smoothminx(T4, T5, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
-                    T8 = T7 + PRT_i * (DevTemp - 210);
-                    T2 = `smoothminx(T6, T8, 1.0e-3);
-                end else begin
-                    T6 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-                    T7 = `smoothmaxx2(T4, T5, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
-                    T8 = T7 + PRT_i * (DevTemp - 210);
-                    T2 = `smoothmaxx2(T6, T8, 1.0e-3);
-                end
-            end
-        end else begin
-            if (Tnom > 210) begin
-                rdstemp0 = 1 + PRT_i * delTemp;
-                rdstemp1 = 1 + PRT1_i * (DevTemp - 210) + PRT_i * (210 - Tnom);
-                if (PRT1_i < PRT_i) begin
-                    T2 = `smoothminx(rdstemp0, rdstemp1, 1.0e-2);
-                end else begin
-                    T2 = `smoothmaxx2(rdstemp0, rdstemp1, 1.0e-2);
-                end
-            end else begin
-                rdstemp1 = 1 + PRT1_i * delTemp;
-                rdstemp0 = 1 + PRT_i * (DevTemp - 210) + PRT1_i * (210 - Tnom);
-                if (PRT1_i < PRT_i) begin
-                    T2 = `smoothminx(rdstemp0, rdstemp1, 1.0e-2);
-                end else begin
-                    T2 = `smoothmaxx2(rdstemp0, rdstemp1, 1.0e-2);
-                end
-            end
-        end
-        rdstemp = `hypsmooth((T2 - 1.0e-6), 1.0e-3);
-        T4 = `smoothmaxx2(Tnom, 210, 0.2);
-        dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1 + KT11 / (1 + `lexp(KT12 * (DevTemp1 - TVTH))) - KT11 / (1 + `lexp(KT12 * (T4 - TVTH)));
-    end
-    if (VSAT_t < 1000) begin
-        $strobe("Warning: VSAT(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT_t);
-        VSAT_t = 1000;
-    end
-    if (VSAT1_t < 1000) begin
-        $strobe("Warning: VSAT1(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1_t);
-        VSAT1_t = 1000;
-    end
-    if (VSATCV_t < 1000) begin
-        $strobe("Warning: VSATCV(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATCV_t);
-        VSATCV_t = 1000;
-    end
-    if (BULKMOD != 0) begin
-        if (TEMPMOD == 0) begin
-            `tempdep(UC_t, UC_i, UC1_i)
-            if (CVMOD == 1) begin
-                `tempdep(UCCV_t, UCCV_i, UC1CV_i)
-            end
-            if (ASYMMOD != 0) begin
-                `tempdep(UCR_t, UCR_i, UC1R_i)
-            end
-        end else begin
-            UC_t = UC_i + UC1_i * delTemp;
-            if (CVMOD == 1) begin
-                UCCV_t = UCCV_i + UC1CV_i * delTemp;
-            end
-            if (ASYMMOD != 0) begin
-                UCR_t = UCR_i + UC1R_i * delTemp;
-            end
-        end
-    end
-    `tempdep(ETA0_t, ETA0_i, TETA0)
-    if (CVMOD == 1) begin
-        `tempdep(ETA0CV_t, ETA0CV_i, TETA0CV)
-    end
-    `tempdep(ETA0R_t, ETA0R_i, TETA0R)
-    `tempdep(ETAMOB_t, ETAMOB_i, EMOBT_i)
-    `tempdep(RSDR_t, RSDR, TRSDR)
-    if (ASYMMOD != 0) begin
-        `tempdep(RSDRR_t, RSDRR, TRSDR)
-    end
-    `tempdep(RDDR_t, RDDR, TRDDR)
-    if (ASYMMOD != 0) begin
-        `tempdep(RDDRR_t, RDDRR, TRDDR)
-    end
-    `tempdep(PTWG_t, PTWG_i, -PTWGT_i)
-    if (ASYMMOD != 0) begin
-        `tempdep(PTWGR_t, PTWGR_i, -PTWGT_i)
-    end
-    BETA0_t = BETA0_i * exp(IIT_i * Trat_ln);
-    SII0_t = SII0_i * (`hypsmooth((1.0 + TII_i * TRatio_m1 - 0.01), 1.0e-3) + 0.01);
-    K0_t = K0_i + K01_i * delTemp;
-    K0SI_t = K0SI_i + `hypmax(K0SI1_i * delTemp, -K0SI_i, 1.0e-6);
-    K2SI_t = K2SI_i + `hypmax(K2SI1_i * delTemp, -K2SI_i, 1.0e-6);
-    K1_t = K1_i + `hypmax(K11_i * delTemp, -K1_i, 1.0e-6);
-    K2SAT_t = K2SAT_i + K2SAT1_i * delTemp;
-    A1_t = A1_i + A11_i * delTemp;
-    A2_t = A2_i + A21_i * delTemp;
-    K2_t = K2_i + `hypmax(K21_i * delTemp, -K2_i, 1.0e-6);
-    K0SISAT_t = K0SISAT_i + K0SISAT1_i * delTemp;
-    K2SISAT_t = K2SISAT_i + K2SISAT1_i * delTemp;
-    AIGBINV_t = AIGBINV_i + `hypmax(AIGBINV1_i * delTemp, -AIGBINV_i, 1.0e-6);
-    AIGBACC_t = AIGBACC_i + `hypmax(AIGBACC1_i * delTemp, -AIGBACC_i, 1.0e-6);
-    AIGC_t = AIGC_i + `hypmax(AIGC1_i * delTemp, -AIGC_i, 1.0e-6);
-    AIGS_t = AIGS_i + `hypmax(AIGS1_i * delTemp, -AIGS_i, 1.0e-6);
-    AIGD_t = AIGD_i + `hypmax(AIGD1_i * delTemp, -AIGD_i, 1.0e-6);
-    BGIDL_t = BGIDL_i * `hypsmooth((1.0 + TGIDL_i * delTemp - 1.0e-6), 1.0e-3);
-    BGISL_t = BGISL_i * `hypsmooth((1.0 + TGIDL_i * delTemp - 1.0e-6), 1.0e-3);
-    ALPHA0_t = ALPHA0_i + `hypmax(ALPHA01 * delTemp, -ALPHA0_i, 1.0e-6);
-    ALPHA1_t = ALPHA1_i + `hypmax(ALPHA11 * delTemp, -ALPHA1_i, 1.0e-6);
-    ALPHAII0_t = ALPHAII0_i + `hypmax(ALPHAII01 * delTemp, -ALPHAII0_i, 1.0e-25);
-    ALPHAII1_t = ALPHAII1_i + `hypmax(ALPHAII11 * delTemp, -ALPHAII1_i, 1.0e-20);
-    igtemp = exp(IGT_i * Trat_ln);
-    igsd_mult = igsd_mult0 * igtemp;
-    if (BULKMOD != 0) begin
-        `tempdep(CJS_t, CJS, TCJ)
-        `tempdep(CJD_t, CJD, TCJ)
-        `tempdep(CJSWS_t, CJSWS, TCJSW)
-        `tempdep(CJSWD_t, CJSWD, TCJSW)
-        `tempdep(CJSWGS_t, CJSWGS, TCJSWG)
-        `tempdep(CJSWGD_t, CJSWGD, TCJSWG)
-        PBS_t = `hypsmooth((PBS - TPB * delTemp - 0.01), 1.0e-3) + 0.01;
-        PBD_t = `hypsmooth((PBD - TPB * delTemp - 0.01), 1.0e-3) + 0.01;
-        PBSWS_t = `hypsmooth((PBSWS - TPBSW * delTemp - 0.01), 1.0e-3) + 0.01;
-        PBSWD_t = `hypsmooth((PBSWD - TPBSW * delTemp - 0.01), 1.0e-3) + 0.01;
-        PBSWGS_t = `hypsmooth((PBSWGS - TPBSWG * delTemp - 0.01), 1.0e-3) + 0.01;
-        PBSWGD_t = `hypsmooth((PBSWGD - TPBSWG * delTemp - 0.01), 1.0e-3) + 0.01;
-        T0 = Eg0 / Vtm0 - Eg / Vtm;
-        T3 = `lexp((T0 + XTIS * Trat_ln) / NJS);
-        JSS_t = JSS * T3;
-        JSWS_t = JSWS * T3;
-        JSWGS_t = JSWGS * T3;
-        T3 = `lexp((T0 + XTID * Trat_ln) / NJD);
-        JSD_t = JSD * T3;
-        JSWD_t = JSWD * T3;
-        JSWGD_t = JSWGD * T3;
-        JTSS_t = JTSS * `lexp(Eg0 * XTSS * TRatio_m1 / Vtm);
-        JTSD_t = JTSD * `lexp(Eg0 * XTSD * TRatio_m1 / Vtm);
-        JTSSWS_t = JTSSWS * `lexp(Eg0 * XTSSWS * TRatio_m1 / Vtm);
-        JTSSWD_t = JTSSWD * `lexp(Eg0 * XTSSWD * TRatio_m1 / Vtm);
-        JTSSWGS_t = JTSSWGS * (sqrt(JTWEFF / Weff0) + 1.0) * `lexp(Eg0 * XTSSWGS * TRatio_m1 / Vtm);
-        JTSSWGD_t = JTSSWGD * (sqrt(JTWEFF / Weff0) + 1.0) * `lexp(Eg0 * XTSSWGD * TRatio_m1 / Vtm);
-        NJTS_t = `hypsmooth((NJTS * (1.0 + TNJTS * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-        NJTSD_t = `hypsmooth((NJTSD * (1.0 + TNJTSD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-        NJTSSW_t = `hypsmooth((NJTSSW * (1.0 + TNJTSSW * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-        NJTSSWD_t = `hypsmooth((NJTSSWD * (1.0 + TNJTSSWD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-        NJTSSWG_t = `hypsmooth((NJTSSWG * (1.0 + TNJTSSWG * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-        NJTSSWGD_t = `hypsmooth((NJTSSWGD * (1.0 + TNJTSSWGD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
-    end
+      // Quantum mechanical Vth correction
+      kT = Vtm * `q;
+      T0 = `HBAR * `M_PI / (2.0 * Ach / Weff_UFCM);
+      E0 = T0 * T0 / (2.0 * mx);
+      E0prime = T0 * T0 / (2.0 * mxprime);
+      E1 = 4.0 * E0;
+      E1prime = 4.0 * E0prime;
+      T1 = gprime * mdprime / (gfactor * md);
+      gam0 = 1.0 + T1 * `lexp((E0 - E0prime) / kT);
+      gam1 = gam0 + `lexp((E0 - E1) / kT) + T1 * `lexp((E0 - E1prime) / kT);
+      T2 = -Vtm * `lln(gfactor * md / (`M_PI * `HBAR * `HBAR * Nc) * kT / (2.0 * Ach / Weff_UFCM) * gam1);
+      dvch_qm = QMFACTOR_i * (E0 / `q + T2);
 
-    if (!$param_given(VFBSD)) begin
-        if (NGATE > 0.0) begin
-            if (CRYOMOD == 0) begin
-                vfbsd = devsign * (`hypsmooth((0.5 * Eg - Vtm * `lln(NGATE / ni)), 1.0e-4) - (0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * `lln(NSD / ni)), 1.0e-4))));
-            end else begin
-                vfbsd = devsign * (`hypsmooth((0.5 * Eg - Vtm * (`lln(NGATE) - niln)), 1.0e-4) - (0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * (`lln(NSD) - niln)), 1.0e-4))));
-            end
-        end else begin
-            if (CRYOMOD == 0) begin
-                vfbsd = devsign * (PHIG_i - (EASUB + 0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * `lln(NSD / ni)), 1.0e-4))));
-            end else begin
-                vfbsd = devsign * (PHIG_i - (EASUB + 0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * (`lln(NSD) - niln)), 1.0e-4))));
-            end
-        end
-    end else begin
-        vfbsd = VFBSD;
-    end
-    if (!$param_given(VFBSDCV)) begin
-        vfbsdcv = vfbsd;
-    end else begin
-        vfbsdcv = VFBSDCV;
-    end
-    if (CRYOMOD == 0) begin
-        phib = Vtm * `lln(NBODY_i / ni);
-        vbi = Vtm * `lln(NBODY_i * NSD / (ni * ni));
-    end else begin
-        phib = Vtm * (`lln(NBODY_i) - niln);
-        vbi = Vtm * (`lln(NBODY_i * NSD) - 2 * niln);
-    end
+      // Temperature dependence
+      Trat_ln = ln(TRatio);
+      if (CRYOMOD == 0) begin
+          T1 = U0_i * exp(UTE_i * Trat_ln);
+          u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
+          if (ASYMMOD == 1) begin
+              T1 = U0R_i * exp(UTER_i * Trat_ln);
+              U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
+              u0r = U0R_t;
+          end
+          UA_t = UA_i + `hypmax(UA1_i * delTemp, -UA_i, 1.0e-6);
+          EU_t = EU_i;
+          if (ASYMMOD != 0) begin
+              UAR_t = UAR_i + `hypmax(UA1R_i * delTemp, -UAR_i, 1.0e-6);
+          end
+          UD_t = UD_i * exp(UD1_i * Trat_ln);
+          if (ASYMMOD != 0) begin
+              UDR_t = UDR_i * exp(UD1R_i * Trat_ln);
+          end
+          UCS_t = UCS_i * exp(UCSTE_i * Trat_ln);
+          rdstemp = `hypsmooth((1.0 + PRT_i * delTemp - 1.0e-6), 1.0e-3);
+          `tempdep(VSAT_t, VSAT_i, -AT_i)
+          if (ASYMMOD != 0) begin
+              `tempdep(VSATR_t, VSATR_i, -ATR_i)
+              if (VSATR_t < 1000) begin
+                  $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
+                  VSATR_t = 1000;
+              end
+          end
+          if (CVMOD == 1) begin
+              T1 = U0CV_i * exp(UTECV_i * Trat_ln);
+              u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
+              UACV_t = UACV_i + `hypmax(UA1CV_i * delTemp, -UACV_i, 1.0e-6);
+              UDCV_t = UDCV_i * exp(UD1CV_i * Trat_ln);
+          end
+          `tempdep(VSAT1_t, VSAT1_i, -AT_i)
+          if (ASYMMOD != 0) begin
+              `tempdep(VSAT1R_t, VSAT1R_i, -AT_i)
+              if (VSAT1R_t < 1000) begin
+                  $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
+                  VSAT1R_t = 1000;
+              end
+          end
+          `tempdep(VSATCV_t, VSATCV_i, -ATCV_i)
+          MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp) - 2.0), 1.0e-3) + 2.0;
+          if (ASYMMOD != 0) begin
+              MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp) - 2.0), 1.0e-3) + 2.0;
+          end
+          KSATIV_t = KSATIV_i;
+          PCLM_t = PCLM_i;
+          dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1;
+      end else if (CRYOMOD == 1) begin
+          T1 = U0_i * exp((UTE_i + UTE1_i * TRatio) * Trat_ln);
+          u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
+          if (ASYMMOD == 1) begin
+              T1 = U0R_i * exp((UTER_i + UTE1_i * TRatio) * Trat_ln);
+              U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
+              u0r = U0R_t;
+          end
+          UA_t = UA_i * exp((UA1_i + UA2_i * TRatio) * Trat_ln);
+          if (ASYMMOD != 0) begin
+              UAR_t = UAR_i * exp((UA1R_i + UA2_i * TRatio) * Trat_ln);
+          end
+          UD_t = UD_i * exp((UD1_i + UD2_i * TRatio) * Trat_ln);
+          if (ASYMMOD != 0) begin
+              UDR_t = UDR_i * exp((UD1R_i + UD2_i * TRatio) * Trat_ln);
+          end
+          UCS_t = UCS_i * exp((UCSTE_i + UCSTE1 * TRatio) * Trat_ln);
+          UDS_t = UDS_i * (`lexp(UDS1_i * TRatio_m1) - 1);
+          UDD_t = UDD_i * (`lexp(UDD1_i * TRatio_m1) - 1);
+          UDSeff_t = 0.5 + UDS_t;
+          UDDeff_t = 0.5 + UDD_t;
+          `tempdep(EU_t, EU_i, EU1_i)
+          if (CVMOD == 1) begin
+              T1 = U0CV_i * exp((UTECV_i + UTE1CV_i * TRatio) * Trat_ln);
+              u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
+              UACV_t = UACV_i * exp((UA1CV_i + UA2CV_i * TRatio) * Trat_ln);
+              UDCV_t = UDCV_i * exp((UD1CV_i + UD2CV_i * TRatio) * Trat_ln);
+          end
+          if (PRT_i == PRT1_i) begin
+              T2 = 1.0 + PRT_i * delTemp;
+          end else if (TR0_i < Tnom) begin
+              rdstemp0 = 1 + PRT_i * delTemp;
+              rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
+              T3 = (PRT_i - PRT1_i) * (TR0_i - Tnom);
+              if (PRT1_i < PRT_i) begin
+                  T2 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+              end else begin
+                  T2 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+              end
+          end else begin
+              rdstemp1 = 1 + PRT1_i * (DevTemp - Tnom);
+              rdstemp0 = 1 + PRT_i * (DevTemp - TR0_i) + PRT1_i * (TR0_i - Tnom);
+              T3 = (PRT1_i - PRT_i) * (TR0_i - Tnom);
+              if (PRT1_i < PRT_i) begin
+                  T2 = `smoothminx(rdstemp1, rdstemp0, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+              end else begin
+                  T2 = `smoothmaxx2(rdstemp1, rdstemp0, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+              end
+          end
+          rdstemp = `hypsmooth((T2 - 1.0e-6), 1.0e-3);
+          `tempdep2(VSAT_t, VSAT_i, -AT_i, AT2)
+          if (ASYMMOD != 0) begin
+              `tempdep2(VSATR_t, VSATR_i, -ATR_i, AT2)
+              if (VSATR_t < 1000) begin
+                  $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
+                  VSATR_t = 1000;
+              end
+          end
+          `tempdep2(VSAT1_t, VSAT1_i, -AT_i, AT2)
+          if (ASYMMOD != 0) begin
+              `tempdep2(VSAT1R_t, VSAT1R_i, -AT_i, AT2)
+              if (VSAT1R_t < 1000) begin
+                  $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
+                  VSAT1R_t = 1000;
+              end
+          end
+          `tempdep2(VSATCV_t, VSATCV_i, -ATCV_i, AT2CV)
+          MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp + TMEXP2 * delTemp * delTemp) - 2.0), 1.0e-3) + 2.0;
+          if (ASYMMOD != 0) begin
+              MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp + TMEXP2 * delTemp * delTemp) - 2.0), 1.0e-3) + 2.0;
+          end
+          `tempdep2(KSATIV_t, KSATIV_i, KSATIVT1, KSATIVT2)
+          `tempdep(PCLM_t, PCLM_i, PCLMT)
+          dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1 + KT11 / (1 + `lexp(KT12 * (DevTemp - TVTH))) - KT11 / (1 + `lexp(KT12 * (Tnom - TVTH)));
+      end else begin
+          T1 = U0_i * exp((UTE_i + UTE1_i * delTRatio1) * Trat_ln);
+          u0 = T1 + `hypmax(UTL_i * delTemp, -0.9 * T1, 1.0e-4);
+          if (ASYMMOD == 1) begin
+              T1 = U0R_i * exp((UTER_i + UTE1_i * delTRatio1) * Trat_ln);
+              U0R_t = T1 + `hypmax(UTLR_i * delTemp, -0.9 * T1, 1.0e-4);
+              u0r = U0R_t;
+          end
+          if (Tnom > 210) begin
+              T2 = 210 * (UA1_i / (UA_i + UA1_i * (210 - Tnom)) - UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
+              T1 = (UA_i + UA1_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2_i * (210 / Tnom));
+              UA_tl = T1 * pow(TRatio, T2 + UA2_i * TRatio);
+              UA_th = UA_i + UA1_i * delTemp;
+          end else begin
+              T2 = UA_i * pow(210 / Tnom, UA1_i + UA2_i * (210 / Tnom)) * (UA1_i / 210 + UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
+              T1 = UA_i * pow(210 / Tnom, UA1_i + UA2_i * (210 / Tnom)) - T2 * (210 - Tnom);
+              UA_tl = UA_i * pow(TRatio, UA1_i + UA2_i * TRatio);
+              UA_th = T1 + T2 * delTemp;
+          end
+          T0 = wl * UA_tl + wh * UA_th;
+          UA_t = `hypsmooth(T0, 1.0e-6);
+          if (ASYMMOD != 0) begin
+              if (Tnom > 210) begin
+                  T2 = 210 * (UA1R_i / (UAR_i + UA1R_i * (210 - Tnom)) - UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
+                  T1 = (UAR_i + UA1R_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2_i * (210 / Tnom));
+                  UAR_tl = T1 * pow(TRatio, T2 + UA2_i * TRatio);
+                  UAR_th = UAR_i + UA1R_i * delTemp;
+              end else begin
+                  T2 = UAR_i * pow(210 / Tnom, UA1R_i + UA2_i * (210 / Tnom)) * (UA1R_i / 210 + UA2_i * (`lln(210 / Tnom) + 1) / Tnom);
+                  T1 = UAR_i * pow(210 / Tnom, UA1R_i + UA2_i * (210 / Tnom)) - T2 * (210 - Tnom);
+                  UAR_tl = UAR_i * pow(TRatio, UA1R_i + UA2_i * TRatio);
+                  UAR_th = T1 + T2 * delTemp;
+              end
+              T0 = wl * UAR_tl + wh * UAR_th;
+              UAR_t = `hypsmooth(T0, 1.0e-6);
+          end
+          UD_t = UD_i * exp((UD1_i + UD2_i * delTRatio1) * Trat_ln);
+          if (ASYMMOD != 0) begin
+              UDR_t = UDR_i * exp((UD1R_i + UD2_i * delTRatio1) * Trat_ln);
+          end
+          UCS_t = UCS_i * exp((UCSTE_i + UCSTE1_i * delTRatio1) * Trat_ln);
+          if (abs(UDS1_i * (Tnom - 210) / Tnom) < 1.0e-6) begin
+              UDS_t = UDS_i * (`lexp(UDS1_i * delTRatio1) - 1);
+          end else begin
+              UDS_t = UDS_i * (`lexp(UDS1_i * delTRatio1) - 1) / abs(`lexp(UDS1_i * (Tnom - 210) / Tnom) - 1);
+          end
+          if (abs(UDD1_i * (Tnom - 210) / Tnom) < 1.0e-6) begin
+              UDD_t = UDD_i * (`lexp(UDD1_i * delTRatio1) - 1);
+          end else begin
+              UDD_t = UDD_i * (`lexp(UDD1_i * delTRatio1) - 1) / abs(`lexp(UDD1_i * (Tnom - 210) / Tnom) - 1);
+          end
+          UDSeff_t = 0.5 + UDS_t;
+          UDDeff_t = 0.5 + UDD_t;
+          if (TEMPMOD != 0) begin
+              EU_t = EU_i + `hypmax((EU1_i * delTemp1), -EU_i, 1.0e-6);
+              VSAT_t = VSAT_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1* delTemp1), -VSAT_i, 1.0e-6);
+              if (ASYMMOD != 0) begin
+                  VSATR_t = VSATR_i + `hypmax((-ATR_i * delTemp + AT2 * delTemp1* delTemp1), -VSATR_i, 1.0e-6);
+                  if (VSATR_t < 1000) begin
+                      $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
+                      VSATR_t = 1000;
+                  end
+              end
+              VSAT1_t = VSAT1_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1 * delTemp1), -VSAT1_i, 1.0e-6);
+              if (ASYMMOD != 0) begin
+                  VSAT1R_t = VSAT1R_i + `hypmax((-AT_i * delTemp + AT2 * delTemp1 * delTemp1), -VSAT1R_i, 1.0e-6);
+                  if (VSAT1R_t < 1000) begin
+                      $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
+                      VSAT1R_t = 1000;
+                  end
+              end
+              VSATCV_t = VSATCV_i + `hypmax((-ATCV_i * delTemp + AT2CV * delTemp1 * delTemp1), -VSATCV_i, 1.0e-6);
+              KSATIV_t = KSATIV_i + `hypmax((KSATIVT1 * delTemp1 + KSATIVT2 * delTemp1 * delTemp1), -KSATIV_i, 1.0e-6);
+              PCLM_t = PCLM_i + `hypmax((PCLMT * delTemp1), -PCLM_i, 1.0e-6);
+          end else begin
+              EU_t = EU_i * `hypsmooth((1.0 + EU1_i * delTemp1 - 1.0e-6), 1.0e-3);
+              VSAT_t = VSAT_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+              if (ASYMMOD != 0) begin
+                  VSATR_t = VSATR_i * `hypsmooth((1.0 - ATR_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+                  if (VSATR_t < 1000) begin
+                      $strobe("Warning: VSATR(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATR_t);
+                      VSATR_t = 1000;
+                  end
+              end
+              VSAT1_t = VSAT1_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+              if (ASYMMOD != 0) begin
+                  VSAT1R_t = VSAT1R_i * `hypsmooth((1.0 - AT_i * delTemp + AT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+                  if (VSAT1R_t < 1000) begin
+                      $strobe("Warning: VSAT1R(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1R_t);
+                      VSAT1R_t = 1000;
+                  end
+              end
+              VSATCV_t = VSATCV_i * `hypsmooth((1.0 - ATCV_i * delTemp + AT2CV * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+              KSATIV_t = KSATIV_i * `hypsmooth((1.0 + KSATIVT1 * delTemp1 + KSATIVT2 * delTemp1 * delTemp1 - 1.0e-6), 1.0e-3);
+              PCLM_t = PCLM_i * `hypsmooth((1.0 + PCLMT * delTemp1 - 1.0e-6), 1.0e-3);
+          end
+          MEXP_t = `hypsmooth((MEXP_i * (1.0 + TMEXP * delTemp + TMEXP2 * delTemp1 * delTemp1) - 2.0), 1.0e-3) + 2.0;
+          if (ASYMMOD != 0) begin
+              MEXPR_t = `hypsmooth((MEXPR_i * (1.0 + TMEXPR * delTemp + TMEXP2 * delTemp1 * delTemp1) - 2.0), 1.0e-3) + 2.0;
+          end
+          if (CVMOD == 1) begin
+              T1 = U0CV_i * exp((UTECV_i + UTE1CV_i * delTRatio1) * Trat_ln);
+              u0_cv = T1 + `hypmax(UTLCV_i * delTemp, -0.9 * T1, 1.0e-4);
+              if (Tnom > 210) begin
+                  T2 = 210 * (UA1CV_i / (UACV_i + UA1CV_i * (210 - Tnom)) - UA2CV_i * (`lln(210 / Tnom) + 1) / Tnom);
+                  T1 = (UACV_i + UA1CV_i * (210 - Tnom)) / pow(210 / Tnom, T2 + UA2CV_i * (210 / Tnom));
+                  UACV_tl = T1 * pow(TRatio, T2 + UA2CV_i * TRatio);
+                  UACV_th = UACV_i + UA1CV_i * delTemp;
+              end else begin
+                  T2 = UACV_i * pow(210 / Tnom, UA1CV_i + UA2CV_i * (210 / Tnom)) * (UA1CV_i / 210 + UA2CV_i * (`lln(210 / Tnom) + 1) / Tnom);
+                  T1 = UACV_i * pow(210 / Tnom, UA1CV_i + UA2CV_i * (210 / Tnom)) - T2 * (210 - Tnom);
+                  UACV_tl = UACV_i * pow(TRatio, UA1CV_i + UA2CV_i * TRatio);
+                  UACV_th = T1 + T2 * delTemp;
+              end
+              T0 = wl * UACV_tl + wh * UACV_th;
+              UACV_t = `hypsmooth(T0, 1.0e-6);
+              UDCV_t = UDCV_i * exp((UD1CV_i + UD2CV_i * delTRatio1) * Trat_ln);
+          end
+          if (PRT_i == PRT1_i) begin
+              T2 = 1.0 + PRT_i * delTemp;
+          end else if (TR0_i < 210) begin
+              if (Tnom > 210) begin
+                  rdstemp0 = 1 + PRT_i * delTemp;
+                  rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
+                  T3 = 1 + PRT_i * (210 - Tnom);
+                  T4 = 1 + PRT1_i * (210 - TR0_i) + PRT_i * (TR0_i - Tnom);
+                  if (PRT1_i < PRT_i) begin
+                      T5 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, T4, SPRT_i) + T3;
+                      T2 = `smoothminx(T5, rdstemp0, 1.0e-3);
+                  end else begin
+                      T5 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, T4, SPRT_i) + T3;
+                      T2 = `smoothmaxx2(T5, rdstemp0, 1.0e-3);
+                  end
+              end else if (Tnom > TR0_i) begin
+                  rdstemp0 = 1 + PRT_i * delTemp;
+                  rdstemp1 = 1 + PRT1_i * (DevTemp - TR0_i) + PRT_i * (TR0_i - Tnom);
+                  T3 = (PRT_i - PRT1_i) * (TR0_i - Tnom);
+                  T4 = 1 + PRT_i * (210 - Tnom);
+                  T5 = 1 + PRT1_i * (210 - TR0_i) + PRT_i * (TR0_i - Tnom);
+                  if (PRT1_i < PRT_i) begin
+                      T6 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+                      T7 = `smoothminx(T4, T5, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+                      T8 = T7 + PRT_i * (DevTemp - 210);
+                      T2 = `smoothminx(T6, T8, 1.0e-3);
+                  end else begin
+                      T6 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+                      T7 = `smoothmaxx2(T4, T5, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+                      T8 = T7 + PRT_i * (DevTemp - 210);
+                      T2 = `smoothmaxx2(T6, T8, 1.0e-3);
+                  end
+              end else begin
+                  rdstemp1 = 1 + PRT1_i * delTemp;
+                  rdstemp0 = 1 + PRT_i * (DevTemp - TR0_i) + PRT1_i * (TR0_i - Tnom);
+                  T3 = (PRT1_i - PRT_i) * (TR0_i - Tnom);
+                  T4 = 1 + PRT1_i * (210 - Tnom);
+                  T5 = 1 + PRT_i * (210 - TR0_i) + PRT1_i * (TR0_i - Tnom);
+                  if (PRT1_i < PRT_i) begin
+                      T6 = `smoothminx(rdstemp0, rdstemp1, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+                      T7 = `smoothminx(T4, T5, SPRT_i) - `smoothminx(T3, 0, SPRT_i);
+                      T8 = T7 + PRT_i * (DevTemp - 210);
+                      T2 = `smoothminx(T6, T8, 1.0e-3);
+                  end else begin
+                      T6 = `smoothmaxx2(rdstemp0, rdstemp1, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+                      T7 = `smoothmaxx2(T4, T5, SPRT_i) - `smoothmaxx2(T3, 0, SPRT_i);
+                      T8 = T7 + PRT_i * (DevTemp - 210);
+                      T2 = `smoothmaxx2(T6, T8, 1.0e-3);
+                  end
+              end
+          end else begin
+              if (Tnom > 210) begin
+                  rdstemp0 = 1 + PRT_i * delTemp;
+                  rdstemp1 = 1 + PRT1_i * (DevTemp - 210) + PRT_i * (210 - Tnom);
+                  if (PRT1_i < PRT_i) begin
+                      T2 = `smoothminx(rdstemp0, rdstemp1, 1.0e-2);
+                  end else begin
+                      T2 = `smoothmaxx2(rdstemp0, rdstemp1, 1.0e-2);
+                  end
+              end else begin
+                  rdstemp1 = 1 + PRT1_i * delTemp;
+                  rdstemp0 = 1 + PRT_i * (DevTemp - 210) + PRT1_i * (210 - Tnom);
+                  if (PRT1_i < PRT_i) begin
+                      T2 = `smoothminx(rdstemp0, rdstemp1, 1.0e-2);
+                  end else begin
+                      T2 = `smoothmaxx2(rdstemp0, rdstemp1, 1.0e-2);
+                  end
+              end
+          end
+          rdstemp = `hypsmooth((T2 - 1.0e-6), 1.0e-3);
+          T4 = `smoothmaxx2(Tnom, 210, 0.2);
+          dvth_temp = (KT1_i + KT1L / Leff) * TRatio_m1 + KT11 / (1 + `lexp(KT12 * (DevTemp1 - TVTH))) - KT11 / (1 + `lexp(KT12 * (T4 - TVTH)));
+      end
+      if (VSAT_t < 1000) begin
+          $strobe("Warning: VSAT(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT_t);
+          VSAT_t = 1000;
+      end
+      if (VSAT1_t < 1000) begin
+          $strobe("Warning: VSAT1(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSAT1_t);
+          VSAT1_t = 1000;
+      end
+      if (VSATCV_t < 1000) begin
+          $strobe("Warning: VSATCV(%g) = %g is less than 1K, setting it to 1K.", DevTemp, VSATCV_t);
+          VSATCV_t = 1000;
+      end
+      if (BULKMOD != 0) begin
+          if (TEMPMOD == 0) begin
+              `tempdep(UC_t, UC_i, UC1_i)
+              if (CVMOD == 1) begin
+                  `tempdep(UCCV_t, UCCV_i, UC1CV_i)
+              end
+              if (ASYMMOD != 0) begin
+                  `tempdep(UCR_t, UCR_i, UC1R_i)
+              end
+          end else begin
+              UC_t = UC_i + UC1_i * delTemp;
+              if (CVMOD == 1) begin
+                  UCCV_t = UCCV_i + UC1CV_i * delTemp;
+              end
+              if (ASYMMOD != 0) begin
+                  UCR_t = UCR_i + UC1R_i * delTemp;
+              end
+          end
+      end
+      `tempdep(ETA0_t, ETA0_i, TETA0)
+      if (CVMOD == 1) begin
+          `tempdep(ETA0CV_t, ETA0CV_i, TETA0CV)
+      end
+      `tempdep(ETA0R_t, ETA0R_i, TETA0R)
+      `tempdep(ETAMOB_t, ETAMOB_i, EMOBT_i)
+      `tempdep(RSDR_t, RSDR, TRSDR)
+      if (ASYMMOD != 0) begin
+          `tempdep(RSDRR_t, RSDRR, TRSDR)
+      end
+      `tempdep(RDDR_t, RDDR, TRDDR)
+      if (ASYMMOD != 0) begin
+          `tempdep(RDDRR_t, RDDRR, TRDDR)
+      end
+      `tempdep(PTWG_t, PTWG_i, -PTWGT_i)
+      if (ASYMMOD != 0) begin
+          `tempdep(PTWGR_t, PTWGR_i, -PTWGT_i)
+      end
+      BETA0_t = BETA0_i * exp(IIT_i * Trat_ln);
+      SII0_t = SII0_i * (`hypsmooth((1.0 + TII_i * TRatio_m1 - 0.01), 1.0e-3) + 0.01);
+      K0_t = K0_i + K01_i * delTemp;
+      K0SI_t = K0SI_i + `hypmax(K0SI1_i * delTemp, -K0SI_i, 1.0e-6);
+      K2SI_t = K2SI_i + `hypmax(K2SI1_i * delTemp, -K2SI_i, 1.0e-6);
+      K1_t = K1_i + `hypmax(K11_i * delTemp, -K1_i, 1.0e-6);
+      K2SAT_t = K2SAT_i + K2SAT1_i * delTemp;
+      A1_t = A1_i + A11_i * delTemp;
+      A2_t = A2_i + A21_i * delTemp;
+      K2_t = K2_i + `hypmax(K21_i * delTemp, -K2_i, 1.0e-6);
+      K0SISAT_t = K0SISAT_i + K0SISAT1_i * delTemp;
+      K2SISAT_t = K2SISAT_i + K2SISAT1_i * delTemp;
+      AIGBINV_t = AIGBINV_i + `hypmax(AIGBINV1_i * delTemp, -AIGBINV_i, 1.0e-6);
+      AIGBACC_t = AIGBACC_i + `hypmax(AIGBACC1_i * delTemp, -AIGBACC_i, 1.0e-6);
+      AIGC_t = AIGC_i + `hypmax(AIGC1_i * delTemp, -AIGC_i, 1.0e-6);
+      AIGS_t = AIGS_i + `hypmax(AIGS1_i * delTemp, -AIGS_i, 1.0e-6);
+      AIGD_t = AIGD_i + `hypmax(AIGD1_i * delTemp, -AIGD_i, 1.0e-6);
+      BGIDL_t = BGIDL_i * `hypsmooth((1.0 + TGIDL_i * delTemp - 1.0e-6), 1.0e-3);
+      BGISL_t = BGISL_i * `hypsmooth((1.0 + TGIDL_i * delTemp - 1.0e-6), 1.0e-3);
+      ALPHA0_t = ALPHA0_i + `hypmax(ALPHA01 * delTemp, -ALPHA0_i, 1.0e-6);
+      ALPHA1_t = ALPHA1_i + `hypmax(ALPHA11 * delTemp, -ALPHA1_i, 1.0e-6);
+      ALPHAII0_t = ALPHAII0_i + `hypmax(ALPHAII01 * delTemp, -ALPHAII0_i, 1.0e-25);
+      ALPHAII1_t = ALPHAII1_i + `hypmax(ALPHAII11 * delTemp, -ALPHAII1_i, 1.0e-20);
+      igtemp = exp(IGT_i * Trat_ln);
+      igsd_mult = igsd_mult0 * igtemp;
+      if (BULKMOD != 0) begin
+          `tempdep(CJS_t, CJS, TCJ)
+          `tempdep(CJD_t, CJD, TCJ)
+          `tempdep(CJSWS_t, CJSWS, TCJSW)
+          `tempdep(CJSWD_t, CJSWD, TCJSW)
+          `tempdep(CJSWGS_t, CJSWGS, TCJSWG)
+          `tempdep(CJSWGD_t, CJSWGD, TCJSWG)
+          PBS_t = `hypsmooth((PBS - TPB * delTemp - 0.01), 1.0e-3) + 0.01;
+          PBD_t = `hypsmooth((PBD - TPB * delTemp - 0.01), 1.0e-3) + 0.01;
+          PBSWS_t = `hypsmooth((PBSWS - TPBSW * delTemp - 0.01), 1.0e-3) + 0.01;
+          PBSWD_t = `hypsmooth((PBSWD - TPBSW * delTemp - 0.01), 1.0e-3) + 0.01;
+          PBSWGS_t = `hypsmooth((PBSWGS - TPBSWG * delTemp - 0.01), 1.0e-3) + 0.01;
+          PBSWGD_t = `hypsmooth((PBSWGD - TPBSWG * delTemp - 0.01), 1.0e-3) + 0.01;
+          T0 = Eg0 / Vtm0 - Eg / Vtm;
+          T3 = `lexp((T0 + XTIS * Trat_ln) / NJS);
+          JSS_t = JSS * T3;
+          JSWS_t = JSWS * T3;
+          JSWGS_t = JSWGS * T3;
+          T3 = `lexp((T0 + XTID * Trat_ln) / NJD);
+          JSD_t = JSD * T3;
+          JSWD_t = JSWD * T3;
+          JSWGD_t = JSWGD * T3;
+          JTSS_t = JTSS * `lexp(Eg0 * XTSS * TRatio_m1 / Vtm);
+          JTSD_t = JTSD * `lexp(Eg0 * XTSD * TRatio_m1 / Vtm);
+          JTSSWS_t = JTSSWS * `lexp(Eg0 * XTSSWS * TRatio_m1 / Vtm);
+          JTSSWD_t = JTSSWD * `lexp(Eg0 * XTSSWD * TRatio_m1 / Vtm);
+          JTSSWGS_t = JTSSWGS * (sqrt(JTWEFF / Weff0) + 1.0) * `lexp(Eg0 * XTSSWGS * TRatio_m1 / Vtm);
+          JTSSWGD_t = JTSSWGD * (sqrt(JTWEFF / Weff0) + 1.0) * `lexp(Eg0 * XTSSWGD * TRatio_m1 / Vtm);
+          NJTS_t = `hypsmooth((NJTS * (1.0 + TNJTS * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+          NJTSD_t = `hypsmooth((NJTSD * (1.0 + TNJTSD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+          NJTSSW_t = `hypsmooth((NJTSSW * (1.0 + TNJTSSW * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+          NJTSSWD_t = `hypsmooth((NJTSSWD * (1.0 + TNJTSSWD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+          NJTSSWG_t = `hypsmooth((NJTSSWG * (1.0 + TNJTSSWG * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+          NJTSSWGD_t = `hypsmooth((NJTSSWGD * (1.0 + TNJTSSWGD * TRatio_m1) - 0.01), 1.0e-3) + 0.01;
+      end
 
-    // Workfunction difference between gate and n+ source.
-    deltaPhi = devsign * (PHIG_i - (EASUB + (TYPE == `ntype ? 0.0 : Eg)));
+      if (!$param_given(VFBSD)) begin
+          if (NGATE > 0.0) begin
+              if (CRYOMOD == 0) begin
+                  vfbsd = devsign * (`hypsmooth((0.5 * Eg - Vtm * `lln(NGATE / ni)), 1.0e-4) - (0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * `lln(NSD / ni)), 1.0e-4))));
+              end else begin
+                  vfbsd = devsign * (`hypsmooth((0.5 * Eg - Vtm * (`lln(NGATE) - niln)), 1.0e-4) - (0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * (`lln(NSD) - niln)), 1.0e-4))));
+              end
+          end else begin
+              if (CRYOMOD == 0) begin
+                  vfbsd = devsign * (PHIG_i - (EASUB + 0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * `lln(NSD / ni)), 1.0e-4))));
+              end else begin
+                  vfbsd = devsign * (PHIG_i - (EASUB + 0.5 * Eg - devsign * (0.5 * Eg - `hypsmooth((0.5 * Eg - Vtm * (`lln(NSD) - niln)), 1.0e-4))));
+              end
+          end
+      end else begin
+          vfbsd = VFBSD;
+      end
+      if (!$param_given(VFBSDCV)) begin
+          vfbsdcv = vfbsd;
+      end else begin
+          vfbsdcv = VFBSDCV;
+      end
+      if (CRYOMOD == 0) begin
+          phib = Vtm * `lln(NBODY_i / ni);
+          vbi = Vtm * `lln(NBODY_i * NSD / (ni * ni));
+      end else begin
+          phib = Vtm * (`lln(NBODY_i) - niln);
+          vbi = Vtm * (`lln(NBODY_i * NSD) - 2 * niln);
+      end
 
-    // Mobility degradation
-    eta_mu = 0.5 * ETAMOB_t;
-    eta_mu_cv = 0.5;
-    if (TYPE != `ntype) begin
-        eta_mu = `ONE_OV_3 * ETAMOB_t;
-        eta_mu_cv = `ONE_OV_3;
-    end
+      // Workfunction difference between gate and n+ source.
+      deltaPhi = devsign * (PHIG_i - (EASUB + (TYPE == `ntype ? 0.0 : Eg)));
 
-    // Junction current and capacitance
-    if (BULKMOD != 0) begin
-        // Source-side junction current
-        Isbs = ASEJ * JSS_t + PSEJ * JSWS_t + TFIN * NFINtotal * JSWGS_t;
-        if (Isbs > 0.0) begin
-            Nvtms = Vtm * NJS;
-            XExpBVS = `lexp(-BVS / Nvtms) * XJBVS;
-            T2 = max(IJTHSFWD / Isbs, 10.0);
-            Tb = 1.0 + T2 - XExpBVS;
-            VjsmFwd = Nvtms * `lln(0.5 * (Tb + sqrt(Tb * Tb + 4.0 * XExpBVS)));
-            T0 = `lexp(VjsmFwd / Nvtms);
-            IVjsmFwd = Isbs * (T0 - XExpBVS / T0 + XExpBVS - 1.0);
-            SslpFwd = Isbs * (T0 + XExpBVS / T0) / Nvtms;
-            T2 = `hypsmooth((IJTHSREV / Isbs - 10.0), 1.0e-3) + 10.0;
-            VjsmRev = -BVS - Nvtms * `lln((T2 - 1.0) / XJBVS);
-            T1 = XJBVS * `lexp(-(BVS + VjsmRev) / Nvtms);
-            IVjsmRev = Isbs * (1.0 + T1);
-            SslpRev = -Isbs * T1 / Nvtms;
-        end
-        // Drain-side junction current
-        Isbd = ADEJ * JSD_t + PDEJ * JSWD_t + TFIN * NFINtotal * JSWGD_t;
-        if (Isbd > 0.0) begin
-            Nvtmd = Vtm * NJD;
-            XExpBVD = `lexp(-BVD / Nvtmd) * XJBVD;
-            T2 = max(IJTHDFWD / Isbd, 10.0);
-            Tb = 1.0 + T2 - XExpBVD;
-            VjdmFwd = Nvtmd * `lln(0.5 * (Tb + sqrt(Tb * Tb + 4.0 * XExpBVD)));
-            T0 = `lexp(VjdmFwd / Nvtmd);
-            IVjdmFwd = Isbd * (T0 - XExpBVD / T0 + XExpBVD - 1.0);
-            DslpFwd = Isbd * (T0 + XExpBVD / T0) / Nvtmd;
-            T2 = `hypsmooth((IJTHDREV / Isbd - 10.0), 1.0e-3) + 10.0;
-            VjdmRev = -BVD - Nvtmd * `lln((T2 - 1.0) / XJBVD);
-            T1 = XJBVD * `lexp(-(BVD + VjdmRev) / Nvtmd);
-            IVjdmRev = Isbd * (1.0 + T1);
-            DslpRev = -Isbd * T1 / Nvtmd;
-        end
-        // Junction capacitance
-        Czbs = CJS_t * ASEJ;
-        Czbssw = CJSWS_t * PSEJ;
-        Czbsswg = CJSWGS_t * Weff0 * NFINtotal;
-        Czbd = CJD_t * ADEJ;
-        Czbdsw = CJSWD_t * PDEJ;
-        Czbdswg = CJSWGD_t * Weff0 * NFINtotal;
-        // Bias-independent part
-        `juncap_bias_indep(SJS, PBS_t, MJS, MJS2, vec1s, pb21s)
-        `juncap_bias_indep(SJSWS, PBSWS_t, MJSWS, MJSWS2, vec2s, pb22s)
-        `juncap_bias_indep(SJSWGS, PBSWGS_t, MJSWGS, MJSWGS2, vec3s, pb23s)
-        `juncap_bias_indep(SJD, PBD_t, MJD, MJD2, vec1d, pb21d)
-        `juncap_bias_indep(SJSWD, PBSWD_t, MJSWD, MJSWD2, vec2d, pb22d)
-        `juncap_bias_indep(SJSWGD, PBSWGD_t, MJSWGD, MJSWGD2, vec3d, pb23d)
-    end
+      // Mobility degradation
+      eta_mu = 0.5 * ETAMOB_t;
+      eta_mu_cv = 0.5;
+      if (TYPE != `ntype) begin
+          eta_mu = `ONE_OV_3 * ETAMOB_t;
+          eta_mu_cv = `ONE_OV_3;
+      end
 
-    // Generation-recombination current
-    igentemp = `lexp(Eg * TRatio_m1 / Vtm / NTGEN_i);
+      // Junction current and capacitance
+      if (BULKMOD != 0) begin
+          // Source-side junction current
+          Isbs = ASEJ * JSS_t + PSEJ * JSWS_t + TFIN * NFINtotal * JSWGS_t;
+          if (Isbs > 0.0) begin
+              Nvtms = Vtm * NJS;
+              XExpBVS = `lexp(-BVS / Nvtms) * XJBVS;
+              T2 = max(IJTHSFWD / Isbs, 10.0);
+              Tb = 1.0 + T2 - XExpBVS;
+              VjsmFwd = Nvtms * `lln(0.5 * (Tb + sqrt(Tb * Tb + 4.0 * XExpBVS)));
+              T0 = `lexp(VjsmFwd / Nvtms);
+              IVjsmFwd = Isbs * (T0 - XExpBVS / T0 + XExpBVS - 1.0);
+              SslpFwd = Isbs * (T0 + XExpBVS / T0) / Nvtms;
+              T2 = `hypsmooth((IJTHSREV / Isbs - 10.0), 1.0e-3) + 10.0;
+              VjsmRev = -BVS - Nvtms * `lln((T2 - 1.0) / XJBVS);
+              T1 = XJBVS * `lexp(-(BVS + VjsmRev) / Nvtms);
+              IVjsmRev = Isbs * (1.0 + T1);
+              SslpRev = -Isbs * T1 / Nvtms;
+          end
+          // Drain-side junction current
+          Isbd = ADEJ * JSD_t + PDEJ * JSWD_t + TFIN * NFINtotal * JSWGD_t;
+          if (Isbd > 0.0) begin
+              Nvtmd = Vtm * NJD;
+              XExpBVD = `lexp(-BVD / Nvtmd) * XJBVD;
+              T2 = max(IJTHDFWD / Isbd, 10.0);
+              Tb = 1.0 + T2 - XExpBVD;
+              VjdmFwd = Nvtmd * `lln(0.5 * (Tb + sqrt(Tb * Tb + 4.0 * XExpBVD)));
+              T0 = `lexp(VjdmFwd / Nvtmd);
+              IVjdmFwd = Isbd * (T0 - XExpBVD / T0 + XExpBVD - 1.0);
+              DslpFwd = Isbd * (T0 + XExpBVD / T0) / Nvtmd;
+              T2 = `hypsmooth((IJTHDREV / Isbd - 10.0), 1.0e-3) + 10.0;
+              VjdmRev = -BVD - Nvtmd * `lln((T2 - 1.0) / XJBVD);
+              T1 = XJBVD * `lexp(-(BVD + VjdmRev) / Nvtmd);
+              IVjdmRev = Isbd * (1.0 + T1);
+              DslpRev = -Isbd * T1 / Nvtmd;
+          end
+          // Junction capacitance
+          Czbs = CJS_t * ASEJ;
+          Czbssw = CJSWS_t * PSEJ;
+          Czbsswg = CJSWGS_t * Weff0 * NFINtotal;
+          Czbd = CJD_t * ADEJ;
+          Czbdsw = CJSWD_t * PDEJ;
+          Czbdswg = CJSWGD_t * Weff0 * NFINtotal;
+          // Bias-independent part
+          `juncap_bias_indep(SJS, PBS_t, MJS, MJS2, vec1s, pb21s)
+          `juncap_bias_indep(SJSWS, PBSWS_t, MJSWS, MJSWS2, vec2s, pb22s)
+          `juncap_bias_indep(SJSWGS, PBSWGS_t, MJSWGS, MJSWGS2, vec3s, pb23s)
+          `juncap_bias_indep(SJD, PBD_t, MJD, MJD2, vec1d, pb21d)
+          `juncap_bias_indep(SJSWD, PBSWD_t, MJSWD, MJSWD2, vec2d, pb22d)
+          `juncap_bias_indep(SJSWGD, PBSWGD_t, MJSWGD, MJSWGD2, vec3d, pb23d)
+      end
+
+      // Generation-recombination current
+      igentemp = `lexp(Eg * TRatio_m1 / Vtm / NTGEN_i);
+    end // end of CMGTempDepCalc
 
     // Bias-dependent calculations
     vgs_noswap = devsign * V(gi, si);
