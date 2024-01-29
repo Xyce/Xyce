@@ -916,7 +916,7 @@ analog begin
 
         UD_i = (UDTHIN-UD_i) * pow(`smoothminx(UDTSAT*1e9-TGAA*1e9,0,1),UDPTSC) + UD_i;
     end
-  end // end of initial instance
+  end // end of initial_instance and/or CMGBiasIndepCalc
 
     // Temperature dependence calculations
     if (SHMOD != 0 && RTH0 > 0.0) begin
