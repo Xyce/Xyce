@@ -44,20 +44,28 @@
 // Clamped logarithm
 `define lln(x) ((x > `N_MINLOG) ? ln(x) : `LN_N_MINLOG)
 
+// ERK.  These smoothing functions have been hacked to add ternaries, which check if the arguments are all zero.
+// Without these ternaries,ADMS/Xyce can get NaNs in the Jacobian when self-heating is on.
+
 // Hyperbolic smoothing
-`define hypsmooth(x, c) (0.5 * (x + sqrt(x * x + 4.0 * c * c)))
+//`define hypsmooth(x, c) (0.5 * (x + sqrt(x * x + 4.0 * c * c)))
+`define hypsmooth(x, c) ( (x==0.0 && c==0.0)?(0.0):(0.5 * (x + sqrt(x * x + 4.0 * c * c))) )
 
 // Hyperbolic smoothing with a maximum value
-`define hypmax(x, xmin, c) (xmin + 0.5 * (x - xmin - c + sqrt((x - xmin - c) * (x - xmin - c) - 4.0 * xmin * c)))
+//`define hypmax(x, xmin, c) (xmin + 0.5 * (x - xmin - c + sqrt((x - xmin - c) * (x - xmin - c) - 4.0 * xmin * c)))
+`define hypmax(x, xmin, c) ( (x==0.0 && xmin==0.0 && c==0.0)?(0.0):(xmin + 0.5 * (x - xmin - c + sqrt((x - xmin - c) * (x - xmin - c) - 4.0 * xmin * c))) )
 
 // Smoothing with a minimum value
-`define smoothminx(x, x0, deltax) (0.5 * (x + x0 + sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)))
+//`define smoothminx(x, x0, deltax) (0.5 * (x + x0 + sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)))
+`define smoothminx(x, x0, deltax) ( (x==0.0 && x0 == 0.0 && deltax == 0.0)?(0.0):(0.5 * (x + x0 + sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax))) )
 
 // Smoothing with a maximum value
-`define smoothmaxx(x, x0, deltax) (0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)) + 0.25 * deltax)
+//`define smoothmaxx(x, x0, deltax) (0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)) + 0.25 * deltax)
+`define smoothmaxx(x, x0, deltax) ( (x==0.0 && x0 == 0.0 && deltax == 0.0)?(0.0):(0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)) + 0.25 * deltax) )
 
 // Smoothing with a maximum value
-`define smoothmaxx2(x, x0, deltax) (0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)))
+//`define smoothmaxx2(x, x0, deltax) (0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax)))
+`define smoothmaxx2(x, x0, deltax) ( (x==0.0 && x0 == 0.0 && deltax == 0.0)?(0.0):(0.5 * (x + x0 - sqrt((x - x0) * (x - x0) + 0.25 * deltax * deltax))) )
 
 //Gamma function
 `define gammafunc(x) (0.0385 * exp(-4.6 * (x-1)) + 7.5893e-7 * pow(2*x - 3, 8) + 6.9583e-5 * pow(2*(x-1), 6) - 6.583e-4 * pow(2*(x-1), 5) + 0.0065 * pow(2*(x-1), 4) - 0.026 * pow(2*(x-1), 3) + 0.1371 * pow(2*(x-1), 2) - 0.194 * 2*(x-1) + 0.959)
