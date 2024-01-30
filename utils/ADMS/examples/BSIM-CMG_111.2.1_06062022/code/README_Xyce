@@ -67,3 +67,7 @@ it work with Xyce/ADMS.
 - Created a patch file to add the "devConMap" structures.  This is to support Xyce's 
   method for detecting "no DC path to ground" errors.
 
+- Add ternary operators to various smoothing macros.  The reason for doing 
+  this is to avoid divide-by-zero errors when these macros are differentiated, 
+  but all the inputs are zero.  This was an issue when self-heating was turned on.
+
