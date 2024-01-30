@@ -190,31 +190,30 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
   // Compute:  (omega*i*j*C_bar + G_bar)^{-1} for i=0,1,...,M,-M,...,-1
   //           using real equivalent form K_1 = [G_bar -i*omega*C_bar; i*omega*C_bar G_bar]
 
-  // Generate the new real equivalent map and graph
+  // Generate the new real equivalent graph
   RCP<Parallel::ParMap> origMap = builder_.getSolutionMap(); 
   const Xyce::Parallel::Communicator& comm = origMap->pdsComm();
   int origLocalRows = origMap->numLocalEntities();
   int origGlobalRows = origMap->numGlobalEntities();
-
-  // Count up the row indices and number of nonzero entries for the 2x2 block matrix.
-  int maxRefNNZs_ = 0;
   int refRows = 2*origLocalRows;
-  std::vector<int> rowIdxs( refRows ), refNNZs(refRows);
+  std::vector<int> rowIdxs( refRows );
   RCP<Parallel::EpetraParMap> e_origMap = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>(origMap);
   int * origIdxs = e_origMap->petraMap()->MyGlobalElements();
   for (int i=0; i<origLocalRows; ++i)
   {
     rowIdxs[i] = origIdxs[i];
     rowIdxs[origLocalRows+i] = origIdxs[i] + origGlobalRows;
+  }
+  epetraMap_ = rcp(new Epetra_Map( -1, refRows, &rowIdxs[0], 0, e_origMap->petraMap()->Comm() ) );
+
+  // Count up the number of nonzero entries for the 2x2 block matrix.
+  std::vector<int> refNNZs(refRows);
+  maxRefNNZs_ = 0;
+  for ( int i=0; i<origLocalRows; ++i ) {
     refNNZs[i] = appdQdx->getLocalRowLength(i) + appdFdx->getLocalRowLength(i);
     refNNZs[origLocalRows+i] = refNNZs[i];
     if (refNNZs[i] > maxRefNNZs_) maxRefNNZs_ = refNNZs[i];
   }
-
-  // Create the real equivalent map
-  epetraMap_ = rcp(new Epetra_Map( -1, refRows, &rowIdxs[0], 0, e_origMap->petraMap()->Comm() ) );
-
-  // Epetra graph is being created with static constructor
   epetraGraph_ = rcp(new Epetra_CrsGraph( Copy, *epetraMap_, &refNNZs[0], true ));
 
   // Communicate the maximum number of nonzeros for all processors.
@@ -246,8 +245,8 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     }
     epetraGraph_->InsertGlobalIndices( rowIdxs[origLocalRows+i], refNNZs[origLocalRows+i], &refIdxs2[0] );
   }
-  
   epetraGraph_->FillComplete();
+  epetraGraph_->OptimizeStorage();
 
   int numProcs = comm.numProc();
   int myPID = comm.procID();
@@ -310,31 +309,26 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     MPI_Comm_split( mpiComm.GetMpiComm(), myPID, myPID, &splitComm); 
 
     int n=0, maxLen=serialGraph_[myPID]->MaxNumIndices();
-    std::vector<int> lIdxs( maxLen ), gNnzs( numAll );
-    std::vector< std::vector<int> > gIdxs( numAll );
+    std::vector<int> lIdxs( maxLen ), gIdxs( maxLen );
     Epetra_MpiComm singleComm( splitComm );
     singleMap_ = Teuchos::rcp( new Epetra_Map( numAll, 0, singleComm ) );
+    singleGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *singleMap_, 0 ) );
     for (int i=0; i<numAll; i++)
     {
       serialGraph_[myPID]->ExtractMyRowCopy( i, maxLen, n, &lIdxs[0] );
       for (int j=0; j<n; j++)
       {
-        gIdxs[i].push_back( gidList_[ lIdxs[j] ] );
+        gIdxs[j] = gidList_[ lIdxs[j] ];
       } 
-      gNnzs[i] = n;
+     
+      singleGraph_->InsertGlobalIndices( gidList_[i], n, &gIdxs[0] );
     }
 
-    // Generate Epetra_CrsGraph using a static profile given by gNnzs.
-    singleGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *singleMap_, &gNnzs[0], true ) );
-
-    // Insert values into graph that were collected in gIdxs
-    for (int i=0; i<numAll; i++)
-    {
-      singleGraph_->InsertGlobalIndices( gidList_[i], gNnzs[i], &(gIdxs[i])[0] );
-    }
-
-    // Now the fill is complete.  No need to optimize storage, a static constructor was used.
+    // Now the fill is complete for each graph.
+    //for (int proc = 0; proc < numProcs; ++proc )
+    //   serialGraph_[proc]->FillComplete(); 
     singleGraph_->FillComplete();
+    singleGraph_->OptimizeStorage();
 #endif
   } 
   else
@@ -357,6 +351,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     epetraMatrix_.resize(1);
     epetraMatrix_[0] = Teuchos::rcp( new Epetra_CrsMatrix( Copy, *epetraGraph_ ) );
     epetraMatrix_[0]->FillComplete();
+    epetraMatrix_[0]->OptimizeStorage();
 
     serialVector_ = Teuchos::rcp( new Epetra_MultiVector( *serialEpetraMap_[myPID], 1 ) );
 
@@ -378,6 +373,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     for (int i=0; i<endN_-beginN_; ++i) {
       singleMatrix_[i] = rcp( new Epetra_CrsMatrix( Copy, *singleGraph_ ) );
       singleMatrix_[i]->FillComplete();
+      singleMatrix_[i]->OptimizeStorage();
       epetraProblem_[i] = rcp( new Epetra_LinearProblem( &*singleMatrix_[i], &*singleRHS_, &*singleSoln_ ) );
       amesosPtr_[i] = rcp( amesosFactory.Create( "Klu", *epetraProblem_[i] ) );
       amesosPtr_[i]->SetParameters( params );
@@ -396,6 +392,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     for (int i=0; i<M_+1; ++i) {
       epetraMatrix_[i] = rcp( new Epetra_CrsMatrix( Copy, *epetraGraph_ ) );
       epetraMatrix_[i]->FillComplete();
+      epetraMatrix_[i]->OptimizeStorage();
       epetraProblem_[i] = rcp( new Epetra_LinearProblem( &*epetraMatrix_[i], &*epetraRHS_, &*epetraSoln_ ) );
       amesosPtr_[i] = rcp( amesosFactory.Create( "Klu", *epetraProblem_[i] ) );
       amesosPtr_[i]->SetParameters( params );
