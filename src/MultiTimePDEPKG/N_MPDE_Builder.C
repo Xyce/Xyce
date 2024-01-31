@@ -34,14 +34,11 @@
 #include <N_MPDE_Discretization.h>
 #include <N_MPDE_Manager.h>
 
-#include <Epetra_Map.h>
-#include <Epetra_CrsGraph.h>
-
-#include <N_LAS_EpetraGraph.h>
+#include <N_LAS_Graph.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
-#include <N_PDS_EpetraParMap.h>
+#include <N_LAS_SystemHelpers.h>
 #include <N_PDS_Comm.h>
 
 #include <N_ERH_ErrorMgr.h>
@@ -286,45 +283,17 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BaseGraph )
   BaseGraph_ = rcp( BaseGraph.cloneCopy() );
 
   int BlockSize = BaseMap_->numLocalEntities();
-
-  //Construct MPDE dFdX Graph
-  Teuchos::RCP<Xyce::Parallel::EpetraParMap> e_mpdeMap = Teuchos::rcp_dynamic_cast<Xyce::Parallel::EpetraParMap>(MPDEMap_);
-  Epetra_CrsGraph * epetraMPDEGraph = new Epetra_CrsGraph( Copy,
-                                                           *(e_mpdeMap->petraMap()),
-                                                           0 );
-
   int MaxIndices = BaseGraph_->maxNumIndices();
+  int numLocalRows = MPDEMap_->numLocalEntities();
   std::vector<int> Indices(MaxIndices);
-  int NumIndices;
-  int BaseRow;
-  int MPDERow;
-  for( int i = 0; i < Size_; ++i )
-  {
-    for( int j = 0; j < BlockSize; ++j )
-    {
-      BaseRow = BaseMap_->localToGlobalIndex(j);
-      BaseGraph_->extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
-      for( int k = 0; k < NumIndices; ++k ) Indices[k] += offset_*i;
-      //Diagonal Block
-      MPDERow = BaseRow + offset_*i;
-      epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &Indices[0] );
-    }
-  }
-
-  if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
-  {
-    Xyce::dout() << "Q and F graphs before adding warped terms:" << std::endl
-                 << "MPDEdFdxGraph = [same as MPDEQddxGraph]" << std::endl
-                 << "MPDEdFdxGraph = " << std::endl;
-    epetraMPDEGraph->Print(Xyce::dout());
-  }
-
-  MaxIndices = BaseGraph_->maxNumIndices();
-  Indices.resize(MaxIndices);
-  std::vector<int> NewIndices(MaxIndices);
+  std::vector<int> nnzs(numLocalRows, 0);
+  std::vector<std::vector<int> > allIndices(numLocalRows);
   int DiscStart = Disc_.Start();
   int DiscWidth = Disc_.Width();
   std::vector<int> Cols(DiscWidth);
+  int NumIndices;
+  int BaseRow;
+  int MPDERow, localMPDERow;
   for( int i = 0; i < Size_; ++i )
   {
     for( int j = 0; j < DiscWidth; ++j )
@@ -337,17 +306,23 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BaseGraph )
     for( int j = 0; j < BlockSize; ++j )
     {
       BaseRow = BaseMap_->localToGlobalIndex(j);
-      BaseGraph.extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
-
+      BaseGraph_->extractGlobalRowCopy( BaseRow, MaxIndices, NumIndices, &Indices[0] );
       MPDERow = BaseRow + offset_*i;
+      localMPDERow = MPDEMap_->globalToLocalIndex( MPDERow );
+
       for( int k = 0; k < DiscWidth; ++k )
       {
         int Shift = Cols[k]*offset_;
-        for( int kk = 0; kk < NumIndices; ++kk ) NewIndices[kk] = Indices[kk] + Shift;
-        epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
+        for( int kk = 0; kk < NumIndices; ++kk )
+          allIndices[localMPDERow].push_back( Indices[kk] + Shift );
       }
+
+      //Diagonal Block
+      for( int k = 0; k < NumIndices; ++k )
+        allIndices[localMPDERow].push_back( Indices[k] + offset_*i );
     }
   }
+
   if (warpMPDE_)
   {
     // tscoffe 01/15/07 This block adds dependence on omega in the dFdx matrix everywhere that q is nonzero.
@@ -359,46 +334,48 @@ bool N_MPDE_Builder::generateGraphs( const Xyce::Linear::Graph & BaseGraph )
       {
         BaseRow = BaseMap_->localToGlobalIndex(j);
         MPDERow = BaseRow + offset_*i;
-        NumIndices = 1;
-        NewIndices[0] = omegaGID_; 
-        epetraMPDEGraph->InsertGlobalIndices( MPDERow, NumIndices, &NewIndices[0] );
+        localMPDERow = MPDEMap_->globalToLocalIndex( MPDERow );
+        allIndices[localMPDERow].push_back( omegaGID_ );
       }
     }
+
     if ( BaseMap_->pdsComm().procID() == augProcID_ )
     {
-      NumIndices = 1;
-      Indices[0] = phiGID_;
-      epetraMPDEGraph->InsertGlobalIndices( phiGID_, NumIndices, &Indices[0] );
+      // Enter graph details for phi:  \dot{phi(t_1)} = omega(t_1)
+      localMPDERow = MPDEMap_->globalToLocalIndex( phiGID_ );
+      allIndices[localMPDERow].push_back( phiGID_ );
+      allIndices[localMPDERow].push_back( omegaGID_ );
 
       Teuchos::RCP<std::vector<int> > phaseGraph = warpMPDEPhasePtr_->getPhaseGraph();
-      NumIndices = phaseGraph->size();
-      epetraMPDEGraph->InsertGlobalIndices( omegaGID_, NumIndices, &((*phaseGraph)[0]) );
+      localMPDERow = MPDEMap_->globalToLocalIndex( omegaGID_ );
+      allIndices[localMPDERow].insert( allIndices[localMPDERow].end(), phaseGraph->begin(), phaseGraph->end() );
 
       // An (omegaGID, omegaGID) entry must be inserted if not done by the phase graph.
       // This is because when the augmented column is loaded, an entry is expected for each
       // row of column omegaGID.
       bool isOmegaCol = false;
-      for (int i=0; i<NumIndices; ++i)
+      for (int i=0; i<phaseGraph->size(); ++i)
       {
         if ((*phaseGraph)[i] == omegaGID_)
           isOmegaCol = true;
       }
 
-      // Enter graph details for phi:  \dot{phi(t_1)} = omega(t_1)
-      NumIndices = 1;
-      NewIndices.clear();
-      NewIndices.push_back(omegaGID_);
-      epetraMPDEGraph->InsertGlobalIndices( phiGID_, NumIndices, &NewIndices[0] );
-
       // Add (omegaGID, omegaGID) entry if one doesn't already exist.
       if (!isOmegaCol) 
-        epetraMPDEGraph->InsertGlobalIndices( omegaGID_, NumIndices, &NewIndices[0] );
+      {
+        localMPDERow = MPDEMap_->globalToLocalIndex( omegaGID_ );
+        allIndices[localMPDERow].push_back( omegaGID_ );
+      }
     }
   }
-  epetraMPDEGraph->FillComplete();
-  epetraMPDEGraph->OptimizeStorage();
+  for (int i=0; i<numLocalRows; ++i)
+  {
+    std::sort( allIndices[i].begin(), allIndices[i].end() );
+    allIndices[i].erase( std::unique( allIndices[i].begin(), allIndices[i].end() ), allIndices[i].end() );
+    nnzs[i] = allIndices[i].size();
+  }
 
-  MPDEGraph_ = rcp(new Xyce::Linear::EpetraGraph( rcp( epetraMPDEGraph ) ) );
+  MPDEGraph_ = rcp( Xyce::Linear::createGraph( *MPDEMap_, *MPDEMap_, nnzs, allIndices ) );
   
   if (DEBUG_MPDE && Xyce::isActive(Xyce::Diag::MPDE_PARAMETERS))
   {  
