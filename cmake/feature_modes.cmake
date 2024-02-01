@@ -101,10 +101,13 @@ set(Xyce_DEBUG_TESTJAC             FALSE CACHE BOOL "Enable debug output for the
 set(Xyce_USE_BSIM3_CONST           FALSE CACHE BOOL "Use constants from BSIM3 model")
 
 # Include the optional directories
-
-if ((Xyce_ADMS_MODELS OR NOT DEFINED Xyce_ADMS_MODELS) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/ADMS")
+if (NOT DEFINED Xyce_ADMS_MODELS_DIR) 
+     set (Xyce_ADMS_MODELS_DIR "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/ADMS" CACHE STRING "Search path for ADMS Models")
+     message(DEBUG "Setting default search path for Xyce ADMS Models - ${Xyce_ADMS_MODELS_DIR}")
+endif ()
+if ((Xyce_ADMS_MODELS OR NOT DEFINED Xyce_ADMS_MODELS) AND EXISTS "${Xyce_ADMS_MODELS_DIR}")
      set (Xyce_ADMS_MODELS TRUE CACHE BOOL "Include the ADMS directory, if it exists")
-     message(STATUS "Including the src/DeviceModelPKG/ADMS model directory")
+     message(STATUS "Including the ${Xyce_ADMS_MODELS_DIR} model directory")
 
      # Compilation can be sped up by disabling the analytic sensitivities in
      # the ADMS-generated devices. Default to enabling the capability.
@@ -116,18 +119,22 @@ elseif (NOT DEFINED Xyce_ADMS_MODELS)
      set (Xyce_ADMS_MODELS FALSE CACHE BOOL "Include the ADMS directory, if it exists")
 elseif (NOT Xyce_ADMS_MODELS)
      # The flag was set to FALSE; the directory may or may not exist
-     message(STATUS "NOT including the src/DeviceModelPKG/ADMS model directory")
+     message(STATUS "NOT including the ${Xyce_ADMS_MODELS_DIR} model directory")
      set (Xyce_ADMS_MODELS FALSE CACHE BOOL "Include the ADMS directory, if it exists")
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_ADMS_MODELS FALSE CACHE BOOL "Include the ADMS directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/ADMS directory does not exist - "
+     message("The ${Xyce_ADMS_MODELS_DIR} directory does not exist - "
           "changing Xyce_ADMS_MODELS to FALSE")
 endif ()
 
-if ((Xyce_NEURON_MODELS OR NOT DEFINED Xyce_NEURON_MODELS) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/NeuronModels")
+if (NOT DEFINED Xyce_NEURON_MODELS_DIR)
+     set (Xyce_NEURON_MODELS_DIR "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/NeuronModels" CACHE STRING "Search path for Neuron Models")
+     message(DEBUG "Setting default search path for Xyce Neuron Models - ${Xyce_NEURON_MODELS_DIR}")
+endif ()
+if ((Xyce_NEURON_MODELS OR NOT DEFINED Xyce_NEURON_MODELS) AND EXISTS "${Xyce_NEURON_MODELS_DIR}")
      set (Xyce_NEURON_MODELS TRUE CACHE BOOL "Include the Neuron directory, if it exists")
-     message(STATUS "Including the src/DeviceModelPKG/NeuronModels model directory")
+     message(STATUS "Including the ${Xyce_NEURON_MODELS_DIR} model directory")
 elseif (NOT DEFINED Xyce_NEURON_MODELS)
      # The flag was not set, and the directory does not exist
      # Silently add the flag
@@ -135,17 +142,21 @@ elseif (NOT DEFINED Xyce_NEURON_MODELS)
 elseif (NOT Xyce_NEURON_MODELS)
      # The flag was set to FALSE; the directory may or may not exist
      set (Xyce_NEURON_MODELS FALSE CACHE BOOL "Include the Neuron directory, if it exists")
-     message(STATUS "NOT including the src/DeviceModelPKG/NeuronModels model directory")
+     message(STATUS "NOT including the ${Xyce_NEURON_MODELS_DIR} model directory")
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_NEURON_MODELS FALSE CACHE BOOL "Include the Neuron directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/NeuronModels directory does not exist - "
+     message("The ${Xyce_NEURON_MODELS_DIR} directory does not exist - "
           "changing Xyce_NEURON_MODELS to FALSE.")
 endif ()
 
-if ((Xyce_NONFREE_MODELS OR NOT DEFINED Xyce_NONFREE_MODELS) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/Xyce_NonFree")
+if (NOT DEFINED Xyce_NONFREE_MODELS_DIR)
+     set (Xyce_NONFREE_MODELS_DIR "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/Xyce_NonFree" CACHE STRING "Search path for Non-Free Models")
+     message(DEBUG "Setting default search path for Xyce Non-Free Models - ${Xyce_NONFREE_MODELS_DIR}")
+endif ()
+if ((Xyce_NONFREE_MODELS OR NOT DEFINED Xyce_NONFREE_MODELS) AND EXISTS "${Xyce_NONFREE_MODELS_DIR}")
      set (Xyce_NONFREE_MODELS TRUE CACHE BOOL "Include the NonFree directory, if it exists")
-     message(STATUS "Including the src/DeviceModelPKG/Xyce_NonFree model directory")
+     message(STATUS "Including the ${Xyce_NONFREE_MODELS_DIR} model directory")
 elseif (NOT DEFINED Xyce_NONFREE_MODELS)
      # The flag was not set, and the directory does not exist
      # Silently add the flag (is this even necessary?)
@@ -153,36 +164,40 @@ elseif (NOT DEFINED Xyce_NONFREE_MODELS)
 elseif (NOT Xyce_NONFREE_MODELS)
      # The flag was set to FALSE; the directory may or may not exist
      set (Xyce_NONFREE_MODELS FALSE CACHE BOOL "Include the NonFree directory, if it exists")
-     message(STATUS "NOT including the src/DeviceModelPKG/Xyce_NonFree model directory")
+     message(STATUS "NOT including the ${Xyce_NONFREE_MODELS_DIR} model directory")
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_NONFREE_MODELS FALSE CACHE BOOL "Include the NonFree directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/NonFree directory does not exist - "
+     message("The ${Xyce_NONFREE_MODELS_DIR} directory does not exist - "
           "changing Xyce_NONFREE_MODELS to FALSE.")
 endif ()
 
-if ((Xyce_RAD_MODELS OR NOT DEFINED Xyce_RAD_MODELS) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels")
+if (NOT DEFINED Xyce_RAD_MODELS_DIR)
+     set (Xyce_RAD_MODELS_DIR "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels" CACHE STRING "Search path for Sandia Models")
+     message(DEBUG "Setting default search path for Xyce Sandia Models - ${Xyce_RAD_MODELS_DIR}")
+endif ()
+if ((Xyce_RAD_MODELS OR NOT DEFINED Xyce_RAD_MODELS) AND EXISTS "${Xyce_RAD_MODELS_DIR}")
      set (Xyce_RAD_MODELS TRUE CACHE BOOL "Include the SandiaModels directory, if it exists")
-     message(STATUS "Including the src/DeviceModelPKG/SandiaModels model directory")
+     message(STATUS "Including the ${Xyce_RAD_MODELS_DIR} model directory")
 elseif (NOT DEFINED Xyce_RAD_MODELS)
      # The flag was not set, and the directory does not exist
      # Silently add the flag (is this even necessary?)
      set (Xyce_RAD_MODELS FALSE CACHE BOOL "Include the SandiaModels directory, if it exists")
 elseif (NOT Xyce_RAD_MODELS)
      # The flag was set to FALSE; the directory may or may not exist
-     message(STATUS "NOT including the src/DeviceModelPKG/SandiaModels model directory")
+     message(STATUS "NOT including the ${Xyce_RAD_MODELS_DIR} model directory")
      set (Xyce_RAD_MODELS FALSE CACHE BOOL "Include the SandiaModels directory, if it exists")
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_RAD_MODELS FALSE CACHE BOOL "Include the SandiaModels directory, if it exists" FORCE)
-     message("The src/DeviceModelPKG/SandiaModels directory does not exist - "
+     message("The ${Xyce_RAD_MODELS_DIR} directory does not exist - "
           "changing Xyce_RAD_MODELS to FALSE.")
 endif ()
 
 # This logic could be in tps.cmake, since it's looking for Boost; but this is
 # fine for now
 if (Xyce_RAD_MODELS)
-     if ((Xyce_ATHENA OR NOT DEFINED Xyce_ATHENA) AND EXISTS "${PROJECT_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels/ATHENA")
+     if ((Xyce_ATHENA OR NOT DEFINED Xyce_ATHENA) AND EXISTS "${Xyce_RAD_MODELS_DIR}/ATHENA")
           message(STATUS "Looking for Boost")
           find_package(Boost)
           if (Boost_FOUND)
@@ -199,13 +214,18 @@ if (Xyce_RAD_MODELS)
           set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists")
      elseif (NOT Xyce_ATHENA)
           # The flag was set to FALSE; the directory may or may not exist
-          message(STATUS "NOT including the src/DeviceModelPKG/SandiaModels/ATHENA model directory")
+          message(STATUS "NOT including the ${Xyce_RAD_MODELS_DIR}/ATHENA model directory")
           set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists")
      else ()
           # The flag was set to TRUE, but the directory doesn't exist
           set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists" FORCE)
-          message("The src/DeviceModelPKG/SandiaModels/ATHENA directory does not exist - "
+          message("The ${Xyce_RAD_MODELS_DIR}/ATHENA directory does not exist - "
                "changing Xyce_ATHENA to FALSE.")
      endif ()
+else ()
+     # The RAD models flag was set to FALSE
+     # Add the ATHENA flag if it does not exist and set it to false
+     message(STATUS "NOT including the ${Xyce_RAD_MODELS_DIR}/ATHENA model directory\n"
+     "        (Xyce_RAD_MODELS must be enabled to include ATHENA)")
+     set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists" FORCE)
 endif ()
-
