@@ -35,6 +35,8 @@ B3SOIVOLTLIM & BSIMSOI3 Voltage limiting.  This flag is similar to VOLTLIM, exce
   applies to the BSIMSOI version 3  (the newer versions of the BSIM SOI do not have voltage limiting).  
   Turning this off will often improve numerical robustness.  Unlike VOLTLIM, turning this off 
   does not disable the initial condition code in the BSIMSOI model.  & 1 (TRUE) \\ \hline
+B3SOIGMINSCALING & This flag enables scaling of gmin in the BSIMSOI version 3 device model. When
+it is enabled, a scaling factor of 1e-6 is applied to the gmin value. & 1 (TRUE) \\ \hline
 
 \debug{icFac} 
 & \debug{This is a multiplicative factor which is applied to right-hand side vector loads of 
