@@ -121,9 +121,6 @@ public:
   void extractLocalRowView(int localRow, int& numIndices, int*& indices) const
   { epetraGraph_->ExtractMyRowView( localRow, numIndices, indices ); }
 
-  void insertGlobalIndices(int globalRow, int numIndices, int* indices)
-  { epetraGraph_->InsertGlobalIndices( globalRow, numIndices, indices ); }
-
   //Accumulate off processor fill contributions if necessary
   void fillComplete()
   {

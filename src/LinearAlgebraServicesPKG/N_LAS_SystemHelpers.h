@@ -68,12 +68,6 @@ Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph );
 
-Graph* createGraph( const Parallel::ParMap & map,
-                    const std::vector<int>& numIndicesPerRow );
-
-Graph* createGraph( const Parallel::ParMap & map,
-                    int maxNumIndicesPerRow );
-
 Graph* createGraph( const Parallel::ParMap & solution_overlap,
                     const Parallel::ParMap & solution_overlap_ground,
                     const std::vector<int>& numIndicesPerRow,

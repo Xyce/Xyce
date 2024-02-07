@@ -103,9 +103,6 @@ public:
   // Get a pointer to the local row with local IDs
   virtual void extractLocalRowView(int localRow, int& numIndices, int*& indices) const = 0;
 
-  // Insert indices into the graph with global IDs
-  virtual void insertGlobalIndices(int globalRow, int numIndices, int* indices) = 0;
-
   // Accumulate off processor fill contributions if necessary
   virtual void fillComplete() = 0;
 

@@ -95,18 +95,6 @@ Matrix* createMatrix( const Graph* overlapGraph,
   return new EpetraMatrix( overlapGraph, baseGraph );
 }
 
-Graph* createGraph( const Parallel::ParMap & map, 
-                    const std::vector<int>& numIndicesPerRow )
-{
-  return new EpetraGraph( map, numIndicesPerRow );
-}
-
-Graph* createGraph( const Parallel::ParMap & map,
-                    int maxNumIndicesPerRow )
-{
-  return new EpetraGraph( map, maxNumIndicesPerRow );
-}
-
 Graph* createGraph( const Parallel::ParMap & solution_overlap,
                     const Parallel::ParMap & solution_overlap_ground,
                     const std::vector<int>& numIndicesPerRow,
