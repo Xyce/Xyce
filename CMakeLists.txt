@@ -8,13 +8,6 @@ if(Xyce_USE_SUPERBUILD)
   return()
 endif()
 
-# Xyce should use the same compilers as Trilinos.  To ensure this, Trilinos
-# should be loaded before "project" is called.  However, "project" probes the
-# system and sets up some critical variables.  Therefore, make an initial call
-# to "project" with "NONE" as the compiler set, then find Trilinos, then set up
-# the compilers and call project again.
-project(Xyce CXX C)
-
 # A TriBITS project that performs a coupled build with Trilinos, like Charon,
 # changes the names of all the Trilinos variables.  Therefore, we have to jump
 # through a bunch of hoops to take that use case into account.  Here we set a
@@ -49,6 +42,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(APPLE)
   list(APPEND CMAKE_INSTALL_RPATH "@loader_path/../lib")
+
+  # set the OSX toolkit version to be consistent with trilinos build
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.5" CACHE STRING "" FORCE)
 else()
   list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()

@@ -7,6 +7,8 @@
 #   -DBUILD_DIR=<subdirectory in which to actually build trilinos>
 #   -DBUILD_NAME=<name of build to be displayed on dashboard>
 #   -DCMAKE_ARGS_LIST="-DVAR1=VAL1;-DVAR2=VAL2;..."  # arguments to pass directly to cmake
+#   -DSITE_APPEND=<string to append to the site variable, "TrilinosDev" for example>
+#   -DOSX_TOOLKIT_VERSION=<toolkit version (see Xyce root CMakeLists.txt for value)>
 
 if(NOT VERBOSITY)
   set(VERBOSIT 0)
@@ -15,6 +17,12 @@ endif()
 cmake_minimum_required(VERSION 3.23)
 
 set(CTEST_PROJECT_NAME "Xyce")
+
+# you need this to match the one you'll be using when building xyce so
+# if pass it in if it's not the default as set below
+if(NOT DEFINED OSX_TOOLKIT_VERSION)
+  set(OSX_TOOLKIT_VERSION "12.5")
+endif()
 
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
@@ -55,7 +63,11 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-set(CTEST_SITE "${CTEST_SITE} TrilinosDev")
+if(NOT DEFINED SITE_APPEND)
+  set(CTEST_SITE "${CTEST_SITE} TrilinosDev")
+else()
+  set(CTEST_SITE "${CTEST_SITE} ${SITE_APPEND}")
+endif()
 if(VERBOSITY GREATER 0)
   message("[VERB]: CTEST_SITE = ${CTEST_SITE}")
 endif()
@@ -120,6 +132,10 @@ endforeach()
 foreach(VARARG ${CMAKE_ARGS_LIST})
   set(CMAKE_COMMAND_OPTS "${CMAKE_COMMAND_OPTS} ${VARARG}")
 endforeach()
+
+# add the toolkit version
+set(CMAKE_COMMAND_OPTS "${CMAKE_COMMAND_OPTS} -DCMAKE_OSX_DEPLOYMENT_TARGET=${OSX_TOOLKIT_VERSION}")
+
 if(VERBOSITY GREATER 2)
   message("[VERB]: CMAKE_COMMAND_OPTS = ${CMAKE_COMMAND_OPTS}")
 endif()
