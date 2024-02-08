@@ -30,6 +30,11 @@
   &  Details
   \\\hline
 
+\textbf{Xyce Project Backlog/729}: 
+Expression-based objective functions for .SENS conflate I(VA) with V(VA) (nodes and devices w/ same names)
+& Sensitivity analysis had a bug related to the naming of circuit variables in the objective function.
+If a circuit had a voltage source and a voltage node of the same name, the expression capability could not differentiate between the two, and could choose the wrong one.  This has been fixed. \\ \hline
+
 \textbf{Xyce Project Backlog/740}: Adjoint, output, and user-provided breakpoints present a scaling issue for
 extremely long lists & A user can request output using \texttt{.options output}
 in the form of a list of time points.  If this list was very long (10k+ values),
