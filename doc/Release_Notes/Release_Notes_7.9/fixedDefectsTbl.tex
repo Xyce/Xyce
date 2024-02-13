@@ -41,5 +41,17 @@ in the form of a list of time points.  If this list was very long (10k+ values),
 then processing the list would result in a substantial slowdown in the setup time of the 
 simulation.  This has been fixed. \\ \hline
 
+\textbf{Xyce Project Backlog/767}: Location of device model repositories 
+should be optional & When building Xyce from source with CMake, the 
+location of optional device model packages can now be specifed as 
+configuration parameters. The new parameter options and their 
+associated default values are given below as \texttt{parameter name} 
+\texttt{(default value)}. \newline
+\texttt{Xyce\_ADMS\_MODELS\_DIR} \texttt{(\$\{PROJECT\_SOURCE\_DIR\}/src/DeviceModelPKG/ADMS)} \newline
+\texttt{Xyce\_NEURON\_MODELS\_DIR} \texttt{(\$\{PROJECT\_SOURCE\_DIR\}/src/DeviceModelPKG/NeuronModels)} \newline
+\texttt{Xyce\_NONFREE\_MODELS\_DIR} \texttt{(\$\{PROJECT\_SOURCE\_DIR\}/src/DeviceModelPKG/Xyce\_NonFree)} \newline
+\texttt{Xyce\_RAD\_MODELS\_DIR} \texttt{(\$\{PROJECT\_SOURCE\_DIR\}/src/DeviceModelPKG/SandiaModels)} \newline
+\\ \hline
+
 \end{longtable}
 }
