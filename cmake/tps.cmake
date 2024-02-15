@@ -546,8 +546,8 @@ endif()
 
 # Find flex and Bison
 message(STATUS "Looking for flex and Bison")
-find_package(FLEX REQUIRED)
-find_package(BISON 3.0.4 REQUIRED)
+find_package(FLEX 2.6 REQUIRED)
+find_package(BISON 3.3 REQUIRED)
 
 # Find CURL
 if (Xyce_USE_CURL)

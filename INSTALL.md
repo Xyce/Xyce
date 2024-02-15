@@ -69,13 +69,13 @@ your system:
   + Some package managers bundle Fortran with the C and C++ compilers.
   + Trilinos has Fortran code, but leveraging it is technically
     [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code).
-    Not using the Fortran code, though, could result in slightly lower performance.
+    Not using the Fortran code, though, could result in slower performance.
   + Xyce, itself, does not use Fortran.
 - Build system (e.g., [Make](https://www.gnu.org/software/make/),
   [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom))
-- [CMake](https://cmake.org) (3.17 or later)
-- [Bison](https://www.gnu.org/software/bison) (3.0.4 or later)
-- [flex](https://github.com/westes/flex) (2.5.34 or later)
+- [CMake](https://cmake.org) (3.22 or later)
+- [Bison](https://www.gnu.org/software/bison) (3.3 or later)
+- [flex](https://github.com/westes/flex) (2.6 or later)
 
 You will also need the following libraries:
 - [BLAS](http://www.netlib.org/blas)
@@ -157,7 +157,7 @@ To build Trilinos on Windows, see the Windows section under
 [System-Specific Modifications](#system-specific-modifications).
 
 The following process will produce a serial Trilinos installation that will
-contain only the libraries needed by Xyce. For the parallel version, be sure to
+contain only the libraries needed by Xyce. For the parallel variant, be sure to
 understand the serial build process prior to reading the [Building Trilinos
 with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section, below.
 
