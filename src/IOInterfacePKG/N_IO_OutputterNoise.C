@@ -103,6 +103,74 @@ void enableNoiseOutput(Parallel::Machine comm, OutputMgr &output_manager, Analys
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : printNoiseHeader
+// Purpose       : Given print parameters and a stream, print the header
+// Special Notes : top level function
+// Scope         : file-local
+// Creator       : David Baur, Raytheon
+// Creation Date :
+//-----------------------------------------------------------------------------
+std::ostream &printNoiseHeader(std::ostream &os, const PrintParameters &print_parameters)
+{
+  //return printNoiseHeader(os, print_parameters.table_.columnList_, print_parameters.delimiter_);
+//std::ostream &printNoiseHeader(std::ostream &os, const Table::ColumnList &column_list, const std::string &delimiter)
+//{
+  const Table::ColumnList &column_list = print_parameters.table_.columnList_;
+  const std::string &delimiter = print_parameters.delimiter_;
+
+  for (Table::ColumnList::const_iterator it = column_list.begin(); it != column_list.end(); ++it)
+  {
+    if (it != column_list.begin())
+      os << (delimiter.empty() ? " " : delimiter);
+
+    // curly braces for scoping ...
+    {
+      const Table::Column &column = (*it);
+
+      std::string name;
+      
+      name = column.name_;
+      if (name == "INDEX")
+        name = "Index";
+
+      size_t left_padding = 0;
+      size_t right_padding = 0;
+
+      if (column.width_ > name.size())
+      {
+        switch (column.justification_)
+        {
+          case Table::JUSTIFICATION_LEFT:
+            right_padding = column.width_ - left_padding - name.size();
+            break;
+          case Table::JUSTIFICATION_CENTER:
+            left_padding = (column.width_ - name.size())/2;
+            right_padding = column.width_ - left_padding - name.size();
+            break;
+          case Table::JUSTIFICATION_RIGHT:
+            left_padding = column.width_ - name.size();
+            break;
+          case Table::JUSTIFICATION_NONE:
+            // this empty case is here just to shut up warnings from clang about unhandled enum cases
+            break;
+        }
+      }
+
+      if (delimiter == ",")
+      {
+        os << std::setw(left_padding) << "" << std::setw(0) << "\"" << name << "\"" << std::setw(right_padding) << "";
+      }
+      else
+      {
+        os << std::setw(left_padding) << "" << std::setw(0) << name << std::setw(right_padding) << "";
+      }
+    }
+  }
+  os << std::endl;
+  return os;
+}
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce

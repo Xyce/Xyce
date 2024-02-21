@@ -152,17 +152,31 @@ OutputMgr::OutputMgr(
     dcLoopNumber_(0),
     maxDCSteps_(0)
 {
-  if (command_line.getArgumentValue("-delim") == "TAB")
+  if (command_line.argExists("-delim"))
   {
-    defaultPrintParameters_.delimiter_ = "\t";
-  }
-  else if (command_line.getArgumentValue("-delim") == "COMMA")
-  {
-    defaultPrintParameters_.delimiter_ = ",";
-  }
-  else
-  {
-    defaultPrintParameters_.delimiter_ = command_line.getArgumentValue("-delim");
+    defaultPrintParameters_.delimiterGiven_ = true;
+    std::string s = command_line.getArgumentValue("-delim");
+
+    if (command_line.getArgumentValue("-delim") == "TAB")
+    {
+      defaultPrintParameters_.delimiter_ = "\t";
+    }
+    else if (command_line.getArgumentValue("-delim") == "COMMA")
+    {
+      defaultPrintParameters_.delimiter_ = ",";
+    }
+    else if (command_line.getArgumentValue("-delim") == "COLON")
+    {
+      defaultPrintParameters_.delimiter_ = ":";
+    }
+    else if (command_line.getArgumentValue("-delim") == "SEMICOLON")
+    {
+      defaultPrintParameters_.delimiter_ = ";";
+    }
+    else
+    {
+      defaultPrintParameters_.delimiter_ = command_line.getArgumentValue("-delim");
+    }
   }
 
   if (command_line.argExists("-a"))
@@ -1487,7 +1501,6 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       else if (s == "CSV")
       {
         format = Format::CSV;
-        print_parameters.delimiter_ = ",";
       }
       else if (s == "RAW")
       {
@@ -1555,15 +1568,29 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     }
     else if (iterParam->tag() == "DELIMITER")
     {
-      if (iterParam->stringValue() == "TAB")
+      print_parameters.delimiterGiven_ = true;
+      std::string s = iterParam->stringValue();
+      if (s == "TAB")
       {
         print_parameters.delimiter_ = "\t";
       }
-      else if (iterParam->stringValue() == "COMMA")
+      else if (s == "COMMA")
       {
         print_parameters.delimiter_ = ",";
       }
-      else if (iterParam->stringValue() != "")
+      else if (s == "COLON")
+      {
+        print_parameters.delimiter_ = ":";
+      }
+      else if (s == "SEMICOLON")
+      {
+        print_parameters.delimiter_ = ";";
+      }
+      else if (s[0] == '\"' && s.size() == 3)
+      {
+        print_parameters.delimiter_ = s[1];
+      }
+      else if (s != "")
       {
         Report::UserWarning0() << "Invalid value of DELIMITER in .PRINT statment, ignoring";
       }
@@ -1584,6 +1611,14 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       // This must be the first print variable.
       break;
+    }
+  }
+
+  if ( print_parameters.format_ == Format::CSV)
+  {
+    if ( (print_parameters.delimiter_ == "")  )
+    {
+      print_parameters.delimiter_ = ",";
     }
   }
 
@@ -4197,7 +4232,7 @@ bool extractLINData(
          if ( parameterPtr != NULL )
          {
            if (parameterPtr->tag() == "DELIMITER")
-	   {
+           {
              // DELIMITER parameter is not supported for the Touchstone formats.
              Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
                << "DELIMITER parameter not supported on .LIN line";

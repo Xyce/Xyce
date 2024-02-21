@@ -37,6 +37,7 @@
 
 #include <Xyce_config.h>
 
+#include <N_IO_OutputterNoise.h>
 #include <N_IO_OutputterNoiseCSV.h>
 #include <N_IO_OutputMgr.h>
 #include <N_IO_Op.h>
@@ -104,28 +105,7 @@ void NoiseCSV::noiseHeader()
 {
   if (os_ && currentStep_ == 0)
   {
-    int column_index = 0;
-    for (Table::ColumnList::const_iterator
-        it = printParameters_.table_.columnList_.begin();
-        it != printParameters_.table_.columnList_.end();
-        ++it, ++column_index)
-    {
-      if (it != printParameters_.table_.columnList_.begin())
-      {
-        *os_ << (printParameters_.delimiter_.empty() ? " " : printParameters_.delimiter_);
-      }
-      printHeader(*os_, (*it));
-    }
-
-    for (Table::ColumnList::const_iterator it2 = columnList_.begin(); it2 != columnList_.end(); ++it2)
-    {
-      if (it2 != columnList_.begin())
-      {
-        *os_ << printParameters_.delimiter_;
-      }
-      printHeader(*os_, (*it2));
-    }
-    *os_ << std::endl;
+    printNoiseHeader(*os_, printParameters_);
   }
 }
 
@@ -158,7 +138,7 @@ void NoiseCSV::doOutputNoise(
                                   printParameters_.fallback_);
     os_ = outputManager_.openFile(outFilename_);
 
-    printHeader(*os_, printParameters_);
+    printNoiseHeader(*os_, printParameters_);
   }
 
   std::vector<complex> result_list;

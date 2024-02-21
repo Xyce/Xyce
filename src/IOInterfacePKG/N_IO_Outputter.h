@@ -193,6 +193,7 @@ struct PrintParameters
       streamPrecision_(9),
       timeWidth_(8),
       delimiter_(),
+      delimiterGiven_(false),
       outputTimeScaleFactor_(1.0),
       filter_(0.0),
       expandComplexTypes_(false),
@@ -227,6 +228,7 @@ struct PrintParameters
       streamPrecision_(print_parameters.streamPrecision_),
       timeWidth_(print_parameters.timeWidth_),
       delimiter_(print_parameters.delimiter_),
+      delimiterGiven_(print_parameters.delimiterGiven_),
       outputTimeScaleFactor_(print_parameters.outputTimeScaleFactor_),
       filter_(print_parameters.filter_),
       expandComplexTypes_(print_parameters.expandComplexTypes_),
@@ -262,6 +264,7 @@ struct PrintParameters
     streamPrecision_ = print_parameters.streamPrecision_;
     timeWidth_ = print_parameters.timeWidth_;
     delimiter_ = print_parameters.delimiter_;
+    delimiterGiven_ = print_parameters.delimiterGiven_;
     outputTimeScaleFactor_ = print_parameters.outputTimeScaleFactor_;
     filter_ = print_parameters.filter_;
     expandComplexTypes_ = print_parameters.expandComplexTypes_;
@@ -302,6 +305,7 @@ public:
   int                           streamPrecision_;               ///< Column precision
   int                           timeWidth_;                     ///< Really?
   std::string                   delimiter_;                     ///< Delimiter
+  bool                          delimiterGiven_;                ///< Delimiter given flag
   double                        outputTimeScaleFactor_;         ///< Output time in something other than seconds (such as milli-seconds)
   double                        filter_;
   bool                          expandComplexTypes_;            ///< For example, output V(1) as two columns, Re(V(1)) and Im(V(1))

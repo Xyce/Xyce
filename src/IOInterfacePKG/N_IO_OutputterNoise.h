@@ -46,6 +46,10 @@ namespace Outputter {
 
 void enableNoiseOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis::Mode analysis_mode);
 
+std::ostream &printNoiseHeader(std::ostream &os, const PrintParameters &print_parameters);
+
+
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce
