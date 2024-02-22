@@ -40,7 +40,8 @@ supports several options for each.
 + [WIDTH=<print field width>]
 + [PRECISION=<floating point output precision>]
 + [FILTER=<absolute value below which a number outputs as 0.0>]
-+ [DELIMITER=<TAB|COMMA>] [TIMESCALEFACTOR=<real scale factor>]
++ [DELIMITER=<TAB|COMMA|SEMICOLON|COLON|"string">] 
++ [TIMESCALEFACTOR=<real scale factor>]
 + [OUTPUT\_SAMPLE\_STATS=<boolean>] [OUTPUT\_ALL\_SAMPLES=<boolean>]
 + <output variable> [output variable]*
 \end{alltt}
@@ -136,10 +137,12 @@ Number of floating point digits past the decimal for output data.
 Used to specify the absolute value below which output variables will be
 printed as \texttt{0.0}.
 
-\argument{DELIMITER=<TAB|COMMA>}
+\argument{DELIMITER=<TAB|COMMA|SEMICOLON|COLON|"string">}
 
-Used to specify an alternate delimiter in the STD or NOINDEX format
-output.
+Used to specify an alternate delimiter in the STD, NOINDEX, GNUPLOT or CSV format
+output.  In addition to \texttt{TAB}, \texttt{COMMA}, \texttt{SEMICOLON} and 
+\texttt{COLON}, the delimiter can also be specified using a quoted 
+character string.  When this option is used, that string is the delimiter.
 
 \argument{TIMESCALEFACTOR=<real scale factor>}
 

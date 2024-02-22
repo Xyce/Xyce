@@ -76,9 +76,9 @@ Table~\ref{Print_Commands} gives the various options available to the
     \rowcolor{XyceDarkBlue} \color{white}\bf Option\ldots &
     \color{white}\bf Action\ldots \\ \hline
 
-    \texttt{FORMAT=}\newline \texttt{<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV>} &
-    Controls the output format.  See Table~\ref{Print_Format}.  The {\em
-      default} is \texttt{STD}. \\ \hline
+    \texttt{FORMAT=<format>} &
+    Controls the output file format.  See Table~\ref{Print_Format} for a comprehensive list.  
+      The {\em default} is \texttt{STD}. \\ \hline
 
     \texttt{FILE=<filename>} & Output filename. The {\em default} is the
     netlist filename with ``\texttt{.prn}'' appended. \newline 
@@ -88,14 +88,14 @@ Table~\ref{Print_Commands} gives the various options available to the
 
     \texttt{WIDTH=<field-width>} & Column width for the output data \\ \hline
 
-    \texttt{PRECISION=<floating-point-precision>} & Number of
+    \texttt{PRECISION=}\newline \texttt{<floating-point-precision>} & Number of
     significant digits past the decimal point \\ \hline
 
     \texttt{FILTER=<floor-value>} & Absolute value below which output
     variables will be printed as 0.0 \\ \hline
 
-    \texttt{DELIMITER=<TAB|COMMA>} & Alternate delimiter between columns
-    of output in the \texttt{STD} output format. The default is spaces.\\ \hline
+    \texttt{DELIMITER=<delimiter>} & Alternate delimiter between columns
+    of output in the \texttt{STD}, \texttt{NOINDEX}, \texttt{GNUPLOT} or \texttt{CSV} output formats. The default for \texttt{STD}, \texttt{NOINDEX} and \texttt{GNUPLOT} is spaces. The default for \texttt{CSV} is commas. See table~\ref{Print_Delimiter} for a comprehensive list. \\ \hline
 
   \end{tabularx}
 
@@ -121,6 +121,25 @@ Table~\ref{Print_Format} gives the various output formats available to the
     \texttt{GNUPLOT} & Output data in standard columns, with improved Gnuplot compatibility for \texttt{.STEP} data. \\ \hline
   \end{tabularx}
 
+\end{table}
+
+Table~\ref{Print_Delimiter} gives the various output delimiters available to the
+\texttt{.PRINT} command. The \texttt{DELIMITER} parameter will modify formats consisting of simple column data, including the \texttt{STD}, \texttt{NOINDEX}, \texttt{GNUPLOT} and \texttt{CSV} formats.
+\begin{table}[!htb]
+  \caption[.PRINT DELIMITER options.]{.PRINT DELIMITER options.}
+\label{Print_Delimiter}
+  \index{results!print format} \index{\texttt{.PRINT}!\texttt{FORMAT}}
+  \begin{tabularx}{\linewidth}{|>{\setlength{\hsize}{1.0\hsize}}Y|
+      >{\setlength{\hsize}{1.0\hsize}}Y|}
+    \rowcolor{XyceDarkBlue} \color{white}\bf Format\ldots &
+    \color{white}\bf Action\ldots \\ \hline
+
+    \texttt{TAB} & Tab delimiter. \\ \hline
+    \texttt{COMMA} & Comma delimiter.  \\ \hline
+    \texttt{SEMICOLON} & Semicolon delimiter.  \\ \hline
+    \texttt{COLON} & Colon delimiter.  \\ \hline
+    \texttt{``string''} & Quoted string, where \texttt{string} is used as the delimiter.  This string must be enclosed in quotes. \\ \hline
+  \end{tabularx}
 \end{table}
 
 The \texttt{<output variable>} parameter can be a variety of requested outputs,

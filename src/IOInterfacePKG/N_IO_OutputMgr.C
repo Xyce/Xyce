@@ -1570,6 +1570,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       print_parameters.delimiterGiven_ = true;
       std::string s = iterParam->stringValue();
+      size_t s_size = s.size();
       if (s == "TAB")
       {
         print_parameters.delimiter_ = "\t";
@@ -1586,9 +1587,9 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       {
         print_parameters.delimiter_ = ";";
       }
-      else if (s[0] == '\"' && s.size() == 3)
+      else if ( s_size >= 3 && s[0] == '\"' && s[s_size-1] == '\"' )
       {
-        print_parameters.delimiter_ = s[1];
+        print_parameters.delimiter_ = s.substr(1,s_size-1);
       }
       else if (s != "")
       {
