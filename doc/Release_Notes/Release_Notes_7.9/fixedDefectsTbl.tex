@@ -30,6 +30,10 @@
   &  Details
   \\\hline
 
+\textbf{Xyce Project Backlog/613}: 
+  Noise  comma-separated values (CSV) output format should put quotes around variable/column names
+  & Comma-separated values (CSV) output for noise had a bug, in that the comma character was used as a separator between variables, but for noise analysis variable names often include commas.  This has been fixed in two ways.  One is to add quotes around variable names in the CSV noise output file header.  The other is to expand the \texttt{DELIMITER} parameter on the \texttt{PRINT} line to allow other options, including \texttt{SEMICOLON} and \texttt{COLON}.  Also, this parameter previously applied only to \texttt{STD} format files.  It now also applies to \texttt{CSV} format files.  \\ \hline
+
 \textbf{Xyce Project Backlog/729}: 
 Expression-based objective functions for .SENS conflate I(VA) with V(VA) (nodes and devices w/ same names)
 & Sensitivity analysis had a bug related to the naming of circuit variables in the objective function.
