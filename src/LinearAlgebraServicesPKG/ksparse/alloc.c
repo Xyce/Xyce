@@ -52,18 +52,16 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
  * be malloc'd.   Return NULL for a request for 0 bytes.
  */
 
-void bye_bye(i)
-    int i;
+void bye_bye(int i)
 {
     printf ("inv = %d\n",1/i);
 }
 /*
 */
-char *
-tmalloc(num)
-    int num;
+void *
+tmalloc(int num)
 {
-    char *s;
+    void *s;
 
     if (!num)
 	return NULL;
@@ -84,12 +82,10 @@ tmalloc(num)
     return(s);
 }
 
-char *
-trealloc(str, num)
-    char *str;
-    int num;
+void *
+trealloc(void* str, int num)
 {
-    char *s;
+    void *s;
 
     if (!num) {
 	if (str)
@@ -117,7 +113,7 @@ trealloc(str, num)
         perror ("realloc");
         s = malloc((unsigned) num);
         bye_bye(0);
-        fprintf (stderr, "From malloc of %d bytes: %lx\n",num,s);
+        fprintf (stderr, "From malloc of %d bytes: %p\n",num,s);
         perror ("malloc");
         exit(EXIT_BAD);
     }
@@ -125,8 +121,7 @@ trealloc(str, num)
 }
 
 void
-txfree(ptr)
-	char	*ptr;
+txfree(void* ptr)
 {
 	if (ptr)
 #ifdef DEBUG_MALLOC

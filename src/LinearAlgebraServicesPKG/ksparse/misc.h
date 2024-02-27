@@ -30,6 +30,8 @@ All additions and changes are under the following:
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
 
+#include "util.h"
+
 #ifndef KSPARSE_MISC_H
 #define KSPARSE_MISC_H
 
@@ -58,9 +60,7 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 
 #include "strext.h"
 
-extern char *tmalloc();
-extern char *trealloc();
-extern void txfree();
+extern void txfree(void*);
 
 #define tfree(x)	(txfree(x), x = 0)
 
