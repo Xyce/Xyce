@@ -638,13 +638,16 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & name,
       }
       else
       {
+        // If this is a param affected by .options scale, ignore scalars for this operation as it was already scaled.
+        bool overrideOriginal=false;
+        bool ignoreLengthScale=true; 
         if (paramName == "")
         {
-          setDefaultParam(newParamValue, false);
+          setDefaultParam(newParamValue, overrideOriginal, ignoreLengthScale);
         }
         else
         {
-          setParam(paramName, newParamValue, false);
+          setParam(paramName, newParamValue, overrideOriginal, ignoreLengthScale);
         }
       }
 
@@ -687,13 +690,16 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & name,
       }
       else
       {
+        // If this is a param affected by .options scale, ignore scalars for this operation as it was already scaled.
+        bool overrideOriginal=false;
+        bool ignoreLengthScale=true;
         if (paramName == "")
         {
-          setDefaultParam(origParamValue, false);
+          setDefaultParam(origParamValue, overrideOriginal, ignoreLengthScale);
         }
         else
         {
-          setParam(paramName, origParamValue, false);
+          setParam(paramName, origParamValue, overrideOriginal, ignoreLengthScale);
         }
       }
 
@@ -717,7 +723,6 @@ bool DeviceInstance::getNumericalSensitivity ( const std::string & name,
         nextStaDeriv[stateIndicesVec[i]] = saveStateDerivs[i];
       }
 
-//
       if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
       {
         Xyce::dout() << paramName << ": ";
@@ -1047,13 +1052,16 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
 
       double newParamValue = origParamValue + dP;
 
+      // If this is a param affected by .options scale, ignore scalars for this operation as it was already scaled.
+      bool overrideOriginal=false;
+      bool ignoreLengthScale=true;
       if (paramName == "")
       {
-        setDefaultParam(newParamValue, false);
+        setDefaultParam(newParamValue, overrideOriginal, ignoreLengthScale);
       }
       else
       {
-        setParam(paramName, newParamValue, false);
+        setParam(paramName, newParamValue, overrideOriginal, ignoreLengthScale);
       }
 
       processParams (); // if this "entity" is a model, then need to
@@ -1089,13 +1097,16 @@ bool DeviceInstance::getNumericalMatrixSensitivity (
       }
 
       // restore everything:
+      // If this is a param affected by .options scale, ignore scalars for this operation as it was already scaled.
+      overrideOriginal=false;
+      ignoreLengthScale=true;
       if (paramName == "")
       {
-        setDefaultParam(origParamValue, false);
+        setDefaultParam(origParamValue, overrideOriginal, ignoreLengthScale);
       }
       else
       {
-        setParam(paramName, origParamValue, false);
+        setParam(paramName, origParamValue, overrideOriginal, ignoreLengthScale);
       }
 
       processParams (); // if this "entity" is a model, then need to
