@@ -391,18 +391,22 @@ static long padsize, padshift;
  */
 
 #if spCOMPLEX AND spSEPARATED_COMPLEX_VECTORS
-#define IMAG_VECTORS    , iRHS, iSolution
-#define IMAG_RHS        , iRHS
+#define IMAG_VECTORS_PRO    , RealVector iRHS, RealVector iSolution
+#define IMAG_VECTORS_ARG    , iRHS, iSolution
+#define IMAG_RHS_PRO        , RealVector iRHS
+#define IMAG_RHS_ARG        , iRHS
 #else
-#define IMAG_VECTORS
-#define IMAG_RHS
+#define IMAG_VECTORS_PRO
+#define IMAG_VECTORS_ARG
+#define IMAG_RHS_PRO
+#define IMAG_RHS_ARG
 #endif
 
 #define ALLOC(type,number)  ((type *)tmalloc((unsigned)(sizeof(type)*(number))))
 #define PALLOC(type,number)  ((type *)tmalloc((unsigned)(padsize*(number+1))))
 #ifndef REALLOC
 #define REALLOC(ptr,type,number)  \
-           ptr = (type *)trealloc((char *)ptr,(unsigned)(sizeof(type)*(number)))
+           (type *)trealloc((char *)ptr,(unsigned)(sizeof(type)*(number)))
 #endif
 #ifndef FREE
 #define FREE(ptr) { if ((ptr) != NULL) txfree((char *)(ptr)); (ptr) = NULL; }
@@ -469,10 +473,9 @@ typedef  struct
  *  Function declarations
  */
 
-#ifdef __STDC__
 extern ElementPtr spcGetElement( MatrixPtr, int, int );
 extern ElementPtr spcGetFillin( MatrixPtr, int, int );
-extern ElementPtr spcFindElementInCol( MatrixPtr, ElementPtr*, int, int, int );
+extern ElementPtr spcFindElementInCol( MatrixPtr, ElementPtr*, int, int, BOOLEAN );
 extern ElementPtr spcCreateElement( MatrixPtr, int, int, ElementPtr*, int );
 extern void spcCreateInternalVectors( MatrixPtr );
 extern void spcLinkRows( MatrixPtr );
@@ -483,13 +486,3 @@ extern void spSetIndex (MatrixPtr);
 extern void spColInd (MatrixPtr, int);
 extern void spRowInd (MatrixPtr, int);
 extern void spExpandFormat (MatrixPtr Matrix);
-#else /* __STDC__ */
-extern ElementPtr spcGetElement();
-extern ElementPtr spcGetFillin();
-extern ElementPtr spcFindElementInCol();
-extern ElementPtr spcCreateElement();
-extern void spcCreateInternalVectors();
-extern void spcLinkRows();
-extern void spcColExchange();
-extern void spcRowExchange();
-#endif /* __STDC__ */

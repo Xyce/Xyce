@@ -141,9 +141,7 @@ void spExpandFormat( MatrixPtr);
  */
 
 void
-spClear( eMatrix )
-
-char *eMatrix;
+spClear( char* eMatrix )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  ElementPtr  pElement;
@@ -225,15 +223,11 @@ register  int  I;
  *  Error is not cleared in this routine.
  */
 
-RealNumber *
-spGetElement( eMatrix, Row, Col )
-
-char *eMatrix;
-int  Row, Col;
+spREAL *
+spGetElement( char* eMatrix, int Row, int Col )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 RealNumber  *pElement;
-ElementPtr spcFindElementInCol();
 void  Translate();
 
 /* Begin `spGetElement'. */
@@ -334,16 +328,9 @@ void  Translate();
  */
 
 ElementPtr
-spcFindElementInCol( Matrix, LastAddr, Row, Col, CreateIfMissing )
-
-MatrixPtr Matrix;
-register ElementPtr *LastAddr;
-register int  Row;
-int  Col;
-BOOLEAN  CreateIfMissing;
+spcFindElementInCol( MatrixPtr Matrix, ElementPtr* LastAddr, int Row, int Col, BOOLEAN CreateIfMissing )
 {
 register  ElementPtr  pElement, pLastElement;
-ElementPtr  spcCreateElement();
 
     pElement = Matrix->Col_fast[Col][f_ind(Matrix, Col, Row)];
     if (pElement == NULL || pElement->Row >= Row || pElement->Col != Col) {
@@ -428,10 +415,7 @@ ElementPtr  spcCreateElement();
  */
 
 static void
-Translate( Matrix, Row, Col )
-
-MatrixPtr Matrix;
-int  *Row, *Col;
+Translate( MatrixPtr Matrix, int* Row, int* Col )
 {
 register int IntRow, IntCol, ExtRow, ExtCol;
 
@@ -540,11 +524,7 @@ register int IntRow, IntCol, ExtRow, ExtCol;
  */
 
 int
-spGetAdmittance( Matrix, Node1, Node2, Template )
-
-char  *Matrix;
-int  Node1, Node2;
-struct  spTemplate  *Template;
+spGetAdmittance( char* Matrix, int Node1, int Node2, struct spTemplate* Template )
 {
 
 /* Begin `spGetAdmittance'. */
@@ -628,11 +608,7 @@ struct  spTemplate  *Template;
  */
 
 int
-spGetQuad( Matrix, Row1, Row2, Col1, Col2, Template )
-
-char  *Matrix;
-int  Row1, Row2, Col1, Col2;
-struct  spTemplate  *Template;
+spGetQuad( char* Matrix, int Row1, int Row2, int Col1, int Col2, struct spTemplate* Template )
 {
 /* Begin `spGetQuad'. */
     Template->Element1 = spGetElement( Matrix, Row1, Col1);
@@ -703,11 +679,7 @@ struct  spTemplate  *Template;
  */
 
 int
-spGetOnes(Matrix, Pos, Neg, Eqn, Template)
-
-char  *Matrix;
-int  Pos, Neg, Eqn;
-struct  spTemplate  *Template;
+spGetOnes(char* Matrix, int Pos, int Neg, int Eqn, struct spTemplate* Template)
 {
 /* Begin `spGetOnes'. */
     Template->Element4Negated = spGetElement( Matrix, Neg, Eqn );
@@ -773,16 +745,10 @@ struct  spTemplate  *Template;
  */
 
 ElementPtr
-spcCreateElement( Matrix, Row, Col, LastAddr, Fillin )
-
-MatrixPtr Matrix;
-int  Row;
-register int  Col;
-register ElementPtr  *LastAddr;
-BOOLEAN Fillin;
+spcCreateElement( MatrixPtr Matrix, int Row, int Col, ElementPtr* LastAddr, BOOLEAN Fillin )
 {
 register  ElementPtr  pElement, pLastElement;
-ElementPtr  pCreatedElement, spcGetElement(),  spcGetFillin();
+ElementPtr  pCreatedElement;
 #ifdef CHECK_IND
 char msg[40];
 #endif
@@ -939,9 +905,7 @@ char msg[40];
  */
 
 void
-spcLinkRows( Matrix )
-
-MatrixPtr Matrix;
+spcLinkRows( MatrixPtr Matrix )
 {
 register  ElementPtr  pElement, *FirstInRowEntry;
 register  ArrayOfElementPtrs  FirstInRowArray;
@@ -991,10 +955,7 @@ register  int  Col;
  */
 
 static void
-EnlargeMatrix( Matrix, NewSize )
-
-MatrixPtr Matrix;
-register int  NewSize;
+EnlargeMatrix( MatrixPtr Matrix, int NewSize )
 {
 int I, OldAllocatedSize = Matrix->AllocatedSize;
 int j, old_indsize;
@@ -1191,10 +1152,7 @@ void spRowInd (MatrixPtr Matrix, int Row)
  */
 
 static void
-ExpandTranslationArrays( Matrix, NewSize )
-
-MatrixPtr Matrix;
-register int  NewSize;
+ExpandTranslationArrays( MatrixPtr Matrix, int NewSize )
 {
 register int I, OldAllocatedSize = Matrix->AllocatedExtSize;
 
@@ -1269,10 +1227,7 @@ register int I, OldAllocatedSize = Matrix->AllocatedExtSize;
  */
 
 void
-spInstallInitInfo( pElement, pInitInfo )
-
-RealNumber *pElement;
-char *pInitInfo;
+spInstallInitInfo( RealNumber* pElement, char* pInitInfo )
 {
 /* Begin `spInstallInitInfo'. */
     ASSERT(pElement != NULL);
@@ -1282,9 +1237,7 @@ char *pInitInfo;
 
 
 char *
-spGetInitInfo( pElement )
-
-RealNumber *pElement;
+spGetInitInfo( RealNumber* pElement )
 {
 /* Begin `spGetInitInfo'. */
     ASSERT(pElement != NULL);
@@ -1294,10 +1247,7 @@ RealNumber *pElement;
 
 
 int
-spInitialize( eMatrix, pInit )
-
-char *eMatrix;
-int (*pInit)();
+spInitialize( char* eMatrix, int (*pInit)() )
 {
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 register ElementPtr pElement;
