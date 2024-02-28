@@ -34,6 +34,10 @@
   Noise  comma-separated values (CSV) output format should put quotes around variable/column names
   & Comma-separated values (CSV) output for noise had a bug, in that the comma character was used as a separator between variables, but for noise analysis variable names often include commas.  This has been fixed in two ways.  One is to add quotes around variable names in the CSV noise output file header.  The other is to expand the \texttt{DELIMITER} parameter on the \texttt{PRINT} line to allow other options, including \texttt{SEMICOLON} and \texttt{COLON}.  Also, this parameter previously applied only to \texttt{STD} format files.  It now also applies to \texttt{CSV} format files.  \\ \hline
 
+\textbf{Xyce Project Backlog/694}: 
+Error in MOSFET numerical sensitivities, when using \texttt{.option scale}
+  & When using sensitivity analysis, one aspect of the calculation is device-level derivatives.  For some device models, analytic derivatives are available.  When they are not available, numerical device-level derivatives must be used.  This is the case with several older MOSFET models, such as the BSIM4.  The code for computing these device-level derivatives did not handle length scalars (set by the netlist command \texttt{.option scale} properly, so this produced at best nonsense results and at worst caused the code to exit with a fatal error.  This has been fixed. \\ \hline
+
 \textbf{Xyce Project Backlog/729}: 
 Expression-based objective functions for .SENS conflate I(VA) with V(VA) (nodes and devices w/ same names)
 & Sensitivity analysis had a bug related to the naming of circuit variables in the objective function.
