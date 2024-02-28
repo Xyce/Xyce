@@ -115,6 +115,8 @@ class ACExpressionGroup : public Xyce::Util::mainXyceExpressionGroup
 
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval);
 
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval );
+
   private:
     const Linear::BlockVector & X_;
 

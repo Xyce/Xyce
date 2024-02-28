@@ -123,6 +123,31 @@ bool ACExpressionGroup::getSolutionVal
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool ACExpressionGroup::getCurrentVal
+  ( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
+{
+  double real_val=0.0;
+  double imag_val=0.0;
+  int tmpGID = -1;
+
+  tmpGID = getCurrentSolutionGID_(deviceName);
+  if (tmpGID >= 0)
+  {
+    Linear::Vector & Xreal = X_.block( 0 );
+    Linear::Vector & Ximag = X_.block( 1 );
+    real_val = Xreal.getElementByGlobalIndex(tmpGID, 0); 
+    imag_val = Ximag.getElementByGlobalIndex(tmpGID, 0); 
+  }
+
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &real_val, 1);
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &imag_val, 1);
+
+  retval = std::complex<double>(real_val,imag_val);
+  return (tmpGID>=0);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::setTimeIntegratorOptions
 // Purpose       :
 // Special Notes : These are from '.options timeint'
