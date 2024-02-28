@@ -1762,6 +1762,7 @@ void AC::solve_mag_phase_Sensitivities_(
 //-----------------------------------------------------------------------------
 std::ostream& sensStdOutput (
        const std::string idString,
+       const double & currentFreq,
        const std::vector<double> & paramVals,
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
@@ -1814,7 +1815,9 @@ std::ostream& sensStdOutput (
       if (!outputManagerAdapter.getPhaseOutputUsesRadians())
         xp *= 180.0/M_PI;
 
-      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
+      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString << " at freq = ";
+      os << std::scientific<< std::setprecision(4) << currentFreq ;
+      os <<std::endl;
 
       os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
@@ -1958,7 +1961,7 @@ bool AC::solveDirectSensitivity_()
   {
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-    Analysis::sensStdOutput(std::string("Direct"), ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
+    Analysis::sensStdOutput(std::string("Direct"), currentFreq_, ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
        paramNameVec_, 
        param_dP_,
        numericalDiff_,
@@ -2064,7 +2067,7 @@ bool AC::solveAdjointSensitivity_()
   {
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-    Analysis::sensStdOutput (std::string("Adjoint"), ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
+    Analysis::sensStdOutput (std::string("Adjoint"), currentFreq_, ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
        paramNameVec_, 
        param_dP_,
        numericalDiff_,

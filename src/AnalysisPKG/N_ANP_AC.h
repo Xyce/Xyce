@@ -73,6 +73,7 @@ namespace Analysis {
 
 std::ostream& sensStdOutput (
        const std::string idString,
+       const double & currentFreq,
        const std::vector<double> & paramVals,
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
