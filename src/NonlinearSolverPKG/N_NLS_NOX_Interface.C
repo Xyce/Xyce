@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Copyright 2002-2023 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -395,8 +395,19 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       isuccess=sourceSteppingSolve ( paramsPtr );
       if (isuccess < 0)
       {
+
         analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED, Analysis::AnalysisEvent::DC, stepperPtr_->getContinuationParameter()));
+
+        double vsrcScale = groupPtr_->getParam("VSRCSCALE" );
+
+        if ( fabs(vsrcScale) < 1.0 )
+        {
+          groupPtr_->setParam("VSRCSCALE", 1.0 );
+
+          groupPtr_->computeF();
+        }
       }
+
       paramsPtr->setNoxSolverType(saveSolverType);
 
       nonlinearEquationLoader_->resetScaledParams();
