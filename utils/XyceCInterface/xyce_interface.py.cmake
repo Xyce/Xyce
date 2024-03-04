@@ -292,26 +292,14 @@ class xyce_interface:
     for i in range(0, numADCnames):
       ADCnames.insert(i, str(cADCDeviceNameArray[i].decode('utf-8')) ) 
 
-    # make the returned timeArray
-    double_time = POINTER(c_double)
-    inner_time_array = (c_double * numPoints)
-    timeArray = (double_time * numADCnames) ()
-    for i in range(numADCnames):
-       timeArray[i] = inner_time_array()
-
     # copy over the elements from cTimeArray to timeArray
+    timeArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPoints):
        timeArray[i][j] = cTimeArray[i][j]
 
-    # make the returned voltageArray
-    double_voltage = POINTER(c_double)
-    inner_voltage_array = (c_double *  numPoints)
-    voltageArray = (double_voltage * numADCnames) ()
-    for i in range((cNumADCnames.value)):
-       voltageArray[i] = inner_voltage_array()
-
     # copy over the elements from cVoltageArray to voltageArray
+    voltageArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPoints):
        voltageArray[i][j] = cVoltageArray[i][j]
@@ -346,7 +334,7 @@ class xyce_interface:
     status = self.lib.xyce_getTimeVoltagePairsADCLimitData( byref(self.xycePtr), 
       maxNumDevices, maxDeviceNameLength, maxNumTimeVoltagePairs,
       byref(cNumADCnames), cADCDeviceNameArray, cNumPointsArray, byref(cTimeArray), byref(cVoltageArray) )
-
+    
     # make the integer return values
     numADCnames = (cNumADCnames.value)
     
@@ -360,27 +348,15 @@ class xyce_interface:
     numPointsArray = []
     for i in range(0, numADCnames):
       numPointsArray.insert(i, cNumPointsArray[i])
-      
-    # make the returned timeArray
-    double_time = POINTER(c_double)
-    timeArray = (double_time * numADCnames) ()
-    for i in range(numADCnames):
-       inner_time_array = (c_double * numPointsArray[i])
-       timeArray[i] = inner_time_array()
 
     # copy over the elements from cTimeArray to timeArray
+    timeArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        timeArray[i][j] = cTimeArray[i][j]
 
-    # make the returned voltageArray
-    double_voltage = POINTER(c_double)
-    voltageArray = (double_voltage * numADCnames) ()
-    for i in range((cNumADCnames.value)):
-       inner_voltage_array = (c_double *  numPointsArray[i])
-       voltageArray[i] = inner_voltage_array()
-
     # copy over the elements from cVoltageArray to voltageArray
+    voltageArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        voltageArray[i][j] = cVoltageArray[i][j]
@@ -419,26 +395,14 @@ class xyce_interface:
     for i in range(0, numADCnames):
       ADCnames.insert(i, cADCDeviceNameArray[i] ) 
 
-    # make the returned timeArray
-    double_time = POINTER(c_double)
-    inner_time_array = (c_double * numPoints)
-    timeArray = (double_time * numADCnames) ()
-    for i in range(numADCnames):
-       timeArray[i] = inner_time_array()
-
     # copy over the elements from cTimeArray to timeArray
+    timeArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPoints):
        timeArray[i][j] = cTimeArray[i][j]
 
-    # make the returned stateArray
-    double_state = POINTER(c_int)
-    inner_state_array = (c_int *  numPoints)
-    stateArray = (double_state * numADCnames) ()
-    for i in range((cNumADCnames.value)):
-       stateArray[i] = inner_state_array()
-
     # copy over the elements from cStateArray to stateArray
+    stateArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPoints):
        stateArray[i][j] = cStateArray[i][j]
@@ -490,25 +454,27 @@ class xyce_interface:
       numPointsArray.insert(i, cNumPointsArray[i])
       
     # make the returned timeArray
-    double_time = POINTER(c_double)
-    timeArray = (double_time * numADCnames) ()
-    for i in range(numADCnames):
-       inner_time_array = (c_double * numPointsArray[i])
-       timeArray[i] = inner_time_array()
+    #double_time = POINTER(c_double)
+    #timeArray = (double_time * numADCnames) ()
+    #for i in range(numADCnames):
+    #   inner_time_array = (c_double * numPointsArray[i])
+    #   timeArray[i] = inner_time_array()
 
     # copy over the elements from cTimeArray to timeArray
+    timeArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        timeArray[i][j] = cTimeArray[i][j]
 
     # make the returned stateArray
-    double_state = POINTER(c_int)
-    stateArray = (double_state * numADCnames) ()
-    for i in range((cNumADCnames.value)):
-      inner_state_array = (c_int *  numPointsArray[i])
-      stateArray[i] = inner_state_array()
+    #double_state = POINTER(c_int)
+    #stateArray = (double_state * numADCnames) ()
+    #for i in range((cNumADCnames.value)):
+    #  inner_state_array = (c_int *  numPointsArray[i])
+    #  stateArray[i] = inner_state_array()
 
     # copy over the elements from cStateArray to stateArray
+    stateArray = [[0]*max(numPointsArray)]*numADCnames
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        stateArray[i][j] = cStateArray[i][j]
