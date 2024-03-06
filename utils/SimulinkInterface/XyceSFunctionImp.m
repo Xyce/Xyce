@@ -644,9 +644,7 @@ function Outputs(block)
     
     [tr,tc] = size(block.DialogPrm(6).Data );
     for( row = 1:1:tr)
-      if( (block.DialogPrm(6).Data{row,1} ~= '-') && (str2num(block.DialogPrm(6).Data{row,1}) <= block.NumInputPorts ) )
-        %display( block.DialogPrm(6).Data{row,1})
-        %display( block.DialogPrm(6).Data{row,2})
+      if( (block.DialogPrm(6).Data{row,1} ~= '-') && (str2num(block.DialogPrm(6).Data{row,1}) <= block.NumOutputPorts ) )
         portNum = str2num(block.DialogPrm(6).Data{row,1});
         deviceName = block.DialogPrm(6).Data{row,2};
         if ( contains( deviceName, 'ADC'))
@@ -656,7 +654,6 @@ function Outputs(block)
                 block.OutputPort(portNum).Data = adcCircuitData.voltageArray{j}{numPoints};
               end 
             end
-        
         else
           if(0)
             % REST access method 
