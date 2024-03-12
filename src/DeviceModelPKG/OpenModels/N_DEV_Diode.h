@@ -369,6 +369,8 @@ private:
   double InitCond;
   double Temp;
   bool InitCondGiven;
+  double dtemp;
+  bool dtempGiven;
 
   double tJctPot;
   double tJctCap;

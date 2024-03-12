@@ -139,7 +139,19 @@ bool Instance::processParams4p82_ ()
   if (!SDgiven)
     sd = 2.0 * model_.dmcg;
   if (!TEMPgiven)
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
   if (!drainAreaGiven)
     drainArea = getDeviceOptions().defad;
   if (!sourceAreaGiven)
@@ -363,7 +375,11 @@ bool Instance::updateTemperature4p82_ (const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
 
   Tnom = model_.tnom;
   TRatio = temp/Tnom;

@@ -178,6 +178,8 @@ private:
   double baseL;     // the baseline inductance before temperature effects
   double temp;      // temperature of this instance
   bool tempGiven;
+  double dtemp;      // delta temperature of this instance
+  bool dtempGiven;   // delta temperature given parameter
 
   // Genie 121412. temperature dependence parameters
   // these can override values specified in the model

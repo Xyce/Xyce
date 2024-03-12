@@ -156,6 +156,8 @@ private:
   double ic_vds;         // initial D-S voltage
   double ic_vgs;         // initial G-S voltage
   double temp;           // instance temperature
+  double dtemp;          // instance temperature delta
+  bool dtempGiven;       // instance temperature delta given
   double drainCond;      // drain conductance
   double sourceCond;     // source conductance
   double tCGS;           // temp. corr. gate-source capacitance

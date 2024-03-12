@@ -580,6 +580,8 @@ private:
   // end of 3f5 stuff
 
   double temp;
+  double dtemp; // delta temperature
+  bool dtempGiven; // delta temperature given
 
   // solution variables, and intermediate quantities.
   //double mode;         // mode=1:normal mode.  mode=-1:inverse mode.

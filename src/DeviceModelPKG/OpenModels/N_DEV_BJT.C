@@ -86,13 +86,19 @@ void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Vector of initial values: Vbe,Vce. Vce=IC2");
 
-  p.addPar ("TEMP",0.0,&BJT::Instance::TEMP)
+  p.addPar ("TEMP",CONSTREFTEMP,&BJT::Instance::TEMP)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(STANDARD)
    .setCategory(CAT_UNKNOWN)
    .setDescription("Device temperature")
    .setAnalyticSensitivityAvailable(true)
    .setSensitivityFunctor(&bjtInstanceSens);
+
+  p.addPar ("DTEMP",0.0,&BJT::Instance::dtemp)
+    .setGivenMember(&BJT::Instance::dtempGiven)
+   .setUnit(STANDARD)
+   .setCategory(CAT_UNKNOWN)
+   .setDescription("Device delta temperature");
 
   // Set up non-double precision variables:
   p.addPar ("OFF",false,&BJT::Instance::OFF)
@@ -799,7 +805,20 @@ bool Instance::processParams ()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     TEMP = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
+ 
 
   updateTemperature(TEMP);
   return true;
@@ -824,7 +843,9 @@ Instance::Instance(
     AREA(1.0),
     icVBE(0.0),
     icVCE(0.0),
-    TEMP(300.0),
+    TEMP(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     multiplicityFactor(1.0),
     OFF(false),
     IC_GIVEN(false),
@@ -1842,7 +1863,12 @@ bool Instance::updateTemperature( const double & temp )
     Xyce::dout() << "Start BJTInst::updateTemperature" << std::endl;
     Xyce::dout() << "temp = "<<temp << std::endl;
   }
-  if( temp != -999.0 ) TEMP = temp;
+  if( temp != -999.0 ) 
+  {
+    TEMP = temp;
+    TEMP += dtemp;
+  }
+
   if (model_.interpolateTNOM(TEMP))
   {
     // make sure interpolation doesn't take any resistance negative

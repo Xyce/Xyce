@@ -44,6 +44,7 @@
 #include <vector>
 
 // ----------   Xyce Includes   ----------
+#include <N_DEV_Const.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_Inductor.h>
@@ -79,7 +80,7 @@ void Traits::loadInstanceParameters(ParametricData<Inductor::Instance> &p)
     .setUnit(U_AMP)
     .setDescription("Initial current through device");
 
-  p.addPar("TEMP", 0.0, &Inductor::Instance::temp)
+  p.addPar("TEMP",CONSTREFTEMP, &Inductor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setGivenMember(&Inductor::Instance::tempGiven)
     .setUnit(U_DEGC)
@@ -96,10 +97,16 @@ void Traits::loadInstanceParameters(ParametricData<Inductor::Instance> &p)
     .setUnit(U_DEGCM2)
     .setDescription("Quadratic Temperature Coefficient");
 
+  p.addPar("DTEMP", 0.0, &Inductor::Instance::dtemp)
+    .setGivenMember(&Inductor::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
+
   // This call tells the parameter handling code that TC can be specified
   // as a vector with up to two elements as in TC=a,b.  It then translates
   // TC=a,b into TC1=a TC2=b.  Likewise, TC=a will translate into TC1=a
   p.makeVector ("TC", 2);
+
 }
 
 void Traits::loadModelParameters(ParametricData<Inductor::Model> &p)
@@ -146,7 +153,19 @@ std::vector< std::vector<int> > Instance::jacStamp_BASE;
 bool Instance::processParams()
 {
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   if (!tempCoeff1Given)
     tempCoeff1=model_.tempCoeff1;
@@ -175,9 +194,13 @@ bool Instance::processParams()
 // Creator       : Tom Russo, Component Information and Models
 // Creation Date : 02/27/01
 //-----------------------------------------------------------------------------
-bool Instance::updateTemperature ( const double & temp)
+bool Instance::updateTemperature ( const double & temp_tmp)
 {
-  double difference = temp - model_.tnom;
+  if (temp_tmp != -999.0)
+  {
+    temp = temp_tmp;
+  }
+  double difference = (temp + dtemp) - model_.tnom;
   // Apply both the inductanceMultipler (from the model card) and the multiplicityFactor M 
   // (from the instance line).
   double factor = model_.inductanceMultiplier*(1.0 + tempCoeff1*difference +
@@ -207,7 +230,9 @@ Instance::Instance(
     ICGiven(false),
     baseL(0.0),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
-    tempGiven(0),
+    tempGiven(false),
+    dtemp(0.0),
+    dtempGiven(false),
     tempCoeff1(0.0),
     tempCoeff2(0.0),
     tempCoeff1Given(false),

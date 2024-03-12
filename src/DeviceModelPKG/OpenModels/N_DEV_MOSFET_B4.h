@@ -761,6 +761,8 @@ private:
 
   double temp;
   bool TEMPgiven;
+  double dtemp; //  delta temperature
+  bool dtempGiven; // delta temperature given
 
   // solution variables, and intermediate quantities.
   double Vd;           // drain node voltage

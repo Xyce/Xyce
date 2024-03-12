@@ -61,7 +61,7 @@ namespace JFET {
 
 void Traits::loadInstanceParameters(ParametricData<JFET::Instance> &p)
 {
-  p.addPar("TEMP", 0.0, &JFET::Instance::temp)
+  p.addPar("TEMP",CONSTREFTEMP, &JFET::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 
@@ -69,6 +69,11 @@ void Traits::loadInstanceParameters(ParametricData<JFET::Instance> &p)
     .setUnit(U_METER2)
     .setCategory(CAT_GEOMETRY)
     .setDescription("Device area");
+
+  p.addPar("DTEMP", 0.0, &JFET::Instance::dtemp)
+    .setGivenMember(&JFET::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<JFET::Model> &p)
@@ -375,6 +380,8 @@ Instance::Instance(
     ic_vds(0.0),
     ic_vgs(0.0),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     drainCond(0.0),
     sourceCond(0.0),
     tCGS(0.0),
@@ -1741,7 +1748,12 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
+
   if (model_.interpolateTNOM(temp))
   {
    // make sure interpolation doesn't take any resistance negative
@@ -1858,7 +1870,19 @@ bool Instance::updateTemperature ( const double & temp_tmp)
 bool Instance::processParams ()
 {
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   updateTemperature(temp);
   return true;

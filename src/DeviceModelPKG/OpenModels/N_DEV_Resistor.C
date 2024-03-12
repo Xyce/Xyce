@@ -36,6 +36,8 @@
 //----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
+// ----------   Xyce Includes   ----------
+#include <N_DEV_Const.h>
 #include <N_DEV_Resistor.h>
 
 #include <N_DEV_DeviceOptions.h>
@@ -184,7 +186,8 @@ void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
   p.addPar("W", 0.0, &Resistor::Instance::width)
     .setUnit(U_METER)
     .setDescription("Width");
-  p.addPar("TEMP", 0.0, &Resistor::Instance::temp)
+
+  p.addPar("TEMP",CONSTREFTEMP, &Resistor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setUnit(U_DEGC)
     .setDescription("Device temperature");
@@ -207,7 +210,7 @@ void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
   p.addPar("DTEMP", 0.0, &Resistor::Instance::dtemp)
     .setGivenMember(&Resistor::Instance::dtempGiven)
     .setUnit(U_DEGC)
-    .setDescription("Device Temperature -- For compatibility only. Parameter is NOT used");
+    .setDescription("Device delta temperature");
 }
 
 //-----------------------------------------------------------------------------
@@ -454,7 +457,20 @@ bool Instance::processParams()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
+
   if (!given("W"))
     width = model_.defWidth;
 
@@ -911,8 +927,10 @@ bool Instance::updateTemperature(const double & temp_tmp)
   double difference, tempCorrFactor;
 
   if (temp_tmp != -999.0)
+  {
     temp = temp_tmp;
-  difference = temp - model_.tnom;
+  }
+  difference = (temp + dtemp) - model_.tnom;
   
   if (tempCoeffExpGiven || model_.tempCoeffExpModelGiven)
   {
@@ -973,7 +991,7 @@ void Instance::getNoiseSources (Xyce::Analysis::NoiseData & noiseData)
 {
   devSupport.noiseSupport(
       noiseData.noiseDens[0], noiseData.lnNoiseDens[0], 
-      THERMNOISE, G, temp);
+      THERMNOISE, G, (temp+dtemp));
 }
 
 // Model functions:

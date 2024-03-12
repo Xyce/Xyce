@@ -58,7 +58,7 @@ namespace MOSFET1 {
 
 void Traits::loadInstanceParameters(ParametricData<MOSFET1::Instance> &p)
 {
-  p.addPar("TEMP",0.0,&MOSFET1::Instance::temp)
+  p.addPar("TEMP",CONSTREFTEMP,&MOSFET1::Instance::temp)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(STANDARD)
    .setCategory(CAT_NONE)
@@ -143,6 +143,11 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET1::Instance> &p)
    .setUnit(U_LOGIC)
    .setCategory(CAT_VOLT)
    .setDescription("Initial condition of no voltage drops across device");
+
+  p.addPar("DTEMP", 0.0, &MOSFET1::Instance::dtemp)
+    .setGivenMember(&MOSFET1::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<MOSFET1::Model> &p)
@@ -381,7 +386,20 @@ bool Instance::processParams ()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
+
   if (!given("L"))
     l =model_.model_l;
   if (!given("W"))
@@ -487,7 +505,9 @@ Instance::Instance(
     sourcePerimeter(0.0),
     sourceConductance(0.0),
     drainConductance(0.0),
-  temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     numberParallel(1),
     tTransconductance(0.0),
     tSurfMob(0.0),
@@ -3498,7 +3518,11 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
 
   if (model_.interpolateTNOM(temp))
   {

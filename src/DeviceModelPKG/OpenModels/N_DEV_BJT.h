@@ -542,6 +542,8 @@ private:
   double icVBE; // the inital base-emitter voltage (ICVBE)
   double icVCE; // the inital collector-emitter voltage (ICVCE)
   double TEMP;  // instance temperature (TEMP)
+  double dtemp;  // instance temperature delta
+  bool dtempGiven;  // instance temperature delta given
   double multiplicityFactor;
   bool   OFF;   // initial mode of operation (OFF)
   bool IC_GIVEN;

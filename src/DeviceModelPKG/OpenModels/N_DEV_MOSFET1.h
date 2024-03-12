@@ -184,6 +184,8 @@ private:
   double sourceConductance;   //conductance of source(or 0):set in setup
   double drainConductance;    //conductance of drain(or 0):set in setup
   double temp;    // operating temperature of this instance
+  double dtemp;    // delta temperature of this instance
+  bool dtempGiven;  // delta temperature given
   double numberParallel; // number simulated parallel mosfets
 
   double tTransconductance;   // temperature corrected transconductance

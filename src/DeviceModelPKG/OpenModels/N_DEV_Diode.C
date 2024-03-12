@@ -80,7 +80,7 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setGivenMember(&Diode::Instance::InitCondGiven)
     .setCategory(CAT_NONE);
 
-  p.addPar ("TEMP",  0.0, &Diode::Instance::Temp)
+  p.addPar ("TEMP",CONSTREFTEMP, &Diode::Instance::Temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 
@@ -88,6 +88,11 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setUnit(U_LOGIC)
     .setCategory(CAT_CONTROL)
     .setDescription("Initial voltage drop across device set to zero");
+
+  p.addPar("DTEMP", 0.0, &Diode::Instance::dtemp)
+    .setGivenMember(&Diode::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
@@ -388,7 +393,19 @@ bool Instance::processParams()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     Temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (!dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   updateTemperature( Temp );
   return true;
@@ -415,6 +432,8 @@ Instance::Instance(
     InitCond(0.0),
     Temp(getDeviceOptions().temp.getImmutableValue<double>()),
     InitCondGiven(false),
+    dtemp(0.0),
+    dtempGiven(false),
     tJctPot(0.0),
     tJctCap(0.0),
     tJctSWPot(0.0),
@@ -1408,14 +1427,18 @@ bool Instance::updateIntermediateVars ()
 // Creator       : Tom Russo, Component Information and Models
 // Creation Date : 1/10/01
 //-----------------------------------------------------------------------------
-bool Instance::updateTemperature( const double & temp )
+bool Instance::updateTemperature( const double & temp_tmp )
 {
-
   double vtnom = CONSTKoverQ * model_.TNOM;
 
   double xfc = log( 1.0 - model_.FC );
 
-  if( temp != -999.0 ) Temp = temp;
+  if( temp_tmp != -999.0 )
+  { 
+    Temp = temp_tmp;
+    Temp += dtemp;
+  }
+
   double TNOM = model_.TNOM;
 
   double vt = CONSTKoverQ * Temp;
