@@ -86,7 +86,7 @@ void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Vector of initial values: Vbe,Vce. Vce=IC2");
 
-  p.addPar ("TEMP",CONSTREFTEMP,&BJT::Instance::TEMP)
+  p.addPar ("TEMP", 0.0,&BJT::Instance::TEMP)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(STANDARD)
    .setCategory(CAT_UNKNOWN)

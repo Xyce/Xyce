@@ -61,7 +61,7 @@ namespace JFET {
 
 void Traits::loadInstanceParameters(ParametricData<JFET::Instance> &p)
 {
-  p.addPar("TEMP",CONSTREFTEMP, &JFET::Instance::temp)
+  p.addPar("TEMP", 0.0, &JFET::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 

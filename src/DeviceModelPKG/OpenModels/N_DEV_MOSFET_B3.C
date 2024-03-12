@@ -109,7 +109,7 @@ namespace MOSFET_B3 {
 
 void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
 {
-  p.addPar("TEMP",CONSTREFTEMP,&MOSFET_B3::Instance::temp)
+  p.addPar("TEMP",0.0,&MOSFET_B3::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setUnit(STANDARD)
     .setCategory(CAT_NONE)

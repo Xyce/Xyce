@@ -37,7 +37,6 @@
 #include <Xyce_config.h>
 
 // ----------   Xyce Includes   ----------
-#include <N_DEV_Const.h>
 #include <N_DEV_Resistor.h>
 
 #include <N_DEV_DeviceOptions.h>
@@ -187,7 +186,7 @@ void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
     .setUnit(U_METER)
     .setDescription("Width");
 
-  p.addPar("TEMP",CONSTREFTEMP, &Resistor::Instance::temp)
+  p.addPar("TEMP", 0.0, &Resistor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setUnit(U_DEGC)
     .setDescription("Device temperature");

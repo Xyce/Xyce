@@ -98,7 +98,7 @@ double convertVersToDouble(const std::string &versionString)
 
 void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 {
-    p.addPar ("TEMP",CONSTREFTEMP,&MOSFET_B4::Instance::temp)
+    p.addPar ("TEMP",0.0,&MOSFET_B4::Instance::temp)
      .setGivenMember(&MOSFET_B4::Instance::TEMPgiven)
      .setExpressionAccess(ParameterType::TIME_DEP)
      .setUnit(U_DEGC)

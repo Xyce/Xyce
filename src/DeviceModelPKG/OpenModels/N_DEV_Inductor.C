@@ -44,7 +44,6 @@
 #include <vector>
 
 // ----------   Xyce Includes   ----------
-#include <N_DEV_Const.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_Inductor.h>
@@ -80,7 +79,7 @@ void Traits::loadInstanceParameters(ParametricData<Inductor::Instance> &p)
     .setUnit(U_AMP)
     .setDescription("Initial current through device");
 
-  p.addPar("TEMP",CONSTREFTEMP, &Inductor::Instance::temp)
+  p.addPar("TEMP", 0.0, &Inductor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setGivenMember(&Inductor::Instance::tempGiven)
     .setUnit(U_DEGC)

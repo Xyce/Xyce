@@ -135,7 +135,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3SOI::Instance> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Initial condition on Vps");
 
-  p.addPar("TEMP",CONSTREFTEMP,&MOSFET_B3SOI::Instance::temp)
+  p.addPar("TEMP",0.0,&MOSFET_B3SOI::Instance::temp)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(STANDARD)
    .setCategory(CAT_NONE)

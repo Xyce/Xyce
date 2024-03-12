@@ -80,7 +80,7 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setGivenMember(&Diode::Instance::InitCondGiven)
     .setCategory(CAT_NONE);
 
-  p.addPar ("TEMP",CONSTREFTEMP, &Diode::Instance::Temp)
+  p.addPar ("TEMP", 0.0, &Diode::Instance::Temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 

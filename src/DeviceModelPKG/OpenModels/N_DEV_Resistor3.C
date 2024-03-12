@@ -41,7 +41,6 @@
 // ---------- Standard Includes ----------
 
 // ----------   Xyce Includes   ----------
-#include <N_DEV_Const.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_MatrixLoadData.h>
@@ -82,7 +81,7 @@ void Traits::loadInstanceParameters(ParametricData<Resistor3::Instance> &p)
    .setCategory(CAT_NONE)
    .setDescription("Width");
 
-  p.addPar ("TEMP",CONSTREFTEMP,&Resistor3::Instance::temp)
+  p.addPar ("TEMP",0.0,&Resistor3::Instance::temp)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(U_DEGC)
    .setCategory(CAT_NONE)

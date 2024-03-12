@@ -116,7 +116,7 @@ void Traits::loadInstanceParameters(ParametricData<VDMOS::Instance> &p)
      .setCategory(CAT_CONTROL)
      .setDescription("Multiplier for M devices connected in parallel");
 
-    p.addPar ("TEMP",CONSTREFTEMP,&VDMOS::Instance::temp)
+    p.addPar ("TEMP",0.0,&VDMOS::Instance::temp)
      .setExpressionAccess(ParameterType::TIME_DEP)
      .setUnit(U_DEGC)
      .setCategory(CAT_NONE)

@@ -38,7 +38,6 @@
 #include <Xyce_config.h>
 
 #include <N_DEV_Capacitor.h>
-#include <N_DEV_Const.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_MatrixLoadData.h>
@@ -106,7 +105,7 @@ void Traits::loadInstanceParameters(ParametricData<Capacitor::Instance> &p)
   p.addPar("D", 0.0233, &Capacitor::Instance::ageCoef)
     .setDescription("Age degradation coefficient");
 
-  p.addPar("TEMP",CONSTREFTEMP, &Capacitor::Instance::temp)
+  p.addPar("TEMP",0.0, &Capacitor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setUnit(STANDARD)
     .setDescription("Device temperature");

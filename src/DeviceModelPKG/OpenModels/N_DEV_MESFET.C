@@ -61,7 +61,7 @@ namespace MESFET {
 
 void Traits::loadInstanceParameters(ParametricData<MESFET::Instance> &p)
 {
-  p.addPar("TEMP",CONSTREFTEMP, &MESFET::Instance::temp)
+  p.addPar("TEMP", 0.0, &MESFET::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 
