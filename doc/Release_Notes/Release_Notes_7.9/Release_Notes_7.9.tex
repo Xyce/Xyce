@@ -97,6 +97,14 @@ used in BSIMSOI version 3 model is scaled by 1e-6 which makes it much smaller th
 Gmin used in other nonlinear devices. A small gmin value can cause circuit
 convergence issue.
 
+\item Many older hand-written devices now support the parameter \texttt{DTEMP}.  This 
+parameter refers to a device instance temperature difference relative to the 
+circuit temperature.  This is a compatibility enhancement.  Most of the newer devices,
+which were generated from Verilog-A using ADMS, already supported \texttt{DTEMP}.  
+The older devices that now support it include the resistor, capacitor, 
+inductor, diode, levels 1,2,3,6 MOSFET, BSIM3, BSIM4, BSIMSOI version 3, level 1 BJT, 
+JFET and MESFET.
+
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
