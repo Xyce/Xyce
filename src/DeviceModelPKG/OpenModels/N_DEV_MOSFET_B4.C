@@ -102,7 +102,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setGivenMember(&MOSFET_B4::Instance::TEMPgiven)
      .setExpressionAccess(ParameterType::TIME_DEP)
      .setUnit(U_DEGC)
-     .setCategory(CAT_NONE)
+     .setCategory(CAT_TEMP)
      .setDescription("Device temperature");
 
     p.addPar ("L",5.0e-6,&MOSFET_B4::Instance::l)
@@ -327,7 +327,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
     p.addPar ("DTEMP",0.0,&MOSFET_B4::Instance::dtemp)
      .setGivenMember(&MOSFET_B4::Instance::dtempGiven)
      .setUnit(U_DEGC)
-     .setCategory(CAT_NONE)
+     .setCategory(CAT_TEMP)
      .setDescription("Device delta temperature");
 
     // This tells the parser that IC1,IC2,and IC3 are to be input as a vector of "IC"

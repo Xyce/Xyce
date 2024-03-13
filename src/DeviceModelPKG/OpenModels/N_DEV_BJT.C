@@ -88,16 +88,16 @@ void Traits::loadInstanceParameters(ParametricData<BJT::Instance> &p)
 
   p.addPar ("TEMP", 0.0,&BJT::Instance::TEMP)
    .setExpressionAccess(ParameterType::TIME_DEP)
-   .setUnit(STANDARD)
-   .setCategory(CAT_UNKNOWN)
+   .setUnit(U_DEGC)
+   .setCategory(CAT_TEMP)
    .setDescription("Device temperature")
    .setAnalyticSensitivityAvailable(true)
    .setSensitivityFunctor(&bjtInstanceSens);
 
   p.addPar ("DTEMP",0.0,&BJT::Instance::dtemp)
-    .setGivenMember(&BJT::Instance::dtempGiven)
-   .setUnit(STANDARD)
-   .setCategory(CAT_UNKNOWN)
+   .setGivenMember(&BJT::Instance::dtempGiven)
+   .setUnit(U_DEGC)
+   .setCategory(CAT_TEMP)
    .setDescription("Device delta temperature");
 
   // Set up non-double precision variables:

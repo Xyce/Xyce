@@ -240,7 +240,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3SOI::Instance> &p)
   p.addPar("DTEMP",0.0,&MOSFET_B3SOI::Instance::dtemp) // note: "TEMP" is allowed to be time-dependent.  Should this be?
    .setGivenMember(&MOSFET_B3SOI::Instance::dtempGiven)
    .setUnit(U_DEGC)
-   .setCategory(CAT_NONE)
+   .setCategory(CAT_TEMP)
    .setDescription("Device delta temperature");
 
   // This tells the parser that IC1 - IC5 are to be input as a vector of "IC"

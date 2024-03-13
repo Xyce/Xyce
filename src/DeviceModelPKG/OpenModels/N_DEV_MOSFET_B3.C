@@ -224,6 +224,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3::Instance> &p)
   p.addPar("DTEMP", 0.0, &MOSFET_B3::Instance::dtemp)
     .setGivenMember(&MOSFET_B3::Instance::dtempGiven)
     .setUnit(U_DEGC)
+    .setCategory(CAT_TEMP)
     .setDescription("Device delta temperature")
     .setAnalyticSensitivityAvailable(false);
 

@@ -119,13 +119,13 @@ void Traits::loadInstanceParameters(ParametricData<VDMOS::Instance> &p)
     p.addPar ("TEMP",0.0,&VDMOS::Instance::temp)
      .setExpressionAccess(ParameterType::TIME_DEP)
      .setUnit(U_DEGC)
-     .setCategory(CAT_NONE)
+     .setCategory(CAT_TEMP)
      .setDescription("Device temperature");
 
     p.addPar ("DTEMP",0.0,&VDMOS::Instance::dtemp)
      .setGivenMember(&VDMOS::Instance::dtempGiven)
      .setUnit(U_DEGC)
-     .setCategory(CAT_NONE)
+     .setCategory(CAT_TEMP)
      .setDescription("Device delta temperature");
 }
 
