@@ -145,7 +145,7 @@ bool Instance::processParams4p61_ ()
   else
   {
     dtemp = 0.0;
-    if  (!dtempGiven)
+    if  (dtempGiven)
     {
       UserWarning(*this) << "Instance temperature specified, dtemp ignored";
     }

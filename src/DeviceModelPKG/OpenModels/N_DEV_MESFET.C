@@ -576,7 +576,7 @@ Instance::Instance(
   else
   {
     dtemp = 0.0;
-    if  (!dtempGiven)
+    if  (dtempGiven)
     {
       UserWarning(*this) << "Instance temperature specified, dtemp ignored";
     }
