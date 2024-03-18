@@ -566,29 +566,12 @@ Instance::Instance(
   // Set params according to instance line and constant defaults from metadata:
   setParams(instance_block.params);
 
-  // Set any non-constant parameter defaults:
-  if (!given("TEMP"))
-  {
-    temp = getDeviceOptions().temp.getImmutableValue<double>();
-    if  (!dtempGiven)
-      dtemp = 0.0;
-  }
-  else
-  {
-    dtemp = 0.0;
-    if  (dtempGiven)
-    {
-      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
-    }
-  }
-
+  // Calculate any parameters specified as expressions:
   updateDependentParameters();
 
-  // Calculate any parameters specified as expressions:
   processParams ();
 
   numIntVars = (((sourceCond == 0.0)?0:1)+((drainCond == 0.0)?0:1));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -622,8 +605,7 @@ void Instance::registerLIDs( const std::vector<int> & intLIDVecRef,
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << std::endl << section_divider << std::endl;
-    Xyce::dout() << "  Instance::registerLIDs" << std::endl;
-    Xyce::dout() << "  name = " << getName() << std::endl;
+    Xyce::dout() << "  Instance::registerLIDs.  name = " << getName() << std::endl;
     Xyce::dout() << "  number of internal variables: " << numIntVars << std::endl;
     Xyce::dout() << "  number of external variables: " << numExtVars << std::endl;
   }
@@ -705,15 +687,14 @@ void Instance::registerStateLIDs(const std::vector<int> & staLIDVecRef)
   {
     Xyce::dout() << std::endl;
     Xyce::dout() << section_divider << std::endl;
-    Xyce::dout() << "  In Instance::registerStateLIDs\n\n";
-    Xyce::dout() << "  name             = " << getName() << std::endl;
+    Xyce::dout() << "  In Instance::registerStateLIDs. name  = " << getName() << std::endl;
     Xyce::dout() << "  Number of State LIDs: " << numStateVars << std::endl;
   }
 
   // Copy over the global ID lists:
   staLIDVec = staLIDVecRef;
 
-  int lid=0;
+  int lid = 0;
   li_state_qgs  = staLIDVec[lid++];
   li_state_gcgs = staLIDVec[lid++];
 
@@ -755,7 +736,6 @@ void Instance::registerStoreLIDs(const std::vector<int> & stoLIDVecRef)
   li_store_vgd = stoLIDVec[lid++];
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerBranchDataLIDs
 // Purpose       :
@@ -775,7 +755,6 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
     li_branch_dev_is =  branchLIDVecRef[2];
   }
 }
-
 
 //----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
@@ -875,46 +854,46 @@ void Instance::setupPointers ()
   Linear::Matrix & dQdx = *(extData.dQdxMatrixPtr);
 
   // F-matrix:
-  f_DrainEquDrainNodePtr             = 	&(dFdx[li_Drain][ADrainEquDrainNodeOffset]);
-  f_DrainEquDrainPrimeNodePtr        = 	&(dFdx[li_Drain][ADrainEquDrainPrimeNodeOffset]);
+  f_DrainEquDrainNodePtr             = &(dFdx[li_Drain][ADrainEquDrainNodeOffset]);
+  f_DrainEquDrainPrimeNodePtr        = &(dFdx[li_Drain][ADrainEquDrainPrimeNodeOffset]);
 
-  f_GateEquGateNodePtr               = 	&(dFdx[li_Gate][AGateEquGateNodeOffset]);
-  f_GateEquDrainPrimeNodePtr         = 	&(dFdx[li_Gate][AGateEquDrainPrimeNodeOffset]);
-  f_GateEquSourcePrimeNodePtr        = 	&(dFdx[li_Gate][AGateEquSourcePrimeNodeOffset]);
+  f_GateEquGateNodePtr               = &(dFdx[li_Gate][AGateEquGateNodeOffset]);
+  f_GateEquDrainPrimeNodePtr         = &(dFdx[li_Gate][AGateEquDrainPrimeNodeOffset]);
+  f_GateEquSourcePrimeNodePtr        = &(dFdx[li_Gate][AGateEquSourcePrimeNodeOffset]);
 
-  f_SourceEquSourceNodePtr           = 	&(dFdx[li_Source][ASourceEquSourceNodeOffset]);
-  f_SourceEquSourcePrimeNodePtr      = 	&(dFdx[li_Source][ASourceEquSourcePrimeNodeOffset]);
+  f_SourceEquSourceNodePtr           = &(dFdx[li_Source][ASourceEquSourceNodeOffset]);
+  f_SourceEquSourcePrimeNodePtr      = &(dFdx[li_Source][ASourceEquSourcePrimeNodeOffset]);
 
-  f_DrainPrimeEquDrainNodePtr        = 	&(dFdx[li_DrainPrime][ADrainPrimeEquDrainNodeOffset]);
-  f_DrainPrimeEquGateNodePtr         = 	&(dFdx[li_DrainPrime][ADrainPrimeEquGateNodeOffset]);
-  f_DrainPrimeEquDrainPrimeNodePtr   = 	&(dFdx[li_DrainPrime][ADrainPrimeEquDrainPrimeNodeOffset]);
-  f_DrainPrimeEquSourcePrimeNodePtr  = 	&(dFdx[li_DrainPrime][ADrainPrimeEquSourcePrimeNodeOffset]);
+  f_DrainPrimeEquDrainNodePtr        = &(dFdx[li_DrainPrime][ADrainPrimeEquDrainNodeOffset]);
+  f_DrainPrimeEquGateNodePtr         = &(dFdx[li_DrainPrime][ADrainPrimeEquGateNodeOffset]);
+  f_DrainPrimeEquDrainPrimeNodePtr   = &(dFdx[li_DrainPrime][ADrainPrimeEquDrainPrimeNodeOffset]);
+  f_DrainPrimeEquSourcePrimeNodePtr  = &(dFdx[li_DrainPrime][ADrainPrimeEquSourcePrimeNodeOffset]);
 
-  f_SourcePrimeEquGateNodePtr        = 	&(dFdx[li_SourcePrime][ASourcePrimeEquGateNodeOffset]);
-  f_SourcePrimeEquSourceNodePtr      = 	&(dFdx[li_SourcePrime][ASourcePrimeEquSourceNodeOffset]);
-  f_SourcePrimeEquDrainPrimeNodePtr  = 	&(dFdx[li_SourcePrime][ASourcePrimeEquDrainPrimeNodeOffset]);
-  f_SourcePrimeEquSourcePrimeNodePtr = 	&(dFdx[li_SourcePrime][ASourcePrimeEquSourcePrimeNodeOffset]);
+  f_SourcePrimeEquGateNodePtr        = &(dFdx[li_SourcePrime][ASourcePrimeEquGateNodeOffset]);
+  f_SourcePrimeEquSourceNodePtr      = &(dFdx[li_SourcePrime][ASourcePrimeEquSourceNodeOffset]);
+  f_SourcePrimeEquDrainPrimeNodePtr  = &(dFdx[li_SourcePrime][ASourcePrimeEquDrainPrimeNodeOffset]);
+  f_SourcePrimeEquSourcePrimeNodePtr = &(dFdx[li_SourcePrime][ASourcePrimeEquSourcePrimeNodeOffset]);
 
   // Q-matrix:
-  q_DrainEquDrainNodePtr             = 	&(dQdx[li_Drain][ADrainEquDrainNodeOffset]);
-  q_DrainEquDrainPrimeNodePtr        = 	&(dQdx[li_Drain][ADrainEquDrainPrimeNodeOffset]);
+  q_DrainEquDrainNodePtr             = &(dQdx[li_Drain][ADrainEquDrainNodeOffset]);
+  q_DrainEquDrainPrimeNodePtr        = &(dQdx[li_Drain][ADrainEquDrainPrimeNodeOffset]);
 
-  q_GateEquGateNodePtr               = 	&(dQdx[li_Gate][AGateEquGateNodeOffset]);
-  q_GateEquDrainPrimeNodePtr         = 	&(dQdx[li_Gate][AGateEquDrainPrimeNodeOffset]);
-  q_GateEquSourcePrimeNodePtr        = 	&(dQdx[li_Gate][AGateEquSourcePrimeNodeOffset]);
+  q_GateEquGateNodePtr               = &(dQdx[li_Gate][AGateEquGateNodeOffset]);
+  q_GateEquDrainPrimeNodePtr         = &(dQdx[li_Gate][AGateEquDrainPrimeNodeOffset]);
+  q_GateEquSourcePrimeNodePtr        = &(dQdx[li_Gate][AGateEquSourcePrimeNodeOffset]);
 
-  q_SourceEquSourceNodePtr           = 	&(dQdx[li_Source][ASourceEquSourceNodeOffset]);
-  q_SourceEquSourcePrimeNodePtr      = 	&(dQdx[li_Source][ASourceEquSourcePrimeNodeOffset]);
+  q_SourceEquSourceNodePtr           = &(dQdx[li_Source][ASourceEquSourceNodeOffset]);
+  q_SourceEquSourcePrimeNodePtr      = &(dQdx[li_Source][ASourceEquSourcePrimeNodeOffset]);
 
-  q_DrainPrimeEquDrainNodePtr        = 	&(dQdx[li_DrainPrime][ADrainPrimeEquDrainNodeOffset]);
-  q_DrainPrimeEquGateNodePtr         = 	&(dQdx[li_DrainPrime][ADrainPrimeEquGateNodeOffset]);
-  q_DrainPrimeEquDrainPrimeNodePtr   = 	&(dQdx[li_DrainPrime][ADrainPrimeEquDrainPrimeNodeOffset]);
-  q_DrainPrimeEquSourcePrimeNodePtr  = 	&(dQdx[li_DrainPrime][ADrainPrimeEquSourcePrimeNodeOffset]);
+  q_DrainPrimeEquDrainNodePtr        = &(dQdx[li_DrainPrime][ADrainPrimeEquDrainNodeOffset]);
+  q_DrainPrimeEquGateNodePtr         = &(dQdx[li_DrainPrime][ADrainPrimeEquGateNodeOffset]);
+  q_DrainPrimeEquDrainPrimeNodePtr   = &(dQdx[li_DrainPrime][ADrainPrimeEquDrainPrimeNodeOffset]);
+  q_DrainPrimeEquSourcePrimeNodePtr  = &(dQdx[li_DrainPrime][ADrainPrimeEquSourcePrimeNodeOffset]);
 
-  q_SourcePrimeEquGateNodePtr        = 	&(dQdx[li_SourcePrime][ASourcePrimeEquGateNodeOffset]);
-  q_SourcePrimeEquSourceNodePtr      = 	&(dQdx[li_SourcePrime][ASourcePrimeEquSourceNodeOffset]);
-  q_SourcePrimeEquDrainPrimeNodePtr  = 	&(dQdx[li_SourcePrime][ASourcePrimeEquDrainPrimeNodeOffset]);
-  q_SourcePrimeEquSourcePrimeNodePtr = 	&(dQdx[li_SourcePrime][ASourcePrimeEquSourcePrimeNodeOffset]);
+  q_SourcePrimeEquGateNodePtr        = &(dQdx[li_SourcePrime][ASourcePrimeEquGateNodeOffset]);
+  q_SourcePrimeEquSourceNodePtr      = &(dQdx[li_SourcePrime][ASourcePrimeEquSourceNodeOffset]);
+  q_SourcePrimeEquDrainPrimeNodePtr  = &(dQdx[li_SourcePrime][ASourcePrimeEquDrainPrimeNodeOffset]);
+  q_SourcePrimeEquSourcePrimeNodePtr = &(dQdx[li_SourcePrime][ASourcePrimeEquSourcePrimeNodeOffset]);
 
 #endif
 }
@@ -952,7 +931,6 @@ bool Instance::updatePrimaryState ()
 bool Instance::updateIntermediateVars ()
 {
   double * solVec = extData.nextSolVectorRawPtr;
-  double * currStaVec = extData.currStaVectorRawPtr;
 
   int    dtype;
   double csat, betap;
@@ -1055,11 +1033,13 @@ bool Instance::updateIntermediateVars ()
       double * currStoVec = extData.currStoVectorRawPtr;
       vgs_old = currStoVec[li_store_vgs];
       vgd_old = currStoVec[li_store_vgd];
+      vds_old = vgs_old - vgd_old;
     }
     else
     { // there is no history
       vgs_old = vgs;
       vgd_old = vgd;
+      vds_old = vds;
     }
   }
   else
@@ -1067,10 +1047,11 @@ bool Instance::updateIntermediateVars ()
     double *stoVec = extData.nextStoVectorRawPtr;
     vgs_old = stoVec[li_store_vgs];
     vgd_old = stoVec[li_store_vgd];
+    vds_old = vgs_old - vgd_old;
   }
 
   // SPICE-type Voltage Limiting
-  ///////////////////////////////
+  ////////////////////////////////////////////
 
   if (getDeviceOptions().voltageLimiterFlag)
   {
@@ -1453,6 +1434,7 @@ bool Instance::loadDAEFVector ()
   {
     fVec[li_Drain ] += Idrain;
   }
+
   if (sourceCond != 0.0)
   {
     fVec[li_Source] += Isource;
@@ -1468,12 +1450,12 @@ bool Instance::loadDAEFVector ()
     dFdxdVp[li_DrainPrime ] += (-cdreq_Jdxp+ceqgd_Jdxp);
     dFdxdVp[li_SourcePrime] += ( cdreq_Jdxp+ceqgs_Jdxp);
   }
-  
-  if( loadLeadCurrent )
+
+ if( loadLeadCurrent )
   {
     double * leadF = extData.nextLeadCurrFCompRawPtr;
     double * junctionV = extData.nextJunctionVCompRawPtr;
-    if (drainCond != 0.0)
+    if (drainCond  != 0.0)
     {
       leadF[li_branch_dev_id] = Idrain;
     }
@@ -1495,6 +1477,7 @@ bool Instance::loadDAEFVector ()
     junctionV[li_branch_dev_ig] = solVec[li_Gate] - solVec[li_Source];
     junctionV[li_branch_dev_is] = 0.0;
   }
+
 
   return true;
 }
@@ -1518,7 +1501,7 @@ bool Instance::loadDAEdQdx ()
 {
   Linear::Matrix & dQdx = *(extData.dQdxMatrixPtr);
 
-  dQdx[li_Gate       ][AGateEquGateNodeOffset        ] += capgd+capgs;
+  dQdx[li_Gate       ][AGateEquGateNodeOffset              ] += capgd+capgs;
   dQdx[li_Gate       ][AGateEquDrainPrimeNodeOffset        ] -= capgd;
   dQdx[li_Gate       ][AGateEquSourcePrimeNodeOffset       ] -= capgs;
   dQdx[li_DrainPrime ][ADrainPrimeEquGateNodeOffset        ] -= capgd;
@@ -1598,8 +1581,7 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
 //    Xyce::dout() << subsection_divider << std::endl;
-    Xyce::dout() << "  Instance::Begin of updateTemperature. \n";
-    Xyce::dout() << "  name = " << getName() << std::endl;
+    Xyce::dout() << "  Instance::Begin of updateTemperature.  name = " << getName() << std::endl;
     Xyce::dout() << std::endl;
   }
 
@@ -1609,9 +1591,10 @@ bool Instance::updateTemperature ( const double & temp_tmp)
     temp = temp_tmp;
     temp += dtemp;
   }
+
   if (model_.interpolateTNOM(temp))
   {
-    // make sure interpolation doesn't take any resistance negative
+   // make sure interpolation doesn't take any resistance negative
     if(model_.RD < 0) model_.RD = 0;
     if(model_.RS < 0) model_.RS = 0;
 
@@ -1718,6 +1701,21 @@ bool Instance::updateTemperature ( const double & temp_tmp)
 //-----------------------------------------------------------------------------
 bool Instance::processParams ()
 {
+  if (!given("TEMP"))
+  {
+    temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
+
   // process source/drain series resistance
   drainCond = 0;
   if (model_.RD != 0)
@@ -1727,7 +1725,6 @@ bool Instance::processParams ()
     sourceCond = area/model_.RS;
 
   updateTemperature(temp);
-
   return true;
 }
 
@@ -1748,7 +1745,6 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
   for (InstanceVector::const_iterator it = getInstanceBegin(); it != getInstanceEnd(); ++it)
   {
     Instance & ji = *(*it);
-
     bool btmp = ji.updateIntermediateVars ();
     bsuccess = bsuccess && btmp;
 
@@ -1794,10 +1790,12 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     {
       fVec[ji.li_Drain ] += ji.Idrain;
     }
+
     if (ji.sourceCond != 0.0)
     {
       fVec[ji.li_Source] += ji.Isource;
     }
+
     fVec[ji.li_Gate       ] += (f_ceqgs+f_ceqgd);
     fVec[ji.li_DrainPrime ] -= (ji.Idrain +(-f_cdreq+f_ceqgd));
     fVec[ji.li_SourcePrime] -= (ji.Isource+(f_cdreq+f_ceqgs));
@@ -1811,7 +1809,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
 
     // Q-vector:
     double * dQdxdVp = ji.extData.dQdxdVpVectorRawPtr;
-
     // set up the final load variables:
     double q_ceqgd = Dtype*(ji.qgd);
     double q_ceqgs = Dtype*(((ji.qgs+ji.qgd)-ji.qgd));
@@ -1831,7 +1828,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       dQdxdVp[ji.li_DrainPrime ] += (-q_cdreq_Jdxp+q_ceqgd_Jdxp);
       dQdxdVp[ji.li_SourcePrime] += ( q_cdreq_Jdxp+q_ceqgs_Jdxp);
     }
-
     if( ji.loadLeadCurrent )
     {
       if (ji.drainCond != 0.0)
@@ -1850,7 +1846,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       else
       {
         leadF[ji.li_branch_dev_is] = -(ji.Isource+(f_cdreq+f_ceqgs));
-        leadQ[ji.li_branch_dev_is] = -( q_cdreq+q_ceqgs);
+        leadQ[ji.li_branch_dev_is] = -(q_cdreq+q_ceqgs);
       }
       leadF[ji.li_branch_dev_ig] = (f_ceqgs+f_ceqgd);
       leadQ[ji.li_branch_dev_ig] = (q_ceqgs+q_ceqgd);
@@ -1859,7 +1855,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
       junctionV[ji.li_branch_dev_ig] = solVec[ji.li_Gate] - solVec[ji.li_Source];
       junctionV[ji.li_branch_dev_is] = 0.0;
     }
-
   }
 
   return true;
@@ -1918,7 +1913,7 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 
     // Q-matrix:
 
-    *ji.q_GateEquGateNodePtr         += ji.capgd+ji.capgs;
+    *ji.q_GateEquGateNodePtr               += ji.capgd+ji.capgs;
 
     *ji.q_GateEquDrainPrimeNodePtr         -= ji.capgd;
 
@@ -1947,6 +1942,7 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 //-----------------------------------------------------------------------------
 bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 {
+
   for (InstanceVector::const_iterator it = getInstanceBegin(); it != getInstanceEnd(); ++it)
   {
     Instance & ji = *(*it);

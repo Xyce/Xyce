@@ -179,7 +179,6 @@ std::vector< std::vector<int> > Instance::jacMap2_SC;
 std::vector< std::vector<int> > Instance::jacMap2;
 
 //--------------------- Class Model ---------------------------------
-
 //-----------------------------------------------------------------------------
 // Function      : Model::Model
 // Purpose       : model block constructor
@@ -357,7 +356,6 @@ bool Model::processInstanceParams()
 }
 
 //-------------------------- Class Instance -------------------------
-
 //-----------------------------------------------------------------------------
 // Function      : Instance::Instance
 // Purpose       : instance block constructor
@@ -528,14 +526,14 @@ Instance::Instance(
     li_store_vgs(-1),
     li_store_vgd(-1),
     li_branch_dev_id(-1),
-    li_branch_dev_is(-1),
     li_branch_dev_ig(-1),
+    li_branch_dev_is(-1),
     li_state_qgs(-1),
     li_state_gcgs(-1),
     li_state_qgd(-1),
     li_state_gcgd(-1)
 {
-  numIntVars   = 2;  // may be reset in processParams
+  numIntVars   = 2;
   numExtVars   = 3;
   numStateVars = 4;
   setNumStoreVars(2);
@@ -593,14 +591,13 @@ Instance::Instance(
   // Calculate any parameters specified as expressions:
   updateDependentParameters();
 
-  // calculate dependent (ie computed) params and check for errors:
   processParams ();
 
   numIntVars = (((sourceCond == 0.0)?0:1)+((drainCond == 0.0)?0:1));
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::Instance
+// Function      : Instance::~Instance
 // Purpose       : destructor
 // Special Notes :
 // Scope         : public
@@ -670,7 +667,6 @@ void Instance::registerLIDs( const std::vector<int> & intLIDVecRef,
 
     Xyce::dout() << section_divider << std::endl;
   }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -691,9 +687,9 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 
   if (loadLeadCurrent)
   {
-    addBranchDataNode( symbol_table, li_branch_dev_id, getName(), "BRANCH_DD");
-    addBranchDataNode( symbol_table, li_branch_dev_is, getName(), "BRANCH_DS");
-    addBranchDataNode( symbol_table, li_branch_dev_ig, getName(), "BRANCH_DG");
+    addBranchDataNode(symbol_table, li_branch_dev_id, getName(), "BRANCH_DD");
+    addBranchDataNode(symbol_table, li_branch_dev_is, getName(), "BRANCH_DS");
+    addBranchDataNode(symbol_table, li_branch_dev_ig, getName(), "BRANCH_DG");
   }
 }
 
@@ -721,13 +717,11 @@ void Instance::registerStateLIDs(const std::vector<int> & staLIDVecRef)
   staLIDVec = staLIDVecRef;
 
   int lid = 0;
-
   li_state_qgs  = staLIDVec[lid++];
   li_state_gcgs = staLIDVec[lid++];
 
   li_state_qgd  = staLIDVec[lid++];
   li_state_gcgd = staLIDVec[lid++];
-
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
@@ -1591,7 +1585,7 @@ bool Instance::loadDAEFVector ()
   double ceqgs_Jdxp = -Dtype*(ggs*(vgs-vgs_orig));
   double cdreq_Jdxp = -Dtype*(gds*(vds-vds_orig)+gm*(vgs-vgs_orig));
 
-  // optional load JFETs:
+  // optional load resistors:
   if (drainCond  != 0.0)
   {
     fVec[li_Drain ] += Idrain;
@@ -1888,7 +1882,6 @@ bool Instance::processParams ()
   return true;
 }
 
-
 // JFET Master functions:
 
 //-----------------------------------------------------------------------------
@@ -1946,7 +1939,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double f_ceqgs_Jdxp = -Dtype*(ji.ggs*(ji.vgs-ji.vgs_orig));
     double f_cdreq_Jdxp = -Dtype*(ji.gds*(ji.vds-ji.vds_orig)+ji.gm*(ji.vgs-ji.vgs_orig));
 
-    // optional load JFETs:
+    // optional load resistors:
     if (ji.drainCond  != 0.0)
     {
       fVec[ji.li_Drain ] += ji.Idrain;
@@ -1991,7 +1984,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     }
     if( ji.loadLeadCurrent )
     {
-      if (ji.drainCond  != 0.0)
+      if (ji.drainCond != 0.0)
       {
         leadF[ji.li_branch_dev_id] = ji.Idrain;
       }
@@ -2010,7 +2003,7 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
         leadQ[ji.li_branch_dev_is] = -(q_cdreq+q_ceqgs);
       }
       leadF[ji.li_branch_dev_ig] = (f_ceqgs+f_ceqgd);
-      leadQ[ji.li_branch_dev_ig] = q_ceqgs+q_ceqgd;
+      leadQ[ji.li_branch_dev_ig] = (q_ceqgs+q_ceqgd);
 
       junctionV[ji.li_branch_dev_id] = solVec[ji.li_Drain] - solVec[ji.li_Source];
       junctionV[ji.li_branch_dev_ig] = solVec[ji.li_Gate] - solVec[ji.li_Source];
