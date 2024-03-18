@@ -180,6 +180,7 @@ private:
 
   // store vector location for device lead current
   int li_branch_data;
+  int li_control;
 
   // Offset variables corresponding to the above declared indices.
   int APosEquPosNodeOffset;
@@ -271,10 +272,22 @@ private:
   double RON;
   double ROFF;
   double ON;
+  double ONH;     // ON hysteresis
   double OFF;
+  double OFFH;    // OFF hysteresis
   double dInv;    // the inverse of (ON-OFF) or 1e-12, if too small.
+  double dInvHOn; // the inverse of (ONH-OFF) with hysteresis from the On state  or 1e-12, if too small.
+  double dInvHOff;// the inverse of (ON-OFFH) with hysteresis from the Off state or 1e-12, if too small.
   double Lm;      // log mean of resistances
   double Lr;      // log ratio of resistor values
+  double VHON;    // on - off
+  double VHOFF;   // values used
+  double IHON;    // for hysteresis
+  double IHOFF;   // modeling
+  bool VHONGiven;
+  bool VHOFFGiven;
+  bool IHONGiven;
+  bool IHOFFGiven;
 };
 
 //-----------------------------------------------------------------------------
