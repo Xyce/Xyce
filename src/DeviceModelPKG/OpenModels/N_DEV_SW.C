@@ -689,11 +689,17 @@ Model::Model(
     if( IHONGiven )
       ONH = IHON;
     else
+    {
       ONH = ON;
+      IHON = ION;
+    }
     if( IHOFFGiven )
       OFFH = IHOFF;
     else
+    {
       OFFH = OFF;
+      IHOFF = IOFF;
+    }
   }
   else if (dtype == 3)
   {
@@ -705,11 +711,17 @@ Model::Model(
     if( VHONGiven )
       ONH = VHON;
     else
+    {
       ONH = ON;
+      VHON = VON;
+    }
     if( VHOFFGiven )
       OFFH = VHOFF;
     else
+    {
       OFFH = OFF;
+      VHOFF = VOFF;
+    }
   }
 
   processParams();
@@ -928,14 +940,14 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
     si.v_pos = solVec[si.li_Pos];
     si.v_neg = solVec[si.li_Neg];
 
-    if (current_state >= 1.0)
+    if ((current_state >= 1.0) || ((last_state >= 1.0) && (current_stateHysOn >= 1.0)))
     {
       si.R = si.getModel().RON;
       si.G = 1.0/si.R;
       for (int i=0 ; i<si.expNumVars ; ++i)
         si.expVarDerivs[i] = 0;
     }
-    else if ( current_state <= 0.0)
+    else if (( current_state <= 0.0) || ((last_state <= 0.0) && (current_stateHysOff <= 0.0)))
     {
       si.R = si.getModel().ROFF;
       si.G = 1.0/si.R;
