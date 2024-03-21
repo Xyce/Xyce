@@ -95,18 +95,42 @@ void Traits::loadModelParameters(ParametricData<SW::Model> &p)
      .setUnit(U_VOLT)
      .setCategory(CAT_NONE)
      .setDescription("On voltage");
-
+     
+    p.addPar ("VHON",1.0,&SW::Model::VHON)
+     .setGivenMember(&SW::Model::VHONGiven)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_NONE)
+     .setDescription("On voltage with hysteresis");
+     
     p.addPar ("VOFF",0.0,&SW::Model::VOFF)
      .setUnit(U_VOLT)
      .setCategory(CAT_NONE)
      .setDescription("Off voltage");
-
+     
+    p.addPar ("VHOFF",0.0,&SW::Model::VHOFF)
+     .setGivenMember(&SW::Model::VHOFFGiven)
+     .setUnit(U_VOLT)
+     .setCategory(CAT_NONE)
+     .setDescription("Off voltage with hysteresis");
+     
     p.addPar ("ION",0.001,&SW::Model::ION)
      .setUnit(U_AMP)
      .setCategory(CAT_NONE)
      .setDescription("On current");
+     
+    p.addPar ("IHON",0.001,&SW::Model::IHON)
+     .setGivenMember(&SW::Model::IHONGiven)
+     .setUnit(U_AMP)
+     .setCategory(CAT_NONE)
+     .setDescription("On current with hysteresis");
 
     p.addPar ("IOFF",0.0,&SW::Model::IOFF)
+     .setUnit(U_AMP)
+     .setCategory(CAT_NONE)
+     .setDescription("Off current with hysteresis");
+     
+    p.addPar ("IHOFF",0.0,&SW::Model::IOFF)
+     .setGivenMember(&SW::Model::IHOFFGiven)
      .setUnit(U_AMP)
      .setCategory(CAT_NONE)
      .setDescription("Off current");
@@ -173,7 +197,7 @@ Instance::Instance(
   numIntVars = 0;
   numExtVars = 2;
   numStateVars = 1;
-  setNumStoreVars(0);  // Initialize number if store variables in DeviceInstance
+  setNumStoreVars(1);                  // Initialize number if store variables in DeviceInstance
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 1;    // this is the space to allocate if lead current or power is needed.
 
@@ -305,6 +329,12 @@ void Instance::registerStateLIDs( const std::vector<int> & staLIDVecRef )
 //-----------------------------------------------------------------------------
 void Instance::registerStoreLIDs(const std::vector<int> & stoLIDVecRef )
 {
+  AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  // copy over the global ID lists.
+  stoLIDVec = stoLIDVecRef;
+
+  li_control = stoLIDVec[0];
 }
 
 //-----------------------------------------------------------------------------
@@ -437,11 +467,13 @@ bool Instance::updatePrimaryState ()
 //-----------------------------------------------------------------------------
 bool Instance::updateSecondaryState ()
 {
-  double current_state;
+  double current_state, last_state, current_stateHysOn, current_stateHysOff;
   double control;
   int i;
 
   double * solVec = extData.nextSolVectorRawPtr;
+  double * stoVec = extData.nextStoVectorRawPtr;
+  double * stoVecLast = extData.lastStoVectorRawPtr;
 
   // Evaluate Expression with corrected time derivative values
 
@@ -460,9 +492,16 @@ bool Instance::updateSecondaryState ()
   }
   else
   {
+    // current state with NO hysteresis
     current_state = (control-model_.OFF)*model_.dInv;
+    // current state with hysteresis on the ON state 
+    current_stateHysOn = (control-model_.OFF)*model_.dInvHOn;
+    // current state with hysteresis on the OFF state
+    current_stateHysOff = (control-model_.OFFH)*model_.dInvHOff;
   }
 
+  stoVec[li_control] = current_state;
+  last_state = stoVecLast[li_control];
   v_pos = solVec[li_Pos];
   v_neg = solVec[li_Neg];
 
@@ -646,6 +685,21 @@ Model::Model(
       ON = ION;
     if (!given("OFF"))
       OFF = IOFF;
+      
+    if( IHONGiven )
+      ONH = IHON;
+    else
+    {
+      ONH = ON;
+      IHON = ION;
+    }
+    if( IHOFFGiven )
+      OFFH = IHOFF;
+    else
+    {
+      OFFH = OFF;
+      IHOFF = IOFF;
+    }
   }
   else if (dtype == 3)
   {
@@ -653,6 +707,21 @@ Model::Model(
       ON = VON;
     if (!given("OFF"))
       OFF = VOFF;
+    
+    if( VHONGiven )
+      ONH = VHON;
+    else
+    {
+      ONH = ON;
+      VHON = VON;
+    }
+    if( VHOFFGiven )
+      OFFH = VHOFF;
+    else
+    {
+      OFFH = OFF;
+      VHOFF = VOFF;
+    }
   }
 
   processParams();
@@ -668,18 +737,32 @@ Model::Model(
 //-----------------------------------------------------------------------------
 bool Model::processParams ()
 {
-  double del;
+  double del, delOnH, delOffH;
   Lm = log (sqrt(RON*ROFF));
   Lr = log (RON/ROFF);
 
   del = ON-OFF;
+  delOnH = ONH-OFF;
+  delOffH = ON-OFFH;
 
   if (del < 0 && del > -1e-12)
     del = -1e-12;
   if (del >= 0 && del < 1e-12)
     del = 1e-12;
   dInv = 1.0/del;
-
+  
+  if (delOnH < 0 && delOnH > -1e-12)
+    delOnH = -1e-12;
+  if (delOnH >= 0 && delOnH < 1e-12)
+    delOnH = 1e-12;
+  dInvHOn = 1.0/delOnH;
+  
+  if (dInvHOff < 0 && dInvHOff > -1e-12)
+    dInvHOff = -1e-12;
+  if (dInvHOff >= 0 && dInvHOff < 1e-12)
+    dInvHOff = 1e-12;
+  dInvHOff = 1.0/delOffH;
+  
   return true;
 }
 
@@ -821,9 +904,11 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
   {
     Instance & si = *(*it);
 
-    double current_state;
+    double current_state, last_state, current_stateHysOn, current_stateHysOff;;
     double control;
     double * solVec = si.extData.nextSolVectorRawPtr;
+    double * stoVec = si.extData.nextStoVectorRawPtr;
+    double * stoVecLast = si.extData.lastStoVectorRawPtr;
 
     // Evaluate Expression with corrected time derivative values
 
@@ -842,20 +927,27 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
     }
     else
     {
+      // current state with NO hysteresis
       current_state = (control-si.getModel().OFF)*si.getModel().dInv;
+      // current state with hysteresis on the ON state 
+      current_stateHysOn = (control-si.getModel().OFF)*si.getModel().dInvHOn;
+      // current state with hysteresis on the OFF state
+      current_stateHysOff = (control-si.getModel().OFFH)*si.getModel().dInvHOff;
     }
-
+    stoVec[si.li_control] = current_state;
+    last_state = stoVecLast[si.li_control];
+        
     si.v_pos = solVec[si.li_Pos];
     si.v_neg = solVec[si.li_Neg];
 
-    if (current_state >= 1.0)
+    if ((current_state >= 1.0) || ((last_state >= 1.0) && (current_stateHysOn >= 1.0)))
     {
       si.R = si.getModel().RON;
       si.G = 1.0/si.R;
       for (int i=0 ; i<si.expNumVars ; ++i)
         si.expVarDerivs[i] = 0;
     }
-    else if ( current_state <= 0.0)
+    else if (( current_state <= 0.0) || ((last_state <= 0.0) && (current_stateHysOff <= 0.0)))
     {
       si.R = si.getModel().ROFF;
       si.G = 1.0/si.R;
