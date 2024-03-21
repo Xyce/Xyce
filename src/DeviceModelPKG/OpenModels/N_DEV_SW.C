@@ -139,7 +139,17 @@ void Traits::loadModelParameters(ParametricData<SW::Model> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("On control value");
-
+     
+    p.addPar ("ONH",1.0,&SW::Model::ONH)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("On control value with hysteresis");
+     
+    p.addPar ("OFFH",0.0,&SW::Model::OFFH)
+     .setUnit(U_NONE)
+     .setCategory(CAT_NONE)
+     .setDescription("Off control value with hysteresis");
+    
     p.addPar ("OFF",0.0,&SW::Model::OFF)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
