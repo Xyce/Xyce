@@ -51,6 +51,14 @@ changes in a continuous manner between the \texttt{RON} and
 No resistance is inserted between the control nodes.  It is up to the
 user to make sure that these nodes are not floating.
 
+Hysteresis in the switching behavior of the device can be controlled with 
+the model parameters \texttt{IHON}, \texttt{IHOFF}, \texttt{VHON} and
+\texttt{IVOFF} for current and voltage controlled switches respectively.  
+For a general switch that is dependent on an expression hysteresis can 
+behavior can be set with the model parameters v\texttt{ONH} and \texttt{OFFH}. 
+If none of these parameters are set then hysteresis is will not be used 
+for the device. 
+
 Even though evaluating the switch model is computationally
 inexpensive, for transient analysis \Xyce{} steps through the
 transition section using small time-steps in order to calculate the
