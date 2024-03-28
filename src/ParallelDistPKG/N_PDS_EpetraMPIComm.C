@@ -203,10 +203,15 @@ int EpetraMPIComm::procID() const
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::scanSum( const double * vals, double * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->ScanSum( const_cast<double *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(sums == nullptr && count > 0) { return false; }
+    return ( MPI_Scan(const_cast<double *>(vals), sums, const_cast<int &>(count), MPI_DOUBLE, MPI_SUM, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -218,10 +223,15 @@ bool EpetraMPIComm::scanSum( const double * vals, double * sums,
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::sumAll( const double * vals, double * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->SumAll( const_cast<double *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(sums == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<double *>(vals), sums, const_cast<int &>(count), MPI_DOUBLE, MPI_SUM, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -233,10 +243,15 @@ bool EpetraMPIComm::sumAll( const double * vals, double * sums,
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::maxAll( const double * vals, double * maxs,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MaxAll( const_cast<double *> (vals), maxs,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(maxs == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<double *>(vals), maxs, const_cast<int &>(count), MPI_DOUBLE, MPI_MAX, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -248,10 +263,15 @@ bool EpetraMPIComm::maxAll( const double * vals, double * maxs,
 // Creation Date : 08/30/01
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::minAll( const double * vals, double * mins,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MinAll( const_cast<double *> (vals), mins,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(mins == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<double *>(vals), mins, const_cast<int &>(count), MPI_DOUBLE, MPI_MIN, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -263,10 +283,15 @@ bool EpetraMPIComm::minAll( const double * vals, double * mins,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::scanSum( const int * vals, int * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->ScanSum( const_cast<int *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(sums == nullptr && count > 0) { return false; }
+    return ( MPI_Scan(const_cast<int *>(vals), sums, const_cast<int &>(count), MPI_INT, MPI_SUM, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -278,10 +303,15 @@ bool EpetraMPIComm::scanSum( const int * vals, int * sums,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::sumAll( const int * vals, int * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->SumAll( const_cast<int *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(sums == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<int *>(vals), sums, const_cast<int &>(count), MPI_INT, MPI_SUM, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -293,10 +323,15 @@ bool EpetraMPIComm::sumAll( const int * vals, int * sums,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::maxAll( const int * vals, int * maxs,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MaxAll( const_cast<int *> (vals), maxs,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(maxs == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<int *>(vals), maxs, const_cast<int &>(count), MPI_INT, MPI_MAX, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------
@@ -308,10 +343,15 @@ bool EpetraMPIComm::maxAll( const int * vals, int * maxs,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraMPIComm::minAll( const int * vals, int * mins,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MinAll( const_cast<int *> (vals), mins,
-		const_cast<int &> (count) ) == 0 );
+  #ifdef Xyce_PARALLEL_MPI
+    if(vals == nullptr && count > 0) { return false; }
+    if(mins == nullptr && count > 0) { return false; }
+    return ( MPI_Allreduce(const_cast<int *>(vals), mins, const_cast<int &>(count), MPI_INT, MPI_MIN, mpiComm_) == 0 );
+  #else
+    return false;
+  #endif
 }
 
 //-----------------------------------------------------------------------------

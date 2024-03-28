@@ -80,7 +80,7 @@ public:
   // NOTE:  This is used for generating augmented linear systems.
   virtual bool isLastProc() const = 0;
 
-  // Wrappers for Petra_Comm functionality
+  // Wrappers for select Scan and AllReduce functionality
   virtual bool scanSum(const double * vals, double * sums, const int & count) const = 0;
   virtual bool sumAll(const double * vals, double * sums, const int & count) const = 0;
   virtual bool maxAll(const double * vals, double * maxs, const int & count) const = 0;

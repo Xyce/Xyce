@@ -85,7 +85,7 @@ public:
   // NOTE:  This is used for generating augmented linear systems.
   bool isLastProc() const { return true; }
 
-  // Wrappers for Petra_Comm functionality.
+  // Wrappers for serial (non-MPI) Scan and AllReduce functionality.
   bool scanSum(const double * vals, double * sums, const int & count) const;
   bool sumAll(const double * vals, double * sums, const int & count) const;
   bool maxAll(const double * vals, double * maxs, const int & count) const;
