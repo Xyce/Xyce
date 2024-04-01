@@ -109,7 +109,14 @@ JFET and MESFET.
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item
+
+
+\item The spice strategy, which is the default nonlinear solve method for DC 
+calculations, has been improved. Previously, if spice strategy is used in
+DC sweeps and one DC solve fails, the solutions after a failed DC can 
+be incorrect. The robustness of spice strategy in Xyce is improved and it now
+solves correct results after a failed DC in DC sweeps. 
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
