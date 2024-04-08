@@ -281,6 +281,10 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
+  set(CTEST_SITE "ascic")
+endif()
+
 # add any postfix to the site
 set(CTEST_SITE "${CTEST_SITE} ${xyceSitePostFix}")
 

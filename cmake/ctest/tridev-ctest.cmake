@@ -3,6 +3,7 @@
 
 # arguments:
 #   -DVERBOSITY=<0-5>
+#   -DTRACK=<Nightly|OnDemand>
 #   -DBUILD_WITH_MPI=<ON|OFF>
 #   -DBUILD_DIR=<subdirectory in which to actually build trilinos>
 #   -DBUILD_NAME=<name of build to be displayed on dashboard>
@@ -17,6 +18,10 @@ endif()
 cmake_minimum_required(VERSION 3.23)
 
 set(CTEST_PROJECT_NAME "Xyce")
+
+if(NOT DEFINED TRACK)
+  set(TRACK "Nightly")
+endif()
 
 # you need this to match the one you'll be using when building xyce so
 # if pass it in if it's not the default as set below
@@ -62,6 +67,11 @@ find_program(HNAME NAMES hostname)
 execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# make the hostname generic for all ascic[0-9]* platforms
+if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
+  set(CTEST_SITE "ascic")
+endif()
 
 if(NOT DEFINED SITE_APPEND)
   set(CTEST_SITE "${CTEST_SITE} TrilinosDev")
@@ -153,7 +163,7 @@ endif()
 SET(CMAKE_MODULE_PATH
   "$ENV{WORKSPACE}/Trilinos/cmake/tribits/core/utils")
 
-ctest_start(Nightly GROUP Nightly)
+ctest_start(Nightly GROUP ${TRACK})
 ctest_configure()
 ctest_build()
 ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)
