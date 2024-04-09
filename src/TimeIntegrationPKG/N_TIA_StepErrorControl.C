@@ -1220,18 +1220,42 @@ void StepErrorControl::printBreakPoints (std::ostream & os) const
   BreakPointVector::const_iterator firstBP = breakPoints_.begin();
   BreakPointVector::const_iterator lastBP  = breakPoints_.end();
 
-  char tmp[128];
+  //char tmp[128];
 
   int i;
   for (i=0, itBP=firstBP;itBP!=lastBP;++i,++itBP)
   {
+    // There is probably a cleaner way to do this but the stringstream needs 
+    // to toggle between integer and scientific output between fields.  So just
+    // make two extra string streams with the scientific format and use those to 
+    // assemble the output.
+    std::stringstream tmp;
+    tmp.width(4);
+    std::stringstream tmp2;
+    tmp2.width(16);
+    tmp2.precision(8);
+    tmp2.flags(tmp2.flags() | std::ios_base::scientific);
+    std::stringstream tmp3;
+    tmp3.width(16);
+    tmp3.precision(8);
+    tmp3.flags(tmp3.flags() | std::ios_base::scientific);
+    
     if (i==0)
-      sprintf(tmp,"%4d %16.8e  type=%d",i,itBP->value(),itBP->bptype());
+    {
+      tmp << i << " ";
+      tmp2 << itBP->value();
+      tmp << tmp2.str() << "  type=" << itBP->bptype();
+    }
     else
-      sprintf(tmp,"%4d %16.8e type=%d diff=%16.8e", i, itBP->value(),
-	      itBP->bptype(),(itBP->value()-itBP2->value()));
+    {
+	  tmp << i << " ";
+      tmp2 << itBP->value();
+      tmp3 << (itBP->value()-itBP2->value());
+      tmp << tmp2.str() << "  type=" << itBP->bptype() << " diff=" << tmp3.str();
+	
+	}
 
-    os << std::string(tmp);
+    os << tmp.str();
     itBP2 = itBP;
   }
 }

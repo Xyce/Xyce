@@ -756,7 +756,7 @@ char msg[40];
 /* Begin `spcCreateElement'. */
 
 #ifdef CHECK_IND
-    sprintf (msg,"Top createdElement (%d,%d)",Row,Col);
+    snprintf (msg, 40, "Top createdElement (%d,%d)",Row,Col);
     spCheckInd(Matrix, msg);
 #endif
 
@@ -865,7 +865,7 @@ char msg[40];
     add_fast_col_index (Matrix, Row, Col, pCreatedElement);
 
 #ifdef CHECK_IND
-    sprintf (msg,"Bottom createdElement (%d,%d)",Row,Col);
+    snprintf (msg, 40, "Bottom createdElement (%d,%d)",Row,Col);
     spCheckInd(Matrix, msg);
 #endif
     return pCreatedElement;

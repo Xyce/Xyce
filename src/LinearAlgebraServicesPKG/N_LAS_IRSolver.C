@@ -38,6 +38,7 @@
 #include <Xyce_config.h>
 
 // ---------- Standard Includes ----------
+#include <sstream>
 
 #include <Amesos.h>
 #include <Epetra_LinearProblem.h>
@@ -544,17 +545,17 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
   if (outputLS_) {
     if (!(file_number % outputLS_)) {
       Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
-      char file_name[40];
-      sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      las_prob->getLHS()->writeToFile( file_name, false, true );
+      std::stringstream file_name("Transformed_Soln");
+      file_name << file_number << ".mm";
+      las_prob->getLHS()->writeToFile( file_name.str().c_str(), false, true );
     }
     file_number++;
   }
   if (outputBaseLS_) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
-      sprintf( file_name, "Base_Soln%d.mm", base_file_number );
-      lasProblem_.getLHS()->writeToFile( file_name, false, true );
+      std::stringstream file_name("Base_Soln");
+      file_name << base_file_number << ".mm";
+      lasProblem_.getLHS()->writeToFile( file_name.str().c_str(), false, true );
     }
     base_file_number++;
   }

@@ -3428,9 +3428,7 @@ void Transient::printProgress(std::ostream &os)
           minutes = static_cast<int> ((estCompletionTime - days * 86400 - hours * 3600) / 60);
           seconds = static_cast<int> (estCompletionTime - days * 86400 - hours * 3600 - minutes * 60);
 
-          char timeStr[256];
-          for (char *c = timeStr; c != timeStr + sizeof(timeStr); ++c)
-            *c = 0;
+          std::stringstream timeStStr("");
 
           if (Parallel::rank(comm_) == 0) 
           {
@@ -3441,7 +3439,9 @@ void Transient::printProgress(std::ostream &os)
             // format and display output
             if (!quiet_)
             {
-              if ( ( t != (time_t)-1 ) && ( strftime( timeStr, 255, "%c", now ) != 0 ) )
+              const uint maxStrSize = 256;
+              char timeStr[maxStrSize];
+              if ( ( t != (time_t)-1 ) && ( strftime( timeStr, maxStrSize, "%c", now ) != 0 ) )
               {
                 os << "***** Current system time: " << timeStr << std::endl;
               }
@@ -3453,17 +3453,31 @@ void Transient::printProgress(std::ostream &os)
           }
 
           if (days > 0)
-            sprintf(timeStr, "%3d days, %2d hrs., %2d min., %2d sec.", days, hours, minutes, seconds);
+          {
+            timeStStr.width(3);
+            timeStStr << days << " days, ";
+            timeStStr.width(2);
+            timeStStr << hours << " hrs., " << minutes << " min., " << seconds << " sec.";            
+          }
           else if (hours > 0)
-            sprintf(timeStr, "%2d hrs., %2d min., %2d sec.", hours, minutes, seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << hours << " hrs., " << minutes << " min., " << seconds << " sec."; 
+          }
           else if (minutes > 0)
-            sprintf(timeStr, "%2d min., %2d sec.", minutes, seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << minutes << " min., " << seconds << " sec."; 
+          }
           else
-            sprintf(timeStr, "%2d sec.", seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << seconds << " sec."; 
+          }
 
           if (!quiet_)
           {
-            os << "***** Estimated time to completion: " << timeStr << std::endl << std::endl;
+            os << "***** Estimated time to completion: " << timeStStr.str() << std::endl << std::endl;
           }
         }
       }

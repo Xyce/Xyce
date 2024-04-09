@@ -42,6 +42,7 @@
 
 
 // ---------- Standard Includes ----------
+#include <sstream>
 
 // ----------   Xyce Includes   ----------
 #include <N_UTL_fwd.h>
@@ -556,24 +557,28 @@ void NonLinearSolver::debugOutput1(
   int paramNumber = getParameterNumber ();
 
   if (!debugTimeFlag_ || !isActive(Diag::NONLINEAR_DUMP_MASK)) return;
-
-  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-  char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
+  
+  std::stringstream filename1("");
+  std::stringstream filename2("");
+  filename1.width(3);
+  filename1.fill('0');
+  filename2.width(3);
+  filename2.fill('0');
 
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
   {
-    sprintf(filename1, "matrix_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+    filename1 << "matrix_" << outputStepNumber_ << "_" << paramNumber << "_" << contStep << "_" << newtStep << ".txt";
   }
   if (isActive(Diag::NONLINEAR_DUMP_STEP))
   {
-    sprintf(filename1, "matrix_%03d_%03d.txt", outputStepNumber_, newtStep);
+    filename1 << "matrix_" << outputStepNumber_ << "_" << newtStep << ".txt";
   }
   if (isActive(Diag::NONLINEAR_DUMP))
   {
-    sprintf(filename1, "matrix_%03d.txt", newtStep);
+    filename1 << "matrix_" << newtStep << ".txt";
   }
 
-  jacobian.writeToFile(filename1, false, getMMFormat () );
+  jacobian.writeToFile(filename1.str().c_str(), false, getMMFormat () );
 
   if (screenOutput == 1)
   {
@@ -583,15 +588,15 @@ void NonLinearSolver::debugOutput1(
 
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
   {
-    sprintf(filename2, "rhs_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, newtStep);
+    filename2 << "rhs_" << outputStepNumber_ << "_" << paramNumber << "_" << contStep << "_" << newtStep << ".txt";
   }
   if (isActive(Diag::NONLINEAR_DUMP_STEP))
   {
-    sprintf(filename2, "rhs_%03d_%03d.txt", outputStepNumber_, newtStep);
+    filename2 << "rhs_" << outputStepNumber_ << "_" << newtStep << ".txt";
   }
   else
   {
-    sprintf(filename2, "rhs_%03d.txt", newtStep);
+    filename2 << "rhs_" << newtStep << ".txt";
   }
 
   if (screenOutput == 1)
@@ -601,7 +606,7 @@ void NonLinearSolver::debugOutput1(
     rhs.print(Xyce::dout());
   }
 
-  rhs.writeToFile(filename2);
+  rhs.writeToFile(filename2.str().c_str());
 
   debugOutputDAE ();
 
@@ -622,17 +627,18 @@ void NonLinearSolver::debugOutputDAE()
   int newtStep = getNumIterations();
   int contStep = getContinuationStep();
   int paramNumber = getParameterNumber ();
-
-  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-  char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
-
-  char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
-  char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
-  char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6b[ich] = 0;
-  char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
-  char filename8[256]; for (int ich = 0; ich < 256; ++ich) filename8[ich] = 0;
-  char filename9[256]; for (int ich = 0; ich < 256; ++ich) filename9[ich] = 0;
-
+  
+  std::string filename1("");
+  std::string filename2("");
+  std::string filename4("");
+  std::string filename6("");
+  std::string filename6b("");
+  std::string filename8("");
+  std::string filename9("");
+  std::stringstream suffix("");
+  suffix.width(3);
+  suffix.fill('0');
+  
   Linear::Matrix *dQdx    = dsPtr_->dQdxMatrixPtr;
   Linear::Matrix *dFdx    = dsPtr_->dFdxMatrixPtr;
 
@@ -645,51 +651,35 @@ void NonLinearSolver::debugOutputDAE()
 
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
   {
-    sprintf(filename1, "dQdx_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-    sprintf(filename2, "dFdx_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-
-    sprintf(filename4, "daeQ_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-    sprintf(filename6, "daeF_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-    sprintf(filename6b,"daeB_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-
-    sprintf(filename8, "daeQlim_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
-    sprintf(filename9, "daeFlim_%03d_%03d_%03d_%03d.txt"    , outputStepNumber_, paramNumber, contStep, newtStep);
+    suffix << "_" << outputStepNumber_ << "_" << paramNumber << "_" << contStep << "_" << newtStep << ".txt";
   }
   else if (isActive(Diag::NONLINEAR_DUMP_STEP))
   {
-    sprintf(filename1, "dQdx_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-    sprintf(filename2, "dFdx_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-
-    sprintf(filename4, "daeQ_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-    sprintf(filename6, "daeF_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-    sprintf(filename6b,"daeB_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-
-    sprintf(filename8, "daeQlim_%03d_%03d.txt"    , outputStepNumber_, newtStep);
-    sprintf(filename9, "daeFlim_%03d_%03d.txt"    , outputStepNumber_, newtStep);
+    suffix << "_" << outputStepNumber_ << "_" << newtStep << ".txt";
   }
   else
   {
-    sprintf(filename1, "dQdx_%03d.txt"    , newtStep);
-    sprintf(filename2, "dFdx_%03d.txt"    , newtStep);
-
-    sprintf(filename4, "daeQ_%03d.txt"    , newtStep);
-    sprintf(filename6, "daeF_%03d.txt"    , newtStep);
-    sprintf(filename6b,"daeB_%03d.txt"    , newtStep);
-
-    sprintf(filename8, "daeQlim_%03d.txt"    , newtStep);
-    sprintf(filename9, "daeFlim_%03d.txt"    , newtStep);
+    suffix << "_" << newtStep << ".txt";
   }
+  
+  filename1 = "dQdx" + suffix.str();
+  filename2 = "dFdx" + suffix.str();
+  filename4 = "daeQ" + suffix.str();
+  filename6 = "daeF" + suffix.str();
+  filename6b = "daeB" + suffix.str();
+  filename8 = "daeQlim" + suffix.str();
+  filename9 = "daeFlim" + suffix.str();
 
   // write the matrices:
-  dQdx->writeToFile (filename1, false, getMMFormat () );
-  dFdx->writeToFile (filename2, false, getMMFormat () );
+  dQdx->writeToFile (filename1.c_str(), false, getMMFormat () );
+  dFdx->writeToFile (filename2.c_str(), false, getMMFormat () );
 
   // write the vectors:
-  daeQ->writeToFile(filename4);
-  daeF->writeToFile(filename6);
-  daeB->writeToFile(filename6b);
-  daeQlim->writeToFile(filename8);
-  daeFlim->writeToFile(filename9);
+  daeQ->writeToFile(filename4.c_str());
+  daeF->writeToFile(filename6.c_str());
+  daeB->writeToFile(filename6b.c_str());
+  daeQlim->writeToFile(filename8.c_str());
+  daeFlim->writeToFile(filename9.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -710,11 +700,6 @@ void NonLinearSolver::outputDAEvectors()
   int outputStepNum = 0;
   if (analysisManager_) outputStepNum = analysisManager_->getStepNumber() + 1;
 
-  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-  char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
-  char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
-  char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
-
   Linear::Vector *daeQ    = dsPtr_->daeQVectorPtr;
   Linear::Vector *daeF    = dsPtr_->daeFVectorPtr;
   Linear::Vector *daeB    = dsPtr_->daeBVectorPtr;
@@ -723,16 +708,26 @@ void NonLinearSolver::outputDAEvectors()
   Linear::Vector *daeFlim = lasSysPtr_->getdFdxdVpVector ();
   Linear::Vector *daeQlim = lasSysPtr_->getdQdxdVpVector ();
 
-  sprintf(filename1, "%s_soln_%03d.txt", netlistFilename_.c_str(), outputStepNum);
-  sprintf(filename4, "%s_daeQ_%03d.txt", netlistFilename_.c_str(), outputStepNum);
-  sprintf(filename6, "%s_daeF_%03d.txt", netlistFilename_.c_str(), outputStepNum);
-  sprintf(filename6b,"%s_daeB_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  std::stringstream suffix("");
+  suffix.width(3);
+  suffix.fill('0');
+  suffix << "_" << outputStepNum << ".txt";
+  
+  std::string filename1;
+  std::string filename4;
+  std::string filename6;
+  std::string filename6b;
+  
+  filename1 = netlistFilename_ + "_soln" + suffix.str();
+  filename4 = netlistFilename_ + "_daeQ" + suffix.str();
+  filename6 = netlistFilename_ + "_daeF" + suffix.str();
+  filename6b = netlistFilename_ + "_daeB" + suffix.str();
 
   // write the vectors:
-  xVec->writeToFile(filename1);
-  daeQ->writeToFile(filename4);
-  daeF->writeToFile(filename6);
-  daeB->writeToFile(filename6b);
+  xVec->writeToFile(filename1.c_str());
+  daeQ->writeToFile(filename4.c_str());
+  daeF->writeToFile(filename6.c_str());
+  daeB->writeToFile(filename6b.c_str());
 }
 
 //-----------------------------------------------------------------------------
@@ -753,18 +748,21 @@ void NonLinearSolver::outputDAEmatrices()
   int outputStepNum = 0;
   if (analysisManager_) outputStepNum = analysisManager_->getStepNumber() + 1;
 
-  char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-  char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
-
   Linear::Matrix *dQdx    = dsPtr_->dQdxMatrixPtr;
   Linear::Matrix *dFdx    = dsPtr_->dFdxMatrixPtr;
 
-  sprintf(filename1, "%s_dQdx_%03d.txt", netlistFilename_.c_str(), outputStepNum);
-  sprintf(filename2, "%s_dFdx_%03d.txt", netlistFilename_.c_str(), outputStepNum);
+  std::stringstream suffix("");
+  suffix.width(3);
+  suffix.fill('0');
+  suffix << "_" << outputStepNum << ".txt";
+  
+  std::string filename1, filename2;
+  filename1 = netlistFilename_ + "_dQdx" + suffix.str();
+  filename2 = netlistFilename_ + "_dFdx" + suffix.str();
 
   // write the matrices:
-  dQdx->writeToFile (filename1, false, getMMFormat () );
-  dFdx->writeToFile (filename2, false, getMMFormat () );
+  dQdx->writeToFile (filename1.c_str(), false, getMMFormat () );
+  dFdx->writeToFile (filename2.c_str(), false, getMMFormat () );
 }
 
 //-----------------------------------------------------------------------------
@@ -791,35 +789,28 @@ void NonLinearSolver::debugOutput3(
 
   if (!debugTimeFlag_ || !isActive(Diag::NONLINEAR_DUMP_MASK)) return;
 
-  char filename[256];  for (int ich = 0; ich < 256; ++ich) filename[ich] = 0;
+  std::string filename;
+  std::stringstream suffix("");
+  suffix.width(3);
+  suffix.fill('0');
 
   if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
   {
-    sprintf(filename, "update_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, nlStep);
+    suffix << "_" << outputStepNumber_ << "_" << paramNumber << "_" << contStep << "_" << nlStep << ".txt";
   }
   else if (isActive(Diag::NONLINEAR_DUMP_STEP))
   {
-    sprintf(filename, "update_%03d_%03d.txt", outputStepNumber_, nlStep);
+    suffix << "_" << outputStepNumber_ << "_" << nlStep << ".txt";
   }
   else
   {
-    sprintf(filename, "update_%03d.txt", nlStep);
+    suffix << "_" << nlStep << ".txt";
   }
-  dxVector.writeToFile(filename);
-
-  if (isActive(Diag::NONLINEAR_DUMP_PARAM_NUMBER))
-  {
-    sprintf(filename, "solution_%03d_%03d_%03d_%03d.txt", outputStepNumber_, paramNumber, contStep, nlStep);
-  }
-  if (isActive(Diag::NONLINEAR_DUMP_STEP))
-  {
-    sprintf(filename, "solution_%03d_%03d.txt", outputStepNumber_, nlStep);
-  }
-  if (isActive(Diag::NONLINEAR_DUMP))
-  {
-    sprintf(filename, "solution_%03d.txt", nlStep);
-  }
-  xVector.writeToFile(filename);
+  filename = "update" + suffix.str();
+  dxVector.writeToFile(filename.c_str());
+  
+  filename = "solution" + suffix.str();
+  xVector.writeToFile(filename.c_str());
 }
 
 //-----------------------------------------------------------------------------

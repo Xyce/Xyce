@@ -44,6 +44,7 @@
 
 // ----------  Standard Includes ----------
 #include <iostream>
+#include <sstream>
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_2DPDE.h>
@@ -1851,21 +1852,28 @@ bool Instance::calcConductance (int iElectrode, const Linear::Vector * dxdvPtr)
 
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      char outstring[128];
       double Itmp = dIVec[iEqu].currentSum;
       double Vtmp = dIVec[iEqu].Vckt - dIVec[iElectrode].Vckt;
       Vtmp *= scalingVars.V0;
       double GV = Gij*Vtmp;
-      for(int i=0;i<128;++i) outstring[i] = static_cast<char>(0);
-      sprintf(outstring,
-              "(%2d,%2d): dotPr=%12.4e G=%12.4e",
-              iEqu,iElectrode,dIidVj_chain,Gij);
-      Xyce::dout() << std::string(outstring) << std::endl;
+      std::stringstream outstring("");
+      outstring.width(2);
+      outstring << "(" << iEqu << "," << iElectrode << "): dotPr=";
+      outstring.width(12);
+      outstring.precision(4);
+      outstring.flags(outstring.flags() | std::ios_base::scientific);
+      outstring << dIidVj_chain << " G=" << Gij;
+      Xyce::dout() << outstring.str() << std::endl;
 
-      sprintf(outstring,
-              "(%2d,%2d): G=%12.4e G*V=%12.4e I=%12.4e V=%12.4e",
-              iEqu,iElectrode,Gij,GV,Itmp,Vtmp);
-      Xyce::dout() << std::string(outstring) << std::endl;
+      std::stringstream outstring2("");
+      outstring2.width(2);
+      outstring2 << "(" << iEqu << "," << iElectrode << "): G=";
+      outstring2.width(12);
+      outstring2.precision(4);
+      outstring2.flags(outstring2.flags() | std::ios_base::scientific);
+      outstring2 << Gij << " G*V=" << GV << " I=" << Itmp << " V=" << Vtmp;
+      
+      Xyce::dout() << outstring2.str() << std::endl;
     }
   }
 

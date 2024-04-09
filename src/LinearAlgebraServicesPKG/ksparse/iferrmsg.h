@@ -83,7 +83,7 @@ extern char *errMsg;    /* descriptive message about what went wrong */
                         /* MUST be malloc()'d - front end will free() */
                         /* this should be a detailed message,and is assumed */
                         /* malloc()'d so that you will feel free to add */
-                        /* lots of descriptive information with sprintf*/
+                        /* lots of descriptive information with snprintf*/
 
 extern char *errRtn;    /* name of the routine declaring error */
                         /* should not be malloc()'d, will not be free()'d */

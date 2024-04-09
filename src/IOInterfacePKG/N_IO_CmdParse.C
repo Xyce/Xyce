@@ -421,7 +421,7 @@ CmdParse::setNetlist(
     argv_[netIndex] = new char[newSize];
     for (int i=0;i<newSize;++i)  argv_[netIndex][i] = 0;
 
-    sprintf(argv_[netIndex], "%s", newNetlist.c_str());
+    strncpy(argv_[netIndex], newNetlist.c_str(), newSize );
 
     stArgs["netlist"] = newNetlist;
   }

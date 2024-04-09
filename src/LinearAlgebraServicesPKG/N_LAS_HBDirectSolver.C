@@ -74,6 +74,7 @@
 #include <utility>
 #include <numeric>
 #include <iostream>
+#include <sstream>
 
 namespace Xyce {
 namespace Linear {
@@ -250,11 +251,12 @@ int HBDirectSolver::doSolve( bool reuse_factors, bool transpose )
   {
     if (!(file_number % outputLS_)) 
     {
-      char file_name[40];
-      sprintf( file_name, "Base_HB_Matrix%d.mm", file_number );
-      printHBJacobian( std::string( file_name ) ); 
-      sprintf( file_name, "Base_HB_RHS%d.mm", file_number );
-      printHBResidual( std::string( file_name ) );
+      std::stringstream file_name("Base_HB_Matrix");
+      file_name << file_number << ".mm";
+      printHBJacobian( file_name.str() ); 
+      std::stringstream file_name2("Base_HB_RHS");
+      file_name2 << file_number << ".mm";
+      printHBResidual( file_name.str() );
     }
   }
 
@@ -306,9 +308,9 @@ int HBDirectSolver::doSolve( bool reuse_factors, bool transpose )
   {
     if (!(file_number % outputLS_)) 
     {
-      char file_name[40];
-      sprintf( file_name, "Base_HB_Soln%d.mm", file_number );
-      printHBSolution( std::string( file_name ) );
+      std::stringstream file_name("Base_HB_Soln");
+      file_name << file_number << ".mm";
+      printHBSolution( file_name.str() );
 
     }
     file_number++;

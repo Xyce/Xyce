@@ -38,6 +38,7 @@
 
 // ---------- Standard Includes ----------
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <N_UTL_Math.h>
 #include <cstdio>
@@ -1022,29 +1023,27 @@ bool Instance::outputTecplot ()
 
   int i(0);
   int NX = regVec.size();
-
-  char filename[256];
-  for(i=0;i<256;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s.dat",outputName.c_str());
+  
+  std::stringstream filename("");
+  filename << outputName << ".dat";
   double time = getSolverState().currTime_;
   FILE *fp1(NULL);
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
-    Xyce::dout() << "  Instance::outputTecplot.  filename = " << std::string(filename) <<std::endl;
+    Xyce::dout() << "  Instance::outputTecplot.  filename = " << filename.str() <<std::endl;
   }
 
   if (callsOTEC <= 0)
   {
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
     fprintf(fp1,
             " TITLE = \"Spatially Dependent defect data for compact rxn device: %s  time = %20.12e seconds.\",\n",
             outputName.c_str(),time);
   }
   else
   {
-    fp1 = fopen(filename,"a");
+    fp1 = fopen(filename.str().c_str(),"a");
   }
 
   int rSize=(regVec[0])->getNumSpecies();
@@ -1152,24 +1151,21 @@ bool Instance::output2DTecplot ()
 
   int i(0);
   int NX = regVec.size();
-
-  char filename[256];
-  for(i=0;i<256;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s.dat",outputName.c_str());
+  std::stringstream filename("");
+  filename << outputName << ".dat";
   double time = getSolverState().currTime_;
   FILE *fp1(NULL);
 
   if (callsOTEC <= 0)
   {
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
     fprintf(fp1,
             " TITLE = \"Spatially Dependent defect data for compact rxn device: %s  time = %20.12e seconds.\",\n",
             outputName.c_str(),time);
   }
   else
   {
-    fp1 = fopen(filename,"a");
+    fp1 = fopen(filename.str().c_str(),"a");
   }
 
   int rSize=(regVec[0])->getNumSpecies();
@@ -1268,11 +1264,11 @@ bool Instance::outputCarrierDensities ()
 
   int i(0);
   int NX = regVec.size();
-  char filename[256];   for(i=0;i<256;++i) filename[i] = static_cast<char>(0);
-  sprintf(filename,"%scarrier.dat",outputName.c_str());
+  std::stringstream filename("");
+  filename << outputName << "carrier.dat";
 
   FILE *fp1(NULL);
-  fp1 = fopen(filename,"w");
+  fp1 = fopen(filename.str().c_str(),"w");
   int cSize=(regVec[0])->getNumConstants();
 
   std::vector<RegionData*> * rdVecPtr(0);

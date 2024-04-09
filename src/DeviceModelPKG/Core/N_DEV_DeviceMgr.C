@@ -1772,8 +1772,6 @@ void DeviceMgr::debugOutput1()
     int newton_iteration_count = solState_.newtonIter + 1;
 
     // jdxp-vector
-    // char fn_jdxp[256]; for (int ich = 0; ich < 256; ++ich) fn_jdxp[ich] = 0;
-    // sprintf(fn_jdxp, "Jdxp.%03d.txt", newton_iteration_count);
     {
       std::ostringstream oss;
       oss << "Jdxp." << std::setw(3) << std::setfill('0') << newton_iteration_count << ".txt";

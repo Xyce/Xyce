@@ -70,6 +70,8 @@
 #include <utility>
 #include <numeric>
 #include <iostream>
+#include <sstream>
+
 
 namespace Xyce {
 namespace Linear {
@@ -267,11 +269,12 @@ int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
   {
     if (!(file_number % outputLS_)) 
     {
-      char file_name[40];
-      sprintf( file_name, "Base_ES_Matrix%d.mm", file_number );
-      printESJacobian( std::string( file_name ) ); 
-      sprintf( file_name, "Base_ES_RHS%d.mm", file_number );
-      printESResidual( std::string( file_name ) );
+      std::stringstream file_name("Base_ES_Matrix");
+      file_name << file_number << ".mm";
+      printESJacobian( file_name.str() ); 
+      std::stringstream file_name2("Base_ES_RHS");
+      file_name2 << file_number << ".mm";
+      printESResidual( file_name2.str()  );
     }
   }
 
@@ -323,9 +326,9 @@ int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
   {
     if (!(file_number % outputLS_)) 
     {
-      char file_name[40];
-      sprintf( file_name, "Base_ES_Soln%d.mm", file_number );
-      printESSolution( std::string( file_name ) );
+      std::stringstream file_name("Base_ES_Soln");
+      file_name << file_number << ".mm";
+      printESSolution( file_name.str() );
     }
     file_number++;
   }
