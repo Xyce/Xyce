@@ -67,9 +67,7 @@ FunctionBlock::FunctionBlock(
     TokenVector const& parsedInputLine)
  : netlistLocation_(fileName, parsedInputLine[0].lineNumber_)
 {
-  int len;
-
-  len = parsedInputLine[parsedInputLine.size()-1].string_.size();
+  int len = parsedInputLine[parsedInputLine.size()-1].string_.size();
   if (parsedInputLine[parsedInputLine.size()-1].string_.substr(0,1) != "{" ||
       parsedInputLine[parsedInputLine.size()-1].string_.substr(len-1,1) != "}") {
     Report::UserFatal0().at(netlistLocation_)
@@ -78,6 +76,20 @@ FunctionBlock::FunctionBlock(
 
   // Now extract the data from this parsed line.
   extractData(parsedInputLine);
+}
+//-----------------------------------------------------------------------------
+// Function      : FunctionBlock::FunctionBlock
+// Purpose       : constructor
+// Special Notes :
+// Scope         : public
+// Creator       : Lon Waters, SNL
+// Creation Date : 12/26/2001
+//-----------------------------------------------------------------------------
+FunctionBlock::FunctionBlock(
+    std::string const& fileName,
+    const int lineNumber)
+ : netlistLocation_(fileName, lineNumber)
+{
 }
 
 //----------------------------------------------------------------------------
@@ -134,8 +146,13 @@ bool FunctionBlock::extractData(TokenVector const& parsedInputLine)
   functionName = ES1;
 
   int arg_start = 2; // Start position of the function's argument list.
-  int iend = parsedInputLine.size();
-  int arg_end = iend - 2; // End position of the argument list.
+  int isize = parsedInputLine.size();
+  int arg_end = isize - 2; // End position of the argument list.
+
+  if (  parsedInputLine[arg_end].string_ == "=") 
+  {
+    arg_end -= 1;
+  }
 
   // The argument list must be enclosed by parentheses.
   if ( (parsedInputLine[arg_start].string_ != "(") || 
@@ -165,7 +182,7 @@ bool FunctionBlock::extractData(TokenVector const& parsedInputLine)
   functionNameAndArgs = ES1;
 
   // Get the function body.
-  ES1 =  parsedInputLine[iend - 1].string_;
+  ES1 =  parsedInputLine[isize - 1].string_;
   ES1.toUpper();
   functionBody = ES1;
 

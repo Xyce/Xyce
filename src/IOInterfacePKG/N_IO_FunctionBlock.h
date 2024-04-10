@@ -62,6 +62,10 @@ public:
     const std::string & fileName,
     const TokenVector & parsedInputLine);
 
+  FunctionBlock(
+    const std::string & fileName,
+    const int lineNumber);
+
   FunctionBlock(FunctionBlock const& rhsFB);
 
   ~FunctionBlock()

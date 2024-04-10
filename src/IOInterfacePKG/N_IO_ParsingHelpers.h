@@ -117,6 +117,7 @@ void readExternalParamsFromFile( Parallel::Communicator& comm,
 
 bool extractParamData( CircuitBlock &            circuit_block,
                        const std::string &       netlist_filename,
+                       std::map<std::string, int> &  fun,
                        const TokenVector &       parsed_line);
 
 bool extractGlobalParamData( CircuitBlock &            circuit_block,

@@ -40,6 +40,9 @@
 //                  (.param, .global_param and "X" line arguments) and 
 //                  functions (.func).
 //
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
+//
 // Creator        : Lon Waters
 //
 // Creation Date  : 01/21/2003

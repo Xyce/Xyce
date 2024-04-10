@@ -27,6 +27,9 @@
 // Special Notes  : The circuit context class is arranged in a hierarchy 
 //                  which corresponds to the subcircuit hierarchy.
 //
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
+//
 // Creator        : Lon Waters
 //
 // Creation Date  : 01/21/2003

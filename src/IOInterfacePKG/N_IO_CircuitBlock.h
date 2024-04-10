@@ -28,6 +28,9 @@
 // Special Notes  : The circuit block class is arranged in a hierarchy 
 //                  which corresponds to the netlist file hierarchy.
 //
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
+//
 // Creator        : Lon Waters, SNL
 //
 // Creation Date  : 09/06/2001
@@ -258,6 +261,7 @@ public:
   // to the circuit.
   void addOptions(const Util::OptionBlock &options);
 
+  void addFunction(FunctionBlock const& function);
   void addParams(const Util::OptionBlock &options);
   void addGlobalParams(const Util::OptionBlock &options);
 
