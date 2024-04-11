@@ -1076,7 +1076,7 @@ bool handleFunctionParam(
       return false;
     }
 
-    if (parsed_line[iFunctionBody+1].string_ == ",")  
+    if (iFunctionBody+1 < numFields && parsed_line[iFunctionBody+1].string_ == ",")  
     {
       linePosition=iFunctionBody+2;
     }
