@@ -3439,7 +3439,7 @@ void Transient::printProgress(std::ostream &os)
             // format and display output
             if (!quiet_)
             {
-              const uint maxStrSize = 256;
+              const int maxStrSize = 256;
               char timeStr[maxStrSize];
               if ( ( t != (time_t)-1 ) && ( strftime( timeStr, maxStrSize, "%c", now ) != 0 ) )
               {
