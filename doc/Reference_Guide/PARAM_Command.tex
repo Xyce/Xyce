@@ -12,17 +12,21 @@
 %% Function Table
 %%
 
-User defined parameter that can be used in expressions throughout the netlist.
+User defined parameter or function that can be used in expressions throughout the netlist.
 
 \begin{Command}
 
 \format
-.PARAM [<name>=<value>]*
+.PARAM <name>[(arg*)]=<value> [[,]<name>[(arg*)]=<value>]* 
 
 \examples
 \begin{alltt}
 .PARAM A_Param=1K
-.PARAM B_Param=\{A_Param*3.1415926535\}
+.PARAM B_Param=\{A_Param*PI\}
+.PARAM FTEST(X)='2*X' B=12.0 FTEST2(X)='3*X'
+.PARAM SUM(A,B,C)=\{A+B+C\}
+.PARAM A=1, B=2
+.PARAM C=AGAUSS(1,0.1,0.1)
 \end{alltt}
 
 \arguments
@@ -35,9 +39,23 @@ Parameter name.  Parameters may be redefined.
 If the same parameter name is used on multiple parameters, \Xyce{} by default will use the last parameter of that name.  By default, no warning will be emitted.
 To change this behavior, one can use the \texttt{-redefined\_param} command line option, described in section~\ref{cmd_line_arg_list}.
 
+\argument{arg}
+
+Optional arguments to parameter that is a function.  \texttt{.PARAM} arguments cannot be node names.
+The number of arguments in the use of a function must agree with the number 
+in the definition. Parameters, TIME, FREQ, and other functions are allowed in 
+the body of function definitions.  \index{constants (\texttt{EXP},\texttt{PI})}
+Two constants \texttt{EXP} and \texttt{PI} cannot
+be used a argument names.  These constants are equal to $e$ and $\pi$, respectively,
+and cannot be redefined.
+
 \argument{value}
 
-The value may be a number or an expression.
+The value may be a number or an expression.  If it is an expression, it can be surrounded 
+by curly braces (\{ \}), single quotes ('), or without delimiters.  Curly braces were originally 
+required by the \Xyce{} parser, so if one encounters parsing difficulties, consider 
+surrouding expression values with them.
+
 %\medskip
 \end{Arguments}
 
@@ -53,11 +71,17 @@ define global parameters, and you may also use global parameters in
 \texttt{.PARAM} definitions.  
 
 It is legal for parameters to depend on special variables such as 
-  TIME, FREQ, TEMP and VT variables.  However, it is not legal for parameters 
-  to depend on solution variables such as voltage nodes or independent source currents.
+TIME, FREQ, TEMP and VT variables.  However, it is not legal for parameters 
+to depend on solution variables such as voltage nodes or independent source currents.
 
 Parameters defined using \texttt{.PARAM} can be modified directly by various analyses, such as \texttt{.DC},   
-  \texttt{.STEP}, \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}, subject to scoping rules. 
+\texttt{.STEP}, \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}, subject to scoping rules.  
+This will not work, however, for parameters defined as functions.
+
+Multiple parameters (conventional or function) can be specified on the same netlist line.  
+Parameters on the same line can optionally be separated using commas.  If \Xyce{} has difficulty 
+parsing a multi-parameter \texttt{.PARAM} line, consider adding commas if they are not already present.
+
 
 To load an external data file with time voltage pairs of data on each 
 line into a global parameter, use this syntax:

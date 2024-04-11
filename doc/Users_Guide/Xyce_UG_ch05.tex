@@ -152,8 +152,8 @@ for precise syntax.
 
 In addition to devices, a subcircuit may contain definitions, such as models
 via the \texttt{.MODEL} statement, parameters via the \texttt{.PARAM}
-statement, and functions via the \texttt{.FUNC} statement.  \Xyce{} also
-supports the definition of one or more subcircuits within another subcircuit.
+statement, and functions via either the \texttt{.FUNC} or \texttt{.PARAM} statements.  
+\Xyce{} also supports the definition of one or more subcircuits within another subcircuit.
 \index{subcircuits!hierarchy} Subcircuits can be nested to an arbitrary extent,
 where one subcircuit can contain another subcircuit, which can contain yet
 another subcircuit, and so on.
@@ -173,7 +173,7 @@ applies at the given level and those below.
 \index{parameter!scope}\index{model!scope}\index{subcircuit!scope}
 The idea of ``scope'' may be best illustrated by examples.  This section gives
 example for parameters and models.  However, this discussion also applies to
-functions (defined with \texttt{.FUNC} statements). 
+functions (defined with \texttt{.FUNC} or \texttt{.PARAM} statements). 
 
 In the netlist provided
 in Figure~\ref{Subcircuit_Example_2}, the model named \texttt{MOD1} can be used

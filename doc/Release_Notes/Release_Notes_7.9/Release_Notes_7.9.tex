@@ -105,6 +105,13 @@ The older devices that now support it include the resistor, capacitor,
 inductor, diode, levels 1,2,3,6 MOSFET, BSIM3, BSIM4, BSIMSOI version 3, level 1 BJT, 
 JFET and MESFET.
 
+\item User-defined netlist functions can now be specified as a special 
+case of \texttt{.PARAM}.  For example, \texttt{.PARAM F(X)='X*2'} is now a 
+valid \Xyce{} syntax.  Historically, functions in a \Xyce{} netlist had 
+to be specified using the \texttt{.FUNC} keyword, so the example would have 
+been specified as \texttt{.FUNC F(X) \{X*2\}}.
+The parser now natively supports both specifications.   
+
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}

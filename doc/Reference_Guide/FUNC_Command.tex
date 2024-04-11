@@ -8,12 +8,13 @@
 % LLC (NTESS).
 
 
-User defined functions that can be used in expressions appearing later
-in the same scope as the \texttt{.FUNC} statement.
+User defined functions that can be used in expressions appearing later 
+in the same scope as the \texttt{.FUNC} statement (or \texttt{.PARAM} statement)
 
 \begin{Command}
 \format
-.FUNC <name>([arg]*) \{<body>\}
+.FUNC <name>([arg]*) [=] \{<body>\} \\
+.PARAM <name>([arg]*) = \{<body>\}
 
 \examples
 \begin{alltt}
@@ -21,6 +22,8 @@ in the same scope as the \texttt{.FUNC} statement.
 .FUNC DECAY(CNST) \{E(-CNST*TIME)\}
 .FUNC TRIWAV(x) \{ACOS(COS(x))/3.14159\}
 .FUNC MIN3(A,B,C) \{MIN(A,MIN(B,C))\}
+.FUNC SUM(A,B,C)=\{A+B+C\}
+.PARAM SUM(A,B,C)=\{A+B+C\}
 \end{alltt}
 
 \arguments
@@ -52,7 +55,12 @@ DECAY, uses the first example, E.
 \comments
 
 The \texttt{<body>} of a defined function is handled in the same way as any 
-math expression; it must be enclosed in curly braces {}.
+math expression; it must be enclosed in curly braces (\{\}) or single quotes (').
+
+The original keyword for user-defined functions is \texttt{.FUNC}.  However, 
+for simulator compatibility functions can also be specified using \texttt{.PARAM}.
+If using \texttt{.FUNC}, each function must get their own netlist line and the equals sign is optional.  
+If using \texttt{.PARAM}, multiple functions can be specified on the same line, and the equals sign is required.
 
 \index{\texttt{.FUNC}!subcircuit scoping}The scoping rules for functions are:
 \begin{XyceItemize}
