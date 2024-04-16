@@ -139,7 +139,7 @@ private:
   int sendBufSize_;
 
   Epetra_Distributor * distributor_;
-  Epetra_Comm * petraComm_;
+  const Epetra_Comm * petraComm_;
 };
 
 //-----------------------------------------------------------------------------

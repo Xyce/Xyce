@@ -50,6 +50,8 @@
 #include <N_PDS_Comm.h>
 #include <N_UTL_FeatureTest.h>
 
+#include <N_PDS_EpetraHelpers.h> 
+
 #ifdef Xyce_PARALLEL_MPI
  #include <Epetra_MpiComm.h>
  #include <Epetra_MpiDistributor.h>
@@ -83,17 +85,9 @@ GlobalAccessor::GlobalAccessor( const Communicator &comm )
     arraySendProcs_(0),
     sendBuf_(0),
     sendBufSize_(0),
-    distributor_(0)
+    distributor_(0),
+    petraComm_(Xyce::Parallel::getEpetraComm(&comm))
 {
-#ifdef Xyce_PARALLEL_MPI
-  if( comm.isSerial() )
-    petraComm_ = new Epetra_SerialComm();
-  else
-    petraComm_ = new Epetra_MpiComm( comm.comm() );
-#else
-  petraComm_ = new Epetra_SerialComm();
-#endif
-
 }
 
 //-----------------------------------------------------------------------------
@@ -113,7 +107,6 @@ GlobalAccessor::~GlobalAccessor()
   delete[] arraySendProcs_;
   delete[] sendBuf_;
   delete distributor_;
-  delete petraComm_;
 }
 
 //-----------------------------------------------------------------------------
@@ -188,12 +181,12 @@ void GlobalAccessor::generateMigrationPlan()
     if( pdsComm_.isSerial() )
     {
       distributor_ = new Epetra_SerialDistributor(
-                    *(dynamic_cast<Epetra_SerialComm*>(petraComm_)));
+                    *(dynamic_cast<const Epetra_SerialComm*>(petraComm_)));
     }
     else
     {
       distributor_ = new Epetra_MpiDistributor(
-                    *(dynamic_cast<Epetra_MpiComm*>(petraComm_)));
+                    *(dynamic_cast<const Epetra_MpiComm*>(petraComm_)));
       // can only call CreateFromRecvs if we're parallel with more than one proc
       distributor_->CreateFromRecvs( numReceiveObjs_, arrayReceiveGIDs_, arrayReceiveProcs_,
 	                         true, numSendObjs_, arraySendGIDs_, arraySendProcs_ );
