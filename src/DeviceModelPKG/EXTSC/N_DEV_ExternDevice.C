@@ -931,7 +931,7 @@ Instance::initialize()
     {
       Xyce::dout() << "Initializing internal Xyce" << std::endl;
     }
-    extCodePtr_->initialize(comm_);
+    extCodePtr_->initialize(comm_->comm());
 
     // startTimeStep(
     //   beginIntegrationFlag,

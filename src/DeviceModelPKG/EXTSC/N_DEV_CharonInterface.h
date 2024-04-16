@@ -75,7 +75,7 @@ class CharonInterface : public ExternCodeInterface
     CharonInterface (const CharonInterface &right);
     virtual ~CharonInterface();
 
-    bool initialize(Parallel::Communicator* comm = 0);
+    bool initialize(Parallel::Machine comm = MPI_COMM_NULL);
 
   bool simulateStep(
     const SolverState &                         solState,

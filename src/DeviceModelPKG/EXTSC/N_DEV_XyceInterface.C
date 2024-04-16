@@ -46,7 +46,7 @@
 #include <N_DEV_SolverState.h>
 #include <N_DEV_XyceInterface.h>
 #include <N_IO_CmdParse.h>
-#include <N_PDS_Comm.h>
+#include <N_PDS_ParallelMachine.h>
 #include <N_TIA_TwoLevelError.h>
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_FeatureTest.h>
@@ -107,16 +107,16 @@ XyceInterface::~XyceInterface()
 // Creation Date : 03/01/2006
 //-----------------------------------------------------------------------------
 bool XyceInterface::initialize(
-  Parallel::Communicator*          comm)
+  Parallel::Machine          comm)
 {
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
     Xyce::dout() << "In XyceInterface::initialize" << std::endl;
   }
 
-  simulator_ = new Circuit::SecondLevelSimulator(comm->comm());
+  simulator_ = new Circuit::SecondLevelSimulator(comm);
 
-  if (Parallel::rank(comm->comm()) == 0)
+  if (Parallel::rank(comm) == 0)
   {
     // Reset the netlist name in the local copy of the command line arguments:
     commandLine_.setNetlist(netlistFilename_);

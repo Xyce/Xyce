@@ -76,7 +76,7 @@ class XyceInterface : public ExternCodeInterface
     XyceInterface (const XyceInterface &right);
 
   public:
-    bool initialize(Parallel::Communicator* comm = 0);
+    bool initialize(Parallel::Machine comm = MPI_COMM_NULL);
 
   bool simulateStep(
     const SolverState &                         solState,

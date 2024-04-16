@@ -66,7 +66,7 @@ class ExternCodeInterface
     ExternCodeInterface (const ExternCodeInterface &right);
     virtual ~ExternCodeInterface();
 
-    virtual bool initialize(Parallel::Communicator* comm = 0) = 0;
+    virtual bool initialize(Parallel::Machine comm = MPI_COMM_NULL) = 0;
 
     virtual bool simulateStep(
       const SolverState & solState,
