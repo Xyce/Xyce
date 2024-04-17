@@ -71,6 +71,8 @@ execute_process(COMMAND "${HNAME}"
 # make the hostname generic for all ascic[0-9]* platforms
 if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
   set(CTEST_SITE "ascic")
+elseif(${CTEST_SITE} MATCHES "cee-build[0-9]*")
+  set(CTEST_SITE "cee-build")
 endif()
 
 if(NOT DEFINED SITE_APPEND)
