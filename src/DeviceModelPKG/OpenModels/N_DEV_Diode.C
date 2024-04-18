@@ -2028,6 +2028,7 @@ template <typename ScalarT>
 bool updateTemperature
   (
    const double & temp, 
+   const double & dtemp, 
 
    // instance variables/params:
    ScalarT & Temp,
@@ -2101,7 +2102,11 @@ bool updateTemperature
 
   ScalarT xfc = log( 1.0 - FC );
 
-  if( temp != -999.0 ) Temp = temp;
+  if( temp != -999.0 )
+  { 
+    Temp = temp;
+    Temp += dtemp;
+  }
   //double TNOM = TNOM;
 
   ScalarT vt = KoverQ * Temp;
@@ -2732,8 +2737,25 @@ void diodeSensitivity::operator()(
     fadType PJ = (*in)->PJ;
     fadType multiplicityFactor = (*in)->multiplicityFactor;
 
+    if (!(*in)->given("TEMP"))
+    {
+      Temp = (*in)->getDeviceOptions().temp.getImmutableValue<double>();
+      if  (!(*in)->dtempGiven)
+        (*in)->dtemp = 0.0;
+    }
+    else
+    {
+      (*in)->dtemp = 0.0;
+      if  ((*in)->dtempGiven)
+      {
+      // don't issue a warning in this templated version of the function, as it is only called for .sens
+        //UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+      }
+    }
+
     updateTemperature(
        (*in)->Temp,
+       (*in)->dtemp,
        Temp, tJctCap, tJctPot, tDepCap, tJctSWCap, tJctSWPot, tDepSWCap,
        tF1, tSatCur, tSatSWCur, tSatCurR,
        tVcrit, tRS, tCOND, tIKF, tBrkdwnV,

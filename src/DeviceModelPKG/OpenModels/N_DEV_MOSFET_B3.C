@@ -11683,6 +11683,7 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 template <typename ScalarT> 
 bool updateTemperature (
   const ScalarT & temp_tmp,
+  const ScalarT & dtemp,
   const ScalarT Eg0,
   const ScalarT ni,
   const ScalarT Vtm0,
@@ -12112,7 +12113,11 @@ bool updateTemperature (
   bool bsuccess = true;
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) instance_temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    instance_temp = temp_tmp;
+    instance_temp += dtemp;
+  }
 
   Tnom = model_tnom;
   TRatio = instance_temp/Tnom;
@@ -12910,6 +12915,7 @@ bool processParams (
   const DeviceOptions & devOptions,
 
    bool given_TEMP,
+   bool given_DTEMP,
    bool given_L,
    bool given_W,
    bool given_AD,
@@ -12923,6 +12929,7 @@ bool processParams (
    const ScalarT & sourceSquares,
    // outputs
    ScalarT & temp,
+   ScalarT & dtemp,
    ScalarT & l,
    ScalarT & w,
    ScalarT & drainArea,
@@ -12934,7 +12941,20 @@ bool processParams (
 {
   // Set any non-constant parameter defaults:
   if (!given_TEMP)
+  {
     temp = devOptions.temp.getImmutableValue<double>();
+    if (!given_DTEMP)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if (given_DTEMP)
+    {
+      // don't issue a warning in this templated version of the function, as it is only called for .sens
+    }
+  }
+
   if (!given_L)
     l =model_l;
   if (!given_W)
@@ -16597,6 +16617,10 @@ void bsim3InstanceSensitivity::operator()(
   fadType instancePar_temp=inst.temp;	  
   bool instancePar_given_temp=inst.given("TEMP");
   inParamMap["TEMP"] = &instancePar_temp;
+
+  fadType instancePar_dtemp=inst.dtemp;	  
+  bool instancePar_given_dtemp=inst.given("DTEMP");
+  inParamMap["DTEMP"] = &instancePar_dtemp;
   
   fadType instancePar_l=inst.l;	  
   bool instancePar_given_l=inst.given("L");
@@ -16680,6 +16704,7 @@ void bsim3InstanceSensitivity::operator()(
     inst.getDeviceOptions(),
 
     instancePar_given_temp,
+    instancePar_given_dtemp,
     instancePar_given_l,
     instancePar_given_w,
   instancePar_given_drainArea,
@@ -16697,6 +16722,7 @@ void bsim3InstanceSensitivity::operator()(
 
    // outputs
     instancePar_temp,
+    instancePar_dtemp,
     instancePar_l,
     instancePar_w,
     instancePar_drainArea,
@@ -16734,6 +16760,7 @@ void bsim3InstanceSensitivity::operator()(
 
   updateTemperature (
     instancePar_temp,
+    instancePar_dtemp,
   modelPar_Eg0,
   modelPar_ni,
   modelPar_Vtm0,
@@ -19223,6 +19250,9 @@ void bsim3ModelSensitivity::operator()(
   // instance params
   fadType instancePar_temp=in.temp;	  
   bool instancePar_given_temp=in.given("TEMP");
+
+  fadType instancePar_dtemp=in.dtemp;	  
+  bool instancePar_given_dtemp=in.given("DTEMP");
   
   fadType instancePar_l=in.l;	  
   bool instancePar_given_l=in.given("L");
@@ -19296,6 +19326,7 @@ void bsim3ModelSensitivity::operator()(
     in.getDeviceOptions(),
 
     instancePar_given_temp,
+    instancePar_given_dtemp,
     instancePar_given_l,
     instancePar_given_w,
   instancePar_given_drainArea,
@@ -19313,6 +19344,7 @@ void bsim3ModelSensitivity::operator()(
 
    // outputs
     instancePar_temp,
+    instancePar_dtemp,
     instancePar_l,
     instancePar_w,
     instancePar_drainArea,
@@ -19350,6 +19382,7 @@ void bsim3ModelSensitivity::operator()(
 
   updateTemperature (
     instancePar_temp,
+    instancePar_dtemp,
   modelPar_Eg0,
   modelPar_ni,
   modelPar_Vtm0,

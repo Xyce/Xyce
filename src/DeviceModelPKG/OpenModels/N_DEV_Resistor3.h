@@ -159,8 +159,7 @@ private:
   double tempCoeff2;   // second order temperature coeff.
   double tempCoeffExp; // Exponential temperature coeff.
   double dtemp;        // externally specified device temperature.  This parameter
-  // is NOT used and is only here for compatibility in parsing
-  // netlist from simulators that do support it.
+
   // flags used to tell if the user has specified one of these values
   // on the command line.
   bool tempCoeff1Given;   // First order temperature coeff was given in netlist
