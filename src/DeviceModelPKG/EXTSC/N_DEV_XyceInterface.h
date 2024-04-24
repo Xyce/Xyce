@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -76,7 +76,7 @@ class XyceInterface : public ExternCodeInterface
     XyceInterface (const XyceInterface &right);
 
   public:
-    bool initialize(Parallel::Communicator* comm = 0);
+    bool initialize(Parallel::Machine comm = MPI_COMM_NULL);
 
   bool simulateStep(
     const SolverState &                         solState,

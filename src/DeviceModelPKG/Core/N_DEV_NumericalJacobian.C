@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -42,6 +42,7 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <ios>
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_NumericalJacobian.h>
@@ -685,36 +686,32 @@ void NumericalJacobian::printJacobian_(
         if (stencil[i][j]!=1) continue;
 
         // Note: JT=jacobian test is there to make this easy to grep.
-        static char tmpChar[128];
-        static char prefix[4];
+        std::stringstream prefix("FT:");
+        std::stringstream tempChar("");
+        tempChar.width(12);
+        tempChar.precision(4);
+        tempChar.flags(tempChar.flags() | std::ios_base::scientific);
 
-        sprintf(prefix,"%s","FT:");
-
+        tempChar << prefix.str() << "  " << numJac[i][j] << "  " << anaJac[i][j] << "  " << diffJac[i][j] << "  " << relJac[i][j];
         if (status[i][j]==-2)
         {
-          sprintf(tmpChar,"%s  %12.4e  %12.4e  %12.4e  %12.4e      fail",prefix,
-                  numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+          tempChar << "      fail";
         }
         else if (status[i][j]==3)
         {
           NAflag = true;
-          sprintf(tmpChar,"%s  %12.4e  %12.4e  %12.4e  %12.4e      NA  ",prefix,
-                  numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+          tempChar << "      NA  ";
         }
         else
         {
-          sprintf(tmpChar,"%s  %12.4e  %12.4e  %12.4e  %12.4e          ",prefix,
-                  numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+          tempChar << "          ";
         }
 
-        os << std::string(tmpChar);
-
+        os << tempChar.str();
         os << "     ("<< *nameVec[devLIDs[i]]
             << ", " << *nameVec[devLIDs[j]]
             << ") "
             << " row,col=[ " << i << ", " << j << "]" << std::endl;
-
-
       }
     }
   }
@@ -759,31 +756,30 @@ void NumericalJacobian::printJacobian_(
       if (stencil[i][j]!=1) continue;
 
       // Note: QT=jacobian test is there to make this easy to grep.
-      static char tmpChar[128];
+      std::stringstream tempChar("");
+      tempChar.width(12);
+      tempChar.precision(4);
+      tempChar.flags(tempChar.flags() | std::ios_base::scientific);
+      tempChar << "QT:" << "  " << numJac[i][j] << "  " << anaJac[i][j] << "  " << diffJac[i][j] << "  " << relJac[i][j];
       if (status[i][j]==-2)
       {
-        sprintf(tmpChar,"QT:  %12.4e  %12.4e  %12.4e  %12.4e      fail",
-                numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+        tempChar << "      fail";
       }
       else if (status[i][j]==3)
       {
         NAflag = true;
-        sprintf(tmpChar,"QT:  %12.4e  %12.4e  %12.4e  %12.4e      NA  ",
-                numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+        tempChar << "      NA  ";
       }
       else
       {
-        sprintf(tmpChar,"QT:  %12.4e  %12.4e  %12.4e  %12.4e          ",
-                numJac[i][j], anaJac[i][j], diffJac[i][j], relJac[i][j]);
+        tempChar << "          ";
       }
 
-      os << std::string(tmpChar);
-
+      os << tempChar.str();
       os << "     ("<< *nameVec[devLIDs[i]]
           << ", " << *nameVec[devLIDs[j]]
           << ") "
           << " row,col=[ " << i << ", " << j << "]" << std::endl;
-
     }
   }
 

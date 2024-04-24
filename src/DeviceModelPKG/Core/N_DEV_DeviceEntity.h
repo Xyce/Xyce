@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -94,7 +94,7 @@ public:
     return NULL;
   }
 
-  bool setDefaultParam(double val, bool overrideOriginal=false);
+  bool setDefaultParam(double val, bool overrideOriginal=false, bool ignoreLengthScale=false);
   double getDefaultParam() const;
 
   bool scaleParam(const std::string & paramName, double val, double val0);
@@ -192,7 +192,7 @@ public:
           std::vector< std::complex<double> > & dbdp,
           std::vector<int> &        BindicesVec);
 //
-  bool setParam(const std::string & paramName, double val, bool overrideOriginal=false);
+  bool setParam(const std::string & paramName, double val, bool overrideOriginal=false, bool ignoreLengthScale=false);
   bool getParam(const std::string & paramName, double & result) const;
   bool findParam(const std::string &param_name) const;
   bool getParamBreakpoints( std::vector<Util::BreakPoint> & );

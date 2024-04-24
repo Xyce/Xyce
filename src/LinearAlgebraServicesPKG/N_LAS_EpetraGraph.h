@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -61,6 +61,11 @@ class EpetraGraph : public Graph
 
 public:
 
+  EpetraGraph(const Parallel::ParMap & solution_overlap,
+              const Parallel::ParMap & solution_overlap_ground,
+              const std::vector<int>& numIndicesPerRow,
+              const std::vector<std::vector<int> >& rcData);
+
   // Basic constructor with map and number of entries per row
   EpetraGraph( const Parallel::ParMap & map, const std::vector<int>& numIndicesPerRow );
 
@@ -115,9 +120,6 @@ public:
 
   void extractLocalRowView(int localRow, int& numIndices, int*& indices) const
   { epetraGraph_->ExtractMyRowView( localRow, numIndices, indices ); }
-
-  void insertGlobalIndices(int globalRow, int numIndices, int* indices)
-  { epetraGraph_->InsertGlobalIndices( globalRow, numIndices, indices ); }
 
   //Accumulate off processor fill contributions if necessary
   void fillComplete()

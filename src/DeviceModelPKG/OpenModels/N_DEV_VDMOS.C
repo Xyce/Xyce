@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -118,9 +118,15 @@ void Traits::loadInstanceParameters(ParametricData<VDMOS::Instance> &p)
 
     p.addPar ("TEMP",0.0,&VDMOS::Instance::temp)
      .setExpressionAccess(ParameterType::TIME_DEP)
-     .setUnit(STANDARD)
-     .setCategory(CAT_NONE)
+     .setUnit(U_DEGC)
+     .setCategory(CAT_TEMP)
      .setDescription("Device temperature");
+
+    p.addPar ("DTEMP",0.0,&VDMOS::Instance::dtemp)
+     .setGivenMember(&VDMOS::Instance::dtempGiven)
+     .setUnit(U_DEGC)
+     .setCategory(CAT_TEMP)
+     .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<VDMOS::Model> &p)
@@ -3603,7 +3609,12 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
+
   if (model_.interpolateTNOM(temp))
   {
     // make sure interpolation doesn't take any resistance negative
@@ -4063,7 +4074,19 @@ bool Instance::processParams ()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
   if (!given("L"))
     l = model_.l0;
   if (!given("W"))

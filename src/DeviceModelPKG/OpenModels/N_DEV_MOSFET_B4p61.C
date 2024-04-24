@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -137,7 +137,19 @@ bool Instance::processParams4p61_ ()
   if (!SDgiven)
     sd = 2.0 * model_.dmcg;
   if (!TEMPgiven)
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
   if (!drainAreaGiven)
     drainArea = getDeviceOptions().defad;
   if (!sourceAreaGiven)
@@ -361,7 +373,11 @@ bool Instance::updateTemperature4p61_ (const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
 
   Tnom = model_.tnom;
   TRatio = temp/Tnom;

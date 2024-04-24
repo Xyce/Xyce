@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -41,19 +41,19 @@ Author: 1985 Thomas L. Quarles
 
 #ifdef CHILE
 #define MALLOC(x) tmalloc((unsigned)(x))
-#define REALLOC(x,y) trealloc((char *)(x),(unsigned)(y))
+#define REALLOC(x,y) trealloc((void *)(x),(unsigned)(y))
 #else
 char *MALLOC(unsigned);
-char *REALLOC (char *, unsigned);
-void FREE(char *);
+char *REALLOC (void *, unsigned);
+void FREE(void *);
 #endif
 
 #define ZERO(PTR,TYPE)	(bzero((PTR),sizeof(TYPE)))
 
 #include <stdlib.h>
 
-extern char *trealloc();
-extern char *tmalloc();
+extern void *trealloc(void*, int);
+extern void *tmalloc(int);
 
 #define TRUE 1
 #define FALSE 0

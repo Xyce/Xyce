@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -66,7 +66,7 @@ class ExternCodeInterface
     ExternCodeInterface (const ExternCodeInterface &right);
     virtual ~ExternCodeInterface();
 
-    virtual bool initialize(Parallel::Communicator* comm = 0) = 0;
+    virtual bool initialize(Parallel::Machine comm = MPI_COMM_NULL) = 0;
 
     virtual bool simulateStep(
       const SolverState & solState,

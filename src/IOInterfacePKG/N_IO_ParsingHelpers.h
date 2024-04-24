@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -117,6 +117,7 @@ void readExternalParamsFromFile( Parallel::Communicator& comm,
 
 bool extractParamData( CircuitBlock &            circuit_block,
                        const std::string &       netlist_filename,
+                       std::map<std::string, int> &  fun,
                        const TokenVector &       parsed_line);
 
 bool extractGlobalParamData( CircuitBlock &            circuit_block,

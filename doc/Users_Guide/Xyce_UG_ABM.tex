@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2023 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 %%-------------------------------------------------------------------------
@@ -79,7 +79,7 @@ A nonlinear resistor could be specified similarly:
 .PARAM r2 = \{R0+sqrt(2)*delr\}
 
 .FUNC Rreg1(a,b,c,d) \{a +(b-a)*c/d\}
-.Func Rreg2(a,b,c,d,f) \{a+sqrt(2-b*(2*c-d)**2)*f\}
+.param Rreg2(a,b,c,d,f)=\{a+sqrt(2-b*(2*c-d)**2)*f\}
 
 Bnlr 4 2 V = \{I(Vmon) * IF(
 + V(101) < E1, Rreg1(R0,R1,V(101),E1),
@@ -120,7 +120,7 @@ name. \Xyce{} recognizes the following constructs in ABM expressions:
 \item Reserved simulator variables, such as \texttt{TIME}, \texttt{TEMP}, \texttt{VT}, \texttt{FREQ} and \texttt{GMIN}
 \item The constants, \texttt{PI} and \texttt{EXP}, which equal $\pi$ and $e$, respectively.
 \item Lookup tables, which may be a function of time and other inputs
-\item User-defined functions via \texttt{.func}
+\item User-defined functions via \texttt{.func} or \texttt{.param}
 \item User-defined \texttt{.param} and \texttt{.global\_param} parameters.
 \item Random operators such as \texttt{AGAUSS}.
 \end{XyceItemize}

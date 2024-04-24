@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -107,6 +107,31 @@ bool ACExpressionGroup::getSolutionVal
   int tmpGID = -1;
 
   tmpGID = getSolutionGID_(nodeName);
+  if (tmpGID >= 0)
+  {
+    Linear::Vector & Xreal = X_.block( 0 );
+    Linear::Vector & Ximag = X_.block( 1 );
+    real_val = Xreal.getElementByGlobalIndex(tmpGID, 0); 
+    imag_val = Ximag.getElementByGlobalIndex(tmpGID, 0); 
+  }
+
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &real_val, 1);
+  Xyce::Parallel::AllReduce(getComm().comm(), MPI_SUM, &imag_val, 1);
+
+  retval = std::complex<double>(real_val,imag_val);
+  return (tmpGID>=0);
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool ACExpressionGroup::getCurrentVal
+  ( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
+{
+  double real_val=0.0;
+  double imag_val=0.0;
+  int tmpGID = -1;
+
+  tmpGID = getCurrentSolutionGID_(deviceName);
   if (tmpGID >= 0)
   {
     Linear::Vector & Xreal = X_.block( 0 );
@@ -1737,6 +1762,7 @@ void AC::solve_mag_phase_Sensitivities_(
 //-----------------------------------------------------------------------------
 std::ostream& sensStdOutput (
        const std::string idString,
+       const double & currentFreq,
        const std::vector<double> & paramVals,
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
@@ -1789,7 +1815,9 @@ std::ostream& sensStdOutput (
       if (!outputManagerAdapter.getPhaseOutputUsesRadians())
         xp *= 180.0/M_PI;
 
-      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString <<std::endl;
+      os << "\n"<<idString << " Sensitivities for "<< objFuncDataVec[iobj]->objFuncString << " at freq = ";
+      os << std::scientific<< std::setprecision(4) << currentFreq ;
+      os <<std::endl;
 
       os << " Re(" << objFuncDataVec[iobj]->objFuncString << ") = " 
         << std::setw(numW)<< std::scientific<< std::setprecision(4) 
@@ -1933,7 +1961,7 @@ bool AC::solveDirectSensitivity_()
   {
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-    Analysis::sensStdOutput(std::string("Direct"), ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
+    Analysis::sensStdOutput(std::string("Direct"), currentFreq_, ds.paramOrigVals_, ds.dOdpVec_, ds.scaled_dOdpVec_,
        paramNameVec_, 
        param_dP_,
        numericalDiff_,
@@ -2039,7 +2067,7 @@ bool AC::solveAdjointSensitivity_()
   {
     Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
 
-    Analysis::sensStdOutput (std::string("Adjoint"), ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
+    Analysis::sensStdOutput (std::string("Adjoint"), currentFreq_, ds.paramOrigVals_, ds.dOdpAdjVec_, ds.scaled_dOdpAdjVec_,
        paramNameVec_, 
        param_dP_,
        numericalDiff_,

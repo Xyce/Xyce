@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -40,6 +40,7 @@
 
 // ----------  Standard Includes ----------
 #include <iostream>
+#include <sstream>
 #include <cstdio>
 
 #include <N_DEV_fwd.h>
@@ -2413,17 +2414,28 @@ bool Instance::calcConductance (int iElectrode, const Linear::Vector * dxdvPtr)
         Xyce::dout() << "test dot product = " << testDotProd <<std::endl;
       }
 
-      char outstring[128];
       double Itmp = bcVec[iEqu].currentSum;
       double Vtmp = bcVec[iEqu].Vckt - bcVec[iElectrode].Vckt;
       Vtmp *= scalingVars.V0;
       double GV = Gij*Vtmp;
-      for(int i=0;i<128;++i) outstring[i] = static_cast<char>(0);
-      sprintf(outstring, "(%2d,%2d): G=%12.4e", iEqu,iElectrode,Gij);
-      Xyce::dout() << std::string(outstring) << std::endl;
-      sprintf(outstring, "(%2d,%2d): G=%12.4e G*V=%12.4e I=%12.4e V=%12.4e",
-              iEqu,iElectrode,Gij,GV,Itmp,Vtmp);
-      Xyce::dout() << std::string(outstring) << std::endl;
+      
+      std::stringstream outstring("");
+      outstring.width(2);
+      outstring << "(" << iEqu << "," << iElectrode << "): G=";
+      outstring.width(12);
+      outstring.precision(4);
+      outstring.flags(outstring.flags() | std::ios_base::scientific);
+      outstring << Gij;
+      Xyce::dout() << outstring.str() << std::endl;
+      
+      std::stringstream outstring2("");
+      outstring2.width(2);
+      outstring2 << "(" << iEqu << "," << iElectrode << "): G=";
+      outstring2.width(12);
+      outstring2.precision(4);
+      outstring2.flags(outstring2.flags() | std::ios_base::scientific);
+      outstring2 << Gij << " G*V=" << GV << " I=" << Itmp << " V=" << Vtmp;
+      Xyce::dout() << outstring2.str() << std::endl;
     }
   }
 
@@ -4787,15 +4799,18 @@ bool Instance::outputPlotFiles(bool force_final_output)
 bool Instance::outputTecplot ()
 {
   int i;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-
+  std::stringstream filename("");
+  filename << outputName;
+  
   if (tecplotLevel == 1)
   {
-    sprintf(filename,"%s_%03d.dat",outputName.c_str(),callsOTEC);
+    filename.width(3);
+    filename.fill('0');
+    filename << "_" << callsOTEC << ".dat";
   }
   else
   {
-    sprintf(filename,"%s.dat",outputName.c_str());
+    filename << "_.dat";
   }
 
   double time = getSolverState().currTime_;
@@ -4803,17 +4818,17 @@ bool Instance::outputTecplot ()
 
   if (tecplotLevel == 1)
   {
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
   }
   else
   {
     if (callsOTEC <= 0)
     {
-      fp1 = fopen(filename,"w");
+      fp1 = fopen(filename.str().c_str(),"w");
     }
     else
     {
-      fp1 = fopen(filename,"a");
+      fp1 = fopen(filename.str().c_str(),"a");
     }
   }
 
@@ -4937,41 +4952,34 @@ bool Instance::outputTecplot ()
 bool Instance::outputSgplot ()
 {
   int i;
-  char fileName[32];
 
   static const int LEN_IDENT2 = 31;
 
-  for (i = 0 ; i < 32; ++i)
-    fileName[i] = static_cast<char>(0);
-
-  sprintf(fileName,"%s_%03d.res",outputName.c_str(),callsOSG);
+  std::stringstream fileName;
+  fileName << outputName << "_";
+  fileName.width(3);
+  fileName.fill('0');
+  fileName << callsOSG << ".res";
   ++callsOSG;
 
-  FILE * handle1 = fopen(fileName, "w");
+  FILE * handle1 = fopen(fileName.str().c_str(), "w");
 
   UINT numArrays  = 3;
   double timeVar = 0.0;
 
   UINT inx = NX;
 
-  char title[64];
-  sprintf(title, "%s", "Xyce diodePDE 1D output");
-
+  std::stringstream title("Xyce diodePDE 1D output");
+  
   fwrite(&inx      , sizeof(  UINT), 1, handle1);  // array size.
   fwrite(&numArrays, sizeof(  UINT), 1, handle1);  // number of arrays, besides x.
-  fwrite( title    , sizeof(  char),64, handle1);  // title
+  fwrite( title.str().c_str(), sizeof(  char),title.str().length(), handle1);  // title
   fwrite(&timeVar  , sizeof(double), 1, handle1);  // time.
-
-  char names[3][LEN_IDENT2];
-  sprintf(names[0], "%s", "V");
-  sprintf(names[1], "%s", "Ne");
-  sprintf(names[2], "%s", "Np");
-
-  // output the variable names, other than x:
-  for(i=0;i<numArrays;++i)
-  {
-    fwrite(names[i], sizeof(char),(LEN_IDENT2), handle1);
-  }
+  
+  std::string names1("V"), names2("Ne"), names3("Np");
+  fwrite( names1.c_str(), sizeof(char), names1.length(), handle1);
+  fwrite( names2.c_str(), sizeof(char), names2.length(), handle1);
+  fwrite( names3.c_str(), sizeof(char), names3.length(), handle1);
 
   double vcorrection = 0.0;
   if (useVoltageOutputOffset_)

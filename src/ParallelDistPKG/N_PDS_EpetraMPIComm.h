@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -96,7 +96,7 @@ public:
   // NOTE:  This is used for generating augmented linear systems.
   bool isLastProc() const { return (procID() == (numProc()-1)); }
 
-  // Wrappers for Petra_Comm functionality.
+  // Wrappers for select MPI Scan and AllReduce operations.
   bool scanSum(const double * vals, double * sums, const int & count) const;
   bool sumAll(const double * vals, double * sums, const int & count) const;
   bool maxAll(const double * vals, double * maxs, const int & count) const;

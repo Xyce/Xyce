@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -211,7 +211,7 @@ static void mdlStart(SimStruct *S)
   {
     // report error
     static char errorString[256];
-    sprintf( errorString, "Input file, \"%s\", does not exist.  Ending simulation.",  theFilename.c_str());
+    snprintf( errorString, 256, "Input file, \"%s\", does not exist.  Ending simulation.",  theFilename.c_str());
     ssSetLocalErrorStatus(S, errorString);
     mexPrintf( errorString );
     ssSetStopRequested( S, 1);
@@ -230,7 +230,7 @@ static void mdlStart(SimStruct *S)
   if ( retVal != Xyce::Circuit::Simulator::RunStatus::SUCCESS )
   {
     static char errorString[256];
-    sprintf( errorString, "Xyce failed on initialization. Return Code: %i\n", retVal );
+    snprintf( errorString, 256, "Xyce failed on initialization. Return Code: %i\n", retVal );
     ssSetLocalErrorStatus(S, errorString);
     mexPrintf( errorString );
     ssSetStopRequested( S, 1);
@@ -468,7 +468,7 @@ static void mdlOutputs(SimStruct *S, int_T tid)
     if( !retVal )
     {
       static char errorString[256];
-      sprintf( errorString, "Xyce returned an error on call to updateTimeVoltagePairs at time %g\n", systemTime );
+      snprintf( errorString, 256, "Xyce returned an error on call to updateTimeVoltagePairs at time %g\n", systemTime );
       ssSetLocalErrorStatus(S, errorString);
       mexPrintf( errorString );
       ssSetStopRequested( S, 1);

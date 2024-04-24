@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -530,17 +530,17 @@ int BelosSolver::doSolve( bool reuse_factors, bool transpose )
   if (outputLS_ && !lasProblem_.matrixFree()) {
     if (!(file_number % outputLS_)) {
       Teuchos::RCP<Problem> las_prob = Teuchos::rcp( new EpetraProblem( Teuchos::rcp( prob, false ) ) );
-      char file_name[40];
-      sprintf( file_name, "Transformed_Soln%d.mm", file_number );
-      las_prob->getLHS()->writeToFile( file_name, false, true );
+      std::stringstream file_name("");
+      file_name << "Transformed_Soln" << file_number << ".mm";
+      las_prob->getLHS()->writeToFile( file_name.str().c_str(), false, true );
     }
     file_number++;
   }
   if (outputBaseLS_ && !lasProblem_.matrixFree()) {
     if (!(base_file_number % outputBaseLS_)) {
-      char file_name[40];
-      sprintf( file_name, "Base_Soln%d.mm", base_file_number );
-      lasProblem_.getLHS()->writeToFile( file_name, false, true );
+      std::stringstream file_name("");
+      file_name << "Base_Soln" << file_number << ".mm";
+      lasProblem_.getLHS()->writeToFile( file_name.str().c_str(), false, true );
     }
     base_file_number++;
   }

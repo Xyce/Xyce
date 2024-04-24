@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -42,15 +42,14 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_Report.h>
 
+#include <N_LAS_TranSolverFactory.h>
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_MOROperators.h>
-#include <N_LAS_EpetraMatrix.h>
-#include <N_LAS_EpetraBlockMatrix.h>
-#include <N_LAS_EpetraVector.h>
 #include <N_LAS_MultiVector.h>
+#include <N_LAS_Solver.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Graph.h>
 
@@ -73,7 +72,6 @@
 #include <N_PDS_Serial.h>
 #include <N_PDS_MPI.h>
 #include <N_PDS_ParHelpers.h>
-#include <N_PDS_EpetraParMap.h>
 
 #include <N_TIA_DataStore.h>
 #include <N_TIA_fwd.h>
@@ -90,19 +88,6 @@
 #include <N_UTL_Timer.h>
 
 // ----------   Other Includes   ----------
-
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_Operator.h>
-#include <Epetra_MultiVector.h>
-#include <Epetra_LinearProblem.h>
-#include <Amesos.h>
-
-#include <BelosLinearProblem.hpp>
-#include <BelosBlockGmresIter.hpp>
-#include <BelosDGKSOrthoManager.hpp>
-#include <BelosStatusTestMaxIters.hpp>
-#include <BelosOutputManager.hpp>
-#include <BelosEpetraAdapter.hpp>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_ScalarTraits.hpp>
@@ -273,6 +258,22 @@ MOR::setMOROptions(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : MOR::setLinSol
+// Purpose       : this is needed to create a linear solver for MOR
+// Special Notes :
+// Scope         : public
+// Creator       : Heidi Thornquist
+// Creation Date : 1/17/2024
+//-----------------------------------------------------------------------------
+bool  MOR::setLinSol(const Util::OptionBlock & OB)
+{
+  // Save the non-HB linear solver option block
+  saved_lsOB_ = OB;
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : MOR::run()
 // Purpose       :
 // Special Notes :
@@ -383,15 +384,16 @@ bool MOR::doInit()
 
   // Getting the GIDs for the port list in the order specified in the .MOR line
   // This is used to permute the bMatEntriesVec_ in the order specified by the user.
-  std::vector<int> gidPosEntries( hsize );
-  for (int i=0; i<hsize; ++i)
+  std::vector<int> gidPosEntries( numPorts_, -1 );
+  for (int i=0; i<numPorts_; ++i)
   {
     std::vector<int> svGIDList1, dummyList;
     char type1;
     topology_.getNodeSVarGIDs(NodeID(portList_[i],_VNODE), svGIDList1, dummyList, type1);
 
     // Grab the GID for this port.
-    gidPosEntries[i] = svGIDList1.front();
+    if (svGIDList1.size())
+      gidPosEntries[i] = svGIDList1.front();
   }
 
   // Use the base map to get the global IDs
@@ -400,24 +402,27 @@ bool MOR::doInit()
   Teuchos::RCP<Parallel::ParMap> BaseMap = Teuchos::rcp(pdsManager.getParallelMap( Parallel::SOLUTION ), false);
 
   // Find the voltage source corresponding to each port and place the LID in the bMatEntriesVec_.
-  bMatEntriesVec_.resize( hsize );
-  for (int i=0; i<hsize; ++i)
+  bMatEntriesVec_.resize( numPorts_, -1 );
+  for (int i=0; i<numPorts_; ++i)
   {
     int gid = gidPosEntries[i];
-    bool found = false;
-    for (int j=0; j<hsize; ++j)
+    if (gid > -1)
     {
-      if (gid == BaseMap->localToGlobalIndex(bMatPosEntriesVec_[j]))
+      bool found = false;
+      for (int j=0; j<hsize; ++j)
       {
-        bMatEntriesVec_[i] = tempVec[j];
-        found = true;
-        break;
+        if (gid == BaseMap->localToGlobalIndex(bMatPosEntriesVec_[j]))
+        {
+          bMatEntriesVec_[i] = tempVec[j];
+          found = true;
+          break;
+        }
       }
-    }
-    if (!found)
-    {
-      Report::UserError() << "Did not find voltage source corresponding to port";
-      return false;
+      if (!found)
+      {
+        Report::UserError() << "Did not find voltage source corresponding to port";
+        return false;
+      }
     }
   }
 
@@ -479,8 +484,8 @@ bool MOR::doInit()
       analysisManager_.getDataStore()->nextStorePtr,
       analysisManager_.getDataStore()->dQdxMatrixPtr,  analysisManager_.getDataStore()->dFdxMatrixPtr);
 
-  CPtr_ = Teuchos::rcp(dynamic_cast<Linear::EpetraMatrix *>(analysisManager_.getDataStore()->dQdxMatrixPtr), false);
-  GPtr_ = Teuchos::rcp(dynamic_cast<Linear::EpetraMatrix *>(analysisManager_.getDataStore()->dFdxMatrixPtr), false);
+  CPtr_ = Teuchos::rcp(analysisManager_.getDataStore()->dQdxMatrixPtr, false);
+  GPtr_ = Teuchos::rcp(analysisManager_.getDataStore()->dFdxMatrixPtr, false);
 
   ///  Xyce::dout() << "Branch nodes: " << std::endl;
   ///  for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
@@ -502,24 +507,26 @@ bool MOR::doInit()
   for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
   {
      // Get the number of non-zero entries in this row.
-     numEntries = GPtr_->getLocalRowLength( bMatEntriesVec_[i] );
-     if ( numEntries != 1 )
+     if (bMatEntriesVec_[i] > -1)
      {
-       Report::UserError0() << "Supposed voltage source row has too many entries, cannot continue MOR analysis";
-       return false;
-     }
+       numEntries = GPtr_->getLocalRowLength( bMatEntriesVec_[i] );
+       if ( numEntries != 1 )
+       {
+         Report::UserError0() << "Supposed voltage source row has too many entries, cannot continue MOR analysis";
+         return false;
+       }
 
-     // Extract out rows of G based on indices in bMatEntriesVec_.
-     GPtr_->getLocalRowCopy(bMatEntriesVec_[i], length, numEntries, &coeffs[0], &colIndices[0]);
+       // Extract out rows of G based on indices in bMatEntriesVec_.
+       GPtr_->getLocalRowCopy(bMatEntriesVec_[i], length, numEntries, &coeffs[0], &colIndices[0]);
 
-     // If the coefficient for this voltage source is positive, make it negative.
-     if ( coeffs[0] > 0.0 )
-     {
-       coeffs[0] *= -1.0;
-       GPtr_->putLocalRow(bMatEntriesVec_[i], length, &coeffs[0], &colIndices[0]);
+       // If the coefficient for this voltage source is positive, make it negative.
+       if ( coeffs[0] > 0.0 )
+       {
+         coeffs[0] *= -1.0;
+         GPtr_->putLocalRow(bMatEntriesVec_[i], length, &coeffs[0], &colIndices[0]);
+       }
      }
   }
-
 
   ///  Xyce::dout() << "Printing GPtr (after scaling): " << std::endl;
   ///  GPtr_->print(Xyce::dout());
@@ -551,22 +558,28 @@ bool MOR::reduceSystem()
   // Create matrix for (G + s0 * C)
   if (s0_ != 0.0)
   {
-    sCpG_MatrixPtr_ = Teuchos::rcp( new Linear::EpetraMatrix( &CPtr_->epetraObj(), false ) );
+    sCpG_MatrixPtr_ = Teuchos::rcp( Linear::createMatrix( CPtr_->getOverlapGraph(), CPtr_->getGraph() ) );
+    sCpG_MatrixPtr_->put( 0.0 );
+    sCpG_MatrixPtr_->add( *CPtr_ );
     sCpG_MatrixPtr_->scale( s0_ );
     sCpG_MatrixPtr_->add( *GPtr_ );
   }
   else
   {
-    sCpG_MatrixPtr_ = Teuchos::rcp( new Linear::EpetraMatrix( &GPtr_->epetraObj(), false ) );
+    sCpG_MatrixPtr_ = Teuchos::rcp( Linear::createMatrix( GPtr_->getOverlapGraph(), GPtr_->getGraph() ) );
+    sCpG_MatrixPtr_->put( 0.0 );
+    sCpG_MatrixPtr_->add( *GPtr_ );
   }
 
   // Create multivector for B and R
-  RPtr_ = Teuchos::rcp( new Linear::EpetraMultiVector( BaseMap, numPorts_ ) );
+  RPtr_ = Teuchos::rcp( Linear::createMultiVector( BaseMap, numPorts_ ) );
   RPtr_->putScalar( 0.0 );
-  BPtr_ = Teuchos::rcp( new Linear::EpetraMultiVector( BaseMap, numPorts_ ) );
+  BPtr_ = Teuchos::rcp( Linear::createMultiVector( BaseMap, numPorts_ ) );
   for (unsigned int j=0; j < bMatEntriesVec_.size(); ++j)
   {
-    BPtr_->setElementByGlobalIndex( BaseMap.localToGlobalIndex(bMatEntriesVec_[j]), -1.0, j );
+    // Check if this LID is on this processor
+    if (bMatEntriesVec_[j] > -1)
+      BPtr_->setElementByGlobalIndex( BaseMap.localToGlobalIndex(bMatEntriesVec_[j]), -1.0, j );
   }
 
   ///  Xyce::dout() << "Printing out BPtr" << std::endl;
@@ -576,44 +589,26 @@ bool MOR::reduceSystem()
   ///  sCpG_MatrixPtr_->print(Xyce::dout());
 
   // Create linear problem for (G + s0 * C)
-  origProblem_ = Teuchos::rcp(new Epetra_LinearProblem(&sCpG_MatrixPtr_->epetraObj(), &RPtr_->epetraObj(), &BPtr_->epetraObj() ) );
+  origProblem_ = Teuchos::rcp( Linear::createProblem( &*sCpG_MatrixPtr_, &*RPtr_, &*BPtr_ ) );
 
   // Create solver object for this linear problem, which will be used to generate the projection basis
-  Amesos amesosFactory;
-  origSolver_ = Teuchos::rcp( amesosFactory.Create( "Klu", *origProblem_ ) );
-
-  // Solve for R = inv(G + s0*C)*B
-  // Perform symbolic factorization.
-  int linearStatus = origSolver_->SymbolicFactorization();
-  if (linearStatus != 0)
-  {
-    Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus << std::endl;
-    bsuccess = false;
-  }
-
-  // Perform numeric factorization
-  linearStatus = origSolver_->NumericFactorization();
-  if (linearStatus != 0)
-  {
-    Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus << std::endl;
-    bsuccess = false;
-  }
+  Linear::TranSolverFactory factory;
+  origSolver_ = Teuchos::rcp( factory.create( saved_lsOB_, *origProblem_, analysisManager_.getCommandLine() ) );
 
   // Perform solve for R = inv(G + s0*C)*B
-  linearStatus = origSolver_->Solve();
+  int linearStatus = origSolver_->solve();
   if (linearStatus != 0)
   {
-    Xyce::dout() << "Amesos solve exited with error: " << linearStatus << std::endl;
+    Xyce::dout() << "MOR::reduceSystem() linear solve exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess; 
   }
 
-  // Create an Epetra_Operator object to apply the operator inv(G + s0*C)*C
-  Teuchos::RCP<Epetra_Operator> COpPtr_ = Teuchos::rcp( &CPtr_->epetraObj(), false );
-  Teuchos::RCP<Linear::AmesosGenOp> AOp = Teuchos::rcp( new Linear::AmesosGenOp( origSolver_, COpPtr_ ) );
+  // Create an operator object to apply the operator inv(G + s0*C)*C
+  Teuchos::RCP<Linear::MORGenOp> AOp = Teuchos::rcp( new Linear::MORGenOp( origSolver_, CPtr_ ) );
 
   // Check to see if the requested size of the ROM is valid.
   // An orthogonal basis cannot be generated that is larger than the dimension of the original system
-  int kblock = 0;
 
   if (morAutoSize_)
   {
@@ -631,7 +626,7 @@ bool MOR::reduceSystem()
     }
   }
 
-
+  int kblock = 0;
   if (ROMsize_ > RPtr_->globalLength())
   {
     kblock = (int)(RPtr_->globalLength() / numPorts_);
@@ -652,77 +647,10 @@ bool MOR::reduceSystem()
   // ---------------------------------------------------------------------
   // Now use Belos to compute the basis vectors for K_k(inv(G + s0*C)*C, R)
   // ---------------------------------------------------------------------
+  Teuchos::RCP<const Linear::MultiVector> outV = Linear::createKrylovBasis( AOp, RPtr_, kblock, numPorts_ );
 
-  // Helpful typedefs for the templates
-  typedef double                            ST;
-  typedef Epetra_MultiVector                MV;
-  typedef Epetra_Operator                   OP;
-  typedef Belos::MultiVecTraits<ST,MV>      MVT;
-
-  // Output manager.
-  Belos::OutputManager<ST> printer;
-
-  // Status test.
-  Belos::StatusTestMaxIters<ST, MV, OP> maxIterTest( kblock );
-
-  // Orthogonalization manager.
-  Belos::DGKSOrthoManager<ST, MV, OP> orthoMgr;
-
-  // Linear Problem.
-  // Reuse RPtr_.  We need the basis vectors for K(inv(G + s0*C)*C, R)
-  Linear::EpetraMultiVector temp( BaseMap, numPorts_ );
-  Belos::LinearProblem<ST, MV, OP > problem( AOp,
-                                             Teuchos::rcp( &temp.epetraObj(), false ),
-                                             Teuchos::rcp( &RPtr_->epetraObj(), false ));
-  problem.setProblem();
-
-  // Create parameter list.
-  Teuchos::ParameterList params;
-  params.set("Num Blocks", kblock);
-  params.set("Block Size", numPorts_ );
-
-  // Create Krylov subspace iteration from Belos
-  Belos::BlockGmresIter<ST, MV, OP> krylovIter( Teuchos::rcp( &problem, false ),
-                                                Teuchos::rcp( &printer, false ),
-                                                Teuchos::rcp( &maxIterTest, false ),
-                                                Teuchos::rcp( &orthoMgr, false ),
-                                                params );
-
-  // Get a matrix to hold the orthonormalization coefficients.
-  Teuchos::RCP<Teuchos::SerialDenseMatrix<int,ST> > z
-    = Teuchos::rcp( new Teuchos::SerialDenseMatrix<int,ST>( numPorts_, numPorts_ ) );
-
-  // Orthonormalize the Krylov kernel vectors V
-  Teuchos::RCP<MV> V = Teuchos::rcp( new Epetra_MultiVector( RPtr_->epetraObj() ) );
-  orthoMgr.normalize( *V, z );
-
-  // Set the new state and initialize the solver to use R as the kernel vectors.
-  Belos::GmresIterationState<ST,MV> initState;
-  initState.V = V;
-  initState.z = z;
-  initState.curDim = 0;
-  krylovIter.initializeGmres(initState);
-
-  // Have the solver iterate until the basis size is computed
-  try {
-    krylovIter.iterate();
-  }
-  catch (const Belos::GmresIterationOrthoFailure &e) {
-    // This might happen if the basis size is the same as the operator's dimension.
-  }
-  catch (const std::exception &e) {
-    bsuccess = false; // Anything else is a failure.
-  }
-
-  // Get the basis vectors back from the iteration object
-  Belos::GmresIterationState<ST,MV> newState = krylovIter.getState();
-
-  // Create a view into the first k vectors of newState.V
-  //  std::vector<int> indices( k );
-
-  // search for a size for automated MOR
-
-  Teuchos::RCP<MV> W = Teuchos::rcp( new Epetra_MultiVector( V->Map(), k ) );
+  Teuchos::RCP<Linear::MultiVector> V;
+  Teuchos::RCP<Linear::MultiVector> W = Teuchos::rcp( Linear::createMultiVector( BaseMap, k ) );
 
   int low = 1, high = k;
   if (morAutoSize_)
@@ -737,41 +665,34 @@ bool MOR::reduceSystem()
     {
       mid = (low + high)/2;
 
-      std::vector<int> indices(mid);
-
  // Resize the projection matrices
       redG_.shape(mid, mid);
       redC_.shape(mid, mid);
       redB_.shape(mid, numPorts_);
       redL_.shape(mid, numPorts_);
 
-      for (int i=0; i<mid; ++i) { indices[i] = i; }
-
-      V = Teuchos::rcp( new Epetra_MultiVector( View, *newState.V, &indices[0], mid) );
+      V = Teuchos::rcp( Linear::cloneView( const_cast<Linear::MultiVector*>(&*outV), mid) );
 
       W = V;
 
 // project the system
-      Linear::EpetraMultiVector xyceV( &*V, false );
-      Linear::EpetraMultiVector temp2( BaseMap, mid );
-      Linear::EpetraMultiVector xyceW( &*W, false );
+      Teuchos::RCP<Linear::MultiVector> temp2 = Teuchos::rcp( Linear::createMultiVector( BaseMap, mid ) );
 
     // G * V
-      GPtr_->matvec( false, xyceV, temp2 );
+      GPtr_->matvec( false, *V, *temp2 );
     // V' * G * V
 
-      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redG_ );
+      Linear::blockDotProduct( *W, *temp2, redG_ );
 
     // C * V
-      CPtr_->matvec( false, xyceV, temp2 );
+      CPtr_->matvec( false, *V, *temp2 );
     // V' * C * V
-      MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redC_ );
-    //redC_.print( Xyce::dout() );
+      Linear::blockDotProduct( *W, *temp2, redC_ );
 
     // V' * B
-      MVT::MvTransMv( 1.0, xyceW.epetraObj(), BPtr_->epetraObj(), redB_ );
+      Linear::blockDotProduct( *W, *BPtr_, redB_ );
 
-      MVT::MvTransMv( 1.0, xyceV.epetraObj(), BPtr_->epetraObj(), redL_ );
+      Linear::blockDotProduct( *V, *BPtr_, redL_ );
 
       //redB_.print( Xyce::dout() );
 
@@ -784,7 +705,6 @@ bool MOR::reduceSystem()
 
       evalOrigTransferFunction();
       evalRedTransferFunction();
-
 
       Teuchos::SerialDenseMatrix<int, double>  H_diff, totaltol, errOverTol;
 
@@ -838,10 +758,8 @@ bool MOR::reduceSystem()
     redL_.shape(k, numPorts_);
 
   }
-  std::vector<int> indices(k);
-  for (int i=0; i<k; ++i) { indices[i] = i; }
 
-  V = Teuchos::rcp( new Epetra_MultiVector( View, *newState.V, &indices[0], k) );
+  V = Teuchos::rcp( Linear::cloneView( const_cast<Linear::MultiVector*>(&*outV), k) );
   W = V;
 
   // ---------------------------------------------------------------------
@@ -849,24 +767,22 @@ bool MOR::reduceSystem()
   // ---------------------------------------------------------------------
   if (morSparsificationType_)
   {
-
-    Linear::EpetraMultiVector xyceV( &*V, false );
-    Linear::EpetraMultiVector temp2( BaseMap, k );
+    Teuchos::RCP<Linear::MultiVector> temp2 = Teuchos::rcp( Linear::createMultiVector( BaseMap, k ) );
 
     // G * V
-    GPtr_->matvec( false, xyceV, temp2 );
+    GPtr_->matvec( false, *V, *temp2 );
     // V' * G * V
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2.epetraObj(), redG_ );
+    Linear::blockDotProduct( *V, *temp2, redG_ );
     //redG_.print( Xyce::dout() );
 
     // C * V
-    CPtr_->matvec( false, xyceV, temp2 );
+    CPtr_->matvec( false, *V, *temp2 );
     // V' * C * V
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), temp2.epetraObj(), redC_ );
+    Linear::blockDotProduct( *V, *temp2, redC_ );
     //redC_.print( Xyce::dout() );
 
     // V' * B
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), BPtr_->epetraObj(), redB_ );
+    Linear::blockDotProduct( *V, *BPtr_, redB_ );
     //redB_.print( Xyce::dout() );
 
     bsuccess = bsuccess & sparsifyRedSystem_();
@@ -877,7 +793,7 @@ bool MOR::reduceSystem()
   // -----------------------------------------------------------------------------
 
   // Create the scaling vector.
-  Teuchos::SerialDenseMatrix<int,ST> Xhatscale( k, 1 );
+  Teuchos::SerialDenseMatrix<int,double> Xhatscale( k, 1 );
 
   int scaleType = morScaleType_;
 
@@ -889,22 +805,17 @@ bool MOR::reduceSystem()
     }
   }
 
-//  if ( scaleType == 2 )
-//  {
-
-//  }
-
-if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
+  if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
   {
-    Epetra_MultiVector Xmag( V->Map(), 1 );
+    Teuchos::RCP<Linear::Vector> Xmag = Teuchos::rcp( Linear::createVector( BaseMap ) );
 
     if ( scaleType == 2 )
-      Xmag.PutScalar( morScaleFactor_ );
+      Xmag->putScalar( morScaleFactor_ );
 
     if ( scaleType == 4)
-      Xmag.PutScalar(1.0);
+      Xmag->putScalar(1.0);
 
-    MVT::MvTransMv( 1.0, *V, Xmag, Xhatscale );
+    Linear::blockDotProduct( *V, *Xmag, Xhatscale );
 
 //    Xhatscale.print(Xyce::dout());
     for (int i=0; i<k; ++i)
@@ -944,24 +855,16 @@ if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
 //  Xhatscale.print(Xyce::dout());
 
   // Scale the computed basis vectors before projecting the original system
-  Teuchos::SerialDenseMatrix<int,ST> D(k,k);
   if ( scaleType != 0 )
   {
-    Teuchos::RCP<MV> Vtemp = Teuchos::rcp( new Epetra_MultiVector( V->Map(), k ) );
-//    Teuchos::SerialDenseMatrix<int,ST> D(k,k);
     for (int i=0; i<k; ++i)
     {
       if (Xhatscale( i, 0 ) != 0.0)
-        D(i,i) = 1.0/Xhatscale( i, 0 );
-      else
-        D(i,i) = 1.0;
+      {
+        Linear::Vector* vec = V->getNonConstVectorView(i);
+        vec->scale( 1.0/Xhatscale( i, 0 ) );
+      }
     }
-    Xyce::dout() << " the scaling matrix "  <<  std::endl;
-
-//    D.print(Xyce::dout());
-
-    MVT::MvTimesMatAddMv( 1.0, *V, D, 0.0, *Vtemp );
-    V = Vtemp;
   }
 
 //  Xyce::dout() << "Printing out V" << std::endl;
@@ -973,27 +876,26 @@ if ( scaleType == 2 || scaleType == 3  || scaleType ==4)
   // Now use the basis vectors for K_k(inv(G + s0*C)*C, R) to compute
   // the projected system.
   // ---------------------------------------------------------------------
-  Linear::EpetraMultiVector xyceV( &*V, false );
-  Linear::EpetraMultiVector xyceW( &*W, false );
-  Linear::EpetraMultiVector temp2( BaseMap, k );
+  Teuchos::RCP<Linear::MultiVector> temp2 = Teuchos::rcp( Linear::createMultiVector( BaseMap, k ) );
 
   if (!morSparsificationType_)
   {
   // G * V
-    GPtr_->matvec( false, xyceV, temp2 );
+    GPtr_->matvec( false, *V, *temp2 );
   // V' * G * V
-    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redG_ );
+    Linear::blockDotProduct( *W, *temp2, redG_ );
     //redG_.print( Xyce::dout() );
 
   // C * V
-    CPtr_->matvec( false, xyceV, temp2 );
+    CPtr_->matvec( false, *V, *temp2 );
   // V' * C * V
-    MVT::MvTransMv( 1.0, xyceW.epetraObj(), temp2.epetraObj(), redC_ );
+    Linear::blockDotProduct( *W, *temp2, redC_ );
+    //redC_.print( Xyce::dout() );
 
   // V' * B
-    MVT::MvTransMv( 1.0, xyceW.epetraObj(), BPtr_->epetraObj(), redB_ );
+    Linear::blockDotProduct( *W, *BPtr_, redB_ );
 
-    MVT::MvTransMv( 1.0, xyceV.epetraObj(), BPtr_->epetraObj(), redL_ );
+    Linear::blockDotProduct( *V, *BPtr_, redL_ );
   }
   else
   {
@@ -1058,7 +960,7 @@ bool MOR::evalOrigTransferFunction()
     updateOrigLinearSystemFreq_();
 
     stepAttemptStatus = solveOrigLinearSystem_();
-
+ 
     currentStep++;
 
     if (stepAttemptStatus)
@@ -1136,13 +1038,13 @@ bool MOR::createOrigLinearSystem_()
 
   Parallel::Manager &pdsManager = *analysisManager_.getPDSManager();
 
-  Parallel::ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
-  Parallel::ParMap &oBaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION_OVERLAP_GND);
+  Parallel::ParMap &baseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
   const Linear::Graph* baseFullGraph = pdsManager.getMatrixGraph(Parallel::JACOBIAN);
 
   int numBlocks = 2;
+  int offset = baseMap.maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
 
-  std::vector<RCP<Parallel::ParMap> > blockMaps = Linear::createBlockParMaps(numBlocks, BaseMap, oBaseMap);
+  RCP<Parallel::ParMap> blockMap = Linear::createBlockParMap(numBlocks, baseMap, 0, 0, offset);
 
   std::vector<std::vector<int> > blockPattern(2);
   blockPattern[0].resize(2);
@@ -1150,8 +1052,7 @@ bool MOR::createOrigLinearSystem_()
   blockPattern[1].resize(2);
   blockPattern[1][0] = 0; blockPattern[1][1] = 1;
 
-  int offset = Linear::generateOffset( BaseMap );
-  Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMaps[0], *baseFullGraph);
+  Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *blockMap, *baseFullGraph);
 
   sCpG_REFMatrixPtr_ = Teuchos::rcp ( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), baseFullGraph) );
 
@@ -1170,29 +1071,19 @@ bool MOR::createOrigLinearSystem_()
   sCpG_REFMatrixPtr_->block( 0, 0 ).add(*GPtr_);
   sCpG_REFMatrixPtr_->block( 1, 1 ).add(*GPtr_);
 
-  // Create solver factory
-  Amesos amesosFactory;
+  sCpG_REFMatrixPtr_->assembleGlobalMatrix();
 
   // Create block vectors
-  REFBPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMaps[0], Teuchos::rcp(&BaseMap, false) ) );
-  REFXPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, blockMaps[0], Teuchos::rcp(&BaseMap, false) ) );
+  REFBPtr_ = Teuchos::rcp ( Linear::createBlockVector ( numBlocks, blockMap, Teuchos::rcp(&baseMap, false) ) );
+  REFXPtr_ = Teuchos::rcp ( Linear::createBlockVector ( numBlocks, blockMap, Teuchos::rcp(&baseMap, false) ) );
   REFXPtr_->putScalar( 0.0 );
 
-  Teuchos::RCP<Linear::EpetraBlockMatrix> e_sCpG = Teuchos::rcp_dynamic_cast<Linear::EpetraBlockMatrix>(sCpG_REFMatrixPtr_);
-  blockProblem_ = Teuchos::rcp(new Epetra_LinearProblem(&e_sCpG->epetraObj(), &REFXPtr_->epetraObj(), &REFBPtr_->epetraObj() ) );
+  blockProblem_ = Teuchos::rcp( Linear::createProblem( &*sCpG_REFMatrixPtr_, &*REFXPtr_, &*REFBPtr_ ) );
 
-  blockSolver_ = Teuchos::rcp( amesosFactory.Create( "Klu", *blockProblem_ ) );
-
-  int linearStatus = blockSolver_->SymbolicFactorization();
-
-  if (linearStatus != 0)
-  {
-    Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus;
-    bsuccess = false;
-  }
+  Linear::TranSolverFactory factory;
+  blockSolver_ = Teuchos::rcp( factory.create( saved_lsOB_, *blockProblem_, analysisManager_.getCommandLine() ) );
 
   return bsuccess;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1245,7 +1136,7 @@ bool MOR::createRedLinearSystem_()
     blockPattern[1].resize(2);
     blockPattern[1][0] = 0; blockPattern[1][1] = 1;
    
-    int offset= Linear::generateOffset( *redMapPtr_ );
+    int offset = redMapPtr_->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
     Teuchos::RCP<Linear::Graph> blockGraph = Linear::createBlockGraph( offset, blockPattern, *redBlockMapPtr, *(redCPtr_->getGraph()) );
 
     sCpG_ref_redMatrixPtr_ = Teuchos::rcp( Linear::createBlockMatrix( numBlocks, offset, blockPattern, blockGraph.get(), redCPtr_->getGraph() ) );
@@ -1265,27 +1156,17 @@ bool MOR::createRedLinearSystem_()
     sCpG_ref_redMatrixPtr_->block( 0, 0 ).add(*redGPtr_);
     sCpG_ref_redMatrixPtr_->block( 1, 1 ).add(*redGPtr_);
 
-    // Create solver factory
-    Amesos amesosFactory;
+    sCpG_ref_redMatrixPtr_->assembleGlobalMatrix();
 
     // Create a block vector
-    ref_redBPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
-    ref_redXPtr_ = Teuchos::rcp ( new Linear::EpetraBlockVector ( numBlocks, redBlockMapPtr, redMapPtr_ ) );
+    ref_redBPtr_ = Teuchos::rcp ( Linear::createBlockVector( numBlocks, redBlockMapPtr, redMapPtr_ ) );
+    ref_redXPtr_ = Teuchos::rcp ( Linear::createBlockVector( numBlocks, redBlockMapPtr, redMapPtr_ ) );
     ref_redXPtr_->putScalar( 0.0 );
 
-    Teuchos::RCP<Linear::EpetraBlockMatrix> e_sCpG = Teuchos::rcp_dynamic_cast<Linear::EpetraBlockMatrix>(sCpG_ref_redMatrixPtr_);
-    blockRedProblem_ = Teuchos::rcp(new Epetra_LinearProblem(&e_sCpG->epetraObj(), 
-                                                    &ref_redXPtr_->epetraObj(), &ref_redBPtr_->epetraObj() ) );
+    blockRedProblem_ = Teuchos::rcp( Linear::createProblem( &*sCpG_ref_redMatrixPtr_, &*ref_redXPtr_, &*ref_redBPtr_ ) );
 
-    blockRedSolver_ = Teuchos::rcp( amesosFactory.Create( "Klu", *blockRedProblem_ ) );
-
-    int linearStatus = blockRedSolver_->SymbolicFactorization();
-
-    if (linearStatus != 0)
-    {
-      Xyce::dout() << "Amesos symbolic factorization exited with error: " << linearStatus;
-      return false;
-    }
+    Linear::TranSolverFactory factory;
+    blockRedSolver_ = Teuchos::rcp( factory.create( saved_lsOB_, *blockRedProblem_, analysisManager_.getCommandLine() ) );
   }
 
   return true;
@@ -1312,6 +1193,8 @@ bool MOR::updateOrigLinearSystemFreq_()
   sCpG_REFMatrixPtr_->block(1, 0).add(*CPtr_);
   sCpG_REFMatrixPtr_->block(1, 0).scale(omega);
 
+  sCpG_REFMatrixPtr_->assembleGlobalMatrix();
+
   return true;
 }
 
@@ -1337,6 +1220,8 @@ bool MOR::updateRedLinearSystemFreq_()
     sCpG_ref_redMatrixPtr_->block(1, 0).put( 0.0);
     sCpG_ref_redMatrixPtr_->block(1, 0).add(*redCPtr_);
     sCpG_ref_redMatrixPtr_->block(1, 0).scale(omega);
+
+    sCpG_ref_redMatrixPtr_->assembleGlobalMatrix();
   }
   else 
   {
@@ -1372,38 +1257,48 @@ bool MOR::solveOrigLinearSystem_()
 
   bool bsuccess = true;
 
-  // Solve the block problem
-  int linearStatus = blockSolver_->NumericFactorization();
+  // Solve the block problem original block problem and reuse factorization
+  int linearStatus = blockSolver_->solve( false );
 
   if (linearStatus != 0)
   {
-    Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus;
+    Xyce::dout() << "MOR::solveLinearSystem_: block solver exited with error: " << linearStatus << std::endl;
     bsuccess = false;
+    return bsuccess;
   }
 
   // Loop over number of I/O ports here
   for (unsigned int j=0; j < bMatEntriesVec_.size(); ++j)
   {
     REFBPtr_->putScalar( 0.0 );
-    (REFBPtr_->block( 0 ))[bMatEntriesVec_[j]] = -1.0;
+    if (bMatEntriesVec_[j] > -1)
+      (REFBPtr_->block( 0 ))[bMatEntriesVec_[j]] = -1.0;
 
-    linearStatus = blockSolver_->Solve();
+    linearStatus = blockSolver_->solve( true );
     if (linearStatus != 0)
     {
-      Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
+      Xyce::dout() << "MOR::solveLinearSystem_: block solver exited with error: " << linearStatus << std::endl;
       bsuccess = false;
     }
 
     // Compute transfer function entries for all I/O
     for (unsigned int i=0; i < bMatEntriesVec_.size(); ++i)
     {
+       std::vector<double> tmpVal(2,0.0), value(2,0.0);
+       if (bMatEntriesVec_[i] > -1)
+       {
+         tmpVal[0] = (REFXPtr_->block( 0 ))[bMatEntriesVec_[i]];
+         tmpVal[1] = (REFXPtr_->block( 1 ))[bMatEntriesVec_[i]];
+       }
+       Parallel::AllReduce(comm_, MPI_SUM, &tmpVal[0], &value[0], 2);
+
        // Populate H for all ports in L
        // L is the same as B and also a set of canonical basis vectors (e_i), so
        // we can pick off the appropriate entries of REFXPtr to place into H.
-       origH_(i,j) = std::complex<double>(-(REFXPtr_->block( 0 ))[bMatEntriesVec_[i]],
-                                          -(REFXPtr_->block( 1 ))[bMatEntriesVec_[i]]);
+       origH_(i,j) = std::complex<double>(-value[0], -value[1]);
     }
   }
+
   return bsuccess;
 }
 
@@ -1422,39 +1317,39 @@ bool MOR::solveRedLinearSystem_()
 
   if ( morSparsificationType_ && isROMSparse_ )
   {
-    // Solve the block problem
-    int linearStatus = blockRedSolver_->NumericFactorization();
+    // Solve the block problem and reuse factorization
+    int linearStatus = blockRedSolver_->solve();
 
     if (linearStatus != 0)
     {
-      Xyce::dout() << "Amesos numeric factorization exited with error: " << linearStatus;
+      Xyce::dout() << "MOR::solveRedLinearSystem_(): solver exited with error: " << linearStatus << std::endl;
       bsuccess = false;
+      return bsuccess;
     }
 
     // Create a multivector with the reduced B and L vectors.
-    Teuchos::RCP<Parallel::EpetraParMap> e_redMapPtr_ = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>( redMapPtr_ );
-    Epetra_MultiVector tmp_redL( View, *e_redMapPtr_->petraMap(), redL_.values(), redL_.stride(), numPorts_ ); 
-    Epetra_MultiVector tmp_redB( View, *e_redMapPtr_->petraMap(), redB_.values(), redB_.stride(), numPorts_ ); 
-    Linear::EpetraMultiVector redBmv( &tmp_redB, tmp_redB.Map(), false ), redLmv( &tmp_redL, tmp_redL.Map(), false );
+    Teuchos::RCP<Linear::MultiVector> tmp_redL = Teuchos::rcp( Linear::transferSDMtoMV( *redMapPtr_, redL_ ) );
+    Teuchos::RCP<Linear::MultiVector> tmp_redB = Teuchos::rcp( Linear::transferSDMtoMV( *redMapPtr_, redB_ ) );
 
     // Loop over number of I/O ports here
     for (int j=0; j < numPorts_; ++j)
     {
       // Set the B vector for this port.
       ref_redBPtr_->putScalar( 0.0 );
-      (ref_redBPtr_->block( 0 )) = Linear::EpetraVector( (tmp_redB)(j), tmp_redB.Map(), false );
+      Teuchos::RCP<const Linear::Vector> tmp_redB_j = Teuchos::rcp( tmp_redB->getVectorView( j ) );
+      (ref_redBPtr_->block( 0 )) = *tmp_redB_j;
 
-      linearStatus = blockRedSolver_->Solve();
+      linearStatus = blockRedSolver_->solve( true );
       if (linearStatus != 0)
       {
-        Xyce::dout() << "Amesos solve exited with error: " << linearStatus;
+        Xyce::dout() << "MOR::solveRedLinearSystem_(): solver exited with error: " << linearStatus << std::endl;
         bsuccess = false;
       }
 
       // Compute transfer function entries for all I/O
       for (int i=0; i < numPorts_; ++i)
       {
-         Teuchos::RCP<const Linear::Vector> redLmv_i = Teuchos::rcp( redLmv.getVectorView( i ) );
+         Teuchos::RCP<const Linear::Vector> redLmv_i = Teuchos::rcp( tmp_redL->getVectorView( i ) );
 
          // L is probably not B in this case, so explicitly multiply to compute transfer function entries.
          double realPart = redLmv_i->dotProduct( ref_redXPtr_->block( 0 ) );
@@ -1774,59 +1669,90 @@ bool MOR::sparsifyRedSystem_()
   // redL_.print(Xyce::dout());
 
   // Create redCPtr_ and redGPtr_
-  // Generate Epetra_Map that puts all the values of the reduced system on one processor.
+  // Generate map that puts all the values of the reduced system on one processor.
   Parallel::Manager &pdsManager = *analysisManager_.getPDSManager();
   Parallel::ParMap &BaseMap = *pdsManager.getParallelMap(Parallel::SOLUTION);
-  Parallel::EpetraParMap &e_BaseMap = dynamic_cast<Parallel::EpetraParMap&>(BaseMap); 
   if (BaseMap.pdsComm().procID() == 0)
     redMapPtr_ = Teuchos::rcp( Parallel::createPDSParMap( k, k, 0, BaseMap.pdsComm() ) );
   else
     redMapPtr_ = Teuchos::rcp( Parallel::createPDSParMap( k, 0, 0, BaseMap.pdsComm() ) );
 
-  Teuchos::RCP<Parallel::EpetraParMap> e_redMapPtr_ = Teuchos::rcp_dynamic_cast<Parallel::EpetraParMap>( redMapPtr_ );
-  Epetra_CrsMatrix* tmpRedG = new Epetra_CrsMatrix( Copy, *e_redMapPtr_->petraMap(), 1 );
-  Epetra_CrsMatrix* tmpRedC = new Epetra_CrsMatrix( Copy, *e_redMapPtr_->petraMap(), 2 );
+  // Let processor 0 insert entries into redGPtr_ and redCPtr_
+  std::vector<int> numIndG, numIndC;
+  std::vector<std::vector<int> > indDataG, indDataC;
 
-  // Let processor 0 insert entries into tmpRedG and tmpRedC
+  // First create the graph
+  if (BaseMap.pdsComm().procID() == 0)
+  {
+    numIndG.resize(k,1);
+    numIndC.resize(k,1);
+    indDataG.resize(k); indDataC.resize(k);
+    for (int i=0; i<k; i++)
+    {
+      // Start with G and C as a diagonal matrix
+      indDataG[i].push_back(i);
+      indDataC[i].push_back(i);
+
+      // C is block diagonal, where the blocks represent conjugate eigenvalues.
+      if (rowIndex[i] == 1)
+      {
+        numIndC[i] = 2;
+        indDataC[i].insert(indDataC[i].end(), i+1);
+      }
+      else if (rowIndex[i] == -1)
+      {
+        numIndC[i] = 2;
+        indDataC[i].insert(indDataC[i].begin(), i-1);
+      }
+    }
+  }
+
+  Linear::Graph* Ggraph = Xyce::Linear::createGraph( *redMapPtr_, *redMapPtr_, numIndG, indDataG );
+  Linear::Graph* Cgraph = Xyce::Linear::createGraph( *redMapPtr_, *redMapPtr_, numIndC, indDataC );
+
+  redGPtr_ = Teuchos::rcp( Linear::createMatrix( Ggraph, Ggraph ) );
+  redCPtr_ = Teuchos::rcp( Linear::createMatrix( Cgraph, Cgraph ) );
+
+  // Set the values in the reduced C and G matrices
   if (BaseMap.pdsComm().procID() == 0)
   {
     std::vector<int> index(2);
     std::vector<double> val(2);
+
     for (int i=0; i<k; i++)
     {
       // Insert G, which is a diagonal of ones.
       index[0] = i; val[0] = 1.0;
-      tmpRedG->InsertGlobalValues( i, 1, &val[0], &index[0] );
+      redGPtr_->putRow( i, 1, &val[0], &index[0] );
 
       // Insert C, which is block diagonal, where the blocks represent conjugate eigenvalues.
       if (rowIndex[i] == 1)
       {
         index[0] = i; index[1] = i+1;
         val[0] = revals[i]; val[1] = -ievals[i];
-        tmpRedC->InsertGlobalValues( i, 2, &val[0], &index[0] );
+        redCPtr_->putRow( i, 2, &val[0], &index[0] );
       }
       else if (rowIndex[i] == -1)
       {
         index[0] = i-1; index[1] = i;
         val[0] = ievals[i-1]; val[1] = revals[i-1];
-        tmpRedC->InsertGlobalValues( i, 2, &val[0], &index[0] );
+        redCPtr_->putRow( i, 2, &val[0], &index[0] );
       }
       else // Must be real.
       {
         index[0] = i; val[0] = revals[i];
-        tmpRedC->InsertGlobalValues( i, 1, &val[0], &index[0] );
+        redCPtr_->putRow( i, 1, &val[0], &index[0] );
       }
     }
   }
-  // We are done inserting values.
-  tmpRedC->FillComplete();
-  tmpRedC->OptimizeStorage();
-  tmpRedG->FillComplete();
-  tmpRedG->OptimizeStorage();
 
-  // Pass tmpRedG and tmpRedC into redGPtr_ and redGPtr_, respectively, which will manage the memory.
-  redGPtr_ = Teuchos::rcp( new Linear::EpetraMatrix( tmpRedG ) );
-  redCPtr_ = Teuchos::rcp( new Linear::EpetraMatrix( tmpRedC ) );
+  // We are done inserting values.
+  redGPtr_->fillComplete();
+  redCPtr_->fillComplete();
+
+  // Clean up.
+  delete Cgraph;
+  delete Ggraph;
 
   // We now have a sparse ROM.
   if (bsuccess)
@@ -2164,6 +2090,20 @@ public:
     return true;
   }
 
+  //-----------------------------------------------------------------------------
+  // Function      : setLinSolOptionBlock
+  // Purpose       :
+  // Special Notes :
+  // Scope         : public 
+  // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
+  // Creation Date : Thu Jan 29 13:00:14 2015
+  //-----------------------------------------------------------------------------
+  bool setLinSolOptionBlock(const Util::OptionBlock &option_block)
+  {
+    linSolOptionBlock_ = option_block;
+    return true;
+  }
+
 public:
   AnalysisManager &                     analysisManager_;
   Linear::System &                      linearSystem_;
@@ -2175,6 +2115,7 @@ public:
 private:
   Util::OptionBlock     morAnalysisOptionBlock_;
   Util::OptionBlock     morOptsOptionBlock_;
+  Util::OptionBlock     linSolOptionBlock_;
 };
 
 // .MOR
@@ -2289,6 +2230,8 @@ registerMORFactory(
   factory_block.optionsManager_.addCommandProcessor("MOR", new MORAnalysisReg(*factory));
 
   factory_block.optionsManager_.addOptionsProcessor("MOR_OPTS", IO::createRegistrationOptions(*factory, &MORFactory::setMOROptsOptionBlock));
+
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions(*factory, &MORFactory::setLinSolOptionBlock));
 
   return true;
 }

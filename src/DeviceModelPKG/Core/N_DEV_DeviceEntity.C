@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -587,7 +587,7 @@ bool DeviceEntity::getNumericalBSensVectorsforACDefaultParam (
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 07/25/03
 //-----------------------------------------------------------------------------
-bool DeviceEntity::setParam(const std::string & paramName, double val, bool overrideOriginal)
+bool DeviceEntity::setParam(const std::string & paramName, double val, bool overrideOriginal,bool ignoreLengthScale)
 {
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
   {
@@ -606,7 +606,7 @@ bool DeviceEntity::setParam(const std::string & paramName, double val, bool over
 
   if (param.isType<double>())
   {
-    if (devOptions_.lengthScaleGiven)
+    if (!ignoreLengthScale && devOptions_.lengthScaleGiven)
     {
       double scalar = devOptions_.lengthScale;
       if (param.getLengthScaling())  { val *= scalar; }
@@ -749,14 +749,14 @@ void DeviceEntity::processSuccessfulTimeStep ()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 11/06/03
 //-----------------------------------------------------------------------------
-bool DeviceEntity::setDefaultParam (double val, bool overrideOriginal)
+bool DeviceEntity::setDefaultParam (double val, bool overrideOriginal, bool ignoreLengthScale)
 {
   if (defaultParamName_.empty())
   {
     DevelFatal(*this).in("DeviceEntity::setDefaultParam") << "Device does not have a default parameter";
   }
 
-  return setParam(defaultParamName_, val, overrideOriginal);
+  return setParam(defaultParamName_, val, overrideOriginal, ignoreLengthScale);
 }
 
 //-----------------------------------------------------------------------------

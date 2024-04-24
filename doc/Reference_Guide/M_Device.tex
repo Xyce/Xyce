@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2023 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 
@@ -833,8 +833,35 @@ name of the specific PSP103 M device in your netlist.
 \input{M_1031_OutputVars}
 
 \clearpage
+
+\subsubsection{Level 111 MOSFET Tables (BSIM CMG version 111.2.1)}
+\Xyce{} includes the BSIM CMG Common Multi-gate model version 111.
+The code in \Xyce{} was generated from the BSIM group's Verilog-A
+input using the default ``ifdef'' lines provided, and therefore
+supports only the subset of BSIM CMG features those defaults enable.
+Instance and model parameters for the BSIM CMG model are given in
+tables~\ref{M_111_Device_Instance_Params} and
+\ref{M_111_Device_Model_Params}.  Details of the model are documented
+in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
+the BSIM web site at
+\url{http://bsim.berkeley.edu/models/bsimcmg/}.
+
+The BSIM CMG devices support output of the internal variables in
+tables~\ref{M_107_OutputVars}, \ref{M_108_OutputVars}, and  \ref{M_111_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 107 or 108 M device in your netlist.
+
+\input{M_111_Device_Instance_Params}
+\input{M_111_Device_Model_Params}
+\input{M_111_OutputVars}
+
+
 \subsubsection{Level 110 MOSFET Tables (BSIM CMG version 110.0.0)}
-\Xyce{} includes the BSIM CMG Common Multi-gate model version 110.
+
+\Xyce{} includes the legacy BSIM CMG Common Multi-gate model versions 110. 
+This model has been superceded by the level 111 version, but has been retained for 
+backward compatibility with previous versions of Xyce and older model cards and PDKs.
 The code in \Xyce{} was generated from the BSIM group's Verilog-A
 input using the default ``ifdef'' lines provided, and therefore
 supports only the subset of BSIM CMG features those defaults enable.

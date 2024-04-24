@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -45,6 +45,10 @@ namespace IO {
 namespace Outputter {
 
 void enableNoiseOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis::Mode analysis_mode);
+
+std::ostream &printNoiseHeader(std::ostream &os, const PrintParameters &print_parameters);
+
+
 
 } // namespace Outputter
 } // namespace IO

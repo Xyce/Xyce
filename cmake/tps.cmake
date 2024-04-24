@@ -345,7 +345,8 @@ if (Xyce_AMESOS2)
           set(Xyce_AMESOS2_SHYLUBASKER FALSE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2")
      else()
           check_cxx_symbol_exists(HAVE_AMESOS2_SHYLUBASKER Amesos2_config.h Amesos2_ShyLUBasker_IN_Trilinos)
-          if (Amesos2_ShyLUBasker_IN_Trilinos)
+          check_cxx_symbol_exists(HAVE_AMESOS2_SHYLU_NODEBASKER Amesos2_config.h Amesos2_ShyLUNodeBasker_IN_Trilinos)
+          if (Amesos2_ShyLUBasker_IN_Trilinos OR Amesos2_ShyLUNodeBasker_IN_Trilinos)
                set(Xyce_AMESOS2_SHYLUBASKER TRUE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2")
           else()
                set(Xyce_AMESOS2_SHYLUBASKER FALSE CACHE BOOL "Enables the multi-threaded ShyLU-Basker linear solver in Amesos2" FORCE)
@@ -545,8 +546,8 @@ endif()
 
 # Find flex and Bison
 message(STATUS "Looking for flex and Bison")
-find_package(FLEX REQUIRED)
-find_package(BISON 3.0.4 REQUIRED)
+find_package(FLEX 2.6 REQUIRED)
+find_package(BISON 3.3 REQUIRED)
 
 # Find CURL
 if (Xyce_USE_CURL)

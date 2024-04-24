@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -80,7 +80,7 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setGivenMember(&Diode::Instance::InitCondGiven)
     .setCategory(CAT_NONE);
 
-  p.addPar ("TEMP",  0.0, &Diode::Instance::Temp)
+  p.addPar ("TEMP", 0.0, &Diode::Instance::Temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setDescription("Device temperature");
 
@@ -88,6 +88,11 @@ void Traits::loadInstanceParameters(ParametricData<Diode::Instance> &p)
     .setUnit(U_LOGIC)
     .setCategory(CAT_CONTROL)
     .setDescription("Initial voltage drop across device set to zero");
+
+  p.addPar("DTEMP", 0.0, &Diode::Instance::dtemp)
+    .setGivenMember(&Diode::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
@@ -388,7 +393,19 @@ bool Instance::processParams()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     Temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   updateTemperature( Temp );
   return true;
@@ -415,6 +432,8 @@ Instance::Instance(
     InitCond(0.0),
     Temp(getDeviceOptions().temp.getImmutableValue<double>()),
     InitCondGiven(false),
+    dtemp(0.0),
+    dtempGiven(false),
     tJctPot(0.0),
     tJctCap(0.0),
     tJctSWPot(0.0),
@@ -1408,14 +1427,18 @@ bool Instance::updateIntermediateVars ()
 // Creator       : Tom Russo, Component Information and Models
 // Creation Date : 1/10/01
 //-----------------------------------------------------------------------------
-bool Instance::updateTemperature( const double & temp )
+bool Instance::updateTemperature( const double & temp_tmp )
 {
-
   double vtnom = CONSTKoverQ * model_.TNOM;
 
   double xfc = log( 1.0 - model_.FC );
 
-  if( temp != -999.0 ) Temp = temp;
+  if( temp_tmp != -999.0 )
+  { 
+    Temp = temp_tmp;
+    Temp += dtemp;
+  }
+
   double TNOM = model_.TNOM;
 
   double vt = CONSTKoverQ * Temp;
@@ -2005,6 +2028,7 @@ template <typename ScalarT>
 bool updateTemperature
   (
    const double & temp, 
+   const double & dtemp, 
 
    // instance variables/params:
    ScalarT & Temp,
@@ -2078,7 +2102,11 @@ bool updateTemperature
 
   ScalarT xfc = log( 1.0 - FC );
 
-  if( temp != -999.0 ) Temp = temp;
+  if( temp != -999.0 )
+  { 
+    Temp = temp;
+    Temp += dtemp;
+  }
   //double TNOM = TNOM;
 
   ScalarT vt = KoverQ * Temp;
@@ -2709,8 +2737,25 @@ void diodeSensitivity::operator()(
     fadType PJ = (*in)->PJ;
     fadType multiplicityFactor = (*in)->multiplicityFactor;
 
+    if (!(*in)->given("TEMP"))
+    {
+      Temp = (*in)->getDeviceOptions().temp.getImmutableValue<double>();
+      if  (!(*in)->dtempGiven)
+        (*in)->dtemp = 0.0;
+    }
+    else
+    {
+      (*in)->dtemp = 0.0;
+      if  ((*in)->dtempGiven)
+      {
+      // don't issue a warning in this templated version of the function, as it is only called for .sens
+        //UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+      }
+    }
+
     updateTemperature(
        (*in)->Temp,
+       (*in)->dtemp,
        Temp, tJctCap, tJctPot, tDepCap, tJctSWCap, tJctSWPot, tDepSWCap,
        tF1, tSatCur, tSatSWCur, tSatCurR,
        tVcrit, tRS, tCOND, tIKF, tBrkdwnV,

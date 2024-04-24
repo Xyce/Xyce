@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -39,6 +39,7 @@
 
 // ---------- Standard Includes ----------
 #include <iostream>
+#include <sstream>
 #include <N_UTL_Math.h>
 #include <cstdio>
 
@@ -534,9 +535,8 @@ bool Region::outputTecplot ()
   bool bsuccess = true;
 
   int i;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s.dat",outputName.c_str());
+  std::stringstream filename("");
+  filename << outputName << ".dat";
 
   double time = solState.currTime_;
   double step = solState.currTimeStep_;
@@ -546,7 +546,7 @@ bool Region::outputTecplot ()
     Xyce::dout() << std::endl;
     Xyce::dout() << section_divider << std::endl;
     Xyce::dout() << "In Device::DiodePDEInstance::outputTecplot.  filename = ";
-    Xyce::dout() << std::string(filename);
+    Xyce::dout() << filename.str();
     Xyce::dout() << " time = " << time;
     Xyce::dout() << " step = " << step;
     Xyce::dout() << std::endl;
@@ -556,11 +556,11 @@ bool Region::outputTecplot ()
 
   if (callsOTEC <= 0)
   {
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
   }
   else
   {
-    fp1 = fopen(filename,"a");
+    fp1 = fopen(filename.str().c_str(),"a");
   }
 
   // If this is the first call, print the header.

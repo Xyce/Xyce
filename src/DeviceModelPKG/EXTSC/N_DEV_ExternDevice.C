@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -931,7 +931,7 @@ Instance::initialize()
     {
       Xyce::dout() << "Initializing internal Xyce" << std::endl;
     }
-    extCodePtr_->initialize(comm_);
+    extCodePtr_->initialize(comm_->comm());
 
     // startTimeStep(
     //   beginIntegrationFlag,

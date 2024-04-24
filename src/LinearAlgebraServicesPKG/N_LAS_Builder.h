@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -122,28 +122,6 @@ public:
   virtual bool generateParMaps();
 
   virtual bool generateGraphs();
-
-  // This is an on-demand capability for the builder to analyze the
-  // current solution maps and Jacobian graphs and separate them based
-  // on linear vs. nonlinear GID information from topology.
-  virtual bool setupSeparatedLSObjects();
-  virtual void getSeparatedSolnMap( RCP<Parallel::ParMap>& linear_map, 
-                                    RCP<Parallel::ParMap>& nonlin_map
-                                  ) const;
-
-  // Return the graphs with reference to the separated solution map
-  virtual void getSeparatedGraph( RCP<const Graph>& linear_graph,
-                                  RCP<const Graph>& linNonlin_graph,
-                                  RCP<const Graph>& nonlin_graph,
-                                  RCP<const Graph>& nonlinLin_graph
-                                ) const;
-
-  // Return the graphs with reference to the global solution map
-  virtual void getGlobalSeparatedGraph( RCP<const Graph>& linear_graph,
-                                        RCP<const Graph>& linNonlin_graph,
-                                        RCP<const Graph>& nonlin_graph,
-                                        RCP<const Graph>& nonlinLin_graph
-                                      ) const;
 
   virtual RCP<const Parallel::ParMap> getSolutionMap() const;
   

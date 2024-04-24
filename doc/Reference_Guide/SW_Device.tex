@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2023 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 
@@ -39,6 +39,14 @@ Model parameters are given in Table ~\ref{S_1_Device_Model_Params}.
 The voltage- and current-controlled switch syntaxes are converted at
 parse time to their equivalent generic device, and so all three
 variants in fact use the same code internally.
+
+Hysteresis in the switching behavior of the device can be controlled with 
+the model parameters \texttt{IHON}, \texttt{IHOFF}, \texttt{VHON} and
+\texttt{IVOFF} for current and voltage controlled switches respectively.  
+For a general switch that is dependent on an expression hysteresis can 
+behavior can be set with the model parameters v\texttt{ONH} and \texttt{OFFH}. 
+If none of these parameters are set then hysteresis is will not be used 
+for the device. 
 
 The power dissipated in the generic switch is calculated with $I \cdot \Delta V$ 
 where the voltage drop is calculated as $(V_+ - V_-)$ and positive current 

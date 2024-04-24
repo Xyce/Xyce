@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -182,6 +182,8 @@ private:
   double vt;                  // CONSTKoverQ*temp: set in updateTemperature
 
   double temp;                // operating temperature of this instance
+  double dtemp;               // delta temperature of this instance
+  bool dtempGiven;            // delta temperature given
   double tSurfMob;            // temperature corrected surface mobility
   double tPhi;                // temperature corrected Phi
   double tVto;                // temperature corrected Vto

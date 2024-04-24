@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -544,7 +544,7 @@ char  *mm_typecode_to_str(MM_typecode matcode)
     else
         return NULL;
 
-    sprintf(buffer,"%s %s %s %s", types[0], types[1], types[2], types[3]);
+    snprintf(buffer, MM_MAX_LINE_LENGTH, "%s %s %s %s", types[0], types[1], types[2], types[3]);
     return mm_strdup(buffer);
 
 }

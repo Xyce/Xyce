@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -154,7 +154,7 @@ void spCheckInd ( MatrixPtr Matrix , char *msg)
       if (Matrix->FirstInCol[I]) {
         for (J=0 ; J<Matrix->Indsize ; J++) {
           while (f_ind(Matrix, I, K) < J) K++;
-          if (pElement = Matrix->Col_fast[I][J]) {
+          if ((pElement = Matrix->Col_fast[I][J])) {
             if (pElement->Col != I) {
               printf ("Col_fast pointing to bad Column number (%d), correct = %d\n",
                        pElement->Col, I);
@@ -184,7 +184,7 @@ void spCheckInd ( MatrixPtr Matrix , char *msg)
           }
         }
       }
-      if (err | I == Col_debug) {
+      if (err | (I == Col_debug)) {
         if (err)
           any_err = 1;
         K = 0;
@@ -208,7 +208,7 @@ void spCheckInd ( MatrixPtr Matrix , char *msg)
         if (Matrix->FirstInRow[I]) {
           for (J=0 ; J<Matrix->Indsize ; J++) {
             while (f_ind(Matrix, I, K) < J) K++;
-            if (pElement = Matrix->Row_fast[I][J]) {
+            if ((pElement = Matrix->Row_fast[I][J])) {
               if (pElement->Row != I) {
                 printf ("Row_fast pointing to bad Row number (%d), correct = %d\n",
                          pElement->Row, I);
@@ -238,7 +238,7 @@ void spCheckInd ( MatrixPtr Matrix , char *msg)
             }
           }
         }
-        if (err | I == Row_debug) {
+        if (err | (I == Row_debug)) {
           if (err)
             any_err = 1;
           K = 0;
@@ -362,9 +362,7 @@ void spCheckInd ( MatrixPtr Matrix , char *msg)
  */
 
 void
-spMNA_Preorder( eMatrix )
-
-char *eMatrix;
+spMNA_Preorder( char* eMatrix )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  int  J, Size;
@@ -425,11 +423,7 @@ BOOLEAN  Swapped, AnotherPassNeeded;
  */
 
 static int
-CountTwins( Matrix, Col, ppTwin1, ppTwin2 )
-
-MatrixPtr Matrix;
-int Col;
-ElementPtr *ppTwin1, *ppTwin2;
+CountTwins( MatrixPtr Matrix, int Col, ElementPtr* ppTwin1, ElementPtr* ppTwin2 )
 {
 int Row, Twins = 0;
 ElementPtr pTwin1, pTwin2;
@@ -471,10 +465,7 @@ ElementPtr pTwin1, pTwin2;
  */
 
 static void
-SwapCols( Matrix, pTwin1, pTwin2 )
-
-MatrixPtr Matrix;
-ElementPtr pTwin1, pTwin2;
+SwapCols( MatrixPtr Matrix, ElementPtr pTwin1, ElementPtr pTwin2 )
 {
 int Col1 = pTwin1->Col, Col2 = pTwin2->Col;
 
@@ -569,16 +560,12 @@ ElementPtr e; /*XXX*/
  */
 
 void
-spScale( eMatrix, RHS_ScaleFactors, SolutionScaleFactors )
-
-char *eMatrix;
-register  RealVector  RHS_ScaleFactors, SolutionScaleFactors;
+spScale( char* eMatrix, RealVector RHS_ScaleFactors, RealVector SolutionScaleFactors )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register ElementPtr  pElement;
 register int  I, lSize, *pExtOrder;
 RealNumber  ScaleFactor;
-void ScaleComplexMatrix();
 
 /* Begin `spScale'. */
     spExpandFormat(Matrix);
@@ -714,10 +701,7 @@ void spBackup(MatrixPtr  Matrix)
  */
 
 static void
-ScaleComplexMatrix( Matrix, RHS_ScaleFactors, SolutionScaleFactors )
-
-MatrixPtr  Matrix;
-register  RealVector  RHS_ScaleFactors, SolutionScaleFactors;
+ScaleComplexMatrix( MatrixPtr Matrix, RealVector RHS_ScaleFactors, RealVector SolutionScaleFactors )
 {
 register ElementPtr  pElement;
 register int  I, lSize, *pExtOrder;
@@ -803,17 +787,13 @@ RealNumber  ScaleFactor;
  */
 
 void
-spMultiply( eMatrix, RHS, Solution IMAG_VECTORS )
-
-char *eMatrix;
-RealVector RHS, Solution IMAG_VECTORS;
+spMultiply( char* eMatrix, RealVector RHS, RealVector Solution IMAG_VECTORS_PRO)
 {
 register  ElementPtr  pElement;
 register  RealVector  Vector;
 register  RealNumber  Sum;
 register  int  I, *pExtOrder;
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
-extern void ComplexMatrixMultiply();
 
 /* Begin `spMultiply'. */
     spExpandFormat(Matrix);
@@ -825,7 +805,7 @@ extern void ComplexMatrixMultiply();
 
 #if spCOMPLEX
     if (Matrix->Complex)
-    {   ComplexMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS );
+    {   ComplexMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS_ARG );
         return;
     }
 #endif
@@ -901,10 +881,7 @@ extern void ComplexMatrixMultiply();
  */
 
 static void
-ComplexMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS )
-
-MatrixPtr  Matrix;
-RealVector RHS, Solution IMAG_VECTORS;
+ComplexMatrixMultiply( MatrixPtr Matrix, RealVector RHS, RealVector Solution IMAG_VECTORS_PRO )
 {
 register  ElementPtr  pElement;
 register  ComplexVector  Vector;
@@ -999,17 +976,13 @@ register  int  I, *pExtOrder;
  */
 
 void
-spMultTransposed( eMatrix, RHS, Solution IMAG_VECTORS )
-
-char *eMatrix;
-RealVector RHS, Solution IMAG_VECTORS;
+spMultTransposed( char* eMatrix, RealVector RHS, RealVector Solution IMAG_VECTORS_PRO )
 {
 register  ElementPtr  pElement;
 register  RealVector  Vector;
 register  RealNumber  Sum;
 register  int  I, *pExtOrder;
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
-extern void ComplexTransposedMatrixMultiply();
 
 /* Begin `spMultTransposed'. */
     spExpandFormat(Matrix);
@@ -1019,7 +992,7 @@ extern void ComplexTransposedMatrixMultiply();
 
 #if spCOMPLEX
     if (Matrix->Complex)
-    {   ComplexTransposedMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS );
+    {   ComplexTransposedMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS_ARG );
         return;
     }
 #endif
@@ -1095,10 +1068,7 @@ extern void ComplexTransposedMatrixMultiply();
  */
 
 static void
-ComplexTransposedMatrixMultiply( Matrix, RHS, Solution IMAG_VECTORS )
-
-MatrixPtr  Matrix;
-RealVector RHS, Solution IMAG_VECTORS;
+ComplexTransposedMatrixMultiply( MatrixPtr Matrix, RealVector RHS, RealVector Solution IMAG_VECTORS_PRO )
 {
 register  ElementPtr  pElement;
 register  ComplexVector  Vector;
@@ -1203,16 +1173,11 @@ register  int  I, *pExtOrder;
 
 #if spCOMPLEX
 void
-spDeterminant( eMatrix, pExponent, pDeterminant, piDeterminant )
-RealNumber *piDeterminant;
+spDeterminant( char* eMatrix, int* pExponent, RealNumber* pDeterminant, RealNumber* piDeterminant )
 #else
 void
-spDeterminant( eMatrix, pExponent, pDeterminant )
+spDeterminant( char* eMatrix, int* pExponent, RealNumber* pDeterminant )
 #endif
-
-char *eMatrix;
-register  RealNumber *pDeterminant;
-int  *pExponent;
 {
 register MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register int I, Size;
@@ -1359,7 +1324,8 @@ ComplexNumber Pivot, cDeterminant;
  *      A pointer to a node in the FillinList linked-list.
  */
 
-void print_col(MatrixPtr,int), print_row(MatrixPtr,int);
+void print_col(MatrixPtr,int);
+void print_row(MatrixPtr,int);
 void
 spStripFills( char *eMatrix, int Step )
 {
@@ -1497,15 +1463,11 @@ int f_ind(MatrixPtr Matrix, int i, int j)
  */
 
 void
-spDeleteRowAndCol( eMatrix, Row, Col )
-
-char *eMatrix;
-int  Row, Col;
+spDeleteRowAndCol( char* eMatrix, int Row, int Col )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  ElementPtr  pElement, *ppElement, pLastElement;
 int  Size, ExtRow, ExtCol;
-ElementPtr  spcFindElementInCol();
 
 /* Begin `spDeleteRowAndCol'. */
 
@@ -1613,9 +1575,7 @@ ElementPtr  spcFindElementInCol();
  */
 
 RealNumber
-spPseudoCondition( eMatrix )
-
-char *eMatrix;
+spPseudoCondition( char* eMatrix )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register int I;
@@ -1705,11 +1665,7 @@ RealNumber MaxPivot, MinPivot, Mag;
  */
 
 RealNumber
-spCondition( eMatrix, NormOfMatrix, pError )
-
-char *eMatrix;
-RealNumber NormOfMatrix;
-int *pError;
+spCondition( char* eMatrix, RealNumber NormOfMatrix, int* pError )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register ElementPtr pElement;
@@ -1718,7 +1674,7 @@ register int I, K, Row;
 ElementPtr pPivot;
 int Size;
 RealNumber E, Em, Wp, Wm, ASp, ASm, ASw, ASy, ASv, ASz, MaxY, ScaleFactor;
-RealNumber Linpack, OLeary, InvNormOfInverse, ComplexCondition();
+RealNumber Linpack, OLeary, InvNormOfInverse;
 #define SLACK   1e4
 
 /* Begin `spCondition'. */
@@ -1917,11 +1873,7 @@ RealNumber Linpack, OLeary, InvNormOfInverse, ComplexCondition();
  */
 
 static RealNumber
-ComplexCondition( Matrix, NormOfMatrix, pError )
-
-MatrixPtr Matrix;
-RealNumber NormOfMatrix;
-int *pError;
+ComplexCondition( MatrixPtr Matrix, RealNumber NormOfMatrix, int* pError )
 {
 register ElementPtr pElement;
 register ComplexVector T, Tm;
@@ -2111,9 +2063,7 @@ ComplexNumber Wp, Wm;
  */
 
 RealNumber
-spNorm( eMatrix )
-
-char *eMatrix;
+spNorm( char* eMatrix )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register ElementPtr pElement;
@@ -2229,9 +2179,7 @@ RealNumber Max = 0.0, AbsRowSum;
  */
 
 RealNumber
-spLargestElement( eMatrix )
-
-char *eMatrix;
+spLargestElement( char* eMatrix )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register int I;
@@ -2348,10 +2296,7 @@ register ElementPtr pElement, pDiag;
  */
 
 RealNumber
-spRoundoff( eMatrix, Rho )
-
-char *eMatrix;
-RealNumber Rho;
+spRoundoff( char* eMatrix, RealNumber Rho )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register ElementPtr pElement;
@@ -2416,10 +2361,7 @@ RealNumber Reid, Gear;
  */
 
 void
-spErrorMessage( eMatrix, Stream, Originator )
-
-char *eMatrix, *Originator;
-FILE *Stream;
+spErrorMessage( char* eMatrix, FILE* Stream, char* Originator )
 {
 int Row, Col, Error;
 

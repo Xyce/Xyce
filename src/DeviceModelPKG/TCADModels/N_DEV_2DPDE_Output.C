@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -40,6 +40,7 @@
 
 // ----------  Standard Includes ----------
 #include <iostream>
+#include <sstream>
 #include <N_UTL_Math.h>
 
 // ----------   Xyce Includes   ----------
@@ -301,15 +302,18 @@ bool Instance::outputTecplot ()
   bool bs1 = true;
 
   int i;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
+  std::stringstream filename(""); 
+  filename << outputName;
 
   if (tecplotLevel == 1)
   {
-    sprintf(filename,"%s_%03d.dat",outputName.c_str(),callsOTEC);
+    filename.width(3);
+    filename.fill('0');
+    filename << "_" << callsOTEC << ".dat";
   }
   else
   {
-    sprintf(filename,"%s.dat",outputName.c_str());
+    filename << ".dat";
   }
 
   double time = getSolverState().currTime_;
@@ -319,7 +323,7 @@ bool Instance::outputTecplot ()
     Xyce::dout() << std::endl;
     Xyce::dout() << section_divider << std::endl;
     Xyce::dout() << "In Instance::outputTecplot.  filename = ";
-    Xyce::dout() << std::string(filename);
+    Xyce::dout() << filename.str();
     Xyce::dout() << std::endl;
   }
 
@@ -327,17 +331,17 @@ bool Instance::outputTecplot ()
 
   if (tecplotLevel == 1)
   {
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
   }
   else
   {
     if (callsOTEC <= 0)
     {
-      fp1 = fopen(filename,"w");
+      fp1 = fopen(filename.str().c_str(),"w");
     }
     else
     {
-      fp1 = fopen(filename,"a");
+      fp1 = fopen(filename.str().c_str(),"a");
     }
   }
 
@@ -652,9 +656,11 @@ bool Instance::outputTecplotVectors ()
   bool bsuccess = true;
 
   int i, j;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s_%03dVec.dat",outputName.c_str(),callsOTECvec);
+  //char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
+  std::stringstream filename("");
+  filename.width(3);
+  filename.fill('0');
+  filename << outputName << "_" << callsOTECvec << "Vec.dat";
   ++callsOTECvec;
 
   double time = getSolverState().currTime_;
@@ -664,11 +670,11 @@ bool Instance::outputTecplotVectors ()
     Xyce::dout() << std::endl;
     Xyce::dout() << section_divider << std::endl;
     Xyce::dout() << "In Instance::outputTecplotVectors.  filename = ";
-    Xyce::dout() << std::string(filename);
+    Xyce::dout() << filename.str();
     Xyce::dout() << std::endl;
   }
 
-  FILE *fp1 = fopen(filename,"w");
+  FILE *fp1 = fopen(filename.str().c_str(),"w");
 
   // set up the cartesian grid with which to perform interpolations:
   double tmp;
@@ -947,9 +953,11 @@ bool Instance::outputGnuplot ()
   bool bsuccess = true;
 
   int i, j;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s_%03dGnu.dat",outputName.c_str(),callsOGNU);
+  
+  std::stringstream filename("");
+  filename.width(3);
+  filename.fill('0');
+  filename << outputName << "_" << callsOGNU << "Gnu.dat";
   ++callsOGNU;
 
   if (!given("NX") || !given("NY"))
@@ -965,7 +973,7 @@ bool Instance::outputGnuplot ()
     int ixMax = numMeshPointsX;
     int iyMax = numMeshPointsY;
 
-    FILE *fp1 = fopen(filename,"w");
+    FILE *fp1 = fopen(filename.str().c_str(),"w");
 
     for (j=0;j<iyMax;++j)
     {
@@ -1005,17 +1013,17 @@ bool Instance::outputTxtData ()
   bool bsuccess = true;
 
   int i;
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-
-  sprintf(filename,"%s_data.txt",outputName.c_str());
+  
+  std::stringstream filename("");
+  filename << outputName << "_data.txt";
 
   double time = getSolverState().currTime_;
 
   FILE *fp1;
   if (callsOTXT<=0)
-    fp1 = fopen(filename,"w");
+    fp1 = fopen(filename.str().c_str(),"w");
   else
-    fp1 = fopen(filename,"a");
+    fp1 = fopen(filename.str().c_str(),"a");
   ++callsOTXT;
 
   // get maxs and mins.
@@ -1185,12 +1193,14 @@ bool Instance::outputSgplot ()
   DAXLATARRAY AxlatArray(numMeshPoints);  // see the constructor
 
   XLATARRAY *paxlat = AxlatArray.GetPointer(0);
-
-  char filename[32];   for(i=0;i<32;++i) filename[i] = static_cast<char>(0);
-  sprintf(filename,"%s_%03d.res",outputName.c_str(),callsOSG);
+  
+  std::stringstream filename("");
+  filename.width(3);
+  filename.fill('0');
+  filename << outputName << "_" << callsOSG << ".res";
   ++callsOSG;
 
-  FILE *nHandle = fopen(filename, "w");
+  FILE *nHandle = fopen(filename.str().c_str(), "w");
 
   UINT cConst = Nconst;
   // XLATARRAY union fix makes this unneeded
@@ -1265,7 +1275,7 @@ void DAXLATARRAY::set (const char *name, UINT uOffset, UINT cDim, UINT ac0, UINT
   for(i=0;i<imax;++i)
     tmpname[i] = name[i];
 
-  sprintf(xlattmp.szName,"%s",tmpname);
+  snprintf(xlattmp.szName,imax,"%s",tmpname);
 
   xlattmp.uOffset = uOffset;
   xlattmp.cDim    = cDim;

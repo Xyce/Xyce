@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -33,6 +33,9 @@
 //                  CircuitContext.  As subcircuits are always completely 
 //                  contained in a single file, the ownership pattern has 
 //                  CircuitContext(s) owned by CircuitBlock(s).
+//
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
 //
 // Creator        : Lon Waters, SNL
 //
@@ -948,6 +951,18 @@ void CircuitBlock::addModel( const ParameterBlock * modelPtr, std::string const&
 }
 
 //-----------------------------------------------------------------------------
+// Function      : CircuitBlock::addFunction
+// Purpose       : Add function to circuitContext funcs (.FUNC(args) or .PARAM(args) )
+// Special Notes :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/09/2024
+//-----------------------------------------------------------------------------
+void CircuitBlock::addFunction(FunctionBlock const& function)
+{
+  circuitContext_.addFunction( function );
+}
+
+//-----------------------------------------------------------------------------
 // Function      : CircuitBlock::addParams
 // Purpose       : Add param to circuitContext params (.PARAM)
 // Special Notes :
@@ -1320,7 +1335,7 @@ bool CircuitBlock::handleLinePass1(
 
     else if (ES1 == ".PARAM")
     {
-      return Xyce::IO::extractParamData( *this, netlistFilename_, line );
+      return Xyce::IO::extractParamData( *this, netlistFilename_, fun, line );
     }
 
     else if (ES1 == ".GLOBAL_PARAM")

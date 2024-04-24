@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -166,10 +166,7 @@ void spExpandFormat(MatrixPtr);
  */
 
 void
-spPrint( eMatrix, PrintReordered, Data, Header )
-
-char *eMatrix;
-int  PrintReordered, Data, Header;
+spPrint( char* eMatrix, int PrintReordered, int Data, int Header )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  int  J = 0;
@@ -315,7 +312,7 @@ int  *PrintOrdToIntRowMap, *PrintOrdToIntColMap;
 
 /* Case where element exists */
                 {   if (Data)
-                        printf(" %9.3g, %lx", (double)pElement->Real,&(pElement->Real));
+                        printf(" %9.3g, %p", (double)pElement->Real,&(pElement->Real));
                     else
                         putchar('x');
 
@@ -447,16 +444,13 @@ int  *PrintOrdToIntRowMap, *PrintOrdToIntColMap;
  */
 
 int
-spFileMatrix( eMatrix, File, Label, Reordered, Data, Header )
-
-char *eMatrix, *Label, *File;
-int Reordered, Data, Header;
+spFileMatrix( char* eMatrix, char* File, char* Label, int Reordered, int Data, int Header )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  int  I, Size;
 register  ElementPtr  pElement;
 int  Row, Col, Err;
-FILE  *pMatrixFile, *fopen();
+FILE  *pMatrixFile;
 
 /* Begin `spFileMatrix'. */
     ASSERT( IS_SPARSE( Matrix ) );
@@ -603,15 +597,11 @@ FILE  *pMatrixFile, *fopen();
  */
 
 int
-spFileVector( eMatrix, File, RHS IMAG_RHS )
-
-char *eMatrix, *File;
-RealVector  RHS IMAG_RHS;
+spFileVector( char* eMatrix, char* File, RealVector RHS IMAG_RHS_PRO )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  int  I, Size, Err;
 FILE  *pMatrixFile;
-FILE  *fopen();
 
 /* Begin `spFileVector'. */
     ASSERT( IS_SPARSE( Matrix ) AND RHS != NULL)
@@ -724,16 +714,14 @@ FILE  *fopen();
  */
 
 int
-spFileStats( eMatrix, File, Label )
-
-char *eMatrix, *File, *Label;
+spFileStats( char* eMatrix, char* File, char* Label )
 {
 MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 register  int  Size, I;
 register  ElementPtr  pElement;
 int NumberOfElements;
 RealNumber  Data, LargestElement, SmallestElement;
-FILE  *pStatsFile, *fopen();
+FILE  *pStatsFile;
 
 /* Begin `spFileStats'. */
     ASSERT( IS_SPARSE( Matrix ) );

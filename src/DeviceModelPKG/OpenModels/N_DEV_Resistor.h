@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -239,8 +239,6 @@ private:
   double      tempCoeff2;             ///< Second order temperature coeff.
   double      tempCoeffExp;           ///< Exponential temperature coeff.
   double      dtemp;                  ///< Externally specified device temperature.
-  ///<   NOT used, only here for compatibility in parsing
-  ///<   netlist from simulators that support it
 
   // Flags used to tell if the user has specified one of these values on the command line.
   bool        tempCoeff1Given;        ///< First order temperature coeff was given in netlist

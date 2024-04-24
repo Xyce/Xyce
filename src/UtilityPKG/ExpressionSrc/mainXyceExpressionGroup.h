@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -116,16 +116,14 @@ public:
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ) 
-  { return getSolutionVal(deviceName,retval); }
-
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
-  { return getSolutionVal(deviceName,retval); }
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval );
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval );
 
   virtual bool getParameterVal (const std::string & paramName, double & retval );
   virtual bool getParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   int getSolutionGID_(const std::string & nodeName);
+  int getCurrentSolutionGID_(const std::string & nodeName);
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }

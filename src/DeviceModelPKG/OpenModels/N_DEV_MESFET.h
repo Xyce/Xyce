@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -156,6 +156,8 @@ private:
   double ic_vds;         // initial D-S voltage
   double ic_vgs;         // initial G-S voltage
   double temp;           // instance temperature
+  double dtemp;          // instance temperature delta
+  bool dtempGiven;       // instance temperature delta given
   double drainCond;      // drain conductance
   double sourceCond;     // source conductance
   double tCGS;           // temp. corr. gate-source capacitance

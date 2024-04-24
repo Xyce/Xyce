@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -61,6 +61,7 @@
 #include <EpetraExt_MultiVectorOut.h>
 
 // ---------- Standard Includes ----------
+#include <sstream>
 
 namespace Xyce {
 namespace Linear {
@@ -899,12 +900,9 @@ const double & EpetraVector::getElementByGlobalIndex(
         return (*it).second;
       else
       {
-        char message[128];
-        sprintf(message, "getElementByGlobalIndex: failed to find MultiVector "
-                "global index. global_index = %d", global_index);
-        std::string msg(message);
-
-        Report::DevelFatal() << msg;
+        std::stringstream message("getElementByGlobalIndex: failed to find MultiVector global index. global_index = ");
+        message << global_index;
+        Report::DevelFatal() << message.str();
         return (*externVectorMap_.find(-1)).second;
       }
     }

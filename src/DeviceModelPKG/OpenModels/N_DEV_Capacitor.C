@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -38,7 +38,6 @@
 #include <Xyce_config.h>
 
 #include <N_DEV_Capacitor.h>
-#include <N_DEV_Const.h>
 #include <N_DEV_DeviceOptions.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_MatrixLoadData.h>
@@ -105,7 +104,8 @@ void Traits::loadInstanceParameters(ParametricData<Capacitor::Instance> &p)
     .setDescription("Age of capacitor");
   p.addPar("D", 0.0233, &Capacitor::Instance::ageCoef)
     .setDescription("Age degradation coefficient");
-  p.addPar("TEMP", 0.0, &Capacitor::Instance::temp)
+
+  p.addPar("TEMP",0.0, &Capacitor::Instance::temp)
     .setExpressionAccess(ParameterType::TIME_DEP)
     .setUnit(STANDARD)
     .setDescription("Device temperature");
@@ -119,6 +119,11 @@ void Traits::loadInstanceParameters(ParametricData<Capacitor::Instance> &p)
     .setUnit(U_DEGCM2)
     .setDescription("Quadratic Temperature Coefficient");
   p.makeVector("TC", 2);
+
+  p.addPar("DTEMP", 0.0, &Capacitor::Instance::dtemp)
+    .setGivenMember(&Capacitor::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 //-----------------------------------------------------------------------------
@@ -202,7 +207,19 @@ bool Instance::processParams ()
   if (!given("W"))
     width = model_.defWidth;
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   if (!tempCoeff1Given)
     tempCoeff1=model_.tempCoeff1;
@@ -297,7 +314,13 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   //double difference, factor;
   double difference;
 
-  difference = temp - model_.tnom;
+  if (temp_tmp != -999.0)
+  {
+    temp = temp_tmp;
+  }
+
+  difference = (temp + dtemp) - model_.tnom;
+
   temperatureFactor = model_.capacitanceMultiplier*(1.0 + tempCoeff1*difference +  
                                         tempCoeff2*difference*difference);
   C = baseCap*temperatureFactor;
@@ -353,6 +376,8 @@ Instance::Instance(
     temperatureFactor(1.0),
     ageFactor(1.0),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     tempCoeff1(0.0),
     tempCoeff2(0.0),
     tempCoeff1Given(false),

@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -29,6 +29,8 @@ All additions and changes are under the following:
 /**********
 Copyright 1990 Regents of the University of California.  All rights reserved.
 **********/
+
+#include "util.h"
 
 #ifndef KSPARSE_MISC_H
 #define KSPARSE_MISC_H
@@ -58,9 +60,7 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 
 #include "strext.h"
 
-extern char *tmalloc();
-extern char *trealloc();
-extern void txfree();
+extern void txfree(void*);
 
 #define tfree(x)	(txfree(x), x = 0)
 

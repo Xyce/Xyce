@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -107,16 +107,10 @@ int num_return_cols, *num_returned_elements;
  *  Function declarations
  */
 
-#ifdef __STDC__
 static void InitializeElementBlocks( MatrixPtr, int, int );
 static void RecordAllocation( MatrixPtr, char* );
 static void AllocateBlockOfAllocationList( MatrixPtr );
 extern int f_ind(MatrixPtr, int, int);
-#else /* __STDC__ */
-static void InitializeElementBlocks();
-static void RecordAllocation();
-static void AllocateBlockOfAllocationList();
-#endif /* __STDC__ */
 
 
 
@@ -158,10 +152,7 @@ static void AllocateBlockOfAllocationList();
  */
 
 char *
-spCreate( Size, Complex, pError )
-
-int  Size, *pError;
-BOOLEAN  Complex;
+spCreate( int Size, BOOLEAN Complex, int* pError )
 {
 register  unsigned  SizePlusOne;
 register  MatrixPtr  Matrix;
@@ -419,8 +410,8 @@ int i, SelectAlloc, Select, pe_memory;
       pElement = (ElementPtr) ALLOC(char, padsize*(ELEMENTS_PER_ALLOCATION+ELEMENTS_PER_CACHE));
       RecordAllocation( Matrix, (char *) pElement );
       if (Matrix->Error == spNO_MEMORY) return NULL;
-      Matrix->NextAvailElement = (ElementPtr) (((((long) pElement) >>
-           padshift+LOG_ELEMENTS_PER_CACHE) + 1) << padshift+LOG_ELEMENTS_PER_CACHE);
+      Matrix->NextAvailElement = (ElementPtr) ((( ((long) pElement) >>
+           (padshift+LOG_ELEMENTS_PER_CACHE)) + 1) << (padshift+LOG_ELEMENTS_PER_CACHE));
       Matrix->ElementsRemaining = ELEMENTS_PER_ALLOCATION;
     }
 
@@ -499,11 +490,8 @@ int i, SelectAlloc, Select, pe_memory;
  */
 
 static void
-InitializeElementBlocks( Matrix, InitialNumberOfElements,
-                         NumberOfFillinsExpected )
-
-MatrixPtr Matrix;
-int  InitialNumberOfElements, NumberOfFillinsExpected;
+InitializeElementBlocks( MatrixPtr Matrix, int InitialNumberOfElements,
+                         int NumberOfFillinsExpected )
 {
 ElementPtr  pElement;
 int i, ColAlloc;
@@ -617,10 +605,7 @@ spcGetFillin(MatrixPtr Matrix, int Row, int Col )
  */
 
 static void
-RecordAllocation( Matrix, AllocatedPtr )
-
-MatrixPtr Matrix;
-char  *AllocatedPtr;
+RecordAllocation( MatrixPtr Matrix, char* AllocatedPtr )
 {
 /* Begin `RecordAllocation'. */
 /*
@@ -674,9 +659,7 @@ char  *AllocatedPtr;
  */
 
 static void
-AllocateBlockOfAllocationList( Matrix )
-
-MatrixPtr Matrix;
+AllocateBlockOfAllocationList( MatrixPtr Matrix )
 {
 register  int  I;
 register  AllocationListPtr  ListPtr;
@@ -735,9 +718,7 @@ register  AllocationListPtr  ListPtr;
  */
 
 void
-spDestroy( eMatrix )
-
-register char *eMatrix;
+spDestroy( char* eMatrix )
 {
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 register  AllocationListPtr  ListPtr, NextListPtr;
@@ -825,9 +806,7 @@ int I;
  */
 
 int
-spError( eMatrix )
-
-char  *eMatrix;
+spError( char* eMatrix )
 {
 /* Begin `spError'. */
 
@@ -863,10 +842,7 @@ char  *eMatrix;
  */
 
 void
-spWhereSingular( eMatrix, pRow, pCol )
-
-char *eMatrix;
-int *pRow, *pCol;
+spWhereSingular( char* eMatrix, int* pRow, int* pCol )
 {
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 
@@ -903,10 +879,7 @@ MatrixPtr Matrix = (MatrixPtr)eMatrix;
  */
 
 int
-spGetSize( eMatrix, External )
-
-char  *eMatrix;
-BOOLEAN  External;
+spGetSize( char* eMatrix, BOOLEAN External )
 {
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 
@@ -941,9 +914,7 @@ MatrixPtr Matrix = (MatrixPtr)eMatrix;
  */
 
 void
-spSetReal( eMatrix )
-
-char *eMatrix;
+spSetReal( char* eMatrix )
 {
 /* Begin `spSetReal'. */
 
@@ -954,9 +925,7 @@ char *eMatrix;
 
 
 void
-spSetComplex( eMatrix )
-
-char  *eMatrix;
+spSetComplex( char* eMatrix )
 {
 /* Begin `spSetComplex'. */
 
@@ -985,9 +954,7 @@ char  *eMatrix;
  */
 
 int
-spFillinCount( eMatrix )
-
-char *eMatrix;
+spFillinCount( char* eMatrix )
 {
 /* Begin `spFillinCount'. */
 
@@ -997,9 +964,7 @@ char *eMatrix;
 
 
 int
-spElementCount( eMatrix )
-
-char  *eMatrix;
+spElementCount( char* eMatrix )
 {
 /* Begin `spElementCount'. */
 

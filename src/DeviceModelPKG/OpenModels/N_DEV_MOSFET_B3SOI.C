@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -135,7 +135,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3SOI::Instance> &p)
    .setCategory(CAT_VOLT)
    .setDescription("Initial condition on Vps");
 
-  p.addPar("TEMP",27.0,&MOSFET_B3SOI::Instance::temp)
+  p.addPar("TEMP",0.0,&MOSFET_B3SOI::Instance::temp)
    .setExpressionAccess(ParameterType::TIME_DEP)
    .setUnit(STANDARD)
    .setCategory(CAT_NONE)
@@ -236,6 +236,12 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B3SOI::Instance> &p)
    .setUnit(U_LOGIC)
    .setCategory(CAT_NONE)
    .setDescription("");
+
+  p.addPar("DTEMP",0.0,&MOSFET_B3SOI::Instance::dtemp) // note: "TEMP" is allowed to be time-dependent.  Should this be?
+   .setGivenMember(&MOSFET_B3SOI::Instance::dtempGiven)
+   .setUnit(U_DEGC)
+   .setCategory(CAT_TEMP)
+   .setDescription("Device delta temperature");
 
   // This tells the parser that IC1 - IC5 are to be input as a vector of "IC"
   p.makeVector ("IC",5);
@@ -3481,7 +3487,20 @@ bool Instance::processParams ()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
+
   if (!given("L"))
     l =model_.model_l;
   if (!given("W"))
@@ -3819,7 +3838,9 @@ Instance::Instance(
     cqbody                                (0.0),
     cqtemp                                (0.0),
     vtm                                   (0.0),
-    temp                                  (0.0),
+    temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     Vd                                    (0.0),
     Vg                                    (0.0),
     Vs                                    (0.0),
@@ -7366,7 +7387,11 @@ if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugT
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
 
   if (model_.interpolateTNOM(temp))
   {
@@ -14338,8 +14363,12 @@ bool Instance::loadDAEFVector ()
   double Coef_substrate=0.0;
   double Coef_temp=0.0;
 
-//  Gmin = getDeviceOptions().gmin;
-  Gmin = getDeviceOptions().gmin * 1e-6;
+  if (!getDeviceOptions().b3soiScaledGminFlag)
+    Gmin = getDeviceOptions().gmin;
+  
+  else
+    Gmin = getDeviceOptions().gmin * 1e-6;
+
   geltd = grgeltd;
 
   // I have elected to add in the Gmin-based Jdxp terms right here.
@@ -17579,9 +17608,13 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     double Coef_f_sourcePrime=0.0;
     double Coef_f_substrate=0.0;
     double Coef_f_temp=0.0;
+ 
 
-//    mi.Gmin = getDeviceOptions().gmin;
-    mi.Gmin = getDeviceOptions().gmin * 1e-6;
+    if (!getDeviceOptions().b3soiScaledGminFlag)
+      mi.Gmin = getDeviceOptions().gmin;
+    else
+      mi.Gmin = getDeviceOptions().gmin * 1e-6;
+
     mi.geltd = mi.grgeltd;
 
     // I have elected to add in the Gmin-based Jdxp terms right here.

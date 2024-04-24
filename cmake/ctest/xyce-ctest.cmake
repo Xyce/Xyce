@@ -8,6 +8,7 @@
 #   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
 #   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
+#   -DTDEV_BUILD=<TRUE|FALSE>
 
 cmake_minimum_required(VERSION 3.23)
 
@@ -23,6 +24,11 @@ if(NOT DEFINED DASHSUBMIT)
   set(DASHSUBMIT TRUE)
 endif()
 
+# default is to NOT do testing against a Trilinos/develop build
+if(NOT DEFINED TDEV_BUILD)
+  set(TDEV_BUILD FALSE)
+endif()
+
 # default FALSE
 if(NOT DEFINED MPI_TESTING)
   set(MPI_TESTING FALSE)
@@ -34,16 +40,20 @@ if(NOT DEFINED CDASHVER)
   set(CDASHVER 0.0)
 endif()
 
-if($ENV{XYCE_MPI})
-  if(MPI_TESTING)
-    set(xyceSitePostFix "PbPr")
-  else()
-    set(xyceSitePostFix "PbSr")
-  endif()
+if(TDEV_BUILD)
+  set(xyceSitePostFix "Xyce TrilinosDev")
 else()
-  set(xyceSitePostFix "")
+  # NOT building against Trilinos/develop
+  if($ENV{XYCE_MPI})
+    if(MPI_TESTING)
+      set(xyceSitePostFix "PbPr")
+    else()
+      set(xyceSitePostFix "PbSr")
+    endif()
+  else()
+    set(xyceSitePostFix "")
+  endif()
 endif()
-    
 
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
@@ -271,6 +281,10 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
+  set(CTEST_SITE "ascic")
+endif()
+
 # add any postfix to the site
 set(CTEST_SITE "${CTEST_SITE} ${xyceSitePostFix}")
 
@@ -325,7 +339,6 @@ set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
-
 if(VERBOSITY GREATER 4)
   message("[VERB5]: CMAKE_ARGS_LIST = ${CMAKE_ARGS_LIST}")
 endif()
@@ -357,103 +370,108 @@ ctest_start(${MODEL} GROUP ${TESTGROUP})
 ctest_configure()
 
 # this runs make
-ctest_build()
+ctest_build(RETURN_VALUE buildReturnVal)
 
-# generate the taglist for the regression testing script
-GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
+# if the build succeeds, as indicated by a zero return value, proceed,
+# otherwise skip to submission
+if(buildReturnVal EQUAL 0)
+  
+  # generate the taglist for the regression testing script
+  GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
+  
+  # determine if this was a parallel build, if that is the case
+  # testing actually consists of two phases, 1) testing with "mpirun"
+  # and then 2) running serial tests that don't have the "nompi" tag
+  # directly with the "Xyce" executable
+  string(FIND ${TAGLIST} "+parallel" doMpiTesting)
+  
+  if(doMpiTesting LESS 0 AND MPI_TESTING)
+    message(FATAL_ERROR "ERROR: Requested MPI testing but the Xyce binary was not built with MPI support")
+  endif()
+  
+  if(MPI_TESTING)
+    
+    # if this is an openmpi build and mpi testing was requested run the
+    # regression testing script for such tests
+    message("performing OpenMPI testing...")
+    
+    # some tests don't work with mpi
+    set(TAGLIST "${TAGLIST}?hb?ac?mpde-klu")
+    
+    set(MPICMD "mpirun -np 2 --bind-to none ${CTEST_BINARY_DIRECTORY}/src/Xyce")
+    
+    if(VERBOSITY GREATER 1)
+      message("[VERB2]: TAGLIST (parallel)=\"${TAGLIST}\"")
+    endif()
+    
+    RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all" ${MPICMD})
+    list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all")
 
-# determine if this was a parallel build, if that is the case testing
-# actually consists of two phases, 1) testing with "mpirun" and then
-# 2) running serial tests that don't have the "nompi" tag directly
-# with the "Xyce" executable
-string(FIND ${TAGLIST} "+parallel" doMpiTesting)
+  else()
 
-if(doMpiTesting LESS 0 AND MPI_TESTING)
-  message(FATAL_ERROR "ERROR: Requested MPI testing but the Xyce binary was not built with MPI support")
-endif()
+    # if this is a parallel build but serial run, set things accordingly
+    string(REPLACE "+parallel" "+serial-nompi" TAGLIST ${TAGLIST})
+    
+    RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/regr_test_results_all"
+      ${CTEST_BINARY_DIRECTORY}/src/Xyce)
+    
+    list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/regr_test_results_all")
+    
+  endif()
 
-if(MPI_TESTING)
-
-  # if this is an openmpi build and mpi testing was requested run the
-  # regression testing script for such tests
-  message("performing OpenMPI testing...")
-
-  # some tests don't work with mpi
-  set(TAGLIST "${TAGLIST}?hb?ac?mpde-klu")
-
-  set(MPICMD "mpirun -np 2 --bind-to none ${CTEST_BINARY_DIRECTORY}/src/Xyce")
-
+  # run the perl script to summarize results for submission to the dashboard
   if(VERBOSITY GREATER 1)
-    message("[VERB2]: TAGLIST (parallel)=\"${TAGLIST}\"")
+    message("[VERB2]: XYCE_CDASH_GEN = ${XYCE_CDASH_GEN}")
+    message("[VERB2]:   CTEST_SITE = ${CTEST_SITE}")
+    message("[VERB2]:   MYBUILDNAME = $ENV{MYBUILDNAME}")
+    message("[VERB2]:   branch = $ENV{branch}")
+    message("[VERB2]:   regression results file names = ${regFileNames}")
+    message("[VERB2]:  site postfix = ${xyceSitePostFix}")
+    message("[VERB2]:   TESTSET = $ENV{TESTSET}")
   endif()
 
-  RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all" ${MPICMD})
-  list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all")
-
-else()
-
-  # if this is a parallel build but serial run, set things accordingly
-  string(REPLACE "+parallel" "+serial-nompi" TAGLIST ${TAGLIST})
-
-  RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/regr_test_results_all"
-    ${CTEST_BINARY_DIRECTORY}/src/Xyce)
-  
-  list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/regr_test_results_all")
-
+  # combine multiple results files into a single file
+  foreach(fname IN LISTS regFileNames)
+    
+    # read in the results file and convert it to an XML format suitable
+    # for submission to cdash
+    message("executing custom xyce regression report script, ${XYCE_CDASH_GEN} for ${fname}")
+    execute_process(COMMAND ${XYCE_CDASH_GEN}
+      ${CTEST_SITE}
+      $ENV{MYBUILDNAME}
+      $ENV{branch}
+      ${fname}
+      $ENV{TESTSET}
+      OUTPUT_VARIABLE submitOut
+      ERROR_VARIABLE submitOut
+      RESULT_VARIABLE xyce_cdash_gen_result)
+    
+    if(VERBOSITY GREATER 3)
+      message("[VERB4]: exit status of script ${XYCE_CDASH_GEN}: ${xyce_cdash_gen_result}")
+      message("[VERB4]: screen output from script ${XYCE_CDASH_GEN}: ${submitOut}")
+    endif()
+    
+    # figure out the directory for the dashboard submission and copy the
+    # custom results file into it
+    GETTESTSUBDIR(${CTEST_BINARY_DIRECTORY}/Testing testSubDirName)
+    if(VERBOSITY GREATER 4)
+      message("[VERB5]: Active \"Testing\" subdirectory name: ${testSubDirName}")
+    endif()
+    if(VERBOSITY GREATER 4)
+      message("[VERB5]: Using \"${testSubDirName}\" for test results")
+    endif()
+    
+    # this will convert the "BuildStamp" generated and written to the
+    # XML file by the custom xyce perl script to the same generated by
+    # ctest. this will make the configure, build, and test results
+    # show up on the same line in cdash.
+    CONVERTTESTXML(${fname}.xml
+      ${testSubDirName}
+      $ENV{TESTSET}
+      "Test")
+    
+  endforeach()
 endif()
-
-# run the perl script to summarize results for submission to the dashboard
-if(VERBOSITY GREATER 1)
-  message("[VERB2]: XYCE_CDASH_GEN = ${XYCE_CDASH_GEN}")
-  message("[VERB2]:   CTEST_SITE = ${CTEST_SITE}")
-  message("[VERB2]:   MYBUILDNAME = $ENV{MYBUILDNAME}")
-  message("[VERB2]:   branch = $ENV{branch}")
-  message("[VERB2]:   regression results file names = ${regFileNames}")
-  message("[VERB2]:  site postfix = ${xyceSitePostFix}")
-  message("[VERB2]:   TESTSET = $ENV{TESTSET}")
-endif()
-
-# combine multiple results files into a single file
-foreach(fname IN LISTS regFileNames)
-
-  # read in the results file and convert it to an XML format suitable
-  # for submission to cdash
-  message("executing custom xyce regression report script, ${XYCE_CDASH_GEN} for ${fname}")
-  execute_process(COMMAND ${XYCE_CDASH_GEN}
-    ${CTEST_SITE}
-    $ENV{MYBUILDNAME}
-    $ENV{branch}
-    ${fname}
-    $ENV{TESTSET}
-    OUTPUT_VARIABLE submitOut
-    ERROR_VARIABLE submitOut
-    RESULT_VARIABLE xyce_cdash_gen_result)
-  
-  if(VERBOSITY GREATER 3)
-    message("[VERB4]: exit status of script ${XYCE_CDASH_GEN}: ${xyce_cdash_gen_result}")
-    message("[VERB4]: screen output from script ${XYCE_CDASH_GEN}: ${submitOut}")
-  endif()
-
-  # figure out the directory for the dashboard submission and copy the
-  # custom results file into it
-  GETTESTSUBDIR(${CTEST_BINARY_DIRECTORY}/Testing testSubDirName)
-  if(VERBOSITY GREATER 4)
-    message("[VERB5]: Active \"Testing\" subdirectory name: ${testSubDirName}")
-  endif()
-  if(VERBOSITY GREATER 4)
-    message("[VERB5]: Using \"${testSubDirName}\" for test results")
-  endif()
-
-  # this will convert the "BuildStamp" generated and written to the
-  # XML file by the custom xyce perl script to the same generated by
-  # ctest. this will make the configure, build, and test results show
-  # up on the same line in cdash.
-  CONVERTTESTXML(${fname}.xml
-    ${testSubDirName}
-    $ENV{TESTSET}
-    "Test")
-
-endforeach()
 
 # submit results to the dashboard
 if(DASHSUBMIT)

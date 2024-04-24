@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -122,7 +122,7 @@ CharonInterface::~CharonInterface()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 03/13/2006
 //-----------------------------------------------------------------------------
-bool CharonInterface::initialize(Parallel::Communicator* comm)
+bool CharonInterface::initialize(Parallel::Machine comm)
 {
 
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))

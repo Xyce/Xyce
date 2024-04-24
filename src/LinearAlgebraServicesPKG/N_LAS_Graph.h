@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -102,9 +102,6 @@ public:
 
   // Get a pointer to the local row with local IDs
   virtual void extractLocalRowView(int localRow, int& numIndices, int*& indices) const = 0;
-
-  // Insert indices into the graph with global IDs
-  virtual void insertGlobalIndices(int globalRow, int numIndices, int* indices) = 0;
 
   // Accumulate off processor fill contributions if necessary
   virtual void fillComplete() = 0;

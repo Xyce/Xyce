@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -101,8 +101,8 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
     p.addPar ("TEMP",0.0,&MOSFET_B4::Instance::temp)
      .setGivenMember(&MOSFET_B4::Instance::TEMPgiven)
      .setExpressionAccess(ParameterType::TIME_DEP)
-     .setUnit(STANDARD)
-     .setCategory(CAT_NONE)
+     .setUnit(U_DEGC)
+     .setCategory(CAT_TEMP)
      .setDescription("Device temperature");
 
     p.addPar ("L",5.0e-6,&MOSFET_B4::Instance::l)
@@ -323,6 +323,12 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Device is initially off");
+
+    p.addPar ("DTEMP",0.0,&MOSFET_B4::Instance::dtemp)
+     .setGivenMember(&MOSFET_B4::Instance::dtempGiven)
+     .setUnit(U_DEGC)
+     .setCategory(CAT_TEMP)
+     .setDescription("Device delta temperature");
 
     // This tells the parser that IC1,IC2,and IC3 are to be input as a vector of "IC"
     p.makeVector ("IC",3);
@@ -5223,6 +5229,8 @@ Instance::Instance(
     ChargeComputationNeeded           (true),
     temp                              (getDeviceOptions().temp.getImmutableValue<double>()),
     TEMPgiven(false),
+    dtemp(0.0),
+    dtempGiven(false),
     // missing stuff...
     Vd (0.0),
     Vs (0.0),

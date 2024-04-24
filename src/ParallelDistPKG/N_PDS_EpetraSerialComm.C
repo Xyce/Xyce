@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -107,10 +107,10 @@ EpetraSerialComm::~EpetraSerialComm()
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::scanSum( const double * vals, double * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->ScanSum( const_cast<double *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { sums[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -122,10 +122,10 @@ bool EpetraSerialComm::scanSum( const double * vals, double * sums,
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::sumAll( const double * vals, double * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->SumAll( const_cast<double *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { sums[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -137,10 +137,10 @@ bool EpetraSerialComm::sumAll( const double * vals, double * sums,
 // Creation Date : 02/26/01
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::maxAll( const double * vals, double * maxs,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MaxAll( const_cast<double *> (vals), maxs,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { maxs[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -152,10 +152,10 @@ bool EpetraSerialComm::maxAll( const double * vals, double * maxs,
 // Creation Date : 08/30/01
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::minAll( const double * vals, double * mins,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MinAll( const_cast<double *> (vals), mins,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { mins[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -167,10 +167,10 @@ bool EpetraSerialComm::minAll( const double * vals, double * mins,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::scanSum( const int * vals, int * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->ScanSum( const_cast<int *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { sums[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -182,10 +182,10 @@ bool EpetraSerialComm::scanSum( const int * vals, int * sums,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::sumAll( const int * vals, int * sums,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->SumAll( const_cast<int *> (vals), sums,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { sums[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -197,10 +197,10 @@ bool EpetraSerialComm::sumAll( const int * vals, int * sums,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::maxAll( const int * vals, int * maxs,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MaxAll( const_cast<int *> (vals), maxs,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { maxs[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -212,10 +212,10 @@ bool EpetraSerialComm::maxAll( const int * vals, int * maxs,
 // Creation Date : 06/18/05
 //-----------------------------------------------------------------------------
 bool EpetraSerialComm::minAll( const int * vals, int * mins,
-		const int & count ) const
+    const int & count ) const
 {
-  return ( petraComm_->MinAll( const_cast<int *> (vals), mins,
-		const_cast<int &> (count) ) == 0 );
+  for(int i = 0; i < count; i++) { mins[i] = vals[i]; }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

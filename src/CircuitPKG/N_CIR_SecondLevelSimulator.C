@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -37,6 +37,7 @@
 //
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <Xyce_config.h>
 
@@ -243,29 +244,37 @@ void SecondLevelSimulator::daeOutputs()
 
     if (outputDAEvectors)
     {
-      char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-      char filename4[256]; for (int ich = 0; ich < 256; ++ich) filename4[ich] = 0;
-      char filename6[256]; for (int ich = 0; ich < 256; ++ich) filename6[ich] = 0;
-      char filename6b[256];for (int ich = 0; ich < 256; ++ich) filename6b[ich] = 0;
-      sprintf(filename1, "%s_soln_%03d.txt", netlistFile.c_str(), outputStepNum);
-      sprintf(filename4, "%s_daeQ_%03d.txt", netlistFile.c_str(), outputStepNum);
-      sprintf(filename6, "%s_daeF_%03d.txt", netlistFile.c_str(), outputStepNum);
-      sprintf(filename6b,"%s_daeB_%03d.txt", netlistFile.c_str(), outputStepNum);
-
+      std::stringstream suffix("");
+      suffix.width(3);
+      suffix.fill('0');
+      suffix << outputStepNum << ".txt";
+      std::stringstream filename1("");
+      std::stringstream filename4("");
+      std::stringstream filename6("");
+      std::stringstream filename6b("");
+      filename1 << netlistFile << "_soln_" << suffix.str();
+      filename4 << netlistFile << "_daeQ_" << suffix.str();
+      filename6 << netlistFile << "_daeF_" << suffix.str();
+      filename6b << netlistFile << "_daeB_" << suffix.str();
+      
       // write the vectors:
-      xVec->writeToFile(filename1);
-      daeQ->writeToFile(filename4);
-      daeF->writeToFile(filename6);
-      daeB->writeToFile(filename6b);
+      xVec->writeToFile(filename1.str().c_str());
+      daeQ->writeToFile(filename4.str().c_str());
+      daeF->writeToFile(filename6.str().c_str());
+      daeB->writeToFile(filename6b.str().c_str());
     }
 
     if (outputDAEvectors_noport) // output F and B vectors, with port Vsrcs subtracted out
     {
-      char filename7[256]; for (int ich = 0; ich < 256; ++ich) filename7[ich] = 0;
-      char filename7b[256];for (int ich = 0; ich < 256; ++ich) filename7b[ich] = 0;
-      sprintf(filename7, "%s_delF_%03d.txt", netlistFile.c_str(), outputStepNum);
-      sprintf(filename7b,"%s_delB_%03d.txt", netlistFile.c_str(), outputStepNum);
-
+      std::stringstream suffix("");
+      suffix.width(3);
+      suffix.fill('0');
+      suffix << outputStepNum << ".txt";
+      std::stringstream filename7("");
+      std::stringstream filename7b("");
+      filename7 << netlistFile << "_delF_" << suffix.str();
+      filename7b << netlistFile << "_delB_" << suffix.str();
+      
       Xyce::Linear::Vector *delB = getLinearSystem().getRHSVector();// at this point, this isn't being used
       Xyce::Linear::Vector *delF = getLinearSystem().getNewtonVector();// at this point, this isn't being used
       Xyce::Linear::Vector *nextSol =  dsPtr_->nextSolutionPtr;
@@ -285,23 +294,27 @@ void SecondLevelSimulator::daeOutputs()
       delB->update(1.0,*daeB);
 
       // write the vectors:
-      delF->writeToFile(filename7);
-      delB->writeToFile(filename7b);
+      delF->writeToFile(filename7.str().c_str());
+      delB->writeToFile(filename7b.str().c_str());
     }
   }
 
   if (outputDAEmatrices)
   {
-    char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-    char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
-    sprintf(filename1, "%s_dQdx_%03d.txt", netlistFile.c_str(), outputStepNum);
-    sprintf(filename2, "%s_dFdx_%03d.txt", netlistFile.c_str(), outputStepNum);
+    std::stringstream suffix("");
+    suffix.width(3);
+    suffix.fill('0');
+    suffix << outputStepNum << ".txt";
+    std::stringstream filename1("");
+    std::stringstream filename2("");
+    filename1 << netlistFile << "_dQdx_" << suffix.str();
+    filename2 << netlistFile << "_dFdx_" << suffix.str();
 
     // write the matrices:
     bool useLIDs=false;
     bool mmFormat=false;
-    dsPtr_->dQdxMatrixPtr->writeToFile (filename1, useLIDs, mmFormat );
-    dsPtr_->dFdxMatrixPtr->writeToFile (filename2, useLIDs, mmFormat );
+    dsPtr_->dQdxMatrixPtr->writeToFile (filename1.str().c_str(), useLIDs, mmFormat );
+    dsPtr_->dFdxMatrixPtr->writeToFile (filename2.str().c_str(), useLIDs, mmFormat );
   }
 }
 
@@ -327,14 +340,16 @@ void SecondLevelSimulator::reducedOutputs()
   int outputStepNum(0);
   std::ofstream out;
   std::string netlistFile;
-  char tmp[8]; for (int ich = 0; ich < 8; ++ich) tmp[ich] = 0;
+  std::stringstream tmp("");
 
   std::vector<std::string> names;
   if (condOutput || currOutput)
   {
     outputStepNum = secondLevelManager_->getStepNumber();
     netlistFile = commandLine_.getArgumentValue("netlist");
-    sprintf(tmp, "%03d", outputStepNum);
+    tmp.width(3);
+    tmp.fill('0');
+    tmp << outputStepNum;
 
     int numElectrodes = jacobian_.size();
     std::map<std::string,double>::const_iterator iterM = inputMap_.begin();
@@ -344,7 +359,7 @@ void SecondLevelSimulator::reducedOutputs()
 
   if (condOutput)
   {
-    std::string condFileName = netlistFile + "_conductance_" + std::string(tmp) + ".txt";
+    std::string condFileName = netlistFile + "_conductance_" + tmp.str() + ".txt";
     out.open(condFileName);
     Xyce::Nonlinear::printJacobian(out,netlistFile,names,jacobian_);
     out.close();  
@@ -353,7 +368,7 @@ void SecondLevelSimulator::reducedOutputs()
   if (currOutput)
   {
     int colw=20;
-    std::string currFileName = netlistFile + "_port_currents_" + std::string(tmp) + ".txt";
+    std::string currFileName = netlistFile + "_port_currents_" + tmp.str() + ".txt";
     out.open(currFileName);
     for (int ii=0;ii<outputVector_.size();++ii)
     {

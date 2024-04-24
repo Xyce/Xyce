@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -49,6 +49,7 @@
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
 #include <N_IO_DeviceBlock.h>
+#include <N_IO_FunctionBlock.h>
 #include <N_IO_ParameterBlock.h>
 #include <N_IO_ParsingHelpers.h>
 #include <N_UTL_CheckIfValidFile.h>
@@ -836,20 +837,67 @@ void readExternalParamsFromFile( Parallel::Communicator& comm,
 //
 // .param PA=AGAUSS(1,1,1)
 //
-// Note that there is also an attempt to catch expressions without 
+// This RHS will be tokenized as  {"AGAUSS", "(" , "1", "," , "1", "," , "1", ")"}, 
+// so it must be effectively turned into a new single RHS token: "{AGAUSS(1,1,1)}"
+//
+// However we need to check for function declarations.  For example:
+//
+// .param A=12.0, FTEST(x)={12*x}
+//
+// or 
+//
+// .param FTEST(x)={12*x}  A=12.0  FTEST2(x,y) = {x+y}
+//
+// These functions will be tokenized as (for example) {"FTEST","(","x",")"}, 
+// but they should be left alone, and not combined.
+//
+// There is also an attempt to catch expressions without 
 // curly braces earlier in the parsing process, in the 
 // SpiceSeparatedFieldTool::getLine function.  That was added to address 
-// bug 1692 on bugzilla.  However, that function is basically a lexer, 
-// and doesn't have enough context to handle a lot of use cases.  
-// As such, it does not attempt to operate on "." lines like .PARAM.
+// bug 1692 on bugzilla.  However, that function is 
+// doesn't have enough context to handle a lot of use cases,
+// so it does not attempt to operate on "." lines like .PARAM.
 //
-// When this function is called linePosition is at the first "value" 
+// When this function is called linePosition is at the first "value"  (or RHS)
 // token for a parameter.  The value will ultimately be comprised of one 
-// or more string tokens starting with this one.
+// or more string tokens starting with this one.  If there is another parameter 
+// afterwards on the line, this function will be considering all the tokens 
+// between the initial "linePosition" and the next equals sign,  and will attempt 
+// to determine where the RHS of the first parameter ends, and the LHS of the 
+// next parameter starts.
 //
-// If there is more than one parameter on this line, the only 
-// reliable delimeter between parameters is the equal sign.  
-// Commas are not reliable, as they can be used inside of expressions.
+// If there is more than one parameter on this line, the most
+// reliable delimeter for parameters is the equal sign.  
+// Commas can be useful for this, but they can be used inside of expressions, 
+// and also they aren't always used between parameters.
+//
+// Here is the logic of this function.
+//
+//  - Iterate forward from "linePosition" until the next equals sign, if it exists.  
+//    If it doesn't exist, then the RHS (value) is the rest of this line, 
+//    and we're done.
+//
+//  - If an equals sign does exist, and it is NOT part of a comparison operator, then 
+//    this is our initial stopping point, which is now a sub-vector of tokens including 
+//    both the RHS and the next LHS.   Next find the RHS/LHS separator.
+//
+//  - Check if there are any commas between linePosition and the equals sign.  
+//    If there is a comma, and it is NOT inside of parenthesis, then use it to 
+//    separate the RHS and next LHS.  Use the first one found, if it exists.
+//    The RHS is everything from "linePosition" up to but not including this comma, 
+//    and we're done.
+//
+//  - If there are NO commas, and no parens, then the RHS is just the first token 
+//    (at linePosition), and we're done.
+//
+//  - If there are NO commas, but there are parens, then check if the right-most 
+//    paren is immediately left of the equals sign.  If so, it must be part of 
+//    the next LHS, so assume it is a function with arguments.  The RHS then stops 
+//    prior to param/function name, which is immediately to the left of the 
+//    corresponding left paren.
+//
+//  - The linePosition is updated to be the first non-comma token after the RHS (value).  
+//    If this is not the end of the line, then it will be the location of the next LHS.
 //
 // Creator       : Eric Keiter
 // Creation Date : 04/18/2021
@@ -868,8 +916,13 @@ void combineParamValueFields(
   // on this line.  The next equals sign is associated with 
   // the next parameter, rather than the current one being processed.
   bool foundEquals=false; bool foundComma=false; int equalsIndex=linePosition;
+  int commaIndex=linePosition;
+  int parenDepth=0; int rightParen=0; int leftParen=0; bool parenFound=false;
   for (;equalsIndex<numFields;equalsIndex++)
   {
+    if ( parsed_line[ equalsIndex ].string_ == "(") { if (parenDepth==0){leftParen=equalsIndex; parenFound=true; }  parenDepth++; }
+    if ( parsed_line[ equalsIndex ].string_ == ")") { if (parenDepth==1){rightParen=equalsIndex; parenFound=true; } parenDepth--; }
+    if (parenDepth==0 && !foundComma && parsed_line[ equalsIndex ].string_ == ",") { foundComma=true; commaIndex=equalsIndex; }  // use first valid comma 
     if ( parsed_line[ equalsIndex ].string_ == "=")
     { 
       // check if this is a comparison operator "==",">=", "<=" or "!="
@@ -891,26 +944,147 @@ void combineParamValueFields(
       if (!compOp) { foundEquals=true; break; }
     }
   }
-  if (foundEquals) { if ( parsed_line[ equalsIndex-2 ].string_ == ",") { foundComma=true; } }
 
+  int end = numFields;
   if( (linePosition < numFields-1) )
   {
-    int end = parsed_line.size();
     if(foundEquals)
     {
-      if (foundComma) { end = equalsIndex-2; }
-      else { end = equalsIndex-1; }
+      if (foundComma) { end = commaIndex; }
+      else 
+      { 
+        if (parenFound && rightParen==equalsIndex-1)
+        {
+          end = leftParen-1;
+        }
+        else
+        {
+          end = equalsIndex-1; 
+        }
+      }
     }
     
     for (int lp1 = linePosition+1;lp1<end;lp1++) { combinedString += parsed_line[lp1].string_; }
-
-    //if (modified) combinedString = std::string("{" + combinedString + "}");
   }
-  combinedString = std::string("{" + combinedString + "}"); // always do this for now.  
 
-  if (foundEquals) linePosition=equalsIndex-1;
-  else linePosition = parsed_line.size();
+  combinedString = std::string("{" + combinedString + "}"); // always do this for now.
 
+  // update linePosition to be the index of the LHS of next parameter, if it exists.
+  // Make sure that if a comma was found, that the new linePosition is AFTER that comma.
+  if (foundEquals && foundComma && linePosition < numFields-1)
+  {
+    linePosition = end+1;
+  }
+  else
+  {
+    linePosition = end;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : handleFunctionParam
+//
+// Purpose       : Perform parsing, etc for a param-style function.
+//                 ie, .param f(x,y)='x+y'
+//
+// Special Notes : This function populates a function block class object.
+//                 It is very similar to the FunctionBlock::extractData function,
+//                 but is more flexble. The FunctionBlock::extractData was
+//                 originally written to support .func.  In addition to the
+//                 keyword being .func instead of .param, the original .func
+//                 did not require (or expect) an equals sign, and had to be
+//                 specified as one function per line.  This variation can
+//                 handle multiple param functions on the same netlist line.
+//
+//                 It is called from function extractParamData.
+//
+// Creator       : Eric Keiter
+// Creation Date : 04/10/2024
+//-----------------------------------------------------------------------------
+bool handleFunctionParam(
+    CircuitBlock &            circuit_block,
+    const std::string &       netlist_filename,
+    std::map<std::string, int> &  fun,
+    const TokenVector &       parsed_line,
+    int & linePosition)
+{
+    int numFields = parsed_line.size();
+    int iLeftParen=linePosition+1;
+    int iRightParen=linePosition+1;
+    int iEquals=linePosition+1;
+    int iFunctionBody=linePosition+1;
+
+    bool iRightParenFound=false;
+    bool iEqualsFound=false;
+    bool iFunctionBodyFound=false;
+
+    for (int ii=linePosition+1;ii<numFields;ii++)
+    {
+      if(parsed_line[ii].string_ == ")") { iRightParen=ii; iRightParenFound=true; }
+      else if (parsed_line[ii].string_ == "=") { iEquals=ii; iEqualsFound=true; break; }
+    }
+
+    if (iEqualsFound && numFields > iEquals+1) { iFunctionBody=iEquals+1; iFunctionBodyFound=true; }
+
+    ExtendedString funcName ( parsed_line[linePosition].string_ ); funcName.toUpper();
+
+    if ( !iRightParenFound || !iEqualsFound || !iFunctionBodyFound )
+    {
+      Report::UserFatal0().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "Improperly formed function parameter " <<  funcName;
+      return false;
+    }
+
+    int len = parsed_line[iFunctionBody].string_.size();
+    if (parsed_line[iFunctionBody].string_.substr(0,1) != "{" ||
+        parsed_line[iFunctionBody].string_.substr(len-1,1) != "}") 
+    {
+      Report::UserFatal0().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "In .func/.param line for function: " << parsed_line[linePosition].string_ << ", expression must be enclosed by curly braces";
+      return false;
+    }
+
+    // Create a FunctionBlock for the .FUNC line, extract the
+    // data from line, and add the function to the circuit.
+    //FunctionBlock function( netlist_filename, parsed_line );
+    FunctionBlock function(netlist_filename, parsed_line[0].lineNumber_);
+
+    // Set the function name.
+    function.functionName = funcName;
+
+    // get list of arguments:
+    ExtendedString funcNameAndArgs  = funcName + "(";
+    for (int jj = iLeftParen+1; jj <= iRightParen-1; ++jj )
+    {
+      funcNameAndArgs += parsed_line[jj].string_;
+      if (parsed_line[jj].string_ != ",") { function.functionArgs.push_back(ExtendedString(parsed_line[jj].string_).toUpper()); }
+    }
+    funcNameAndArgs += ")";
+    function.functionNameAndArgs = funcNameAndArgs;
+
+    // Get the function body.
+    ExtendedString body(parsed_line[iFunctionBody].string_);
+    body.toUpper();
+    function.functionBody = body;
+
+    circuit_block.addFunction( function );
+
+    if (fun[funcName]++ != 0)
+    {
+      Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "Duplicate function definition " <<  funcName;
+      return false;
+    }
+
+    if (iFunctionBody+1 < numFields && parsed_line[iFunctionBody+1].string_ == ",")  
+    {
+      linePosition=iFunctionBody+2;
+    }
+    else
+    {
+      linePosition=iFunctionBody+1;
+    }
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -925,6 +1099,7 @@ void combineParamValueFields(
 bool extractParamData(
   CircuitBlock &            circuit_block,
   const std::string &       netlist_filename,
+  std::map<std::string, int> &  fun,
   const TokenVector &       parsed_line)
 {
   const int numFields = parsed_line.size();
@@ -944,64 +1119,72 @@ bool extractParamData(
   Util::Param parameter("", "");
   while ( linePosition < numFields )
   {
-    parameter.setTag( parsed_line[linePosition].string_ );
-
-    if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
-         (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
+    if (numFields > linePosition+1 && parsed_line[linePosition+1].string_ == "(")  // this is a function, with function arguments
     {
-      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
-        << "Parameter name " << parameter.uTag() << " is not permitted";
+      bool success = handleFunctionParam(circuit_block, netlist_filename, fun, parsed_line, linePosition);
+      if (!success) return false;
     }
-
-    if ( linePosition + 2 >= numFields )
+    else // conventional (non-func) param
     {
-      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
-        << "Unexpectedly reached end of line while looking for parameters in .PARAM statement";
-      return false;
-    }
+      parameter.setTag( parsed_line[linePosition].string_ );
 
-    if ( parsed_line[ linePosition+1].string_ != "=" )
-    {
-      Report::UserError0().at(netlist_filename, parsed_line[linePosition + 1].lineNumber_)
-        << "Equal sign (=) required between parameter and value in .PARAM statement";
-    }
-
-    linePosition += 2;   // Advance to parameter value field.
-
-    std::string combinedString;
-    combineParamValueFields(parsed_line,linePosition,combinedString); // this will update the linePosition
-
-    if (combinedString[0] == '{')
-    {
-      Util::Expression expPtr(circuit_block.getExpressionGroup(), combinedString);
-
-      std::string msg;
-      if (!(expPtr.getVoltageNodes().empty()) )
-        msg = "Node Voltage";
-      if (!(expPtr.getDeviceCurrents().empty()) )
-        msg = "Device Current";
-      if (!(expPtr.getLeadCurrents().empty()) )
-        msg = "Lead Current";
-      if (msg != "")
+      if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
+           (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
       {
-        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
-          << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
+        Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+          << "Parameter name " << parameter.uTag() << " is not permitted";
       }
-      parameter.setVal(combinedString);
-    }
-    else
-    {
-      // if we get here, that means that the 
-      // (1) the user did not apply delimiters  (curly braces or single quotes)
-      // (2) the above code did not add any delimeters.
-      ExtendedString tmp ( combinedString );
-      if (tmp.possibleParam())
-        parameter.setVal(std::string("{" + combinedString + "}")); // if this might be a parameter, and we don't already have "{", add them
-      else
-        parameter.setVal(combinedString); // if we get here, this should be a pure number, and we don't want to involve the expr library.  ERK.  Note, check that this line ever happens now.  We may be at a stage where curly braces are always added.
-    }
 
-    option_block.addParam( parameter );
+      if ( linePosition + 2 >= numFields )
+      {
+        Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+          << "Unexpectedly reached end of line while looking for parameters in .PARAM statement";
+        return false;
+      }
+
+      if ( parsed_line[ linePosition+1].string_ != "=" )
+      {
+        Report::UserError0().at(netlist_filename, parsed_line[linePosition + 1].lineNumber_)
+          << "Equal sign (=) required between parameter and value in .PARAM statement";
+      }
+
+      linePosition += 2;   // Advance to parameter value field.
+
+      std::string combinedString;
+      combineParamValueFields(parsed_line,linePosition,combinedString); // this will update the linePosition
+
+      if (combinedString[0] == '{')
+      {
+        Util::Expression expPtr(circuit_block.getExpressionGroup(), combinedString);
+
+        std::string msg;
+        if (!(expPtr.getVoltageNodes().empty()) )
+          msg = "Node Voltage";
+        if (!(expPtr.getDeviceCurrents().empty()) )
+          msg = "Device Current";
+        if (!(expPtr.getLeadCurrents().empty()) )
+          msg = "Lead Current";
+        if (msg != "")
+        {
+          Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+            << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
+        }
+        parameter.setVal(combinedString);
+      }
+      else
+      {
+        // if we get here, that means that the 
+        // (1) the user did not apply delimiters  (curly braces or single quotes)
+        // (2) the above code did not add any delimeters.
+        ExtendedString tmp ( combinedString );
+        if (tmp.possibleParam())
+          parameter.setVal(std::string("{" + combinedString + "}")); // if this might be a parameter, and we don't already have "{", add them
+        else
+          parameter.setVal(combinedString); // if we get here, this should be a pure number, and we don't want to involve the expr library.  ERK.  Note, check that this line ever happens now.  We may be at a stage where curly braces are always added.
+      }
+
+      option_block.addParam( parameter );
+    }
   }
 
   for (Util::ParamList::const_iterator paramIter = option_block.begin(), paramEnd = option_block.end(); paramIter != paramEnd; ++paramIter)

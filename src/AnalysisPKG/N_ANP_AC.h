@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -73,6 +73,7 @@ namespace Analysis {
 
 std::ostream& sensStdOutput (
        const std::string idString,
+       const double & currentFreq,
        const std::vector<double> & paramVals,
        const std::vector<double> & sensitivities,
        const std::vector<double> & scaled_sensitivities,
@@ -114,6 +115,8 @@ class ACExpressionGroup : public Xyce::Util::mainXyceExpressionGroup
     ~ACExpressionGroup () {};
 
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval);
+
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval );
 
   private:
     const Linear::BlockVector & X_;

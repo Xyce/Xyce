@@ -4,19 +4,26 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2023 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 User-defined global parameter that can be used in expressions throughout the netlist.
 \begin{Command}
 
 \format
-.GLOBAL\_PARAM [<name>=<value>]*
+.GLOBAL\_PARAM <name>=<value> [[,]<name>=<value>]*
 
 \examples
+\begin{alltt}
 .GLOBAL\_PARAM T=\{27+100*time\}
+.GLOBAL\_PARAM A=1, B=2
+.GLOBAL\_PARAM C=AGAUSS(1,0.1,0.1)
+\end{alltt}
+
+\arguments
 
 \begin{Arguments}
+
 \argument{name}
 
 Global parameter name.  Global parameters may be redefined.  
@@ -26,7 +33,10 @@ To change this behavior, one can use the \texttt{-redefined\_param} command line
 
 \argument{value}
 
-The value may be a number or an expression.
+The value may be a number or an expression.  If it is an expression, it can be surrounded 
+by curly braces (\{ \}), single quotes ('), or without delimiters.  Curly braces were originally 
+required by the \Xyce{} parser, so if one encounters parsing difficulties, consider 
+surrouding expression values with them.
 
 \end{Arguments}
 
@@ -44,6 +54,15 @@ Like \texttt{.PARAM} parameters, \texttt{.GLOBAL\_PARAM} may
 depend on time dependent quantities in the circuit.  They may also
 be frequency dependent.  They cannot, however, be 
 dependent on solution variaables such as voltage nodes.
+
+Parameters defined using \texttt{.GLOBAL\_PARAM} can be modified directly by various analyses, such as \texttt{.DC},   
+\texttt{.STEP}, \texttt{.SAMPLING} and \texttt{.EMBEDDEDSAMPLING}.
+
+Multiple global parameters can be specified on the same netlist line.  
+Parameters on the same line can optionally be separated using commas.  If \Xyce{} has difficulty 
+parsing a multi-parameter \texttt{.GLOBAL\_PARAM} line, consider adding commas if they are not already present.
+
+Unlike \texttt{.PARAM}, global parameters may not be used to specify a function with arguments.
 
 To load an external data file with time voltage pairs of data on each 
 line into a global parameter, use this syntax:

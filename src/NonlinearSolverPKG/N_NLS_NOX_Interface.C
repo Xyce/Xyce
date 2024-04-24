@@ -395,8 +395,19 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
       isuccess=sourceSteppingSolve ( paramsPtr );
       if (isuccess < 0)
       {
+
         analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED, Analysis::AnalysisEvent::DC, stepperPtr_->getContinuationParameter()));
+
+        double vsrcScale = groupPtr_->getParam("VSRCSCALE" );
+
+        if ( fabs(vsrcScale) < 1.0 )
+        {
+          groupPtr_->setParam("VSRCSCALE", 1.0 );
+
+          groupPtr_->computeF();
+        }
       }
+
       paramsPtr->setNoxSolverType(saveSolverType);
 
       nonlinearEquationLoader_->resetScaledParams();

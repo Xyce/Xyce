@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -421,7 +421,7 @@ CmdParse::setNetlist(
     argv_[netIndex] = new char[newSize];
     for (int i=0;i<newSize;++i)  argv_[netIndex][i] = 0;
 
-    sprintf(argv_[netIndex], "%s", newNetlist.c_str());
+    strncpy(argv_[netIndex], newNetlist.c_str(), newSize );
 
     stArgs["netlist"] = newNetlist;
   }

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -39,6 +39,8 @@
 #include <cstdio>
 #include <string>
 #include <list>
+#include <sstream>
+#include <ios>
 
 // ----------   Xyce Includes   ----------
 #include <N_ANP_AnalysisManager.h>
@@ -1841,11 +1843,6 @@ bool TwoLevelNewton::calcCouplingTerms_ ()
   bool bsuccess = true;
   bool tmpBool = true;
 
-  char filename1[256];
-
-  for (int ich = 0; ich < 256; ++ich)
-  { filename1[ich] = 0; }
-
   // If the current mode is not "INNER_PROBLEM", then we need to re-load
   // the matrix, as the ckt part of the matrix needs to be kept out of
   // this calculation.  Also, re-load Jacobian to make sure it is
@@ -1859,9 +1856,9 @@ bool TwoLevelNewton::calcCouplingTerms_ ()
 
   if (DEBUG_NONLINEAR)
   {
-    sprintf(filename1,"%s","tmpJac.txt");
+    std::string filename1("tmpJac.txt");
     Linear::Matrix *A = lasSysPtr_->getJacobianMatrix();
-    A->writeToFile(filename1);
+    A->writeToFile(filename1.c_str());
   }
 
   // save a copy of the RHS, as it is going to get mangled.
@@ -1895,8 +1892,11 @@ bool TwoLevelNewton::calcCouplingTerms_ ()
 
       if (DEBUG_NONLINEAR)
       {
-        sprintf(filename1,"dfdv%02d.txt", iCouple);
-        rhsVecPtr->writeToFile(filename1);
+        std::stringstream filename1("dfdv");
+        filename1.width(2);
+        filename1.fill('0');
+        filename1 << iCouple << ".txt";
+        rhsVecPtr->writeToFile(filename1.str().c_str());
       }
 
       // solve linear system to get dXdV.
@@ -1950,8 +1950,11 @@ bool TwoLevelNewton::calcCouplingTerms_ ()
 
       if (DEBUG_NONLINEAR)
       {
-        sprintf(filename1,"dxdv%02d.txt", iCouple);
-        newtVecPtr->writeToFile(filename1);
+        std::stringstream filename1("dxdv");
+        filename1.width(2);
+        filename1.fill('0');
+        filename1 << iCouple << ".txt";
+        newtVecPtr->writeToFile(filename1.str().c_str());
       }
 
       // copy the newton vector (result of linear solve) into the
@@ -2206,21 +2209,21 @@ bool TwoLevelNewton::enableSensitivity ()
   if (DEBUG_NONLINEAR)
   {
     static int callsSens = 0;
-    char filename1[256]; for (int ich = 0; ich < 256; ++ich) filename1[ich] = 0;
-    char filename2[256]; for (int ich = 0; ich < 256; ++ich) filename2[ich] = 0;
-
-    sprintf(filename1, "matrixTmp%d.txt",callsSens);
+    
+    std::stringstream filename1("matrixTmp");
+    filename1 << callsSens << ".txt";
     Linear::Matrix *A = lasSysPtr_->getJacobianMatrix();
-    A->writeToFile(filename1);
+    A->writeToFile(filename1.str().c_str());
 
 
     Linear::Vector *b = lasSysPtr_->getRHSVector();
-    sprintf(filename2, "rhsTmp%d.txt", callsSens);
+    std::stringstream filename2("rhsTmp");
+    filename2 << callsSens << ".txt";
     int size, i;
     FILE *fp1;
 
 #ifndef Xyce_PARALLEL_MPI
-    fp1 = fopen(filename2,"w");
+    fp1 = fopen(filename2.str().c_str(),"w");
     size = b->globalLength();
     for (i=0;i<size;++i)
     {
@@ -2231,10 +2234,11 @@ bool TwoLevelNewton::enableSensitivity ()
 #endif
 
     Linear::Vector *x = dsPtr_->nextSolutionPtr;
-    sprintf(filename2, "solTmp%d.txt", callsSens);
+    std::stringstream filename3("solTmp");
+    filename3 << callsSens << ".txt";
 
 #ifndef Xyce_PARALLEL_MPI
-    fp1 = fopen(filename2,"w");
+    fp1 = fopen(filename3.str().c_str(),"w");
     size = x->globalLength();
     for (i=0;i<size;++i)
     {

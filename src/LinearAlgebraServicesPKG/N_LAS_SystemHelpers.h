@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -68,11 +68,10 @@ Vector* createVector( const Parallel::ParMap & map, const Parallel::ParMap & ol_
 Matrix* createMatrix( const Graph* overlapGraph,
                       const Graph* baseGraph );
 
-Graph* createGraph( const Parallel::ParMap & map,
-                    const std::vector<int>& numIndicesPerRow );
-
-Graph* createGraph( const Parallel::ParMap & map,
-                    int maxNumIndicesPerRow );
+Graph* createGraph( const Parallel::ParMap & solution_overlap,
+                    const Parallel::ParMap & solution_overlap_ground,
+                    const std::vector<int>& numIndicesPerRow,
+                    const std::vector<std::vector<int> >& rcData);
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b );
 

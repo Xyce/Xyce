@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -816,20 +816,14 @@ bool Transient::doInit()
     if (solveAdjointSensitivityFlag_ && adjointTimePointsGiven_ )
     {
       TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-      for (int it=0;it<adjointTimePoints_.size();++it)
-      {
-        sec.setBreakPoint (adjointTimePoints_[it]);
-      }
+      sec.setBreakPoints( adjointTimePoints_ );
     }
   }
 
   if (outputTimePointsGiven_ )
   {
     TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-    for (int it=0;it<outputTimePoints_.size();++it)
-    {
-      sec.setBreakPoint (outputTimePoints_[it]);
-    }
+    sec.setBreakPoints( outputTimePoints_ );
 
     double next_output_time = outputTimePoints_[0];
     analysisManager_.setNextOutputTime(next_output_time);
@@ -839,10 +833,7 @@ bool Transient::doInit()
   if (userBreakPointsGiven_)
   {
     TimeIntg::StepErrorControl & sec = analysisManager_.getStepErrorControl();
-    for (int it=0;it<userBreakPoints_.size();++it)
-    {
-      sec.setBreakPoint (userBreakPoints_[it]);
-    }
+    sec.setBreakPoints( userBreakPoints_ );
   }
 
   initialIntegrationMethod_ = integrationMethod != TimeIntg::methodsEnum::ONESTEP ? integrationMethod : TimeIntg::methodsEnum::ONESTEP;
@@ -3437,9 +3428,7 @@ void Transient::printProgress(std::ostream &os)
           minutes = static_cast<int> ((estCompletionTime - days * 86400 - hours * 3600) / 60);
           seconds = static_cast<int> (estCompletionTime - days * 86400 - hours * 3600 - minutes * 60);
 
-          char timeStr[256];
-          for (char *c = timeStr; c != timeStr + sizeof(timeStr); ++c)
-            *c = 0;
+          std::stringstream timeStStr("");
 
           if (Parallel::rank(comm_) == 0) 
           {
@@ -3450,7 +3439,9 @@ void Transient::printProgress(std::ostream &os)
             // format and display output
             if (!quiet_)
             {
-              if ( ( t != (time_t)-1 ) && ( strftime( timeStr, 255, "%c", now ) != 0 ) )
+              const int maxStrSize = 256;
+              char timeStr[maxStrSize];
+              if ( ( t != (time_t)-1 ) && ( strftime( timeStr, maxStrSize, "%c", now ) != 0 ) )
               {
                 os << "***** Current system time: " << timeStr << std::endl;
               }
@@ -3462,17 +3453,31 @@ void Transient::printProgress(std::ostream &os)
           }
 
           if (days > 0)
-            sprintf(timeStr, "%3d days, %2d hrs., %2d min., %2d sec.", days, hours, minutes, seconds);
+          {
+            timeStStr.width(3);
+            timeStStr << days << " days, ";
+            timeStStr.width(2);
+            timeStStr << hours << " hrs., " << minutes << " min., " << seconds << " sec.";            
+          }
           else if (hours > 0)
-            sprintf(timeStr, "%2d hrs., %2d min., %2d sec.", hours, minutes, seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << hours << " hrs., " << minutes << " min., " << seconds << " sec."; 
+          }
           else if (minutes > 0)
-            sprintf(timeStr, "%2d min., %2d sec.", minutes, seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << minutes << " min., " << seconds << " sec."; 
+          }
           else
-            sprintf(timeStr, "%2d sec.", seconds);
+          {
+            timeStStr.width(2);
+            timeStStr << seconds << " sec."; 
+          }
 
           if (!quiet_)
           {
-            os << "***** Estimated time to completion: " << timeStr << std::endl << std::endl;
+            os << "***** Estimated time to completion: " << timeStStr.str() << std::endl << std::endl;
           }
         }
       }

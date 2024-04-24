@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -38,6 +38,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
+#include <sstream>
 
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_EpetraHelpers.h>
@@ -95,16 +96,12 @@ Matrix* createMatrix( const Graph* overlapGraph,
   return new EpetraMatrix( overlapGraph, baseGraph );
 }
 
-Graph* createGraph( const Parallel::ParMap & map, 
-                    const std::vector<int>& numIndicesPerRow )
+Graph* createGraph( const Parallel::ParMap & solution_overlap,
+                    const Parallel::ParMap & solution_overlap_ground,
+                    const std::vector<int>& numIndicesPerRow,
+                    const std::vector<std::vector<int> >& rcData)
 {
-  return new EpetraGraph( map, numIndicesPerRow );
-}
-
-Graph* createGraph( const Parallel::ParMap & map,
-                    int maxNumIndicesPerRow )
-{
-  return new EpetraGraph( map, maxNumIndicesPerRow );
+  return new EpetraGraph( solution_overlap, solution_overlap_ground, numIndicesPerRow, rcData );
 }
 
 Problem* createProblem( Matrix* A, MultiVector* x, MultiVector* b )
@@ -126,22 +123,19 @@ Importer* createImporter( const Parallel::ParMap & target_map,
 void writeToFile(const Epetra_LinearProblem& problem, std::string prefix, 
                  int file_number, bool write_map)
 {
-  std::string file_name;
-  char char_file_name[40];
   if (write_map) {
-    file_name = prefix + "_BlockMap.mm";
+    std::string file_name = prefix + "_BlockMap.mm";
     EpetraExt::BlockMapToMatrixMarketFile( file_name.c_str(), (problem.GetMatrix())->Map() );
   }
 
-  file_name = prefix + "_Matrix%d.mm";
-  sprintf( char_file_name, file_name.c_str(), file_number );
+  std::stringstream char_file_name(""), file_name("");
+  char_file_name << prefix << "_Matrix" << file_number << ".mm";
   std::string sandiaReq = "Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and\n%";
   sandiaReq += " Engineering Solutions of Sandia LLC, a wholly owned subsidiary of Honeywell International Inc. for the\n%";
   sandiaReq += " U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.\n%\n% Xyce circuit matrix.\n%%";
-  EpetraExt::RowMatrixToMatrixMarketFile( char_file_name, *(problem.GetMatrix()), sandiaReq.c_str() );
-  file_name = prefix + "_RHS%d.mm";
-  sprintf( char_file_name, file_name.c_str(), file_number );
-  EpetraExt::MultiVectorToMatrixMarketFile( char_file_name, *(problem.GetRHS()) );
+  EpetraExt::RowMatrixToMatrixMarketFile( char_file_name.str().c_str(), *(problem.GetMatrix()), sandiaReq.c_str() );
+  file_name << prefix << "_RHS" << file_number << ".mm";
+  EpetraExt::MultiVectorToMatrixMarketFile( file_name.str().c_str(), *(problem.GetRHS()) );
 }
 
 void writeToFile( const Epetra_MultiVector& vector, const char * filename, 

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -27,6 +27,9 @@
 //
 // Special Notes  : The circuit block class is arranged in a hierarchy 
 //                  which corresponds to the netlist file hierarchy.
+//
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
 //
 // Creator        : Lon Waters, SNL
 //
@@ -258,6 +261,7 @@ public:
   // to the circuit.
   void addOptions(const Util::OptionBlock &options);
 
+  void addFunction(FunctionBlock const& function);
   void addParams(const Util::OptionBlock &options);
   void addGlobalParams(const Util::OptionBlock &options);
 

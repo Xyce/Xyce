@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -26,6 +26,9 @@
 //
 // Special Notes  : The circuit context class is arranged in a hierarchy 
 //                  which corresponds to the subcircuit hierarchy.
+//
+//                  CircuitBlock = file hierarchy
+//                  CircuitContext = subcircuit hierarchy
 //
 // Creator        : Lon Waters
 //

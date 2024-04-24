@@ -15,7 +15,8 @@ process-development kits (PDKs) in other SPICE syntax can be used via the XDM
 netlist translator, which is included as part of the Xyce package. In addition
 to supporting use on all common desktop platforms (Mac, Windows, Linux), Xyce
 can also be compiled to run in a large-scale parallel mode to provide scalable,
-numerically accurate analog simulation for large-scale circuit simulation.
+numerically accurate analog simulation of circuits containing millions of
+devices, or more.
 
 ### Citing Xyce
 
@@ -87,7 +88,7 @@ the "[CONTRIBUTING](./CONTRIBUTING.md)" document for more information.
 
 ## Copyright and License
 
-Copyright 2002-2023 National Technology & Engineering Solutions of Sandia, LLC
+Copyright 2002-2024 National Technology & Engineering Solutions of Sandia, LLC
 (NTESS). Under the terms of Contract DE-NA0003525 with NTESS, the U.S.
 Government retains certain rights in this software.
 

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -150,6 +150,11 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET6::Instance> &p)
    .setUnit(U_LOGIC)
    .setCategory(CAT_VOLT)
    .setDescription("Initial condition of no voltage drops across device");
+
+  p.addPar("DTEMP", 0.0, &MOSFET6::Instance::dtemp)
+    .setGivenMember(&MOSFET6::Instance::dtempGiven)
+    .setUnit(U_DEGC)
+    .setDescription("Device delta temperature");
 }
 
 void Traits::loadModelParameters(ParametricData<MOSFET6::Model> &p)
@@ -426,7 +431,19 @@ bool Instance::processParams ()
 {
   // Set any non-constant parameter defaults:
   if (!given("TEMP"))
+  {
     temp = getDeviceOptions().temp.getImmutableValue<double>();
+    if  (!dtempGiven)
+      dtemp = 0.0;
+  }
+  else
+  {
+    dtemp = 0.0;
+    if  (dtempGiven)
+    {
+      UserWarning(*this) << "Instance temperature specified, dtemp ignored";
+    }
+  }
 
   if (!given("L"))
     l = getDeviceOptions().defl;
@@ -550,6 +567,8 @@ Instance::Instance(
     sourceConductance(0.0),
     drainConductance(0.0),
     temp(getDeviceOptions().temp.getImmutableValue<double>()),
+    dtemp(0.0),
+    dtempGiven(false),
     numberParallel(1.0),
     tKv(0.0),
     tKc(0.0),
@@ -2396,7 +2415,11 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   }
 
   // first set the instance temperature to the new temperature:
-  if (temp_tmp != -999.0) temp = temp_tmp;
+  if (temp_tmp != -999.0) 
+  {
+    temp = temp_tmp;
+    temp += dtemp;
+  }
 
   if (model_.interpolateTNOM(temp))
   {

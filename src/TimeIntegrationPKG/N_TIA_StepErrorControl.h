@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -140,6 +140,9 @@ class StepErrorControl
   void setBreakPoint(const Util::BreakPoint &breakpoint, double initial_time);
   void setBreakPoint(double bp);
   void doubleCheckEndBreakPoint();
+
+  // add a set of breakpoints
+  void setBreakPoints(const std::vector<double>& times);
 
   // signal that pause breakpoint has been reached
   void simulationPaused(double initial_time);

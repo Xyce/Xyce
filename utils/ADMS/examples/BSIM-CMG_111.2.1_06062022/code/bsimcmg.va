@@ -1,0 +1,42 @@
+// ****************************************************************************
+// *  BSIM-CMG 111.2.1 released on 06/06/2022                                 *
+// *  BSIM Common Multi-Gate Model (Verilog-A)                                *
+// ****************************************************************************
+
+// ****************************************************************************
+// *  Copyright © 2022 University of California                               *
+// *                                                                          *
+// *  Project director: Prof. Chenming Hu                                     *
+// *                                                                          *
+// *  Current developers: Girish Pahwa (Assistant Researcher)                 *
+// *                      Dinesh Rajasekharan (Postdoc)                       *
+// *                      Chetan Kumar Dabhi (Postdoc)                        *
+// *                      Chien-Ting Tung (Ph.D. student)                     *
+// ****************************************************************************
+
+`ifdef __XYCE__
+// Force an explicit use of the "m" parameter for multiplicity.
+`define EXPLICIT_MFACTOR
+`endif // __XYCE__
+
+`include "constants.vams"
+`include "disciplines.vams"
+`include "bsimcmg_macros.include"
+module bsimcmg_111(d, g, s, e, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="111" xyceDeviceName="BSIM-CMG FINFET v111.2.1" xyceTypeVariable="TYPE" xycePTypeValue="0" *);
+    inout d, g, s, e, t;
+    electrical d, g, s, e;
+
+// XYCE:  Moved declaration to right after declaration of external nodes,
+// to facilitate the hack of making this an optional node.
+    thermal t;
+
+    electrical di, si, di1, si1;
+    electrical ge, gi;
+    electrical q;
+    electrical n;
+
+
+    `include "bsimcmg_parameters.include"
+    `include "bsimcmg_variables.include"
+    `include "bsimcmg_body.include"
+endmodule
