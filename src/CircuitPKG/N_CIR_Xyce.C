@@ -332,6 +332,7 @@ Simulator::Simulator(Parallel::Machine comm)
   // This creates the message groups and initializes them
   Xyce::Report::reset_message_counts();
   Xyce::Report::set_max_message_count(Xyce::Report::MSG_WARNING, 100);
+  Xyce::Report::set_max_message_count(Xyce::Report::MSG_INFORMATION, 100);
 
   rootStat_.start();
 
@@ -873,6 +874,7 @@ Simulator::RunStatus Simulator::initializeEarly(
   {
     int max_warnings = commandLine_.getArgumentIntValue("-max-warnings", 100);
     Xyce::Report::set_max_message_count(Xyce::Report::MSG_WARNING, max_warnings);
+    Xyce::Report::set_max_message_count(Xyce::Report::MSG_INFORMATION, max_warnings); 
   }
 
   // Load any device plugins requested
