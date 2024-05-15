@@ -163,12 +163,12 @@ function(GET_XYCE_CAPABILITIES xyce_exe)
   execute_process(COMMAND ${xyce_exe} -capabilities
     RESULT_VARIABLE res_ret
     OUTPUT_VARIABLE term_cap_out
-    ERROR_VARIABLE err_out)
+    ERROR_VARIABLE term_cap_out)
 
   # if the execution fails
   if(NOT ${res_ret} EQUAL 0)
     message("ERROR: when querying Xyce capabilities. Error output:")
-    message(FATAL_ERROR "${term_cap_out}")
+    message(FATAL_ERROR "error trying to query ${xyce_exe}. Output was: ${term_cap_out}")
   endif()
 
   # build up the tag list according to the output of the query. each
@@ -278,11 +278,22 @@ set(CTEST_NIGHTLY_START_TIME "01:00:00 MDT")
 # in the "Site" column on the dashboard
 find_program(HNAME NAMES hostname)
 execute_process(COMMAND "${HNAME}"
-  OUTPUT_VARIABLE CTEST_SITE
+  OUTPUT_VARIABLE HOST_NAME
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
+if(${HOST_NAME} MATCHES "^ascic[0-9]*")
   set(CTEST_SITE "ascic")
+elseif(${HOST_NAME} MATCHES "cee-build[0-9]*")
+  set(CTEST_SITE "cee-build")
+else()
+  set(CTEST_SITE ${HOST_NAME})
+endif()
+
+if(VERBOSITY GREATER 4)
+  message("[VERB5]: ENV{SNLSYSTEM} = $ENV{SNLSYSTEM}")
+endif()
+if($ENV{SNLSYSTEM} MATCHES "^cts*")
+  set(CTEST_SITE "cts")
 endif()
 
 # add any postfix to the site
@@ -386,7 +397,7 @@ if(buildReturnVal EQUAL 0)
   string(FIND ${TAGLIST} "+parallel" doMpiTesting)
   
   if(doMpiTesting LESS 0 AND MPI_TESTING)
-    message(FATAL_ERROR "ERROR: Requested MPI testing but the Xyce binary was not built with MPI support")
+    message(FATAL_ERROR "ERROR: Requested MPI testing but the Xyce binary was not built with MPI support. Taglist: ${TAGLIST}")
   endif()
   
   if(MPI_TESTING)
