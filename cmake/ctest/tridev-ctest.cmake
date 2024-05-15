@@ -68,11 +68,19 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+
 # make the hostname generic for all ascic[0-9]* platforms
 if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
   set(CTEST_SITE "ascic")
 elseif(${CTEST_SITE} MATCHES "cee-build[0-9]*")
   set(CTEST_SITE "cee-build")
+endif()
+
+if(VERBOSITY GREATER 4)
+  message("[VERB5]: ENV{SNLSYSTEM} = $ENV{SNLSYSTEM}")
+endif()
+if($ENV{SNLSYSTEM} MATCHES "^cts*")
+  set(CTEST_SITE "cts")
 endif()
 
 if(NOT DEFINED SITE_APPEND)
