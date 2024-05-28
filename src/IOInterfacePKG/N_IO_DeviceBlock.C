@@ -884,17 +884,15 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
 
       for ( int i = exprStart; i < numFields; ++i )
       {
-//        expression += parsedInputLine[i].string_;
-
         ExtendedString field = parsedInputLine[i].string_;
         field.toUpper();
 
-
-        if (field != "SMOOTHBSRC" &&  field != "RCCONST" )
+        if (field != "SMOOTHBSRC" &&  field != "RCCONST" && field != "M" )
+        {
           expression += parsedInputLine[i].string_;
+        }
         else
         {
-
           int parameterStartPosition = i;
           int parameterEndPosition;
           extractInstanceParameters( parsedInputLine,
@@ -904,8 +902,6 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
                              -1 );
           break;
         }
-
-
       }
     }
     else if ( typeField == "TABLE" )
@@ -1063,43 +1059,63 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
   Device::Param parameter( "", "" );
   if ( deviceType == "E" || deviceType == "H" )
   {
-
-    
-      Device::Param* parameterPtr =
-        findInstanceParameter( Device::Param("V", "") );
-      if ( parameterPtr != NULL )
-      {
-        parameterPtr->setVal( expression );
-        parameterPtr->setGiven( true );
-      }
-      else
-      {
-
+    Device::Param* parameterPtr = findInstanceParameter( Device::Param("V", "") );
+    if ( parameterPtr != NULL )
+    {
+      parameterPtr->setVal( expression );
+      parameterPtr->setGiven( true );
+    }
+    else
+    {
       parameter.setTag( "V" );
       parameter.setVal( expression );
       parameter.setGiven( true );
       addInstanceParameter( parameter );
+    }
 
+    parameterPtr = findInstanceParameter( Device::Param("I", "") );
+    if ( parameterPtr != NULL )
+    { 
+      parameterPtr->setGiven( false );
+    }
+    else
+    {
       parameter.setTag( "I" ); // This B-source parameter is required but
                              // won't be used.
       parameter.setVal( "" );
       parameter.setGiven( false );
       addInstanceParameter( parameter );
     }
-    
   }
   else if ( deviceType == "F" || deviceType == "G" )
   {
-    parameter.setTag( "I" );
-    parameter.setVal( expression );
-    parameter.setGiven( true );
-    addInstanceParameter( parameter );
+    Device::Param* parameterPtr = findInstanceParameter( Device::Param("I", "") );
+    if ( parameterPtr != NULL )
+    {
+      parameterPtr->setVal( expression );
+      parameterPtr->setGiven( true );
+    }
+    else
+    {
+      parameter.setTag( "I" );
+      parameter.setVal( expression );
+      parameter.setGiven( true );
+      addInstanceParameter( parameter );
+    }
 
-    parameter.setTag( "V" ); // This B-source parameter is required but
-                             // won't be used.
-    parameter.setVal( "" );
-    parameter.setGiven( false );
-    addInstanceParameter( parameter );
+    parameterPtr = findInstanceParameter( Device::Param("V", "") );
+    if ( parameterPtr != NULL )
+    { 
+      parameterPtr->setGiven( false );
+    }
+    else
+    {
+      parameter.setTag( "V" ); // This B-source parameter is required but
+                               // won't be used.
+      parameter.setVal( "" );
+      parameter.setGiven( false );
+      addInstanceParameter( parameter );
+    }
   }
 
   return true;

@@ -188,6 +188,7 @@ private:
 
  
   double rc_const;
+  double multiplicityFactor;     // multiplicity factor (M)
   std::vector<int> APosEquExpVarOffsets;
   std::vector<int> ANegEquExpVarOffsets;
   std::vector<int> ABraEquExpVarOffsets;
