@@ -7,8 +7,8 @@ BISON = /usr/local/bin/bison
 LIBDIRTRI=-L/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/usr/local/lib  $(LIBDIRTRI)
 INCLUDE = -I/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12_withStokhos_withBasker/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
-CXXFLAGS_AST =  -std=c++11  -g  -I/usr/local/include/ $(INCLUDE)
-CXXFLAGS =  -std=c++11 -g -I/usr/local/include/ $(INCLUDE)
+CXXFLAGS_AST =  -std=c++17  -g  -I/usr/local/include/ $(INCLUDE)
+CXXFLAGS =  -std=c++17 -g -I/usr/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 

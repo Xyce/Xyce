@@ -73,7 +73,8 @@ if(BUILD_ONLY_UNIT_TESTS)
      # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
      # loaded before "project" is called.
      message(STATUS "Looking for required Trilinos package: Teuchos")
-     find_package(Trilinos 13.5 REQUIRED  Teuchos)
+     # find_package(Trilinos 13.5 REQUIRED  Teuchos)
+     find_package(Trilinos REQUIRED  Teuchos)
      message(STATUS "Looking for required Trilinos package: Teuchoss - found")
 
      # Set the compiler, so "project" finds the right one.

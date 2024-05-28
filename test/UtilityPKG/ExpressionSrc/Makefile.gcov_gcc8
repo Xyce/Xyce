@@ -6,13 +6,13 @@ BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib  $(LIBDIRTRI)
 LIBPATH_AST = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib  $(LIBDIRTRI)
-CXXFLAGS_AST =  -O0 -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  $(INCLUDE)
+CXXFLAGS_AST =  -O0 -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++17 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  $(INCLUDE)
 INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../ -I../../ErrorHandlingPKG/ -I../../ParallelDistPKG/ -I../../IOInterfacePKG/
-CXXFLAGS     =  -O0 -fno-inline -DUSE_TYPE_DOUBLE -g -fprofile-arcs -ftest-coverage -std=c++11 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS     =  -O0 -fno-inline -DUSE_TYPE_DOUBLE -g -fprofile-arcs -ftest-coverage -std=c++17 -I/Users/erkeite/GTEST/INSTALL_GCC8/include/  -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
-XYCELIBS = -std=c++11 -fno-inline -fprofile-arcs -ftest-coverage -g -O0 -Wl,-framework -Wl,Accelerate -Wl,-bind_at_load -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib -L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosremainder -lteuchosnumerics -lteuchoscomm -lteuchosparameterlist -lteuchoscore -lkokkoscore -lgtest -lgtest_main 
+XYCELIBS = -std=c++17 -fno-inline -fprofile-arcs -ftest-coverage -g -O0 -Wl,-framework -Wl,Accelerate -Wl,-bind_at_load -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib -L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosremainder -lteuchosnumerics -lteuchoscomm -lteuchosparameterlist -lteuchoscore -lkokkoscore -lgtest -lgtest_main 
 
 all:  test
 

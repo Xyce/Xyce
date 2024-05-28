@@ -7,9 +7,9 @@ BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc8_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/Users/erkeite/GTEST/INSTALL_GCC8/lib -L/opt/local/lib  $(LIBDIRTRI)
 
-CXXFLAGS_AST =  -std=c++11  -g  -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS_AST =  -std=c++17  -g  -I/opt/local/include/ $(INCLUDE)
 INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
-CXXFLAGS =  -std=c++11 -DUSE_TYPE_DOUBLE  -g -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS =  -std=c++17 -DUSE_TYPE_DOUBLE  -g -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
