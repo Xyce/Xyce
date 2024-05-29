@@ -94,7 +94,7 @@ if(BUILD_ONLY_UNIT_TESTS)
 
      project(Xyce_Expression_Unit_Tests VERSION 1.0.0 LANGUAGES CXX C)
 
-     set(CMAKE_CXX_STANDARD 11)
+     set(CMAKE_CXX_STANDARD 17)
      set(CMAKE_CXX_STANDARD_REQUIRED ON)
      set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -146,12 +146,12 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Messenger.C
           )
 
-     target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> 
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../> 
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../ExpressionSrc/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/ >)
+     target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+          ${TARGET_SOURCE_DIR} ${TARGET_SOURCE_DIR}/../
+          ${TARGET_SOURCE_DIR}/../ExpressionSrc/
+          ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/
+          ${TARGET_SOURCE_DIR}/../../IOInterfacePKG/
+          ${TARGET_SOURCE_DIR}/../../ParallelDistPKG/)
 
      target_link_libraries(parserReqdComplex PUBLIC Trilinos::all_selected_libs)
 
