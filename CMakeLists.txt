@@ -137,5 +137,33 @@ endif()
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")
 
+# generate the package name for cpack
+string(REPLACE ":" ";" verList ${Xyce_XyceVERSION})
+list(GET verList 0 develOrRelease)
+list(GET verList 1 develPhase)
+list(GET verList 2 versionNum)
+
+if(develOrRelease STREQUAL "D")
+  set(develOrRelease "DEVELOPMENT")
+else()
+  set(develOrRelease "Release")
+endif()
+if(develPhase STREQUAL "")
+  set(develPhaseStr "")
+else()
+  set(develPhaseStr "-${develPhase}")
+endif()
+
+set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
+message(DEBUG "[DBG]: CPACK_PACKAGE_NAME: ${CPACK_PACKAGE_NAME}")
+
+
+# if the user didn't specify it set the install directory according to
+# the CPACK_PACKAGE_NAME
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "/usr/local/${CPACK_PACKAGE_NAME}" CACHE PATH "Installation Directory" FORCE)
+endif()
+message(DEBUG "[DBG]: CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings
