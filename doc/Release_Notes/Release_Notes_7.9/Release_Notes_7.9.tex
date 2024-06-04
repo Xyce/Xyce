@@ -73,6 +73,11 @@ please visit the \XyceTM{} web page at
 \newpage
 \section{New Features and Enhancements}
 
+\subsubsection*{Important Announcements}
+
+Xyce is now supporting Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$
+(RHEL) 8, x86-64 (serial and parallel). Previous releases supported RHEL 7.
+
 \subsubsection*{XDM}
 \begin{XyceItemize}
 \item 
@@ -131,11 +136,6 @@ solves correct results after a failed DC in DC sweeps.
 \item The \texttt{DELIMITER} parameter on the \texttt{.PRINT} line has been expanded.  It previously only supported \texttt{TAB} and \texttt{COMMA}.  Now it also supports \texttt{SEMICOLON} and \texttt{COLON}.  It also will allow specifying quoted delimiter strings, such as \texttt{DELIMITER=";"}.  Previously this parameter only applied to the standard output format, but now it also applies to Comma-separated values (CSV) formatted output as well.  This was primarily added to address backlog issue 613 (see fixed defects table).
 \end{XyceItemize}
 
-\subsubsection*{Important Announcements}
-\begin{XyceItemize}
-\item 
-\end{XyceItemize}
-
 \newpage
 \section{Defects Fixed in this Release}
 \input{fixedDefectsTbl}
@@ -146,7 +146,7 @@ solves correct results after a failed DC in DC sweeps.
 The following platforms have been subject to certification testing for the
 \Xyce{} version 7.9 release.
 \begin{XyceItemize}
-  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 8, x86-64 (serial and parallel)
   \item Microsoft Windows 11${}^{\mbox{\textregistered}}$, x86-64 (serial)
   \item Apple${}^{\mbox{\textregistered}}$ macOS, x86-64 (serial and parallel)
 \end{XyceItemize}
@@ -158,7 +158,7 @@ systems.
 \begin{XyceItemize}
   \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
     and parallel)
-  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Distributions of Linux other than Red Hat Enterprise Linux 8
   \item Microsoft Windows under Cygwin and MinGW
 \end{XyceItemize}
 
