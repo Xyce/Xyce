@@ -157,7 +157,6 @@ endif()
 set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
 message(DEBUG "[DBG]: CPACK_PACKAGE_NAME: ${CPACK_PACKAGE_NAME}")
 
-
 # if the user didn't specify it set the install directory according to
 # the CPACK_PACKAGE_NAME
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
