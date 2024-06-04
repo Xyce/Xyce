@@ -68,7 +68,6 @@ execute_process(COMMAND "${HNAME}"
   OUTPUT_VARIABLE CTEST_SITE
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-
 # make the hostname generic for all ascic[0-9]* platforms
 if(${CTEST_SITE} MATCHES "^ascic[0-9]*")
   set(CTEST_SITE "ascic")
