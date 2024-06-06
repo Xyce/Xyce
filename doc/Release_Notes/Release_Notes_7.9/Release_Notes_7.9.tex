@@ -117,6 +117,17 @@ to be specified using the \texttt{.FUNC} keyword, so the example would have
 been specified as \texttt{.FUNC F(X) \{X*2\}}.
 The parser now natively supports both specifications.   
 
+\item The nonlinear voltage-controlled current source (VCCS) device now supports 
+  the multiplier (\texttt{M=}) parameter.  Previously, this was only supported in linear 
+  VCCS devices, as the nonlinear VCCS device is turned into a behavioral (B-source) 
+  device internally.  Like with other model supporting the \texttt{M} parameter, this 
+  parameter is implicitly connected to subcircuit multipliers.
+
+\item The behavioral source model (B-source) now supports multiplier parameters, 
+  for the current source (\texttt{I=}) configuration.  Like with other model 
+  supporting the \texttt{M} parameter, this parameter is implicitly connected 
+  to subcircuit multipliers.
+
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}

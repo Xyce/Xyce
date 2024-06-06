@@ -13,17 +13,17 @@
 \device
 \begin{alltt}
 B<name> <(+) node> <(-) node> V={ABM expression} [device parameters]
-B<name> <(+) node> <(-) node> I={ABM expression}
+B<name> <(+) node> <(-) node> I={ABM expression} [device parameters]
 \end{alltt}
 
 \examples
 \begin{alltt}
 B1 2 0 V=\{sqrt(V(1))\}
 B2 4 0 V=\{V(1)*TIME\}
-B3 4 2 I=\{I(V1) + V(4,2)/100\}
+B3 4 2 I=\{I(V1) + V(4,2)/100\}  M=100
 B4 5 0 V=\{Table \{V(5)\}=(0,0) (1.0,2.0) (2.0,3.0) (3.0,10.0)\}
 B5 6 0 V=tablefile("file.dat")
-B6 7 0 I=tablefile("file.dat")
+B6 7 0 I=tablefile("file.dat")  M=2
 B5 6 0 V=table("file.dat")
 B6 7 0 I=table("file.dat")
 B5 6 0 V=\{table("file.dat")\}
@@ -108,5 +108,11 @@ As such, their support for frequency domain analysis (AC and HB) has some limita
 The main limitation to be aware of is that time-dependent sources will not work with AC or HB analysis.  
 These are sources in which the variable \texttt{TIME} is used in the \texttt{VALUE=} expression. 
 The use case of a purely depedent B-source (depends only on other solution variables) will work with AC and HB.  
+
+The B-source supports the multiplier parameter (\texttt{M}) but only for current sources.
+
+\newpage
+\paragraph{Device Parameters}
+\input{B_1_Device_Instance_Params}
 
 \end{Device}
