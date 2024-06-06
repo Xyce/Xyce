@@ -1116,6 +1116,15 @@ bool DeviceBlock::extractBehavioralDeviceData( const TokenVector & parsedInputLi
       parameter.setGiven( false );
       addInstanceParameter( parameter );
     }
+
+    parameterPtr = findInstanceParameter( Device::Param("M", "") );
+    if ( parameterPtr == NULL )
+    {
+      parameter.setTag( "M" ); // This B-source parameter is required but
+      parameter.setGiven( false );
+      parameter.setVal( 1.0 );
+      addInstanceParameter( parameter );
+    }
   }
 
   return true;
