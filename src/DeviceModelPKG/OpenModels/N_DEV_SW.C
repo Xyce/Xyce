@@ -141,11 +141,13 @@ void Traits::loadModelParameters(ParametricData<SW::Model> &p)
      .setDescription("On control value");
      
     p.addPar ("ONH",1.0,&SW::Model::ONH)
+     .setGivenMember(&SW::Model::ONHGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("On control value with hysteresis");
      
     p.addPar ("OFFH",0.0,&SW::Model::OFFH)
+     .setGivenMember(&SW::Model::OFFHGiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Off control value with hysteresis");
@@ -656,7 +658,8 @@ Model::Model(
   RON(0.0),
   ROFF(0.0),
   ON(0.0),
-  OFF(0.0)
+  OFF(0.0),
+  hysteresisON(false)
 {
   if (getType() != "")
   {
@@ -772,6 +775,9 @@ bool Model::processParams ()
   if (dInvHOff >= 0 && dInvHOff < 1e-12)
     dInvHOff = 1e-12;
   dInvHOff = 1.0/delOffH;
+  
+  if (VHONGiven || VHOFFGiven || IHONGiven || IHOFFGiven || ONHGiven || OFFHGiven)
+    hysteresisON = true;
   
   return true;
 }
@@ -914,12 +920,15 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
   {
     Instance & si = *(*it);
 
-    double current_state, last_state, current_stateHysOn, current_stateHysOff;;
+    double current_state=0.0;
+    double last_state=0.0;
+    double current_stateHysOn=0.0;
+    double current_stateHysOff=0.0;
     double control;
     double * solVec = si.extData.nextSolVectorRawPtr;
     double * stoVec = si.extData.nextStoVectorRawPtr;
     double * stoVecLast = si.extData.lastStoVectorRawPtr;
-
+    
     // Evaluate Expression with corrected time derivative values
 
     si.Exp_ptr->evaluate( si.expVal, si.expVarDerivs );
@@ -970,13 +979,16 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
     }
     else
     {
-      // if the last state was held due to hysteresis then join cleanly to the expected value
-      // with hysteresis 
-      if (last_state <= 0.0)
-        current_state = current_stateHysOff;
-      if (last_state >= 1.0)
-        current_state = current_stateHysOn;
-        
+       
+      if( si.getModel().hysteresisON )
+      {
+        // if the last state was held due to hysteresis then join cleanly to the expected value
+        // with hysteresis
+        if (last_state <= 0.0)
+          current_state = current_stateHysOff;
+        if (last_state >= 1.0)
+          current_state = current_stateHysOn;
+      }
       current_state = 2*current_state - 1;
       si.G = exp(-si.getModel().Lm - 0.75*si.getModel().Lr*current_state +
       0.25*si.getModel().Lr*current_state*current_state*current_state);
