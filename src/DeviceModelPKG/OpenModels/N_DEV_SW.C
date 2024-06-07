@@ -949,13 +949,15 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
         
     si.v_pos = solVec[si.li_Pos];
     si.v_neg = solVec[si.li_Neg];
-
+    
     if ((current_state >= 1.0) || ((last_state >= 1.0) && (current_stateHysOn >= 1.0)))
     {
       si.R = si.getModel().RON;
       si.G = 1.0/si.R;
       for (int i=0 ; i<si.expNumVars ; ++i)
         si.expVarDerivs[i] = 0;
+      // if current_state < 1.0 then hysteresis held on to the state.  Set the last state in the store vector 
+      stoVec[si.li_control] = current_stateHysOn;
     }
     else if (( current_state <= 0.0) || ((last_state <= 0.0) && (current_stateHysOff <= 0.0)))
     {
@@ -963,9 +965,18 @@ bool Master::updateSecondaryState ( double * staDerivVec, double * stoVec )
       si.G = 1.0/si.R;
       for (int i=0 ; i<si.expNumVars ; ++i)
         si.expVarDerivs[i] = 0;
+      // if current_state > 0.0 then hysteresis held on to the state.  Set the last state in the store vector 
+      stoVec[si.li_control] = current_stateHysOff;
     }
     else
     {
+      // if the last state was held due to hysteresis then join cleanly to the expected value
+      // with hysteresis 
+      if (last_state <= 0.0)
+        current_state = current_stateHysOff;
+      if (last_state >= 1.0)
+        current_state = current_stateHysOn;
+        
       current_state = 2*current_state - 1;
       si.G = exp(-si.getModel().Lm - 0.75*si.getModel().Lr*current_state +
       0.25*si.getModel().Lr*current_state*current_state*current_state);
