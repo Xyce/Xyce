@@ -65,7 +65,7 @@ Test project /Users/rlschie/src/XyceDevelopment/BUILD/Normal
 Total Tests: 316
 
 Note, the Test number as in #37 is the ctest index number for this test and is generated
-as cmake configuration time.  It can be used to run a specific test with the "-I" option
+at cmake configuration time.  It can be used to run a specific test with the "-I" option
 
 -I [Start,End,Stride,test#,test#|Test file], --tests-information
                                = Run a specific number of tests by number.
@@ -86,6 +86,12 @@ or
 ctest ABM_EXPLN
 
 for all the tests in the ABM_EXPLN directory.
+
+When using the options like "-L" and "-LE" keep in mind that ctest applies a logical AND 
+to the results.  So "-L resistor" "-L  capacitor" will select tests that have BOTH the 
+resistor AND the capacitor tag.  If you want to do an OR try -L "resistor|capacitor".  
+Experimenting and using the "-N" option will help you select a reasonable number of tests 
+to run.
 
 Using "-j" to run tests in parallel is a great way to speed up tests.  But at this time
 some tests may fail.  This can occur if two tests use some of the same underlying Xyce
