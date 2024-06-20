@@ -410,6 +410,20 @@ else()
      if(TARGET AMD::all_libs)
           message(STATUS "Looking for AMD via Trilinos - found")
           set(Xyce_AMD TRUE CACHE BOOL "Enables the option of AMD ordering for the linear solver")
+
+          # libamd is dependent on libsuitesparseconfig. this should
+          # be handled wherever AMD::all_libs is created but it
+          # isn't. when building shared libraries it all works out but
+          # when building static libraries you have to explicitly set
+          # this dependency.
+          find_library(SUITESPARSECONFIG_LIB NAMES suitesparseconfig
+            HINTS $ENV{Trilinos_DIR}/lib64 $ENV{Trilinos_DIR}/lib)
+
+          if (SUITESPARSECONFIG_LIB)
+            target_link_libraries(AMD::all_libs INTERFACE ${SUITESPARSECONFIG_LIB})
+          else()
+            message(WARNING "Unable to find libsuitesparseconfig. Note that this may cause unresolved SuiteSParse*() functions during link when trilinos/amd/suitesparse are built statically")
+          endif()
      else()
           message(STATUS "Looking for AMD via Trilinos - not found")
           set(Xyce_AMD FALSE CACHE BOOL "Enables the option of AMD ordering for the linear solver" FORCE)
