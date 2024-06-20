@@ -194,6 +194,30 @@ else ()
           "changing Xyce_RAD_MODELS to FALSE.")
 endif ()
 
+if (NOT DEFINED Xyce_REGRESSION_DIR)
+     file(REAL_PATH "${PROJECT_SOURCE_DIR}/../Xyce_Regression" XyceRGDIR)
+     set (Xyce_REGRESSION_DIR ${XyceRGDIR} CACHE STRING "Search path for Xyce_Regression")
+     message(DEBUG "Setting default search path for Xyce_Regression  - ${Xyce_REGRESSION_DIR}")
+endif ()
+
+if ((Xyce_REGRESSION OR NOT DEFINED Xyce_REGRESSION) AND EXISTS "${Xyce_REGRESSION_DIR}")
+     set (Xyce_REGRESSION TRUE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
+     message(STATUS "Including the ${Xyce_REGRESSION_DIR} model directory")
+elseif (NOT DEFINED Xyce_REGRESSION)
+     # The flag was not set, and the directory does not exist
+     # Silently add the flag (is this even necessary?)
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
+elseif (NOT Xyce_REGRESSION)
+     # The flag was set to FALSE; the directory may or may not exist
+     message(STATUS "NOT including the ${Xyce_REGRESSION_DIR} directory")
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
+else ()
+     # The flag was set to TRUE, but the directory doesn't exist
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists" FORCE)
+     message("The ${Xyce_REGRESSION_DIR} directory does not exist - "
+          "changing Xyce_REGRESSION to FALSE.")
+endif ()
+
 # This logic could be in tps.cmake, since it's looking for Boost; but this is
 # fine for now
 if (Xyce_RAD_MODELS)
