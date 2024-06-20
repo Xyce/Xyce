@@ -413,7 +413,7 @@ else()
 
           find_library(SUITESPARSECONFIG_LIB NAMES suitesparseconfig
             REQUIRED
-            HINTS $ENV{Trilinos_DIR}/lib64)
+            HINTS $ENV{Trilinos_DIR}/lib64 $ENV{Trilinos_DIR}/lib)
      else()
           message(STATUS "Looking for AMD via Trilinos - not found")
           set(Xyce_AMD FALSE CACHE BOOL "Enables the option of AMD ordering for the linear solver" FORCE)
