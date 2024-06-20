@@ -102,7 +102,6 @@ if( Xyce_USE_FFTW )
   
   get_property(FFTWIncludeDir TARGET ${FFT} PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
   target_include_directories(XyceLib PUBLIC ${FFTWIncludeDir} )
-
 endif()
 
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
