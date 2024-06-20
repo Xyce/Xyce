@@ -108,10 +108,6 @@ endif()
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
 target_link_libraries(XyceLib PUBLIC ${TriBITS_prefix}::all_selected_libs)
 
-if(SUITESPARSECONFIG_LIB)
-  target_link_libraries(XyceLib PUBLIC ${SUITESPARSECONFIG_LIB})
-endif()
-
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
 endif()
