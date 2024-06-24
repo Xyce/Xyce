@@ -43,6 +43,7 @@ see "ctest --help")
   -j [<level>], --parallel [<level>]
                                = Run tests in parallel, optionally limited to
                                  a given level of parallelism.
+  --print-labels               = Print all available test labels.
   -V,--verbose                 = Enable verbose output from tests.
   
   
@@ -86,6 +87,14 @@ or
 ctest ABM_EXPLN
 
 for all the tests in the ABM_EXPLN directory.
+
+Another useful option is "--print-labels"  Running  "ctest --print-labels" will output
+a list of all test labels in alphabetical order.
+
+Note:  Xyce's unit tests were not originally part of the regression testing system 
+that used tags which have been converted to labels.  All of Xyce's unittests now
+have the label unittest.  So "ctest -N -L unittest " will show the list of available
+unittests (over 1600 if Google Test is available and build time.)
 
 When using the options like "-L" and "-LE" keep in mind that ctest applies a logical AND 
 to the results.  So "-L resistor" "-L  capacitor" will select tests that have BOTH the 

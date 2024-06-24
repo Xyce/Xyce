@@ -57,10 +57,11 @@ if(GTest_FOUND)
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
-     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
-     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
-     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
-     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit:)
+     # Setting the test labels looks odd but is needed to overcome a bug in gtest-cmake see https://gitlab.kitware.com/cmake/cmake/-/issues/17812
+     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit: PROPERTIES  "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression" )
+     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
 endif()
 
@@ -186,10 +187,12 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR}/SubDir1/test1.dat
           ${CMAKE_SOURCE_DIR}/test1-1.dat
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
-     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
-     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
-     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
-     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit:)
+     
+     # Wrap the GTest tests with CTest
+     # Setting the test labels looks odd but is needed to overcome a bug in gtest-cmake see https://gitlab.kitware.com/cmake/cmake/-/issues/17812
+     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
 endif()

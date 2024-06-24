@@ -17,7 +17,7 @@ if(GTest_FOUND)
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
-     gtest_discover_tests( XyceCInterfaceUnitTests TEST_PREFIX XyceCInterfaceUnit:)
+     gtest_discover_tests( XyceCInterfaceUnitTests TEST_PREFIX XyceCInterfaceUnit: PROPERTIES "LABELS;nightly;LABELS;required:mixedsignal")
 endif()
 
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
