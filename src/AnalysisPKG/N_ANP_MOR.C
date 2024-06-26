@@ -42,6 +42,7 @@
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_Report.h>
 
+#include <N_LAS_Problem.h>
 #include <N_LAS_TranSolverFactory.h>
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_BlockSystemHelpers.h>
