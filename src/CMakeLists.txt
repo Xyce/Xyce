@@ -303,7 +303,7 @@ COMPONENT Core  )
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
 # linking.  We're installing the headers for all Charon builds, because it is
 # not worth dealing with yet another special use case.
-if(BUILD_XyceForCharon)
+if(Xyce_BUILD_FOR_Charon)
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
     AnalysisPKG/N_ANP_AnalysisEvent.h
