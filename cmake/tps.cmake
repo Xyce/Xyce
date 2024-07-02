@@ -66,24 +66,18 @@
 # the Trilinos packages supplied by Charon. The variable also forces CMake to
 # skip some checks in "tps.cmake" that are required for a fully-functional Xyce
 # build.
-if(Xyce_AS_SPECIAL_CHARON_TPL)
-  find_package(${TriBITS_prefix} CONFIG
-    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
-else()
-  message(STATUS "Looking for Trilinos\n"
-    "   Required packages:\n"
-    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
-    "        Triutils AztecOO Belos TrilinosCouplings\n"
-    "   Optional packages:\n"
-    "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL MKL")
-  find_package(${TriBITS_prefix} CONFIG
-    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-         AztecOO Belos TrilinosCouplings
-    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore
-         Amesos2 Stokhos ROL MKL)
-  message(STATUS "Looking for Trilinos - found")
-endif()
+message(STATUS "Looking for Trilinos\n"
+  "   Required packages:\n"
+  "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
+  "        Triutils AztecOO Belos TrilinosCouplings\n"
+  "   Optional packages:\n"
+  "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL MKL")
+find_package(Trilinos CONFIG
+  REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+  AztecOO Belos TrilinosCouplings
+  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore
+  Amesos2 Stokhos ROL MKL)
+message(STATUS "Looking for Trilinos - found")
 
 # This is behind an if() statement due to the TriBITS name "mangling" issue.
 # From what I tell, there is no way to probe the version of Trilinos when it
