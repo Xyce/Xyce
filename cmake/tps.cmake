@@ -161,34 +161,29 @@ if (NOT KLU_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
-     get_target_property(CMAKE_REQUIRED_INCLUDES EpetraExt::all_libs INTERFACE_INCLUDE_DIRECTORIES)
-     check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
-     if (NOT Epetra_BTF_IN_Trilinos)
-          message("Trilinos was not built with BTF support in EpetraExt.\n"
-               "Enable the following in the Trilinos build:\n"
-               "  -D EpetraExt_BUILD_BTF=ON")
-          set(Trilinos_IS_MISSING_FEATURES TRUE)
-     endif()
+get_target_property(CMAKE_REQUIRED_INCLUDES EpetraExt::all_libs INTERFACE_INCLUDE_DIRECTORIES)
+check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
+if (NOT Epetra_BTF_IN_Trilinos)
+  message("Trilinos was not built with BTF support in EpetraExt.\n"
+    "Enable the following in the Trilinos build:\n"
+    "  -D EpetraExt_BUILD_BTF=ON")
+  set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
 
-     check_cxx_symbol_exists(HAVE_EXPERIMENTAL EpetraExt_config.h Epetra_EXPERIMENTAL_IN_Trilinos)
-     if (NOT Epetra_EXPERIMENTAL_IN_Trilinos)
-          message("Trilinos was not built with EXPERIMENTAL support in EpetraExt.\n"
-               "Enable the following in the Trilinos build:\n"
-               "  -D EpetraExt_BUILD_EXPERIMENTAL=ON")
-          set(Trilinos_IS_MISSING_FEATURES TRUE)
-     endif()
+check_cxx_symbol_exists(HAVE_EXPERIMENTAL EpetraExt_config.h Epetra_EXPERIMENTAL_IN_Trilinos)
+if (NOT Epetra_EXPERIMENTAL_IN_Trilinos)
+  message("Trilinos was not built with EXPERIMENTAL support in EpetraExt.\n"
+    "Enable the following in the Trilinos build:\n"
+    "  -D EpetraExt_BUILD_EXPERIMENTAL=ON")
+  set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
 
-     check_cxx_symbol_exists(HAVE_GRAPH_REORDERINGS EpetraExt_config.h Epetra_GRAPH_REORD_IN_Trilinos)
-     if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
-          message("Trilinos was not built with GRAPH REORDERINGS support in EpetraExt.\n"
-               "Enable the following in the Trilinos build:\n"
-               "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
-          set(Trilinos_IS_MISSING_FEATURES TRUE)
-     endif()
-else()
-     message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
-          "This build of Xyce is not functional for any other purpose.\n")
+check_cxx_symbol_exists(HAVE_GRAPH_REORDERINGS EpetraExt_config.h Epetra_GRAPH_REORD_IN_Trilinos)
+if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
+  message("Trilinos was not built with GRAPH REORDERINGS support in EpetraExt.\n"
+    "Enable the following in the Trilinos build:\n"
+    "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
+  set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
 get_target_property(CMAKE_REQUIRED_INCLUDES Teuchos::all_libs INTERFACE_INCLUDE_DIRECTORIES)
@@ -384,20 +379,6 @@ else()
      if(TARGET AMD::all_libs)
           message(STATUS "Looking for AMD via Trilinos - found")
           set(Xyce_AMD TRUE CACHE BOOL "Enables the option of AMD ordering for the linear solver")
-
-          # libamd is dependent on libsuitesparseconfig. this should
-          # be handled wherever AMD::all_libs is created but it
-          # isn't. when building shared libraries it all works out but
-          # when building static libraries you have to explicitly set
-          # this dependency.
-          find_library(SUITESPARSECONFIG_LIB NAMES suitesparseconfig
-            HINTS $ENV{Trilinos_DIR}/lib64 $ENV{Trilinos_DIR}/lib)
-
-          if (SUITESPARSECONFIG_LIB)
-            target_link_libraries(AMD::all_libs INTERFACE ${SUITESPARSECONFIG_LIB})
-          else()
-            message(WARNING "Unable to find libsuitesparseconfig. Note that this may cause unresolved SuiteSParse*() functions during link when trilinos/amd/suitesparse are built statically")
-          endif()
      else()
           message(STATUS "Looking for AMD via Trilinos - not found")
           set(Xyce_AMD FALSE CACHE BOOL "Enables the option of AMD ordering for the linear solver" FORCE)
