@@ -1,10 +1,7 @@
 @PACKAGE_INIT@
 include(CMakeFindDependencyMacro)
 
-set( TriBITS_prefix "@TriBITS_prefix@")
-set( ${TriBITS_prefix}_DIR "@PACKAGE_Xyce_Trilinos_DIR@" )
-
-find_dependency(${TriBITS_prefix} REQUIRED PATHS ${${TriBITS_prefix}_DIR} )
+find_dependency(Trilinos REQUIRED PATHS ${Trilinos_DIR} )
 #include("${Xyce_Trilinos_DIR}/TrilinosConfig.cmake" )
 set(Xyce_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
 set(Xyce_CXX_COMPILER_FLAGS ${Trilinos_CXX_COMPILER_FLAGS} )
@@ -12,8 +9,6 @@ set(Xyce_C_COMPILER ${Trilinos_C_COMPILER} )
 set(Xyce_C_COMPILER_FLAGS ${Trilinos_C_COMPILER_FLAGS} )
 set(Xyce_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 set(Xyce_Fortran_COMPILER_FLAGS ${Trilinos_Fortran_COMPILER_FLAGS} )
-
-
 
 include("${CMAKE_CURRENT_LIST_DIR}/XyceTargets.cmake") 
 
