@@ -59,25 +59,48 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
-message(STATUS "Looking for Trilinos\n"
-  "   Required packages:\n"
-  "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
-  "        Triutils AztecOO Belos TrilinosCouplings\n"
-  "   Optional packages:\n"
-  "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL MKL")
-find_package(Trilinos CONFIG
-  REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
-  AztecOO Belos TrilinosCouplings
-  OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore
-  Amesos2 Stokhos ROL MKL)
-message(STATUS "Looking for Trilinos - found")
+# Charon can use a specific part of Xyce as a TPL.  However, that use case
+# results in a build of Xyce that is unusable for any other purpose.
+# "Xyce_AS_SPECIAL_CHARON_TPL" is a "hidden" variable that must be set at the
+# initial CMake invocation with the "-D" flag.  If set, CMake looks only for
+# the Trilinos packages supplied by Charon. The variable also forces CMake to
+# skip some checks in "tps.cmake" that are required for a fully-functional Xyce
+# build.
+if(Xyce_AS_SPECIAL_CHARON_TPL)
+  find_package(${TriBITS_prefix} CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings Isorropia Zoltan)
+else()
+  message(STATUS "Looking for Trilinos\n"
+    "   Required packages:\n"
+    "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
+    "        Triutils AztecOO Belos TrilinosCouplings\n"
+    "   Optional packages:\n"
+    "        Isorropia Zoltan ShyLU ShyLU_DDCore Amesos2 Stokhos ROL MKL")
+  find_package(${TriBITS_prefix} CONFIG
+    REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
+         AztecOO Belos TrilinosCouplings
+    OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU ShyLU_DDCore
+         Amesos2 Stokhos ROL MKL)
+  message(STATUS "Looking for Trilinos - found")
+endif()
 
 # This is behind an if() statement due to the TriBITS name "mangling" issue.
 # From what I tell, there is no way to probe the version of Trilinos when it
 # is built as part of a different Tribits project.
-if(Trilinos_VERSION VERSION_LESS "13.5")
-  message(FATAL_ERROR
-    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 13.5. Install a version of Trilinos of 13.5 or greater.")
+if(${TriBITS_prefix} STREQUAL "Trilinos" )
+  if(Trilinos_VERSION VERSION_LESS "13.5")
+    message(FATAL_ERROR
+      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 13.5. Install a version of Trilinos of 13.5 or greater.")
+  endif()
+else()
+  # This is where we mitigate the TriBITS name mangling.  We change the
+  # variable names to the "correct" names so we minimize pollution of the
+  # rest of the configure process.
+  set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
+  set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
+  set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
+  set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
 endif()
 
 # MPI check
@@ -164,29 +187,34 @@ if (NOT KLU_IN_Trilinos)
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-get_target_property(CMAKE_REQUIRED_INCLUDES EpetraExt::all_libs INTERFACE_INCLUDE_DIRECTORIES)
-check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
-if (NOT Epetra_BTF_IN_Trilinos)
-  message("Trilinos was not built with BTF support in EpetraExt.\n"
-    "Enable the following in the Trilinos build:\n"
-    "  -D EpetraExt_BUILD_BTF=ON")
-  set(Trilinos_IS_MISSING_FEATURES TRUE)
-endif()
+if (NOT Xyce_AS_SPECIAL_CHARON_TPL)
+     get_target_property(CMAKE_REQUIRED_INCLUDES EpetraExt::all_libs INTERFACE_INCLUDE_DIRECTORIES)
+     check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
+     if (NOT Epetra_BTF_IN_Trilinos)
+          message("Trilinos was not built with BTF support in EpetraExt.\n"
+               "Enable the following in the Trilinos build:\n"
+               "  -D EpetraExt_BUILD_BTF=ON")
+          set(Trilinos_IS_MISSING_FEATURES TRUE)
+     endif()
 
-check_cxx_symbol_exists(HAVE_EXPERIMENTAL EpetraExt_config.h Epetra_EXPERIMENTAL_IN_Trilinos)
-if (NOT Epetra_EXPERIMENTAL_IN_Trilinos)
-  message("Trilinos was not built with EXPERIMENTAL support in EpetraExt.\n"
-    "Enable the following in the Trilinos build:\n"
-    "  -D EpetraExt_BUILD_EXPERIMENTAL=ON")
-  set(Trilinos_IS_MISSING_FEATURES TRUE)
-endif()
+     check_cxx_symbol_exists(HAVE_EXPERIMENTAL EpetraExt_config.h Epetra_EXPERIMENTAL_IN_Trilinos)
+     if (NOT Epetra_EXPERIMENTAL_IN_Trilinos)
+          message("Trilinos was not built with EXPERIMENTAL support in EpetraExt.\n"
+               "Enable the following in the Trilinos build:\n"
+               "  -D EpetraExt_BUILD_EXPERIMENTAL=ON")
+          set(Trilinos_IS_MISSING_FEATURES TRUE)
+     endif()
 
-check_cxx_symbol_exists(HAVE_GRAPH_REORDERINGS EpetraExt_config.h Epetra_GRAPH_REORD_IN_Trilinos)
-if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
-  message("Trilinos was not built with GRAPH REORDERINGS support in EpetraExt.\n"
-    "Enable the following in the Trilinos build:\n"
-    "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
-  set(Trilinos_IS_MISSING_FEATURES TRUE)
+     check_cxx_symbol_exists(HAVE_GRAPH_REORDERINGS EpetraExt_config.h Epetra_GRAPH_REORD_IN_Trilinos)
+     if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
+          message("Trilinos was not built with GRAPH REORDERINGS support in EpetraExt.\n"
+               "Enable the following in the Trilinos build:\n"
+               "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
+          set(Trilinos_IS_MISSING_FEATURES TRUE)
+     endif()
+else()
+     message(WARNING "\nDisabling checks for a specialized Xyce-as-TPL build for Charon.  "
+          "This build of Xyce is not functional for any other purpose.\n")
 endif()
 
 get_target_property(CMAKE_REQUIRED_INCLUDES Teuchos::all_libs INTERFACE_INCLUDE_DIRECTORIES)
@@ -382,6 +410,20 @@ else()
      if(TARGET AMD::all_libs)
           message(STATUS "Looking for AMD via Trilinos - found")
           set(Xyce_AMD TRUE CACHE BOOL "Enables the option of AMD ordering for the linear solver")
+
+          # libamd is dependent on libsuitesparseconfig. this should
+          # be handled wherever AMD::all_libs is created but it
+          # isn't. when building shared libraries it all works out but
+          # when building static libraries you have to explicitly set
+          # this dependency.
+          find_library(SUITESPARSECONFIG_LIB NAMES suitesparseconfig
+            HINTS $ENV{Trilinos_DIR}/lib64 $ENV{Trilinos_DIR}/lib)
+
+          if (SUITESPARSECONFIG_LIB)
+            target_link_libraries(AMD::all_libs INTERFACE ${SUITESPARSECONFIG_LIB})
+          else()
+            message(WARNING "Unable to find libsuitesparseconfig. Note that this may cause unresolved SuiteSParse*() functions during link when trilinos/amd/suitesparse are built statically")
+          endif()
      else()
           message(STATUS "Looking for AMD via Trilinos - not found")
           set(Xyce_AMD FALSE CACHE BOOL "Enables the option of AMD ordering for the linear solver" FORCE)

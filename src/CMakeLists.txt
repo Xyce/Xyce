@@ -105,7 +105,7 @@ if( Xyce_USE_FFTW )
 endif()
 
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
-target_link_libraries(XyceLib PUBLIC Trilinos::all_selected_libs)
+target_link_libraries(XyceLib PUBLIC ${TriBITS_prefix}::all_selected_libs)
 
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
@@ -303,7 +303,7 @@ COMPONENT Core  )
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
 # linking.  We're installing the headers for all Charon builds, because it is
 # not worth dealing with yet another special use case.
-if(Xyce_CHARON)
+if(${TriBITS_prefix} STREQUAL "tcad-charon")
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
     AnalysisPKG/N_ANP_AnalysisEvent.h
@@ -361,7 +361,7 @@ export(EXPORT XyceLibTarget
   NAMESPACE Xyce::
 )
 
-set( Xyce_Trilinos_DIR ${Trilinos_DIR})
+set( Xyce_Trilinos_DIR ${${TriBITS_prefix}_DIR})
 configure_package_config_file(
   cmake/XyceConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake

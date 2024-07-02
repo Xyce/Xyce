@@ -8,6 +8,12 @@ if(Xyce_USE_SUPERBUILD)
   return()
 endif()
 
+# A TriBITS project that performs a coupled build with Trilinos, like Charon,
+# changes the names of all the Trilinos variables.  Therefore, we have to jump
+# through a bunch of hoops to take that use case into account.  Here we set a
+# cache variable to handle that name "mangling."
+set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
+
 # Set a default build type if none was specified (using the fact that
 # CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
 #
