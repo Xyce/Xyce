@@ -303,6 +303,7 @@ COMPONENT Core  )
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
 # linking.  We're installing the headers for all Charon builds, because it is
 # not worth dealing with yet another special use case.
+message(STATUS "Xyce_AS_SPECIAL_CHARON_TPL: ${Xyce_AS_SPECIAL_CHARON_TPL}")
 if(Xyce_AS_SPECIAL_CHARON_TPL)
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
