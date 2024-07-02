@@ -47,6 +47,9 @@ if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
+
+# mostly, this flag is used to copy "extra" include files into the
+# installation directory
 option(Xyce_AS_SPECIAL_CHARON_TPL "Build xyce library as required by charon" OFF)
 
 include(cmake/config.cmake)
