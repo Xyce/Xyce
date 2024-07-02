@@ -59,13 +59,6 @@
 #    LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 #    LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
-# Charon can use a specific part of Xyce as a TPL.  However, that use case
-# results in a build of Xyce that is unusable for any other purpose.
-# "Xyce_AS_SPECIAL_CHARON_TPL" is a "hidden" variable that must be set at the
-# initial CMake invocation with the "-D" flag.  If set, CMake looks only for
-# the Trilinos packages supplied by Charon. The variable also forces CMake to
-# skip some checks in "tps.cmake" that are required for a fully-functional Xyce
-# build.
 message(STATUS "Looking for Trilinos\n"
   "   Required packages:\n"
   "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
@@ -79,22 +72,9 @@ find_package(Trilinos CONFIG
   Amesos2 Stokhos ROL MKL)
 message(STATUS "Looking for Trilinos - found")
 
-# This is behind an if() statement due to the TriBITS name "mangling" issue.
-# From what I tell, there is no way to probe the version of Trilinos when it
-# is built as part of a different Tribits project.
-if(${TriBITS_prefix} STREQUAL "Trilinos" )
-  if(Trilinos_VERSION VERSION_LESS "13.5")
-    message(FATAL_ERROR
-      "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 13.5. Install a version of Trilinos of 13.5 or greater.")
-  endif()
-else()
-  # This is where we mitigate the TriBITS name mangling.  We change the
-  # variable names to the "correct" names so we minimize pollution of the
-  # rest of the configure process.
-  set( Trilinos_CXX_COMPILER_FLAGS ${${TriBITS_prefix}_CXX_COMPILER_FLAGS} )
-  set( Trilinos_PACKAGE_LIST ${${TriBITS_prefix}_PACKAGE_LIST} )
-  set( Trilinos_TPL_LIST ${${TriBITS_prefix}_TPL_LIST} )
-  set( Trilinos_TPL_LIBRARIES ${${TriBITS_prefix}_TPL_LIBRARIES} )
+if(Trilinos_VERSION VERSION_LESS "13.5")
+  message(FATAL_ERROR
+    "ERROR: Trilinos version ${Trilinos_VERSION} is less than the required minimum of 13.5. Install a version of Trilinos of 13.5 or greater.")
 endif()
 
 # MPI check
