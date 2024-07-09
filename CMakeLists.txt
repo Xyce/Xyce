@@ -48,10 +48,6 @@ endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
-# mostly, this flag is used to copy "extra" include files into the
-# installation directory
-option(Xyce_AS_SPECIAL_CHARON_TPL "Build xyce library as required by charon" OFF)
-
 include(cmake/config.cmake)
 
 if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))

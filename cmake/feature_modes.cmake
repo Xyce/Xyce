@@ -58,6 +58,10 @@ set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction
 # Support for Charon coupling
 set(Xyce_CHARON                    FALSE CACHE BOOL "Enable Charon device support")
 
+# mostly, this flag is used to copy "extra" include files into the
+# installation directory
+option(Xyce_AS_SPECIAL_CHARON_TPL "Build xyce library as required by charon" OFF)
+
 # Verbose output
 set(Xyce_VERBOSE_CONDUCTANCE       FALSE CACHE BOOL "Enable verbose output for ???")
 set(Xyce_VERBOSE_LINEAR            FALSE CACHE BOOL "Enable verbose output in the linear solver")
