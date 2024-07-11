@@ -84,7 +84,7 @@ ctest -R ABM_EXPLN/exp_const.cir
 
 or
 
-ctest ABM_EXPLN
+ctest -R ABM_EXPLN
 
 for all the tests in the ABM_EXPLN directory.
 
