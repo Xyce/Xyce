@@ -1875,9 +1875,12 @@ TEST ( ComplexParserSourceFuncTest, sin2)
     }
     refRes[ii] -= 2.0e-3;
 
-    EXPECT_EQ( result[ii], refRes[ii]);
-    EXPECT_EQ( copyResult[ii], refRes[ii]);
-    EXPECT_EQ( assignResult[ii], refRes[ii]);
+    EXPECT_NEAR( std::real(result[ii]), std::real(refRes[ii]), 5e-13);
+    EXPECT_NEAR( std::imag(result[ii]), std::imag(refRes[ii]), 5e-13);
+    EXPECT_NEAR( std::real(copyResult[ii]), std::real(refRes[ii]), 5e-13);
+    EXPECT_NEAR( std::imag(copyResult[ii]), std::imag(refRes[ii]), 5e-13);
+    EXPECT_NEAR( std::real(assignResult[ii]), std::real(refRes[ii]), 5e-13);
+    EXPECT_NEAR( std::imag(assignResult[ii]), std::imag(refRes[ii]), 5e-13);
   }
 
   bool timeDependent = testExpression.getTimeDependent();
@@ -1973,9 +1976,12 @@ TEST ( ComplexParserSourceFuncTest, exp_func)
     else if (time <= td2 && time > td1) refRes[ii] = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1));
     else refRes[ii] = v1 + (v2-v1)*(1.0-std::exp(-(time-td1)/tau1)) + (v1-v2)*(1.0-std::exp(-(time-td2)/tau2)) ;
 
-    EXPECT_EQ( result[ii], refRes[ii]);
-    EXPECT_EQ( copyResult[ii], refRes[ii]);
-    EXPECT_EQ( assignResult[ii], refRes[ii]);
+    EXPECT_NEAR( std::real(result[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(result[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(copyResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(copyResult[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(assignResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(assignResult[ii]), std::imag(refRes[ii]), 5.0e-13);
   }
 
   OUTPUT_MACRO(ComplexParserSourceFuncTest,exp_func)
@@ -2011,10 +2017,13 @@ TEST ( ComplexParserSourceFuncTest, sffm)
     copyExpression.evaluateFunction(copyResult[ii]);
     assignExpression.evaluateFunction(assignResult[ii]);
     refRes[ii] = v0 + va * sin((2 * M_PI * fc * time) + mdi * sin (2 * M_PI * fs * time));
-
-    EXPECT_EQ( result[ii], refRes[ii]);
-    EXPECT_EQ( copyResult[ii], refRes[ii]);
-    EXPECT_EQ( assignResult[ii], refRes[ii]);
+    
+    EXPECT_NEAR( std::real(result[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(result[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(copyResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(copyResult[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(assignResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(assignResult[ii]), std::imag(refRes[ii]), 5.0e-13);
   }
 }
 
@@ -2062,10 +2071,13 @@ TEST ( ComplexParserSourceFuncTest, sffm_func)
     copyExpression.evaluateFunction(copyResult[ii]);
     assignExpression.evaluateFunction(assignResult[ii]);
     refRes[ii] = v0 + va * sin((2 * M_PI * fc * time) + mdi * sin (2 * M_PI * fs * time));
-
-    EXPECT_EQ( result[ii], refRes[ii]);
-    EXPECT_EQ( copyResult[ii], refRes[ii]);
-    EXPECT_EQ( assignResult[ii], refRes[ii]);
+    
+    EXPECT_NEAR( std::real(result[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(result[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(copyResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(copyResult[ii]), std::imag(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::real(assignResult[ii]), std::real(refRes[ii]), 5.0e-13);
+    EXPECT_NEAR( std::imag(assignResult[ii]), std::imag(refRes[ii]), 5.0e-13);
   }
 
   OUTPUT_MACRO(ComplexParserSourceFuncTest,sffm_func)

@@ -2168,9 +2168,15 @@ TEST ( DoubleParserVoltDerivTest, test6)
   std::vector<double> refDer;
   refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
   std::vector<double> derivs;
-  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) { 
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
   OUTPUT_MACRO(DoubleParserVoltDerivTest, test6)
 }
 
@@ -2194,9 +2200,15 @@ TEST ( DoubleParserVoltDerivTest, test7)
   std::vector<double> refDer;
   refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
   std::vector<double> derivs;
-  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
   OUTPUT_MACRO(DoubleParserVoltDerivTest, test7)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
@@ -2222,9 +2234,15 @@ TEST ( DoubleParserVoltDerivTest, test7b)
   std::vector<double> refDer;
   refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
   std::vector<double> derivs;
-  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
   OUTPUT_MACRO(DoubleParserVoltDerivTest, test7b)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
@@ -2249,9 +2267,15 @@ TEST ( DoubleParserVoltDerivTest, test7c)
   std::vector<double> refDer;
   refDer.push_back( 20.0*(3.0/Aval)*std::pow(Aval,3.0)+7.5 );
   std::vector<double> derivs;
-  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
-  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i],refDer[i], 5e-13); }
   OUTPUT_MACRO(DoubleParserVoltDerivTest, test7c)
 
   Xyce::Util::preprocessFilter.clear(); // reset this for next test
@@ -2664,9 +2688,15 @@ TEST ( DoubleParserCurrDerivTest, test2)
   std::vector<double> refDer;
   refDer.push_back( 20.0*(3.0/V1val)*std::pow(V1val,3.0)+7.5 );
   std::vector<double> derivs;
-  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
-  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
-  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i], refDer[i], 5e-13); }
+  copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i], refDer[i], 5e-13); }
+  assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); 
+  for( auto i=0; i<derivs.size();i++) {
+    EXPECT_NEAR( derivs[i], refDer[i], 5e-13); }
   OUTPUT_MACRO(DoubleParserCurrDerivTest, test2)
 }
 

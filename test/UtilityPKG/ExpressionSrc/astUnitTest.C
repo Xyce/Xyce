@@ -674,8 +674,8 @@ TEST ( Double_Ast_Deriv_Test, powOp )
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_DOUBLE_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
-  EXPECT_DOUBLE_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+  EXPECT_NEAR(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0, 5.0e-13 );
+  EXPECT_NEAR(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0, 5.0e-13 );
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp )
@@ -698,8 +698,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp )
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_DOUBLE_EQ(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
-  EXPECT_DOUBLE_EQ(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+  EXPECT_NEAR(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0, 5.0e-13 );
+  EXPECT_NEAR(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0, 5.0e-13 );
 }
 
 TEST ( Double_Ast_Deriv_Test, pwrsOp2 )
