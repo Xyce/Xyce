@@ -38,7 +38,7 @@ if(APPLE)
   list(APPEND CMAKE_INSTALL_RPATH "@loader_path/../lib")
 
   # set the OSX toolkit version to be consistent with trilinos build
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.5" CACHE STRING "" FORCE)
+  #set(CMAKE_OSX_DEPLOYMENT_TARGET "12.5" CACHE STRING "" FORCE)
 else()
   list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()
