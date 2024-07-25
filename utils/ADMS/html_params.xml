@@ -284,6 +284,9 @@
                   </td>
                   <td>
                     <admst:text format="%(insource)"/>
+                    <admst:if test="[exists(derivate)]">
+                      <admst:text format="(derivate=%(derivate))"/>
+                    </admst:if>
                   </td>
                   <td><admst:text format="%(static).%(dynamic) "/></td>
                   <td><admst:text format="%(TemperatureDependent)"/></td>
@@ -548,6 +551,9 @@
                   </td>
                   <td>
                     <admst:text format="%(insource)"/>
+                    <admst:if test="[exists(derivate)]">
+                      <admst:text format="(derivate=%(derivate))"/>
+                    </admst:if>
                   </td>
                   <td><admst:text format="%(static).%(dynamic) "/></td>
                   <td><admst:text format="%(TemperatureDependent)"/></td>
