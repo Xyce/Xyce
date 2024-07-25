@@ -68,8 +68,8 @@ runadms()
 {
     admsXml -D__XYCE__ -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
             -e ${xmldir}/xyceAnalogFunction_nosac.xml \
-            -e ${xmldir}/xyceImplementationFile_nosac.xml $1 \
-            -e ${xmldir}/xyceHeaderFile_nosac.xml \
+            -e ${xmldir}/xyceImplementationFile_nosac.xml \
+            -e ${xmldir}/xyceHeaderFile_nosac.xml $1 \
             >> buildxyceplugin.log 2>&1
     return $?
 }
