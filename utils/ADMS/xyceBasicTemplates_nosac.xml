@@ -799,7 +799,21 @@ struct Traits: public DeviceTraits&lt;Model, Instance
         <admst:join select="probe" separator=",\n">
           <admst:text format="d_%(../name)_d%(nature)_%(branch/pnode)_%(branch/nnode)(0.0)"/>
         </admst:join>
-    </admst:if>
+        <!-- initializers for second derivative variables if needed -->
+        <admst:variable name="myVar" path="."/>
+        <admst:for-each select="probe">
+          <admst:variable name="myprobe" path="."/>
+          <admst:if test="[$myVar/insource='yes' and $doSecondDerivs='yes']">
+            <admst:if test="[exists($myVar/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
+              <admst:text format=",\n"/>
+              <admst:join select="$myVar/probe" separator=",\n">
+                <admst:text
+                    format="d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(./nature)_%(./branch/pnode)_%(./branch/nnode)(0.0)"/>
+              </admst:join>
+            </admst:if>
+          </admst:if>
+        </admst:for-each>
+      </admst:if>
     </admst:join>
     <!-- now initialize the LIDs: -->
     <admst:if test="[exists(node[grounded='no'])]">

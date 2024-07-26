@@ -43,8 +43,12 @@
 
 <admst:for-each select="/module">
   <admst:variable name="thisModule" select="%(.)"/>
-  <admst:if test="variable[insource='yes' and derivate='yes']">
-    <admst:variable name="doSecondDerivatives" select="yes"/>
+  <admst:if test="[exists(variable[insource='yes' and exists(derivate)
+                  and derivate='yes'])
+                  or
+                  exists(/module/block/variable[insource='yes' and exists(derivate)
+                  and derivate='yes'])]">
+    <admst:variable name="doSecondDerivs" select="yes"/>
   </admst:if>
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
        related Instance and Model classes -->
