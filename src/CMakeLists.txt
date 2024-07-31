@@ -125,20 +125,6 @@ add_executable(Xyce Xyce.C)
 target_include_directories (XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
 target_link_libraries(Xyce XyceLib)
 
-if(WIN32)
-  if(DEFINED ENV{MKLROOT})
-
-    file(TO_CMAKE_PATH "$ENV{MKLROOT}" MKLROOT)
-
-    add_custom_command(
-      TARGET Xyce POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-              ${MKLROOT}/redist/intel64/mkl_sequential.2.dll
-              ${CMAKE_CURRENT_BINARY_DIR})
-  endif()
-endif()
-
-
 # ---- And the installation of them. ----------------
 # Keep this in mind if Xyce needs to support building both static and shared libraries
 # in the same build tree.
