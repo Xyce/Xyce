@@ -3412,7 +3412,7 @@ void OutputMgr::outputSensitivity(
     }
     else
     {
-      Report::UserWarning0() << "Cannot find any transient adjoint outputters!";
+      Report::UserWarning0() << "Cannot find any transient adjoint outputters! The netlist needs a .print tranadjoint line";
     }
   }
 }
