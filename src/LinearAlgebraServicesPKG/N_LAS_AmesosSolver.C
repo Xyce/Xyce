@@ -285,6 +285,10 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
     {
       solverType = "Amesos_Pardiso";
     }
+    else if( type_ == "CSS" )
+    {
+      solverType = "Amesos_CssMKL";
+    }
     else if( type_ == "LAPACK" )
     {
       solverType = "Amesos_Lapack";
