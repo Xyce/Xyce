@@ -56,12 +56,12 @@ if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
 endif()
 
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
-  # if building a shared library under windows automatically export all 
-  # symbols in the resulting "dll"  This is not optimal but will work 
+  # if building a shared library under windows automatically export all
+  # symbols in the resulting "dll"  This is not optimal but will work
   # until a detailed code markup is done.
   set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 endif()
-  
+
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)
@@ -113,7 +113,7 @@ if(Xyce_PLUGIN_SUPPORT)
       DESTINATION share/examples)
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
-    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY ) 
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY )
     install(
       FILES
         ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
@@ -146,6 +146,23 @@ if(develPhase STREQUAL "")
   set(develPhaseStr "")
 else()
   set(develPhaseStr "-${develPhase}")
+endif()
+
+if(ENABLE_TESTING)
+  enable_testing()
+  message(STATUS "Enabling regression testing")
+  if(NOT XYCE_REGRESSION_DIR AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Xyce_Regression")
+    message(STATUS "Using \"Xyce_Regression\" for addition of regression tests")
+    set(XYCE_REGRESSION_DIR "Xyce_Regression")
+  endif()
+
+  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${XYCE_REGRESSION_DIR}")
+    message(FATAL_ERROR "ENABLE_TESTING is ON but no directory containing regression "
+      "tests was found. Try adding a -DXYCE_REGRESSION_DIR=<test dir> with a "
+      "valid test directory like \"-DXYCE_REGRESSION_DIR=Xyce_Regression\"")
+  endif()
+
+  add_subdirectory(${XYCE_REGRESSION_DIR})
 endif()
 
 set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
