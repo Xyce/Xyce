@@ -125,27 +125,31 @@ if ( CMAKE_HOST_WIN32 )
   file(TO_CMAKE_PATH "$ENV{ONEAPI_ROOT}" ONEAPI_ROOT)
 
   # Add the required intel library.  This is permitted for redistribution.
-  find_file(SVML_PATH
-    "svml_dispmd.dll"
-    PATHS
-      "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
-  find_file(MMD_PATH
-      "libmmd.dll"
-      PATHS
-        "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
-  find_file(IOMP5_PATH
-      "libiomp5md.dll"
-      PATHS
-        "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" )
-  install ( FILES ${MMD_PATH}
-          DESTINATION bin
-          COMPONENT Runtime)
-  install ( FILES ${SVML_PATH}
-          DESTINATION bin
-          COMPONENT Runtime)
-  install ( FILES ${IOMP5_PATH}
-            DESTINATION bin
-            COMPONENT Runtime)
+  find_file(SVML_PATH "svml_dispmd.dll" PATHS "${ONEAPI_ROOT}/bin" "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" NO_DEFAULT_PATH)
+  find_file(MMD_PATH "libmmd.dll" PATHS "${ONEAPI_ROOT}/bin" "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" NO_DEFAULT_PATH)
+  find_file(IOMP5_PATH "libiomp5md.dll" PATHS "${ONEAPI_ROOT}/bin" "${ONEAPI_ROOT}/compiler/latest/windows/redist/intel64_win/compiler" NO_DEFAULT_PATH)
+
+  if(IS_SYMLINK ${SVML_PATH})
+    file(READ_SYMLINK ${SVML_PATH} SVML_PATH)
+    file(REAL_PATH ${SVML_PATH} SVML_PATH BASE_DIRECTORY "${ONEAPI_ROOT}/bin")
+    set(SVML_PATH ${SVML_PATH} CACHE STRING "Converted from symbolic link to real path in ${CMAKE_CURRENT_LIST_FILE}" FORCE)
+  endif()
+
+  if(IS_SYMLINK ${MMD_PATH})
+    file(READ_SYMLINK ${MMD_PATH} MMD_PATH)
+    file(REAL_PATH ${MMD_PATH} MMD_PATH BASE_DIRECTORY "${ONEAPI_ROOT}/bin")
+    set(MMD_PATH ${MMD_PATH} CACHE STRING "Converted from symbolic link to real path in ${CMAKE_CURRENT_LIST_FILE}" FORCE)
+  endif()
+
+  if(IS_SYMLINK ${IOMP5_PATH})
+    file(READ_SYMLINK ${IOMP5_PATH} IOMP5_PATH)
+    file(REAL_PATH ${IOMP5_PATH} IOMP5_PATH BASE_DIRECTORY "${ONEAPI_ROOT}/bin")
+    set(IOMP5_PATH ${IOMP5_PATH} CACHE STRING "Converted from symbolic link to real path in ${CMAKE_CURRENT_LIST_FILE}" FORCE)
+  endif()
+
+  install ( FILES ${SVML_PATH} DESTINATION bin COMPONENT Runtime)  
+  install ( FILES ${MMD_PATH} DESTINATION bin COMPONENT Runtime)
+  install ( FILES ${IOMP5_PATH} DESTINATION bin COMPONENT Runtime)
 
   # For native Windows builds we also need assorted MS Visual Studio DLLs
   # This thing apparently takes care of it:
