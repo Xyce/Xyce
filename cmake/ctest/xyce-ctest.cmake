@@ -178,9 +178,7 @@ ctest_build(RETURN_VALUE buildReturnVal)
 # otherwise skip to submission
 if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
-    PARALLEL_LEVEL $ENV{NUM_JOBS}
-    INCLUDE nightly
-    EXCLUDE required)
+    PARALLEL_LEVEL $ENV{NUM_JOBS})
 endif()
 
 # submit results to the dashboard
