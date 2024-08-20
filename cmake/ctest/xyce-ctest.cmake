@@ -177,7 +177,8 @@ ctest_build(RETURN_VALUE buildReturnVal)
 # if the build succeeds, as indicated by a zero return value, proceed,
 # otherwise skip to submission
 if(buildReturnVal EQUAL 0)
-  ctest_test(RETURN_VALUE testReturnVal)
+  ctest_test(RETURN_VALUE testReturnVal
+    PARALLEL_LEVEL $ENV{NUM_JOBS})
 endif()
 
 # submit results to the dashboard
