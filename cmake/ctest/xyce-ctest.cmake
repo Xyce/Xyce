@@ -101,19 +101,6 @@ endif()
 # add any postfix to the site
 set(CTEST_SITE "${CTEST_SITE} ${xyceSitePostFix}")
 
-# find the custom perl script to create the results XML file. note
-# that different versions of cdash can require slight different
-# formats for the XML files.
-if(${CDASHVER} EQUAL 3.1)
-  find_program(XYCE_CDASH_GEN summary-dart-nosubmit.cdash-v3p1.pl
-    HINTS $ENV{WORKSPACE}/Scripts/reporting
-    REQUIRED)
-else()
-  find_program(XYCE_CDASH_GEN summary-dart-nosubmit.pl
-    HINTS $ENV{WORKSPACE}/Scripts/reporting
-    REQUIRED)
-endif()
-
 # this is used as the "Build Name" column on the dashboard
 set(CTEST_BUILD_NAME "$ENV{MYBUILDNAME}")
 
