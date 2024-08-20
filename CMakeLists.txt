@@ -149,14 +149,18 @@ else()
 endif()
 
 if(ENABLE_TESTING)
+
+  # set the location for the regression directory. by default it's a
+  # subdirectory named "Xyce_Regression" within the source directory.
+  option(XYCE_REGRESSION_DIR "Specify the directory containing regression tests" "Xyce_Regression")
+  if (NOT XYCE_REGRESSION_DIR)
+    set(XYCE_REGRESSION_DIR "${CMAKE_SOURCE_DIR}/Xyce_Regression")
+  endif()
   enable_testing()
   message(STATUS "Enabling regression testing")
-  if(NOT XYCE_REGRESSION_DIR AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Xyce_Regression")
-    message(STATUS "Using \"Xyce_Regression\" for addition of regression tests")
-    set(XYCE_REGRESSION_DIR "Xyce_Regression")
-  endif()
 
-  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${XYCE_REGRESSION_DIR}")
+  message(DEBUG "regression dir: ${XYCE_REGRESSION_DIR}")
+  if(NOT EXISTS "${XYCE_REGRESSION_DIR}")
     message(FATAL_ERROR "ENABLE_TESTING is ON but no directory containing regression "
       "tests was found. Try adding a -DXYCE_REGRESSION_DIR=<test dir> with a "
       "valid test directory like \"-DXYCE_REGRESSION_DIR=Xyce_Regression\"")

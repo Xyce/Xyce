@@ -1,3 +1,6 @@
 .                                   develop
 src/DeviceModelPKG/SandiaModels     develop
 src/DeviceModelPKG/Xyce_NonFree     develop
+Xyce_Regression                     develop
+Xyce_Regression/Xyce_FastrackRegression develop
+Xyce_Regression/Xyce_SandiaRegression	develop
