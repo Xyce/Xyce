@@ -56,7 +56,7 @@ else()
       set(xyceSitePostFix "PbSr")
     endif()
   else()
-    set(xyceSitePostFix "GLH")
+    set(xyceSitePostFix "")
   endif()
 endif()
 
@@ -179,7 +179,7 @@ ctest_build(RETURN_VALUE buildReturnVal)
 if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
     PARALLEL_LEVEL $ENV{NUM_JOBS}
-    INCLUDE_LABEL "nightly"
+    INCLUDE_LABEL "nightly;serial"
     EXCLUDE_LABEL "^required:.*")
   if(VERBOSITY GREATER 1)
     message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
