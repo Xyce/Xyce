@@ -178,7 +178,11 @@ ctest_build(RETURN_VALUE buildReturnVal)
 # otherwise skip to submission
 if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
-    PARALLEL_LEVEL $ENV{NUM_JOBS})
+    PARALLEL_LEVEL $ENV{NUM_JOBS}
+    INCLUDE_LABEL "mos1")
+  if(VERBOSITY GREATER 1)
+    message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
+  endif()
 endif()
 
 # submit results to the dashboard
