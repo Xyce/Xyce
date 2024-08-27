@@ -150,6 +150,9 @@
 #ifdef Xyce_USE_FFTW
 #include <fftw3.h>
 #endif 
+#ifdef Xyce_USE_INTEL_FFT
+#include <mkl.h>
+#endif
 
 namespace Xyce {
 namespace Circuit {
@@ -420,6 +423,9 @@ Simulator::~Simulator()
   }
 #endif
 
+#ifdef Xyce_USE_INTEL_FFT
+  mkl_free_buffers();
+#endif
   set_report_handler(previousReportHandler_);
 
   Stats::deleteRootStat(rootStat_);
