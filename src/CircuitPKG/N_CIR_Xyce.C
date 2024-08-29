@@ -151,7 +151,7 @@
 #include <fftw3.h>
 #endif 
 #ifdef Xyce_USE_INTEL_FFT
-#include <mkl.h>
+#include <mkl_service.h>
 #endif
 
 namespace Xyce {
