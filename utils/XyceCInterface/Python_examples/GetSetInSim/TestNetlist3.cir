@@ -1,0 +1,113 @@
+* This netlist with DAC and ACD ports
+*
+* This test compares a Yakopcic memristor device to one defined in a subcircuit
+*
+* The pairs of output columns should be the same for the two memristors
+*
+* i.e. 
+*  v(n1,n2) == v(n1,n3) 
+*  i(ymemristor!mr1) == i(rptg2) 
+*  n(ymemristor!mr1_x) == v(n4)
+
+*vsrc n1 0  sin( 0 0.5 100 0 )
+ydac dac_driver1 n1 0 
+
+ymemristor mr1 n1 n2 mrm1 xo=0.11 
+rptg1 n2 0 50 
+yadc adc1 n2 0 simpleADC R=1T
+
+xmr1 n1 n3 n4 mem_dev
+rptg2 n3 0 50
+
+yadc adc2 n3 0 simpleADC R=1T
+
+.model mrm1 memristor level=3 a1=0.17 a2=0.17 b=0.05 vp=0.16 vn=0.15 
++ ap=4000 an=4000 xp=0.3 xn=0.5 alphap=1 alphan=5 eta=1 
+
+.model simpleADC ADC(settlingtime=5ns uppervoltagelimit=5 lowervoltagelimit=-5)
+
+.model simpleDAC DAC(tr=5e-9 tf=5e-9)
+
+.print tran  v(n1) v(n1,n2) v(n1,n3) i(ymemristor!mr1) i(rptg2) n(ymemristor!mr1_x) v(n4)
+
+.measure tran ymemristorRes eqn {n(ymemristor!mr1:r)}
+
+
+.tran 0 20e-4
+
+* 
+* From:
+* Generalized Memristive Device SPICE Model and
+* its Application in Circuit Design
+* Chris Yakopcic, Tarek M Taha, Guru Subramanyam, Robinson Pino
+* IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems
+* Vol 32, No. 8, August 2013
+* DOI: 10.1109/TCAD.2013.2252057
+*
+* SPICE model for memristive devices
+* Created by Chris Yakopcic
+* Last Update: 12/21/2011
+*
+* Connections:
+* TE - top electrode 
+* BE - bottom electrode
+* XSV - External connection to plot state variable
+*       that is not used otherwise
+
+.subckt mem_dev TE BE XSV PARAMS:
++ a1=0.17 
++ a2=0.17 
++ b=0.05 
++ Vp=0.16
++ Vn=0.15
++ AP=4000
++ An=4000
++ xp=0.3
++ xn=0.5
++ alphap=1
++ alphan=5
++ xo=0.11
++ eta=1
+
+* 
+* Fitting parameters to model different devices
+* a1, a2, b:      Parameters for IV relationship
+* Vp, Vn:         Pos. and Neg. voltage thresholds
+* Ap, An:         Multiplier for SV motion intensity
+* xp, xn:         Points where SV motion is reduced
+* alphap, alphan: Rate at which SV motion decays
+* xo:             Initial value of SV
+* eta:            SV direction relative to voltage
+
+* Multiplicative functions to ensure zero state 
+* variable motion at memristor boundaries
+.func wp(V) {(xp-V)/(1-xp) + 1}
+.func wn(V) {V/(1-xn)}
+
+* Functin G(V(t)) - Describes the device threshold
+.func G(V) {IF( V <= Vp, IF( V >= -Vn, 0, -An*(exp(-V)-exp(Vn))), Ap*(exp(V)-exp(Vp))) }
+
+* Function F(V(t), x(t)) - Describes the SV motion
+.func F(V1,V2) {IF( eta*V1 >= 0, IF( V2 >= xp, exp(-alphap*(V2-xp))*wp(V2), 1), 
++ IF(V2 <= (1-xn), exp(alphan*(V2+xn-1))*wn(V2), 1))}
+
+* IV Response - Hyperbolic sine due to MIN structure
+.func IVRel(V1, V2) {IF( V1 >= 0, a1*V2*sinh(b*V1), a2*V2*sinh(b*V1))}
+
+* Circuit to determine state variable
+Cx XSV 0 1 IC={xo}
+*.ic V(XSV) = xo
+Gx 0 XSV value={eta*F((V(TE)-V(BE)), V(XSV)) * G(V(TE)-V(BE))}
+* Current source for memristor IV response
+Gm TE BE value = {IVRel(V(TE,BE), V(XSV,0))}
+
+.ends meme_dev
+
+*COMP V(N1) offset=0.1
+*COMP V(N1,N2) offset=0.1
+*COMP V(N1,N3) offset=0.1
+*COMP I(YMEMRISTOR!MR1) offset=0.1
+*COMP I(RPTG2) offset=0.1
+
+.end
+
