@@ -185,7 +185,7 @@ if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
     PARALLEL_LEVEL ${NUM_PROCS}
     INCLUDE_LABEL "^nightly"
-    EXCLUDE_LABEL "^required")
+    EXCLUDE_LABEL "^require")
   if(VERBOSITY GREATER 1)
     message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
   endif()
