@@ -8,6 +8,7 @@
 #   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
 #   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
+#   -DNUM_PROCS=<N> 
 #   -DTDEV_BUILD=<TRUE|FALSE>
 
 cmake_minimum_required(VERSION 3.23)
@@ -109,12 +110,17 @@ set(CTEST_SITE "${CTEST_SITE} ${xyceSitePostFix}")
 # this is used as the "Build Name" column on the dashboard
 set(CTEST_BUILD_NAME "$ENV{MYBUILDNAME}")
 
-# used for invocation of parallel make
-if(DEFINED ENV{NUM_JOBS})
-  set(CTEST_BUILD_FLAGS "-j$ENV{NUM_JOBS}")
-else()
-  set(CTEST_BUILD_FLAGS "-j8")
+# the "-DNUM_PROCS=N" is highest priority, followed by the environment
+# variable NUM_PROCS and finally use 8 as the default if it's not
+# specified
+if(NOT DEFINED NUM_PROCS)
+  if(NOT DEFINED ENV{NUM_PROCS})
+    set(NUM_PROCS 8)
+  else()
+    set(NUM_PROCS $ENV{NUM_PROCS})
+  endif()
 endif()
+set(CTEST_BUILD_FLAGS "-j${NUM_PROCS}")
 
 # note that "Weekly" is just a Nightly category with a different group
 # name
@@ -178,9 +184,9 @@ ctest_build(RETURN_VALUE buildReturnVal)
 # otherwise skip to submission
 if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
-    PARALLEL_LEVEL $ENV{NUM_JOBS}
-    INCLUDE_LABEL "^nightly"
-    EXCLUDE_LABEL "^required")
+    PARALLEL_LEVEL ${NUM_PROCS}
+    INCLUDE_LABEL "^serial|^nightly"
+    EXCLUDE_LABEL "^required|^parallel")
   if(VERBOSITY GREATER 1)
     message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
   endif()
