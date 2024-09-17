@@ -120,7 +120,6 @@ if(NOT DEFINED NUM_PROCS)
     set(NUM_PROCS $ENV{NUM_PROCS})
   endif()
 endif()
-set(CTEST_BUILD_FLAGS "-j${NUM_PROCS}")
 
 # note that "Weekly" is just a Nightly category with a different group
 # name
