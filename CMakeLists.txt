@@ -49,6 +49,13 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
 
 include(cmake/config.cmake)
+include(cmake/utilities.cmake)
+
+# print out Xyce-related variables
+cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
+if(LOG_LEVEL STREQUAL "DEBUG")
+  dump_cmake_variables("Xyce.*")
+endif()
 
 if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
   message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
