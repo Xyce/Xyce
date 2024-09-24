@@ -68,3 +68,4 @@ utils/ADMS/**/*.tex
 !utils/ADMS/**/N_DEV_ADMS*_bootstrap.C
 utils/ADMS/**/.#*
 utils/ADMS/**/emacs*.core
+Xyce_Regression

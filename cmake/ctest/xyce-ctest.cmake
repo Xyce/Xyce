@@ -174,7 +174,7 @@ endif()
 ctest_start(${MODEL} GROUP ${TESTGROUP})
 
 # this runs cmake on xyce
-ctest_configure()
+ctest_configure(RETURN_VALUE confReturnVal)
 
 # this runs make
 ctest_build(RETURN_VALUE buildReturnVal)
@@ -194,4 +194,9 @@ endif()
 # submit results to the dashboard
 if(DASHSUBMIT)
   ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)
+endif()
+
+math(EXPR totalRetVal "${confReturnVal}+${buildReturnVal}+${testReturnVal}")
+if (NOT totalRetVal EQUAL 0)
+  MESSAGE(FATAL_ERROR "There were failures during ctest")
 endif()
