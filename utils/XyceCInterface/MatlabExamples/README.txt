@@ -12,5 +12,5 @@ Finally the Matlab script in this directory will need to edited for the location
 of your local installation of Xyce's share directory where the python file 
 xyce_interface.py is located.
 
-See the document Application Note:Using Xyce From Python, Matlab and Simulink for
+See the document Application Note: Using Xyce From Python, Matlab and Simulink for
 more details.

@@ -25,5 +25,5 @@ To use the examples here one must:
    This can be necessary if xyce_interface.py hasn't had the library location 
    set properly during the installation process. 
 
-See the document Application Note:Using Xyce From Python, Matlab and Simulink for
+See the document Application Note: Using Xyce From Python, Matlab and Simulink for
 more details.
