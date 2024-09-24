@@ -3,7 +3,19 @@
 import sys
 from xyce_interface import xyce_interface
 
-xyceObj = xyce_interface()
+# if the user specifies the Xyce library directory, pass that
+# to the xyce_interface constructor.  Otherwise use the default.
+xyceObj = None
+if( len(sys.argv) > 1):
+  libDirectory = sys.argv[1]
+  xyceObj = xyce_interface(libdir=libDirectory)
+else:
+  xyceObj = xyce_interface()
+
+if( xyceObj == None):
+  print("Error:  Could not create a Xyce object.  Exiting")
+  exit(-1)
+
 result = xyceObj.initialize(['TestNetlist2.cir'])
 
 # get circuit values before running 
