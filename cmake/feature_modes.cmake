@@ -199,7 +199,7 @@ else ()
 endif ()
 
 if (NOT DEFINED Xyce_REGRESSION_DIR)
-     file(REAL_PATH "${PROJECT_SOURCE_DIR}/../Xyce_Regression" XyceRGDIR)
+     file(REAL_PATH "${PROJECT_SOURCE_DIR}/Xyce_Regression" XyceRGDIR)
      set (Xyce_REGRESSION_DIR ${XyceRGDIR} CACHE STRING "Search path for Xyce_Regression")
      message(DEBUG "Setting default search path for Xyce_Regression  - ${Xyce_REGRESSION_DIR}")
 endif ()
