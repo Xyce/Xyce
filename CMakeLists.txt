@@ -48,6 +48,7 @@ if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
+option(Xyce_ENABLE_TESTING "Enable regression testing" OFF)
 
 include(cmake/config.cmake)
 include(cmake/utilities.cmake)
@@ -156,14 +157,14 @@ else()
   set(develPhaseStr "-${develPhase}")
 endif()
 
-if(ENABLE_TESTING)
+if(Xyce_ENABLE_TESTING)
 
   enable_testing()
   message(STATUS "Enabling regression testing")
 
   message(DEBUG "regression dir: ${Xyce_REGRESSION_DIR}")
   if(NOT EXISTS "${Xyce_REGRESSION_DIR}")
-    message(FATAL_ERROR "ENABLE_TESTING is ON but a directory containing regression "
+    message(FATAL_ERROR "Xyce_ENABLE_TESTING is ON but a directory containing regression "
       "tests was not found. Try adding a -DXyce_REGRESSION_DIR=<test dir> with a "
       "valid test directory within the source directory, like \"-DXyce_REGRESSION_DIR=$HOME/Xyce/Xyce_Regression\"")
   endif()
