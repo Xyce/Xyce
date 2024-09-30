@@ -1600,6 +1600,268 @@ void barycentricLagrange<ScalarT>::evalDeriv (
   return;
 }
 
+//-----------------------------------------------------------------------------
+// Class         : steffen spline class
+// Purpose       :
+// Special Notes : References:
+//
+// The original reference for this type of spline is in this paper:
+//
+// M.Steffen, "A simple method for monotonic interpolation in one dimension",
+// Astron. Astrophys. 239, 443-450 (1990).
+//
+// Creator       : Eric Keiter, SNL
+// Creation Date : 9/25/2024
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+class steffen: public interpolator<ScalarT>
+{
+public:
+  steffen () {};
+  ~steffen () { clear(); };
+
+  ScalarT copysign(const ScalarT x, const ScalarT y)
+  {
+    if ((x < 0 && y > 0) || (x > 0 && y < 0)) { return -x; }
+    return x;
+  };
+
+  void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
+
+  void clear () { a.clear(); b.clear(); c.clear(); d.clear(); yp.clear(); };
+
+  void eval (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & y) const;
+
+  void evalDeriv (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & dydx) const;
+
+  void evalDeriv2 (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & ypp) const;
+
+  void evalInteg (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & a, const ScalarT & b, ScalarT & result) const;
+
+public:
+  std::vector<ScalarT>  a;
+  std::vector<ScalarT>  b;
+  std::vector<ScalarT>  c;
+  std::vector<ScalarT>  d;
+  std::vector<ScalarT>  yp;
+};
+
+template <typename ScalarT>
+inline ScalarT Xycemax ( ScalarT f1, ScalarT f2) { return f1 > f2 ? f1 : f2; }
+
+template <typename ScalarT>
+inline ScalarT Xycemin ( ScalarT f1, ScalarT f2) { return f1 < f2 ? f1 : f2; }
+
+template <typename ScalarT>
+inline ScalarT Xyceabs ( ScalarT f1 )  { return (f1 < 0.0)?(-1.0*f1):(f1); }
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::init
+// Purpose       :
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::init (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya)
+{
+  size_t size = xa.size();
+  size_t i;
+
+  if (a.size() != size) a.resize(size,0.0);
+  if (b.size() != size) b.resize(size,0.0);
+  if (c.size() != size) c.resize(size,0.0);
+  if (d.size() != size) d.resize(size,0.0);
+  if (yp.size() != size) yp.resize(size,0.0);
+
+  // Assign interval and slopes for left boundary.
+  ScalarT h0 = (xa[1] - xa[0]);
+  ScalarT s0 = (ya[1] - ya[0]) / h0;
+
+  yp[0] = s0;
+
+  for (i = 1; i < (size - 1); i++)
+  {
+      ScalarT pi;
+
+      // equation 6 in paper
+      ScalarT hi = (xa[i+1] - xa[i]);
+      ScalarT him1 = (xa[i] - xa[i - 1]);
+
+      // equation 7 in paper
+      ScalarT si = (ya[i+1] - ya[i]) / hi;
+      ScalarT sim1 = (ya[i] - ya[i - 1]) / him1;
+
+      // equation 8 in paper
+      pi = (sim1*hi + si*him1) / (him1 + hi);
+
+      // equation 11 in paper
+      yp[i] = (copysign(1.0,sim1) + copysign(1.0,si)) * Xycemin(Xyceabs(sim1),Xycemin(Xyceabs(si),Xyceabs(pi)));
+  }
+
+  // Assign y' for rightmost boundary
+  yp[size-1] = (ya[size - 1] - ya[size - 2]) /
+                    (xa[size - 1] - xa[size - 2]);
+
+  for (i = 0; i < (size - 1); i++)
+    {
+      ScalarT hi = (xa[i+1] - xa[i]);
+      ScalarT si = (ya[i+1] - ya[i]) / hi;
+
+      // Equations 2-5 in paper.
+      a[i] = (yp[i] + yp[i+1] - 2*si) / hi / hi;
+      b[i] = (3*si - 2*yp[i] - yp[i+1]) / hi;
+      c[i] = yp[i];
+      d[i] = ya[i];
+    }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::eval
+// Purpose       :
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::eval (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & y) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  const ScalarT x_lo = xa[index];
+  const ScalarT delx = x - x_lo;
+
+  // Horner's scheme
+  // y = a*delx*delx*delx + b*delx*delx + c*delx + d;
+  y = d[index] + delx*(c[index] + delx*(b[index] + delx*a[index]));
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalDeriv
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalDeriv (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & dydx) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  ScalarT x_lo = xa[index];
+  ScalarT delx = x - x_lo;
+  //ScalarT d = state->d[index];
+  // dydx = 3*a*delx*delx*delx + 2*b*delx + c;
+  dydx = c[index] + delx*(2*b[index] + delx*3*a[index]);
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalDeriv2
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalDeriv2 (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & ypp) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  const ScalarT x_lo = xa[index];
+  const ScalarT delx = x - x_lo;
+  ypp = 6*a[index]*delx + 2*b[index];
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalInteg
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalInteg (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & ai,
+   const ScalarT & bi,
+   ScalarT & result) const
+{
+  // ai and bi are the boundaries of the integration.
+  size_t i, index_a, index_b;
+  size_t size = xa.size();
+
+  // Find the data points in the xa that are nearest to the desired
+  // a and b integration boundaries.
+  index_a = this->binarySearch (xa, ai, 0, size - 1);
+  index_b = this->binarySearch (xa, bi, 0, size - 1);
+
+  result = 0.0;
+
+  for(i=index_a; i<=index_b; i++)
+  {
+    const ScalarT x_hi = xa[i + 1];
+    const ScalarT x_lo = xa[i];
+    const ScalarT dx = x_hi - x_lo;
+    if(dx != 0.0)
+    {
+      // check if we are at a boundary point, so take the
+      // a and b parameters instead of the data points.
+      ScalarT zero = 0.0;
+      ScalarT x1 = (i == index_a) ? (ai-x_lo) : zero;
+      ScalarT x2 = (i == index_b) ? (bi-x_lo) : (x_hi-x_lo);
+
+      result += (1.0/4.0)*a[i]*(x2*x2*x2*x2 - x1*x1*x1*x1)
+                +(1.0/3.0)*b[i]*(x2*x2*x2 - x1*x1*x1)
+                +(1.0/2.0)*c[i]*(x2*x2 - x1*x1)
+                +d[i]*(x2-x1);
+    }
+    else
+    {
+      result = 0.0;
+      return;
+    }
+  }
+  return;
+}
+
 } // namespace Util
 } // namespace Xyce
 
