@@ -52,6 +52,7 @@ inline bool greaterThan(std::complex<double> & left, std::complex<double> & righ
 template <>
 inline bool greaterThan(const std::complex<double> & left, const std::complex<double> & right) { return (std::real(left) > std::real(right)); }
 
+
 //-----------------------------------------------------------------------------
 // Class         : interpolator base class
 // Purpose       :
@@ -85,6 +86,11 @@ public:
   virtual void evalInteg (
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const {};
+
+  virtual void
+    getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs) {};
 
   inline size_t
   binarySearch(
@@ -212,6 +218,21 @@ public:
   void evalInteg (
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const;
+
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        coefs.resize(4,0.0);
+        coefs[0] = ya[index];
+        coefs[1] = p1[index];
+        coefs[2] = p2[index];
+        coefs[3] = p3[index];
+      }
+    };
 
 public:
   std::vector<ScalarT>  p1;
@@ -522,6 +543,21 @@ public:
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const;
 
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        coefs.resize(4,0.0);
+        coefs[0] = ya[index];
+        coefs[1] = p1[index];
+        coefs[2] = p2[index];
+        coefs[3] = p3[index];
+      }
+    };
+
 public:
   std::vector<ScalarT>  p1;
   std::vector<ScalarT>  p2;
@@ -815,7 +851,9 @@ public:
      const ScalarT & x, ScalarT & ypp) const;
 
   // evalInteg is not implemented
-
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs);
 public:
   std::vector<ScalarT> y2;
 };
@@ -1033,6 +1071,135 @@ void cubicSpline<ScalarT>::evalDeriv2(
     ypp =  a*y2[klo] + b*y2[khi];
   }
 }
+
+//-----------------------------------------------------------------------------
+// Function      : cubicSpline<ScalarT>::getCoefs
+// Purpose       : provides the cubic polynomial coefficients for a given cell.
+//
+// Special Notes : the cubic spline evaluation formula is not in the standard
+//                 polynomial form. So, do re-arrangements to get it there.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/03/2024
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+void cubicSpline<ScalarT>::getCoefs(
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+    size_t index, std::vector<ScalarT> & coefs)
+{
+  int n = xa.size();
+
+  if (index < n)
+  {
+    coefs.resize(4,0.0);
+  }
+
+  ScalarT h = 0.0;
+  ScalarT a = 0.0;
+  ScalarT b = 0.0;
+
+  int k = 0;
+  int klo = index; 
+  int khi = index+1;
+
+  if (klo < 0) { klo = 0; }
+  if (khi < 0) { khi = 0; }
+
+  if (klo > n-1) { klo = n-1; }
+  if (khi > n-1) { khi = n-1; }
+
+  h = xa[khi] - xa[klo];
+
+  if (h == 0.0)
+  {
+    // if out of range, then use the formula for dy/dx to extrapolate
+    // beyond the range.
+    if (khi == 0)
+    {
+#if 0
+      ScalarT h0 = xa[1]-xa[0];
+      ScalarT dx = x_position - xa[0];
+      y_spline = ya[0] + dx * dydx;
+#endif
+      // y_spline = ya[0] + dx * dydx = ya[0] + (x-xa[0]) * dydx
+
+      ScalarT h0 = xa[1]-xa[0];
+      ScalarT dydx = (ya[1]-ya[0])/h0 - h0*y2[0]/3.0 - h0*y2[1]/6.0;
+
+      ScalarT p0 = ya[0] - xa[0] * dydx;
+      ScalarT p1 = dydx;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+    }
+    else if (klo == n-1)
+    {
+#if 0
+      ScalarT h1 = xa[n-1]-xa[n-2];
+      ScalarT dx = x_position - xa[n-1];
+      ScalarT dydx = (ya[n-1]-ya[n-2])/h1 + h1*y2[n-2]/6.0 + h1*y2[n-1]/3.0;
+      y_spline = ya[n-1] + dx * dydx;
+#endif
+
+      ScalarT h1 = xa[n-1]-xa[n-2];
+      ScalarT dydx = (ya[n-1]-ya[n-2])/h1 + h1*y2[n-2]/6.0 + h1*y2[n-1]/3.0;
+
+      ScalarT p0 = ya[n-1] - xa[n-1]*dydx;
+      ScalarT p1 = dydx;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+
+      coefs[0] = p0;
+      coefs[1] = p1;
+      coefs[2] = p2;
+      coefs[3] = p3;
+    }
+  }
+  else
+  {
+#if 0
+    a = (xa[khi] - x_position)/h;
+    b = (x_position - xa[klo])/h;
+    // cubic spline polynomial: 
+    y_spline = a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2[klo] + (b*b*b-b)*y2[khi])*(h*h)/6.0;
+#endif
+
+    if (index<n)
+    {
+      // the cubic spline evaluation formula is not in the standard polynomial form.
+      // So, do re-arrangements to get it there.
+      //a = (xa[khi] - x_position)/h;
+      //b = (x_position - xa[klo])/h;
+
+      ScalarT p0 = 0.0;
+      ScalarT p1 = 0.0;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+
+      p0 += (xa[khi] )/h * ya[klo];   // from the a*ya[klo] term (1st term)
+      p0 += (- xa[klo])/h * ya[khi];  // from the b*ya[khi] term (2nd term)
+      p0 += + y2[klo]/h * std::pow(xa[khi], 3.0) / 6.0 - y2[klo] * h * xa[khi] / 6.0;  // from the 3rd term: ((a*a*a-a)*y2[klo])*(h*h)/6.0
+      p0 += - y2[khi]/h * std::pow(xa[klo], 3.0) / 6.0 + y2[khi] * h * xa[klo] / 6.0;  // from the 4th term: ((b*b*b-b)*y2[khi])*(h*h)/6.0
+
+      p1 += ( - 1.0)/h * ya[klo];
+      p1 += (1.0)/h * ya[khi];
+      p1 += + (-y2[klo] / h * xa[khi] * xa[khi] / 2.0 + y2[klo] * h / 6.0);
+      p1 += + (y2[khi] / h * xa[klo] * xa[klo] / 2.0 - y2[khi] * h / 6.0);
+
+      p2 += + y2[klo] / h * xa[khi] / 2.0;
+      p2 += - y2[khi] / h * xa[klo] / 2.0;
+
+      p3 += -y2[klo] / h / 6.0;
+      p3 += y2[khi] / h / 6.0;
+
+      coefs[0] = p0;
+      coefs[1] = p1;
+      coefs[2] = p2;
+      coefs[3] = p3;
+    }
+  }
+}
+
 
 //-----------------------------------------------------------------------------
 // Class         : linear interpolation class
@@ -1645,6 +1812,23 @@ public:
   void evalInteg (
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const;
+
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        // Assume this form/order:  y(x) = coef_0 + coef_l(x-xl) + coef_2(x-x1)^2+ coef_3(x-x1)^3 
+        // Given that:  y = a*delx*delx*delx + b*delx*delx + c*delx + d, the order here is d,c,b,a
+        coefs.resize(4,0.0);
+        coefs[0] = d[index];
+        coefs[1] = c[index];
+        coefs[2] = b[index];
+        coefs[3] = a[index];
+      }
+    };
 
 public:
   std::vector<ScalarT>  a;
