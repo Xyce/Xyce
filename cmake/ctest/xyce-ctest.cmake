@@ -181,6 +181,7 @@ ctest_build(RETURN_VALUE buildReturnVal)
 
 # if the build succeeds, as indicated by a zero return value, proceed,
 # otherwise skip to submission
+set(testReturnVal 0) # initialize
 if(buildReturnVal EQUAL 0)
   ctest_test(RETURN_VALUE testReturnVal
     PARALLEL_LEVEL ${NUM_PROCS}
