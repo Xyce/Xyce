@@ -69,3 +69,4 @@ utils/ADMS/**/*.tex
 utils/ADMS/**/.#*
 utils/ADMS/**/emacs*.core
 Xyce_Regression
+JenkinsScripts
