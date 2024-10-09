@@ -9,30 +9,49 @@ from ctypes.util import *
 import os.path
 
 class xyce_interface:
-  def __init__(self,libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib"),name="",cmdargs=None):
+  def __init__(self,libdir=os.path.join("@CPACK_PACKAGING_INSTALL_PREFIX@","lib"),name="",cmdargs=None):
     try:
       libName=find_library('xycecinterface')
       if( libName != None ):
         self.lib = cdll.LoadLibrary(libName)
-        #self.lib = CDLL(libName)
-        print( self.lib )
       else:
         # library wasn't found on normal system paths so 
         # try appending libdir to the name
         if sys.platform.startswith('darwin'):
           libName=os.path.join(libdir, "libxycecinterface.dylib" )
-          print("Trying to load " + libName )
-          self.lib = CDLL(libName,RTLD_GLOBAL)
+          if( os.path.exists(libName)):
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
+          else:
+            # try alternate install location 
+            libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib")
+            libName=os.path.join(libdir, "libxycecinterface.dylib" )
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
         elif sys.platform.startswith('win32'):
           libdir=libdir.removesuffix('lib')
           libdir=os.path.join(libdir,'bin')
           libName=os.path.join(libdir, "xycecinterface.dll" )
-          print("Trying to load library " + libName )
-          self.lib = CDLL(libName,RTLD_GLOBAL)
+          if( os.path.exists(libName)):
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
+          else:
+            # try alternate install location 
+            libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib")
+            libName=os.path.join(libdir, "xycecinterface.dll" )
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
         else:
           libName=os.path.join(libdir, "libxycecinterface.so" )
-          print("Trying to load " + libName )
-          self.lib = CDLL(libName,RTLD_GLOBAL)
+          if( os.path.exists(libName)):
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
+          else:
+            # try alternate install location 
+            libdir=os.path.join("@CMAKE_INSTALL_PREFIX@","lib")
+            libName=os.path.join(libdir, "libxycecinterface.so" )
+            print("Trying to load " + libName )
+            self.lib = CDLL(libName,RTLD_GLOBAL)
     except:
       type,value,tb = sys.exc_info()
       traceback.print_exception(type,value,tb)
