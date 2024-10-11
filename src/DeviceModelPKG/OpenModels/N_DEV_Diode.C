@@ -1497,7 +1497,19 @@ bool Instance::updateTemperature( const double & temp_tmp )
   double vte = model_.N*vt;
   double tempBV;
 
-  tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
+  if (tSatCur == 0.0 )
+  {
+
+    tVcrit = vte*log(vte/(CONSTroot2* 1e-14 ));
+
+    UserWarning(*this) << "The saturation current is zero which leads to divide by zero in an internal variable tVcrit calculation. tVcrit is calculated using saturation current of 1e-14 ";
+
+  }
+  else
+  {
+    tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
+  }
+
   tRS   = model_.RS;
   tCOND = model_.COND;
 
