@@ -2176,7 +2176,15 @@ bool updateTemperature
   ScalarT vte = N*vt;
   ScalarT tempBV;
 
-  tVcrit = vte*log(vte/(root2*tSatCur));
+  if (tSatCur == 0.0 )
+  {
+    tVcrit = vte*log(vte/(CONSTroot2* 1e-14 ));
+  }
+  else
+  {
+    tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
+  }
+
   tRS   = RS;
   tCOND = COND;
 
