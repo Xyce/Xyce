@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.23)
 
 # this can go away once we're fully ctest-ified. it's used to enable
 # ctest to be used with the run_xyce_regression script
-include "run_xyce_regr_utils.cmake"
+include(run_xyce_regr_utils)
 
 # verbosity level
 #   0 - no specific screen output (default)
