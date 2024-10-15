@@ -285,7 +285,11 @@ if(NOT DEFINED ENV{TESTSET})
 endif()
 
 # WORKSPACE is an environment variable set by jenkins
-set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/Xyce")
+if (NOT USE_CTEST_TESTING)
+  set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/Xyce")
+else()
+  set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
+endif()
 
 # the specified directory must exist or ctest will error out
 set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
