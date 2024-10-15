@@ -16,6 +16,7 @@ cmake_minimum_required(VERSION 3.23)
 
 # this can go away once we're fully ctest-ified. it's used to enable
 # ctest to be used with the run_xyce_regression script
+message(FATAL_ERROR "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 include(run_xyce_regr_utils)
 
 # verbosity level
