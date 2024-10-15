@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
+cmake_policy(SET CMP0144 NEW)
 
 option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?" OFF)
 if(Xyce_USE_SUPERBUILD)
@@ -47,8 +48,16 @@ if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
+option(Xyce_ENABLE_TESTING "Enable regression testing" OFF)
 
 include(cmake/config.cmake)
+include(cmake/utilities.cmake)
+
+# print out Xyce-related variables
+cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
+if(LOG_LEVEL STREQUAL "DEBUG")
+  dump_cmake_variables("Xyce.*")
+endif()
 
 if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
   message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
@@ -56,12 +65,12 @@ if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
 endif()
 
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
-  # if building a shared library under windows automatically export all 
-  # symbols in the resulting "dll"  This is not optimal but will work 
+  # if building a shared library under windows automatically export all
+  # symbols in the resulting "dll"  This is not optimal but will work
   # until a detailed code markup is done.
   set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 endif()
-  
+
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)
@@ -113,7 +122,7 @@ if(Xyce_PLUGIN_SUPPORT)
       DESTINATION share/examples)
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
-    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY ) 
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY )
     install(
       FILES
         ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
@@ -146,6 +155,21 @@ if(develPhase STREQUAL "")
   set(develPhaseStr "")
 else()
   set(develPhaseStr "-${develPhase}")
+endif()
+
+if(Xyce_ENABLE_TESTING)
+
+  enable_testing()
+  message(STATUS "Enabling regression testing")
+
+  message(DEBUG "regression dir: ${Xyce_REGRESSION_DIR}")
+  if(NOT EXISTS "${Xyce_REGRESSION_DIR}")
+    message(FATAL_ERROR "Xyce_ENABLE_TESTING is ON but a directory containing regression "
+      "tests was not found. Try adding a -DXyce_REGRESSION_DIR=<test dir> with a "
+      "valid test directory within the source directory, like \"-DXyce_REGRESSION_DIR=$HOME/Xyce/Xyce_Regression\"")
+  endif()
+
+  add_subdirectory(${Xyce_REGRESSION_DIR})
 endif()
 
 set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
