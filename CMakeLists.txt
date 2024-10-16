@@ -53,7 +53,7 @@ include(cmake/config.cmake)
 include(cmake/utilities.cmake)
 
 # print out Xyce-related variables
-if (CMAKE_VERSION VERSION_GREATER "3.27.0")
+if (CMAKE_VERSION VERSION_GREATER "3.26.0")
   cmake_policy(SET CMP0144 NEW)
   cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
   if(LOG_LEVEL STREQUAL "DEBUG")
