@@ -54,9 +54,11 @@ include(cmake/config.cmake)
 include(cmake/utilities.cmake)
 
 # print out Xyce-related variables
-cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
-if(LOG_LEVEL STREQUAL "DEBUG")
-  dump_cmake_variables("Xyce.*")
+if (CMAKE_VERSION VERSION_GREATER "3.24.0")
+  cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
+  if(LOG_LEVEL STREQUAL "DEBUG")
+    dump_cmake_variables("Xyce.*")
+  endif()
 endif()
 
 if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
