@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
-if (CMAKE_VERSION VERSION_GREATER "3.26.0")
+if (CMAKE_VERSION VERSION_GREATER "3.27.0")
   cmake_policy(SET CMP0144 NEW)
 endif()
 
