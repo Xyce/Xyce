@@ -2213,8 +2213,6 @@ void Instance::auxDAECalculations ()
 //-----------------------------------------------------------------------------
 bool Instance::loadDAEFVector ()
 {
-  double coefC, coefB, coefE, coefCp, coefBp, coefEp;
-
   double td = model_.excessPhaseFac;
   double * solVec = extData.nextSolVectorRawPtr;
   double * fVec = extData.daeFVectorRawPtr;
