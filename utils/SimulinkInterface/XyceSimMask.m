@@ -1,7 +1,26 @@
 classdef XyceSimMask
 
   methods(Static)
-  
+
+    
+    function MaskInitialization(maskInitContext)
+      % Following properties of 'maskInitContext' are available to use:
+      %  - BlockHandle 
+      %  - MaskObject 
+      %  - MaskWorkspace: Use get/set APIs to work with mask workspace.
+      blkHandle = maskInitContext.BlockHandle;       % Block Handle of this block
+      maskObj = maskInitContext.MaskObject;          % Mask object of this masked block
+      maskWorkspace = maskInitContext.MaskWorkspace; % Use this to work with mask workspace
+      %disp('Mask initialization triggered');
+      % get the number of inputs and outputs as saved in the I/O selectors
+      numInputsSpinnerValue = str2num(get_param(gcb, 'NumberOfInputs'));
+      maskWorkspace.set('NumInputPorts', numInputsSpinnerValue);
+      numOutputsSpinnerValue = str2num(get_param(gcb, 'NumberOfOutputs'));
+      maskWorkspace.set('NumberOfOutputs', numOutputsSpinnerValue);
+      
+      %end            
+    end
+    
     % Use the code browser on the left to add the callbacks.
     function SelectXyceInputFileButton(callbackContext)
       [aFile, aPath] = uigetfile('*');
@@ -22,6 +41,27 @@ classdef XyceSimMask
       if( aPath ~= 0 )
         set_param( gcb, 'WorkingDirectory', aPath);
       end
+    end
+
+    function ResetForm(callbackContext)
+      % reset all inputs on form to defaults
+      maskObj = get_param( gcb, 'MaskObject');
+      set_param( gcb, 'XyceInputFileName', '<name of circuit file>' );
+      set_param( gcb, 'WorkingDirectory', '<path to circuit file>');
+      
+      tableControl = maskObj.getDialogControl('InputNames');
+      for j = tableControl.getNumberOfRows():-1:1
+        tableControl.removeRow(j);
+      end
+      tableControl.addRow('-','TEMP');
+      set_param(gcb, 'NumberOfInputs', num2str(1));
+
+      tableControl = maskObj.getDialogControl('OutputNames');
+      for j = tableControl.getNumberOfRows():-1:1
+        tableControl.removeRow(j);
+      end
+      tableControl.addRow('-','TEMP');
+      set_param(gcb, 'NumberOfOutputs', num2str(1));
     end
    
     function ScanXyceInputFileButton(callbackContext)
@@ -133,7 +173,7 @@ classdef XyceSimMask
       maskObj = get_param( gcb, 'MaskObject');
       numInputsSpinnerValue = str2num(get_param(gcb, 'NumberOfInputs'));
       %set_param( gcb, 'NumberOfInputPorts', get_param(gcb, 'NumberOfInputs' );
-      %set_param(gcb, 'NumberOfInputPorts', numInputsSpinnerValue);
+      %set_param(gcb, 'XyceNumberOfInputPorts', numInputsSpinnerValue);
       possibleInputs = {'-' '1'};
       if (numInputsSpinnerValue > 1)
         for i = 1:1:(numInputsSpinnerValue)
@@ -151,7 +191,7 @@ classdef XyceSimMask
       maskObj = get_param( gcb, 'MaskObject');
       numOutputsSpinnerValue = str2num(get_param(gcb, 'NumberOfOutputs'));
       
-      %set_param(gcb, 'NumberOfOutputPorts', numOutputsSpinnerValue);
+      %set_param(gcb, 'XyceNumberOfOutputPorts', numOutputsSpinnerValue);
       possibleOutputs = {'-' '1'};
       if (numOutputsSpinnerValue > 1)
         for i = 1:1:(numOutputsSpinnerValue)
@@ -220,6 +260,10 @@ classdef XyceSimMask
       %display(tempOutputNames);
       xtextArea = get_param( gcb, 'XyceOutputPortNames');
       xtextArea.Value = tempOutputNames;
+    end
+
+    function LoadCallback(callbackContext)
+      disp('LoadCallback')
     end
   end
 end

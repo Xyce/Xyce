@@ -24,7 +24,6 @@ setup(block);
 %   C MEX counterpart: mdlInitializeSizes
 %
 function setup(block)
-
   % Register the number of ports.
   block.NumInputPorts  = block.DialogPrm(3).Data;
   block.NumOutputPorts = block.DialogPrm(4).Data;
@@ -280,7 +279,7 @@ function setup(block)
 % -------------------------------------------------------------------
 
 function CheckPrms(block)
-  
+  %setup(block);
   %a = block.DialogPrm(3).Data;
   %if ~isa(a, 'int32')
   %  me = MSLException(block.BlockHandle, message('Simulink:blocks:invalidParameter'));
