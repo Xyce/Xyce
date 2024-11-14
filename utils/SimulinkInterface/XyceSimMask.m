@@ -183,6 +183,15 @@ classdef XyceSimMask
       tableControl = maskObj.getDialogControl('InputNames');
       portNumberColumn = tableControl.getColumn(1);
       portNumberColumn.TypeOptions = possibleInputs;
+      if (tableControl.getNumberOfRows() < numInputsSpinnerValue)
+        for j = tableControl.getNumberOfRows():1:(numInputsSpinnerValue)
+          tableControl.addRow('-','-');
+        end
+      elseif (tableControl.getNumberOfRows() > numInputsSpinnerValue)
+        for j = tableControl.getNumberOfRows():-1:(numInputsSpinnerValue+1)
+          tableControl.removeRow(j);
+        end
+      end 
     end
 
     function NumberOfOutputs(callbackContext)
@@ -201,6 +210,15 @@ classdef XyceSimMask
       tableControl = maskObj.getDialogControl('OutputNames');
       portNumberColumn = tableControl.getColumn(1);
       portNumberColumn.TypeOptions = possibleOutputs;
+      if (tableControl.getNumberOfRows() < numOutputsSpinnerValue)
+        for j = tableControl.getNumberOfRows():1:(numOutputsSpinnerValue)
+          tableControl.addRow('-','-');
+        end
+      elseif (tableControl.getNumberOfRows() > numOutputsSpinnerValue)
+        for j = tableControl.getNumberOfRows():-1:(numOutputsSpinnerValue+1)
+          tableControl.removeRow(j);
+        end
+      end 
     end
 
     function InputNames(callbackContext)
