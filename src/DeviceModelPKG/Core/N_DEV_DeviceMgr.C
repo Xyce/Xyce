@@ -5883,7 +5883,7 @@ bool DeviceMgr::dumpRestartData(
     comm->pack(&(solState_.ltraTimeIndex_), 1, buf, bsize, pos);
     comm->pack(&(solState_.ltraTimeHistorySize_), 1, buf, bsize, pos);
     comm->pack(&(size), 1, buf, bsize, pos);
-    comm->pack(&(solState_.ltraTimePoints_[0]), size, buf, bsize, pos);
+    comm->pack(solState_.ltraTimePoints_.data(), size, buf, bsize, pos);
   }
   else
   {
@@ -5949,7 +5949,7 @@ bool DeviceMgr::restoreRestartData(char * buf, int bsize, int & pos, Parallel::C
     int size=0;
     comm->unpack(buf, bsize, pos, &(size), 1);
     solState_.ltraTimePoints_.resize(size);
-    comm->unpack(buf, bsize, pos, &(solState_.ltraTimePoints_[0]), size);
+    comm->unpack(buf, bsize, pos, solState_.ltraTimePoints_.data(), size);
   }
   else
   {
