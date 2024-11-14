@@ -609,8 +609,8 @@ bool ParLSUtil::testVoltageNodeConnectivity_()
     ncomm[procID*max_num_proc+i] = (*cg_i).second.size();
     i++;
   }
-  comm.sumAll(&pcomm[0], &pcomm_all[0], tmpSize);
-  comm.sumAll(&ncomm[0], &ncomm_all[0], tmpSize);
+  comm.sumAll(pcomm.data(), pcomm_all.data(), tmpSize);
+  comm.sumAll(ncomm.data(), ncomm_all.data(), tmpSize);
 
   std::vector<int> sendBuf;
   std::vector<int> src;

@@ -488,7 +488,7 @@ GatherV(
     if (rank == root) {
       dest.resize(size);
       for (unsigned i = 0; i < size; ++i)
-        dest[i] = std::string(&receive[receive_displacement[i]], &receive[receive_displacement[i] + receive_count[i]]);
+        dest[i] = std::string(&receive[receive_displacement[i]],receive_count[i]);
     }
   }
   else {
@@ -537,7 +537,7 @@ AllGatherV(
 
     dest.resize(size);
     for (unsigned i = 0; i < size; ++i)
-      dest[i] = std::string(&receive[receive_displacement[i]], &receive[receive_displacement[i] + receive_count[i]]);
+      dest[i] = std::string(&receive[receive_displacement[i]], receive_count[i]);
   }
   else {
     dest.resize(1);
