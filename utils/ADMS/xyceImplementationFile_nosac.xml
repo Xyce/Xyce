@@ -126,8 +126,12 @@
     </admst:if>
   </admst:for-each>
   <admst:message format="Top-level analog/code assigns to %(count(analog/code/@assignedVars)) variables.\n"/>
-  <admst:if test="variable[insource='yes' and exists(derivate) and derivate='yes']">
-    <admst:variable name="doSecondDerivatives" select="yes"/>
+  <admst:if test="[exists(variable[insource='yes' and exists(derivate)
+                  and derivate='yes'])
+                  or
+                  exists(/module/block/variable[insource='yes' and exists(derivate)
+                  and derivate='yes'])]">
+    <admst:variable name="doSecondDerivs" select="yes"/>
   </admst:if>
   <admst:if test="[exists(@optnodes)]">
     <admst:message format="Module has %(count(@optnodes)) optional nodes:\n"/>
