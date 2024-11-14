@@ -633,7 +633,7 @@ void FilteredMatrix::addToMatrix( Matrix & A, double alpha )
 {
   if (!isEmpty())
   {
-    double* scaledValues = &values_[0];
+    double* scaledValues = values_.data();
     if (alpha != 1.0)
     {
       int i=0;

@@ -915,7 +915,7 @@ Pack<Analysis::SweepParam>::pack(const Analysis::SweepParam &param, char * buf, 
     const std::vector<double> &double_vector = param.valList;
     length = (int) double_vector.size();
     comm->pack( &length, 1, buf, bsize, pos );
-    comm->pack( &double_vector[0], length, buf, bsize, pos );
+    comm->pack( double_vector.data(), length, buf, bsize, pos );
   }
 
   //pack dataSetName
@@ -1088,7 +1088,7 @@ Pack<Analysis::SweepParam>::unpack(Analysis::SweepParam &param, char * pB, int b
     comm->unpack( pB, bsize, pos, &vector_size, 1 );
     std::vector<double> &x = param.valList;
     x.resize(vector_size, 0.0);
-    comm->unpack( pB, bsize, pos, &(x[0]), vector_size );
+    comm->unpack( pB, bsize, pos, x.data(), vector_size );
   }
   //unpack dataSetName 
   comm->unpack( pB, bsize, pos, &length, 1 );
