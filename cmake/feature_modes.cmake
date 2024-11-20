@@ -205,20 +205,20 @@ if (NOT DEFINED Xyce_REGRESSION_DIR)
 endif ()
 
 if ((Xyce_REGRESSION OR NOT DEFINED Xyce_REGRESSION) AND EXISTS "${Xyce_REGRESSION_DIR}")
-     set (Xyce_REGRESSION TRUE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
-     message(STATUS "Including the ${Xyce_REGRESSION_DIR} model directory")
+     set (Xyce_REGRESSION TRUE CACHE BOOL "Include the Xyce regression directory, if it exists")
+     message(STATUS "Including the regression directory \"${Xyce_REGRESSION_DIR}\"")
 elseif (NOT DEFINED Xyce_REGRESSION)
      # The flag was not set, and the directory does not exist
      # Silently add the flag (is this even necessary?)
-     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce regression directory, if it exists")
 elseif (NOT Xyce_REGRESSION)
      # The flag was set to FALSE; the directory may or may not exist
-     message(STATUS "NOT including the ${Xyce_REGRESSION_DIR} directory")
-     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists")
+     message(STATUS "NOT including the regression directory, \"${Xyce_REGRESSION_DIR}\"")
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce regression directory, if it exists")
 else ()
      # The flag was set to TRUE, but the directory doesn't exist
      set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists" FORCE)
-     message("The ${Xyce_REGRESSION_DIR} directory does not exist - "
+     message(WARNING "The regression directory, \"${Xyce_REGRESSION_DIR}\" does not exist - "
           "changing Xyce_REGRESSION to FALSE.")
 endif ()
 
