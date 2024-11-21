@@ -6461,12 +6461,10 @@ TEST ( ComplexParserCalculus, ddx5)
   EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
 
   copy_ddxTest.evaluateFunction(result);
-  EXPECT_NEAR( std::real(result-refRes), 0.0, 1.0e-15 );
-  EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
+  EXPECT_EQ((result-refRes), 0.0);
 
   assign_ddxTest.evaluateFunction(result);
-  EXPECT_NEAR( std::real(result-refRes), 0.0, 1.0e-15 );
-  EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
+  EXPECT_EQ((result-refRes), 0.0);
 }
 
 TEST ( ComplexParserCalculus, ddx5b)
