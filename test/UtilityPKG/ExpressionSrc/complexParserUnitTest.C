@@ -2696,13 +2696,11 @@ TEST ( ComplexParserVoltDerivTest, test3)
   EXPECT_EQ(derivs, refDer);
 
   copyExpression.evaluate(result,derivs);
-  EXPECT_DOUBLE_EQ(std::real(result), std::real(refRes));
-  EXPECT_DOUBLE_EQ(std::imag(result), std::imag(refRes));
+  EXPECT_EQ(result, refRes);
   EXPECT_EQ(derivs, refDer);
 
   assignExpression.evaluate(result,derivs);
-  EXPECT_DOUBLE_EQ(std::real(result), std::real(refRes));
-  EXPECT_DOUBLE_EQ(std::imag(result), std::imag(refRes));
+  EXPECT_EQ(result, refRes);
   EXPECT_EQ(derivs, refDer);
 }
 
@@ -2731,12 +2729,12 @@ TEST ( ComplexParserVoltDerivTest, test4)
   EXPECT_EQ( derivs,refDer);
 
   copyExpression.evaluate(result,derivs);
-  EXPECT_EQ((result-refRes), 0.0);
-  EXPECT_EQ( derivs,refDer);
+  EXPECT_EQ( result, refRes );
+  EXPECT_EQ( derivs, refDer );
 
   assignExpression.evaluate(result,derivs);
-  EXPECT_EQ((result-refRes), 0.0);
-  EXPECT_EQ( derivs,refDer);
+  EXPECT_EQ( result, refRes );
+  EXPECT_EQ( derivs, refDer );
 }
 
 TEST ( ComplexParserVoltDerivTest, test5)
@@ -6492,18 +6490,10 @@ TEST ( ComplexParserCalculus, ddx5b)
   }
 
   copy_ddxTest.evaluate(result,derivs);
-  EXPECT_EQ( derivs.size(), refderivs.size() );
-  for(int i=0; i < derivs.size(); ++i) {
-    EXPECT_NEAR(std::real(derivs[i]), std::real(refderivs[i]), 1.0e-15);
-    EXPECT_NEAR(std::imag(derivs[i]), std::imag(refderivs[i]), 1.0e-15);
-  }
+  EXPECT_EQ( derivs, refderivs );
 
   assign_ddxTest.evaluate(result,derivs);
-  EXPECT_EQ( derivs.size(), refderivs.size() );
-  for(int i=0; i < derivs.size(); ++i) {
-    EXPECT_NEAR(std::real(derivs[i]), std::real(refderivs[i]), 1.0e-15);
-    EXPECT_NEAR(std::imag(derivs[i]), std::imag(refderivs[i]), 1.0e-15);
-  }
+  EXPECT_EQ( derivs, refderivs );
 }
 
 TEST ( ComplexParserCalculus, ddx6)
@@ -6610,12 +6600,10 @@ TEST ( ComplexParserCalculus, ddx10)
   ASSERT_NEAR(std::imag(result - refRes), 0.0, 1.0e-14);
 
   copy_ddxTest.evaluateFunction(result);
-  ASSERT_NEAR(std::real(result - refRes), 0.0, 1.0e-14);
-  ASSERT_NEAR(std::imag(result - refRes), 0.0, 1.0e-14);
+  ASSERT_EQ(result, refRes);
 
   assign_ddxTest.evaluateFunction(result);
-  ASSERT_NEAR(std::real(result - refRes), 0.0, 1.0e-14);
-  ASSERT_NEAR(std::imag(result - refRes), 0.0, 1.0e-14);
+  ASSERT_EQ(result, refRes);
 }
 
 TEST ( ComplexParserCalculus, ddx11)
