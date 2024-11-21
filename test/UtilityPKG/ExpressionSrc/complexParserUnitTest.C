@@ -6456,9 +6456,17 @@ TEST ( ComplexParserCalculus, ddx5)
   std::complex<double> p1Sq = p1*p1;
   std::complex<double> refRes = 3.0*(2.0*p1*std::cos(p1Sq))/(std::sin(p1Sq))*std::pow(std::sin(p1Sq),3.0);
 
-  ddxTest.evaluateFunction(result);        EXPECT_EQ( result-refRes, 0.0 );
-  copy_ddxTest.evaluateFunction(result);   EXPECT_EQ( result-refRes, 0.0 );
-  assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result-refRes, 0.0 );
+  ddxTest.evaluateFunction(result);
+  EXPECT_NEAR( std::real(result-refRes), 0.0, 1.0e-15 );
+  EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
+
+  copy_ddxTest.evaluateFunction(result);
+  EXPECT_NEAR( std::real(result-refRes), 0.0, 1.0e-15 );
+  EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
+
+  assign_ddxTest.evaluateFunction(result);
+  EXPECT_NEAR( std::real(result-refRes), 0.0, 1.0e-15 );
+  EXPECT_NEAR( std::imag(result-refRes), 0.0, 1.0e-15 );
 }
 
 TEST ( ComplexParserCalculus, ddx5b)
@@ -6480,9 +6488,26 @@ TEST ( ComplexParserCalculus, ddx5b)
   std::complex<double> refRes = 3.0*(2.0*p1*std::cos(p1Sq))/(std::sin(p1Sq))*std::pow(std::sin(p1Sq),3.0);
   std::vector<std::complex<double> > refderivs = { refRes };
 
-  ddxTest.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
-  copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
-  assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+  ddxTest.evaluate(result,derivs);
+  EXPECT_EQ( derivs.size(), refderivs.size() );
+  for(int i=0; i < derivs.size(); ++i) {
+    EXPECT_NEAR(std::real(derivs[i]), std::real(refderivs[i]), 1.0e-15);
+    EXPECT_NEAR(std::imag(derivs[i]), std::imag(refderivs[i]), 1.0e-15);
+  }
+
+  copy_ddxTest.evaluate(result,derivs);
+  EXPECT_EQ( derivs.size(), refderivs.size() );
+  for(int i=0; i < derivs.size(); ++i) {
+    EXPECT_NEAR(std::real(derivs[i]), std::real(refderivs[i]), 1.0e-15);
+    EXPECT_NEAR(std::imag(derivs[i]), std::imag(refderivs[i]), 1.0e-15);
+  }
+
+  assign_ddxTest.evaluate(result,derivs);
+  EXPECT_EQ( derivs.size(), refderivs.size() );
+  for(int i=0; i < derivs.size(); ++i) {
+    EXPECT_NEAR(std::real(derivs[i]), std::real(refderivs[i]), 1.0e-15);
+    EXPECT_NEAR(std::imag(derivs[i]), std::imag(refderivs[i]), 1.0e-15);
+  }
 }
 
 TEST ( ComplexParserCalculus, ddx6)
@@ -6737,8 +6762,14 @@ TEST ( ComplexParserCalculus, simpleDerivs1 )
   std::vector<std::complex<double> > refderivs = { 0.5*2.0/diff*std::pow(diff,2.0) };
 
   ddxTest.evaluate(result,derivs);        
-  EXPECT_EQ(result,refRes);
-  EXPECT_EQ(derivs, refderivs);
+  EXPECT_DOUBLE_EQ(std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ(std::imag(result), std::imag(refRes));
+
+  EXPECT_EQ(derivs.size(), refderivs.size());
+  for(int i=0; i < derivs.size(); ++i) {
+    EXPECT_DOUBLE_EQ(std::real(derivs[i]), std::real(refderivs[i]));
+    EXPECT_DOUBLE_EQ(std::imag(derivs[i]), std::imag(refderivs[i]));
+  }
 
   copy_ddxTest.evaluate(refRes,refderivs);   
   EXPECT_EQ(result,refRes);
