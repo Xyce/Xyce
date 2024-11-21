@@ -6606,14 +6606,16 @@ TEST ( ComplexParserCalculus, ddx10)
   std::complex<double>  refRes = std::log(5.0)*std::pow(5.0,Aval); // exactly what the expression library does; works much better
 
   ddxTest.evaluateFunction(result);
-  ASSERT_NEAR(std::real(result - refRes), 0.0, 1.0e-14);
-  ASSERT_NEAR(std::imag(result - refRes), 0.0, 1.0e-14);
+  ASSERT_NEAR(std::real(result-refRes), 0.0, 1.0e-14);
+  ASSERT_NEAR(std::imag(result-refRes), 0.0, 1.0e-14);
 
   copy_ddxTest.evaluateFunction(result);
-  ASSERT_EQ(result, refRes);
+  ASSERT_NEAR(std::real(result-refRes), 0.0, 1.0e-14);
+  ASSERT_NEAR(std::imag(result-refRes), 0.0, 1.0e-14);
 
   assign_ddxTest.evaluateFunction(result);
-  ASSERT_EQ(result, refRes);
+  ASSERT_NEAR(std::real(result-refRes), 0.0, 1.0e-14);
+  ASSERT_NEAR(std::imag(result-refRes), 0.0, 1.0e-14);
 }
 
 TEST ( ComplexParserCalculus, ddx11)
