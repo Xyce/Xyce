@@ -2696,11 +2696,13 @@ TEST ( ComplexParserVoltDerivTest, test3)
   EXPECT_EQ(derivs, refDer);
 
   copyExpression.evaluate(result,derivs);
-  EXPECT_EQ(result, refRes);
+  EXPECT_DOUBLE_EQ(std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ(std::imag(result), std::imag(refRes));
   EXPECT_EQ(derivs, refDer);
 
   assignExpression.evaluate(result,derivs);
-  EXPECT_EQ(result, refRes);
+  EXPECT_DOUBLE_EQ(std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ(std::imag(result), std::imag(refRes));
   EXPECT_EQ(derivs, refDer);
 }
 
@@ -2729,11 +2731,13 @@ TEST ( ComplexParserVoltDerivTest, test4)
   EXPECT_EQ( derivs,refDer);
 
   copyExpression.evaluate(result,derivs);
-  EXPECT_EQ( result, refRes );
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
   EXPECT_EQ( derivs, refDer );
 
   assignExpression.evaluate(result,derivs);
-  EXPECT_EQ( result, refRes );
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
   EXPECT_EQ( derivs, refDer );
 }
 
@@ -8046,10 +8050,12 @@ TEST ( ComplexParserASCTHTest, test0)
   EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
 
   copyExpression.evaluate(result, derivs);
-  EXPECT_EQ(result, refRes);
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
 
   assignExpression.evaluate(result, derivs);
-  EXPECT_EQ(result, refRes);
+  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
+  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
 }
 
 TEST ( ComplexParserASCTHTest, test1)
