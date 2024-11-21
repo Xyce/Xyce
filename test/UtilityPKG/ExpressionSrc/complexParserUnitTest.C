@@ -2731,13 +2731,11 @@ TEST ( ComplexParserVoltDerivTest, test4)
   EXPECT_EQ( derivs,refDer);
 
   copyExpression.evaluate(result,derivs);
-  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
-  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
+  EXPECT_EQ((result-refRes), 0.0);
   EXPECT_EQ( derivs,refDer);
 
   assignExpression.evaluate(result,derivs);
-  EXPECT_DOUBLE_EQ( std::real(result), std::real(refRes));
-  EXPECT_DOUBLE_EQ( std::imag(result), std::imag(refRes));
+  EXPECT_EQ((result-refRes), 0.0);
   EXPECT_EQ( derivs,refDer);
 }
 
