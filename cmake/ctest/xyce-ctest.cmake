@@ -6,6 +6,7 @@
 #   -DDASHSUBMIT=<TRUE|FALSE>    # mostly for debugging to avoid cdash submission
 #   -DCMAKE_ARGS_LIST="-DVAR1=VAL1;-DVAR2=VAL2;..."  # arguments to pass directly to cmake
 #   -DCDASHVER=<version of cdash>  # should be either 3.1 or not set
+#   -DBUILD_TESTING=<TRUE|FALSE> # default is TRUE
 #   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
 #   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE for now
@@ -227,9 +228,9 @@ if(NOT VERBOSITY)
   set(VERBOSITY 0)
 endif()
 
-# default FALSE
-if(NOT Xyce_ENABLE_TESTING)
-  set(Xyce_ENABLE_TESTING FALSE)
+# default to turn testing on
+if(NOT BUILD_TESTING)
+  set(BUILD_TESTING ON)
 endif()
 
 # default FALSE
@@ -397,7 +398,7 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} -DXyce_ENABLE_TESTING=${Xyce_ENABLE_TESTING}")
+set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} -DBUILD_TESTING=${BUILD_TESTING}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${CTEST_SOURCE_DIRECTORY}")
 
 if(VERBOSITY GREATER 1)

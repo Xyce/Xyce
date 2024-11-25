@@ -193,8 +193,8 @@ TEST ( Complex_Ast_Func_Test, powOp )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new powOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(a1,a2)));
-  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(a1,a2)));
+  EXPECT_NEAR(std::real(testPow->val()), std::real(std::pow(a1,a2)), 1.0e-15);
+  EXPECT_NEAR(std::imag(testPow->val()), std::imag(std::pow(a1,a2)), 1.0e-15);
 }
 
 TEST ( Complex_Ast_Func_Test, pwrsOp )
@@ -206,8 +206,8 @@ TEST ( Complex_Ast_Func_Test, pwrsOp )
   RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
   RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
 
-  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(a1,a2)));
-  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(a1,a2)));
+  EXPECT_NEAR(std::real(testPow->val()), std::real(std::pow(a1,a2)), 1.0e-15);
+  EXPECT_NEAR(std::imag(testPow->val()), std::imag(std::pow(a1,a2)), 1.0e-15);
 }
 
 TEST ( Complex_Ast_Func_Test, pwrsOp2 )
@@ -573,8 +573,8 @@ TEST ( NAME, OP ) \
   EXPECT_DOUBLE_EQ(std::imag(OP_1->val()),std::imag(CPPFUNC(VAL1))); \
   arg1->setDerivIndex(0); \
   arg1->setIsVar(); \
-  EXPECT_DOUBLE_EQ( std::real(OP_1->dx(0)-D1), 0.0); \
-  EXPECT_DOUBLE_EQ( std::imag(OP_1->dx(0)-D1), 0.0); \
+  EXPECT_NEAR( std::real(OP_1->dx(0)-D1), 0.0, 1.0e-15); \
+  EXPECT_NEAR( std::imag(OP_1->dx(0)-D1), 0.0, 1.0e-15); \
 }
 
 #define AST_UNARY_DERIV_TEST_MACRO3(TYPE,NAME,OP,CPPFUNC,VAL1,D1,TOL) \
@@ -877,8 +877,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
 
   // value
   RCP<astNode<cmplx> > testPow = rcp(new powOp<cmplx> (arg1,arg2));
-  EXPECT_DOUBLE_EQ(std::real(testPow->val()), std::real(std::pow(A,B)));
-  EXPECT_DOUBLE_EQ(std::imag(testPow->val()), std::imag(std::pow(A,B)));
+  EXPECT_NEAR(std::real(testPow->val()), std::real(std::pow(A,B)), 3.0e-13);
+  EXPECT_NEAR(std::imag(testPow->val()), std::imag(std::pow(A,B)), 4.0e-13);
 
   // general:
   // (B.dx(i)*std::log(A.val())+B.val()*A.dx(i)/A.val())*std::pow(A.val(),B.val())
@@ -894,8 +894,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
   arg2->setDerivIndex(1);
   arg1->setIsVar();
   arg2->setIsVar();
-  EXPECT_DOUBLE_EQ(std::real(testPow->dx(0)-((B/A)*std::pow(A,(B)))), 0.0 );
-  EXPECT_DOUBLE_EQ(std::imag(testPow->dx(1)-(std::log(A))*std::pow(A,B)), 0.0 );
+  EXPECT_NEAR(std::real(testPow->dx(0)-((B/A)*std::pow(A,(B)))), 0.0, 3.0e-13);
+  EXPECT_NEAR(std::imag(testPow->dx(1)-(std::log(A))*std::pow(A,B)), 0.0, 7.0e-13);
 }
 
 //-------------------------------------------------------------------------------

@@ -555,6 +555,7 @@ endif()
 include(CTest)
 
 if(BUILD_TESTING)
+     message(STATUS "Looking for GTest")
      # If the wrong version of GTest is found, try setting GTest_DIR or GTEST_ROOT to the install
      # directory of the desired verstion of GTest; specify when invoking cmake to configure.
      find_package(GTest)
