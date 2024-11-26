@@ -1,14 +1,14 @@
 #
 
 XYCEPATH=/Users/erkeite/XYCE/GitRepos/Xyce/src/UtilityPKG/
-CXX = /usr/bin/clang++
+CXX = /opt/local/bin/g++-mp-12
 FLEX = /opt/local/bin/flex
 BISON = /opt/local/bin/bison
-LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos_Blessed.7.6_withStokhos_withBasker/lib
-LIBPATH = -L/opt/local/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos_Blessed.7.6_withStokhos_withBasker/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
-CXXFLAGS_AST =  -std=c++17  -g  -I/opt/local/include/ $(INCLUDE)
-CXXFLAGS =  -std=c++17 -g -I/opt/local/include/ $(INCLUDE)
+LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc12_trilinos_Blessed.7.6_withStokhos_withBasker/lib
+LIBPATH = -L/Users/erkeite/GTEST/INSTALL/lib -L/opt/local/lib  $(LIBDIRTRI)
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc12_trilinos_Blessed.7.6_withStokhos_withBasker/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
+CXXFLAGS_AST =   -O0 -fno-inline -g -fprofile-arcs -ftest-coverage  -std=c++17  -g -I/Users/erkeite/GTEST/INSTALL/include/ -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS =   -O0 -fno-inline -g -fprofile-arcs -ftest-coverage  -std=c++17 -g -I/Users/erkeite/GTEST/INSTALL/include/ -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
@@ -78,5 +78,13 @@ complexParserUnitTest: complexParserUnitTest.C ast.o  $(XYCEPATH)/ExpressionSrc/
 clean:
 	rm -f complexParserUnitTest  *.o \
 		NetlistLexer.cxx NetlistParser.cxx  	stack.hh  position.hh location.hh  \
-		ExpressionLexer.cxx  ExpressionParser.cxx  ExpressionParser.hxx ExpressionParser.dot
+		ExpressionLexer.cxx  ExpressionParser.cxx  ExpressionParser.hxx ExpressionParser.dot \
+		Test.C.gcov gtest-internal.h.gcov gtest-port.h.gcov gtest-printers.h.gcov \
+		gtest.h.gcov move.h.gcov tuple.gcov unique_ptr.h.gcov \
+		ExpressionLexer.gcno ExpressionParser.gcno N_UTL_BreakPoint.gcno N_UTL_ExtendedString.gcno \
+		N_UTL_NoCase.gcno Test.gcno astCopyConstUnitTest.gcno astUnitTest.gcno expressionGroup.gcno \
+		newExpression.gcno parserCopyUnitTest.gcno parserUnitTest.gcno \
+		ExpressionLexer.gcda N_UTL_ExtendedString.gcda expressionGroup.gcda parserUnitTest.gcda \
+		ExpressionParser.gcda N_UTL_NoCase.gcda newExpression.gcda astUnitTest.gcda \
+		*png hello hello.gcda hello.gcno Test Test.gcda Test.gcno *html gcov.css test src
 
