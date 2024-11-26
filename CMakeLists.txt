@@ -50,7 +50,7 @@ if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
-option(Xyce_GTEST_UNIT_TESTS "Build google test based unit tests" ON)
+option(Xyce_GTEST_UNIT_TESTS "Build google test based unit tests" OFF)
 
 include(cmake/config.cmake)
 include(cmake/utilities.cmake)
