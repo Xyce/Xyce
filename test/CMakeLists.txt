@@ -3,7 +3,7 @@ if (Xyce_REGRESSION AND DEFINED Xyce_REGRESSION_DIR AND EXISTS "${Xyce_REGRESSIO
 endif ()
 
 # unit tests
-if(Xyce_BUILD_UNIT_TESTS)
+if(Xyce_GTEST_UNIT_TESTS)
   if(NOT Xyce_PARALLEL_MPI)
     add_subdirectory(CircuitPKG)
   endif()

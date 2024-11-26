@@ -554,7 +554,7 @@ endif()
 
 include(CTest)
 
-if(Xyce_BUILD_UNIT_TESTS)
+if(Xyce_GTEST_UNIT_TESTS)
      message(STATUS "Looking for GTest")
      # If the wrong version of GTest is found, try setting GTest_DIR or GTEST_ROOT to the install
      # directory of the desired verstion of GTest; specify when invoking cmake to configure.
