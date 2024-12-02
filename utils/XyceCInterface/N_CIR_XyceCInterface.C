@@ -611,8 +611,13 @@ int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames
 {
   Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
  
+  // get the maximum size of the time-voltage pairs map first.
+  int maxPts=0;
+  int status = xycePtr->getTimeVoltagePairsSz( maxPts );
+  
+  // get the maximum size of the map elements (time vol)
   std::map< std::string, std::vector< std::pair<double,double> > > timeVoltageUpdateMap;
-  int status = xycePtr->getTimeVoltagePairs( timeVoltageUpdateMap );
+  status = xycePtr->getTimeVoltagePairs( timeVoltageUpdateMap );
   
   std::map< std::string, std::vector< std::pair<double,double> > >::iterator cMap = timeVoltageUpdateMap.begin();
   std::map< std::string, std::vector< std::pair<double,double> > >::iterator eMap = timeVoltageUpdateMap.end();
@@ -623,10 +628,20 @@ int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames
     strcpy( ADCnames[ADCnum], (cMap->first).c_str() );
     std::vector< std::pair<double,double> > dataVec = cMap->second;
     int PTnumThisADC = 0;
-    for( int j = 0; j<dataVec.size(); j++ )
+    for( int j = 0; j<maxPts; j++ )
     {
-      timeArray[ADCnum][j] = dataVec[j].first;
-      voltageArray[ADCnum][j] = dataVec[j].second;
+      if( j >= dataVec.size())
+      {
+        // we have passed the end of the data returned for this ADC so replete 
+        // last element to keep returned data the same size for each ADC.
+        timeArray[ADCnum][j] = dataVec[dataVec.size()-1].first;
+        voltageArray[ADCnum][j] = dataVec[dataVec.size()-1].second;
+      }
+      else
+      {
+        timeArray[ADCnum][j] = dataVec[j].first;
+        voltageArray[ADCnum][j] = dataVec[j].second;
+      }
       PTnumThisADC++;
       //Xyce::dout() << "timeArray and Voltage Array for ADC " << ADCnum << " for " << j
       //     << " are "  << dataVec[j].first << " and " << dataVec[j].second << std::endl;
@@ -716,6 +731,7 @@ int xyce_getTimeVoltagePairsADCLimitData( void** ptr,
       int j=0;
       while((j<dataVec.size()))
       {
+        Xyce::dout() << j << ": " << dataVec[j].first << ", " <<  dataVec[j].second << std::endl;
         timeArray[ADCnum][j] = dataVec[j].first;
         voltageArray[ADCnum][j] = dataVec[j].second;
         j++;

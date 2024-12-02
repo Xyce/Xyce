@@ -8,6 +8,7 @@ if(GTest_FOUND)
           ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist1.cir
           ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist2.cir
           ${CMAKE_CURRENT_SOURCE_DIR}/TestNetlist3.cir
+          ${CMAKE_CURRENT_SOURCE_DIR}/MultiPort.cir
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
