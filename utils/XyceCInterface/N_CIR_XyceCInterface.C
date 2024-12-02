@@ -630,7 +630,7 @@ int xyce_getTimeVoltagePairsADC( void** ptr, int * numADCnames, char ** ADCnames
     int PTnumThisADC = 0;
     for( int j = 0; j<maxPts; j++ )
     {
-      
+
       if( j >= dataVec.size())
       {
         // we have passed the end of the data returned for this ADC so replete 
@@ -730,6 +730,7 @@ int xyce_getTimeVoltagePairsADCLimitData( void** ptr,
       int j=0;
       while((j<dataVec.size()))
       {
+        Xyce::dout() << j << ": " << dataVec[j].first << ", " <<  dataVec[j].second << std::endl;
         timeArray[ADCnum][j] = dataVec[j].first;
         voltageArray[ADCnum][j] = dataVec[j].second;
         j++;

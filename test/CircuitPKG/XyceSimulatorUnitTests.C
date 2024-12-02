@@ -752,6 +752,7 @@ TEST ( XyceSimulator, GetMultiADCTest )
       //std::cout << name << ": ";
       for( auto i=0; i<values.size(); i++ )
       {
+        //std::cout << values[i].first << ", " << values[i].second;
         if( name == "YADC!ADCHIGH")
         {
           EXPECT_NEAR(values[i].second, 5.0, 1e-7 );
@@ -893,6 +894,7 @@ TEST ( XyceSimulator, GetMultiADCTestTimeVariant )
   EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
   delete xycePtr;
 }
+
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
