@@ -63,6 +63,7 @@ if(GTest_FOUND)
      gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression" )
      gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
+    message(STATUS "Adding expression library unit tests")
 endif()
 
 # The following should **NEVER** be enabled with a full Xyce build.
@@ -195,4 +196,5 @@ if(BUILD_ONLY_UNIT_TESTS)
      gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
      gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
+    message(STATUS "Adding expression library unit tests")
 endif()
