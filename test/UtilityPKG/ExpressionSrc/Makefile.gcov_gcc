@@ -1,12 +1,14 @@
 #
+#Trilinos_ROOT=/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc12_trilinos_Blessed.7.6_withStokhos_withBasker
+Trilinos_ROOT=/Users/erkeite/XYCE/Xyce_Lib/m3_osx_gcc14_trilinos_Blessed_14_4_0_withStokhos_withBasker
 
 XYCEPATH=/Users/erkeite/XYCE/GitRepos/Xyce/src/UtilityPKG/
 CXX = /opt/local/bin/g++-mp-12
 FLEX = /opt/local/bin/flex
 BISON = /opt/local/bin/bison
-LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc12_trilinos_Blessed.7.6_withStokhos_withBasker/lib
+LIBDIRTRI=-L${Trilinos_ROOT}/lib
 LIBPATH = -L/Users/erkeite/GTEST/INSTALL/lib -L/opt/local/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_gcc12_trilinos_Blessed.7.6_withStokhos_withBasker/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
+INCLUDE = -I${Trilinos_ROOT}/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
 CXXFLAGS_AST =  -O0 -fno-inline -g -fprofile-arcs -ftest-coverage -std=c++17 -I/Users/erkeite/GTEST/INSTALL/include/  $(INCLUDE)
 CXXFLAGS     =  -O0 -fno-inline -DUSE_TYPE_DOUBLE -g -fprofile-arcs -ftest-coverage -std=c++17 -I/Users/erkeite/GTEST/INSTALL/include/  -I/opt/local/include/ $(INCLUDE)
 
