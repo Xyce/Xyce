@@ -796,7 +796,7 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairs )
   }
 }
 
-TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsSin )
+TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsTimeVariant )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -878,6 +878,7 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsSin )
           if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
             double ans = 5.0*std::sin(2*M_PI*5e3*simToTime);
+            //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
             EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
             break;
           }
@@ -890,6 +891,7 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsSin )
           if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
             double ans = 3.0*std::cos(2*M_PI*2e3*simToTime);
+            //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
             EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
             break;
           }

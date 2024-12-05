@@ -752,7 +752,6 @@ TEST ( XyceSimulator, GetMultiADCTest )
       //std::cout << name << ": ";
       for( auto i=0; i<values.size(); i++ )
       {
-        //std::cout << values[i].first << ", " << values[i].second;
         if( name == "YADC!ADCHIGH")
         {
           EXPECT_NEAR(values[i].second, 5.0, 1e-7 );
@@ -760,6 +759,85 @@ TEST ( XyceSimulator, GetMultiADCTest )
         if( name == "YADC!ADCLOW")
         {
           EXPECT_NEAR(values[i].second, -3.0, 1e-7 );
+        }
+      }
+      keyItr++;
+    }
+    
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, GetMultiADCTestTimeVariant )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "MultiPort2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 5.0e-3 );
+
+  
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    
+    //bool getADCMap(std::map<std::string,std::map<std::string,double> >& ADCMap);
+    //bool getTimeVoltagePairs(
+    //    std::map< std::string, std::vector< std::pair<double,double> > > &
+    //    timeVoltageUpdateMap);
+    std::map< std::string, std::vector< std::pair<double,double> > > tvUpdateMap;
+    xycePtr->getTimeVoltagePairs( tvUpdateMap);
+    auto keyItr = tvUpdateMap.begin();
+    while (keyItr != tvUpdateMap.end())
+    {
+      std::string name = keyItr->first;
+      std::vector< std::pair<double,double> > values = keyItr->second;
+      //std::cout << name << ": ";
+      for( auto i=0; i<values.size(); i++ )
+      {
+        //std::cout << " -> " << values[i].first << ", " << values[i].second;
+        if( name == "YADC!ADCHIGH")
+        {
+          double ans = 5.0*std::sin(2*M_PI*5e3*values[i].first);
+          //std::cout << " calculated " << ans;
+          EXPECT_NEAR(values[i].second, ans, 1e-5 );
+        }
+        if( name == "YADC!ADCLOW")
+        {
+          double ans = 3.0*std::cos(2*M_PI*2e3*values[i].first);
+          //std::cout << " calculated " << ans;
+          EXPECT_NEAR(values[i].second, ans, 1e-7 );
         }
       }
       //std::cout << std::endl;
@@ -815,7 +893,6 @@ TEST ( XyceSimulator, GetMultiADCTest )
   EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
   delete xycePtr;
 }
-
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
