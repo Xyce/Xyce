@@ -68,6 +68,15 @@ if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
 endif()
 
+# add any compiler-specific flags all things Xyce here. at present these are:
+#    * IntelLLVM C++ - requires "-fp-model=precise" (or "/fp:precise" on Windows)
+#                      for passage of some xyce tests
+if(WIN32)
+  add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,/fp:precise,>")
+else()
+  add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
+endif()
+
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
   # if building a shared library under windows automatically export all
   # symbols in the resulting "dll"  This is not optimal but will work
