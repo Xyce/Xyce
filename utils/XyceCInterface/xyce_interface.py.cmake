@@ -312,13 +312,13 @@ class xyce_interface:
       ADCnames.insert(i, str(cADCDeviceNameArray[i].decode('utf-8')) ) 
 
     # copy over the elements from cTimeArray to timeArray
-    timeArray = [[0]*max(numPointsArray)]*numADCnames
+    timeArray = [[0 for j in range(numPoints)] for i in range(numADCnames)]
     for i in range(numADCnames):
       for j in range(numPoints):
        timeArray[i][j] = cTimeArray[i][j]
 
     # copy over the elements from cVoltageArray to voltageArray
-    voltageArray = [[0]*max(numPointsArray)]*numADCnames
+    voltageArray = [[0 for j in range(numPoints)] for i in range(numADCnames)]
     for i in range(numADCnames):
       for j in range(numPoints):
        voltageArray[i][j] = cVoltageArray[i][j]
@@ -369,13 +369,13 @@ class xyce_interface:
       numPointsArray.insert(i, cNumPointsArray[i])
 
     # copy over the elements from cTimeArray to timeArray
-    timeArray = [[0]*max(numPointsArray)]*numADCnames
+    timeArray = [[0 for j in range(numPoints)] for i in range(numADCnames)]
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        timeArray[i][j] = cTimeArray[i][j]
 
     # copy over the elements from cVoltageArray to voltageArray
-    voltageArray = [[0]*max(numPointsArray)]*numADCnames
+    voltageArray = [[0 for j in range(numPoints)] for i in range(numADCnames)]
     for i in range(numADCnames):
       for j in range(numPointsArray[i]):
        voltageArray[i][j] = cVoltageArray[i][j]

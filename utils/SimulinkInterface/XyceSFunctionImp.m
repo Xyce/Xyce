@@ -631,7 +631,7 @@ function Outputs(block)
         % python access method 
         xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
         % (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray)  = xyceObj.getTimeVoltagePairsADCLimitData()
-        ptAns = xyceObj.getTimeVoltagePairsADCLimitData();
+        ptAns = xyceObj.getTimeVoltagePairsADC();
         cptAns = cell(ptAns);
         adcCircuitData.ADCnames = string(cptAns{2});
         adcCircuitData.numADCnames = int32(cptAns{3});
@@ -648,8 +648,13 @@ function Outputs(block)
         deviceName = block.DialogPrm(6).Data{row,2};
         if ( contains( deviceName, 'ADC'))
             for j = 1:adcCircuitData.numADCnames
-              if (adcCircuitData.ADCnames{j} == deviceName)
-                numPoints = int32(adcCircuitData.numPointsInArray(j)); 
+              if (strcmp(adcCircuitData.ADCnames{j},deviceName))
+                numPoints=1;
+                if isvector(adcCircuitData.numPointsInArray)
+                  numPoints = int32(adcCircuitData.numPointsInArray(size(adcCircuitData.numPointsInArray,2))); 
+                else
+                  numPoints = int32(adcCircuitData.numPointsInArray);
+                end 
                 block.OutputPort(portNum).Data = adcCircuitData.voltageArray{j}{numPoints};
               end 
             end

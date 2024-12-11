@@ -707,6 +707,193 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
 }
 
 
+TEST ( XyceSimulator, GetMultiADCTest )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "MultiPort.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 5.0e-3 );
+
+  
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    
+    //bool getADCMap(std::map<std::string,std::map<std::string,double> >& ADCMap);
+    //bool getTimeVoltagePairs(
+    //    std::map< std::string, std::vector< std::pair<double,double> > > &
+    //    timeVoltageUpdateMap);
+    std::map< std::string, std::vector< std::pair<double,double> > > tvUpdateMap;
+    xycePtr->getTimeVoltagePairs( tvUpdateMap);
+    auto keyItr = tvUpdateMap.begin();
+    while (keyItr != tvUpdateMap.end())
+    {
+      std::string name = keyItr->first;
+      std::vector< std::pair<double,double> > values = keyItr->second;
+      //std::cout << name << ": ";
+      for( auto i=0; i<values.size(); i++ )
+      {
+        if( name == "YADC!ADCHIGH")
+        {
+          EXPECT_NEAR(values[i].second, 5.0, 1e-7 );
+        }
+        if( name == "YADC!ADCLOW")
+        {
+          EXPECT_NEAR(values[i].second, -3.0, 1e-7 );
+        }
+      }
+      keyItr++;
+    }
+    
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
+TEST ( XyceSimulator, GetMultiADCTestTimeVariant )
+{
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  EXPECT_TRUE( xycePtr != NULL );
+  int numArgs = 2;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin = "XyceTests";
+  std::string netlist = "MultiPort2.cir";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  double finalSimTime = xycePtr->getFinalTime();
+  EXPECT_EQ( finalSimTime, 5.0e-3 );
+
+  
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalSimTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xycePtr->simulateUntil(simToTime, actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xycePtr->getTime();
+    EXPECT_EQ( reportedTime, actualTime );
+    
+    //bool getADCMap(std::map<std::string,std::map<std::string,double> >& ADCMap);
+    //bool getTimeVoltagePairs(
+    //    std::map< std::string, std::vector< std::pair<double,double> > > &
+    //    timeVoltageUpdateMap);
+    std::map< std::string, std::vector< std::pair<double,double> > > tvUpdateMap;
+    xycePtr->getTimeVoltagePairs( tvUpdateMap);
+    auto keyItr = tvUpdateMap.begin();
+    while (keyItr != tvUpdateMap.end())
+    {
+      std::string name = keyItr->first;
+      std::vector< std::pair<double,double> > values = keyItr->second;
+      //std::cout << name << ": ";
+      for( auto i=0; i<values.size(); i++ )
+      {
+        //std::cout << " -> " << values[i].first << ", " << values[i].second;
+        if( name == "YADC!ADCHIGH")
+        {
+          double ans = 5.0*std::sin(2*M_PI*5e3*values[i].first);
+          //std::cout << " calculated " << ans;
+          EXPECT_NEAR(values[i].second, ans, 1e-5 );
+        }
+        if( name == "YADC!ADCLOW")
+        {
+          double ans = 3.0*std::cos(2*M_PI*2e3*values[i].first);
+          //std::cout << " calculated " << ans;
+          EXPECT_NEAR(values[i].second, ans, 1e-7 );
+        }
+      }
+      //std::cout << std::endl;
+      keyItr++;
+    }
+    
+    /*
+    if( i==(numSteps/2))
+    {
+      // in the middle of the run change the resistance on resistor R1
+      bool setParamResult = xycePtr->setCircuitParameter( "R1:R", 1000.0);
+      EXPECT_TRUE( setParamResult );
+      setParamResult = xycePtr->setCircuitParameter( "TEMP", -50.0);
+      EXPECT_TRUE( setParamResult );
+    }
+    if( i==((numSteps/2)+1))
+    {
+      // in the middle of the run change the resistance on resistor R1
+      circuitParamValue = 0.0;
+      getParamResult = xycePtr->getCircuitValue( "R1:R",circuitParamValue);
+      EXPECT_EQ( circuitParamValue, 1000.0 );
+      getParamResult = xycePtr->getCircuitValue( "TEMP", circuitParamValue);
+      EXPECT_EQ( circuitParamValue, -50.0 );
+    }
+    // set this to value out of the range of V(1) during this simulation 
+    // V(1) goes from -1.0 to +1.0
+    circuitParamValue = -1.001;
+    getParamResult = xycePtr->getCircuitValue( "V(1)",circuitParamValue);
+    EXPECT_TRUE( getParamResult );
+    EXPECT_TRUE( (circuitParamValue >= -1.0) && (circuitParamValue <= 1.0));
+    */
+    
+    bool isSimComplete = xycePtr->simulationComplete();
+    // should be false on all but the last step
+    if( i==(numSteps-1))
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+  }
+  
+  /*
+  // try to get values that were in measure functions.
+  getParamResult = xycePtr->getCircuitValue( "MAXV2",circuitParamValue);
+  EXPECT_NEAR( circuitParamValue, 6.666667e-01, 1.0e-7 );
+  getParamResult = xycePtr->getCircuitValue( "MINV2",circuitParamValue);
+  EXPECT_NEAR( circuitParamValue, -6.666667e-01,  1.0e-7 );
+  */
+  status = xycePtr->finalize();
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+  delete xycePtr;
+}
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
