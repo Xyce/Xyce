@@ -38,6 +38,7 @@
 #ifndef ast_H
 #define ast_H
 
+#include <numeric>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -5150,6 +5151,30 @@ class tableOp : public astNode<ScalarT>
             ya_[jj] = (tableArgs_)[ii+1]->val();
             if (!( (tableArgs_)[ii]->numvalType() && (tableArgs_)[ii+1]->numvalType() ) ) { allConst_ = false; }
           }
+
+          if (allConst_)
+          {
+            // sort ta_ and ya_ just in case they were not in order
+            //
+            // sort indices based on ta_
+            std::vector<std::size_t> indices(ta_.size(),0);
+            std::iota(indices.begin(), indices.end(),0);
+            std::sort(indices.begin(), indices.end(), 
+                [&](const int& a, const int& b) { return (std::real(ta_[a]) < std::real(ta_[b])); } ) ;
+
+            // sort the the ya_ vector, using permutation based on ta_ vector
+            {
+              std::vector<ScalarT> sortedYa = ya_;
+              std::transform(indices.begin(), indices.end(), sortedYa.begin(),
+                  [&](std::size_t i){ return ya_[i]; });
+              ya_ = sortedYa;
+            }
+
+            // sort the ta_ vector
+            std::sort(ta_.begin(), ta_.end(), 
+              [&](const ScalarT & a, const ScalarT & b) { return (std::real(a) < std::real(b)); } ) ;
+          }
+
           yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
           if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
@@ -5252,6 +5277,29 @@ class tableOp : public astNode<ScalarT>
 
         evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
 
+        if (allConst_)
+        {
+          // sort ta_ and ya_ just in case they were not in order
+          //
+          // sort indices based on ta_
+          std::vector<std::size_t> indices(ta_.size(),0);
+          std::iota(indices.begin(), indices.end(),0);
+          std::sort(indices.begin(), indices.end(), 
+              [&](const int& a, const int& b) { return (std::real(ta_[a]) < std::real(ta_[b])); } ) ;
+
+          // sort the the ya_ vector, using permutation based on ta_ vector
+          {
+            std::vector<ScalarT> sortedYa = ya_;
+            std::transform(indices.begin(), indices.end(), sortedYa.begin(),
+                [&](std::size_t i){ return ya_[i]; });
+            ya_ = sortedYa;
+          }
+
+          // sort the ta_ vector
+          std::sort(ta_.begin(), ta_.end(), 
+            [&](const ScalarT & a, const ScalarT & b) { return (std::real(a) < std::real(b)); } ) ;
+        }
+
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
         if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
@@ -5290,6 +5338,29 @@ class tableOp : public astNode<ScalarT>
           ya_[ii] = yvals[ii];
         }
 
+        if (allConst_)
+        {
+          // sort ta_ and ya_ just in case they were not in order
+          //
+          // sort indices based on ta_
+          std::vector<std::size_t> indices(ta_.size(),0);
+          std::iota(indices.begin(), indices.end(),0);
+          std::sort(indices.begin(), indices.end(), 
+              [&](const int& a, const int& b) { return (std::real(ta_[a]) < std::real(ta_[b])); } ) ;
+
+          // sort the the ya_ vector, using permutation based on ta_ vector
+          {
+            std::vector<ScalarT> sortedYa = ya_;
+            std::transform(indices.begin(), indices.end(), sortedYa.begin(),
+                [&](std::size_t i){ return ya_[i]; });
+            ya_ = sortedYa;
+          }
+
+          // sort the ta_ vector
+          std::sort(ta_.begin(), ta_.end(), 
+            [&](const ScalarT & a, const ScalarT & b) { return (std::real(a) < std::real(b)); } ) ;
+        }
+
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
         if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
@@ -5320,6 +5391,8 @@ class tableOp : public astNode<ScalarT>
         // downsampling will reduce the size of ta_, ya_, etc, so some things need to be re-set up.
         evaluatedAndConstant_.resize(2*(ta_.size()),1); // tables from files are always pure numbers, so initialize to 1
 
+        // no need to sort ta_,ya_ here b/c the downSample  function will not work if data not monotonic
+        // ie, it should have been sorted already
         yInterpolator_->init(ta_,ya_); // for linear, this isn't necessary, but for others it is
 
         if (ya_.size() > 2 && ( keyword_==std::string("TABLE") || keyword_==std::string("FASTTABLE") ) )
@@ -5400,6 +5473,8 @@ class tableOp : public astNode<ScalarT>
 
           if ( keyword_!=std::string("TABLE") && keyword_!=std::string("FASTTABLE") && updated )
           {
+            // Don't sort ta_ and ya_ in this case.  We are only here if the table values depend on .param.
+            // The sorting is only performed when the table is all constants.
             yInterpolator_->init(ta_,ya_);
           }
 
