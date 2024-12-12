@@ -761,22 +761,22 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairs )
     EXPECT_EQ(numADCret, 2);
     for( auto adcID=0; adcID<numADCret; adcID++)
     {
-      if( std::strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
+      if( strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
       {
         for( auto ts=0; ts<numPoints; ts++)
         {
-          if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
             EXPECT_NEAR(vArray[adcID][ts], 5.0, 1e-7 );
             break;
           }
         }
       }
-      if( std::strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
+      if( strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
       {
         for( auto ts=0; ts<numPoints; ts++)
         {
-          if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
             EXPECT_NEAR(vArray[adcID][ts], -3.0, 1e-7 );
             break;
@@ -871,26 +871,26 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsTimeVariant )
     EXPECT_EQ(numADCret, 2);
     for( auto adcID=0; adcID<numADCret; adcID++)
     {
-      if( std::strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
+      if( strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
       {
         for( auto ts=0; ts<numPoints; ts++)
         {
-          if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
-            double ans = 5.0*std::sin(2*M_PI*5e3*simToTime);
+            double ans = 5.0*sin(2*M_PI*5e3*simToTime);
             //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
             EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
             break;
           }
         }
       }
-      if( std::strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
+      if( strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
       {
         for( auto ts=0; ts<numPoints; ts++)
         {
-          if( std::fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
           {
-            double ans = 3.0*std::cos(2*M_PI*2e3*simToTime);
+            double ans = 3.0*cos(2*M_PI*2e3*simToTime);
             //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
             EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
             break;
