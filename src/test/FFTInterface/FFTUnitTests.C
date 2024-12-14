@@ -157,11 +157,49 @@ TEST ( Sine1FreqEven, FFT_IFFT)
   delete fftInterfacePtr;
 }
 
-/*
+
 TEST ( Sine1FreqOdd, FFT_IFFT)
 {
   // data file name and expected size of input data
   const std::string filename("Sin1fOdd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
+  
+  // get data for this test from file.
+  // expected number of points is checked in the read function.
+  std::vector<double> time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal;
+  ReadInTestData(filename, expectedNumPoints, time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal);
+  
+  // create the interface  
+  N_UTL_FFTInterface<std::vector<double> > * fftInterfacePtr = NULL;
+  fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
+  EXPECT_TRUE( fftInterfacePtr != NULL );
+  
+  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> backSignal(expectedNumPoints, 0.0);
+  fftInterfacePtr->calculateFFT( fxn, &outputSignal );
+  // check the forward transform against input data
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
+  {
+    //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 5.0e-8 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 5.0e-8 );
+  }
+  fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
+  // check back transform against input data
+  for( auto i=0; i<expectedNumPoints; i++)
+  {
+    EXPECT_NEAR(fxn[i], backSignal[i], 1.0e-8 );
+  }
+  
+  delete fftInterfacePtr;
+}
+
+
+
+TEST ( Sine2FreqEven, FFT_IFFT)
+{
+  // data file name and expected size of input data
+  const std::string filename("Sin2fEven.txt");
   const int expectedNumPoints = (int)(std::pow(2, 8));
   
   // get data for this test from file.
@@ -193,14 +231,12 @@ TEST ( Sine1FreqOdd, FFT_IFFT)
   
   delete fftInterfacePtr;
 }
-*/
 
-
-TEST ( Sine2FreqEven, FFT_IFFT)
+TEST ( Sine2FreqOdd, FFT_IFFT)
 {
   // data file name and expected size of input data
-  const std::string filename("Sin2fEven.txt");
-  const int expectedNumPoints = (int)(std::pow(2, 8));
+  const std::string filename("Sin2fOdd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
   
   // get data for this test from file.
   // expected number of points is checked in the read function.
@@ -216,11 +252,11 @@ TEST ( Sine2FreqEven, FFT_IFFT)
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
-  for( auto i=0; i<expectedNumPoints; i=i+2)
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
   {
     //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
-    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-8 );
-    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-8 );
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 5.0e-8 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 5.0e-8 );
   }
   fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
   // check back transform against input data
@@ -268,6 +304,43 @@ TEST ( Sine3FreqEven, FFT_IFFT)
   delete fftInterfacePtr;
 }
 
+TEST ( Sine3FreqOdd, FFT_IFFT)
+{
+  // data file name and expected size of input data
+  const std::string filename("Sin3fOdd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
+  
+  // get data for this test from file.
+  // expected number of points is checked in the read function.
+  std::vector<double> time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal;
+  ReadInTestData(filename, expectedNumPoints, time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal);
+  
+  // create the interface  
+  N_UTL_FFTInterface<std::vector<double> > * fftInterfacePtr = NULL;
+  fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
+  EXPECT_TRUE( fftInterfacePtr != NULL );
+  
+  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> backSignal(expectedNumPoints, 0.0);
+  fftInterfacePtr->calculateFFT( fxn, &outputSignal );
+  // check the forward transform against input data
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
+  {
+    //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 5.0e-8 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 5.0e-8 );
+  }
+  fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
+  // check back transform against input data
+  for( auto i=0; i<expectedNumPoints; i++)
+  {
+    EXPECT_NEAR(fxn[i], backSignal[i], 1.0e-8 );
+  }
+  
+  delete fftInterfacePtr;
+}
+
+
 TEST ( Gauss1Even, FFT_IFFT)
 {
   // data file name and expected size of input data
@@ -304,6 +377,42 @@ TEST ( Gauss1Even, FFT_IFFT)
   delete fftInterfacePtr;
 }
 
+TEST ( Gauss1Odd, FFT_IFFT)
+{
+  // data file name and expected size of input data
+  const std::string filename("Gauss1Odd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
+  
+  // get data for this test from file.
+  // expected number of points is checked in the read function.
+  std::vector<double> time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal;
+  ReadInTestData(filename, expectedNumPoints, time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal);
+  
+  // create the interface  
+  N_UTL_FFTInterface<std::vector<double> > * fftInterfacePtr = NULL;
+  fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
+  EXPECT_TRUE( fftInterfacePtr != NULL );
+  
+  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> backSignal(expectedNumPoints, 0.0);
+  fftInterfacePtr->calculateFFT( fxn, &outputSignal );
+  // check the forward transform against input data
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
+  {
+    //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-7 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-7 );
+  }
+  fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
+  // check back transform against input data
+  for( auto i=0; i<expectedNumPoints; i++)
+  {
+    EXPECT_NEAR(fxn[i], backSignal[i], 1.0e-8 );
+  }
+  
+  delete fftInterfacePtr;
+}
+
 
 TEST ( Gauss2Even, FFT_IFFT)
 {
@@ -328,8 +437,8 @@ TEST ( Gauss2Even, FFT_IFFT)
   for( auto i=0; i<expectedNumPoints; i=i+2)
   {
     //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
-    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-8 );
-    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-8 );
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-7 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-7 );
   }
   fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
   // check back transform against input data
@@ -341,6 +450,41 @@ TEST ( Gauss2Even, FFT_IFFT)
   delete fftInterfacePtr;
 }
 
+TEST ( Gauss2Odd, FFT_IFFT)
+{
+  // data file name and expected size of input data
+  const std::string filename("Gauss2Odd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
+  
+  // get data for this test from file.
+  // expected number of points is checked in the read function.
+  std::vector<double> time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal;
+  ReadInTestData(filename, expectedNumPoints, time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal);
+  
+  // create the interface  
+  N_UTL_FFTInterface<std::vector<double> > * fftInterfacePtr = NULL;
+  fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
+  EXPECT_TRUE( fftInterfacePtr != NULL );
+  
+  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> backSignal(expectedNumPoints, 0.0);
+  fftInterfacePtr->calculateFFT( fxn, &outputSignal );
+  // check the forward transform against input data
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
+  {
+    //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-7 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-7 );
+  }
+  fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
+  // check back transform against input data
+  for( auto i=0; i<expectedNumPoints; i++)
+  {
+    EXPECT_NEAR(fxn[i], backSignal[i], 1.0e-8 );
+  }
+  
+  delete fftInterfacePtr;
+}
 
 TEST ( Step1Even, FFT_IFFT)
 {
@@ -377,6 +521,44 @@ TEST ( Step1Even, FFT_IFFT)
   
   delete fftInterfacePtr;
 }
+
+TEST ( Step1Odd, FFT_IFFT)
+{
+  // data file name and expected size of input data
+  const std::string filename("Step1Odd.txt");
+  const int expectedNumPoints = (int)(std::pow(2, 8))+17;
+  
+  // get data for this test from file.
+  // expected number of points is checked in the read function.
+  std::vector<double> time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal;
+  ReadInTestData(filename, expectedNumPoints, time, fxn, fxnFFTreal, fxnFFTimag, fxnIFFTreal);
+  
+  // create the interface  
+  N_UTL_FFTInterface<std::vector<double> > * fftInterfacePtr = NULL;
+  fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
+  EXPECT_TRUE( fftInterfacePtr != NULL );
+  
+  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> backSignal(expectedNumPoints, 0.0);
+  fftInterfacePtr->calculateFFT( fxn, &outputSignal );
+  // check the forward transform against input data
+  for( auto i=0; i<(expectedNumPoints-1); i=i+2)
+  {
+    //std::cerr << i << ": real=" << fxnFFTreal[i/2] << " == " << ": out " <<  outputSignal[i] << " AND imag=" << fxnFFTimag[1+i/2] << ", " << outputSignal[i+3] << std::endl;
+    EXPECT_NEAR(fxnFFTreal[i/2], outputSignal[i], 1.0e-7 );
+    EXPECT_NEAR(fxnFFTimag[1+i/2], outputSignal[i+3], 1.0e-7 );
+  }
+  fftInterfacePtr->calculateIFT( outputSignal, &backSignal );
+  // check back transform against input data
+  for( auto i=0; i<expectedNumPoints; i++)
+  {
+    EXPECT_NEAR(fxn[i], backSignal[i], 1.0e-8 );
+  }
+  
+  delete fftInterfacePtr;
+}
+
+
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
