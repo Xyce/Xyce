@@ -137,7 +137,7 @@ TEST ( Sine1FreqEven, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -174,7 +174,7 @@ TEST ( Sine1FreqOdd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -212,7 +212,7 @@ TEST ( Sine2FreqEven, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -248,7 +248,7 @@ TEST ( Sine2FreqOdd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -284,7 +284,7 @@ TEST ( Sine3FreqEven, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -320,7 +320,7 @@ TEST ( Sine3FreqOdd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -357,7 +357,7 @@ TEST ( Gauss1Even, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -393,7 +393,7 @@ TEST ( Gauss1Odd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -430,7 +430,7 @@ TEST ( Gauss2Even, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -466,7 +466,7 @@ TEST ( Gauss2Odd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -502,7 +502,7 @@ TEST ( Step1Even, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+2, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
@@ -538,7 +538,7 @@ TEST ( Step1Odd, FFT_IFFT)
   fftInterfacePtr = new  N_UTL_FFTInterface<std::vector<double> >( expectedNumPoints );
   EXPECT_TRUE( fftInterfacePtr != NULL );
   
-  std::vector<double> outputSignal(expectedNumPoints, 0.0);
+  std::vector<double> outputSignal(expectedNumPoints+1, 0.0);
   std::vector<double> backSignal(expectedNumPoints, 0.0);
   fftInterfacePtr->calculateFFT( fxn, &outputSignal );
   // check the forward transform against input data
