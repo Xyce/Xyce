@@ -27,9 +27,10 @@ if(BUILD_TESTING AND GTest_FOUND)
      gtest_discover_tests( FFTUnitTests TEST_PREFIX FFTUnitTests: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;fft;WORKING_DIRECTORY;${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
+
+add_executable( testFFTInterface testFFTInterface.C )
+target_link_libraries( testFFTInterface XyceLib )
 if( BUILD_TESTING )
-     add_executable( testFFTInterface testFFTInterface.C )
-     target_link_libraries( testFFTInterface XyceLib )
      add_test( testFFTInterface testFFTInterface FFTInterface.cir )
      set_tests_properties( testFFTInterface PROPERTIES REQUIRED_FILES "FFTInterface.cir" )
      get_target_property(XyceLibDir XyceLib BINARY_DIR )
