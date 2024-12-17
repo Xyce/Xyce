@@ -8,7 +8,7 @@ if(BUILD_TESTING AND GTest_FOUND)
 
      # Wrap the GTest tests with CTest
      # Setting the test labels looks odd but is needed to overcome a bug in gtest-cmake see https://gitlab.kitware.com/cmake/cmake/-/issues/17812
-     gtest_discover_tests( FFTUnitTests TEST_PREFIX FFTUnitTests: PROPERTIES "LABELS;nightly;LABELS;unittest;WORKING_DIRECTORY;${CMAKE_CURRENT_SOURCE_DIR}")
+     gtest_discover_tests( FFTUnitTests TEST_PREFIX FFTUnitTests: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;fft;WORKING_DIRECTORY;${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 if( BUILD_TESTING )
