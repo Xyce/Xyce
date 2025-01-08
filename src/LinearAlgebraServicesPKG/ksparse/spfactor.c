@@ -44,6 +44,7 @@ void FingerPrint (double *, int *, int *, int);
 */
 
 #include <sys/types.h>
+#include <assert.h>
 
 /*
  *  MATRIX FACTORIZATION MODULE
@@ -380,7 +381,7 @@ FILE *fmat;
 #endif
 
 /* Begin `spOrderAndFactor'. */
-    ASSERT( IS_VALID(Matrix) AND NOT Matrix->Factored);
+    assert( IS_VALID(Matrix) AND NOT Matrix->Factored);
 
 /*
     printf ("In spOrderAndFactor\n");
@@ -844,7 +845,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
     minpiv_ratio = 1.;
     avgpiv_ratio = 0.;
 /* Begin `spFactor'. */
-    ASSERT( IS_VALID(Matrix) AND NOT Matrix->Factored);
+    assert( IS_VALID(Matrix) AND NOT Matrix->Factored);
 
     repartitioned = 0;
     if (my_context->Dsize < Size) {
@@ -1403,7 +1404,7 @@ int  Step, Size;
 ComplexNumber Mult, Pivot;
 
 /* Begin `FactorComplexMatrix'. */
-    ASSERT(Matrix->Complex);
+    assert(Matrix->Complex);
 
     Size = Matrix->Size;
     pElement = Matrix->Diag[1];
@@ -1553,7 +1554,7 @@ long flops;
    No is number of carryover columns from above row
 */
 /* Begin `spPartition'. */
-      ASSERT( IS_SPARSE( Matrix ) );
+      assert( IS_SPARSE( Matrix ) );
       if (Matrix->Partitioned) return;
       Size = Matrix->Size;
       DoRealDirect = Matrix->DoRealDirect;

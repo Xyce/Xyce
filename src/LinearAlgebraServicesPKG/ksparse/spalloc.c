@@ -100,6 +100,8 @@ static char RCSid[] =
 #include "spmatrix.h"
 #include "spdefs.h"
 
+#include <assert.h>
+
 ElementPtr *returned_elements;
 int num_return_cols, *num_returned_elements;
 
@@ -726,7 +728,7 @@ int I;
 
 
 /* Begin `spDestroy'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
 
 /* Deallocate the vectors that are located in the matrix frame. */
     FREE( Matrix->IntToExtColMap );
@@ -811,7 +813,7 @@ spError( char* eMatrix )
 /* Begin `spError'. */
 
     if (eMatrix != NULL)
-    {   ASSERT(((MatrixPtr)eMatrix)->ID == SPARSE_ID);
+    {   assert(((MatrixPtr)eMatrix)->ID == SPARSE_ID);
         return ((MatrixPtr)eMatrix)->Error;
     }
     else return spNO_MEMORY;   /* This error may actually be spPANIC,
@@ -847,7 +849,7 @@ spWhereSingular( char* eMatrix, int* pRow, int* pCol )
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 
 /* Begin `spWhereSingular'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
 
     if (Matrix->Error == spSINGULAR OR Matrix->Error == spZERO_DIAG)
     {   *pRow = Matrix->SingularRow;
@@ -884,7 +886,7 @@ spGetSize( char* eMatrix, BOOLEAN External )
 MatrixPtr Matrix = (MatrixPtr)eMatrix;
 
 /* Begin `spGetSize'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
 
 #if TRANSLATE
     if (External)
@@ -918,7 +920,7 @@ spSetReal( char* eMatrix )
 {
 /* Begin `spSetReal'. */
 
-    ASSERT( IS_SPARSE( (MatrixPtr)eMatrix ) AND REAL);
+    assert( IS_SPARSE( (MatrixPtr)eMatrix ) AND REAL);
     ((MatrixPtr)eMatrix)->Complex = NO;
     return;
 }
@@ -929,7 +931,7 @@ spSetComplex( char* eMatrix )
 {
 /* Begin `spSetComplex'. */
 
-    ASSERT( IS_SPARSE( (MatrixPtr)eMatrix ) AND spCOMPLEX);
+    assert( IS_SPARSE( (MatrixPtr)eMatrix ) AND spCOMPLEX);
     ((MatrixPtr)eMatrix)->Complex = YES;
     return;
 }
@@ -958,7 +960,7 @@ spFillinCount( char* eMatrix )
 {
 /* Begin `spFillinCount'. */
 
-    ASSERT( IS_SPARSE( (MatrixPtr)eMatrix ) );
+    assert( IS_SPARSE( (MatrixPtr)eMatrix ) );
     return ((MatrixPtr)eMatrix)->Fillins;
 }
 
@@ -968,6 +970,6 @@ spElementCount( char* eMatrix )
 {
 /* Begin `spElementCount'. */
 
-    ASSERT( IS_SPARSE( (MatrixPtr)eMatrix ) );
+    assert( IS_SPARSE( (MatrixPtr)eMatrix ) );
     return ((MatrixPtr)eMatrix)->Elements;
 }
