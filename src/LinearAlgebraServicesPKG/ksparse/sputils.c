@@ -104,6 +104,8 @@ static char RCSid[] =
 #include "spmatrix.h"
 #include "spdefs.h"
 
+#include <assert.h>
+
 extern ElementPtr *returned_elements;
 extern int *num_returned_elements;
 void spExpandFormat(MatrixPtr);
@@ -372,7 +374,7 @@ BOOLEAN  Swapped, AnotherPassNeeded;
 
 /* Begin `spMNA_Preorder'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_VALID(Matrix) AND NOT Matrix->Factored );
+    assert( IS_VALID(Matrix) AND NOT Matrix->Factored );
 
     if (Matrix->RowsLinked) return;
     Size = Matrix->Size;
@@ -569,7 +571,7 @@ RealNumber  ScaleFactor;
 
 /* Begin `spScale'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_VALID(Matrix) AND NOT Matrix->Factored );
+    assert( IS_VALID(Matrix) AND NOT Matrix->Factored );
     if (NOT Matrix->RowsLinked) spcLinkRows( Matrix );
 
 #if spCOMPLEX
@@ -797,7 +799,7 @@ MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 
 /* Begin `spMultiply'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE( Matrix ) AND NOT Matrix->Factored );
+    assert( IS_SPARSE( Matrix ) AND NOT Matrix->Factored );
     if (NOT Matrix->RowsLinked)
 	spcLinkRows(Matrix);
     if (NOT Matrix->InternalVectorsAllocated)
@@ -986,7 +988,7 @@ MatrixPtr  Matrix = (MatrixPtr)eMatrix;
 
 /* Begin `spMultTransposed'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE( Matrix ) AND NOT Matrix->Factored );
+    assert( IS_SPARSE( Matrix ) AND NOT Matrix->Factored );
     if (NOT Matrix->InternalVectorsAllocated)
 	spcCreateInternalVectors( Matrix );
 
@@ -1188,7 +1190,7 @@ ComplexNumber Pivot, cDeterminant;
 
 /* Begin `spDeterminant'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE( Matrix ) AND IS_FACTORED(Matrix) );
+    assert( IS_SPARSE( Matrix ) AND IS_FACTORED(Matrix) );
     *pExponent = 0;
 
     if (Matrix->Error == spSINGULAR)
@@ -1334,7 +1336,7 @@ struct FillinListNodeStruct  *pListNode;
 int fast_ind, fast_ind_done;
 
 /* Begin `spStripFills'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
     if (Matrix->Fillins == 0) return;
     Matrix->NeedsOrdering = YES;
 
@@ -1471,8 +1473,8 @@ int  Size, ExtRow, ExtCol;
 
 /* Begin `spDeleteRowAndCol'. */
 
-    ASSERT( IS_SPARSE(Matrix) AND Row > 0 AND Col > 0 );
-    ASSERT( Row <= Matrix->ExtSize AND Col <= Matrix->ExtSize );
+    assert( IS_SPARSE(Matrix) AND Row > 0 AND Col > 0 );
+    assert( Row <= Matrix->ExtSize AND Col <= Matrix->ExtSize );
 
     Size = Matrix->Size;
     ExtRow = Row;
@@ -1481,7 +1483,7 @@ int  Size, ExtRow, ExtCol;
 
     Row = Matrix->ExtToIntRowMap[Row];
     Col = Matrix->ExtToIntColMap[Col];
-    ASSERT( Row > 0 AND Col > 0 );
+    assert( Row > 0 AND Col > 0 );
 
 /* Move Row so that it is the last row in the matrix. */
     if (Row != Size) spcRowExchange( Matrix, Row, Size );
@@ -1585,7 +1587,7 @@ RealNumber MaxPivot, MinPivot, Mag;
 /* Begin `spPseudoCondition'. */
 
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
+    assert( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
     if (Matrix->Error == spSINGULAR OR Matrix->Error == spZERO_DIAG)
         return 0.0;
 
@@ -1598,7 +1600,7 @@ RealNumber MaxPivot, MinPivot, Mag;
         else if (Mag < MinPivot)
             MinPivot = Mag;
     }
-    ASSERT( MaxPivot > 0.0);
+    assert( MaxPivot > 0.0);
     return MaxPivot / MinPivot;
 }
 #endif
@@ -1680,7 +1682,7 @@ RealNumber Linpack, OLeary, InvNormOfInverse;
 /* Begin `spCondition'. */
 
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
+    assert( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
     *pError = Matrix->Error;
     if (Matrix->Error >= spFATAL) return 0.0;
     if (NormOfMatrix == 0.0)
@@ -2072,7 +2074,7 @@ RealNumber Max = 0.0, AbsRowSum;
 
 /* Begin `spNorm'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE(Matrix) AND NOT IS_FACTORED(Matrix) );
+    assert( IS_SPARSE(Matrix) AND NOT IS_FACTORED(Matrix) );
     if (NOT Matrix->RowsLinked) spcLinkRows( Matrix );
 
 /* Compute row sums. */
@@ -2189,7 +2191,7 @@ ComplexNumber cPivot;
 register ElementPtr pElement, pDiag;
 
 /* Begin `spLargestElement'. */
-    ASSERT( IS_SPARSE(Matrix) );
+    assert( IS_SPARSE(Matrix) );
     spExpandFormat(Matrix);
 #if REAL
     if (Matrix->Factored AND NOT Matrix->Complex)
@@ -2305,7 +2307,7 @@ RealNumber Reid, Gear;
 
 /* Begin `spRoundoff'. */
     spExpandFormat(Matrix);
-    ASSERT( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
+    assert( IS_SPARSE(Matrix) AND IS_FACTORED(Matrix) );
 
 /* Compute Barlow's bound if it is not given. */
     if (Rho < 0.0) Rho = spLargestElement( eMatrix );
@@ -2369,7 +2371,7 @@ int Row, Col, Error;
     if (eMatrix == NULL)
 	Error = spNO_MEMORY;
     else
-    {   ASSERT(((MatrixPtr)eMatrix)->ID == SPARSE_ID);
+    {   assert(((MatrixPtr)eMatrix)->ID == SPARSE_ID);
 	Error = ((MatrixPtr)eMatrix)->Error;
     }
 
