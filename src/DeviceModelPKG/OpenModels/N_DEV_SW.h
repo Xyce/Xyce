@@ -288,6 +288,9 @@ private:
   bool VHOFFGiven;
   bool IHONGiven;
   bool IHOFFGiven;
+  bool ONHGiven;
+  bool OFFHGiven;
+  bool hysteresisON;  // flag that model is params requested some form of hysteresis (V, I or General)
 };
 
 //-----------------------------------------------------------------------------

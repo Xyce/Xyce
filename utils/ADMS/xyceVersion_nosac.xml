@@ -5,8 +5,8 @@
 <!-- simulator settings -->
 <admst:value-to select="/simulator/package_name" value="Xyce"/>
 <admst:value-to select="/simulator/package_tarname" value="Xyce"/>
-<admst:value-to select="/simulator/package_version" value="7.8.0"/>
-<admst:value-to select="/simulator/package_string" value="Xyce 7.8.0"/>
+<admst:value-to select="/simulator/package_version" value="7.9.0"/>
+<admst:value-to select="/simulator/package_string" value="Xyce 7.9.0"/>
 <admst:value-to select="/simulator/package_bugreport" value="xyce@sandia.gov"/>
 
 </admst>

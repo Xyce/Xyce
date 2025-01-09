@@ -89,6 +89,10 @@ void Traits::loadInstanceParameters(ParametricData<Bsrc::Instance> &p)
    .setUnit(U_SECOND)
    .setCategory(CAT_NONE)
    .setDescription("rc time constant");
+
+  p.addPar("M", 1.0, &Bsrc::Instance::multiplicityFactor)
+    .setUnit(U_NONE)
+    .setDescription("Multiplicity Factor for current sources");
 }
 
 void Traits::loadModelParameters(ParametricData<Bsrc::Model> &p)
@@ -132,6 +136,7 @@ Instance::Instance(
     APosEquBraVarOffset(-1),
     ANegEquBraVarOffset(-1),
     rc_const (1e-9),
+    multiplicityFactor(1.0),
     APosEquPosNodeOffset(-1),
     ANegEquPosNodeOffset(-1),
     APosEquNegNodeOffset(-1),
@@ -294,6 +299,12 @@ Instance::Instance(
 bool Instance::processParams()
 {
   updateTemperature(temp);
+
+  // M must be non-negative
+  if (multiplicityFactor <= 0)
+  {
+    UserError(*this) << "Multiplicity Factor (M) must be non-negative" << std::endl;
+  }
 
   return true;
 }
@@ -754,13 +765,13 @@ bool Instance::loadDAEFVector ()
   }
   else
   {
-    fVec[li_Pos] += source;
-    fVec[li_Neg] += -source;
+    fVec[li_Pos] += source * multiplicityFactor;
+    fVec[li_Neg] += -source * multiplicityFactor;
 
     if( loadLeadCurrent )
     {
       double * leadF = extData.nextLeadCurrFCompRawPtr;
-      leadF[li_branch_data] = source;
+      leadF[li_branch_data] = source * multiplicityFactor;
       double * junctionV = extData.nextJunctionVCompRawPtr;
       junctionV[li_branch_data] = solVec[li_Pos] - solVec[li_Neg];
     }
@@ -805,8 +816,8 @@ bool Instance::loadDAEdFdx ()
     {
       for( int i = 0; i < expNumVars; ++i )
       {
-        dFdx[li_Pos][APosEquExpVarOffsets[i]] += expVarDerivs[i];
-        dFdx[li_Neg][ANegEquExpVarOffsets[i]] -= expVarDerivs[i];
+        dFdx[li_Pos][APosEquExpVarOffsets[i]] += expVarDerivs[i] * multiplicityFactor;
+        dFdx[li_Neg][ANegEquExpVarOffsets[i]] -= expVarDerivs[i] * multiplicityFactor;
       }
     }
   }
@@ -1114,11 +1125,11 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     }
     else
     {
-      fVec[bi.li_Pos] += source;
-      fVec[bi.li_Neg] += -source;
+      fVec[bi.li_Pos] += source * bi.multiplicityFactor;
+      fVec[bi.li_Neg] += -source * bi.multiplicityFactor;
       if( bi.loadLeadCurrent )
       {
-        leadF[bi.li_branch_data] = source;
+        leadF[bi.li_branch_data] = source * bi.multiplicityFactor;
         junctionV[bi.li_branch_data] = solVec[bi.li_Pos] - solVec[bi.li_Neg];
       }
     }
@@ -1202,14 +1213,14 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx)
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
         for( int k = 0; k < bi.expNumVars; ++k )
         {
-          *bi.fPosEquExpVarPtrs[k] += bi.expVarDerivs[k];
-          *bi.fNegEquExpVarPtrs[k] -= bi.expVarDerivs[k];
+          *bi.fPosEquExpVarPtrs[k] += bi.expVarDerivs[k] * bi.multiplicityFactor;
+          *bi.fNegEquExpVarPtrs[k] -= bi.expVarDerivs[k] * bi.multiplicityFactor;
         }
 #else
         for( int j = 0; j < bi.expNumVars; ++j )
         {
-          dFdx[bi.li_Pos][bi.APosEquExpVarOffsets[j]] += bi.expVarDerivs[j];
-          dFdx[bi.li_Neg][bi.ANegEquExpVarOffsets[j]] -= bi.expVarDerivs[j];
+          dFdx[bi.li_Pos][bi.APosEquExpVarOffsets[j]] += bi.expVarDerivs[j] * bi.multiplicityFactor;
+          dFdx[bi.li_Neg][bi.ANegEquExpVarOffsets[j]] -= bi.expVarDerivs[j] * bi.multiplicityFactor;
         }
 #endif
       }

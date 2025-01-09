@@ -14,6 +14,8 @@ diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_108.h utils/ADMS/examp
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_108.C utils/ADMS/examples/BSIMCMG108.0.0_20140822/code/N_DEV_ADMSbsimcmg_108.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.h utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.C utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_111.h utils/ADMS/examples/BSIM-CMG_111.2.1_06062022/code/N_DEV_ADMSbsimcmg_111.h
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_111.C utils/ADMS/examples/BSIM-CMG_111.2.1_06062022/code/N_DEV_ADMSbsimcmg_111.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.h utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.C utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi.h utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.h
