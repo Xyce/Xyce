@@ -1,7 +1,26 @@
 classdef XyceSimMask
 
   methods(Static)
-  
+
+    
+    function MaskInitialization(maskInitContext)
+      % Following properties of 'maskInitContext' are available to use:
+      %  - BlockHandle 
+      %  - MaskObject 
+      %  - MaskWorkspace: Use get/set APIs to work with mask workspace.
+      blkHandle = maskInitContext.BlockHandle;       % Block Handle of this block
+      maskObj = maskInitContext.MaskObject;          % Mask object of this masked block
+      maskWorkspace = maskInitContext.MaskWorkspace; % Use this to work with mask workspace
+      %disp('Mask initialization triggered');
+      % get the number of inputs and outputs as saved in the I/O selectors
+      numInputsSpinnerValue = str2num(get_param(gcb, 'NumberOfInputs'));
+      maskWorkspace.set('NumInputPorts', numInputsSpinnerValue);
+      numOutputsSpinnerValue = str2num(get_param(gcb, 'NumberOfOutputs'));
+      maskWorkspace.set('NumberOfOutputs', numOutputsSpinnerValue);
+      
+      %end            
+    end
+    
     % Use the code browser on the left to add the callbacks.
     function SelectXyceInputFileButton(callbackContext)
       [aFile, aPath] = uigetfile('*');
@@ -16,12 +35,33 @@ classdef XyceSimMask
         for j = tableControl.getNumberOfRows():-1:1
           tableControl.removeRow(j);
         end
-        tableControl.addRow('-','TEMP');
+        %tableControl.addRow('-','TEMP');
 
       end
       if( aPath ~= 0 )
         set_param( gcb, 'WorkingDirectory', aPath);
       end
+    end
+
+    function ResetForm(callbackContext)
+      % reset all inputs on form to defaults
+      maskObj = get_param( gcb, 'MaskObject');
+      set_param( gcb, 'XyceInputFileName', '<name of circuit file>' );
+      set_param( gcb, 'WorkingDirectory', '<path to circuit file>');
+      
+      tableControl = maskObj.getDialogControl('InputNames');
+      for j = tableControl.getNumberOfRows():-1:1
+        tableControl.removeRow(j);
+      end
+      %tableControl.addRow('-','TEMP');
+      %set_param(gcb, 'NumberOfInputs', num2str(1));
+
+      tableControl = maskObj.getDialogControl('OutputNames');
+      for j = tableControl.getNumberOfRows():-1:1
+        tableControl.removeRow(j);
+      end
+      %tableControl.addRow('-','TEMP');
+      %set_param(gcb, 'NumberOfOutputs', num2str(1));
     end
    
     function ScanXyceInputFileButton(callbackContext)
@@ -133,7 +173,8 @@ classdef XyceSimMask
       maskObj = get_param( gcb, 'MaskObject');
       numInputsSpinnerValue = str2num(get_param(gcb, 'NumberOfInputs'));
       %set_param( gcb, 'NumberOfInputPorts', get_param(gcb, 'NumberOfInputs' );
-      %set_param(gcb, 'NumberOfInputPorts', numInputsSpinnerValue);
+      %set_param(gcb, 'XyceNumberOfInputPorts', numInputsSpinnerValue);
+      
       possibleInputs = {'-' '1'};
       if (numInputsSpinnerValue > 1)
         for i = 1:1:(numInputsSpinnerValue)
@@ -141,8 +182,19 @@ classdef XyceSimMask
         end
       end
       tableControl = maskObj.getDialogControl('InputNames');
-      portNumberColumn = tableControl.getColumn(1);
-      portNumberColumn.TypeOptions = possibleInputs;
+      if( tableControl.getNumberOfColumns > 1)
+        portNumberColumn = tableControl.getColumn(1);
+        portNumberColumn.TypeOptions = possibleInputs;
+        if (tableControl.getNumberOfRows() < numInputsSpinnerValue)
+          for j = tableControl.getNumberOfRows():1:(numInputsSpinnerValue)
+            tableControl.addRow('-','-');
+          end
+        elseif (tableControl.getNumberOfRows() > numInputsSpinnerValue)
+          for j = tableControl.getNumberOfRows():-1:(numInputsSpinnerValue+1)
+            tableControl.removeRow(j);
+          end
+        end
+      end 
     end
 
     function NumberOfOutputs(callbackContext)
@@ -151,7 +203,7 @@ classdef XyceSimMask
       maskObj = get_param( gcb, 'MaskObject');
       numOutputsSpinnerValue = str2num(get_param(gcb, 'NumberOfOutputs'));
       
-      %set_param(gcb, 'NumberOfOutputPorts', numOutputsSpinnerValue);
+      %set_param(gcb, 'XyceNumberOfOutputPorts', numOutputsSpinnerValue);
       possibleOutputs = {'-' '1'};
       if (numOutputsSpinnerValue > 1)
         for i = 1:1:(numOutputsSpinnerValue)
@@ -159,8 +211,19 @@ classdef XyceSimMask
         end
       end
       tableControl = maskObj.getDialogControl('OutputNames');
-      portNumberColumn = tableControl.getColumn(1);
-      portNumberColumn.TypeOptions = possibleOutputs;
+      if( tableControl.getNumberOfColumns > 1)
+        portNumberColumn = tableControl.getColumn(1);
+        portNumberColumn.TypeOptions = possibleOutputs;
+        if (tableControl.getNumberOfRows() < numOutputsSpinnerValue)
+          for j = tableControl.getNumberOfRows():1:(numOutputsSpinnerValue)
+            tableControl.addRow('-','-');
+          end
+        elseif (tableControl.getNumberOfRows() > numOutputsSpinnerValue)
+          for j = tableControl.getNumberOfRows():-1:(numOutputsSpinnerValue+1)
+            tableControl.removeRow(j);
+          end
+        end 
+      end
     end
 
     function InputNames(callbackContext)
@@ -220,6 +283,63 @@ classdef XyceSimMask
       %display(tempOutputNames);
       xtextArea = get_param( gcb, 'XyceOutputPortNames');
       xtextArea.Value = tempOutputNames;
+    end
+
+    function LoadCallback(callbackContext)
+      disp('LoadCallback')
+    end
+
+    function AddInputLineButton(callbackContext)
+      maskObj = get_param( gcb, 'MaskObject');
+      numInputsSpinnerValue = str2num(get_param(gcb, 'NumberOfInputs'));
+      possibleInputs = {'-' '1'};
+      if (numInputsSpinnerValue > 1)
+        for i = 1:1:(numInputsSpinnerValue)
+            possibleInputs{i+1} = int2str(i);
+        end
+      end
+      tableControl = maskObj.getDialogControl('InputNames');
+      if( tableControl.getNumberOfColumns > 1)
+        %portNumberColumn = tableControl.getColumn(1);
+        %portNumberColumn.TypeOptions = possibleOutputs;
+        tableControl.addRow('-','-');
+      end
+    end
+
+    function RemoveInputLineButton(callbackContext)
+      maskObj = get_param( gcb, 'MaskObject');
+      tableControl = maskObj.getDialogControl('InputNames');
+      if( tableControl.getNumberOfRows >= 1)
+        numRows = tableControl.getNumberOfRows();
+        tableControl.removeRow(numRows);
+      end
+    end
+
+    function AddOutputLineButton(callbackContext)
+      maskObj = get_param( gcb, 'MaskObject');
+      numOutputsSpinnerValue = str2num(get_param(gcb, 'NumberOfOutputs'));
+      possibleOutputs = {'-' '1'};
+      if (numOutputsSpinnerValue > 1)
+        for i = 1:1:(numOutputsSpinnerValue)
+            possibleOutputs{i+1} = int2str(i);
+        end
+      end
+      tableControl = maskObj.getDialogControl('OutputNames');
+      if( tableControl.getNumberOfColumns > 1)
+        %portNumberColumn = tableControl.getColumn(1);
+        %portNumberColumn.TypeOptions = possibleOutputs;
+        tableControl.addRow('-','-');
+      end
+    end
+
+    function RemoveOutputLineButton(callbackContext)
+      maskObj = get_param( gcb, 'MaskObject');
+      tableControl = maskObj.getDialogControl('OutputNames');
+      if( tableControl.getNumberOfRows >= 1)
+        numRows = tableControl.getNumberOfRows();
+        tableControl.removeRow(numRows);
+      end
+      
     end
   end
 end

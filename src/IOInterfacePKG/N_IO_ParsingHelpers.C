@@ -1132,7 +1132,7 @@ bool extractParamData(
            (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
       {
         Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
-          << "Parameter name " << parameter.uTag() << " is not permitted";
+          << "Parameter name " << parameter.uTag() << " is a reserved variable name and is not permitted";
       }
 
       if ( linePosition + 2 >= numFields )
@@ -1248,7 +1248,7 @@ bool extractGlobalParamData(
          (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
     { 
       Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
-        << "Parameter name " << parameter.uTag() << " is not permitted";
+        << "Parameter name " << parameter.uTag() << " is a reserved variable name and is not permitted";
     }
     
     if ( linePosition + 2 >= numFields )

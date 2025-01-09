@@ -983,7 +983,6 @@ private:
   bool VRBgiven;             // given flag for reverse early voltage(VRB)  (hspice)
   bool BVgiven;              // given flag for reverse early voltage(BV)  (hspice)
 
-
   double rollOffR;           //reverse high current roll-off (IKR)
   bool IKRgiven;             // given flag  for reverse high current roll-off (IKR) (spice)
   bool JBRgiven;             // given flag  for reverse high current roll-off (JBR) (Hspice)

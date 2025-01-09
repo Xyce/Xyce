@@ -131,7 +131,8 @@ void tecplotTimeHeader(std::ostream &os, bool print_title, const std::string tit
 
   if ( output_manager.getStepSweepVector().empty())
   {
-    os << "T=\"Xyce data\" ";
+    //os << "T=\"Xyce data - " <<  output_manager.getNetlistFilename() << " \" ";
+    os << "T=\"" <<  output_manager.getNetlistFilename() << " \" ";
   }
   else
   {

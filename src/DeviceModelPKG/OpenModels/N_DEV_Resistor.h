@@ -218,7 +218,7 @@ private:
 
   Model &     model_;                 ///< Owning model
 
-  // Stuff for handling solution-variable-dependent capacitance
+  // Stuff for handling solution-variable-dependent resistance
   Util::Expression * expPtr;
   int                expNumVars;
   std::vector<double> expVarDerivs;

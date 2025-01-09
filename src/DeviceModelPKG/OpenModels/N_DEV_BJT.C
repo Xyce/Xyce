@@ -559,6 +559,7 @@ void Traits::loadModelParameters(ParametricData<BJT::Model> &p)
    .setDescription("Fraction of CJC connected internally to RB")
    .setAnalyticSensitivityAvailable(true)
    .setSensitivityFunctor(&bjtModelSens);
+
   p.addPar ("CDIS",1.0,&BJT::Model::baseFracBCCap)
    .setGivenMember(&BJT::Model::CDISgiven)
    .setUnit(U_NONE)
@@ -2212,8 +2213,6 @@ void Instance::auxDAECalculations ()
 //-----------------------------------------------------------------------------
 bool Instance::loadDAEFVector ()
 {
-  double coefC, coefB, coefE, coefCp, coefBp, coefEp;
-
   double td = model_.excessPhaseFac;
   double * solVec = extData.nextSolVectorRawPtr;
   double * fVec = extData.daeFVectorRawPtr;

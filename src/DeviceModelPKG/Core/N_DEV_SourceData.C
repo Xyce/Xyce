@@ -1580,18 +1580,15 @@ void PWLinData::setParams (double *params)
       if( val != TVVEC[iter->first].second)
       {
         TVVEC[iter->first].second = val;
+        reset = true;
       }
     }
   }
 
-  // reset is only true when the timing of the PWL source has changed.
-  // changes to the "V" part of the TV pairs doesn' require anything to be
-  // re-set.
-  //
-  // need to reset some things like breakpoints if times have changed.
   if (reset)
   {
     setupBreakPoints() ;
+    updateSource();
   }
 }
 

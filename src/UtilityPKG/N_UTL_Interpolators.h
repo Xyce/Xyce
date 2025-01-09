@@ -52,6 +52,7 @@ inline bool greaterThan(std::complex<double> & left, std::complex<double> & righ
 template <>
 inline bool greaterThan(const std::complex<double> & left, const std::complex<double> & right) { return (std::real(left) > std::real(right)); }
 
+
 //-----------------------------------------------------------------------------
 // Class         : interpolator base class
 // Purpose       :
@@ -85,6 +86,11 @@ public:
   virtual void evalInteg (
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const {};
+
+  virtual void
+    getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs) {};
 
   inline size_t
   binarySearch(
@@ -212,6 +218,21 @@ public:
   void evalInteg (
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const;
+
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        coefs.resize(4,0.0);
+        coefs[0] = ya[index];
+        coefs[1] = p1[index];
+        coefs[2] = p2[index];
+        coefs[3] = p3[index];
+      }
+    };
 
 public:
   std::vector<ScalarT>  p1;
@@ -522,6 +543,21 @@ public:
      const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
      const ScalarT & a, const ScalarT & b, ScalarT & result) const;
 
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        coefs.resize(4,0.0);
+        coefs[0] = ya[index];
+        coefs[1] = p1[index];
+        coefs[2] = p2[index];
+        coefs[3] = p3[index];
+      }
+    };
+
 public:
   std::vector<ScalarT>  p1;
   std::vector<ScalarT>  p2;
@@ -815,7 +851,9 @@ public:
      const ScalarT & x, ScalarT & ypp) const;
 
   // evalInteg is not implemented
-
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs);
 public:
   std::vector<ScalarT> y2;
 };
@@ -1033,6 +1071,135 @@ void cubicSpline<ScalarT>::evalDeriv2(
     ypp =  a*y2[klo] + b*y2[khi];
   }
 }
+
+//-----------------------------------------------------------------------------
+// Function      : cubicSpline<ScalarT>::getCoefs
+// Purpose       : provides the cubic polynomial coefficients for a given cell.
+//
+// Special Notes : the cubic spline evaluation formula is not in the standard
+//                 polynomial form. So, do re-arrangements to get it there.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 10/03/2024
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+void cubicSpline<ScalarT>::getCoefs(
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+    size_t index, std::vector<ScalarT> & coefs)
+{
+  int n = xa.size();
+
+  if (index < n)
+  {
+    coefs.resize(4,0.0);
+  }
+
+  ScalarT h = 0.0;
+  ScalarT a = 0.0;
+  ScalarT b = 0.0;
+
+  int k = 0;
+  int klo = index; 
+  int khi = index+1;
+
+  if (klo < 0) { klo = 0; }
+  if (khi < 0) { khi = 0; }
+
+  if (klo > n-1) { klo = n-1; }
+  if (khi > n-1) { khi = n-1; }
+
+  h = xa[khi] - xa[klo];
+
+  if (h == 0.0)
+  {
+    // if out of range, then use the formula for dy/dx to extrapolate
+    // beyond the range.
+    if (khi == 0)
+    {
+#if 0
+      ScalarT h0 = xa[1]-xa[0];
+      ScalarT dx = x_position - xa[0];
+      y_spline = ya[0] + dx * dydx;
+#endif
+      // y_spline = ya[0] + dx * dydx = ya[0] + (x-xa[0]) * dydx
+
+      ScalarT h0 = xa[1]-xa[0];
+      ScalarT dydx = (ya[1]-ya[0])/h0 - h0*y2[0]/3.0 - h0*y2[1]/6.0;
+
+      ScalarT p0 = ya[0] - xa[0] * dydx;
+      ScalarT p1 = dydx;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+    }
+    else if (klo == n-1)
+    {
+#if 0
+      ScalarT h1 = xa[n-1]-xa[n-2];
+      ScalarT dx = x_position - xa[n-1];
+      ScalarT dydx = (ya[n-1]-ya[n-2])/h1 + h1*y2[n-2]/6.0 + h1*y2[n-1]/3.0;
+      y_spline = ya[n-1] + dx * dydx;
+#endif
+
+      ScalarT h1 = xa[n-1]-xa[n-2];
+      ScalarT dydx = (ya[n-1]-ya[n-2])/h1 + h1*y2[n-2]/6.0 + h1*y2[n-1]/3.0;
+
+      ScalarT p0 = ya[n-1] - xa[n-1]*dydx;
+      ScalarT p1 = dydx;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+
+      coefs[0] = p0;
+      coefs[1] = p1;
+      coefs[2] = p2;
+      coefs[3] = p3;
+    }
+  }
+  else
+  {
+#if 0
+    a = (xa[khi] - x_position)/h;
+    b = (x_position - xa[klo])/h;
+    // cubic spline polynomial: 
+    y_spline = a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2[klo] + (b*b*b-b)*y2[khi])*(h*h)/6.0;
+#endif
+
+    if (index<n)
+    {
+      // the cubic spline evaluation formula is not in the standard polynomial form.
+      // So, do re-arrangements to get it there.
+      //a = (xa[khi] - x_position)/h;
+      //b = (x_position - xa[klo])/h;
+
+      ScalarT p0 = 0.0;
+      ScalarT p1 = 0.0;
+      ScalarT p2 = 0.0;
+      ScalarT p3 = 0.0;
+
+      p0 += (xa[khi] )/h * ya[klo];   // from the a*ya[klo] term (1st term)
+      p0 += (- xa[klo])/h * ya[khi];  // from the b*ya[khi] term (2nd term)
+      p0 += + y2[klo]/h * std::pow(xa[khi], 3.0) / 6.0 - y2[klo] * h * xa[khi] / 6.0;  // from the 3rd term: ((a*a*a-a)*y2[klo])*(h*h)/6.0
+      p0 += - y2[khi]/h * std::pow(xa[klo], 3.0) / 6.0 + y2[khi] * h * xa[klo] / 6.0;  // from the 4th term: ((b*b*b-b)*y2[khi])*(h*h)/6.0
+
+      p1 += ( - 1.0)/h * ya[klo];
+      p1 += (1.0)/h * ya[khi];
+      p1 += + (-y2[klo] / h * xa[khi] * xa[khi] / 2.0 + y2[klo] * h / 6.0);
+      p1 += + (y2[khi] / h * xa[klo] * xa[klo] / 2.0 - y2[khi] * h / 6.0);
+
+      p2 += + y2[klo] / h * xa[khi] / 2.0;
+      p2 += - y2[khi] / h * xa[klo] / 2.0;
+
+      p3 += -y2[klo] / h / 6.0;
+      p3 += y2[khi] / h / 6.0;
+
+      coefs[0] = p0;
+      coefs[1] = p1;
+      coefs[2] = p2;
+      coefs[3] = p3;
+    }
+  }
+}
+
 
 //-----------------------------------------------------------------------------
 // Class         : linear interpolation class
@@ -1597,6 +1764,285 @@ void barycentricLagrange<ScalarT>::evalDeriv (
   }
   dydx = dldx * sum + l * dsumdx;
 
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Class         : steffen spline class
+// Purpose       :
+// Special Notes : References:
+//
+// The original reference for this type of spline is in this paper:
+//
+// M.Steffen, "A simple method for monotonic interpolation in one dimension",
+// Astron. Astrophys. 239, 443-450 (1990).
+//
+// Creator       : Eric Keiter, SNL
+// Creation Date : 9/25/2024
+//-----------------------------------------------------------------------------
+template <typename ScalarT>
+class steffen: public interpolator<ScalarT>
+{
+public:
+  steffen () {};
+  ~steffen () { clear(); };
+
+  ScalarT copysign(const ScalarT x, const ScalarT y)
+  {
+    if ((x < 0 && y > 0) || (x > 0 && y < 0)) { return -x; }
+    return x;
+  };
+
+  void init ( const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya);
+
+  void clear () { a.clear(); b.clear(); c.clear(); d.clear(); yp.clear(); };
+
+  void eval (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & y) const;
+
+  void evalDeriv (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & dydx) const;
+
+  void evalDeriv2 (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & x, ScalarT & ypp) const;
+
+  void evalInteg (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+     const ScalarT & a, const ScalarT & b, ScalarT & result) const;
+
+  void getCoefs (
+     const std::vector<ScalarT> & xa, const std::vector<ScalarT> & ya,
+        size_t index, std::vector<ScalarT> & coefs)
+    {
+      coefs.clear();
+      if (index < xa.size())
+      {
+        // Assume this form/order:  y(x) = coef_0 + coef_l(x-xl) + coef_2(x-x1)^2+ coef_3(x-x1)^3 
+        // Given that:  y = a*delx*delx*delx + b*delx*delx + c*delx + d, the order here is d,c,b,a
+        coefs.resize(4,0.0);
+        coefs[0] = d[index];
+        coefs[1] = c[index];
+        coefs[2] = b[index];
+        coefs[3] = a[index];
+      }
+    };
+
+public:
+  std::vector<ScalarT>  a;
+  std::vector<ScalarT>  b;
+  std::vector<ScalarT>  c;
+  std::vector<ScalarT>  d;
+  std::vector<ScalarT>  yp;
+};
+
+template <typename ScalarT>
+inline ScalarT Xycemax ( ScalarT f1, ScalarT f2) { return f1 > f2 ? f1 : f2; }
+
+template <typename ScalarT>
+inline ScalarT Xycemin ( ScalarT f1, ScalarT f2) { return f1 < f2 ? f1 : f2; }
+
+template <typename ScalarT>
+inline ScalarT Xyceabs ( ScalarT f1 )  { return (f1 < 0.0)?(-1.0*f1):(f1); }
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::init
+// Purpose       :
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::init (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya)
+{
+  size_t size = xa.size();
+  size_t i;
+
+  if (a.size() != size) a.resize(size,0.0);
+  if (b.size() != size) b.resize(size,0.0);
+  if (c.size() != size) c.resize(size,0.0);
+  if (d.size() != size) d.resize(size,0.0);
+  if (yp.size() != size) yp.resize(size,0.0);
+
+  // Assign interval and slopes for left boundary.
+  ScalarT h0 = (xa[1] - xa[0]);
+  ScalarT s0 = (ya[1] - ya[0]) / h0;
+
+  yp[0] = s0;
+
+  for (i = 1; i < (size - 1); i++)
+  {
+      ScalarT pi;
+
+      // equation 6 in paper
+      ScalarT hi = (xa[i+1] - xa[i]);
+      ScalarT him1 = (xa[i] - xa[i - 1]);
+
+      // equation 7 in paper
+      ScalarT si = (ya[i+1] - ya[i]) / hi;
+      ScalarT sim1 = (ya[i] - ya[i - 1]) / him1;
+
+      // equation 8 in paper
+      pi = (sim1*hi + si*him1) / (him1 + hi);
+
+      // equation 11 in paper
+      yp[i] = (copysign(1.0,sim1) + copysign(1.0,si)) * Xycemin(Xyceabs(sim1),Xycemin(Xyceabs(si),Xyceabs(pi)));
+  }
+
+  // Assign y' for rightmost boundary
+  yp[size-1] = (ya[size - 1] - ya[size - 2]) /
+                    (xa[size - 1] - xa[size - 2]);
+
+  for (i = 0; i < (size - 1); i++)
+    {
+      ScalarT hi = (xa[i+1] - xa[i]);
+      ScalarT si = (ya[i+1] - ya[i]) / hi;
+
+      // Equations 2-5 in paper.
+      a[i] = (yp[i] + yp[i+1] - 2*si) / hi / hi;
+      b[i] = (3*si - 2*yp[i] - yp[i+1]) / hi;
+      c[i] = yp[i];
+      d[i] = ya[i];
+    }
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::eval
+// Purpose       :
+// Special Notes :
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::eval (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & y) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  const ScalarT x_lo = xa[index];
+  const ScalarT delx = x - x_lo;
+
+  // Horner's scheme
+  // y = a*delx*delx*delx + b*delx*delx + c*delx + d;
+  y = d[index] + delx*(c[index] + delx*(b[index] + delx*a[index]));
+
+  return;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalDeriv
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalDeriv (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & dydx) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  ScalarT x_lo = xa[index];
+  ScalarT delx = x - x_lo;
+  //ScalarT d = state->d[index];
+  // dydx = 3*a*delx*delx*delx + 2*b*delx + c;
+  dydx = c[index] + delx*(2*b[index] + delx*3*a[index]);
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalDeriv2
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalDeriv2 (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & x,
+   ScalarT & ypp) const
+{
+  size_t size = xa.size();
+  size_t index = this->binarySearch (xa, x, 0, size - 1);
+  const ScalarT x_lo = xa[index];
+  const ScalarT delx = x - x_lo;
+  ypp = 6*a[index]*delx + 2*b[index];
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : steffen<ScalarT>::evalInteg
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/31/2024
+// ----------------------------------------------------------------------------
+template <typename ScalarT>
+void steffen<ScalarT>::evalInteg (
+   const std::vector<ScalarT> & xa,
+   const std::vector<ScalarT> & ya,
+   const ScalarT & ai,
+   const ScalarT & bi,
+   ScalarT & result) const
+{
+  // ai and bi are the boundaries of the integration.
+  size_t i, index_a, index_b;
+  size_t size = xa.size();
+
+  // Find the data points in the xa that are nearest to the desired
+  // a and b integration boundaries.
+  index_a = this->binarySearch (xa, ai, 0, size - 1);
+  index_b = this->binarySearch (xa, bi, 0, size - 1);
+
+  result = 0.0;
+
+  for(i=index_a; i<=index_b; i++)
+  {
+    const ScalarT x_hi = xa[i + 1];
+    const ScalarT x_lo = xa[i];
+    const ScalarT dx = x_hi - x_lo;
+    if(dx != 0.0)
+    {
+      // check if we are at a boundary point, so take the
+      // a and b parameters instead of the data points.
+      ScalarT zero = 0.0;
+      ScalarT x1 = (i == index_a) ? (ai-x_lo) : zero;
+      ScalarT x2 = (i == index_b) ? (bi-x_lo) : (x_hi-x_lo);
+
+      result += (1.0/4.0)*a[i]*(x2*x2*x2*x2 - x1*x1*x1*x1)
+                +(1.0/3.0)*b[i]*(x2*x2*x2 - x1*x1*x1)
+                +(1.0/2.0)*c[i]*(x2*x2 - x1*x1)
+                +d[i]*(x2-x1);
+    }
+    else
+    {
+      result = 0.0;
+      return;
+    }
+  }
   return;
 }
 

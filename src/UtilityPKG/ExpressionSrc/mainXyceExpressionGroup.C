@@ -104,6 +104,24 @@ mainXyceExpressionGroup::~mainXyceExpressionGroup ()
 {
 }
 
+bool mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName, Xyce::NodeTYPE nodeType, int &gid)
+{
+  // ERK check this for parallel.
+  std::vector<int> svGIDList1, dummyList;
+  char type1;
+
+  std::string nodeNameUpper = nodeName;
+  Xyce::Util::toUpper(nodeNameUpper);
+
+  bool foundLocal = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, nodeType), svGIDList1, dummyList, type1);
+  int found = static_cast<int>(foundLocal);
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found, 1); // is this necessary?
+
+  //gid = svGIDList1.empty()?-1:svGIDList1.front();
+  gid = (svGIDList1.size() == 1) ? svGIDList1.front() : -1;
+  return found;
+}
+
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getSolutionGID_
 // Purpose       : 
@@ -114,88 +132,26 @@ mainXyceExpressionGroup::~mainXyceExpressionGroup ()
 //-------------------------------------------------------------------------------
 int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
 {
-  int tmpGID=-1;
-  std::vector<int> svGIDList1, dummyList;
-  char type1;
-
-  std::string nodeNameUpper = nodeName;
-  Xyce::Util::toUpper(nodeNameUpper);
-
-  bool foundLocal = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_VNODE), svGIDList1, dummyList, type1);
-  int found = static_cast<int>(foundLocal);
-
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found, 1);
-
-  // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
-  bool foundLocal2 = false;
-  if (!found)
+  int tmpGID = -1;
+  if(getSolutionGID_(nodeName, Xyce::_VNODE, tmpGID) || getSolutionGID_(nodeName, Xyce::_DNODE, tmpGID)) {}
+  else
   {
-    foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
-  }
-  int found2 = static_cast<int>(foundLocal2);
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1);
-
-  // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
-  // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
-  // more details but, as an example, these netlist lines:
-  //
-  //   X1 1 2 MYSUB
-  //   .SUBCKT MYSUB a c 
-  //   R1   a b 0.5
-  //   R2   b c 0.5
-  //  .ENDS
-  //
-  // would produce key-value pairs of <"X1:C","2"> and <"X1:A","1"> in the aliasNodeMap 
-  bool foundAliasNodeLocal = false;
-  if (!found && !found2)
-  {
+    // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
+    // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
+    // more details but, as an example, these netlist lines:
+    //
+    //   X1 1 2 MYSUB
+    //   .SUBCKT MYSUB a c 
+    //   R1   a b 0.5
+    //   R2   b c 0.5
+    //  .ENDS
+    //
+    // would produce key-value pairs of <"X1:C","2"> and <"X1:A","1"> in the aliasNodeMap 
+    std::string nodeNameUpper = nodeName;
+    Xyce::Util::toUpper(nodeNameUpper);
     IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
-    if (alias_it != aliasNodeMap_.end())
-    {      
-      foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
-    }
+    if (alias_it != aliasNodeMap_.end() && getSolutionGID_((*alias_it).second, Xyce::_VNODE, tmpGID)) {}
   }
-  int foundAliasNode = static_cast<int>(foundAliasNodeLocal);
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &foundAliasNode, 1);
-
-  if(svGIDList1.size()==1)
-  {
-    tmpGID = svGIDList1.front();
-  }
-
-  return tmpGID;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getCurrentSolutionGID_
-// Purpose       : Same as getSolutionGID_ but only for device current solution vars
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 12/20/2023
-//-------------------------------------------------------------------------------
-int mainXyceExpressionGroup::getCurrentSolutionGID_(const std::string & nodeName)
-{
-
-  // ERK check this for parallel.
-
-  int tmpGID=-1;
-  std::vector<int> svGIDList1, dummyList;
-  char type1;
-
-  std::string nodeNameUpper = nodeName;
-  Xyce::Util::toUpper(nodeNameUpper);
-
-  // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
-  bool foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
-  int found2 = static_cast<int>(foundLocal2);
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1); // is this necessary?
-
-  if(svGIDList1.size()==1)
-  {
-    tmpGID = svGIDList1.front();
-  }
-
   return tmpGID;
 }
 
@@ -267,7 +223,7 @@ bool mainXyceExpressionGroup::
   retval = 0.0;
   int tmpGID = -1;
 
-  tmpGID = getCurrentSolutionGID_(deviceName);
+  getSolutionGID_(deviceName, Xyce::_DNODE, tmpGID);
   if (tmpGID >= 0)
   {
     const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
@@ -291,22 +247,14 @@ bool mainXyceExpressionGroup::
 {
   double real_val=0.0;
   double imag_val=0.0;
-  int tmpGID = -1;
 
-  tmpGID = getCurrentSolutionGID_(deviceName);
-  if (tmpGID >= 0)
-  {
-    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
-    if (nextSolVector) { real_val = nextSolVector->getElementByGlobalIndex(tmpGID, 0); }
-  }
-
-  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
-
+  auto foundGID = getCurrentVal(deviceName, designator, real_val);
+  
   // The parts of Xyce likely to use this class currently use
   // a real equivalent form for everything, rather than std::complex.
   // So, set imag to zero.
   retval = std::complex<double>(real_val,imag_val);
-  return (tmpGID>=0);
+  return foundGID;
 }
 
 //-------------------------------------------------------------------------------

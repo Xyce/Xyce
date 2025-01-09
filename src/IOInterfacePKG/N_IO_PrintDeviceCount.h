@@ -57,7 +57,7 @@ struct DeviceCountMapSum
   using first_argument_type = DeviceCountMap::value_type;
   using second_argument_type = int;
 
-  int operator()(int &s0, const DeviceCountMap::value_type &s1) const
+  int operator()(const int &s0, const DeviceCountMap::value_type &s1) const
   {
     return s0 + s1.second;
   }

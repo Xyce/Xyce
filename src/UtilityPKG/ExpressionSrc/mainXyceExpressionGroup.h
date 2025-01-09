@@ -123,7 +123,6 @@ public:
   virtual bool getParameterVal (const std::string & paramName, std::complex<double> & retval );
 
   int getSolutionGID_(const std::string & nodeName);
-  int getCurrentSolutionGID_(const std::string & nodeName);
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
@@ -158,8 +157,9 @@ protected:
   double time_, temp_, VT_, freq_, gmin_;
   double dt_, alpha_;
 
+  bool getSolutionGID_(const std::string & nodeName, Xyce::NodeTYPE nodeType, int &gid);
 private:
- 
+
 };
 
 }

@@ -40,6 +40,9 @@
 #include "Xyce_config.h"
 #include <N_CIR_XyceCInterface.h>
 
+#include <string.h>
+#include <math.h>
+
 //
 // Xyce::Circuit::Simulator functions that need to be tested
 //
@@ -679,6 +682,231 @@ TEST ( XyceSimulator, UpdateTimeVoltagePairsNetlist3 )
     free( timeArray[i]);
     free( vArray[i]);
     free(dacNames[i]);
+  }
+}
+
+
+TEST ( XyceSimulator, MultiPortGetTimeVoltagePairs )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "MultiPort.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+
+  const int maxNumADC = 10;
+  const int maxNameLength = 256;
+  char * adcNames[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumADC];
+  double adcRes[maxNumADC];
+  double adcUpperVLim[maxNumADC];
+  double adcLowerVLim[maxNumADC];
+  double adcSettlingTime[maxNumADC];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_TRUE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 2);
+  
+  // simulate forward in time about half way through the simulation
+  double finalTime = xyce_getFinalTime( & xycePtr );
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  double * timeArray[maxNumADC];
+  double * vArray[maxNumADC];
+  const int maxDataPoints=10000;  
+  for( int i=0; i<maxNumADC; i++)
+  {
+    timeArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+    vArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+  }
+  
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xyce_simulateUntil( & xycePtr, simToTime, & actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xyce_getTime( & xycePtr );
+    EXPECT_EQ( reportedTime, actualTime );
+    bool isSimComplete = xyce_simulationComplete( & xycePtr );
+    // should be false on all but the last step
+    if( i < (numSteps-1))
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    
+    int numADCret = 0;
+    int numPoints = 0;
+    int retResult = xyce_getTimeVoltagePairsADC( & xycePtr, & numADCret, adcNames, & numPoints, timeArray, vArray );
+    
+    EXPECT_EQ( retResult, 1);
+    EXPECT_EQ(numADCret, 2);
+    for( auto adcID=0; adcID<numADCret; adcID++)
+    {
+      if( strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
+      {
+        for( auto ts=0; ts<numPoints; ts++)
+        {
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          {
+            EXPECT_NEAR(vArray[adcID][ts], 5.0, 1e-7 );
+            break;
+          }
+        }
+      }
+      if( strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
+      {
+        for( auto ts=0; ts<numPoints; ts++)
+        {
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          {
+            EXPECT_NEAR(vArray[adcID][ts], -3.0, 1e-7 );
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumADC; i++)
+  {
+    free( adcNames[i]);
+    free( timeArray[i]);
+    free( vArray[i]);
+  }
+}
+
+TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsTimeVariant )
+{
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  EXPECT_TRUE( ((long *)xycePtr) != 0 );
+  const char argv0[] = "Xyce";
+  const char argv1[] = "MultiPort2.cir"; 
+  char * argvarray[2];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  int return_status = xyce_initialize( & xycePtr, 2, argvarray);
+  EXPECT_EQ( return_status, 1);
+
+  const int maxNumADC = 10;
+  const int maxNameLength = 256;
+  char * adcNames[maxNumADC];
+  for( int i=0; i<maxNumADC; i++)
+  {
+    adcNames[i] = (char *) malloc(maxNameLength*sizeof(char));
+  }
+  int numAdcs;
+  int adcWidths[maxNumADC];
+  double adcRes[maxNumADC];
+  double adcUpperVLim[maxNumADC];
+  double adcLowerVLim[maxNumADC];
+  double adcSettlingTime[maxNumADC];
+  bool circuitHasADCs = xyce_getADCMap( &xycePtr, & numAdcs, adcNames, 
+    adcWidths, adcRes, adcUpperVLim, adcLowerVLim, adcSettlingTime );
+	           
+  EXPECT_TRUE( circuitHasADCs);
+  EXPECT_EQ( numAdcs, 2);
+  
+  // simulate forward in time about half way through the simulation
+  double finalTime = xyce_getFinalTime( & xycePtr );
+  // run this simulation in several sub-stesps
+  const int numSteps=100;
+  double * timeArray[maxNumADC];
+  double * vArray[maxNumADC];
+  const int maxDataPoints=10000;  
+  for( int i=0; i<maxNumADC; i++)
+  {
+    timeArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+    vArray[i] = (double *) malloc(maxDataPoints*sizeof(double));
+  }
+  
+  for(auto i = 0; i<numSteps; i++)
+  {
+    // simToTime must be greater than zero.  passing zero in will cause Xyce to abort.
+    double simToTime = (i+1)*finalTime/numSteps;
+    double actualTime=0.0;
+    bool stepResult = xyce_simulateUntil( & xycePtr, simToTime, & actualTime);
+    EXPECT_TRUE(stepResult);
+    // for this simple circuit we expect the simToTime and actualTime to be equal 
+    EXPECT_EQ( simToTime, actualTime );
+    double reportedTime = xyce_getTime( & xycePtr );
+    EXPECT_EQ( reportedTime, actualTime );
+    bool isSimComplete = xyce_simulationComplete( & xycePtr );
+    // should be false on all but the last step
+    if( i < (numSteps-1))
+    {
+      EXPECT_FALSE( isSimComplete );
+    }
+    else
+    {
+      EXPECT_TRUE( isSimComplete );
+    }
+    
+    int numADCret = 0;
+    int numPoints = 0;
+    int retResult = xyce_getTimeVoltagePairsADC( & xycePtr, & numADCret, adcNames, & numPoints, timeArray, vArray );
+    
+    EXPECT_EQ( retResult, 1);
+    EXPECT_EQ(numADCret, 2);
+    for( auto adcID=0; adcID<numADCret; adcID++)
+    {
+      if( strncmp("YADC!ADCHIGH", adcNames[adcID], 12) == 0 )
+      {
+        for( auto ts=0; ts<numPoints; ts++)
+        {
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          {
+            double ans = 5.0*sin(2*M_PI*5e3*simToTime);
+            //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
+            EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
+            break;
+          }
+        }
+      }
+      if( strncmp("YADC!ADCLOW", adcNames[adcID], 12) == 0 )
+      {
+        for( auto ts=0; ts<numPoints; ts++)
+        {
+          if( fabs(timeArray[adcID][ts] - reportedTime) < 1e-8 )
+          {
+            double ans = 3.0*cos(2*M_PI*2e3*simToTime);
+            //printf("%s: %g: %g %g diff %g\n", adcNames[adcID], simToTime, vArray[adcID][ts], ans, (vArray[adcID][ts]-ans));
+            EXPECT_NEAR(vArray[adcID][ts], ans, 1e-7 );
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  xyce_close( & xycePtr );
+  EXPECT_TRUE( ((long *)xycePtr) == 0 );
+  for( int i=0; i<maxNumADC; i++)
+  {
+    free( adcNames[i]);
+    free( timeArray[i]);
+    free( vArray[i]);
   }
 }
 

@@ -58,6 +58,10 @@ set(Xyce_REACTION_PARSER           TRUE CACHE BOOL "Enable the chemical reaction
 # Support for Charon coupling
 set(Xyce_CHARON                    FALSE CACHE BOOL "Enable Charon device support")
 
+# mostly, this flag is used to copy "extra" include files into the
+# installation directory
+option(Xyce_AS_SPECIAL_CHARON_TPL "Build xyce library as required by charon" OFF)
+
 # Verbose output
 set(Xyce_VERBOSE_CONDUCTANCE       FALSE CACHE BOOL "Enable verbose output for ???")
 set(Xyce_VERBOSE_LINEAR            FALSE CACHE BOOL "Enable verbose output in the linear solver")
@@ -192,6 +196,30 @@ else ()
      set (Xyce_RAD_MODELS FALSE CACHE BOOL "Include the SandiaModels directory, if it exists" FORCE)
      message("The ${Xyce_RAD_MODELS_DIR} directory does not exist - "
           "changing Xyce_RAD_MODELS to FALSE.")
+endif ()
+
+if (NOT DEFINED Xyce_REGRESSION_DIR)
+     file(REAL_PATH "${PROJECT_SOURCE_DIR}/Xyce_Regression" XyceRGDIR)
+     set (Xyce_REGRESSION_DIR ${XyceRGDIR} CACHE STRING "Search path for Xyce_Regression")
+     message(DEBUG "Setting default search path for Xyce_Regression  - ${Xyce_REGRESSION_DIR}")
+endif ()
+
+if ((Xyce_REGRESSION OR NOT DEFINED Xyce_REGRESSION) AND EXISTS "${Xyce_REGRESSION_DIR}")
+     set (Xyce_REGRESSION TRUE CACHE BOOL "Include the Xyce regression directory, if it exists")
+     message(STATUS "Including the regression directory \"${Xyce_REGRESSION_DIR}\"")
+elseif (NOT DEFINED Xyce_REGRESSION)
+     # The flag was not set, and the directory does not exist
+     # Silently add the flag (is this even necessary?)
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce regression directory, if it exists")
+elseif (NOT Xyce_REGRESSION)
+     # The flag was set to FALSE; the directory may or may not exist
+     message(STATUS "NOT including the regression directory, \"${Xyce_REGRESSION_DIR}\"")
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce regression directory, if it exists")
+else ()
+     # The flag was set to TRUE, but the directory doesn't exist
+     set (Xyce_REGRESSION FALSE CACHE BOOL "Include the Xyce_Regression directory, if it exists" FORCE)
+     message(WARNING "The regression directory, \"${Xyce_REGRESSION_DIR}\" does not exist - "
+          "changing Xyce_REGRESSION to FALSE.")
 endif ()
 
 # This logic could be in tps.cmake, since it's looking for Boost; but this is

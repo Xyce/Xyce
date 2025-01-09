@@ -1,0 +1,33 @@
+*
+* a band pass filter example
+* Low cutoff f=1/(2pi R2 C2)
+* High cutoff f=1/(2pi R1 C1)
+* 
+* a low cutoff of about 1000 Hz and high cutoff of 5000 Hz
+* C1 = 100 nF
+* R1 = 1600 Ohm
+* C2 = 1 nF
+* R2 = 3200 Ohm
+
+C1 node1 node3 C=100.0e-9
+R1 node3 0 R=1600
+R2 node3 node4 R=50000
+C2 node4 0 C=1.0e-9
+
+* input to filter
+ydac dac_driver node1 0 
+
+* outputs.  O
+
+* output from filter
+yadc adc_out node4 0 simpleADC R=1T
+yadc adc_mid node3 0 simpleADC R=1T
+
+.model simpleDAC DAC(tr=5e-9 tf=5e-9)
+.model simpleADC ADC(settlingtime=5ns uppervoltagelimit=5 lowervoltagelimit=-5)
+
+.print tran v(node1) v(node3) v(node4)
+
+.tran 0 5e-3
+
+.end

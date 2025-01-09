@@ -131,7 +131,7 @@ bool ACExpressionGroup::getCurrentVal
   double imag_val=0.0;
   int tmpGID = -1;
 
-  tmpGID = getCurrentSolutionGID_(deviceName);
+  getSolutionGID_(deviceName, Xyce::_DNODE, tmpGID);
   if (tmpGID >= 0)
   {
     Linear::Vector & Xreal = X_.block( 0 );

@@ -95,7 +95,7 @@ if( Xyce_USE_FFTW )
 endif()
 
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
-target_link_libraries(XyceLib PUBLIC ${TriBITS_prefix}::all_selected_libs)
+target_link_libraries(XyceLib PUBLIC Trilinos::all_selected_libs)
 
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
@@ -114,20 +114,6 @@ add_executable(Xyce Xyce.C)
 #target_include_directories (Xyce PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> ${XYCE_INCLUDE_DIRECTORIES})
 target_include_directories (XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
 target_link_libraries(Xyce XyceLib)
-
-if(WIN32)
-  if(DEFINED ENV{MKLROOT})
-
-    file(TO_CMAKE_PATH "$ENV{MKLROOT}" MKLROOT)
-
-    add_custom_command(
-      TARGET Xyce POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different
-              ${MKLROOT}/redist/intel64/mkl_sequential.2.dll
-              ${CMAKE_CURRENT_BINARY_DIR})
-  endif()
-endif()
-
 
 # ---- And the installation of them. ----------------
 # Keep this in mind if Xyce needs to support building both static and shared libraries
@@ -293,7 +279,7 @@ COMPONENT Core  )
 # Xyce.  Therefore, it requires a lot more headers to be installed for proper
 # linking.  We're installing the headers for all Charon builds, because it is
 # not worth dealing with yet another special use case.
-if(${TriBITS_prefix} STREQUAL "tcad-charon")
+if(Xyce_AS_SPECIAL_CHARON_TPL)
   install(FILES 
     AnalysisPKG/N_ANP_AnalysisBase.h
     AnalysisPKG/N_ANP_AnalysisEvent.h
@@ -351,7 +337,7 @@ export(EXPORT XyceLibTarget
   NAMESPACE Xyce::
 )
 
-set( Xyce_Trilinos_DIR ${${TriBITS_prefix}_DIR})
+set( Xyce_Trilinos_DIR ${Trilinos_DIR})
 configure_package_config_file(
   cmake/XyceConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmake/XyceConfig.cmake

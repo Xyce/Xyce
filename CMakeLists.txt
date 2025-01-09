@@ -1,18 +1,15 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0076 NEW)
+if (CMAKE_VERSION VERSION_GREATER "3.27.0")
+  cmake_policy(SET CMP0144 NEW)
+endif()
 
 option(Xyce_USE_SUPERBUILD "Use superbuild to install Trilinos?" OFF)
 if(Xyce_USE_SUPERBUILD)
   include("XyceSuperBuild.cmake")
   return()
 endif()
-
-# A TriBITS project that performs a coupled build with Trilinos, like Charon,
-# changes the names of all the Trilinos variables.  Therefore, we have to jump
-# through a bunch of hoops to take that use case into account.  Here we set a
-# cache variable to handle that name "mangling."
-set(TriBITS_prefix "Trilinos" CACHE STRING "Prefix of the Trilinos/TriBITS project")
 
 # Set a default build type if none was specified (using the fact that
 # CMAKE_CONFIGURATION_TYPES is non-zero for mutli-configuration generators).
@@ -34,7 +31,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
      "RelWithDebInfo" "MinSizeRel")
 endif()
 
-project(Xyce VERSION 7.9.0 LANGUAGES CXX C)
+project(Xyce VERSION 7.10.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,7 +41,7 @@ if(APPLE)
   list(APPEND CMAKE_INSTALL_RPATH "@loader_path/../lib")
 
   # set the OSX toolkit version to be consistent with trilinos build
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "12.5" CACHE STRING "" FORCE)
+  #set(CMAKE_OSX_DEPLOYMENT_TARGET "12.5" CACHE STRING "" FORCE)
 else()
   list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 endif()
@@ -53,21 +50,40 @@ if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared libraries?" OFF)
+option(Xyce_GTEST_UNIT_TESTS "Build google test based unit tests" OFF)
 
 include(cmake/config.cmake)
+include(cmake/utilities.cmake)
+
+# print out Xyce-related variables
+if (CMAKE_VERSION VERSION_GREATER "3.24.0")
+  cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
+  if(LOG_LEVEL STREQUAL "DEBUG")
+    dump_cmake_variables("Xyce.*")
+  endif()
+endif()
 
 if(Xyce_PLUGIN_SUPPORT AND (NOT BUILD_SHARED_LIBS))
   message(WARNING "Forcing BUILD_SHARED_LIBS to ON for plugin support.")
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries?" FORCE)
 endif()
 
+# add any compiler-specific flags all things Xyce here. at present these are:
+#    * IntelLLVM C++ - requires "-fp-model=precise" (or "/fp:precise" on Windows)
+#                      for passage of some xyce tests
+if(WIN32)
+  add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,/fp:precise,>")
+else()
+  add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
+endif()
+
 if(BUILD_SHARED_LIBS AND CMAKE_HOST_WIN32 )
-  # if building a shared library under windows automatically export all 
-  # symbols in the resulting "dll"  This is not optimal but will work 
+  # if building a shared library under windows automatically export all
+  # symbols in the resulting "dll"  This is not optimal but will work
   # until a detailed code markup is done.
   set( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
 endif()
-  
+
 add_subdirectory(src)
 if(BUILD_TESTING)
   add_subdirectory(test)
@@ -119,7 +135,7 @@ if(Xyce_PLUGIN_SUPPORT)
       DESTINATION share/examples)
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
-    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY ) 
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY )
     install(
       FILES
         ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
@@ -136,6 +152,33 @@ endif()
 
 # if no generator type is specified, use RPM
 set(GEN_TYPE "RPM" CACHE STRING "What generator to use.")
+
+# generate the package name for cpack
+string(REPLACE ":" ";" verList ${Xyce_XyceVERSION})
+list(GET verList 0 develOrRelease)
+list(GET verList 1 develPhase)
+list(GET verList 2 versionNum)
+
+if(develOrRelease STREQUAL "D")
+  set(develOrRelease "DEVELOPMENT")
+else()
+  set(develOrRelease "Release")
+endif()
+if(develPhase STREQUAL "")
+  set(develPhaseStr "")
+else()
+  set(develPhaseStr "-${develPhase}")
+endif()
+
+set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
+message(DEBUG "[DBG]: CPACK_PACKAGE_NAME: ${CPACK_PACKAGE_NAME}")
+
+# if the user didn't specify it set the install directory according to
+# the CPACK_PACKAGE_NAME
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "/usr/local/${CPACK_PACKAGE_NAME}" CACHE PATH "Installation Directory" FORCE)
+endif()
+message(DEBUG "[DBG]: CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings

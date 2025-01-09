@@ -57,11 +57,13 @@ if(GTest_FOUND)
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
      # Wrap the GTest tests with CTest
-     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
-     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
-     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
-     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit:)
+     # Setting the test labels looks odd but is needed to overcome a bug in gtest-cmake see https://gitlab.kitware.com/cmake/cmake/-/issues/17812
+     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit: PROPERTIES  "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression" )
+     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
+    message(STATUS "Adding expression library unit tests")
 endif()
 
 # The following should **NEVER** be enabled with a full Xyce build.
@@ -73,7 +75,8 @@ if(BUILD_ONLY_UNIT_TESTS)
      # Xyce should use the same compilers as Trilinos. Therefore, Trilinos must be
      # loaded before "project" is called.
      message(STATUS "Looking for required Trilinos package: Teuchos")
-     find_package(Trilinos 13.5 REQUIRED  Teuchos)
+     # find_package(Trilinos 13.5 REQUIRED  Teuchos)
+     find_package(Trilinos REQUIRED  Teuchos)
      message(STATUS "Looking for required Trilinos package: Teuchoss - found")
 
      # Set the compiler, so "project" finds the right one.
@@ -93,7 +96,7 @@ if(BUILD_ONLY_UNIT_TESTS)
 
      project(Xyce_Expression_Unit_Tests VERSION 1.0.0 LANGUAGES CXX C)
 
-     set(CMAKE_CXX_STANDARD 11)
+     set(CMAKE_CXX_STANDARD 17)
      set(CMAKE_CXX_STANDARD_REQUIRED ON)
      set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -145,12 +148,12 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/N_ERH_Messenger.C
           )
 
-     target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> 
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../> 
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../ExpressionSrc/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ErrorHandlingPKG/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../IOInterfacePKG/ >
-          $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/../../ParallelDistPKG/ >)
+     target_include_directories(parserReqdComplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+          ${TARGET_SOURCE_DIR} ${TARGET_SOURCE_DIR}/../
+          ${TARGET_SOURCE_DIR}/../ExpressionSrc/
+          ${TARGET_SOURCE_DIR}/../../ErrorHandlingPKG/
+          ${TARGET_SOURCE_DIR}/../../IOInterfacePKG/
+          ${TARGET_SOURCE_DIR}/../../ParallelDistPKG/)
 
      target_link_libraries(parserReqdComplex PUBLIC Trilinos::all_selected_libs)
 
@@ -185,10 +188,13 @@ if(BUILD_ONLY_UNIT_TESTS)
           ${CMAKE_SOURCE_DIR}/SubDir1/test1.dat
           ${CMAKE_SOURCE_DIR}/test1-1.dat
           DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+     
+     # Wrap the GTest tests with CTest
+     # Setting the test labels looks odd but is needed to overcome a bug in gtest-cmake see https://gitlab.kitware.com/cmake/cmake/-/issues/17812
+     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
 
-     gtest_discover_tests(astUnitTest TEST_PREFIX astUnit:)
-     gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit:)
-     gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit:)
-     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit:)
-
+    message(STATUS "Adding expression library unit tests")
 endif()
