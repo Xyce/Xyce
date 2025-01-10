@@ -87,6 +87,8 @@ static char RCSid[] =
 #include "spmatrix.h"
 #include "spdefs.h"
 
+#include <assert.h>
+
 int Printer_Width = PRINTER_WIDTH;
 void spExpandFormat(MatrixPtr);
 
@@ -177,7 +179,7 @@ ElementPtr  pElement, *pImagElements;
 int  *PrintOrdToIntRowMap, *PrintOrdToIntColMap;
 
 /* Begin `spPrint'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
     spExpandFormat(Matrix);
     Size = Matrix->Size;
     CALLOC(pImagElements, ElementPtr, Printer_Width / 10 + 1);
@@ -453,7 +455,7 @@ int  Row, Col, Err;
 FILE  *pMatrixFile;
 
 /* Begin `spFileMatrix'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
     spExpandFormat(Matrix);
 
 /* Open file matrix file in write mode. */
@@ -604,7 +606,7 @@ register  int  I, Size, Err;
 FILE  *pMatrixFile;
 
 /* Begin `spFileVector'. */
-    ASSERT( IS_SPARSE( Matrix ) AND RHS != NULL)
+    assert( IS_SPARSE( Matrix ) AND RHS != NULL);
 
 /* Open File in append mode. */
     if ((pMatrixFile = fopen(File,"a")) == NULL)
@@ -616,7 +618,7 @@ FILE  *pMatrixFile;
     if (Matrix->Complex)
     {
 #if spSEPARATED_COMPLEX_VECTORS
-        ASSERT(iRHS != NULL)
+        assert(iRHS != NULL);
         --RHS;
         --iRHS;
 #else
@@ -724,7 +726,7 @@ RealNumber  Data, LargestElement, SmallestElement;
 FILE  *pStatsFile;
 
 /* Begin `spFileStats'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
     spExpandFormat(Matrix);
 
 /* Open File in append mode. */
