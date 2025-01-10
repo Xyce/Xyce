@@ -2,6 +2,27 @@
 
 [![Xyce](doc/Common_Guide_Files/xyce_flat_white.png)](https://xyce.sandia.gov)
 
+## Attention!!! Open source users
+Due to an internal process change, the Xyce team has decided to break/restart the project history.
+The master branch has been moved to track changes rooted in a new orphaned node/commit in the repository.
+The new root commit is based on the final merge commit for the 7.9 release (so that there are no differences between the top of the old tree and this new root commit).
+All future updates will be pushed to the re-rooted master branch.
+
+Users may encounter the following error trying to update their repositories:\
+  `fatal: refusing to merge unrelated histories`
+
+To resolve the issue, we recommend deleting your local master branch and creating a new branch to track origin/master.  
+  `git fetch`\
+  `git checkout -b temp_branch`\
+  `git branch -D master`\
+  `git checkout master`\
+  `git branch -D temp_branch`
+  
+To preserve a continuous view of the project history; replace the new root commit with the head of the old history.\
+  `git replace <new root tag/commit id> <origin/old_master or commit id>`
+
+We apologize for any inconvenience.
+
 ## About the Xyce&trade; Parallel Electronic Simulator
 
 [Xyce](https://xyce.sandia.gov)&trade; (z&#x012B;s, rhymes with "spice") is an
