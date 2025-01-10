@@ -1,0 +1,30 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+EMBEDDEDSAMPLING Analysis generates one output file, with the information for
+each output variable grouped in a set of contiguous columns, based on the format
+specified by the \texttt{.PRINT} command.  The arguments \texttt{OUTPUT\_SAMPLE\_STATS}
+and \texttt{OUTPUT\_ALL\_SAMPLES} are specific to \texttt{.PRINT ES} lines. Section
+\ref{EMBEDDEDSAMPLING_section} has more details on their usage.
+
+For a transient analysis, a TIME column will also be included for the STD,
+GNUPLOT, SPLOT, NOINDEX and CSV formats.  The TIME variable will also be
+included in the TECPLOT format for that case.
+
+{
+\begin{PrintCommandTable}{Print EMBEDDEDSAMPLING Analysis Type}
+.PRINT ES & \emph{circuit-file}.ES.prn & INDEX \\ \hline
+.PRINT ES FORMAT=GNUPLOT & \emph{circuit-file}.ES.prn & INDEX \\ \hline
+.PRINT ES FORMAT=SPLOT & \emph{circuit-file}.ES.prn & INDEX \\ \hline
+.PRINT ES FORMAT=NOINDEX & \emph{circuit-file}.ES.prn & -- \\ \hline
+.PRINT ES FORMAT=CSV & \emph{circuit-file}.ES.csv & -- \\ \hline
+.PRINT ES FORMAT=TECPLOT & \emph{circuit-file}.ES.dat & -- \\ \hline
+\end{PrintCommandTable}
+}
+

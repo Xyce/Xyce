@@ -1,0 +1,233 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+ 
+%%
+%% Behavioral Digital Description Table
+%%
+\begin{Device}\label{YTypeDigitalDevice}
+
+\device
+\begin{alltt}
+Y<type> <name> [low output node] [high output node]
++ [input reference node] <input node>* <output node>*
++  <model name> [device parameters]
+\end{alltt}
+
+\model
+.MODEL <model name> DIG [model parameters]
+
+\examples
+\begin{alltt}
+YAND MYAND in1 in2 out DMOD IC=TRUE
+YNOT THENOT in out DMOD
+YNOR ANOR2 vlo vhi vref in1 in2 out DDEF
+.model DMOD DIG (
++ CLO=1e-12  CHI=1e-12
++ S0RLO=5  S0RHI=5  S0TSW=5e-9
++ S0VLO=-1  S0VHI=1.8
++ S1RLO=200  S1RHI=5  S1TSW=5e-9
++ S1VLO=1  S1VHI=3
++ RLOAD=1000
++ CLOAD=1e-12
++ VREF=0 VLO=0 VHI=3
++ DELAY=20ns )
+.MODEL DDEF DIG
+\end{alltt}
+
+\parameters
+\begin{Parameters}
+
+\param{type}
+Type of digital device.  Supported devices are: NOT, BUF, AND, NAND, OR, NOR, XOR,
+NXOR, DFF, JKFF, TFF, DLTCH and ADD.  (Note: INV is now the preferred synonym for NOT.  
+The NOT device type will be deprecated in future \Xyce{} releases.)  For Y-type digital
+devices, all devices have two input nodes and one output node, except for NOT, DFF and
+ADD.  NOT has one input and one output.  ADD has three inputs (in1, in2, carryIn) and 
+two outputs (sumOut and carryOut).  DFF has four inputs (PREB, CLRB, Clock and
+Data) and two outputs ($Q$ and $\bar{Q}$). TFF has two inputs (T and Clock) and two
+outputs ($Q$ and $\bar{Q}$).  The TFF uses ``positive'' (``rising'') edge clocking.
+The JKFF has five inputs (PREB, CLRB, Clock, J and K) and two outputs ($Q$ and $\bar{Q}$).
+The JKFF uses ``negative'' (``falling'') edge clocking.
+DLTCH has four inputs (PREB, CLRB, Enable and Data) and two outputs ($Q$ and $\bar{Q}$). 
+
+\param{name} 
+Name of the device instance.  This must be present, and when combined
+with the \texttt{Y<type>}, must be unique in the netlist.  In the
+examples, MYAND, THENOT and ANOR2 have been used as names for the three
+devices.
+
+\param{low output node}
+
+Dominant node to be connected to the output node(s) to establish low
+output state.  This node is connected to the output by a resistor and
+capacitor in parallel, whose values are set by the model.  If specified
+by the model, this node must be omitted from the instance line and a
+fixed voltage \textrmb{VLO} is used instead.
+
+\param{high output node}
+
+Dominant node to be connected to the output node(s) to establish high
+output state.  This node is connected to the output by a resistor and
+capacitor in parallel, whose values are set by the model.  If specified
+by the model, this node must be omitted from the instance line and a fixed
+voltage \textrmb{VHI} is used instead.
+
+\param{input reference node}
+
+This node is connected to the input node by a resistor and capacitor in
+parallel, whose values are set by the model.  Determination if the input
+state is based on the voltge drop between the input node and this node.
+If specified by the model, this node must be omitted from the instance line and
+a fixed voltage \textrmb{VREF} is used instead.
+
+\param{input nodes, output nodes}
+
+Nodes that connect to the circuit.
+
+\param{model name}
+
+Name of the model defined in a .MODEL line.
+
+\param{device parameters}
+
+Parameter listed in Table~\ref{Digital_1_Device_Instance_Params} may be
+provided as \texttt{<parameter>=<value>} specifications as needed.  For
+devices with more than one output, multiple output initial states may be
+provided as Boolean values in either a comma separated list (e.g.
+IC=TRUE,FALSE for a device with two outputs) or individually 
+(e.g. IC1=TRUE IC2=FALSE or IC2=FALSE).  Finally, the IC specification
+must use TRUE and FALSE rather than T and F.
+
+
+\end{Parameters}
+\end{Device}
+
+\paragraph{Device Parameters}
+
+%%
+%% Digital Device Param Table
+%%
+\input{Digital_1_Device_Instance_Params}
+
+\paragraph{Model Parameters}
+
+%%
+%% Digital Model Param Table
+%%
+\input{Digital_1_Device_Model_Params}
+
+\paragraph{Model Description}
+
+The input interface model consists of the input node connected with a resistor and
+capacitor in parallel to the digital ground node.  The values of these are: \textrmb{RLOAD}
+and \textrmb{CLOAD}.  
+
+The logical state of any input node is determined by comparing the voltage relative
+to the reference to the range for the low and high state.  The range for the low
+state is \textrmb{S0VLO} to \textrmb{S0VHI}.  Similarly, the range for the high state
+is \textrmb{S1VLO} to \textrmb{S1VHI}.  The state of an input node will remain fixed as
+long as its voltage stays within the voltage range for its current state.  That input node
+will transition to the other state only when its state goes outside the range of its
+current state.
+
+The output interface model is more complex than the input model, but shares the same
+basic configuration of a resistor and capacitor in parallel to simulate loading.  For
+the output case, there are such connections to two nodes, the digital ground node and the
+digital power node.  Both of these nodes must be specified on the instance line.
+
+The capacitance to the high node is specified by \textrmb{CHI}, and the capacitance to the low
+node is \textrmb{CLO}.  The resistors in parallel with these capacitors are variable, and have
+values that depend on the state.  In the low state (S0), the resistance values are:
+\textrmb{S0RLO} and \textrmb{S0RHI}.  In the high state (S1) ,the resistance values are: 
+\textrmb{S1RLO} and \textrmb{S1RHI}.  Transition to the high state occurs exponentially over
+a time of \textrmb{S1TSW}, and to the low state \textrmb{S0TSW}.
+
+The device's delay is given by the model parameter \textrmb{DELAY}.  Any input changes
+that affect the device's outputs are propagated after this delay.
+
+Another caveat is that closely spaced input transitions to the \Xyce{} digital behavioral
+models may not be accurately reflected in the output states.  In particular, input-state
+changes spaced by more than \texttt{DELAY} seconds have independent effects on the output
+states. However, two input-state changes (S1 and S2) that occur within \texttt{DELAY} seconds
+(e.g., at time=t1 and time=t1+0.5*\texttt{DELAY}) have the effect of masking the effects
+of S1 on the device's output states, and only the effects of S2 are propagated to the
+device's output states.
+
+\paragraph{DCOP Calculations for Flip-Flops and Latches}
+The behavior of the digital devices during the DC Operating Point (DCOP) calculations
+can be controlled via the \texttt{IC1} and \texttt{IC2} instance parameters and the
+\texttt{DIGINITSTATE} device option.  See ~\ref{U_DEVICE} and ~\ref{Options_Reference} for 
+more details on these instance parameters and device option.  
+
+\paragraph{Converting Y-Type Digital Devices to U-Type Digital Devices}
+\Xyce{} is migrating the digital behavioral devices to U devices.  The goal is increased
+compatibility with PSpice netlists.  This subsection gives four examples of how to 
+convert an existing \Xyce{} netlist using Y-type digital devices to the corresponding U device
+syntaxes.  The conversion process depends on whether the device has a fixed number of inputs
+or a variable number of inputs. In all cases, the the model parameters \textrmb{VREF},
+\textrmb{VLO} and \textrmb{VHI} should be omitted from the U device model card.  For
+U devices, the nodes \textrmb{vlo} and \textrmb{vhi} are always specified on the 
+instance line.
+
+Example 1: Fixed number of inputs, Y-device model card contains \textrmb{VREF},
+\textrmb{VLO} and \textrmb{VHI}.  Assume \textrmb{VREF}=\textrmb{VLO}.
+
+\begin{alltt}
+YNOT THENOT in out DMOD
+.model DMOD DIG (
++ CLO=1e-12  CHI=1e-12
++ S0RLO=5  S0RHI=5  S0TSW=5e-9
++ S0VLO=-1  S0VHI=1.8
++ S1RLO=200  S1RHI=5  S1TSW=5e-9
++ S1VLO=1  S1VHI=3
++ RLOAD=1000
++ CLOAD=1e-12
++ VREF=0 VLO=0 VHI=3
++ DELAY=20ns )
+
+* Digital power node.  Assume digital ground node = GND
+V1 DPWR 0 3V 
+UTHENOT INV DPWR 0 in out DMOD1
+.model DMOD1 DIG (
++ CLO=1e-12  CHI=1e-12
++ S0RLO=5  S0RHI=5  S0TSW=5e-9
++ S0VLO=-1  S0VHI=1.8
++ S1RLO=200  S1RHI=5  S1TSW=5e-9
++ S1VLO=1  S1VHI=3
++ RLOAD=1000
++ CLOAD=1e-12
++ DELAY=20ns )
+\end{alltt}
+
+Example 2: Fixed number of inputs, Y-device instance line contains \textrmb{vlo},
+\textrmb{vhi} and \textrmb{vref}.  Assume \textrmb{vref}=\textrmb{vlo}.
+
+\begin{alltt}
+YNOT THENOT vlo vhi vref in out DMOD1
+UTHENOT INV vhi vlo in out DMOD1
+\end{alltt}
+
+Example 3: Variable number of inputs, Y-device model card contains \textrmb{VREF},
+\textrmb{VLO} and \textrmb{VHI}.  Assume \textrmb{VREF}=\textrmb{VLO}.
+
+\begin{alltt}
+YAND MYAND in1 in2 out DMOD
+UMYAND AND(2) DPWR 0 in1 in2 out DMOD1
+\end{alltt}
+
+Example 4: Variable number of inputs, Y-device instance line contains \textrmb{vlo},
+\textrmb{vhi} and \textrmb{vref}.  Assume \textrmb{vref}=\textrmb{vlo}.
+
+\begin{alltt}
+YAND MYAND vlo vhi vref in1 in2 out DMOD1
+UMYAND AND(2) vhi vlo in1 in2 out DMOD1
+\end{alltt}
+
+

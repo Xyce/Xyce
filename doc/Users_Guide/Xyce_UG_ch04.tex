@@ -1,0 +1,438 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postscript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Netlist Basics}
+\label{Netlist_Basics}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter contains introductory material on netlist syntax and usage.
+Sections include:
+\begin{XyceItemize}
+\item Section~\ref{General_Overview} \emph{General Overview}
+\item Section~\ref{Available_Devices} \emph{Devices Available for Simulation}
+\item Section~\ref{Parameters_Expressions} \emph{Parameters and Expressions}
+\item Section~\ref{device_multiplier} \emph{Device Multiplier \texttt{M}}
+\end{XyceItemize}
+}
+
+\section{General Overview}
+\label{General_Overview}
+
+\subsection{Introduction}
+
+Using a netlist\index{netlist} to describe a circuit for \Xyce{} is the primary method for running a circuit
+simulation\index{circuit!simulation}.  Netlist support within \Xyce{}
+largely conforms to that used by Berkeley SPICE 3F5\index{SPICE} and other SPICE-style simulators, with
+several new options for controlling functionality unique to \Xyce{}.
+
+In a netlist, the circuit is described by a set of \emph{element
+lines\/} defining circuit elements\index{circuit!elements} and their associated parameters, the circuit topology\index{circuit!topology} (i.e., the connection of the circuit elements), and a variety of control options for the simulation. 
+The first line in the netlist
+file must be a title\index{netlist!title line} and the last line must
+be ``\texttt{.END}''\index{netlist!\texttt{.END}}.  Between these two
+constraints, the order of the statements is irrelevant.
+
+\subsection{Nodes}
+\index{nodes}
+\index{nodes!global}
+\index{global nodes}
+\index{netlist!nodes}
+
+Nodes and elements form the foundation for the circuit topology. Each node represents a point in the circuit that is connected to the leads of multiple elements (devices). Each lead of every element is connected to a node, and each node is connected to multiple element leads.
+
+A node is simply a named point in the circuit.  The naming of normal nodes is mainly known within the level of circuit hierarchy where they appear.  Nodes can be passed into subcircuits through an argument list, and in this manner subcircuits are given access to nodes from the upper-level circuit.  Historicaly, this is how nodes are passed thru the circuit hierarchy in most circuit simulators, and this is the convention used by most circuit netlists.
+
+However, \Xyce{} also has the capability for fully resolved, internal subcircuit nodes to be accessed in the top level circuit.  Examples of this usage are as follows:
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}* example usage of fully resolved subcircuit nodes\color{black}
+Vin 1 0 1.0
+Rin 1 2 1.0
+X1 2 3 test
+Rout 3 0 1.0
+
+.subckt test A B
+Rt1 A testNode 1.0
+Rt2 testNode B 1.0
+.ends
+
+\color{blue}* this works: \color{black}
+Btest1 4 0 V = {V(X1:testNode)}
+Rtest1 4 0 1.0
+
+\color{blue}* this also works:\color{black}
+Itest2 0 5 1.0
+Rtest2 X1:testNode 5 1.0
+Rtest3 X1:testNode 0 1.0\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+The fully resolved name is specific to a single subcircuit instance.  
+Also, note that the field separator in this example is the colon (\texttt{:}), but \Xyce{} can 
+optionally use other characters as the separator, including a period (\texttt{.}) .  
+For information about specifying a different separator, see section~\ref{cmd_line_args}, 
+about \Xyce{} command line arguments, or the \Xyce{} Reference Guide\ReferenceGuide{} 
+for even more details.
+
+\subsubsection{Global Nodes}
+For cases where a particular node is used widely throughout various
+subcircuits it can be more convenient to use a global node, which is
+referenced by the same name throughout the circuit.  This is often the
+case for power rails such as \texttt{VDD} or \texttt{VSS}.
+
+Global nodes start with the prefix \texttt{\$G}.  Examples of global node names would be:
+{\texttt \$G\_VDD} or \texttt{\$G1}.  Nodes or global nodes require no declaration, as they are declared implicitly by appearing in \emph{element lines\/}.
+
+The \texttt{.GLOBAL} command can be 
+used to define global nodes that do not start with the prefix ``\$G''.
+Consult the \Xyce{} Reference Guide\ReferenceGuide{} for more details. 
+
+\subsection{Elements}
+\index{elements}
+\index{netlist!elements}
+
+An \emph{element line\/} defines each circuit element instance. While each element type determines the specific format, the general format is given by:
+\begin{vquote}
+<type><name> <node information> <element information...>
+\end{vquote}
+The \texttt{<type>} must be a letter (A through Z) with the
+\texttt{<name>} immediately following.  For example, \texttt{RARESISTOR}
+specifies a device of type ``R'' (for ``Resistor'') with a name
+\texttt{ARESISTOR}.  Nodes are separated by spaces, and additional
+element information required by the device is given after the node
+list as described in the Netlist Reference section of the \Xyce{}
+Reference Guide\ReferenceGuide{}.
+\Xyce{} ignores character case when reading 
+a netlist such that \texttt{RARESISTOR} is equivalent to \texttt{raresistor}.  The 
+only exception to this case insensitivity occurs when including external files in a netlist  where 
+the filename specified in the netlist must have the same case as the actual filename.
+
+A number field may be an integer or a floating-point value.  Either one may be
+followed by one of the following \index{netlist!scaling factors} scaling
+factors shown in Table~\ref{scalefactors}:
+
+\begin{table}[H]
+  \caption{Scaling factors.}\label{scalefactors}
+  \center{
+    \begin{tabularx}{3in}{|W|W|} \hline
+      \rowcolor{XyceDarkBlue} \color{white} \bf Symbol & \color{white}\bf
+      Equivalent Value \\ \hline
+      \verb+T+ & $10^{12}$ \\ \hline
+      \verb+G+ & $10^9$ \\ \hline
+      \verb+Meg+ & $10^6$ \\ \hline
+      \verb+X+ & $10^6$ \\ \hline
+      \verb+K+ & $10^3$ \\ \hline
+      \verb+mil+ & $25.4^{-6}$ \\ \hline
+      \verb+m+ & $10^{-3}$ \\ \hline
+      \verb+u+ ($\mu$) & $10^{-6}$ \\ \hline
+      \verb+n+ & $10^{-9}$ \\ \hline
+      \verb+p+ & $10^{-12}$ \\ \hline
+      \verb+f+ & $10^{-15}$ \\ \hline
+    \end{tabularx}
+  }
+\end{table}
+
+Node information is given in terms of \index{netlist!node names} \index{node
+  names} node names, which are character strings.  One key
+requirement is that the \index{ground nodes} ground node is named `\texttt{0}'.
+(Note: Consult the \Xyce{} Reference Guide\ReferenceGuide{} for more details on 
+allowed characters in both node names and device names.)
+There is one restriction on the \index{circuit!topology} \index{topology}
+circuit topology: there can be no loop of voltage sources and/or inductors.
+In addition to this requirement, the following additional topology 
+constraints are highly recommended:
+\begin{XyceItemize}
+\item Every node has a DC path to ground.
+\item Every node has at least two connections (with the exception of
+  unterminated transmission lines and MOSFET substrate nodes).
+\end{XyceItemize}
+While \Xyce{} can theoretically handle netlists that violate the above two 
+constraints, such topologies are typically the result of human error in 
+creating a netlist file, and will often lead to convergence failures.  Chapter~\ref{Preprocess_Chap} provides more information on this topic.
+
+
+The following line provides an example of an element line that defines a
+resistor between nodes \texttt{1} and \texttt{3} with a resistance value 
+of $10 \mbox{k}\Omega$.
+
+\Example{\texttt{RARESISTOR 1 3 10K}}
+
+\subsubsection{Title, Comments and End}
+\index{netlist!first line special} 
+
+The first line of the netlist is the title line\index{netlist!title
+line} of the netlist.  This line is treated as a comment even if it
+does not begin with an asterisk.  It is a common mistake to forget the
+meaning of this first line and begin the circuit elements on the first
+line; doing so will probably result in a parsing error.
+
+\Example{\texttt{Test RLC Circuit}}
+
+The ``\verb+.END+''\index{netlist!end line} line must be the last line in the
+netlist.
+
+\Example{\texttt{.END}}
+\index{comments in a netlist}
+Comments\index{netlist!comments} are supported in netlists and are indicated by
+placing an asterisk at the beginning of the comment line.  They may occur
+anywhere in the netlist \emph{but} they must be at the beginning of a line.
+\Xyce{} also supports \emph{in-line\/} comments\index{netlist!in-line comments}.  An in-line comment is designated by a semicolon and may occur on any line. \Xyce{} ignores everything after a semicolon. \Xyce{} considers lines beginning with leading whitespace as comments
+unless the first character after the whitespace is a \verb|+| symbol, in which case it treats the line as a continuation. 
+
+\Example{\texttt{* This is a netlist comment.}}
+
+\Example{\bf{WRONG:}\texttt{.DC .... * This type of in-line comment is \emph{not
+      supported}.}}
+
+\Example{\texttt{.DC .... ; This type of in-line comment is supported.}}
+
+\subsubsection{Continuation Lines}
+Continuation lines begin with a \verb|+| symbol, and their contents are appended to those of the previous line.  If the previous line or lines were comments, the continuation line is
+appended to the first noncomment line preceding it.  Continuation lines can have leading whitespace before the \verb|+| symbol.
+
+\subsubsection{Netlist Commands}
+Command elements\index{netlist!command elements} are used to describe the
+analysis being defined by the netlist.  Examples include analysis types,
+initial conditions, device models, and output control.
+The \Xyce{} Reference Guide\ReferenceGuide{} contains a reference for these commands.
+
+\Example{\texttt{.PRINT TRAN V(Vout)}}
+
+\subsubsection{Analog Devices}
+\Xyce{}-supported analog\index{netlist!analog devices}\index{device!analog} devices
+include most of the standard circuit components normally found in circuit
+simulators, such as SPICE 3F5, PSpice, etc., plus several Sandia-specific
+devices.
+
+\Example{\texttt{D\_CR303 N\_0065 0 D159700}}
+
+The \Xyce{} Reference Guide\ReferenceGuide{} provides more information concerning its supported devices.
+
+\section{Devices Available for Simulation}
+\label{Available_Devices}
+
+The analog devices available in \Xyce{} include all of the standard circuit
+components needed for most analog circuits.  User-defined models may be
+implemented using the \index{netlist!model definition}\index{\texttt{.MODEL}}
+\texttt{.MODEL} (model definition) statement, and macromodels can be created as
+subcircuits using the \index{netlist!subcircuit}
+\texttt{.SUBCKT}\index{\texttt{.SUBCKT}} (subcircuit) statement.
+
+In addition to the traditional analog devices, which are modeled in \Xyce{} by
+sets of coupled differential algebraic equations, \Xyce{} also supports digital
+\index{device!digital} \index{behavioral model} \index{device!behavioral model}
+behavioral models. The digital devices are behavioral devices in the sense that
+they rely on truth tables to determine their outputs. Once one or more of a
+digital device's inputs go past user-specified thresholds, its outputs will
+change according to its truth table after a user-specified delay time. The
+impedance characteristics of the inputs and outputs of the digital devices are
+modeled with RC time constants. 
+
+\Xyce{} also include TCAD devices, which solve a coupled set of partial
+differential equations (PDEs), discretized on a mesh. The use of these devices
+are described in detail in Chapter~\ref{PDE_Devices}.
+
+The device element statements in the netlist always start with the name of the
+individual \index{device!instance} device instance. The first letter of the
+name determines the device type. The format of the subsequent information
+depends on the device type and its parameters.  Table~\ref{Device_Summary}
+provides a quick reference to the analog devices and their netlist formats as
+supported by \Xyce{}. Except where noted, the devices are based upon those
+found in ~\cite{Grove:1967}. The \Xyce{} Reference Guide\ReferenceGuide{}
+provides a complete description of the syntax for all the supported devices.
+
+\LTXtable{\textwidth}{analogtbl}
+
+
+\section{Parameters and Expressions}
+\label{Parameters_Expressions}
+
+In addition to explicit values, the user may use parameters and expressions to symbolize numeric values in the circuit design.
+
+\subsection{Parameters}
+\index{netlist!parameters}
+
+A parameter is a symbolic name representing a numeric value. Parameters must start with a letter or underscore. The characters after the first can be letter, underscore, or digits. Once a parameter is defined (by having its name declared and having a value assigned to it) at a particular level in the circuit hierarchy, it can be used to represent circuit values at that level or any level directly beneath it in the circuit hierarchy. One way to use parameters is to apply the same value to multiple part instances.
+
+
+\subsection{How to Declare and Use Parameters}
+\index{netlist!parameters}
+
+For using a parameter in a circuit, one must:
+\begin{XyceItemize}
+\item Define the parameter using a \verb+.PARAM+ statement within a netlist
+\item Replace an explicit value with the parameter in the circuit
+\end{XyceItemize}
+ \Xyce{} reserves the following keywords that may not be used as parameter names:
+\begin{XyceItemize}
+\item \verb+Time+
+\item \verb+Freq+ 
+\item \verb+Hertz+
+\item \verb+Vt+
+\item \verb+Temp+ 
+\item \verb+Temper+
+\item \verb+GMIN+
+\end{XyceItemize}
+
+\texttt{Time}, \texttt{TEMP}, \texttt{Vt}, \texttt{FREQ} and \texttt{GMIN} are
+reserved and defined as ``special variables'', and may be used in
+B source expressions.   Their values are set by the simulator.  \texttt{HERTZ} is a synonym for \texttt{FREQ} and \texttt{TEMPER} is a synonym for \texttt{TEMP}.
+
+\subsubsection{Example:  Declaring a parameter}
+\index{Example!declaring parameters}
+\index{parameter!declaring}
+\begin{enumerate}
+\item Locate the level in the circuit hierarchy at which the \verb+.PARAM+
+  statement declaring a parameter will be placed. To declare a parameter capable of being used anywhere in the netlist, place the \verb+.PARAM+ statement at the top-most level of the circuit.
+\item Name the parameter and give it a value. The value can be numeric or given
+  by an expression:
+  \begin{vquote}
+.SUBCKT subckt1 n1 n2 n3
+.PARAM res = 100
+*
+* other netlist statements here
+*
+.ENDS
+\end{vquote}
+\item NOTE: The parameter \emph{res} can be used anywhere within the subcircuit
+  \texttt{subckt1}, including subcircuits defined within it, but cannot be used outside
+  of \texttt{subckt1}.
+\end{enumerate}
+
+\subsubsection{Example:  Using a parameter in the circuit}
+\index{Example!using parameters}
+\index{parameter!using in expressions}
+\begin{enumerate}
+\item Locate the numeric value (a device instance parameter value, model parameter value, etc.) that is to be replaced by a parameter.  
+\item Replace the numeric value with the parameter name contained within braces
+  (\{\}) as in:
+\begin{vquote}
+R1 1 2 \{res\}
+\end{vquote}
+\end{enumerate}
+
+NOTE:	Ensure the value being replaced remains accessible within the current hierarchy level.
+
+\subsection{Global Parameters}
+\index{netlist!global parameterss}
+\index{global parameters}
+\index{parameter!global}
+ 
+A normal parameter defined using \texttt{.PARAM} at the main circuit level will have global scope.
+However, such parameters may be redefined within a subcircuit, which would change the value
+in the subcircuit and below.  
+
+A global parameter, defined using \texttt{.global\_param}, differs from a normal parameter 
+in that it can only be defined at the main circuit level.   
+Both types of parameters can be modified by netlist commands 
+such as \texttt{.STEP} and \texttt{.SAMPLING}, as long as they are globally scoped.  
+
+Examples of some global parameter usages are:
+\begin{vquote}
+.param dTdt=100
+.global_param T=\{27+dTdt*time\}
+R1  1  2  RMOD TEMP=\{T\}
+
+or
+
+.global_param T=27
+R1  1  2  RMOD TEMP=\{T\}
+C1  1  2  CMOD TEMP=\{T\}
+.step T 20 50 10
+\end{vquote}
+In these examples, T is used to represent an environmental variable that changes.
+
+\subsection{Expressions}
+\index{netlist!expressions}
+\index{expressions}
+
+In \Xyce{}, an expression is a mathematical relationship that may be
+used any place one would use a number (numeric or boolean).  
+To use an expression in a circuit netlist:
+\index{netlist!using expressions}
+\index{expressions!using}
+\begin{enumerate}
+\item Locate the value to be replaced (component, model parameter, etc.).
+\item Substitute the value with an expression using the \texttt{\{\}}
+  syntax:
+\begin{quote}
+  \texttt{\{{\it expression\/}\}}%
+\end{quote}
+where \texttt{\it expression\/} can contain any of the
+following:\index{expressions!valid constructs}
+\begin{XyceItemize}
+\item Arithmetic and logical operators.
+\item Arithmetic, trigonometric, or SPICE-type functions.
+\item User-defined functions.
+\item User-defined parameters within scope.
+\item Literal operands.
+\end{XyceItemize}
+The braces (\texttt{\{\}}) instruct \Xyce{} to evaluate the expression and use
+the resulting value.   Alternatively,  for netlist compatibility with other simulators
+expressions may be enclosed in single quotation marks instead (\texttt{'}).  In some circumstances, (also for compatibility)
+expressions don't need to be surrounded by either braces or single quotes at all.   These circumstances
+include \texttt{.param} and \texttt{.global\_param} expressions, as well as device instance 
+parameters that use an equals sign.   Curly braces are the original expression delimeter used by \Xyce{} 
+and it is recommended that the braces be used in
+netlists written specifically for \Xyce{}.
+
+Additional time-dependent constructs are available in expressions used in analog behavioral modeling sources (see chapter~\ref{Behavioral_Modeling}).    Complete documentation of supported functions and operators may be found in the \Xyce{} Reference Guide\ReferenceGuide{}.
+
+\index{analog behavioral modeling (ABM)}
+\index{behavioral model} 
+\index{behavioral model!analog behavioral modeling (ABM)}
+
+\end{enumerate}
+
+\subsubsection{Example:  Using an expression}
+\index{Example!using expressions}
+\index{expressions!example}
+Scaling the DC voltage of a $12V$ independent voltage source, designated
+\verb+VF+, by some factor can be accomplished by the following netlist
+statements (in this example the factor is $1.5$):
+\begin{vquote}
+.PARAM FACTORV=1.5
+VF 3 4 \{FACTORV*12\}
+\end{vquote}
+\Xyce{} will evaluate the expression to $12 * 1.5$ or $18\:\mbox{volts}$.
+
+\section{Device Multiplier \texttt{M}}
+\label{device_multiplier}
+\index{multiplier!device}
+\index{device!multiplier}
+
+Many device models support a special parameter, \texttt{M}, which is used to approximate 
+multiple identical devices placed in parallel.  It can also be thought of as a current multiplier, 
+and as such is not required to be an integer.
+
+The following devices support the multiplier \texttt{M}:
+
+\LTXtable{\textwidth}{multiliertbl}
+
+The handling of the multiplier parameter in subcircuits, represented by the letter \texttt{X}, 
+is a special case.  This is described in section~\ref{subcircuit_multiplier}.
+
+%%% Local Variables:
+%%% mode: latex
+%%% End: 
+
+% END of Xyce_UG_ch04.tex ************

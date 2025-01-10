@@ -1,0 +1,41 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Which Measures support which modes for RISE, FALL and CROSS
+%%
+\begin{longtable}[h] {>{\raggedright\small}m{1.0in}|>{\raggedright\let\\\tabularnewline\small}m{2.5in}
+  |>{\raggedright\let\\\tabularnewline\small}m{2.5in}}
+  \caption{RISE, FALL and CROSS Support in .MEASURE.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Measure &
+  \color{white}\bf Level-Crossing &
+  \color{white}\bf Absolute \\ \hline \endfirsthead
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Measure &
+  \color{white}\bf Level-Crossing &
+  \color{white}\bf Absolute \\ \hline \endhead
+  \label{RISE_FALL_CROSS}
+
+  \texttt{DERIV-WHEN} & The  \texttt{crossVal} is set by the value of the
+                 \texttt{WHEN} clause & No \\ \hline
+  \texttt{FIND-WHEN} and \texttt{WHEN} & The  \texttt{crossVal} is set by the
+         value of the \texttt{WHEN} clause & No \\ \hline
+  \texttt{MAX} & A fixed \texttt{crossVal} can be set with \texttt{RFC\_LEVEL} 
+               & Default, if \texttt{RFC\_LEVEL} is not set \\ \hline
+  \texttt{MIN} & A fixed \texttt{crossVal} can be set with \texttt{RFC\_LEVEL} 
+               & Default, if \texttt{RFC\_LEVEL} is not set \\ \hline
+  \texttt{PP} & A fixed \texttt{crossVal} can be set with \texttt{RFC\_LEVEL} 
+              & Default, if \texttt{RFC\_LEVEL} is not set \\ \hline
+  \texttt{TRIG} and \texttt{TARG} & The levels are set separately by the values 
+                in the \texttt{TRIG} and \texttt{TARG} clauses & Only if 
+                \texttt{FRAC\_MAX} is used\\ \hline
+\end{longtable}
+

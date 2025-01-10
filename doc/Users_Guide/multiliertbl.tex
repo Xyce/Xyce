@@ -1,0 +1,49 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Devices supporting multipliers
+%%
+
+\newenvironment{DeviceList}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \begin{longtable}{>{\raggedright\small}m{1.5in}>{\ttfamily\small}m{0.75in}<{\normalfont}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Device Type &
+                   \color{white}\bf Letter 
+                   \endhead}
+               {\end{longtable}}
+
+\index{device!multilpiers}
+\begin{DeviceList}{Devices supporting multipliers  \label{Devices_with_multipliers}}
+
+\index{device!capacitor}%
+Capacitor & C \\ \hline
+
+\index{device!diode}%
+Diode & D \\ \hline
+
+\index{device!inductor}%
+Inductor & L \\ \hline
+
+\index{device!MOSFET}%
+MOSFET & M \\ \hline
+
+\index{device!bipolar junction transistor (BJT}%
+Bipolar Junction Transistor (BJT)& Q \\ \hline
+
+\index{device!resistor}%
+Resistor & R \\ \hline
+
+\index{device!subcircuit}%
+Subcircuit & X \\ \hline
+
+\end{DeviceList}
+

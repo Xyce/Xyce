@@ -1,0 +1,74 @@
+The following changes to the BSIMCMG 110.0.0 code were needed to make
+it work with Xyce/ADMS.
+
+ - The "t" thermal node declaration was moved so that it is the first
+   node declared after the required d, g, s, and e nodes.  This is
+   done because technique needed to make t an optional node only works
+   if it is assigned by ADMS as the first numbered node after the
+   required nodes.  This node is optional as a result of the module
+   testing the "$port_connected(t)" function.
+
+ - Numerous instance parameters are noted in the BSIM-CMG reference
+   manual as being both instance and model parameters, but the
+   standard CMC macros provided (IPRco, etc.) do not provide any
+   mechanism to flag parameters in this way.
+
+   Xyce-specific variants of these macros were provided to signal to
+   Xyce that the given parameter should be recognized both on the
+   model card and the instance line.  Xyce/ADMS will generate code
+   that assures that any instance version that is given in the netlist
+   will override any value given in the model card, but the model card
+   value will be used as default if not given on the instance line.
+
+ - An ADMS-specific ifdef block was provided to wrap the
+   "CMGBiasIndepCalc" block in an "@(initial_instance)" pseudo-event,
+   assuring that these bias-independent computations will only be
+   performed when parameters are processed.  Without this block, Xyce
+   would be performing all of these operations every time the model
+   equations are evaluated.
+
+ - In several locations, "$strobe" functions were called using strings
+   that included escaped quotation marks.  ADMS cannot process these
+   strings.  The escaped quotation marks were removed.
+
+ - A set of patch files (diffs) were generated to perform a minor code
+   change after ADMS is finished processing.  This small block of code
+   makes the "t" node an optional fifth node on the instance line.
+
+   If given, the t node is external.  If not given, it is internal.
+
+- The IPM macro, already defined in common_defs.include, has been
+  called in bsimcmg_body.include, and all contributions have been
+  multiplied by the defined constant "MFACTOR_USE".  If the constant
+  EXPLICIT_MFACTOR is defined, IPM declares an instance parameter "M"
+  and defines MFACTOR_USE to be "m".  If EXPLICIT_MFACTOR is not
+  defined, IPM is a null macro, and MFACTOR_USE is defined to be 1.0.
+
+  This allows the BSIM-CMG in Xyce to support a multiplicity, because
+  Xyce does not provide a global multiplicity factor usable by
+  devices, and all devices must define and use one themselves.
+
+- The description for the model parameter NSEG has been changed to remove
+  an ampersand that confuses Xyce LaTeX table generation.
+
+- An optimization has been applied to improve performance of the model
+  when self-heating is not active.  All temperature dependent variables
+  that were previously computed unconditionally in the block "CMGTempDepCalc"
+  have been wrapped in a conditional that executes only if the temperature
+  has changed since the last call.  To accomplish this, however, also
+  required initializing all of those variables in the @(initial_instance)
+  block, so that ADMS will recognize them as having "global_instance" scope
+  instead of marking them local to the main analog block.  The variables are
+  all initialized to zero in that block, and a "LastTemp" variable set to
+  "-999" in order to assure that all temperature dependent variables are
+  correctly re-calculated upon the first call of updateIntermediateVars.
+
+  By doing it this way, we are also assured that the model will work correctly
+  in .STEP loops, because the @(initial_instance) code will wind up in Xyce's
+  "processParams" function, which will always be called whenever a .STEP loop
+  updates model or instance parameters.
+
+- Output variables for VDSAT, VDS, VGS, and VBS were added to the collection
+  already present in the BSIM-CMG 110 Verilog-A source code.  These are
+  inside an ifdef __XYCE__ block.  VDSAT is a duplicate of the VDSSAT
+  variable originally present.

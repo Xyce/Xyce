@@ -1,0 +1,125 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{SUBCKTsection}
+The \index{\texttt{.SUBCKT}} \texttt{.SUBCKT} statement begins a subcircuit
+definition by giving its name, the number and order of its nodes and the names
+and default parameters that direct its behavior.  The \texttt{.ENDS} statement
+signifies the end of the subcircuit definition. See Section~\ref{XDevicesection}
+for more information on using subcircuits with the \texttt{X} device.
+
+%%%
+%%% Subcircuit
+%%%
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.SUBCKT <name> [node]*
++ [PARAMS:] [<name>=<value>]* 
+\ldots
+.ENDS
+\end{alltt}
+
+\examples
+\begin{alltt}
+.SUBCKT OPAMP 10 12 111 112 13
+\ldots
+.ENDS
+
+.SUBCKT FILTER1 INPUT OUTPUT PARAMS: CENTER=200kHz,
++ BANDWIDTH=20kHz
+\ldots
+.ENDS
+
+.SUBCKT PLRD IN1 IN2 IN3 OUT1
++ PARAMS: MNTYMXDELY=0 IO_LEVEL=1
+\ldots
+.ENDS
+
+.SUBCKT 74LS01 A B Y
++ PARAMS: MNTYMXDELY=0 IO_LEVEL=1
+\ldots
+.ENDS
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+\argument{name}
+The \index{subcircuit!name} name used to reference a subcircuit.
+
+\argument{node}
+An optional list of nodes. This is not mandatory since it is
+feasible to define a subcircuit without any interface nodes.
+
+\argument{PARAMS:}
+Optional keyword that precedes the list of subcircuit parameters.
+Parameters specified on the subcircuit instance line are treated as
+being local to individual subcircuit instances.  
+They can be used inside a subcircuit in the same manner as a .param inside the subcircuit definition.
+Parameters defined on the instance line override identically named parameters in the subcircuit definition.
+
+\end{Arguments}
+
+\comments
+A subcircuit  designation ends\index{subcircuit!designation} with a
+\texttt{.ENDS} command. The entire netlist between \texttt{.SUBCKT} and
+\texttt{.ENDS} is part of the definition. Each time the subcircuit is called
+via an \texttt{X} device, the entire netlist in the subcircuit definition
+replaces the \texttt{X} device.
+
+There must be an equal number of nodes in the subcircuit call and in its
+definition.  As soon as the subcircuit is called, the actual nodes (those in
+the calling statement) substitute for the argument nodes (those in the
+defining statement).
+
+Node zero\index{subcircuit!node zero} cannot be used in this node list, as
+it is the global ground node.
+
+Subcircuit references may be nested\index{subcircuit!nesting} to any
+level.  Subcircuits definitions may also be nested;
+a \texttt{.SUBCKT} statement and its closing \texttt{.ENDS} may
+appear between another \texttt{.SUBCKT}/\texttt{.ENDS} pair.  A
+subcircuit defined inside another subcircuit definition is local to
+the outer subcircuit and may not be used at higher levels of the
+circuit netlist.
+
+Subcircuits should include only device instantiations and possibly these
+statements:
+\begin{XyceItemize}
+\item \texttt{.MODEL} (model definition)
+\item \texttt{.PARAM} (parameter)
+\item \texttt{.FUNC} (function)
+\end{XyceItemize}
+
+\index{\texttt{.MODEL}!subcircuit scoping}\index{\texttt{.PARAM}!subcircuit scoping}\index{\texttt{.FUNC}!subcircuit scoping}
+Models, parameters, and functions defined within a subcircuit are
+scoped\index{subcircuit!scoping} to that definition.  That is they are only
+accessible within the subcircuit definition in which they are included.
+Further, if a \texttt{.MODEL}, \texttt{.PARAM} or a \texttt{.FUNC} statement
+is included in the main circuit netlist, it is accessible from the main
+circuit as well as all subcircuits.
+
+Node, device, and model names are scoped\index{subcircuit!scoping} to the
+subcircuit in which they are defined.  It is allowable to use a name in a
+subcircuit that has been previously used in the main circuit netlist. When
+the subcircuit is flattened (expanded into the main netlist), all of its
+names are given a prefix via the subcircuit instance name.  For example,
+\texttt{Q17} becomes \texttt{X3:Q17} after expansion.  After expansion, all
+names are unique.  The single exception occurs in the use of global node
+names, which are not expanded.
+
+Additional illustative examples of scoping are given in the
+``Working with Subcircuits and Models'' section of the \Xyce{} Users' 
+Guide\UsersGuide.  Those examples apply to models and functions also.
+
+\end{Command}

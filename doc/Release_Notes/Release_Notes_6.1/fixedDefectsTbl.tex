@@ -1,0 +1,160 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+  SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline \endfirsthead
+  \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+  SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline \endhead
+
+%\textbf{bug xxxx }: Describe issue and fix. \\ \hline 
+
+% joseki (-SON)bugs:
+%% \textbf{BUG NUMBER-SON}: Bug title & Bug and fix description \\ \hline
+\textbf{474-SON}: Errors in HB time domain output and during HB solve &  The
+time domain output is incorrectly shifted when a nonzero startupperiods is
+specified. During HB solve, the related vector and matrix evaluations and
+voltage limiting handling have errors.
+
+\textbf{\textit{Solution}}: These errors were fixed.
+\\ \hline  
+
+\textbf{475-SON}: Voltage limiting information is not assembled consistently
+for high orders in the Trap and Gear time integrators & The voltage limiting
+information obtained from device package has F and Q parts. They need to be
+assembled in the similar way to how the Jacobian is assembled. For the Trap and
+Gear time integrators, it is consistent for the first order. Higher order needs
+to be fixed.
+
+\textbf{\textit{Solution}}: This was fixed.
+\\ \hline
+
+\textbf{387-SON}: Failure to find $<$file$>$ in .lib $<$file$>$ causes Xyce to
+emit confusing error message & If a \texttt{.LIB} statement is given a file
+argument, but the file cannot be found, an error in input processing causes
+Xyce to exit with an error stating that no analysis statement was specified
+instead of a more meaningful ``cannot find file'' error.   
+
+\textbf{\textit{Solution}}: The code now emits a ``Could not find include file
+\ldots'' when no filename is present.
+\\ \hline  
+
+
+\textbf{401-SON}: Frequency-domain-specific voltage drop specifiers produce
+incorrect output & The VR, VI, VM, VP and VDB output specifiers for printing
+real and imaginary parts, magnitude, phase, or magnitude in DB of voltages in
+frequency domain do not work if given two nodes, but Xyce will not emit any
+warning or error messages.
+
+\textbf{\textit{Solution}}: This was fixed in the parser.
+\\ \hline
+
+
+%This is at VERIFIED FIXED AS OF 3/12
+\textbf{412-SON}: .measure ... when ... cross= does not seem to work as advertised
+& The code to process the .measure ... when... cross=... construct is not
+working correctly. 
+
+\textbf{\textit{Solution}}: The code was only checking for zero crossings. This
+was corrected.
+\\ \hline
+
+
+\textbf{413-SON}: Parser ignores instance parameters if user incorrectly places
+them before model name & If instance parameters (e.g. length or width of a
+MOSFET device) are placed before the model name on an instance line, Xyce
+simply ignores them without emitting a syntax error message.
+
+\textbf{\textit{Solution}}: An error message is now output when the above
+conditions occur.
+\\ \hline
+
+
+\textbf{440-SON}: Measure functions should support lead currents and expressions. &
+The measure function code was only parsing out voltage nodes and current values for
+voltage sources.  Better solution variable parsing was needed in the measure support code.
+
+\textbf{\textit{Solution}}: Parsing was improved in the measure code to support lead 
+currents and expressions in measure statements.  
+\\ \hline
+
+\textbf{460-SON}: Support equaiton evaluation measure. & This was a feature request 
+to support the general evaluation of an equation within the same context as 
+the measure functions.
+
+\textbf{\textit{Solution}}:  The measure function "EQN" has been added to support 
+the evaluation of expressions during the simulation.
+\\ \hline
+
+\textbf{461-SON}: A \emph{Version} string should not be part of the RAW file format header. & 
+
+\textbf{\textit{Solution}}:  \emph{Version} has been removed from Xyce's default RAW header. 
+The \emph{Version} string can be re-enabled by setting the following option in the netlist:
+\texttt{.options output outputversioninrawfile=true}
+\\ \hline
+
+\textbf{481-SON}: Measure functions should have a settable default. &  The default value
+for a measure function was zero, but if the measure function was unable to calculate a value
+it was unclear to the user if this was the case. 
+
+\textbf{\textit{Solution}}:  The measure functions now have a default value of $-1$.  This is settable 
+in the measure function definition with the paramter \texttt{default\_val} as in \texttt{default\_val=-100}.
+\\ \hline
+
+
+% charleston (-SRN) bugs:
+%%\textbf{BUG NUMBER-SRN}: Bug title & Bug and fix description \\ \hline
+
+\textbf{772-SRN}: Infinite-slope transitions in B-sources causes ``time step too
+small'' errors & The nonlinear dependent source (``B-source'') allows the user
+to specify expressions that could have infinite-slope transitions, such as
+
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} \end{alltt}
+
+This can lead to ``timestep too small'' errors when \Xyce{} reaches the
+transition point.  Infinite-slope transitions in expressions dependent only on
+the \texttt{time} variable are a special case, because \Xyce{} can detect that
+they are going to happen in the future and set a ``breakpoint'' to capture
+them.  
+
+\textbf{\textit{Solution}}: Infinite-slope transitions depending on other
+solution variables cannot be predicted in advance, and cause the time
+integrator to scale back the timestep repeatedly in an attempt to capture the
+feature until the timestep is too small to continue.  Since this kind of
+situation is non-physical, and any fix would likely be not robust, this bug was
+closed as a WONTFIX.
+\\ \hline
+
+
+\textbf{855-SRN}: AC and HB analysis do not work in parallel & Analysis types that
+require use of block linear algebra classes in Trilinos/Epetra do not work in
+parallel.  The analysis types that use block linear algebra classes are AC and
+HB.
+
+\textbf{\textit{Solution}}: This was fixed with recent enhancements to the
+solvers.
+\\ \hline
+
+\textbf{1918-SRN}: The FREQ measure function should support the From/To time qualifiers. & 
+
+\textbf{\textit{Solution}}: The FREQ measure function now supports the From/To qualifiers to
+limit the time window where the frequency is measured.
+\\ \hline
+
+
+\end{longtable}
+

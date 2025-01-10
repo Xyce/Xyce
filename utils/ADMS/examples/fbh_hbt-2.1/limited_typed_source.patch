@@ -1,0 +1,70 @@
+--- N_DEV_ADMSHBT_X.C	2024-01-22 13:46:17.625298000 -0700
++++ N_DEV_ADMSHBT_X.C	2023-02-20 10:50:18.474084000 -0700
+@@ -3436,9 +3436,51 @@
+ 
+   origFlag = true;
+ 
++  // Manually moved from below
++  {
++    double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
++    tVCrit = (adms_vt_nom*value_log_0);
++  }
+   if (getSolverState().newtonIter == 0)
+   {
+ 
++    if (getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
++    {
++      // manually inserted code:
++      if (getSolverState().inputOPFlag)
++      {
++        Linear::Vector * flagSolVectorPtr = (extData.flagSolVectorPtr);
++        if ((*flagSolVectorPtr)[li_e] == 0 ||
++            (*flagSolVectorPtr)[li_ei] == 0 ||
++            (*flagSolVectorPtr)[li_ex] == 0 ||
++            (*flagSolVectorPtr)[li_exx] == 0 ||
++            (*flagSolVectorPtr)[li_b] == 0 ||
++            (*flagSolVectorPtr)[li_bi] == 0 ||
++            (*flagSolVectorPtr)[li_bii] == 0 ||
++            (*flagSolVectorPtr)[li_c] == 0 ||
++            (*flagSolVectorPtr)[li_ci] == 0 ||
++            (*flagSolVectorPtr)[li_cx] == 0 ||
++            (*flagSolVectorPtr)[li_t] == 0 ||
++            (*flagSolVectorPtr)[li_ti] == 0 )
++        {
++          vbcx_limited = vbci_limited = 0;
++          vbei_limited = tVCrit;
++          origFlag = false;
++        }
++      }
++      else
++      {
++        vbcx_limited = vbci_limited = 0;
++        vbei_limited = tVCrit;
++        origFlag = false;
++        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
++        {
++          Xyce::dout() << " Setting device initial condition to Base-Emitter drop=tVCri (" << tVCrit << ")" << std::endl;
++        }
++      }
++    }
++    // end manually inserted code
++
+     if (!(getSolverState().dcopFlag)||(getSolverState().locaEnabledFlag && getSolverState().dcopFlag))
+     {
+       vbei_old = ((*extData.currStoVectorPtr))[li_store_admsProbeID_V_bii_ei];
+@@ -3459,10 +3501,11 @@
+      vbcx_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_V_bi_ci];
+ }
+ // -- code converted from analog/code block
+-{
+-double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
+-tVCrit = (adms_vt_nom*value_log_0);
+-}
++  // Manually moved to above
++  //{
++  //  double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
++  //  tVCrit = (adms_vt_nom*value_log_0);
++  //}
+ 
+ 
+   //vbcx = ($limit(V(bi,ci),"typedpnjlim",$vt(),tVCrit,dtype));

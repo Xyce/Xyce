@@ -1,0 +1,750 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Second Section LaTeX Xyce Reference Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Command Line Arguments}
+\label{cmd_line_args}
+\index{command line!arguments}
+
+\Xyce{} supports a handful of command line arguments which must be given {\em
+  before} the netlist filename.  While most of these are intended for general
+use, others simply give access to new features that, while supported, are not 
+enabled by default.  The general usage is as follows:
+\begin{vquote}
+  Xyce [arguments] <netlist filename>
+\end{vquote}
+
+Table~\ref{cmd_line_arg_list} gives a list of supported command line
+options.\footnote{Note that the ``-h'' option might list command line options not present 
+in this table.  These extra options are generally deprecated and should not be used.  Only 
+the options listed in the table are considered supported features.}
+
+\input{commandlinetbl}
+
+A few other command line options are available that are typically only used in Xyce development.  
+For example the options {\tt -param}, {\tt -info}, {\tt -doc} and {\tt -doc\_cat} are 
+used to generate the device tables in this guide.  The options {\tt -jacobian\_test} 
+and {\tt -namesfile} can be useful in debugging new devices in \Xyce{}.  The option
+ {\tt -namesfile} is also useful for determining the ``fully qualified node
+names'', including the subcircuit hierarchy, for nodes and internal variables for mutual
+inductors.  The {\tt .PRINT} section \ref{.PRINT} has more information on, and examples for,
+the {\tt -namesfile} command line option.
+
+\section{Hspice extensions}
+\label{hspice_ext_cmd_line}
+
+The command line argument \verb+-hspice-ext+ is more complicated than most, so its explanation is given in this section.
+The second argument to \verb+-hspice-ext+ can either be a single string or can be a comma separated list.
+\begin{itemize}
+\item Using \verb+all+ will enable all the features.   
+\item Using \verb+units+ sets the use of the ``atto'' prefix, designated by ``a'', to mean a mutliplier of ``1E-18''.   Without this setting, the ``a'' prefix means units of amperes.
+\item Using \verb+math+ sets the use of Hspice style math operators.  Most importantly, it forces ``log'' to mean the natural logarithm, rather than the base 10 logarithm.
+\item Using \verb+separator+ sets the use of the period ``.'' for subcircuit name separation.  If this is not set, the colon ``:'' is used instead.
+\end{itemize}
+
+\section{Redefined parameters}
+\label{redefined_params_cmd_line}
+
+\Xyce{}, like most circuit simulators, permits multiple parameters of the same name in a netlist.  
+However, when multiple parameters have the same name, the default behavior of \Xyce{} may different from other codes.
+The \texttt{-redefined\_params} command line option can be used to ensure compatibility.  The available options are the following:
+\begin{itemize}
+  \item \verb+ignore+ is the default behavior, and will result in \Xyce{} using the last parameter found in the netlist, while emitting no warnings.
+  \item \verb+uselast+ is synonymous with \verb+ignore+.
+  \item \verb+error+ will result in \Xyce{} exiting with a fatal error if multiple parameters have the same name.
+  \item \verb+warn+ will result in \Xyce{} behaving the same as the default behavior (using the last parameter) but will emit a warning for every duplicate parameter to the terminal.
+  \item \verb+warning+ is synonymous with \verb+warn+.
+  \item \verb+uselastwarn+ is synonymous with \verb+warn+.
+  \item \verb+usefirst+ will result in \Xyce{} using the first paramter of a given name in the netlist, without warnings or errors.  This is the behavior of some other simulators.
+  \item \verb+usefirstwarn+ is the same as \verb+usefirst+, except that it will emit a warning for every duplicate parameter to the terminal.
+\end{itemize}
+The options that emit warnings or error messages to terminal output can result in very verbose output for large circuits.  
+For that reason warnings are not enabled as the default behavior.  However, these options can be useful for debugging netlists.
+
+\cleardoublepage
+
+\chapter{Runtime Environment}
+\label{runtime}
+
+\section{Running Xyce in Serial}
+
+After ensuring that the directory into which \Xyce{} was installed is
+in your PATH variable, one merely executes the code by running the
+command, \texttt{Xyce} with the desired netlist name appended.
+
+\section{Running Xyce in Parallel}
+
+Open MPI must be installed on the host machine.  It may be download from 
+
+\texttt{http://www.open-mpi.org/}.  Consult the documentation for help with installation.
+
+After ensuring that the both the directory into which \Xyce{} was
+installed and the directory in which mpirun is found are in your PATH
+variable, one merely executes the code by running the command,
+\texttt{mpirun [mpirun options] Xyce [xyce options]} with the desired
+netlist name appended.
+
+\section{Running Xyce on Sandia HPC and CEE Platforms}
+
+
+
+This version of \Xyce{} has been installed centrally on Sandia HPC
+and CEE platforms, and requires metagroup access.  Contact the \Xyce{} team
+for details on how to obtain this access.
+
+Once you have registered for metagroup membership, the central
+installs of \Xyce{} may be accessed by a module load.
+
+\verb+module load Xyce+ adds all required modules and sets all
+required environment variables to access the normal version of
+\Xyce{}.  \verb+module load XyceRad+ does the same thing for the
+version \Xyce{} containing Sandia proprietary models.
+
+\verb+module help Xyce+ provides some additional information about
+what the module does.
+
+Consult the system documentation for help with submitting jobs on
+these platforms.
+
+\verb+https://computing.sandia.gov/+
+
+\cleardoublepage
+
+\chapter{Setting Convergence Parameters for Xyce}
+\label{Conv_Guidelines}
+\index{convergence}\index{\Xyce{}!convergence}\index{parameters!convergence}
+
+Because the solution algorithms and methods within \Xyce{} are different than
+those used by other circuit simulation tools (e.g., SPICE), the overall
+convergence behavior is sometimes different, as are the parameters which control
+this behavior.
+
+\section{Adjusting Transient Analysis Error Tolerances}
+\index{transient analysis!error tolerances}\index{solvers!time
+  integration!options}
+
+\Xyce{} uses a variable order trapezoid integration as its default
+scheme, and this method may also be requested explicitly with the
+\textrmb{TIMEINT} option \texttt{METHOD=trap} or
+\texttt{METHOD=7}. Trapezoid time-stepping is second order accurate
+and does not have any numerical dissipation in its local truncation
+error. Variable order trapezoid integration dynamically uses Backward
+Euler (BE) and trapezoid rule. When \texttt{ERROPTION=1} is set with
+\texttt{METHOD=7}, trapezoid rule is used almost exclusively (BE
+only used at breakpoints). See table~\ref{TimeIntPKG} for details.
+
+Another time integration option is the second-order Gear method.  It
+may be selected with the \textrmb{TIMEINT} option \texttt{METHOD=gear} or
+\texttt{METHOD=8}. See table~\ref{TimeIntPKG} for details.
+
+\subsection{Setting \textrmb{RELTOL} and \textrmb{ABSTOL}}
+\index{\Xyce{}!\texttt{RELTOL}}\index{\Xyce{}!\texttt{ABSTOL}}
+In \Xyce{}, both the time integration package and the nonlinear solver package
+have \textrmb{RELTOL} and \textrmb{ABSTOL} settings.  Some general guidelines for
+settings parameters are~\cite{Petzold:1996}:
+\begin{XyceItemize}
+\item Use the \emph{same} \textrmb{RELTOL} and \textrmb{ABSTOL} values for both
+  the \textrmb{TIMEINT} and the \\ \textrmb{NONLIN-TRAN} \textrmb{.OPTIONS}
+  statements.
+\item For a conservative approach (i.e., safe), set \texttt{RELTOL=1.0E-(\emph{m}+1)}
+  where \texttt{\emph{m}} is the desired number of significant digits of
+  accuracy.
+\item Set \textrmb{ABSTOL} to the smallest value at which the solution
+  components (either voltage or current) are essentially insignificant.
+\item Note that the above suggests that $\textrmb{ABSTOL}<\textrmb{RELTOL}$.
+\end{XyceItemize}
+
+The current defaults for these parameters are \texttt{ABSTOL=1.0E-6} and
+\texttt{RELTOL = 1.0E-3}.  For a complete list of the time integration
+parameters, see chapter ~\ref{Netlist_Commands}.
+
+\section{Adjusting Nonlinear Solver Parameters (in transient mode)}
+\index{solvers!nonlinear!options}
+
+In \Xyce{}, the nonlinear solver options for transient analysis are set using
+the \texttt{.OPTIONS NONLIN-TRAN} line in a netlist.  This subsection gives
+some guidelines for setting this parameters.
+\begin{XyceItemize}
+\item For guidelines on setting \textrmb{RELTOL} and \textrmb{ABSTOL}, see above.
+\item \textrmb{RHSTOL} -- This is the maximum residual error for each nonlinear
+  solution.  \Xyce{} uses this as a ``safety'' check on nonlinear
+  convergence.  Typically, \texttt{1.0E-2} (the default) works well.
+\item \textrmb{DELTAXTOL} -- This is the weighted update norm tolerance and is
+  the primary check for nonlinear convergence.  Since it is weighted (i.e.,
+  normalized using \textrmb{RELTOL} and \mbox{\textrmb{ABSTOL}}), a value of
+  \texttt{1.0} would give it the same accuracy as the time integrator.  For
+  robustness, the default is \texttt{0.33} but sometimes a value of
+  \texttt{0.1} may help prevent ``time-step too small'' errors.  A value of
+  \texttt{0.01} is considered quite small.
+\item \textrmb{MAXSTEP} -- This is the maximum number of Newton (nonlinear)
+  steps for each nonlinear solve.  In transient analysis, the default is
+  \texttt{20} but can be increased to help prevent ``time-step too small''
+  errors.  This is roughly equivalent to \textrmb{ITL4} in SPICE.
+\end{XyceItemize}
+
+\cleardoublepage
+
+\chapter{Quick Reference for Users of Other SPICE 
+Circuit Simulators}
+\label{PSpice_Ref}
+\index{PSpice}
+\index{Users of PSpice}
+
+This chapter describes many of the differences between \Xyce{} and
+other SPICE-like circuit simulaters.  The primary focus is on the difference
+between Orcad PSpice and \Xyce{}, with an eye towards providing the ability for those
+familiar with using PSpice to begin using \Xyce{} quickly.   PSpice compatibility 
+was an early focus for the Xyce project.
+
+The Xyce team also supports a netlist translation tool, XDM (for Xyce Data 
+Model)~\XDMGuide{}.  This tool supports translation of netlists in Pspice, 
+Hspice and Spectre format into Xyce formatted netlist files.  There is also a 
+\Xyce{} command line option (\texttt{--hspice-ext all}) which is designed to 
+assist with a handful of Hspice syntax issues that are particularly 
+difficult to translate.
+
+This chapter is likely not complete, and \Xyce{} users might also consult
+specific sections of this Reference Guide about particular \Xyce{} commands.
+Those sections may have additional information on Xyce's incompatibilities with
+other circuit simulators, and how to work around them.  
+\section{Differences Between Xyce and PSpice}
+This section is focused on the differences between \Xyce{} and PSpice.
+However, some of this discussion also applies to other SPICE-like
+circuit simulators. 
+
+\subsection{Command Line Options}
+Command line arguments are supported in \Xyce{} but they are different than
+those of PSpice.   For a complete reference, see Chapter~\ref{cmd_line_args}. 
+
+\subsection{Device Support}
+Most, but not all, devices commonly found in other
+circuit simulation tools are supported.  \Xyce{} also contains enhanced versions of
+many semiconductor devices that simulate various environmental effects.  For the
+complete list, please see the
+Analog Device Summary in Table~\ref{Device_Summary}.
+
+\subsection{ .OPTIONS Support}
+For the specific devices or models that are supported in \Xyce{}, most of the
+standard netlist inputs are the same as those in standard SPICE.
+However, the \textrmb{.OPTIONS} command has several additional features used to
+expose capabilities specific to \Xyce{}.  In particular, \Xyce{} does not
+support the standard PSpice format \textrmb{.OPTIONS} line in netlists.
+Instead, options for each supported package are called according to the
+following format.
+
+\begin{Command}
+\format
+.OPTIONS <pkg> [<tag>=<value>]*
+
+\arguments
+
+\begin{Arguments}
+\argument{DEVICE}       Device Model
+\argument{TIMEINT}      Time Integration
+\argument{NONLIN}       Nonlinear Solver
+\argument{NONLIN-TRAN}  Transient Nonlinear Solver
+\argument{NONLIN-HB}    HB Nonlinear Solver
+\argument{LOCA}         Continuation/Bifurcation Tracking
+\argument{LINSOL}       Linear Solver
+\argument{LINSOL-HB}    HB Linear Solver
+\argument{OUTPUT}       Output
+\argument{RESTART}      Restart
+% \argument{MPDEINT}      MPDE
+\argument{HBINT}        Harmonic Balance (HB)
+\argument{SENSITIVITY}  Direct and Adjoint sensitivity analysis
+\end{Arguments}
+
+\end{Command}
+
+\index{\texttt{.OPTIONS}}
+
+For a complete description of the supported options in \Xyce{}, see
+section~\ref{Options_Reference}.  
+
+Known caveats are that the \texttt{ABSTOL} options have different definitions 
+in PSpice and \Xyce{}.  Also, a PSpice \texttt{.OPTIONS VNTOL=<value>} line can 
+be mapped into these two \Xyce{} lines:
+\begin{vquote}
+.OPTIONS NONLIN ABSTOL=<value> 
+.OPTIONS NONLIN_TRAN ABSTOL=<value>
+\end{vquote}
+
+The PSpice \texttt{ITL1} and \texttt{ITL4} options are similar to the \Xyce{} \texttt{MAXSTEPS}.
+In PSpice, \texttt{ITL1} affects \texttt{.DC} analyses, while \texttt{ITL4} 
+affects \texttt{.TRAN} analyses.  In \Xyce{}, \texttt{.OPTIONS NONLIN}
+refers to options for \texttt{.DC} analyses, while \texttt{.OPTIONS NONLIN-TRAN}
+refers to options for \texttt{.TRAN} analyses.  So, a feasible mapping is 
+PSpice \texttt{.OPTIONS ITL1=20} becomes \texttt{.OPTIONS NONLIN MAXSTEP=20}
+in \Xyce{}.  Similarly, PSpice \texttt{.OPTIONS ITL4=20} becomes 
+\texttt{.OPTIONS NONLIN-TRAN MAXSTEP=20} in \Xyce{}.  However, given that
+PSpice and Xyce{} use different default values for \texttt{ITL1} and \texttt{ITL4} 
+vs. \texttt{MAXSTEPS}, the best approach may be to not translate the \texttt{ITL1} and 
+\texttt{ITL4} lines into the corresponding \Xyce{} netlist.
+
+\subsection{.PROBE vs. .PRINT}
+\Xyce{} does not support the ``\textrmb{.PROBE}'' statement.  Output of Probe-format
+files, in .csd format, that are readable by PSpice is done using the \textrmb{.PRINT} netlist statement.
+See section~\ref{.PRINT} for the syntax for \texttt{FORMAT=PROBE}.  That section
+also describes wildcard support and access to subcircuit nodes in \Xyce{}, both of
+which are different than PSpice.
+
+\Xyce{} does not support PSpice style abbreviations in the \textrmb{.PRINT}
+statement.  For example, to print out the value of the voltage at node
+\texttt{A} in a transient simulation you must request \mbox{\texttt{.PRINT TRAN V(A)}},
+not \mbox{\texttt{.PRINT TRAN A}}.  \Xyce{} also does not support \texttt{N()} as a
+synonym for \texttt{V()} on \texttt{.PRINT} lines.
+
+\subsection{Converting PSpice ABM Models for Use in Xyce}
+\label{Converting_ABM}
+\index{device!ABM device!PSpice equivalent}
+
+\Xyce{} is almost fully compatible with PSpice with respect to analog
+behavioral models.  This includes the
+\texttt{E}\index{PSpice!\texttt{E} device},
+\texttt{F}\index{PSpice!\texttt{F} device},
+\texttt{G}\index{PSpice!\texttt{G} device}, and
+\texttt{H}\index{PSpice!\texttt{H} device} 
+device types.  A notable exception to this compatibility is in the use of lead and device
+currents in expressions used in controlled source definitions.  That feature is not 
+supported in \Xyce{}.  In addition, the \texttt{FREQ},\texttt{LAPLACE} and 
+\texttt{CHEBYSHEV} forms for E and G sources or the \texttt{ERROR} qualifier are 
+not supported in \Xyce{}..
+  
+\subsection{Usage of \textrmb{.STEP} Analysis}
+
+The implementation of \textrmb{.STEP} in \Xyce{} is not the
+same as that of PSpice.  See section~\ref{.STEP} for the syntax and
+function of the \textrmb{.STEP} function in \Xyce{}.
+
+\subsubsection{Model Parameter Sweeps}
+
+PSpice requires extra keywords to apply a \textrmb{.STEP} statement to a
+model parameter.  \Xyce{} handles model parameters differently, and is
+actually somewhat more flexible than PSpice.  Unfortunately, this means
+that the two specifications are not compatible.
+
+A model parameter in PSpice would be handled like this:
+\begin{vquote}
+R1 1 2 RMOD 1
+.model RMOD RES(R=30)
+.step RES RMOD(R) 30 50 5
+\end{vquote}
+The equivalent way to specify this in \Xyce{} would be:
+\begin{vquote}
+R1 1 2 RMOD 1
+.model RMOD RES(R=30)
+.step RMOD:R 30 50 5
+\end{vquote}
+Note that \Xyce{} does not require the \texttt{RES} keyword on the
+\texttt{.STEP} line.  In PSpice, this keyword is needed to specify 
+what type of model is being used.  \Xyce{} actually has more flexibility
+than PSpice in this regard---any model or instance variable can be set on
+the \texttt{.STEP} line using the same syntax.
+
+\Example{\texttt{.step D101:IS 1.0e-3 5.0e-3 1.0e-3}}
+
+In this example, \texttt{D101} is the name of a model or instance, 
+and \texttt{IS} is the name of the parameter within that model or instance.
+
+\subsection{Behavioral Digital Devices}
+There are at least four significant differences.  First, the instance line
+syntax for the \Xyce{} digital behavioral devices differs from PSpice.
+Second,  \Xyce{} uses one model card for the timing and Input/Output (I/O)
+characteristics, while PSpice uses separate model cards for timing and I/O
+characteristics.  The model cards also have different parameters. 
+Third, \Xyce{} does support the \texttt{DIGINITSTATE} option. However, it has a
+different default value than in PSpice.  So, the DCOP calculations for flip-flops and latches may
+be different in some cases between \Xyce{} and PSpice.  Finally, closely spaced input
+transitions to a gate (e.g., ones spaced by less than the \texttt{DELAY}
+parameter of the \Xyce{} model) may produce different behaviors in \Xyce{}
+and PSpice.  Please consult Section \ref{U_DEVICE} for more details.
+
+\subsection{Power Dissipation}
+PSpice supports printing the power dissipation of a device via syntax like
+\texttt{W(<name>)}.  At this time, not all \Xyce{} devices support power calculations. 
+In addition, the \Xyce{} results for the FET semiconductor devices (J, M and Z devices) may 
+differ from the PSpice results.  Consult the Features Supported by Xyce Device Models table
+in Section \ref{Analog_Devices} and the individual sections on each device for more details.  
+Additional limitations on lead current and power
+calculations in \Xyce{} are given in Section \ref{leadCurrentPowerCalculations}.
+
+Example work-arounds are as follows, using either the
+node voltage at Node 2 or the lead current through Resistor 2:
+
+\begin{vquote}
+.DC V1 0 5 1
+.param R2VAL=10
+V1 1 0 5V
+R1 1 2 10
+R2 2 0 \{R2VAL\}
+.PRINT DC V(2) \{V(2)*V(2)/R2VAL\} \{I(R2)*I(R2)*R2VAL\}
+\end{vquote}
+
+\subsection{Dependent Sources with TABLE Syntax}
+\label{DS_TABLE_SYNTAX_DIFF}
+The documented PSpice syntax for the \texttt{TABLE} form of the E and G sources
+is identical to the \Xyce{} syntax for those two devices.  As an example, consider 
+this E-source netlist line which conforms to the documented PSpice and Xyce 
+syntaxes:
+\begin{vquote}
+E5  5 0 TABLE {V(1,0)} = (-2,-3) (2,3)
+\end{vquote}
+There is an equal sign between the expression \texttt{\{V(1,0)\}} and the list of
+value pairs (e.g., before \texttt{(-2,-3)}).  There is also a comma between the two values
+in each set of value pairs.  However, it has been observed that some PSpice versions 
+will accept variants of the documented PSpice syntax.  As examples, PSpice might 
+use this \texttt{TABLE} syntax, where the equal sign between the expression and the 
+list of value pairs is missing and there is an extra set of parentheses around 
+the list of value pairs:
+\begin{vquote}
+TABLE \{EXPR\} ((x1,y1) (x2,y2) \ldots (xn, yn))
+\end{vquote}
+PSpice might also specify the \texttt{TABLE} syntax without the commas between the 
+two values in each set of value-pairs. For example, this is a legal syntax in some 
+PSpice versions:
+\begin{vquote}
+TABLE \{EXPR\} = (x1 y1) (x2 y2) \ldots (xn yn)
+\end{vquote}
+So, the generic solution is to change these alternative PSpice syntaxes (and possibly 
+others) to conform with the \Xyce{} E and G source \texttt{TABLE} syntax, which is
+(see also Sections \ref{E_DEVICE} and \ref{G_DEVICE}):
+\begin{vquote}
+TABLE \{EXPR\} = (x1,y1) (x2,y2) \ldots (xn, yn)
+\end{vquote}
+
+\subsection{MODEL STATEMENTS}
+\label{MODEL_STATEMENT_SYNTAX_DIFF}
+In PSpice, some \texttt{.MODEL} statements may have commas separating the list
+of parameters, which causes problems in \Xyce{}.  A simple workaround is to
+replace those commas with spaces in the corresponding \Xyce{} \texttt{.MODEL}
+statements.
+
+In PSpice, some \texttt{.MODEL} statements may not have parentheses
+surrounding the list of parameters.  While Xyce also does not require parentheses
+in model cards, parentheses are accepted.  The only \Xyce{} requirement is that if
+they are used then they must be paired with one left parenthesis before all of the
+parameters and one right parentheses after all of the parameters. It is an error
+to have unmatched parentheses.  
+
+PSpice syntaxes where only a subset of the model 
+parameters are enclosed within parentheses are also not supported in \Xyce{}. 
+A PSpice example is:
+\begin{vquote}
+.model somebjt NPN Is=1e-16 (Xti=3 Bf=100) Eg=1.11 NC=2
+\end{vquote}
+
+Nested parentheses, as is often seen when a \texttt{DEV} (deviation) is specified 
+for a parameter in a PSpice model statement, are also not allowed in \Xyce{}.  A PSpice
+example is:
+\begin{vquote}
+.model someotherbjt NPN(Is=1e-16 Xti=3 (Bf=100 DEV=5\%) Eg=1.11 NC=2)
+\end{vquote}
+
+The previous PSpice example also raises the issue of model parameters that are supported
+in PSpice but not in \Xyce{}.  It that case, \Xyce{} will issue a warning about the
+invalid parameter and the simulation will run.
+
+Another common issue is a PSpice model parameter (e.g., \texttt{BV=}) without a value.  
+That PSpice syntax error is often silently ignored in PSpice, but flagged as a parsing 
+error in a \Xyce{} netlist.  
+
+Temperature coefficient (\texttt{TC}) specifications can be a problem also.  The 
+documented PSpice syntax is this, with a comma between the two values.  
+
+\begin{vquote}
+TC=0.1,0.1
+\end{vquote}
+
+However, it has been observed that some PSpice versions allow the TC parameter to 
+omit the comma between those two values.  That is not legal in \Xyce{}.
+
+\subsection{.NODESET and .IC Statements}
+\Xyce{} and PSpice differ in their capabilities to handle \texttt{.NODESET} and 
+\texttt{.IC} statements in subcircuits.  See sections ~\ref{NODESET_section} 
+and ~\ref{IC_section} for more details.
+
+\subsection{Piecewise Linear Sources}
+\label{PWL_SOURCE_SYNTAX_DIFF}
+The preferred \Xyce{} syntax for PWL sources does not use parentheses or commas within
+the time-voltage pair listing.  See Section \ref{I_DEVICE} for more details.
+
+The \Xyce{} PWL source does not support the PSpice \texttt{.IN} format for file input.  
+See Section \ref{I_DEVICE} for the ASCII text and \texttt{.csv} formats supported 
+by \Xyce{} for file input.
+
+The \Xyce{} repeat \texttt{R=<value>} syntax for PWL sources is not compatible with 
+the PSpice \texttt{REPEAT} syntax for PWL sources.  Some work-arounds are as follows.
+This PSpice \texttt{REPEAT FOREVER} syntax:
+\begin{vquote}
+VPWL1 1 0 PWL REPEAT FOREVER (0,0) (0.5,1) (1,0)
++ ENDREPEAT
+\end{vquote}
+is equivalent to this \Xyce{} syntax:
+\begin{vquote}
+VPWL1 1 0 PWL 0 0 0.5 1 1 0 R=0
+\end{vquote}
+Similarly, if the PSpice source has its time-voltage pairs in a \texttt{.csv}
+file, and the specified waveform starts at time=0, then this PSpice syntax:
+\begin{vquote}
+VPWL2 2 0 PWL 
++ REPEAT FOREVER
++ FILE "data.csv"
++ ENDREPEAT
+\end{vquote}
+is equivalent to this \Xyce{} syntax:
+\begin{vquote}
+VPWL2 2 0 PWL file "data.csv" R=0
+\end{vquote}
+For more general PSpice \texttt{REPEAT} syntaxes, and especially for the PSpice
+\texttt{REPEAT for N} syntax, the user might have to manually duplicate the 
+PSpice waveform in a \texttt{.csv} file.
+
+\subsection{.AC Output}
+The \Xyce{} .csd file format for a \texttt{.AC} analysis is different than the
+PSpice format, but is still viewable in the PSpice A/D waveform viewer.  This
+PSpice \texttt{.PROBE} statement:
+\begin{vquote}
+.PROBE/CSDF V([1b]) VR([1b]) VI([1b])
+\end{vquote}
+will produce \#N and \#C lines in its netlistName.csd file like this, where the
+real and imaginary parts of V(1b) are output for each data point on the \#C line.
+The end-user can then use the PSpice A/D UI to choose to plot the VR and VI
+quantities.
+\begin{vquote}
+#N
+`V(1b)' `V(1b)' `V(1b)'
+#C 1.0000000000E01 3
+2.470E-02/-1.552E-01:1 2.470E-02/-1.552E-01:2 2.470E-02/-1.552E-01:3
+\end{vquote}
+
+This corresponding \Xyce{} .PRINT AC statement:
+\begin{vquote}
+.PRINT AC FORMAT=PROBE V(1b) VR(1b) VI(1b)
+\end{vquote}
+will produce \#N and \#C lines in its netlistName.csd file like this, where the real
+and imaginary parts of V(1b) are still output on the \#C line.  However, in \Xyce{},
+the VR() and VI() operators return real-valued quantities as shown below.  This
+\Xyce{} formatted file is still viewable in PSpice A/D.
+\begin{vquote}
+#N
+`V(1b)' `VR(1b)' `VI(1b)'
+#C 1.0000000000E01 3
+2.470e-02/-1.552e-01:1 2.470e-02/0.000e+00:2 -1.552e-01/0.000e+00:3
+\end{vquote}
+
+\subsection{Additional differences}
+Some other differences between \Xyce{} and PSpice are described in 
+Table~\ref{Incompat_PS}.  Users should also consult 
+Table~\ref{Incompat_Other_SPICE}, since that table lists more general
+incompatibilities that span multiple circuit simulators.
+
+\input{pspicetbl}
+
+\subsection{Translating Between PSpice and Xyce Netlists}
+Some internal Sandia users have found the following checklist to be helpful
+in getting their PSpice netlists to run in \Xyce{}.  Additional changes may
+be needed in some cases.
+
+For the .cir file:
+
+\begin{XyceItemize}
+\item Change .LIB references to point to the modified libraries generated
+   for use with \Xyce{}.
+\item Change \texttt{PROBE} and \texttt{PROBE64} statements to \texttt{PRINT <Sim Type>}
+\item Find cases where the PSpice netlist used \texttt{N()} rather
+   than \texttt{V()}.
+\item \texttt{.DC} has the keyword \texttt{PARAM} in PSpice.  If it
+   exists then remove it in the \Xyce{} netlist.
+\item \texttt{.OPTIONS TNOM=X} is changed to \texttt{.OPTIONS
+   DEVICE TNOM=X} in the \Xyce{} netlist.
+\item \texttt{.TEMP args} does not exist in \Xyce{}.  The equivalent
+   \Xyce{} statement is \texttt{.STEP TEMP LIST args}
+\item The default time integrator tolerances can make \Xyce{} take
+   smaller timesteps on some circuits, and therefore have slower
+   simulation times.  The \Xyce{} timesteps can be increased at the
+   expense of time integration accuracy by loosening the
+   integrator tolerances.  Some users find that  \texttt{.OPTIONS 
+   TIMEINT RELTOL=1e-2 ABSTOL=1e-4} leads to time steps more like PSpice's.
+\item Move any \texttt{.IC} and \texttt{.NODESET} statements to the top-level,
+   and use the fully qualified node names in those statements.
+\item Adjust the syntax for any PWL sources, if needed, per 
+   Section \ref{PWL_SOURCE_SYNTAX_DIFF}.
+\end{XyceItemize}
+
+For the .lib file:
+\begin{XyceItemize}
+\item Add \texttt{LEVEL=2} parameter to diode models.
+\item Fix the parentheses and comma differences between PSpice and 
+   \Xyce \texttt{.MODEL} statements per Section \ref{MODEL_STATEMENT_SYNTAX_DIFF}.
+\item Find and modify any nested expression statements.  This may 
+   entail replacing ``\{'' with ``('' in the expression in the \Xyce{} netlist.
+\item Fix the table syntax for dependent sources, as discussed in
+Section \ref{DS_TABLE_SYNTAX_DIFF}.
+
+\end{XyceItemize}
+
+\section{Differences Between Xyce and Other SPICE Simulators}
+This section covers some known differences between \Xyce{} and other SPICE-like
+circuit simulators, besides PSpice, as listed in Table~\ref{Incompat_Other_SPICE}.
+However, users of those other simulators (e.g., SPICE3F5, HSPICE, ngspice, ...)
+should also check the previous subsection on PSpice, since some of that
+discussion also applies here.
+
+\input{otherSpiceIncompTbl}  
+
+\section{DC Operating Point Calculation Failures in Xyce}
+This section discusses various netlist problems that can cause \Xyce{} to 
+fail to get a DC Operating Point (DCOP).  Some of this discussion is
+``tutorial'' in nature, but helps illustrate the issues.
+
+\subsection{Incompatible Voltage Constraints at Circuit Nodes}
+The \Xyce{} DCOP calculation will fail if the netlist specifies incompatible voltage
+constraints at a given node in the circuit.  This netlist fragment will cause \Xyce{} 
+to fail to get a DCOP because the two voltage sources obviously cannot both apply 
+their assigned voltage at \texttt{Node1}.
+\begin{vquote}
+VA Node1 0 1
+VB Node1 0 2
+\end{vquote}
+This configuration is also not allowed because there is an infinite number of ways that
+the two voltage sources can supply current to the rest of the circuit and still maintain
+the requested voltage.
+\begin{vquote}
+VA Node1 0 1
+VB Node1 0 1
+\end{vquote}
+With those two netlist fragments as background, the next two examples illustrate 
+a ``\Xyce{}-unique'' way that DCOP failure can occur.  This happens because initial 
+conditions on capacitors in \Xyce{} are enforced with additional voltage sources
+during the DCOP.  So, these two netlist fragments are identical to the two cases 
+given above, and will both cause a DCOP failure in \Xyce{}.  A similar problem can
+occur with other \Xyce{} devices that allow initial conditions, for voltage drops across
+the device, to be set.
+\begin{vquote}
+VA node1 0 1
+CB node1 0 1.0pf IC=2
+\end{vquote}
+or
+\begin{vquote}
+VA node1 0 1
+CB node1 0 1.0pf IC=1
+\end{vquote}
+\subsection{Multiple Voltage Constraints From Subcircuits or at Global Nodes}
+Similar incompatible voltage constraints can be caused by subcircuit definitions, if the 
+subcircuits enforce voltage constraints on one (or more) of their interface nodes.  An
+example netlist fragment is given below.  In this example, subcircuits \texttt{X1} and \texttt{X2}
+are trying to enforce incompatible constraints at \texttt{Node1} in the top-level circuit.  
+This is notionally identical to the first example in the previous subsection.  However, 
+these incompatibilities can be harder to find if the subcircuit definitions are located in
+different library files.
+\begin{vquote}
+X1 node1 0 MySubcircuitA
+X2 node1 0 MySubcircuitB
+.SUBCKT MYSUBCIRCUITA 1 2
+VA 1 0 1 
+R1A 1 internalNodeA 0.5
+R2A internalNodeA 2 0.5
+.ENDS 
+.SUBCKT MYSUBCIRCUITB 3 4
+VB 3 0 2 
+R1B 3 internalNodeB 0.5
+R2B internalNodeB 4 0.5
+.ENDS 
+\end{vquote}
+
+Global nodes that have voltage sources applied to them from separate parts 
+of the circuit (e.g, from within subcircuit definitions) can cause yet another
+version of the DCOP failure modes given in the previous subsection.  If these
+two netlist statements are given in different subcircuit definitions then a 
+\Xyce{} DCOP failure will occur.
+\begin{vquote}
+Vpin1 \$G\_GlobalNode1 0 1
+Vpin2 \$G\_GlobalNode1 0 2  
+\end{vquote}
+Of course, the examples given above can occur in varied combinations.
+
+\subsection{NODESET and IC Statements in Subcircuits}
+As previously noted, \Xyce{} does not support \texttt{.NODESET} and 
+\texttt{.IC} statements in subcircuits.  This is a common cause of DCOP failure
+in \Xyce{} when the same netlist converges in PSpice.  See sections ~\ref{NODESET_section} 
+and ~\ref{IC_section} for more details on how to move those \texttt{.NODESET} and 
+\texttt{.IC} statements to the ``top-level'' in the \Xyce{} netlist.
+
+\subsection{No DC Path to Ground for a Current Flow}
+A \Xyce{} DCOP failure can occur if there is no DC path to ground at a node but
+a current flow must occur.  This can happen because of a typographic
+error during netlist entry. An simple example is as follows, where the netlist 
+line for R1 has 0 (``oh'') rather then 0 (``zero'').  It can also happen when
+all of the current into a subcircuit must flow through capacitors.
+\begin{vquote}
+I1 1 0 1
+R1 1 O 1
+C1 1 0 2pF
+\end{vquote}
+
+\subsection{Inductor Loops}
+An inductor loop with no DC path to ground will also typically cause a DCOP
+failure.  A simple example is:
+\begin{vquote}
+V1 1 0 1
+R1 1 2 1
+L1 2 3 2uH
+L2 2 3 2uH
+R3 3 0 1
+\end{vquote}
+
+\subsection{Infinite Slope Transistions}
+It is possible for a user to specify expressions that could have infinite-slope 
+transitions with B-, E-, F-, G- and H-sources. A common example is IF statements
+within those source definitions.  This can often lead to ``timestep too  small''
+errors when Xyce reaches the transition point.  In some cases, it can also cause 
+DCOP failures.  See Section \ref{B_DEVICE} and the ``Analog Behavioral Modeling'' 
+(ABM) chapter of the Xyce Users' Guide~\UsersGuide{} for guidance on using the B-source device 
+and ABM expressions.  Those recommendations also apply to the E-, F-, G- 
+and H-sources.
+
+\subsection{Simulation Settings}
+Automatic source stepping was added to \Xyce{} in version 6.3.  \Xyce{} also automatically 
+does Gmin stepping when the DCOP calculation fails to converge.  In addition, the time 
+integration options normally do not affect the DCOP calculation.  So, adjusting the simulation
+settings for \Xyce{} typically has no effect on the DCOP calculation.  However, if both of
+the automatic homotopy methods mentioned above do not work, and none of the other
+netlist issues mentioned above exist, then Xyce does have other homotopy methods 
+available. See the \Xyce{} Users' Guide~\UsersGuide{} for more details.
+
+\cleardoublepage
+
+\chapter{Quick Reference for Microsoft Windows Users}
+\label{Windows_Ref}
+\index{Microsoft Windows}
+\index{Users of Xyce on Microsoft Windows}
+
+\Xyce{} is supported on Microsoft Windows.  However, the primary targets
+for \Xyce{} are high-performance supercomputers and workstations, which
+are almost always running a variant of Unix.  All of \Xyce{} 
+developement is done on Unix platforms.  Bearing this in mind, there are
+occasionally issues with using a Unix application on a Windows platform.
+Some of these issues are described in the table below.
+
+\input{windowstbl}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_RG_app2.tex ************

@@ -1,0 +1,101 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% PDE Device Instance Parameter table.
+%%
+
+\index{PDE Devices!instance parameters}
+\label{PDE_Instance_Params}
+\begin{DeviceParamTable4}{PDE Device Instance Parameters.}
+
+\category{All Levels} \\ \hline
+
+name & The instance name must start with a Z. & -- & -- & 1D, 2D \\ \hline
+
+node & Minimum of 2 connecting circuit nodes. The 2D device may have as
+many as 4 nodes, while the 1D device can only have 2.  The node parameter
+is a tabular parameter, which specifies all the electrode attributes.  
+See table~\ref{PDE_Electrode_Params} for a list. & -- & -- & 1D, 2D \\
+\hline
+region & Specifies doping regions.  Like the node parameter, this 
+is a tabular parameter, containing several attributes..  See 
+table~\ref{PDE_Doping_Params} for a list.  & -- & -- & 1D, 2D \\
+\hline
+
+area & Cross sectional area of the device. & -- & 1.0 & 1D, 2D \\ \hline
+
+tecplotlevel & Setting for Tecplot output:\par
+0 -- no Tecplot files \par
+1 -- Tecplot files, each output in a separate file. \par
+2 -- Tecplot file, each output appended to a single file. \par
+\par\par
+Tecplot files will have the \verb+.dat+ suffix, and the 
+prefix will be the name of the device instance & -- & 1 & 1D, 2D \\ \hline
+
+gnuplotlevel & Flag for gnuplot output.\par
+0 -- no gnuplot files.\par
+1 -- gnuplot files.\par
+gnuplot is an open source plotting program that is usually installed 
+on Linux systems.  gnuplot files will have the 
+*Gnu.dat suffix, and the  prefix will be the name of the device instance. 
+& -- & 0 & 1D, 2D \\ \hline
+
+txtdatalevel & Flag for volume-averaged text output.\par
+0 -- no text files.\par
+1 -- text files.\par
+txtdataplot files will have the *.txt suffix, and the prefix will be 
+the name of the device instance. & -- & 0 & 2D \\ \hline
+
+bulkmaterial & Material of bulk material. & -- & si & 1D, 2D \\ \hline
+
+mobmodel & mobility model. & -- & carr & 1D, 2D \\ \hline
+
+type & P-type or N-type -- this is only relevant if using the default 
+dopings & -- & PNP & 1D, 2D \\ \hline
+
+temp & Temperature & K & 300.15 & 1D, 2D \\ \hline
+
+\index{mesh}
+nx & Number of mesh points, x-direction. & -- & 11 & 1D, 2D \\ \hline
+
+l, w & Device length and width.  These parameters mean the same thing
+for the 1D device. & -- & 1.0e-3 & 1D,2D \\ \hline
+
+graded & Flag for graded junction vs. abrupt junction. (1=graded, 0=abrupt)
+& -- & 0 & 1D \\ \hline
+
+wj & Junction width. & -- & 1.0e-4 & 1D \\ \hline
+
+\category{Level 2 (2D) only}\\
+\hline\hline
+
+ny & Number of mesh points, y-direction.  Similar to nx (see above). & -- & 11 & 2D \\ \hline
+
+
+\index{mesh}
+\debug{meshfile} & 
+\debug{This is a required field for a 2D simulation.  If the user
+specifies \texttt{meshfile = internal.mesh}, then \Xyce{} will create a
+cartesian mesh.  If the user specifies anything else (for example
+\texttt{meshfile = diode.msh}), \Xyce{} will attempt to read in an 
+external mesh file (in the example, named \texttt{diode.msh}) which is
+in the format of the SG Framework~\cite{kramer-hitchon:1997}.} & \debug{--} & \debug{--} &
+\debug{2D} \\ \hline
+
+\debug{x0} & 
+\debug{This is the scaling factor for length.  The code will do all of its
+scaling internally, so it is generally not necessary to specify it manually.
+This is provided primarily for testing purposes.} & 
+\debug{--} & 
+\debug{max length of device} &
+\debug{2D} \\ \hline
+
+\end{DeviceParamTable4}

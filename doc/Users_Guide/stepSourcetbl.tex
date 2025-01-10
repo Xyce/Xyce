@@ -1,0 +1,38 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Defaults for independent sources.
+%%
+
+\small
+\begin{longtable}[htbp]{|>{\setlength{\hsize}{.5\hsize}}Y|
+>{\setlength{\hsize}{.5\hsize}}Y|} 
+\caption[Default parameters for independent sources.]{Default parameters for independent sources.} \label{Step_Source_Defaults}
+\\ \hline
+
+\rowcolor{XyceDarkBlue}\color{white}\textbf{Source Type} 
+& \color{white}\bf Default \endhead
+
+
+Sinusoidal source & V0 (DC value, Offset) \\ \hline
+
+Exponential source & V1 (DC value, Initial value) \\ \hline
+
+Pulsed source & V2 (Pulsed value) \\ \hline
+
+Constant, or DC source & V0 (Constant value) \\ \hline
+
+Piecewise Linear source & No default \\ \hline
+
+SFFM source & No default \\ \hline
+
+Swept source (specified on a \texttt{.DC} line) & No default \\ \hline
+\end{longtable}
+

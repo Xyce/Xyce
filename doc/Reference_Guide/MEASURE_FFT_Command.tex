@@ -1,0 +1,285 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+The \texttt{.MEASURE FFT} statement allows calculation or reporting of simulation
+metrics, from data associated with .FFT analyses, to an external file as well as to
+the standard output and/or a log file, So, it is only supported for \texttt{.TRAN},
+analyses.  It can be used with {\tt .STEP}.  For HSPICE compatibility, \texttt{.MEAS}
+is an allowed synonym for \texttt{.MEASURE}.
+
+The syntaxes for the \texttt{.MEASURE FFT} statements are shown below.
+
+\begin{Command}
+\format
+\begin{alltt}
+.MEASURE FFT <result name> ENOB <variable> [BINSIZ=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> EQN <variable>
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> FIND <variable> AT=<value>
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> SFDR <variable>
++ [MINFREQ=<value>] [MAXFREQ=<value>]  [BINSIZ=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> SNDR <variable>  [BINSIZ=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> SNR <variable> [MAXFREQ=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE FFT <result name> THD <variable>
++ [NBHARM=<value>] [MAXFREQ=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+\end{alltt}
+\index{\texttt{.MEASURE FFT}}
+\index{results!measure fft}
+
+\examples
+\begin{alltt}
+.FFT V(1) NP=16
+.MEASURE FFT ENOBVAL ENOB V(1)
+.MEASURE FFT EQNVAL EQN VR1AT2
+.MEASURE FFT VR1AT2 VR(1) AT=2
+.MEASURE FFT SFDRVAL SFDR V(1)
+.MEASURE FFT SNDRVAL SNDR V(1)
+.MEASURE FFT SNRVAL SNR V(1)
+.MEASURE FFT THDVAL THD V(1)
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+\argument{result name}
+
+Measured results are reported to the output and log file.
+Additionally, the results are stored in files called
+\texttt{circuitFileName.mt\#}, where the suffixed number
+(\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation. Each
+line of this file will contain the measurement name, \texttt{<result
+name>}, followed by its value for that run.  The \texttt{<result
+name>} must be a legal \Xyce{} character string.
+
+If multiple measures are defined with the same \texttt{<result name>} then
+\Xyce{} uses the last such definition, and issues warning messages about
+(and discards) any previous measure definitions with the same
+\texttt{<result name>}.
+
+\argument{measure type}
+
+\texttt{ENOB, EQN, FIND, SFDR, SNDR, SNR, THD}
+
+The third argument specifies the type of measurement or calculation to
+be done. By default, the measurement is performed over the time window defined
+by the {\tt START} and {\tt STOP} parameters on the associated {\tt .FFT}
+line.  So, the  {\tt FROM}, {\tt TO} and {\tt TD} qualifiers have no
+effect on FFT-based measures.
+
+The supported measure types are:
+
+\begin{description}
+  \item[\tt ENOB] Calculates the ``Effective Number of Bits'', where that metric
+    is defined in Section \ref{FFT_metrics} which covers the \texttt{.FFT} command.
+
+  \item[\tt EQN] Calculates the value of {\tt <variable>} during the simulation.
+    That variable can use the results of other measure statements. {\tt PARAM}
+    is an allowed synonym for {\tt EQN} as a measure type.  For {\tt FFT} measure
+    mode, an {\tt EQN} measure will be reported as ``failed'' until the associated
+    FFT has been calculated.
+
+  \item[\tt FIND] Returns the requested FFT cofficient at the requested
+    frequency.  Examples of the mapping of \Xyce{} operators (e.g., {\tt VM} and {\tt IM})
+    to FFT cofficients is given in the ``Additional Examples'' subsection below.
+    {\tt FIND} measures can be also used in conjunction with {\tt EQN} measures
+    to generate fairly arbitrary FFT-based measures.  The {\tt FIND} measure for
+    {\tt FFT} measure mode does not support expressions, or the {\tt P} and
+    {\tt W} operators.  It also does not support multi-terminal lead current
+    operators, such as {\tt IC()}.
+
+  \item[\tt SFDR] Calculates the ``Spurious Free Dynamic Range'', where that metric
+    is defined in Section \ref{FFT_metrics}.
+
+  \item[\tt SNDR] Calculates the ``Signal to Noise-plus-Distortion Ratio'', where that metric
+    is defined in Section \ref{FFT_metrics}.
+
+  \item[\tt SNR] Calculates the ``Signal to Noise Ratio'', where that metric
+    is defined in Section \ref{FFT_metrics}.
+
+  \item[\tt THD] Calculates the ``Total Harmonic Distortion'', where that metric
+    is defined further below and also in in Section \ref{FFT_metrics}.
+\end{description}
+
+\argument{variable}
+
+The \texttt{<variable>} is a simulation quantity, such as a
+voltage or current.  Additionally, the \texttt{<variable>} may be
+a \Xyce{} expression delimited by \{ \} brackets.  The only constraint
+is that the \texttt{variable} on the \texttt{.MEASURE FFT} line must
+be an exact match for the \texttt{ov} on at least one \texttt{.FFT} line
+in the netlist.  If there are multiple \texttt{.FFT} lines in the netlist
+with the same \texttt{ov} then the corresponding \texttt{.MEASURE FFT}
+statements will use the first such one.
+
+\argument{AT=value}
+A frequency {\em at which} the measurement calculation will occur.  This is
+used by the {\tt FIND} measure only.  The entered {\tt AT} value will be
+rounded to the nearest harmonic frequency, as defined by the {\tt FREQ},
+{\tt START} and {\tt STOP} parameters on the associated {\tt .FFT} line.
+An {\tt AT} value that rounds to a harmonic frequency of less than zero,
+or to more than {\tt NP/2}, will produce a failed measure in \Xyce{}, where
+{\tt NP} is the number of points specified on the associated {\tt .FFT} line..
+The behavior of these ''failed'' cases may differ from commercial simulators.
+
+\argument{BINSIZ=value}
+This parameter is implemented in \Xyce{} for the \texttt{ENOB}, \texttt{SFDR}
+and \texttt{SNDR} measure types. It can be used to account for any ``broadening''
+of the spectral energy in the first harmonic of the signal, as discussed below.
+\texttt{BINSIZ} has a default value of 0.
+
+\argument{DEFAULT\_VAL=value}
+
+If the conditions specified for finding a given value are not found
+during the simulation then the measure will return the default value
+of {\tt -1} in the \texttt{circuitFileName.mt\#} file.
+The measure value in the standard output or log file will be
+FAILED.  The default return value for the \texttt{circuitFileName.mt\#}
+file is settable by the user for each measure by adding the qualifier
+{\tt DEFAULT\_VAL=<retval>} on that measure line.  If either
+\texttt{.OPTIONS MEASURE MEASFAIL=<val>} or
+\texttt{.OPTIONS MEASURE DEFAULT\_VAL=<val>} are given in the
+netlist then those values override the \texttt{DEFAULT\_VAL}
+parameters given on individual \texttt{.MEASURE FFT} lines.
+See Section \ref{Options_Reference} for more details.
+
+\argument{MAXFREQ=value}
+The maximum frequency over which to perform a {\tt SFDR}, {\tt SNR}
+or {\tt THD} measure. The entered {\tt MAXFREQ} value will be rounded
+to the nearest harmonic frequency, as defined by the {\tt FREQ},
+{\tt START} and {\tt STOP} parameters on the associated {\tt .FFT}
+line.  The default value is {\tt NP/2}, where {\tt NP} is the number
+of points specified on the associated {\tt .FFT} line.
+
+\argument{MINFREQ=value}
+The minimum frequency over which to perform a {\tt SFDR} or {\tt THD} measure.
+The entered {\tt MINFREQ} value will be rounded to the nearest harmonic
+frequency, as defined by the {\tt FREQ}, {\tt START} and {\tt STOP}
+parameters on the associated {\tt .FFT} line.  The default value is 1.
+
+\argument{NBHARM=value}
+The maximum (integer) number of harmonics over which to perform a THD measure.
+The default value is {\tt NP/2}.  The {\tt NBHARM} qualifier has precedence
+over the {\tt MAXFREQ} qualifier if both are given on a {\tt .MEASURE} line.
+
+\argument{PRECISION=value}
+
+The default precision for {\tt .MEASURE} output is 6 digits after the
+decimal point.  This argument provides a user configurable precision
+for a given {\tt .MEASURE} statement that applies to both the
+\texttt{.mt\#} file and standard output.
+If \texttt{.OPTIONS MEASURE MEASDGT=<val>} is given in the netlist
+then that value overrides the \texttt{PRECISION} parameters given on
+individual \texttt{.MEASURE} lines.
+
+\argument{PRINT=value}
+
+This parameter controls where the {\tt .MEASURE} output appears.  The
+default is {\tt ALL}, which produces measure output in both the
+\texttt{.mt\#} and the standard output.  A value of {\tt STDOUT}
+only produces measure output to standard output, while a value of
+{\tt NONE} suppresses the measure output to both the \texttt{.mt\#}
+file and standard output.
+
+\end{Arguments}
+
+\end {Command}
+
+\subsubsection{Measure Definitions}
+The \texttt{ENOB}, \texttt{SNDR}, \texttt{SNR} and \texttt{SFDR} measure
+types use the same definitions as the metrics produced by \texttt{.FFT} lines.
+Section \ref{FFT_metrics} provides more details on those definitions.  (Note: The
+\texttt{MAXFREQ} and \texttt{MINFREQ} qualifiers from the \texttt{.MEASURE FFT}
+lines are mapped into the \texttt{FMAX} and \texttt{FMIN} parameters used in those
+equations.)  There are two exceptions.
+
+The first exception is the \texttt{THD} measure.  If the optional \texttt{NBHARM}
+qualifier is not used then the definition given in Section \ref{FFT_metrics} is
+used.  If the \texttt{NBHARM} qualifier is used then it takes precedence over the
+\texttt{MAXFREQ} qualifier.  The \texttt{THD} measure definition is then as follow.
+Let $f_{0}$ be the integer index of the ``first harmonic'' ($f_{0}$), as defined in
+Section \ref{FFT_metrics}, from the associated \texttt{.FFT} line.  Then the
+effective value of the upper frequency limit ($f_{2}$) in the THD calculation
+is \texttt{NBHARM}$\cdot f_{0}$, with the caveat that all of the harmomics will
+be used if \texttt{NBHARM} < 0 or \texttt{NBHARM} > \texttt{NP/2}.
+
+The second exception is the \texttt{BINSIZ} qualifier for the \texttt{ENOB},
+\texttt{SFDR} and \texttt{SNDR} measures.  For a non-zero value of
+\texttt{BINSIZ}, the ``signal power'' is considered to reside in the harmonic
+indexes between ($f_{0} \pm$ \texttt{BINSIZ}), where the DC value is still
+excluded from the measure calculations. (Note: This definition for 
+\texttt{BINSIZ} may differ from HSPICE.)
+
+\subsubsection{Re-Measure}
+\label{Measure_FFT_ReMeasure}
+\index{measure fft!re-measure}
+\Xyce{} can re-calculate (or re-measure) the values for {\tt .MEASURE FFT}
+statements using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure}
+discusses this topic in more detail for both {\tt .MEASURE} and {\tt .FFT}
+statements.
+
+\subsubsection{Additional Examples}
+\label{Measure_FFT_Additional_Examples}
+\index{measure fft!additional examples}
+This section provides a simple example how to use the {\tt FIND} measure,
+along with the {\tt V()}, {\tt VR()}, {\tt VI()}, {\tt VM()}, {\tt VP()}
+and {\tt VDB()} operators, to obtain the real and imaginary parts of the
+FFT coefficients, along with the magnitude and phase of those coefficients,
+at a specified frequency.  Those coefficient values are unnormalized.
+
+\begin{alltt}
+* Example of obtaining FFT coefficients
+.TRAN 0 1
+.PRINT TRAN V(1)
+.OPTIONS FFT FFT_ACCURATE=1 FFTOUT=1
+V1 1 0 1
+R1 1 0 1
+.FFT V(1) NP=8 WINDOW=HANN
+
+* Unnormalized one-sided FFT cofficients for V(1) at F=1.0
+* Magnitude
+.MEASURE FFT V1AT1 FIND V(1) AT=1.0
+* Real part
+.MEASURE FFT VR1AT1 FIND VR(1) AT=1.0
+* Imaginary part
+.MEASURE FFT VI1AT1 FIND VI(1) AT=1.0
+* Magnitude
+.MEASURE FFT VM1AT1 FIND VM(1) AT=1.0
+* Phase
+.MEASURE FFT VP1AT1 FIND VP(1) AT=1.0
+* Magnitude in dB
+.MEASURE FFT VDB1AT1 FIND VDB(1) AT=1.0
+
+.END
+\end{alltt}
+
+The {\tt .MEASURE} output is then:
+\begin{alltt}
+FINDV1AT1 = 5.200051e-01
+FINDVR1AT1 = -4.804221e-01
+FINDVI1AT1 = -1.989973e-01
+FINDVM1AT1 = 5.200051e-01
+FINDVP1AT1 = -1.575000e+02
+FINDVDB1AT1 = -5.679847e+00
+\end{alltt}
+
+

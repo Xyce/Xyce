@@ -1,0 +1,291 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\documentclass[letterpaper]{scrartcl}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{7.4}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes}
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{XDM}
+\begin{XyceItemize}
+\item General:
+  \begin{XyceItemize}
+  \item Substitutions done by XDM for the special variable
+    TEMP are no longer necessary and are taken out in this release.
+  \end{XyceItemize}
+\item HSPICE:
+  \begin{XyceItemize}
+  \item  Xyce's "-hspice-ext" option, which should be used
+    when running HSPICE netlists translated by XDM, now by default
+    expects the "." for the subcircuit hierarchy separator
+    character. Therefore, XDM translations will leave that character
+    unchanged rather than translating it to Xyce's native ":"
+    subcircuit separator character.
+  \item  Secondary sweep of .DC analyses should now be
+    translated correctly into Xyce.
+  \item  Xyce can now handle resistors with solution dependent
+    expressions for their resistance values. Therefore, XDM will no
+    longer translate solution dependent resistors into behavioral
+    B-element sources.
+  \end{XyceItemize}
+\end{XyceItemize}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+  \item The levels 1 and 2 diode now support a multiplicity factor.
+    This is the ``M'' parameter on the instance line, not to be
+    confused with the model parameter of the same name (the p-n
+    junction grading parameter).
+  \item The resistor model now supports solution-dependent
+    expressions, so it is possible to have voltage-dependent resistors
+    in Xyce netlists.
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+  \item Voltage limiting in the BSIMSOI version 3 device model can now
+    be optionally turned off, while leaving it turned on in other
+    devices.  The implementation of voltage limiting in the BSIM SOI
+    device is unorthodox and has been observed to cause robustness
+    problems.  Turning it off can improve runtimes.
+  \item Behavioral models have been optimized to eliminate redundant
+    calls to the expression library.  For historical reasons, the Bsrc
+    device was calling the expression library more than it needed to.
+    This has been corrected, and it will improve the runtime of
+    circuits with lots of behavioral models.  This same optimization
+    has also been applied to other expression-dependent models, such
+    as the capacitor and switch devices.
+  \item The expression library has undergone several optimizations
+    since the last code release.  These optimizations include a
+    reduction in the number of necessary syntax tree traversals, a
+    reduction in the memory footprint, reduction in dynamic memory
+    allocations and deallocations, and many evaluation costs are now
+    amortized in the expression setup.  For circuits with large
+    numbers of expressions, these optimizations produce runtime
+    performance improvements of netlist parsing and overall simulation
+    speed.
+
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+  \item ``Continuous mode'' measures, that may return more than one
+    result, are now supported for the \texttt{DERIV-AT},
+    \texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
+    \texttt{WHEN} measure types for \texttt{.AC}, \texttt{.DC},
+    \texttt{.NOISE} and \texttt{.TRAN} analyses.
+  \item The \texttt{-remeasure} command line option now supports
+    \Xyce{} output files made with \texttt{FORMAT=GNUPLOT}.
+  \item The full range of negative values (-1,-2,-3,...) are now
+    supported for the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS}
+    qualifiers for the \texttt{DERIV-WHEN}, \texttt{FIND-WHEN} and
+    \texttt{WHEN} measure types.
+  \item The \texttt{ERROR} measure type is now supported for
+    \texttt{.AC} and \texttt{.NOISE} analyses.
+  \item Additional window functions (\texttt{BARTLETTHANN},
+    \texttt{BLACKMAN}, \texttt{NUTTALL}, \texttt{COSINE2},
+    \texttt{COSINE4}, \texttt{HALFCYCLESINE}, \texttt{HALFCYCLESINE3}
+    and \texttt{HALFCYCLESINE6}) have been added for \texttt{.FFT}
+    lines.  In addtional, both ``symmetric'' and ''periodic'' versions
+    are now supported for all window functions.
+  \item \texttt{.OPTIONS FFT FFT\_MODE=<0|1>} now allows the \Xyce{}
+    user to select whether the \Xyce{} \texttt{.FFT} processing and
+    output is more compatible with HSPICE (0) or Spectre (1).  The
+    default is HSPICE.
+  \item The \texttt{BINSIZ} qualifier is now implemented in \Xyce{} for
+    the \texttt{ENOB}, \texttt{SFDR} and \texttt{SNDR} measure types. It
+    can be used to account for any ``broadening'' of the spectral energy
+    in the first harmonic of the signal.
+  \item \texttt{.STEP} analyses now support \texttt{.FOUR} analyses.
+  \item A bug in the handling of wildcard current output was fixed and
+    now these wildcards may be requested using the external output API
+    irrespective of whether the netlist being run contains print lines
+    outputting the same data.
+  \item More complex \texttt{.PRINT} line wildcards, such as VR(X1*)
+    and IR(B1?), are now supported for all voltage and current
+    operators.  So, this feature now also supports the VR, VI, VM, VP,
+    VDB, IR, II, IM, IP and IDB operators used for \texttt{.AC},
+    \texttt{.HB} and \texttt{.NOISE} analysis.  It also now supports
+    the lead current operators IB, IC, ID, IE, IG and IS.
+  \item All valid \texttt{.PRINT} line wildcards are now supported for
+    numerical lead-current designators, such as I1 and I2.  (Note: At
+    present, those designators are only supported for the T and
+    YGENEXT devices.)
+  \item The use of a period as the subcircuit name separator is now
+    supported as a user-specified option.  The default separator in
+    \Xyce{} is still the colon.  Period separators are enabled by the
+    \texttt{-hspice-ext} command line option, either using
+    \texttt{all} or \texttt{separator} as the second argument.
+  \item Inductance values, for coupled mutual inductors are now
+    accessible in the netlist, for outputs and also parameter-centric
+    analyses such as \texttt{.STEP} and \texttt{.SENS}.
+
+\end{XyceItemize}
+
+\subsubsection*{Xyce/ADMS Improvements}
+\begin{XyceItemize}
+  \item An error in the generation of code for derivatives of the
+    ``min'' function with probe-dependent arguments has been fixed.
+    The error impacted several internal models that had been generated
+    using ADMS, but has not led to significant differences in
+    simulation results.  Minor differences in convergence behavior
+    have been observed.
+  \item Support for the atan2 function and generation of correct code
+    for its derivatives has been added.
+\end{XyceItemize}
+
+\subsubsection*{Important Announcements}
+\begin{XyceItemize}
+\item The model interpolation technique described in the \Xyce{}
+  Reference Guide in section 2.1.18 has been marked as deprecated, and
+  will be removed in a future release of Xyce.
+\item The link line required to link \Xyce{} libraries (installed by
+  ``make install'') to user code has been simplified.  Now only
+  ``-lxyce'' is needed, where in previous releases it was necessary to
+  link in several related libraries.
+\end{XyceItemize}
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 7.3 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS 10.14 and 10.15, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
+    and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Note: Coupled Simulation with the \Xyce{} General
+    External Interface
+  \item Application Note: Mixed Signal Simulation with \Xyce{} 7.2
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Dept.\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and
+operated by National Technology and Engineering Solutions of Sandia,
+LLC, a wholly owned subsidiary of Honeywell International, Inc., for
+the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-NA0003525.
+
+SAND2021-13318 O
+\end{document}
+

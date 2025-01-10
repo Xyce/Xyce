@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE admst PUBLIC "-//adms//DTD admst 2.0//-" "http://mot-adms.sourceforge.net/xml-files/adms/admst.dtd">
+<admst version="2.3.0" xmlns:admst="http://mot-adms.sourceforge.net/xml-files/admst">
+
+  <!--
+  Purpose:  Generate a documentation table of output variables
+
+      Creator:   Tom Russo, SNL, Electrical and Microsystems Modeling
+      Creation Date: 8 May 2008
+
+     Copyright 2002-2024 National Technology & Engineering Solutions of
+     Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+     NTESS, the U.S. Government retains certain rights in this software.
+
+     This file is part of the Xyce(TM) Parallel Electrical Simulator.
+
+     Xyce(TM) is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+
+     Xyce(TM) is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License
+     along with Xyce(TM).
+     If not, see <http://www.gnu.org/licenses/>.
+
+
+  -->
+
+  <admst:for-each select="/module">
+    <admst:message format="Processing outvar table for %(.)\n"/>
+    <admst:choose>
+      <admst:when test="[exists(attribute[name='xyceLevelNumber'])]">
+        <admst:variable name="theLevelNumber" select="%(attribute[name='xyceLevelNumber']/value)"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:variable name="theLevelNumber" select="%(attribute[name='xyceLevelNumber']/value)"/>
+      </admst:otherwise>
+    </admst:choose>
+    <admst:message format="    level=$theLevelNumber\n"/>
+
+
+    <!-- Figure out what spice symbol we use -->
+    <admst:choose>
+      <admst:when test="[exists(attribute[name='xyceSpiceDeviceName'])]">
+        <admst:variable name="theSpiceDevice" select="%(attribute[name='xyceSpiceDeviceName']/value)"/>
+      </admst:when>
+      <admst:when test="[exists(attribute[name='xyceModelGroup'])]">
+        <admst:choose>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='MOSFET']">
+            <admst:variable name="theSpiceDevice" select="m"/>
+            <admst:variable name="theUCSpiceName" select="MOSFET"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='JFET']">
+            <admst:variable name="theSpiceDevice" select="j"/>
+            <admst:variable name="theUCSpiceName" select="JFET"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='BJT']">
+            <admst:variable name="theSpiceDevice" select="q"/>
+            <admst:variable name="theUCSpiceName" select="BJT"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='Diode']">
+            <admst:variable name="theSpiceDevice" select="d"/>
+            <admst:variable name="theUCSpiceName" select="Diode"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='Resistor']">
+            <admst:variable name="theSpiceDevice" select="r"/>
+            <admst:variable name="theUCSpiceName" select="Resistor"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='Capacitor']">
+            <admst:variable name="theSpiceDevice" select="c"/>
+            <admst:variable name="theUCSpiceName" select="Capacitor"/>
+          </admst:when>
+        </admst:choose>
+      </admst:when>
+      <admst:otherwise>
+        <admst:variable name="theSpiceDevice" select="%(.)"/>
+        <admst:variable name="theUCSpiceName" select="%(.)"/>
+      </admst:otherwise>
+    </admst:choose>
+
+    <admst:variable name="theLCSpiceName" select="%(upper-case($theUCSpiceName))"/>
+
+    <admst:message format="    SPICE character=$theSpiceDevice  name=$theUCSpiceName and $theLCSpiceName, number of out vars is %(count(variable[output='yes' and input!='yes'])) \n"/>
+
+    <admst:if test="[count(variable[output='yes' and input!='yes'])>0]">
+      <admst:open file="%(upper-case($theSpiceDevice))_%($theLevelNumber)_OutputVars.tex">
+        <admst:text format="%table generated from Verilog-A input\n"/>
+        <admst:text format="\\index{$theLCSpiceName level $theLevelNumber!device output variables}\n"/>
+        <admst:text format="\\begin{DeviceParamTableGenerated}{$theUCSpiceName level $theLevelNumber Output Variables}{%(upper-case($theSpiceDevice))_%($theLevelNumber)_OutputVars}\n"/>
+        <admst:for-each select="variable[output='yes' and input!='yes']">
+          <admst:text format="%(name) &amp; "/>
+          <admst:choose>
+            <admst:when test="[exists(attribute[name='info'])]">
+              <admst:text format="%(attribute[name='info']/value) &amp; "/>
+            </admst:when>
+            <admst:when test="[exists(attribute[name='desc'])]">
+              <admst:text format="%(attribute[name='desc']/value) &amp; "/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format="  &amp; "/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:choose>
+            <admst:when test="[exists(attribute[name='units'])]">
+              <admst:text format="  %(textUnit2LaTeXUnit(.)) &amp; "/>
+            </admst:when>
+            <admst:when test="[exists(attribute[name='unit'])]">
+              <admst:text format="  %(attribute[name='unit']/value) &amp; "/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format=" -- &amp; "/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:text format="none \\\\ \\hline\n"/>
+        </admst:for-each>
+        <admst:text format="\\end{DeviceParamTableGenerated}\n"/>
+      </admst:open>
+    </admst:if>
+  </admst:for-each>

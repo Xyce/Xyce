@@ -1,0 +1,603 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{Options_Reference}
+
+\index{\texttt{.OPTIONS}} \index{analysis!options}  \index{analysis!control parameters} \index{solvers!control parameters}
+
+Set various simulation limits, analysis control parameters
+and output parameters.  In general, they use the following format:
+
+\begin{Command}
+\format
+.OPTIONS <pkg> [<name>=<value>]*
+
+\examples
+.OPTIONS TIMEINT ABSTOL=1E-8
+
+\arguments
+
+\begin{Arguments}
+
+\argument{pkg}
+
+\begin{basedescript}{
+    \desclabelstyle{\multilinelabel}
+    \desclabelwidth{1.5in}
+    \renewcommand{\makelabel}[1]{\tt #1\hfill}}
+  \item[\tt DEVICE]       Device Model
+  \item[\tt DIAGNOSTIC]   Diagnostic Simulation Output
+  \item[\tt TIMEINT]      Time Integration
+  \item[\tt NONLIN]       Nonlinear Solver
+  \item[\tt NONLIN-TRAN]  Transient Nonlinear Solver
+  \item[\tt NONLIN-HB]    HB Nonlinear Solver
+  \item[\tt LOCA]         Continuation/Bifurcation Tracking
+  \item[\tt LINSOL]       Linear Solver
+  \item[\tt LINSOL-HB]    HB Linear Solver
+  \item[\tt LINSOL-AC]    AC Linear Solver
+  \item[\tt OUTPUT]       Output
+  \item[\tt RESTART]      Restart
+  \item[\tt SAMPLES]      Sampling analysis and non-intrusive Polynomial Chaos (PCE)
+  \item[\tt EMBEDDEDSAMPLES]  EmbeddedSampling and non-intrusive Polynomial Chaos (PCE) 
+  \item[\tt PCES]         Fully intrusive Polynomial Chaos (PCE)
+  \item[\tt SENSITIVITY]  Direct and Adjoint sensitivities
+  \item[\tt HBINT]        Harmonic Balance (HB)
+  \item[\tt DIST]         Distribution
+  \item[\tt MEASURE]      Measure
+  \item[\tt PARSER]       Parsing
+\end{basedescript}
+
+\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
+The name of the parameter and the value it will be assigned.
+
+\end{Arguments}
+
+\comments
+
+Exceptions to this format are the \texttt{OUTPUT} and \texttt{RESTART}
+options, which use their own format. They are defined under their
+respective descriptions.
+
+The designator \texttt{pkg} refers loosely to a {\em module} in the code.  For most 
+  designators, multiple \texttt{.OPTIONS} statements are allowed.  So for example, 
+  the netlist may contain multiple \texttt{.OPTIONS DEVICE} commands, and Xyce will 
+  parse and apply all of them.  If any parameters are specified more than once, Xyce
+  will issue a warning.  The warning will include which parameter value is being 
+  used. 
+
+The \texttt{OUTPUT} and \texttt{RESTART} options have a different enough 
+  format that they can only be specified once.  Extra \texttt{OUTPUT} 
+  and \texttt{RESTART} option statements (beyond the first one) will be ignored.
+
+\texttt{.OPTIONS} statements are only permitted in the top level of the netlist.    
+Any \texttt{.OPTIONS} statemets inside of subcircuits will result in a warning, 
+and otherwise will be ignored.
+
+\end{Command}
+
+\subsubsection{\texttt{.OPTIONS DEVICE} (Device Package Options)}
+\index{device!package options}\index{\texttt{.OPTIONS}!\texttt{DEVICE}}
+
+The device package parameters listed in Table~\ref{DevicePKG} outline the options
+available for specifying device specific parameters.  Some of these (\texttt{DEFAS,
+DEFAD, TNOM} etc.) have the same meaning as they do for
+the \texttt{.OPTION} line from Berkeley SPICE (3f5).  Parameters which
+apply globally to all device models will be specified here.
+Parameters specific to a particular device instance or model are
+specified in section~\ref{Analog_Devices}.
+
+\input{devtbl}
+
+\subsubsection{\texttt{.OPTIONS DIAGNOSTIC} (Diagnostic Simulation Output)}
+\index{diagnostic!options}\index{\texttt{.OPTIONS}!\texttt{DIAGNOSTIC}}
+
+This option enables the output of diagnostic data during a simulation to aid
+in debugging circuit problems.  There are three optional diagnostics that one 
+can specify, Extrema Limit, Voltage Limit, Current Limit and a Discontinuity
+limit.  Their behavior is as follows:
+\begin{itemize}
+  \item \texttt{EXTREMALIMIT}={\em value}  If {\em value} is given then Xyce will output 
+  the node name and absolute value of the solution vector extrema  when it exceeds 
+  {\em value} at each step.
+  \item \texttt{VOLTAGELIMIT}={\em value} If {\em value} is given then Xyce will output
+  the voltage node names and values that exceed {\em $\pm$value} at each step.
+  \item \texttt{CURRENTLIMIT}={\em value} If {\em value} is given then Xyce will output
+  the branch and lead current names and values that exceed {\em $\pm$value} at each step.
+  \item \texttt{DISCLIMIT}={\em value} If {\em value} is given then Xyce will output
+  solution variables where the absolute value of the difference between the solution
+  and the predictor (from transient history) exceed {\em value}.
+\end{itemize}
+
+Note that \texttt{EXTREMALIMIT} will only output one name and value per step while
+\texttt{VOLTAGELIMIT}, \texttt{CURRENTLIMIT} and \texttt{DISCLIMIT} can output many 
+names and values per step.  Xyce's diagnostic output will be sent to the diagnostic 
+file set by \texttt{DIAGFILENAME} along with step information (time step in transient 
+simulation and step number otherwise) and the status of \texttt{GMIN} or source-stepping 
+used to obtain the DC operating point. If no filename is specified, then the 
+default output file name will be the input netlist name plus the extenstion \texttt{.dia}.
+A user can examine the output to infer if the circuit simulation is performing as expected.
+Further examples of using diagnostic options can be found in chapter 10 of the \Xyce{} 
+User's Guide.
+
+\input{diagnosticTbl.tex}
+
+
+\subsubsection{\texttt{.OPTIONS TIMEINT} (Time Integration Options)}
+\index{solvers!time integration!options}
+\index{\texttt{.OPTIONS}!\texttt{TIMEINT}}
+
+The time integration parameters listed in Table~\ref{TimeIntPKG} give the
+available options for helping control the time integration algorithms for
+transient analysis.
+
+Time integration options are set using the \texttt{.OPTIONS TIMEINT} command.
+
+\input{timetbl}
+
+
+\subsubsection{\texttt{.OPTIONS NONLIN} (Nonlinear Solver Options)}
+\index{solvers!nonlinear!options}\index{\texttt{.OPTIONS}!\texttt{NONLIN}}\index{\texttt{.OPTIONS}!\texttt{NONLIN-TRAN}}
+
+The nonlinear solver parameters listed in Table~\ref{NonlinPKG} provide
+methods for controlling the nonlinear solver for \index{DC analysis}
+\index{analysis!DC} DC, \index{transient analysis}
+\index{analysis!transient} transient and harmonic balance. Note that the
+nonlinear solver options for DCOP, transient and harmonic balance are
+specified in separate options statements, using \texttt{.OPTIONS
+ NONLIN}, \texttt{.OPTIONS NONLIN-TRAN} and \texttt{.OPTIONS
+ NONLIN-HB}, respectively. The defaults for  \texttt{.OPTIONS
+ NONLIN} and \texttt{.OPTIONS NONLIN-TRAN} are specified in the
+third and fourth columns of Table~\ref{NonlinPKG}.  The defaults for 
+\texttt{.OPTIONS NONLIN-HB} are the same as the default settings given for
+\texttt{NONLIN-TRAN} with two exceptions. For \texttt{NONLIN-HB}, the default
+for \texttt{ABSTOL} is 1e-9 and the default for \texttt{RHSTOL} is 1e-4.
+
+\input{nlstbl}
+
+\index{solvers!nonlinear-transient!options}
+
+\subsubsection{\texttt{.OPTIONS LOCA} (Continuation and Bifurcation Tracking Package Options)}
+\index{solvers!continuation!options}
+\index{solvers!homotopy!options}
+
+The continuation selections listed in Table~\ref{ContinuationPKG}
+provide methods for controlling continuation and bifurcation analysis.
+These override the default settings that were given in the
+continuation package.  This option block is only used if the nonlinear
+solver or transient nonlinear solver enable continuation through the
+\texttt{CONTINUATION} flag.
+
+There are several specialized homotopy methods that can be set in the nonlinear
+solver options line, \texttt{.options nonlin}.  One is MOSFET-based homotopy, 
+which is specific to MOSFET circuits.  This is specified using \texttt{continuation=2} or
+\texttt{continuation=mos}.  Another is GMIN stepping, which is specified
+using \texttt{continuation=3} or \texttt{continuation=gmin}.  Lastly, source stepping
+can be done simultaneously, using \texttt{continuation=34} or \texttt{continuation=sourcestep},
+or sequentially using \texttt{continuation=35} or \texttt{continuation=sourcestep2}.
+For any of these methods, while it is possible to modify their default LOCA options, it is
+generally not necessary to do so. Note that \Xyce{} automatically attempts GMIN
+stepping if the inital attempt to find the DC operating point fails.  In addition,
+\Xyce{} will attempt simultaneous source stepping if GMIN fails to find a DC operating
+point.  If any of the specialized homotopy methods are specified in the netlist,
+\Xyce{} will attempt to find a DC operating point only using that method. 
+
+LOCA options are set using the \texttt{.OPTIONS LOCA} command.\index{\texttt{.OPTIONS}!\texttt{LOCA}}
+
+\input{locatbl}
+
+\subsubsection{\texttt{.OPTIONS LINSOL} (Linear Solver Options)}
+\index{solvers!linear!options}
+
+\Xyce{} uses both sparse direct
+solvers\index{solvers!linear!sparse-direct} as well as Krylov iterative
+methods\index{solvers!linear!iterative (preconditioned Krylov methods)}
+for the solution of the linear equations generated by Newton's method.
+For the advanced users, there are a variety of options that can be set
+to help improve these solvers.  Transformations of the linear system
+have a ``\verb+TR_+'' prefix on the flag.  Many of the options for the
+Krylov solvers are simply passed through to the underlying
+Trilinos/AztecOO\index{Trilinos}\index{solvers!linear!Trilinos}\index{Aztec}\index{solvers!linear!Aztec}
+solution settings and thus have an ``\verb+AZ_+'' prefix on the flag.
+
+Linear solver options are set using the \texttt{.OPTIONS LINSOL}
+command.\index{\texttt{.OPTIONS}!\texttt{LINSOL}}
+
+\input{linsoltbl}
+
+\subsubsection{\texttt{.OPTIONS LINSOL-HB} (Linear Solver Options)}
+
+For harmonic balance (HB) analysis, \Xyce{} provides both iterative 
+and direct methods for the solution of the steady state.  Only matrix-free techniques
+are available for preconditioning the HB Jacobian with an iterative linear solver.
+The direct linear solver explicitly forms the HB Jacobian and solves the complex-valued
+linear system with the requested solver.
+For HB analysis, a reduced number of linear solver options are available,  
+and are set using the \texttt{.OPTIONS LINSOL-HB} command.\index{\texttt{.OPTIONS}!\texttt{LINSOL-HB}}
+
+\input{hblinsoltbl}
+
+\subsubsection{\texttt{.OPTIONS LINSOL-AC} (Linear Solver Options)}
+
+For AC analysis, \Xyce{} provides both iterative and direct methods for the
+solution of the linear equations. For the advanced users, there are a variety 
+of options that can be set to help improve these solvers.  Transformations 
+of the linear system have a ``\verb+TR_+'' prefix on the flag.  Many of the 
+options for the Krylov solvers are simply passed through to the underlying
+Trilinos/AztecOO\index{Trilinos}\index{solvers!linear!Trilinos}\index{Aztec}\index{solvers!linear!Aztec}
+solution settings and thus have an ``\verb+AZ_+'' prefix on the flag.
+
+Linear solver options are set using the \texttt{.OPTIONS LINSOL-AC}
+command.\index{\texttt{.OPTIONS}!\texttt{LINSOL-AC}}  The available options
+are the same as those for \texttt{.OPTIONS LINSOL}.
+
+
+\subsubsection{\texttt{.OPTIONS OUTPUT} (Output Options)}
+
+The \index{results!output options} \index{\texttt{.OPTIONS}!\texttt{OUTPUT}} \verb+.OPTIONS OUTPUT+
+command can be used to allow control of the output frequency of data to files specified
+by \index{\texttt{.TRAN}} \verb+.PRINT TRAN+ commands.  
+
+One method is to specify output intervals.  The format for this method is:
+\begin{vquote}
+.OPTIONS OUTPUT INITIAL_INTERVAL=<interval> [<t0> <i0> [<t1> <i1>]* ]
+\end{vquote}
+where \verb+INITIAL_INTERVAL=<interval>+ specifies the starting interval time
+for output and \verb+<tx> <ix>+ specifies later simulation times \verb+<tx>+
+where the output interval will change to \verb+<ix>+. The solution is output at the
+exact intervals requested; this is done by interpolating the solution
+to the requested time points.
+
+Another useful method for controlling the output frequency is to specify discrete output
+points.  
+\begin{vquote}
+.OPTIONS OUTPUT OUTPUTTIMEPOINTS=<t0>,<t1>,* 
+\end{vquote}
+If this option is used, then only the specified time points will appear in the output file.
+No other points will be output, so files using this method can be very sparse.  For this type
+of output, the output values are not interpolated.  Instead, the specified output points are 
+set as breakpoints in the time integrator, so the output values are computed directly.
+
+In addition to controlling the frequency of output, it is also possible to use
+output options to suppress the header from standard format output files, and the footer
+from both standard and tecplot format output files.
+\begin{vquote}
+.OPTIONS OUTPUT PRINTHEADER=<boolean> PRINTFOOTER=<boolean>
+\end{vquote}
+where setting the \texttt{PRINTHEADER} variable to ``false'' will suppress the header and 
+\texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  The \texttt{PRINTHEADER}
+option is only applicable to \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT>} files.
+The \texttt{PRINTFOOTER} option is only applicable to
+\texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>} files.
+
+It can be convenient to have all the solution variables output to file during a
+transient run without specifying all of them on a {\texttt{.PRINT TRAN} line.  
+This can be accomplished with the \texttt{SNAPSHOTS} option available on the
+\texttt{.OPTIONS OUTPUT} line.
+\begin{vquote}
+.OPTIONS OUTPUT SNAPSHOTS=<boolean>
+\end{vquote}
+where setting the \texttt{SNAPSHOTS} variable to ``true'' will print all solution variables
+to the output file, ignoring any solution nodes specified in the {\texttt{.PRINT TRAN} line.
+
+It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
+\begin{vquote}
+.OPTIONS OUTPUT ADD\_STEPNUM\_COL=<boolean>
+\end{vquote}
+where setting the \texttt{ADD\_STEPNUM\_COL} variable to ``true'' will add the
+\texttt{STEPNUM} column.  The default is ``false''. This option is applicable to
+\texttt{FORMAT=<STD|NOINDEX|GNUPLOT|SPLOT>} for any \texttt{.PRINT} line that
+supports \texttt{FORMAT=STD} output.
+
+The default \Xyce{} output for phase operators, such as \texttt{VP()}, \texttt{IP()},
+\texttt{SP()}, \texttt{YP()} and \texttt{ZP()}, is in degrees.  For compatibility with
+other simulators like Spice3f5 and ngspice, it is possible to change that operator
+output to use radians instead:
+\begin{vquote}
+.OPTIONS OUTPUT PHASE\_OUTPUT\_RADIANS=<boolean>
+\end{vquote}
+The default value for this option is FALSE.  If set to TRUE then the phase output
+will be in radians instead of degrees.  This option also applies to the format
+for AC sensitivity output.  It does not affect the output from a \texttt{.FOUR}
+analysis or a \texttt{.FOUR} measure though.  Those two outputs are always in degrees.
+
+\subsubsection{\texttt{.OPTIONS RESTART} (Checkpointing Options)}
+
+The \index{restart} \index{\texttt{.OPTIONS}!\texttt{RESTART}} \verb+.OPTIONS RESTART+ command is
+used to control all \index{checkpoint} checkpoint output and restarting.
+
+The checkpointing form of the \texttt{.OPTIONS RESTART} command takes the following format:
+\Format{\par\tt .OPTIONS RESTART [PACK=<0|1>] JOB=<job prefix> \linebreak
++ [INITIAL\_INTERVAL=<initial interval time> [<t0> <i0> [<t1> <i1>]* ]]}
+
+\texttt{PACK=<0|1>} indicates whether the restart data will be byte packed
+or not.  Parallel restarts must always be packed while Windows/MingW
+runs are always not packed.  Otherwise, data will be packed by default unless
+explicitly specified.
+\texttt{JOB=<job prefix>} identifies the prefix for restart files.  The
+actual restart files will be the job name with the current simulation time
+appended (e.g. \texttt{name1e-05} for \texttt{JOB=name} and simulation time
+1e-05 seconds).  Furthermore, \texttt{INITIAL\_INTERVAL=<initial interval
+  time>} identifies the initial interval time used for restart output.  The
+\texttt{<tx> <ix>} intervals identify times \texttt{<tx>} at which the output
+interval \texttt{(ix)} should change.  This functionality is identical to
+that described for the \texttt{.OPTIONS OUTPUT} command.
+
+\paragraph{Examples}
+
+To generate checkpoints at every time step (default):
+
+\Example{\texttt{.OPTIONS RESTART JOB=checkpt}}
+
+To generate checkpoints every 0.1 $\mu s$:
+
+\Example{\texttt{.OPTIONS RESTART JOB=checkpt INITIAL\_INTERVAL=0.1us}}
+
+To generate unpacked checkpoints every 0.1 $\mu s$:
+
+\Example{\texttt{.OPTIONS RESTART PACK=0 JOB=checkpt INITIAL\_INTERVAL=0.1us}}
+
+To specify an initial interval of 0.1 $\mu s$, at 1 $\mu s$ change to interval
+of 0.5 $\mu s$, and at 10 $\mu s$ change to interval of 0.1 $\mu s$:
+
+\Example{\par\texttt{.OPTIONS RESTART JOB=checkpt INITIAL\_INTERVAL=0.1us 1.0us\linebreak + 0.5us 10us 0.1us}}
+
+\subsubsection{\texttt{.OPTIONS RESTART} (Restarting Options)}
+
+To restart from an existing restart file\index{restart!file}, specify the file
+by either \texttt{FILE=<restart file name>} to explicitly use a restart file or
+by \texttt{JOB=<job name> START\_TIME=<specified name>} to specify a file
+prefix and a specified time.  The time must exactly match an output file time
+for the simulator to correctly identify the correct file.  To continue
+generating restart output files, \texttt{INITIAL\_INTERVAL=<interval>} and
+following intervals can be appended to the command in the same format as
+described above.  New restart files will be packed according to the previous
+restart file read in.  
+
+The restarting form of the \texttt{.OPTIONS RESTART} command takes the following format:
+
+\Format{\par\tt .OPTIONS RESTART FILE=<restart file name>|JOB=<job name> START\_TIME=<time> \linebreak
+    + [ INITIAL\_INTERVAL=<interval> [<t0> <i0> [<t1> <i1>]* ]]}
+
+\paragraph{Examples}
+
+Example restarting from checkpoint file at 0.133 $\mu s$:
+\Example{\texttt{.OPTIONS RESTART JOB=checkpt START\_TIME=0.133us}}
+
+To restart from checkpoint file at 0.133 $\mu s$:
+\Example{\texttt{.OPTIONS RESTART FILE=checkpt0.000000133}}
+
+Restarting from 0.133 $\mu s$ and continue checkpointing at 0.1 $\mu s$
+intervals:
+\Example{\par\texttt{
+    .OPTIONS RESTART FILE=checkpt0.000000133 JOB=checkpt\_again\linebreak
+    + INITIAL\_INTERVAL=0.1us
+  }}
+
+\subsubsection{\texttt{.OPTIONS RESTART}: special notes for use with two-level-Newton}
+\index{restart!two-level}
+
+Large parallel problems which involve power supply parasitics often
+require a two-level solve, in which different parts of the problem
+are handled separately.  In most respects, restarting a two-level
+simulation is similar to restarting a conventional simulation.
+However, there are a few differences:
+
+\begin{XyceItemize}
+\item When running with a two-level algorithm, \Xyce{} requires (at least) two
+different input files.  In order to do a restart of a two-level \Xyce{}
+simulation, it is necessary to have an \texttt{.OPTIONS RESTART} statement
+in each file.
+
+\item It is necessary for the statements to be consistent.  For example,
+the output times must be exactly the same, meaning the initial intervals
+must be exactly the same.
+
+\item \Xyce{} will \emph{not} check to make sure that the restart
+options used in different files match, so it is up to the user to ensure
+matching options.
+
+\item Finally, as each netlist that is part of a two-level solve will have its
+own \texttt{.OPTIONS RESTART} statement, that means that each netlist
+will generate and/or use its own set of restart files.  As a result,
+the restart file name used by each netlist must be unique.
+\end{XyceItemize}
+
+\subsubsection{\texttt{.OPTIONS SAMPLES} (Sampling options)}
+\index{solvers!sampling!options}
+
+The sampling selections listed in Table~\ref{SamplesPKG}
+provide methods for controlling Monte Carlo and Latin Hypercube Sampling methods.
+
+SAMPLES options are set using the \texttt{.OPTIONS SAMPLES} command.\index{\texttt{.OPTIONS}!\texttt{SAMPLES}} 
+They are only used if the netlist also includes a \texttt{.SAMPLING} statement. 
+
+\input{samplestbl}
+
+\subsubsection{\texttt{.OPTIONS EMBEDDEDSAMPLES} (Embedded Sampling options)}
+\index{solvers!embeddedsampling!options}
+
+The sampling selections listed in Table~\ref{EmbeddedSamplesPKG}
+provide methods for controlling Embedded Sampling methods.
+
+EMBEDDEDSAMPLES options are set using the \texttt{.OPTIONS EMBEDDEDSAMPLES}
+command.\index{\texttt{.OPTIONS}!\texttt{EMBEDDEDSAMPLES}}  They are only used if the
+netlist also includes a \texttt{.EMBEDDEDSAMPLING} statement.
+
+\input{embeddedsamplestbl}
+
+\subsubsection{\texttt{.OPTIONS PCES} (Fully intrusive PCE options)}
+\index{solvers!pce!options}
+\index{solvers!PCE!options}
+
+The sampling selections listed in Table~\ref{PCEPKG}
+provide methods for controlling Embedded Sampling methods.
+
+PCES options are set using the \texttt{.OPTIONS PCES}
+command.\index{\texttt{.OPTIONS}!\texttt{PCES}}  They are only used if the
+netlist also includes a \texttt{.PCE} statement.
+
+\input{pcestbl}
+
+\subsubsection{\texttt{.OPTIONS SENSITIVITY} (Direct and Adjoint Sensitivity Options)}
+\index{solvers!sensitivty!options}
+
+The sensitivity selections listed in Table~\ref{SensitivityPKG}
+provide methods for controlling direct and adjoint sensitivity analysis.
+
+SENSITIVITY options are set using the \texttt{.OPTIONS SENSITIVITY} command.\index{\texttt{.OPTIONS}!\texttt{SENSITIVITY}} 
+They are only used if the netlist also includes a \texttt{.SENS} statement. 
+
+\input{sensitivitytbl}
+
+\subsubsection{\texttt{.OPTIONS HBINT} (Harmonic Balance Options)}
+\index{solvers!hb!options}\index{\texttt{.OPTIONS}!\texttt{HBINT}}
+
+The Harmonic Balance parameters listed in Table~\ref{hbPKG} give the available
+options for helping control the algorithm for harmonic balance analysis.
+
+Harmonic Balance options are set using the \texttt{.OPTIONS HBINT} command.
+
+\input{hboptiontbl}
+
+\subsubsection{\texttt{.OPTIONS DIST} (Parallel Distribution Options)}
+\index{dist!options}\index{\texttt{.OPTIONS}!\texttt{DIST}}
+
+The parameters listed in Table~\ref{distPKG} give the available
+options for controlling the parallel distribution used in \Xyce{}.
+There are three choices for distribution strategy.
+
+The default distribution strategy is ``first-come, first-served''
+(\texttt{STRATEGY=0}), which divides the devices found in the netlist
+into equal sized groups (in the order they are parsed) and distributes
+a group to each processor.  This does not take into account the
+connectivity of the circuit or balance device model computation, and
+therefore can exhibit parallel imbalance for post-layout circuits that
+have a substantial portion of parasitic devices.
+
+The ``flat round-robin'' strategy (\texttt{STRATEGY=1}) will generate
+the same distribution as the default strategy, but every parallel
+processor will participate in reading its portion of the netlist.
+This strategy provides a more scalable setup than the default
+strategy, but can only be applied to flattened (non-hierarchical)
+netlists.
+
+The ``device balanced'' strategy (\texttt{STRATEGY=2}) will evenly
+divide each of the device types over the number of parallel
+processors, so each processor will have a balanced number of each
+model type.  This allieviates the parallel imbalance in the device
+model computation that can be experienced with post-layout circuits.
+However, it does not take into account the circuit connectivity, so
+the communication will not be minimized by this strategy.
+
+\input{distoptiontbl}
+
+\subsubsection{\texttt{.OPTIONS FFT} (FFT Options)}
+\index{fft!options}\index{\texttt{.OPTIONS}!\texttt{FFT}}
+The parameters listed in Table~\ref{fftPKG} give the available
+options for controlling all of the \texttt{.FFT} statements in
+a given \Xyce{} netlist.
+
+If \texttt{FFT\_ACCURATE} is set to 1 (true), which is the default, then
+\Xyce{} will insert breakpoints at the sample times requested by the
+collection of \texttt{.FFT} lines in the netlist.  This has been found
+to improve the accuracy of the \texttt{.FFT} analyses, at the possible
+expense of simulation speed.  If \texttt{FFT\_ACCURATE} is set to
+0 (false), then interpolation is used to determine the output variable
+values at the specified sample times.  If the \texttt{-remeasure} command
+line option is used to recalculate the \texttt{.MEASURE FFT} and/or
+\texttt{.FFT} statements for a \texttt{.TRAN} analysis, then
+\texttt{FFT\_ACCURATE} is set to 0 during the re-measure operation.  Finally,
+if \texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is used in the netlist
+then \texttt{.OPTIONS FFT FFT\_ACCURATE} will also be set to 0.
+
+If \texttt{FFTOUT} is set to 1 then additional metrics are output to both stdout
+and the \verb+<netlistName>.fft0+ file for each \texttt{.FFT} line.  In
+addition a sorted list of the 30 largest harmonics is output to stdout.
+Those additional metrics are as follows, where Section \ref{FFT_metrics}
+provides detailed definitions for these metrics:
+
+\begin{itemize}
+  \item Effective Number of Bits (ENOB)
+  \item Spurious Free Dynamic Range (SFDR)
+  \item Signal to Noise Ratio (SNR)
+  \item Signal to Noise-and-Distortion Ratio (SNDR)
+  \item Total Harmonic Distorion (THD)
+\end{itemize}
+
+The setting for \texttt{FFT\_MODE} is used to control whether the \Xyce{} FFT
+processing and output are more compatible with HSPICE (0) or Spectre (1).
+This setting affects the format of the window functions, the conversion from
+two-sided to one-sided results, and whether the default output for the
+magnitude values is normalized, or not.  Section~\ref{FFT_MODE} gives
+more details.
+
+\input{fftoptiontbl}
+
+\subsubsection{\texttt{.OPTIONS MEASURE} (Measure Options)}
+\index{measure!options}\index{\texttt{.OPTIONS}!\texttt{MEASURE}}
+The parameters listed in Table~\ref{measurePKG} give the available
+options for controlling all of the \texttt{.MEASURE} statements in
+a given \Xyce{} netlist.  The \texttt{MEASDGT}, \texttt{MEASFAIL}
+and \texttt{MEASOUT} options are included for HSPICE compatibility.
+
+If given in the netlist, the setting for \texttt{MEASOUT} controls whether 
+the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) files are made (1) or not (0). 
+The \texttt{MEASOUT} setting takes precedence over the \texttt{MEASPRINT} setting 
+(which is a Xyce-specific option) if both are given in the netlist.
+See Section \ref{Measure_Suppressing_Measure_Output} for more details then on 
+how the \texttt{MEASPRINT} option interacts with the individual 
+\texttt {.MEASURE} statements and the \texttt{-remeasure} command 
+line option.
+
+If given in the netlist, the setting for the \texttt{MEASDGT} overrides the 
+\texttt{PRECISION} qualifiers given on individual \texttt{.MEASURE} lines. 
+The default value for the \texttt{MEASDGT} option is different from in HSPICE.
+
+The \Xyce{} behavior for failed measures can be controlled via the \texttt{MEASFAIL}
+and \texttt{DEFAULT\_VAL} options, as well as with the \texttt{DEFAULT\_VAL} 
+qualifiers on individual \texttt{.MEASURE} lines.  The order of precedence is
+the \texttt{DEFAULT\_VAL} option and then the \texttt{DEFAULT\_VAL} qualifier on
+individual \texttt{.MEASURE} lines.  If \texttt{MEASFAIL=0} then \Xyce{} outputs
+the default value in the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#})
+files for a failed measure.  If \texttt{MEASFAIL=1} (or any other non-zero 
+value) then \Xyce{} outputs ``FAILED'' in the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) 
+files for a failed measure.  If given in the netlist, the setting for the 
+\texttt{DEFAULT\_VAL} option overrides the \texttt{DEFAULT\_VAL} qualifiers given 
+on individual \texttt{.MEASURE} lines.  The \texttt{DEFAULT\_VAL} option and the 
+\texttt{DEFAULT\_VAL} qualifiers can be set to any real number.  For all of these 
+cases, \Xyce{} will print ``FAILED'' to the standard output for a failed measure.
+As a final note, the \texttt{FOUR} measure is a special case since it produces multiline
+output.  Failed \texttt{FOUR} measures will be reported as ``FAILED'' in the
+\texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) files, irrespective of the various
+\texttt{MEASFAIL} and \texttt{DEFAULT\_VAL} settings.
+
+The \texttt{USE\_CONT\_FILES} option controls whether each \texttt{AC\_CONT},
+\texttt{DC\_CONT}, \texttt{NOISE\_CONT} or \texttt{TRAN\_CONT} mode measure uses
+a separate output file for its results, or not. Section~\ref{Measure_CONT_Measurement_Output}
+provides more details and an example netlist for this options setting.
+
+For backwards compatibility with previous \Xyce{} versions, \texttt{USE\_LTTM} has
+been added.  This option defaults to 0, which uses the new version of the \texttt{TRIG-TARG}
+measure; while setting it to 1 will use the old version of the \texttt{TRIG-TARG} measure
+for all \texttt{TRIG-TARG} measures in the netlist.  If the \texttt{FRAC\_MAX} qualifier
+is used on a \texttt{TRIG-TARG} line then \Xyce{} will automatically default to
+\texttt{USE\_LTTM=1} for that particular measure line.  It is anticipated that this
+option setting will be removed at some point.
+
+\input{measureoptiontbl}
+
+\subsubsection{\texttt{.OPTIONS PARSER} (Parser Options)}
+\index{parser!options}\index{\texttt{.OPTIONS}!\texttt{PARSER}}
+The parameter listed in Table~\ref{parserPKG} gives the available
+option for netlist parsing.
+
+\input{parseroptiontbl}
+
+

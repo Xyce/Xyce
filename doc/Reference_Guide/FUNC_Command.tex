@@ -1,0 +1,94 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+User defined functions that can be used in expressions appearing later 
+in the same scope as the \texttt{.FUNC} statement (or \texttt{.PARAM} statement)
+
+\begin{Command}
+\format
+.FUNC <name>([arg]*) [=] \{<body>\} \\
+.PARAM <name>([arg]*) = \{<body>\}
+
+\examples
+\begin{alltt}
+.FUNC E(x) \{exp(x)\}
+.FUNC DECAY(CNST) \{E(-CNST*TIME)\}
+.FUNC TRIWAV(x) \{ACOS(COS(x))/3.14159\}
+.FUNC MIN3(A,B,C) \{MIN(A,MIN(B,C))\}
+.FUNC SUM(A,B,C)=\{A+B+C\}
+.PARAM SUM(A,B,C)=\{A+B+C\}
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+\argument{name}
+
+Function name.  Functions cannot be redefined and the function name must 
+not be the same as any of the
+predefined functions (e.g., \texttt{SIN} and \texttt{SQRT}).  
+
+\argument{arg}
+
+The arguments to the function.  \texttt{.FUNC} arguments cannot be node names.
+The number of arguments in the use of a function must agree with the number 
+in the definition. Parameters, TIME, FREQ, and other functions are allowed in 
+the body of function definitions.  \index{constants (\texttt{EXP},\texttt{PI})}
+Two constants \texttt{EXP} and \texttt{PI} cannot
+be used a argument names.  These constants are equal to $e$ and $\pi$, respectively,
+and cannot be redefined.
+
+\argument{body}
+
+May refer to other (previously defined) functions; the second example, 
+DECAY, uses the first example, E. 
+
+\end{Arguments}
+
+\comments
+
+The \texttt{<body>} of a defined function is handled in the same way as any 
+math expression; it must be enclosed in curly braces (\{\}) or single quotes (').
+
+The original keyword for user-defined functions is \texttt{.FUNC}.  However, 
+for simulator compatibility functions can also be specified using \texttt{.PARAM}.
+If using \texttt{.FUNC}, each function must get their own netlist line and the equals sign is optional.  
+If using \texttt{.PARAM}, multiple functions can be specified on the same line, and the equals sign is required.
+
+\index{\texttt{.FUNC}!subcircuit scoping}The scoping rules for functions are:
+\begin{XyceItemize}
+\item If a \texttt{.FUNC}, statement is included in the main circuit 
+netlist, then it is accessible from the main circuit and all subcircuits. 
+\item \texttt{.FUNC} statements defined within a subcircuit are scoped 
+to that subciruit definition.  So, their functions are only accessible within 
+that subcircuit definition, as well as within ``nested subcircuits'' also 
+defined within that subcircuit definition.
+\end{XyceItemize}
+
+Additional illustative examples of scoping are given in the
+``Working with Subcircuits and Models'' section of the \Xyce{} Users'
+Guide\UsersGuide.
+
+\index{\texttt{.FUNC}!allowed names}Rules for function names are as follows:
+\begin{XyceItemize}
+\item They should start with a letter or the underscore (\verb|_|) character,
+for maximal compatibilty with other Spice-like simulators.  The hash (\verb|#|)
+at (\verb|@|) and backtick (\verb|`|) symbols also work, but they are not
+reserved characters.
+\item These arithmetic operators \verb|%| \verb|^| \verb|&| \verb|~|
+\verb|*| \verb|-| \verb|+| \verb|<| \verb|>| \verb|/| \verb+|+ should not
+be used anywhere in function names, as they cause problems with expression
+parsing.
+\item Parentheses (``('' or ``)''), braces (``\{'' or ``\}''), commas,
+semi-colons, double quotes and single quotes are also not allowed.
+\end{XyceItemize}
+
+\end{Command}
+

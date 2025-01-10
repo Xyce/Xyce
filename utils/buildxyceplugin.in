@@ -1,0 +1,298 @@
+#!/bin/sh
+# -------------------------------------------------------------------------
+#    Copyright 2002-2024 National Technology &amp; Engineering Solutions of
+#    Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+#    NTESS, the U.S. Government retains certain rights in this software.
+# 
+#    This file is part of the Xyce(TM) Parallel Electrical Simulator.
+# 
+#    Xyce(TM) is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+# 
+#    Xyce(TM) is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+# 
+#    You should have received a copy of the GNU General Public License
+#    along with Xyce(TM).
+#    If not, see &lt;http://www.gnu.org/licenses/&gt;.
+# -------------------------------------------------------------------------
+#
+#-------------------------------------------------------------------------
+#
+# Purpose        : Provide a simple mechanism for building plugins out of
+#                  Verilog-A files
+#
+# Special Notes  : Many Verilog-A models  will process with Xyce/ADMS and
+#                  work well in Xyce, but many others will require manual
+#                  patching after processing with ADMS in order to function.
+#
+#                  This script cannot be used with models that require
+#                  manual patching.
+#
+# Creator        : Tom Russo, 1355
+# Creation Date  : 04/20/2016
+#
+#-------------------------------------------------------------------------
+
+usage ()
+{
+    echo "Usage: `basename $0` [options] <veriloginputfile>* destinationdirectory"
+    echo "  One or more verilog files must be given."
+    echo "  The last argument must be a directory name."
+    echo "  Options:"
+    echo "    -o <name>:  Name for the plugin."
+    echo "                If not given, the name will be Xyce_Plugin_<module>"
+    echo "                where <module> is taken from the last verilog input file"
+    echo "    -d:         Do not clean up temporary C++ files (for debugging)"
+    return
+}
+
+cleanup ()
+{
+    if [ $cleanupfiles = "yes" ]
+    then
+        while [ $# -gt 0 ]
+        do
+            rm -f $1
+            shift
+        done
+    fi
+    return
+}
+
+runadms()
+{
+    admsXml -D__XYCE__ -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
+            -e ${xmldir}/xyceAnalogFunction_nosac.xml \
+            -e ${xmldir}/xyceHeaderFile_nosac.xml \
+            -e ${xmldir}/xyceImplementationFile_nosac.xml $1 \
+            >> buildxyceplugin.log 2>&1
+    return $?
+}
+
+compilefile()
+{
+    CXXFIL=$1
+    OBJFIL=`basename ${CXXFIL} .C`.o
+    ${XyceLibexecDir}/${LIBTOOL} --tag=CXX --mode=compile ${CXX} \
+                     -I. -I${XyceIncludeDir} \
+                     ${CPPFLAGS} ${CXXFLAGS} \
+                     -c ${CXXFIL} \
+                     -fPIC -DPIC \
+                     -o ${OBJFIL} >> buildxyceplugin.log 2>&1
+    return $?
+}
+
+scanargs()
+{
+    VAFILES=""
+    ERRCODE=0
+    while [ $# -gt 1 ]
+    do
+        if [ -f $1 ]
+        then
+            VAFILES="${VAFILES} $1"
+        else
+            echo
+            echo "ERROR: Input file not found or not regular file:  $1"
+            echo
+            ERRCODE=1
+        fi
+        shift
+    done
+    if [ -d $1 ]
+    then
+        if [ -w $1 ]
+        then
+            # Make sure to find the absolute path to the destination dir
+            DESTDIR=$(cd -- "$1" && pwd)
+        else
+            echo
+            echo "ERROR:  Directory $1 is not writable by you"
+            echo
+            ERRCODE=1
+        fi
+    else
+        echo
+        echo "ERROR:  Final argument $1 is not a directory."
+        echo
+        ERRCODE=1
+    fi
+    return $ERRCODE
+}
+
+if [ $# -lt 2 ]
+then
+    usage
+    exit 1
+fi
+
+XyceInstDir=@bindir@
+XyceIncludeDir=@includedir@
+XyceDataDir=@datadir@
+XyceLibexecDir=@libexecdir@
+XyceLibDir=@libdir@
+xmldir=${XyceDataDir}/xml
+INSTALL='@INSTALL@'
+CPPFLAGS='@RAW_CPPFLAGS@'
+CXXFLAGS='@CXXFLAGS@'
+LDFLAGS='@LDFLAGS@'
+CXX='@CXX@'
+LIBTOOL='@LIBTOOL@'
+
+echo "buildxyceplugin log begun at `date`\n" > buildxyceplugin.log
+echo " script invoked as: \n $0 $@" >> buildxyceplugin.log
+echo " ----------------" >> buildxyceplugin.log
+
+
+# Process options
+pluginname=""
+cleanupfiles="yes"
+while getopts o:dS option
+do
+    case "$option" in
+        o)  pluginname="$OPTARG";;
+        d)  cleanupfiles="no";;
+        [?]) usage
+             exit 1
+             ;;
+    esac
+done
+shift `echo $OPTIND-1 | bc`
+
+headerstring=""
+registerstring=""
+CLEANFILES=""
+OBJFILES=""
+
+scanargs $@
+if [ $? != 0  -o "${VAFILES}x" = "x" ]
+then
+    usage
+    exit 1
+fi
+
+echo "buildxyceplugin is building a plugin from the Verilog-A files:"
+echo ${VAFILES}
+if [ "${pluginname}x" = "x" ]
+then
+    echo "The plugin name will be generated automatically from the module name"
+    echo "in the last file of this list."
+else
+    echo "The plugin name will be ${pluginname}.so"
+fi
+
+count=0
+modules=""
+
+set -- ${VAFILES}
+while [ $# -ge 1 ]
+do
+    input=$1
+
+    if [ -f $input ]
+    then
+       echo "Building C++ for Verilog-A input file '$input'..." | tee -a buildxyceplugin.log
+       runadms $input 
+       if [ $? -eq 0 ]
+       then
+           echo "C++ for Verilog-A input file '$input' built successfully"
+       else
+           echo "C++ for Verilog-A input file '$input' failed"
+           echo "See buildxyceplugin.log for details"
+           exit 1
+       fi
+       
+       # determine the module name
+       module=`ls -rt N_DEV_ADMS*.C | tail -1 | sed -e 's/N_DEV_ADMS\(.*\).C/\1/'`
+       echo "Input file $input provides module $module"
+       modules=${module}" "${modules}
+       echo "#include <N_DEV_ADMS${module}.h>" >> .headerstring_$$
+       echo "Xyce::Device::ADMS${module}::registerDevice();" >> .registerstring_$$
+
+       echo "Compiling C++ for $module..." | tee -a buildxyceplugin.log
+       compilefile N_DEV_ADMS${module}.C
+       if [ $? -ne 0 ]
+       then
+           echo "Compilation of N_DEV_ADMS${module}.C failed"
+           echo "See buildxyceplugin.log for details"
+           exit 1
+       else
+           CLEANFILES="${CLEANFILES} ${CXXFIL} ${OBJFIL} N_DEV_ADMS${module}.h"
+       fi
+       OBJFILES="$OBJFILES N_DEV_ADMS${module}.lo"
+
+       count=`echo $count+1|bc`
+    else
+        echo "Input file not found:  $input"
+        exit 1
+    fi
+    shift 1
+done
+
+echo "Processing of ${count} Verilog-A input files complete."
+
+if [ "x$pluginname" = "x" ]
+then
+    pluginname=Xyce_Plugin_$module
+fi
+
+echo "Building bootstrap C++ for plugin $pluginname"
+
+
+echo "#include <Xyce_config.h>" >  ${pluginname}_bootstrap.C
+cat .headerstring_$$ >>   ${pluginname}_bootstrap.C
+echo "struct Bootstrap ">>   ${pluginname}_bootstrap.C
+echo "{">>   ${pluginname}_bootstrap.C
+echo "  Bootstrap()" >>   ${pluginname}_bootstrap.C
+echo "  {" >>   ${pluginname}_bootstrap.C
+cat .registerstring_$$ >>   ${pluginname}_bootstrap.C
+echo "  }" >>   ${pluginname}_bootstrap.C
+echo "};" >>   ${pluginname}_bootstrap.C
+echo "Bootstrap s_bootstrap;" >>   ${pluginname}_bootstrap.C
+
+rm -f .headerstring_$$ .registerstring_$$
+
+# compile the bootstrap file
+compilefile ${pluginname}_bootstrap.C >> buildxyceplugin.log 2>&1
+if [ $? -ne 0 ]
+then
+    echo "Compilation of ${pluginname}_bootstrap.C failed"
+    echo "See buildxyceplugin.log for details"
+    exit 1
+else
+    CLEANFILES="${CXXFIL} ${OBJFIL} ${CLEANFILES}"
+fi
+
+echo "Linking into shared library..."
+
+# Now link into shared library
+${XyceLibexecDir}/${LIBTOOL} --tag=CXX --mode=link ${CXX} -module -shared -avoid-version ${CXXFLAGS} -fPIC -DPIC ${LDFLAGS} -o ${pluginname}.la -rpath ${XyceLibDir} ${OBJFILES} ${pluginname}_bootstrap.lo >> buildxyceplugin.log 2>&1
+if [ $? -ne 0 ]
+then
+    echo "Link of shared library failed"
+    echo "See buildxyceplugin.log for details"
+    exit 1
+fi
+
+if [ -d ${DESTDIR} -a -w ${DESTDIR} ]
+then
+    echo "installing into ${DESTDIR}..."
+    ${XyceLibexecDir}/${LIBTOOL} --mode=install ${INSTALL} -c ${pluginname}.la "${DESTDIR}" >> buildxyceplugin.log 2>&1
+    if [ $? -ne 0 ]
+    then
+        echo "Install of shared library failed"
+        echo "See buildxyceplugin.log for details"
+        exit 1
+    fi
+else
+    echo "Requested destination directory not writeable, not installing plugin.  Look in the .libs subdirectory of the current working directory to find your plugin."
+fi
+echo "Done!  Your plugin may now be used by running Xyce with the option '-plugin ${DESTDIR}/${pluginname}.so'"
+echo "This plugin provides the Verilog-A modules: $modules"
+cleanup  ${OBJFILES} ${pluginname}_bootstrap.lo ${CLEANFILES}
+cleanup .adms*.xml .interface*.xml .*.adms constants.vams disciplines.vams discipline.h

@@ -1,0 +1,76 @@
+This directory contains the instruction and sample code for creating a
+Xyce device from a verilog module and link it into a dynamic Xyce executable.
+
+You will need the Xyce distribution and the ADMS compiler.
+
+First, add your verilog module to the user_plugin directory.
+
+Create the bootstrap file and class to call the generated
+registerDevice() function.
+
+Modify Makefile.am to add your verilog module.  Be sure to add the
+library, ADMS compilation target, generated sources and bootstrap source
+files.
+
+
+-----
+You will need to build the dynamic Xyce executable using the
+--enable-shared and --enable-xyce-shareable configure options.
+
+cd into your build directory, and
+
+    # add your own configure options as necessary
+    #
+    xyce-source-path/configure \
+    ARCHDIR=/Net/Proj/Xyce/arch/intel64_rhel6_gcc4.4_trilinos11.2 \
+    --enable-shared \
+    --enable-xyce-shareable \
+    --enable-silent-rules \
+    CC=gcc \
+    CXX=g++ \
+    F77=gfortran \
+    CXXFLAGS="-g -O3"
+
+
+-----
+The
+
+    make all
+
+command will compile and link the dynamic Xyce executable and build your
+new device sharable object, and the
+
+    make install
+
+command will install the dynamic Xyce executable, its device sharable
+objects and your plugin into the installation directory.
+
+
+-----
+If you need to recompile the device sharable object, the
+
+   make plugin
+
+command will recompile only your plugin, and the 
+
+   make install-plugin
+
+command will install only your plugin.
+
+
+-----
+Dynamic Xyce executable configure command:
+
+#!/bin/sh
+# add your own configure options as necessary
+#
+./configure \
+ARCHDIR=/Net/Proj/Xyce/arch/intel64_rhel6_gcc4.4_trilinos11.2 \
+--enable-shared \
+--enable-xyce-shareable \
+--enable-silent-rules \
+CC=gcc \
+CXX=g++ \
+F77=gfortran \
+CXXFLAGS="-g -O3"
+

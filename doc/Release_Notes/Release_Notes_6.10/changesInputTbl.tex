@@ -1,0 +1,72 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endhead
+
+The behavior of \texttt{.PRINT HB\_FD} and \texttt{.PRINT HB\_TD} lines has changed & 
+The \texttt{.PRINT HB\_FD} and \texttt{.PRINT HB\_TD} lines no longer produce
+``fallback'' print lines.  They now only produce the \texttt{<netlistname>.HB.FD.prn} 
+and \texttt{<netlistname>.HB.TD.prn} files, respectively. \\ \hline
+
+The \texttt{FORMAT=PROBE} and \texttt{FORMAT=RAW} print formats for Harmonic
+Balance (HB) output have changed & Those two print formats are still unsupported 
+for HB output.  However, they now default to \texttt{FORMAT=STD} with file 
+extensions that end in .prn. In earlier versions of \Xyce{}, some of those output 
+files had extensions that ended with .unknown. In addition, all of those output 
+files were in \texttt{FORMAT=NOINDEX} rather than \texttt{FORMAT=STD}.
+\\ \hline
+
+The use of the -r and -a command line options with a netlist that uses
+\texttt{.HB} is now a parsing error &  Raw file output is not currently
+supported for \texttt{.HB} analyses.  Previously, the \Xyce{} netlist 
+would run but not produce any output files if the -r command line option 
+was requested for a \texttt{.HB} analysis.  That case is now a netlist
+parsing error.  \\ \hline
+
+The filenames for the output files produced by \texttt{.PRINT AC} and
+\texttt{.PRINT HB} lines that have \texttt{FILE=<name>} qualifiers
+on them has changed & See the ``Multi-File Output for AC and HB Analyses'' 
+subsection of the \Xyce{} Users' Guide for more information.  
+\\ \hline
+
+Error handling for the -remeasure command line option & In previous 
+\Xyce{} releases, \texttt{-remeasure} would run even if all of the nodal
+voltages, requested by the netlist's \texttt{.MEASURE} statements,
+could not be parsed from the remeasured output file.  \Xyce{} will 
+now generate an error for that case, since some of the re-measured 
+values might be incorrect. \\ \hline
+
+A .OP statement is required in the netlist to enable AC\_IC output & In
+previous \Xyce{} releases, the \texttt{AC\_IC} output would be enabled,
+for a netlist that used \texttt{.AC} analysis, if the netlist had
+either a \texttt{.OP} statement or a \texttt{.STEP} statement.  A
+\texttt{.OP} statement is now required to enable the \texttt{AC\_IC} 
+output, which is consistent the documentation in the \Xyce{} Reference
+Guide.
+
+\\ \hline
+
+\end{longtable}
+}

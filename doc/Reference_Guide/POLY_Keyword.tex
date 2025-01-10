@@ -1,0 +1,148 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Reference Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+The \texttt{POLY} keyword is available in the \texttt{E}, \texttt{F},
+\texttt{G}, \texttt{H} and \texttt{B} dependent sources. Based on the same
+keyword from SPICE2, \texttt{POLY} provides a compact method of specifying
+polynomial expressions in which the variables in the polynomial are specified
+followed by an ordered list of polynomial coefficients.  All expressions
+specified with \texttt{POLY} are ultimately translated by \Xyce{} into an
+equivalent, straightforward polynomial expression in a \texttt{B} source.
+Since a straightforward polynomial expression can be easier to read, there is
+no real benefit to using \texttt{POLY} except to support netlists imported from
+other SPICE-based simulators.
+
+There are three different syntax forms for \texttt{POLY}, which can be
+a source of confusion.  The \texttt{E} and \texttt{G} sources
+(voltage-dependent voltage or current sources) use one form, the
+\texttt{F} and \texttt{H} sources (current-dependent voltage or
+current sources) use a second form, and the \texttt{B} source (general
+nonlinear source) a third form.  During input processing, any of the
+\texttt{E,F,G} or \texttt{H} sources that use nonlinear expressions
+are first converted into an equivalent \texttt{B} source, and then any
+\texttt{B} sources that use the \texttt{POLY} shorthand are further
+converted into standard polynomial expressions.  This section describes
+how the compact form will be translated into the final form that is
+used internally.
+
+All three formats of \texttt{POLY} express the same three components:
+a number of variables involved in the expression ($N$, the number in
+parentheses after the \texttt{POLY} keyword), the variables
+themselves, and an ordered list of coefficients for the polynomial
+terms.  Where they differ is in how the variables are expressed.
+
+\subsubsection{Voltage-controlled sources}
+
+The \texttt{E} and \texttt{G} sources are both voltage-controlled, and
+so their \texttt{POLY} format requires specification of two nodes for
+each voltage on which the source depends, i.e. the positive and
+negative nodes from which a voltage drop is computed.  There must
+therefore be twice as many nodes as the number of variables specified
+in parentheses after the \texttt{POLY} keyword:
+
+\verb|Epoly 1 2 POLY(3) n1p n1m n2p n2m n3p n3m ...|
+
+In this example, the voltage between nodes 1 and 2 is determined by
+a polynomial whose variables are \texttt{V(n1p,n1m)},
+\texttt{V(n2p,n2m)}, \texttt{V(n3p,n3m)}.  Not shown in this example
+are the polynomial coefficients, which will be described later.
+
+
+\subsubsection{Current-controlled sources}
+
+The \texttt{F} and \texttt{H} sources are both current-controlled, and
+so their \texttt{POLY} format requires specification of one voltage
+source name for each current on which the source depends.
+There must therefore be exactly as many nodes as the number of variables
+specified in parentheses after the \texttt{POLY} keyword:
+
+\verb|Fpoly 1 2 POLY(3) V1 V2 V3 ...|
+
+In this example, the voltage between nodes 1 and 2 is determined by
+a polynomial whose variables are \texttt{I(V1)},
+\texttt{I(V2)}, and \texttt{I(V3)}.  Not shown in this example
+are the polynomial coefficients, which will be described later.
+
+\subsubsection{B sources}
+
+Finally, the most general form of \texttt{POLY} is that used in the
+general nonlinear dependent source, the \texttt{B} source. In this variant,
+each specific variable must be named explicitly (i.e. not simply by node name or
+by voltage source name), because currents and voltages may be mixed as
+needed.
+
+\verb|Bpoly 1 2 V={POLY(3) I(V1) V(2,3) V(3) ...}|
+
+\verb|Bpoly2 1 2 I={POLY(3) I(V1) V(2,3) V(3) ...}|
+
+
+In these examples, the source between nodes 1 and 2 is determined by a
+polynomial whose variables are \texttt{I(V1)}, \texttt{V(2,3)}, and
+\texttt{V(3)}.  In the first example, the polynomial value determines
+the voltage between nodes 1 and 2, and in the second the current.
+
+The \texttt{E, F, G} and \texttt{H} formats are all converted internally
+in a first step to the \texttt{B} format.  Thus the following pairs of
+sources are exactly equivalent:
+
+\verb|Epoly 1 2 POLY(3) n1p n1m n2p n2m n3p n3m ...|
+
+\verb|BEpoly 1 2 V={POLY(3) V(n1p,n1m) V(n2p,n2m) V(n3p,n3m) ...|
+
+\verb|Fpoly 1 2 POLY(3) V1 V2 V3 ...|
+
+\verb|BFpoly 1 2 V={POLY(3) I(V1) I(V2) I(V3) ...|
+
+After conversion to the \texttt{B} source form, the \texttt{POLY} form
+is finally converted to a normal expression using the coefficients and
+variables given.
+
+Coefficients are given in a standard order, and the polynomial is
+built up by terms until the list of coefficients is exhausted.  The
+first coefficient is the constant term of the polynomial, followed by
+the coefficients of linear terms, then bi-linear, and so on.  For example:
+
+\verb|Epoly 1 2 POLY(3) n1p n1m n2p n2m n3p n3m 1 .5 .5 .5|
+
+In this example, the constant term is 1.0, and the coefficients of the
+three terms linear in the input variables are 0.5.  Thus, this
+\texttt{E} source is precisely equivalent to the general \texttt{B}
+source:
+
+\verb|BEstandard 1 2 V={1.0 + .5*V(n1p,n1m) + .5*V(n2p,n2m) +.5*V(n3p,n3m)}|
+
+The standard ordering for coefficients is:
+
+POLY(N) $X_1 \ldots X_N C_0\ C_1 \ldots C_N\ C_{11} \ldots C_{1N}\ C_{21} \ldots C_{N1} \ldots C_{NN}\ C_{1^21} \ldots  C_{1^2N} \ldots$
+
+with the polynomial then being:
+
+$$Value = C_0 + \sum_{j=1}^{N} C_j X_j + \sum_{i=1}^N\sum_{j=1}^N C_{ij}X_iX_j + \sum_{i=1}^N\sum_{j=1}^N C_{i^2j} X_i^2X_j + \ldots$$
+
+Here we have used the general form $X_i$ for the $i^{th}$ variable,
+which may be either a current or voltage variable in the general case.
+
+It should be reiterated that the \texttt{POLY} format is provided primarily for
+support of netlists from other simulators, and that its compactness may be a
+disadvantage in readability of the netlist and may be more prone to usage
+error.  \Xyce{} users are therefore advised that use of the more
+straightforward expression format in the \texttt{B} source may be more
+appropriate when crafting original netlists for use in \Xyce{}.  Since \Xyce{}
+converts \texttt{POLY} format expressions to the simpler format internally,
+there is no performance benefit to use of \texttt{POLY}.

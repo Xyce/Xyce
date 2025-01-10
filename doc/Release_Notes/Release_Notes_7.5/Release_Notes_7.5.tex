@@ -1,0 +1,273 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\documentclass[letterpaper]{scrartcl}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{7.5}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes}
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Approved April TBD 2021
+% SAND Number SAND2020-TBD
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{XDM}
+\begin{XyceItemize}
+    \item Translations of netlists using binned models will no longer
+      have the \texttt{.OPTION PARSER MODEL\_BINNING=TRUE}
+      statement. This option is turned on by default in \Xyce{} now
+      and therefore no longer needs to be explicitly declared.
+    \item Duplicate output variables will now be removed from the
+      \texttt{.PRINT} line.
+    \item The expression and function pre-processing capabilities have
+      been removed from XDM.
+    \item [spectre] The \texttt{else} conditional block in
+      \texttt{if-else} statments will now be commented out by XDM,
+      since conditional statement support is not fully mature yet in
+      \Xyce{}.
+    \item [pspice] Fixed bug where instance parameters for temperature
+      coefficients for resistors were not translated.
+\end{XyceItemize}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+  \item The L-UTSOI MOSFET model (level 10240 MOSFET) is now available
+    under an open source license and the source code is now part of
+    the main Xyce source code repository.  It had previously only been
+    available in our ``non free'' binaries (``XyceNF'').
+  \item The level 1 BJT now supports a multiplicity factor \texttt{M=}.
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+\item Source stepping, which is one of the solver techniques that
+  \Xyce{} automatically attempts when trying to solve the DCOP, now
+  includes current sources as well as voltage sources.  As a result
+  circuits using current sources are much more robust for the DCOP
+  calculation.
+\item The new harmonics selection method based on box truncation has
+  been added for HB analysis
+\item Parameter handling for \texttt{.SAMPLING} and other UQ methods
+  is now much more efficient (see issue 306 in the fixed defects
+  table).
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+  \item TRIG-TARG measures are now supported for .AC, .DC and .NOISE
+    analyses.  In addition, the TRIG-TARG measure is now more
+    compatible with both ngspice and HSPICE.  See gitlab-ex issues 220
+    and 289 in the Fixed Defects Table for more details.
+  \item ``Continuous mode'' measures that may return more than one
+    result are now supported for the TRIG-TARG measure type for .AC,
+    .DC, .NOISE and .TRAN analyses.
+  \item The scale parameter, which is used to automatically scale
+    device sizing parameters is supported and can be specified using
+    either \texttt{.option scale=number} or \texttt{.options device
+      scale=number}.  The new syntax is
+   compatible with most other SPICE-style simulators.
+  \item Added the mixed signal interface function
+    \texttt{Simulator::getTimeVoltagePairsSz} supplies the maximun
+    number of time, voltage or state values for an ADC in a subsequent
+    call to \texttt{Simulator:: getTimeVoltagePairs} or
+    \texttt{Simulator::getTimeStatePairs}.
+  \item Added the mixed signal interface functions
+    \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()} and
+    \texttt{xyce\-\_getTimeStatePairs\-ADCLimitData()} to allow the
+    calling program to specify the maximum size of the allocated
+    memory that can be used for copying ADC time-voltage and
+    time-state history data.  This allows the caller to allocate only
+    the required amount of memory and ensure that Xyce cannot
+    overwrite the memory area.  The existing c-interface functions,
+    \texttt{xyce\_getTimeVoltagePairs()} and
+    \texttt{xyce\_getTimeStatePairs()} are now deprecated. They work
+    in this version of \Xyce{} as they did in the past but they will
+    be removed from a future version of \Xyce{}.  See the Application
+    note, Mixed Signal Simulation with \Xyce{} 7.5 for further
+    details.
+  \item The Xyce Python interface file \texttt{xyce\-interface.py} is
+    now compatible with Python 3.x.  The interface file is still
+    backwards compatible with Python 2.7. The Mixed Signal Simulation
+    with \Xyce{} 7.5 Application Note has examples of using Xyce from
+    Python.
+  \item Implicit multipliers on subcircuits (\texttt{M=}) are now supported.
+  \item When a parameter of a given name is defined multiple times in
+    the netlist, \Xyce{} now has several options for how this is
+    handled.  Before, \Xyce{} would silently allow multiply-defined
+    parameters, and use the last one encountered during parsing.  There
+    is now a command line option (\texttt{-redefined\_params}), which
+    can be used to make this a fatal error, or to use the first, rather
+    than last multiply-defined parameter.
+  \item Subcircuit instance parameters are now allowed to reference 
+    other subcircuit instance parameters on the same line.
+  \item When any measure fails, Xyce now reports ``FAILED'' in both the
+    console output and ``.mt\#'' files by default.  This new behavior is
+    the same as what Xyce 7.4 would have done with the ``.options
+    MEASURE MEASFAIL=1'' option specified.  Previous versions of Xyce
+    would have output ``-1'' for the failed measure in the ``.mt\#''
+    file by default.  The old behavior may be forced by specifying
+    ``.options MEASURE MEASFAIL=0 DEFAULT\_VAL=-1'' if desired.
+\end{XyceItemize}
+
+\subsubsection*{Xyce/ADMS Improvements}
+\begin{XyceItemize}
+  \item Several bugs were addressed and are listed in the fixed defects table.
+\end{XyceItemize}
+
+\subsubsection*{Important Announcements}
+\begin{XyceItemize}
+\item The model interpolation technique described in the \Xyce{}
+  Reference Guide in section 2.1.18 has been marked as deprecated, and
+  will be removed in a future release of Xyce.
+\item \Xyce{} binary installers now contain all the files that would
+  be installed by ``make install'' instead of just the Xyce binary.
+  This includes Xyce headers and library files that would be used to
+  link external codes to Xyce.  Use of the \Xyce{} executable itself
+  is unchanged by this packaging update.  Use of these headers and
+  libraries in user code requires that the user have the same
+  compilers that the Xyce team used to build the binary, which may not
+  be the case for all users.
+\end{XyceItemize}
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 7.5 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS 10.14 and 10.15, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
+    and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Note: Coupled Simulation with the \Xyce{} General
+    External Interface
+  \item Application Note: Mixed Signal Simulation with \Xyce{} 7.2
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Dept.\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and
+operated by National Technology and Engineering Solutions of Sandia,
+LLC, a wholly owned subsidiary of Honeywell International, Inc., for
+the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-NA0003525.
+
+SAND2022-5611 O
+\end{document}
+

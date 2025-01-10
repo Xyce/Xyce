@@ -1,0 +1,127 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Xyce style package
+
+% These macros and settings are designed to modify the SANDIA REPORT class file
+% (SANDreport.cls), for reports at Sandia National Laboratories.
+%
+% Use this in a LaTeX input file by adding 
+%  \usepackage{Xyce}
+%
+% Add the directory that contains this file to the TEXINPUTS variable so that
+% LaTeX can find it.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{Xyce}[2019/04/18 v0.0.2 Xyce package]
+\RequirePackage{xcolor}
+\RequirePackage{colortbl}
+\RequirePackage{tabularx}
+\RequirePackage{graphicx}
+
+% Not reqd. by this file?
+\RequirePackage{alltt}
+\RequirePackage{framed}
+\RequirePackage{verbatim}
+\RequirePackage{fancybox}
+\RequirePackage{float}
+\RequirePackage{amsfonts} % Only in RG
+\RequirePackage{newtxmath} % Use the Postscript Times font
+\RequirePackage{enumitem}
+
+\setcounter{tocdepth}{3}
+
+\frenchspacing
+
+% Xyce added stuff
+%------------------------------------------------------------------------------
+
+% % Tabularx environment changes
+\renewcommand{\tabularxcolumn}[1]{>{\vspace{0.5em}}m{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{Z}{>{\raggedright\arraybackslash}X}
+\newcolumntype{W}{>{\centering\arraybackslash}X}
+
+\newcommand{\XyceVersion}[1]{
+  \newcommand{\XyceVersionVar}{#1}
+}
+
+\newcommand{\XyceDocName}[1]{
+  \newcommand{\XyceDocNameVar}{#1}
+}
+
+% Xyce Colors
+\definecolor{XyceDeepBlue}{rgb}{0.01,0.35,0.66} % Xyce Logo color
+\definecolor{XyceDarkBlue}{rgb}{0,0,0.5}
+\definecolor{XyceRed}{rgb}{1,0,0}
+\definecolor{XyceDeepRed}{rgb}{0.502,0,0}
+
+% Define strings
+
+% NOTE: There seems to be a conflict (involving xcolor) with the KOMA headings.
+%\def\Xyce{{\color{XyceDeepBlue}\textsf{Xyce}}}
+%\def\Xyce{{\color{XyceDeepBlue}\textsf{\footnotesize Xyce}}}
+%\def\Xyce{{\color{XyceDeepBlue} Xyce}}
+%\def\Xyce{{\textbf{Xyce}}}
+\def\Xyce{Xyce}
+\def\XyceTM{{\color{XyceDeepBlue}
+     \textsf{\textbf{Xyce}}}\textsuperscript{\scriptsize{\texttrademark}}}
+\def\XyceTitle{{\color{XyceDeepBlue}
+     \textsf{\textbf{Xyce}}}\textsuperscript{\small{\texttrademark}}}
+
+% New commands
+
+\newcommand{\textrmb}[1]{\textrm{\textbf{#1}}}
+
+% Chapter Overview style
+\newcommand{\chapteroverview}[2]{%
+  \vspace{\baselineskip}%
+  {\Huge #1}%
+  \vspace{\baselineskip}\\ #2
+\clearpage}
+
+% Examples
+\newcommand{\Example}[1]{%
+  \par\vspace{1ex}%
+  \textbf{Example:}%
+  {\hspace{0.5 in}} {#1} {\par\vspace{1ex}}}
+
+% Format
+\newcommand{\Format}[1]{%
+  \par\vspace{1ex}%
+  \textbf{General Format:}%
+  {\hspace{0.5 in}} {#1} {\par\vspace{1ex}}}
+
+
+% New environments
+
+% Verbatim-quote environment
+\newenvironment{vquote}{\begin{quote}\begin{alltt}}
+    {\end{alltt}\end{quote}}
+
+% Xyce itemize environment
+\newenvironment{XyceItemize}{\begin{itemize}}{\end{itemize}}
+
+% Address "blank page" look and feel requirments neglected by the SAND report
+% class:
+% Handle blank pages the Sandia way!
+\makeatletter
+\def\cleardoublepage{\clearpage\if@twoside%
+\ifodd\c@page\else
+\vspace*{\fill}
+\hfill
+\begin{center}
+    This page intentionally left blank.
+\end{center}
+\vspace{\fill}
+\newpage
+\if@twocolumn\hbox{}\newpage\fi\fi\fi
+}
+\makeatother
+

@@ -1,0 +1,12 @@
+/// @defgroup xyce_analysis_package Circuit Analysis Package (N_ANP)
+/// @brief The Xyce Circuit Analysis package provides the classes and interfaces to define a circuit analysis type
+
+namespace Xyce {
+
+/**
+ * @brief Circuit Analysis Definitions
+ */
+namespace Analysis{
+
+} // namespace Analysis
+} // namespace Xyce

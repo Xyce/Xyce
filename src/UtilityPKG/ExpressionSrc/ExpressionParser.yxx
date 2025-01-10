@@ -1,0 +1,1977 @@
+/*-------------------------------------------------------------------------
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+*/
+%skeleton "lalr1.cc"
+%require  "3.0.4"
+%parse-param {Xyce::Util::ExpressionLexer *theLexer}
+%parse-param {Xyce::Util::newExpression & newExp}
+%lex-param {Xyce::Util::ExpressionLexer *theLexer}
+
+// This feature throws off "deprecated" warnings in more recent version so of Bison.
+// Starting in Bison 3.3, the proper way to define the class name is:  %define api.parser.class {ExpressionParser}
+// For Xyce, the minimum version of Bison is 3.0.4, so we have to live with this warning.
+%define api.parser.class {ExpressionParser}
+%locations
+%defines
+%define api.prefix {XyceExpression}
+
+// Variants is an experiment.  the api.token.constructor can go along with it, but not doing that for now.
+%define api.value.type variant
+
+// This feature was introduced in Bison 3.5.  It disallows character literals like '+', and makes the parser more efficient.
+// ERK: this does not appear to make a huge performance difference.
+// %define api.token.raw
+
+%code top {
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <cstdlib>
+#include <string>
+#include <unordered_map>
+#include <map>
+#include <vector>
+#include <complex>
+
+#include <Teuchos_RCP.hpp>
+
+#include "location.hh"
+#include "position.hh"
+#include <N_ERH_Message.h>
+#include <N_IO_fwd.h>
+#include <N_UTL_Math.h>
+#include "ExpressionType.h"
+#include "ast.h"
+#include "newExpression.h"
+
+
+namespace Xyce {
+namespace Util {
+  
+template <typename ScalarT>
+class tableArgs
+{
+  public:
+    std::string * keywordPtr;
+    Teuchos::RCP<astNode<ScalarT> > node;
+};
+
+class ExpressionLexer;
+}}
+
+}
+
+%code {
+#undef yylex
+#include <FlexLexer.h>
+#include "ExpressionLexer.h"
+#define yylex XyceExpressionlex
+
+int XyceExpressionlex(
+    XyceExpression::ExpressionParser::semantic_type *lvalp, 
+    XyceExpression::location *locp,
+    Xyce::Util::ExpressionLexer *theLexer);
+}
+
+
+//-------------------------------------------------------------------------
+// This code block contains functions called directly from the various 
+// actions associated with rules, below.  These are not required by the 
+// Bison structure in the way that things like "#define yylex" are 
+// required.  So, where it appears in the file is probably less 
+// restrictive and should be in its own separate block.
+//-------------------------------------------------------------------------
+%code {
+
+
+//-------------------------------------------------------------------------
+// Function      : setupCoords
+// Purpose       : Support function for setupPoly, which provides coordinates for a specific term.
+//
+// Special Notes : 
+//
+// The coefficients in a POLY statement are specified as an arbitrarily long list of numbers.  
+//
+// The coefs are listed in the order of polynomial order.  
+// So, the coefs for order=0 are first, followed by coefs for order=1, then order=2, etc.
+// 
+// The number of coefs needed at each order increases exponentially, w.r.t. the number of variables. 
+// If the number of variables = N = 2 then the number of coefs for each order is:
+// order 0 -> N^0 = 1
+// order 1 -> N^1 = N = 2
+// order 2 -> N^2 = N*N = 4
+// order 3 -> N^3 = N*N*N = 8 
+// etc.
+//
+// This function deals only with the coefs of a specific order, a subset of the original list.
+// For that order, it figures out the multi-dimensional indexing needed to properly compute 
+// this specific term in the polynomial.
+//
+// For example, if you are dealing with the 3rd order terms, then 
+// each term will have the form:  Cijk * var_i*var_j_*var_k.  This function determins 
+// what the values of i,j,k must be, for a given index in the 1D coef array.
+//
+// If dealing with 3rd order, and 2 inputs, then there will be 8 coefs and their order is:
+//     C000 C001 C010 C011 C100 C101 C110 C111
+// and their poly terms are:
+//
+//   C000*X0*X0*X0 + C001*X0*X0*X1 + C010*X0*X1*X0 + C011*X0*X1*X1 + 
+//   C100*X1*X0*X0 + C101*X1*X0*X1 + C110*X1*X1*X0 + C111*X1*X1*X1
+//
+// where "X" are variables
+//
+// The "localIndex" is the index relative to the beginning of this order of terms.  
+// So, in the above example C000 would be localIndex=0, and C001 would be localIndex=1
+//
+// This function, given the number of variables, the current order, and the localIndex 
+// provides the coordinates needed to evaluate the given polynomial term.  
+//
+// So for example, if N=2 and order=3, and localIndex=4, then this function should 
+// populate coords as: coords = {1,0,0}
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+void setupCoords (int order, int localIndex, int numvars, std::vector<int> & coords)
+{
+  coords.resize(order,0);
+  int p=numvars;
+  int d=order;
+  int indx = localIndex;
+  for (int k = d-1; k >= 0; k--) 
+  {
+    coords[k] = indx % (p);
+    indx /= p;
+  }
+}
+
+//-------------------------------------------------------------------------
+// Function      : setupPoly
+// Purpose       : Does work to create an expression tree representing the 
+//                 POLY operator
+//
+// Special Notes : Given the following POLY specification:
+//
+//  POLY(N) X1 ...XN   C0 C1 ...CN   C11 ...C1N    C21 ...CN1 ...CNN    C121 ...C12N ...
+//  
+// The AST constructed by this function needs to evaluate the following polynomial:
+//
+// term order: 
+//   0         Value = C0 
+//   1                   + sum_{j=1}^N C_j X_j 
+//   2                   + sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j
+//   3                   + sum_{i=1}^N sum_{j=1}^N sum_{k=1}^N C_{ijk} X_i * X_j * X_k + ...
+//             ....
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+Teuchos::RCP<astNode<usedType> > setupPoly(
+    Xyce::Util::newExpression & newExp,
+    usedType numvars, 
+    std::vector<Teuchos::RCP<astNode<usedType> > > & vars_and_coefs
+    )
+  {
+  int sizeOfVars_ = static_cast<int>(std::real(numvars));
+
+  if (vars_and_coefs.size() <= sizeOfVars_)
+  {
+    Xyce::Report::UserError()
+     << "Not enough arguments in POLY expression:" << newExp.getExpressionString() << std::endl;
+  }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > vars;
+  vars.insert(vars.end(),vars_and_coefs.begin(), vars_and_coefs.begin() + sizeOfVars_);
+  for(int ii=0;ii<sizeOfVars_;ii++)
+  {
+    if (vars[ii]->numvalType())
+    {
+      Xyce::Report::UserError()
+       << "There needs to be " << sizeOfVars_ 
+       << " input solution variables in POLY expression:" << newExp.getExpressionString() << std::endl;
+    }
+  }
+
+  std::vector<Teuchos::RCP<astNode<usedType> > > coefs;
+  coefs.insert(coefs.end(), vars_and_coefs.begin() + sizeOfVars_, vars_and_coefs.end());
+
+  Teuchos::RCP<astNode<usedType> > tmpPtr;
+  Teuchos::RCP<astNode<usedType> > tmpPtr2;
+  Teuchos::RCP<astNode<usedType> > value;
+  Teuchos::RCP<astNode<usedType> > value2;
+
+  // Set up arrays to determine what range of coefs corresponds to each order.
+  int currentOrderSize=1;
+  int currentMaxIndex=currentOrderSize;
+  std::vector<int> orderMinIndex(1,0);
+  std::vector<int> orderMaxIndex(1,currentMaxIndex);
+  while(currentMaxIndex < coefs.size())
+  {
+    currentOrderSize *= vars.size();
+    orderMinIndex.push_back(currentMaxIndex);
+    currentMaxIndex += currentOrderSize;
+    orderMaxIndex.push_back(currentMaxIndex);
+  }
+
+  // This creates an AST, with "value" at the head.
+  // It loops over all the used orders, and for each order, then loops over the 
+  // coefs for that order and uses them to create AST contributions for that 
+  // part of the polynomial.
+  value = coefs[0];
+  int maxOrderPlus1 = orderMaxIndex.size();
+  for (int iorder=1;iorder<maxOrderPlus1;iorder++)
+  {
+    int localIndex=0;
+    for(int ii=orderMinIndex[iorder];ii<orderMaxIndex[iorder];++ii,++localIndex) // loop over coefs of the current order
+    {
+      if(ii>=coefs.size()) break;
+  
+      tmpPtr = coefs[ii];
+      std::vector<int> coords;
+      setupCoords(iorder, localIndex, vars.size(), coords); // get the coordinates for this term
+      for (int ie=0;ie<coords.size();ie++) 
+      {
+        tmpPtr2 = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (tmpPtr,vars[coords[ie]]));
+        tmpPtr = tmpPtr2;
+      }
+      value2 = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  (value,tmpPtr));
+      value = value2;
+    }
+  }
+  return value;
+}
+
+//-------------------------------------------------------------------------
+// Function      : createParamOp 
+// Purpose       : Does work required to allocate parameter operator
+// Special Notes : This is a separate function, b/c two rules use it.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 1/7/2021
+//-------------------------------------------------------------------------
+void createParamOp(
+  Teuchos::RCP<astNode<usedType> > & returnPtr,
+    Xyce::Util::newExpression & newExp,
+    const std::string &  paramName)
+{
+  // ensure that each parameter and/or function argument  has a single, unique astNode allocated for it
+  //
+  // note that maps are not used here, intentionally, so as to preseve the original order of params.
+  // using a std::vector for the names and a separate vector for the paramOps keeps them in order user specified.
+  std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & paramOpMap = newExp.getParamOpMap ();
+
+  //std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), paramName);
+  //if ( nameIter == paramNameVec.end() )
+  if ( paramOpMap.find( paramName ) == paramOpMap.end() )
+  {
+    returnPtr = Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(paramName));
+    paramOpVec.push_back(returnPtr);
+
+    std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+    vec.push_back(returnPtr);
+    paramOpMap[paramName] = vec;
+
+    paramNameVec.push_back(paramName);
+  }
+  else
+  {
+    returnPtr = Teuchos::RCP<astNode<usedType> >(paramOpMap[paramName][0]);
+  }
+}
+
+//-------------------------------------------------------------------------
+// Function      : createVoltageOp
+// Purpose       : Does work required by the rules for voltage operators
+// Special Notes : This is a separate function, b/c two rules use it.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 9/3/2020
+//-------------------------------------------------------------------------
+void createVoltageOp(
+  Teuchos::RCP<astNode<usedType> > & returnPtr,
+    Xyce::Util::newExpression & newExp,
+    const std::string & prefix, const std::vector<std::string> & nodes)
+{
+  std::vector<std::string> voltageNodes = nodes;
+  Teuchos::RCP<astNode<usedType> > tmpPtr;
+
+  std::vector<std::string> & voltNameVec = newExp.getVoltNameVec ();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & voltOpVec = newExp.getVoltOpVec();
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltOpMap = newExp.getLocalVoltOpMap();
+
+  if (voltageNodes.size() == 1)
+  {
+    if ( !Xyce::Util::checkGroundNodeName(voltageNodes[0]) )
+    {
+      // ensure that each voltage has a single, unique astNode allocated for it
+      if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
+      {
+        Teuchos::RCP<voltageOp<usedType> > voltPtr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[0]));
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(voltPtr);
+        newExp.getVoltOpVec ().push_back(voltPtr);
+        voltNameVec.push_back( voltageNodes[0] );
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(voltPtr);
+        voltOpMap[ voltageNodes[0] ] = vec;
+      }
+      else
+      {
+        tmpPtr = Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[0]][0]);
+      }
+    }
+    else
+    {
+      Teuchos::RCP<astNode<usedType> > voltPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      tmpPtr = Teuchos::RCP<astNode<usedType> >(voltPtr);
+    }
+  }
+  // For the nodal difference use case, V(A,B) is handled as follows.
+  // Instead of having the voltageOp class handle the differencing, 
+  // create two voltage node objects, one for V(A) and one for V(B) and then
+  // pass them as arguments to a binaryMinusOp operator.
+  else if (voltageNodes.size() == 2) 
+  {
+    Teuchos::RCP<astNode<usedType> > tmp1Ptr;
+    Teuchos::RCP<astNode<usedType> > tmp2Ptr;
+
+    if ( !Xyce::Util::checkGroundNodeName( voltageNodes[0]) )
+    {
+      // ensure that each voltage has a single, unique astNode allocated for it
+      if ( voltOpMap.find( voltageNodes[0] ) == voltOpMap.end() )
+      {
+        Teuchos::RCP<voltageOp<usedType> > volt1Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[0]));
+        tmp1Ptr = Teuchos::RCP<astNode<usedType> >(volt1Ptr);
+        voltOpVec.push_back(volt1Ptr);
+        voltNameVec.push_back( voltageNodes[0] );
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(volt1Ptr);
+        voltOpMap[ voltageNodes[0] ] = vec;
+      }
+      else
+      {
+        tmp1Ptr = Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[0]][0]);
+      }
+    }
+    else
+    {
+      Teuchos::RCP<astNode<usedType> > voltPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      tmp1Ptr = Teuchos::RCP<astNode<usedType> >(voltPtr);
+    }
+
+    if ( !Xyce::Util::checkGroundNodeName( voltageNodes[1]) )
+    {
+      // ensure that each voltage has a single, unique astNode allocated for it
+      if ( voltOpMap.find( voltageNodes[1] ) == voltOpMap.end() )
+      {
+        Teuchos::RCP<voltageOp<usedType> > volt2Ptr = Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(voltageNodes[1]));
+        tmp2Ptr = Teuchos::RCP<astNode<usedType> >(volt2Ptr);
+        voltOpVec.push_back(volt2Ptr);
+        voltNameVec.push_back( voltageNodes[1] );
+
+        std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+        vec.push_back(volt2Ptr);
+        voltOpMap[ voltageNodes[1] ] = vec;
+      }
+      else
+      {
+        tmp2Ptr = Teuchos::RCP<astNode<usedType> >(voltOpMap[voltageNodes[1]][0]);
+      }
+    }
+    else
+    {
+      Teuchos::RCP<astNode<usedType> > voltPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      tmp2Ptr = Teuchos::RCP<astNode<usedType> >(voltPtr);
+    }
+
+    tmpPtr = Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  (tmp1Ptr,tmp2Ptr));
+  }
+
+  // adjust for complex number variants
+  // remove whitespace from the first argument
+  const std::string & firstArg = (prefix);
+  if (firstArg.size() == 1)
+  {
+    returnPtr = tmpPtr;
+  }
+  else if (firstArg.size() == 2)
+  {
+     if ( firstArg == std::string("VR") )
+     {
+       returnPtr = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(tmpPtr));
+     }
+     else if ( firstArg == std::string("VI") )
+     {
+       returnPtr = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(tmpPtr));
+     }
+     else if ( firstArg == std::string("VM") )
+     {
+       returnPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+     }
+     else if ( firstArg == std::string("VP") )
+     {
+       returnPtr = Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(tmpPtr));
+       newExp.getPhaseOpVec().push_back(returnPtr);
+     }
+  }
+  else if (firstArg.size() == 3) // do decibels here
+  {
+    if ( firstArg == std::string("VDB") )
+    {
+      // this needs to implement 20.0*std::log10(abs(*tmpPtr))  
+      Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+      Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+      Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+      returnPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+    }
+  }
+  else
+  {
+    std::cout << "Unrecognized voltage operator " << firstArg << std::endl;
+  }
+}
+
+//-------------------------------------------------------------------------
+// Function      : createCurrentOp
+// Purpose       : Does work required by the rules for current operators
+// Special Notes : This is a separate function, b/c two rules use it.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 9/3/2020
+//-------------------------------------------------------------------------
+void createCurrentOp(
+    Teuchos::RCP<astNode<usedType> > & returnPtr,
+    Xyce::Util::newExpression & newExp,
+    const std::string & prefix, const std::string & device)
+{
+  const std::string & firstArg = prefix;
+
+  std::string deviceName = device; // can't use a non-const reference ...
+  std::string originalDeviceName = deviceName;
+
+  if ( !(deviceName.empty()) && ( deviceName[0] == 'X' ))// inside a subcircuit.  So, for the logic below, need to strip out everything until the last ":"
+  {
+    std::size_t found = deviceName.find_last_of(":");
+    if ( found != std::string::npos) { deviceName = deviceName.substr(found+1); }
+  }
+
+  // allocate either a solution variable current object or a lead current object.  
+  Teuchos::RCP<astNode<usedType> > tmpPtr;
+  if ( !(deviceName.empty()) && ( 
+        deviceName[0] == 'V' ||
+        deviceName[0] == 'B' ||  // Bsrc's can be either one, but impossible to tell which at the expression parsing stage
+        deviceName[0] == 'E' ||
+        deviceName[0] == 'H' ||
+        deviceName[0] == 'L' )) // solution variable current
+  {
+    // ensure that each current has a single, unique astNode allocated for it
+    std::vector<std::string> & currentNameVec = newExp.getCurrentNameVec ();
+    std::vector<Teuchos::RCP<astNode<usedType> > > & currentOpVec = newExp.getCurrentOpVec ();
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currentOpMap = newExp.getLocalCurrentOpMap ();
+    if ( currentOpMap.find(originalDeviceName) == currentOpMap.end() )
+    {
+      Teuchos::RCP<currentOp<usedType> > currentPtr = Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(originalDeviceName));
+      tmpPtr = Teuchos::RCP<astNode<usedType> >(currentPtr);
+      currentOpVec.push_back(currentPtr);
+      if (deviceName[0] == 'B')  
+      { 
+        (currentPtr)->setBsrcFlag();
+        newExp.getBsrcCurrentOpVec().push_back(currentPtr);  // this object is necessary because Bsrc's can be either lead or solution var
+
+        std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+        std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), originalDeviceName);
+        if ( nameIter == leadCurrentNameVec.end() )
+        {
+          leadCurrentNameVec.push_back(originalDeviceName);
+        }
+      }
+      currentNameVec.push_back( originalDeviceName );
+
+      std::vector<Teuchos::RCP<astNode<usedType> > > vec;
+      vec.push_back(currentPtr);
+      currentOpMap[originalDeviceName] = vec;
+    }
+    else
+    {
+      tmpPtr = Teuchos::RCP<astNode<usedType> >(currentOpMap[ originalDeviceName  ][0]);
+    }
+  }
+  else // lead current.  Previously, this block was below the "complex variant" block.  
+       // Now it is here.  At present, no lead currents are complex numbers, but in theory that will change.
+  {
+    // lead currents are a little more tricky, so I'm not attempting to ensure uniqueness for now.
+    Teuchos::RCP<leadCurrentOp<usedType> > leadCurrentPtr = Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(firstArg,device));
+    tmpPtr = Teuchos::RCP<astNode<usedType> >(leadCurrentPtr);
+    newExp.getLeadCurrentOpVec().push_back(leadCurrentPtr);
+
+    std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+    std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+    std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), originalDeviceName);
+    if ( nameIter == leadCurrentNameVec.end() )
+    {
+      leadCurrentNameVec.push_back(originalDeviceName);
+      leadCurrentExcludeBsrcNameVec.push_back(originalDeviceName);
+    }
+  }
+
+  {
+    // adjust for complex number variants
+    if (firstArg.size() == 1)
+    {
+      returnPtr = tmpPtr;
+    }
+    else if (firstArg.size() == 2)
+    {
+       if ( firstArg == std::string("IR") )
+       {
+         returnPtr = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(tmpPtr));
+       }
+       else if ( firstArg == std::string("II") )
+       {
+         returnPtr = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(tmpPtr));
+       }
+       else if ( firstArg == std::string("IM") )
+       {
+         returnPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+       }
+       else if ( firstArg == std::string("IP") )
+       {
+         returnPtr = Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(tmpPtr));
+         newExp.getPhaseOpVec().push_back(returnPtr);
+       }
+    }
+    else if (firstArg.size() == 3) // do decibels here
+    {
+      if ( firstArg == std::string("IDB") )
+      {
+        // this needs to implement 20.0*std::log10(abs(tmpPtr))  
+        Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+        Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+        Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+        returnPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      }
+    }
+    else
+    {
+      std::cout << "Unrecognized current operator " << firstArg << std::endl;
+    }
+  }
+}
+
+}
+
+// value tokens from the lexer (ExpressionLexer.l)
+%token <double> TOK_POLYSIZE	"polysize"
+%token <double> TOK_POLYCOEF "polycoef"
+%token <double> TOK_NUM	"num"
+%token <double> TOK_IMAG_NUM	"imag_num"
+%token <std::string *> TOK_WORD "word"
+%token <std::string *> TOK_FILENAME "filename"
+%token <std::string *> TOK_FUNCTION "function"
+%token <std::string *> TOK_LEAD "lead"
+%token <std::string *> TOK_ONOISE "onoise"
+%token <std::string *> TOK_INOISE "inoise"
+%token <std::string *> TOK_POWER "power"
+%token <std::string *> TOK_VOLTAGE "voltage"
+%token <std::string *> TOK_VOLTAGENODE "voltagenode"
+%token <std::string *> TOK_POLY_VOLTAGE "poly_voltage"
+%token <std::string *> TOK_CURRENT "current"
+%token <std::string *> TOK_CURRENTDEV "currentdevice"
+%token <std::string *> TOK_POLY_CURRENT "poly_current"
+%token <std::string *> TOK_POLY_WORD    "poly_word"
+%token <std::string *> TOK_INTERNAL_VAR "internal_variable"
+%token <std::string *> TOK_INTERNAL_VAR_DEV "internal_variable_device"
+%token <std::string *> TOK_NOISE "noise"
+%token <std::string *> TOK_NOISE_DEV_VAR "noise_device_variable"
+%token <std::string *> TOK_RFPARAM "rfparam"
+%token <int> TOK_RFPARAM_ARG "rf_param_arg"
+
+%token <std::string *> TOK_TABLE	"table" 
+%token <std::string *> TOK_TABLE2	"table2" 
+%token <std::string *> TOK_TABLE3	"table3" 
+%token <std::string *> TOK_TABLEFILE	"tablefile" 
+
+// non-value tokens from the lexer (ExpressionLexer.l)
+%token TOK_SQRT	"sqrt"
+%token TOK_MAX	"max"
+%token TOK_MIN	"min"
+%token TOK_PHASE	"phase"
+%token TOK_REAL	"real"
+%token TOK_IMAG	"imag"
+%token TOK_DB  	"db"
+%token TOK_EXP	"exp"
+%token TOK_EXP_CONST	"exp_const"
+%token TOK_SIN	"sin"
+%token TOK_COS	"cos"
+%token TOK_MABS	"m"
+%token TOK_ABS	"abs"
+%token TOK_ACOS	"acos"
+%token TOK_ACOSH	"acosh"
+%token TOK_ASIN	"asin"
+%token TOK_ASINH	"asinh"
+%token TOK_ATAN2	"atan2"
+%token TOK_ATAN	"atan"
+%token TOK_ATANH	"atanh"
+%token TOK_COSH	"cosh"
+%token TOK_LN	"ln"
+%token TOK_LOG	"log"
+%token TOK_LOG10	"log10"
+%token TOK_SINH	"sinh"
+%token TOK_TAN	"tan"
+%token TOK_TANH	"tanh"
+%token TOK_IF "if"
+%token TOK_EQUALS "equals"
+%token TOK_SEMICOLON "semicolon"
+
+%token TOK_AUNIF	"aunif"
+%token TOK_UNIF	"unif"
+%token TOK_AGAUSS	"agauss"
+%token TOK_FMOD	"fmod"
+%token TOK_NINT	"nint"
+%token TOK_CEIL	"ceil"
+%token TOK_GAUSS	"gauss"
+%token TOK_DDT	"ddt"
+%token TOK_DDX	"ddx"
+%token TOK_FLOOR	"floor"
+%token TOK_INT 	"int"
+%token TOK_LIMIT 	"limit"
+%token TOK_POWSFUNC 	"pwrs"
+%token TOK_RAND	"rand"
+%token TOK_SDT	"sdt"
+%token TOK_SGN	"sgn"
+%token TOK_SIGN	"sign"
+%token TOK_STP	"stp"
+%token TOK_TABLEFILE_END	"tablefile_end"
+
+%token TOK_SCHEDULE	"schedule"
+%token TOK_URAMP	"uramp"
+ /* %token TOK_POLY	"poly" */
+%token TOK_BADPOLY	"bad_poly"
+
+%token TOK_SPICE_PULSE "spice_pulse"
+%token TOK_SPICE_SIN "spice_sin"
+%token TOK_SPICE_EXP "spice_exp"
+%token TOK_SPICE_SFFM "spice_sffm"
+
+%token TOK_DT "dt"
+%token TOK_TIME  "time"
+%token TOK_TEMP  "temp"
+%token TOK_VT    "vt"
+%token TOK_FREQ  "freq"
+%token TOK_GMIN  "gmin"
+%token TOK_PI    "pi"
+%token TOK_C_TO_K    "CtoK"
+
+%token TOK_RIGHTPAREN "rightparen"
+%token TOK_LEFTPAREN  "leftparen"
+%token TOK_RIGHTCURLYBRACE "rightcurlybrace"
+%token TOK_LEFTCURLYBRACE  "leftcurlybrace"
+
+%token TOK_SINGLEQUOTE "singlequote"
+
+// types for nonterminal operators
+%type  <Teuchos::RCP<astNode<usedType> > >   exp
+%type  <Teuchos::RCP<astNode<usedType> > >   expression
+
+%type  <Xyce::Util::tableArgs<usedType> >  table_threeOrFourArgs  
+%type  <Xyce::Util::tableArgs<usedType> >   table2_threeOrFourArgs  
+%type  <Xyce::Util::tableArgs<usedType> >   table3_threeOrFourArgs 
+
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_func_arglist2
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   two_or_more_arglist
+%type  <std::vector< Teuchos::RCP<astNode<usedType> > > *>   nonempty_arg_pairs 
+
+%type  <std::vector<std::string> *>  nonempty_voltagenodelist
+%type  <std::vector<int> *>  nonempty_rfparam_arg_list
+%type  <std::vector<std::string> *>  nonempty_noise_device_list
+
+%type  <Teuchos::RCP<astNode<usedType> > >   polyarg
+%type  <std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > > *>   polypair
+%type  <double>  paren_polycoef 
+%type  <std::string *>  paren_polyword
+
+%destructor { delete $$; } TOK_VOLTAGENODE
+%destructor { delete $$; } TOK_NOISE_DEV_VAR
+%destructor { delete $$; } TOK_TABLEFILE
+
+// Operator Precedence tokens
+%left   TOK_COMMA ","
+%right  TOK_QUESTION_MARK "?"  TOK_COLON ":"
+%left  TOK_OR "||" TOK_AND "&&"
+%left  TOK_NOT "~" 
+  /* %left  TOK_XOR "^" */
+%left TOK_CARET "^"
+%left  TOK_EQ	"==" TOK_NE	"!=" TOK_LE	"<=" TOK_LT	"<" TOK_GE	">=" TOK_GT	">"
+%left TOK_INVALID_OP
+%left   TOK_MINUS "-" TOK_PLUS "+"
+%left   TOK_MOD "%"
+%left   TOK_MULTIPLY "*" TOK_DIVIDE "/"
+%left   NEG  /* unary minus */
+%right   TOK_POW  TOK_POWFUNC  /* exponentiation */
+
+%%
+expression: exp
+  {
+      if (yynerrs_ != 0)
+      {
+        YYABORT;
+      }
+      else
+      {
+        newExp.setAstPtr($1);
+
+        YYACCEPT;
+      }
+ }
+
+exp:
+    TOK_NUM
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
+    }
+   | TOK_IMAG_NUM 
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(std::complex<basicType>(0.0,$1)));
+    }
+
+  | TOK_WORD
+      {
+        createParamOp($$,newExp,*$1);
+        delete $1;
+    }
+  | TOK_DT
+    {
+      $$ = newExp.getDtNode();
+      newExp.setTimeDependent(true);
+    }
+  | TOK_TIME
+    {
+      /*Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(timeNode); */
+      $$ = newExp.getTimeNode();
+      newExp.setTimeDependent(true);
+    }
+  | TOK_TEMP
+    {
+      /* Teuchos::RCP<astNode<usedType> > tempNode =newExp.getTempNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(tempNode); */
+      $$ = newExp.getTempNode ();
+      newExp.setTempDependent(true);
+    }
+  | TOK_VT
+    {
+      /* Teuchos::RCP<astNode<usedType> > vtNode = newExp.getVtNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(vtNode); */
+      $$ = newExp.getVtNode ();
+      newExp.setVTDependent(true);
+    }
+  | TOK_FREQ
+    {
+      /* Teuchos::RCP<astNode<usedType> > freqNode = newExp.getFreqNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(freqNode); */
+      $$ = newExp.getFreqNode ();
+      newExp.setFreqDependent(true);
+    }
+  | TOK_GMIN
+    {
+      /* Teuchos::RCP<astNode<usedType> > gminNode = newExp.getGminNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(gminNode); */
+      $$ = newExp.getGminNode ();
+      newExp.setGminDependent(true);
+    }
+  | TOK_PI
+    {
+      /* Teuchos::RCP<astNode<usedType> > piNode = newExp.getPiNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(piNode);*/
+      /* $$ = newExp.getPiNode (); */
+      usedType pi=M_PI;
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(pi));
+    }
+  | TOK_C_TO_K
+    {
+      /*Teuchos::RCP<astNode<usedType> > CtoKNode = newExp.getCtoKNode ();
+      $$ = Teuchos::RCP<astNode<usedType> >(CtoKNode);*/
+      /* $$ = newExp.getCtoKNode (); */
+      usedType C_to_K = CONSTCtoK;
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(C_to_K));
+    }
+  | exp TOK_PLUS exp
+    {
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())+($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryAddOp<usedType>  ($1,$3)); }
+    }
+  | exp TOK_MINUS exp
+    {
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())-($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  ($1,$3)); }
+    }
+  | exp TOK_MULTIPLY exp
+    {
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())*($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  ($1,$3)); }
+    }
+  | exp TOK_DIVIDE exp
+    {
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType tmp = ($1->val())/($3->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new binaryDivOp<usedType>  ($1,$3)); }
+    }
+  | exp TOK_MOD exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new fmodOp<usedType>  ($1,$3));
+    }
+  | TOK_FMOD exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new fmodOp<usedType>  ($2,$4));
+    }
+
+  | exp TOK_POW exp
+    {
+      if ($1->numvalType() && $3->numvalType())
+      {
+        usedType ret =  std::pow($1->val(), $3->val());
+        Xyce::Util::fixNan(ret);  Xyce::Util::fixInf(ret);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(ret));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  ($1,$3)); }
+    }
+   | TOK_POWFUNC exp TOK_COMMA exp TOK_RIGHTPAREN 
+    {
+      if ($2->numvalType() && $4->numvalType())
+      {
+        usedType ret =  std::pow($2->val(), $4->val());
+        Xyce::Util::fixNan(ret);  Xyce::Util::fixInf(ret);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(ret));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  ($2,$4)); }
+    }
+  | TOK_POWSFUNC exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType() && $4->numvalType())
+      {
+        usedType ret =  0.0;
+        usedType leftVal=$2->val();
+        if (std::real(leftVal) >= 0) { ret = std::pow(leftVal, $4->val()); }
+        else if (std::real(leftVal) < 0) { ret = -std::pow(-(leftVal), $4->val()); }
+        Xyce::Util::fixNan(ret);  Xyce::Util::fixInf(ret);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(ret));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new pwrsOp<usedType>  ($2,$4)); }
+    }
+  | TOK_LEFTPAREN exp TOK_RIGHTPAREN
+    {
+       $$ = $2;
+    }
+  | TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+  | TOK_SINGLEQUOTE exp TOK_SINGLEQUOTE
+    {
+       $$ = $2;
+    }
+  | TOK_MINUS exp  %prec NEG
+    {
+      if ($2->numvalType())
+      { $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(-($2->val()))); }
+      else
+      { $$ = Teuchos::RCP<astNode<usedType> >(new unaryMinusOp<usedType>($2)); }
+    }
+  | TOK_PLUS exp 
+    {
+      if ($2->numvalType())
+      { $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(+($2->val()))); }
+      else
+      { $$ = Teuchos::RCP<astNode<usedType> >(new unaryPlusOp<usedType>($2)); }
+    }
+  | TOK_SGN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      { 
+        usedType ret = 0.0;
+        double leftVal = std::real($2->val());
+        ret = ( (leftVal>0)?+1:ret );
+        ret = ( (leftVal<0)?-1:ret );
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(ret));
+      }
+      else
+      { $$ = Teuchos::RCP<astNode<usedType> >(new sgnOp<usedType>($2)); }
+    }
+  | TOK_SIGN exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType() && $4->numvalType())
+      {
+        usedType y = 0.0;
+        double realRightVal = std::real($4->val());
+        y = ( (realRightVal>0)?+1:y );
+        y = ( (realRightVal<0)?-1:y );
+        usedType x =  (std::abs($2->val()));
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>((y*x))); 
+      }
+      else
+      { $$ = Teuchos::RCP<astNode<usedType> >(new signOp<usedType>($2,$4)); }
+    }
+  | TOK_FUNCTION nonempty_func_arglist 
+     {
+        // remove whitespace from the function name
+        std::string & functionName = (*$1);
+
+        Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(functionName,*$2));
+        newExp.getFuncOpVec().push_back(funcPtr);
+
+        std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & funcOpMap 
+          = newExp.getFuncOpMap();
+
+        $$ = Teuchos::RCP<astNode<usedType> >(funcPtr); // implicit cast
+
+        if (funcOpMap.find(functionName) == funcOpMap.end())
+        {
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
+          vec.push_back($$);
+          funcOpMap[functionName] = vec;
+          newExp.getFuncNameVec().push_back(functionName);
+        }
+        else
+        {
+          funcOpMap[functionName].push_back($$);
+        }
+
+        delete $1;
+        delete $2;
+    }
+  | TOK_VOLTAGE nonempty_voltagenodelist
+    {
+      createVoltageOp($$,newExp,*$1,*$2);
+      delete $1;
+      delete $2;
+    }
+  | TOK_CURRENT TOK_CURRENTDEV
+    {
+      createCurrentOp($$,newExp,*$1,*$2);
+      delete $1;
+      delete $2;
+    }
+  | TOK_RFPARAM nonempty_rfparam_arg_list
+    {
+      std::string & firstArg = (*$1);
+
+      Teuchos::RCP<astNode<usedType> > tmpPtr;
+      if ((*$2).size() == 2)
+      {
+        if (firstArg[0] == 'S')
+        {
+          Teuchos::RCP<sparamOp<usedType> > sparPtr = Teuchos::RCP<sparamOp<usedType> >(new sparamOp<usedType>(*$2));
+          tmpPtr = Teuchos::RCP<astNode<usedType> >(sparPtr);
+          newExp.getSparamOpVec ().push_back(sparPtr);
+        }
+        else if (firstArg[0] == 'Y')
+        {
+          Teuchos::RCP<yparamOp<usedType> > yparPtr = Teuchos::RCP<yparamOp<usedType> >(new yparamOp<usedType>(*$2));
+          tmpPtr = Teuchos::RCP<astNode<usedType> >(yparPtr);
+          newExp.getYparamOpVec ().push_back(yparPtr);
+        }
+        else if (firstArg[0] == 'Z')
+        {
+          Teuchos::RCP<zparamOp<usedType> > zparPtr = Teuchos::RCP<zparamOp<usedType> >(new zparamOp<usedType>(*$2));
+          tmpPtr = Teuchos::RCP<astNode<usedType> >(zparPtr);
+          newExp.getZparamOpVec ().push_back(zparPtr);
+        }
+        else
+        {
+          std::cout << "Unrecognized RF parameter: " << firstArg <<std::endl;
+        }
+
+
+        // adjust for complex number variants
+        // remove whitespace from the first argument
+        if (firstArg.size() == 1)
+        {
+          $$ = tmpPtr;
+        }
+        else if (firstArg.size() == 2)
+        {
+           if ( firstArg[1] == 'R')
+           {
+             $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(tmpPtr));
+           }
+           else if ( firstArg[1] == 'I')
+           {
+             $$ = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(tmpPtr));
+           }
+           else if ( firstArg[1] == 'M')
+           {
+             $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+           }
+           else if ( firstArg[1] == 'P')
+           {
+            Teuchos::RCP<astNode<usedType> > returnPtr = Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(tmpPtr));
+             newExp.getPhaseOpVec().push_back(returnPtr);
+             $$ = returnPtr;
+           }
+        }
+        else if (firstArg.size() == 3) // do decibels here
+        {
+          if ( firstArg[1] == 'D' && firstArg[2] == 'B')
+          {
+            // this needs to implement 20.0*std::log10(abs(tmpPtr))  
+            Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+            Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+            Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+            $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+          }
+        }
+        else
+        {
+          std::cout << "Unrecognized RF operator " << firstArg << std::endl;
+        }
+      }
+      else
+      {
+        std::cout << "Wrong number of arguments to S-parameter !" <<std::endl;
+      }
+
+      delete $1;
+      delete $2;
+    }
+  | TOK_LEAD TOK_CURRENTDEV
+    {
+      Teuchos::RCP<leadCurrentOp<usedType> > leadCurrentPtr = Teuchos::RCP<leadCurrentOp<usedType> >(new leadCurrentOp<usedType>(*$1,*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(leadCurrentPtr);
+      newExp.getLeadCurrentOpVec().push_back(leadCurrentPtr);
+
+      std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+      std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      if ( nameIter == leadCurrentNameVec.end() )
+      {
+        leadCurrentNameVec.push_back(*$2);
+        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+      }
+
+      delete $1;
+      delete $2;
+    }
+  | TOK_INTERNAL_VAR TOK_INTERNAL_VAR_DEV
+    {
+      const std::string & name=*$2;
+      Teuchos::RCP<internalDevVarOp<usedType> > internalDevVarPtr = Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(name));
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(internalDevVarPtr);
+      newExp.getInternalDevVarOpVec().push_back(internalDevVarPtr);
+
+      // adjust for complex number variants
+      std::string & firstArg = (*$1);
+      if (firstArg.size() == 1)
+      {
+        $$ = tmpPtr;
+      }
+      else if (firstArg.size() == 2)
+      {
+         if ( firstArg == std::string("NR") )
+         {
+           $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(tmpPtr));
+         }
+         else if ( firstArg == std::string("NI") )
+         {
+           $$ = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(tmpPtr));
+         }
+         else if ( firstArg == std::string("NM") )
+         {
+           $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+         }
+         else if ( firstArg == std::string("NP") )
+         {
+          Teuchos::RCP<astNode<usedType> > returnPtr = Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(tmpPtr));
+           newExp.getPhaseOpVec().push_back(returnPtr);
+           $$ = returnPtr;
+         }
+      }
+      else if (firstArg.size() == 3) // do decibels here
+      {
+        if ( firstArg == std::string("NDB") )
+        {
+          // this needs to implement 20.0*std::log10(abs(tmpPtr))  
+          Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+          Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(tmpPtr));
+          Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+          $$ = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+        }
+      }
+      else
+      {
+        std::cout << "Unrecognized internal variable operator " << firstArg << std::endl;
+      }
+
+      delete $1;
+      delete $2;
+    }
+  | TOK_NOISE nonempty_noise_device_list
+    {
+      std::string & firstArg = (*$1);
+
+      if ( firstArg == std::string("DNO") )
+      {
+        Teuchos::RCP<dnoNoiseVarOp<usedType> > dnoNoiseVarPtr = Teuchos::RCP<dnoNoiseVarOp<usedType> >(new dnoNoiseVarOp<usedType>(*$2));
+        $$ = Teuchos::RCP<astNode<usedType> >(dnoNoiseVarPtr);
+        newExp.getDnoNoiseDevVarOpVec().push_back(dnoNoiseVarPtr);
+      }
+      else if ( firstArg == std::string("DNI") )
+      {
+        Teuchos::RCP<dniNoiseVarOp<usedType> > dniNoiseVarPtr = Teuchos::RCP<dniNoiseVarOp<usedType> >(new dniNoiseVarOp<usedType>(*$2));
+        $$ = Teuchos::RCP<astNode<usedType> >(dniNoiseVarPtr);
+        newExp.getDniNoiseDevVarOpVec().push_back(dniNoiseVarPtr);
+      }
+
+      delete $1;
+      delete $2;
+    }
+  | TOK_ONOISE
+    {
+      Teuchos::RCP<oNoiseOp<usedType> > onoisePtr = Teuchos::RCP<oNoiseOp<usedType> >(new oNoiseOp<usedType>());
+      $$ = Teuchos::RCP<astNode<usedType> >(onoisePtr);
+      newExp.getONoiseOpVec().push_back(onoisePtr);
+      delete $1;
+    }
+  | TOK_INOISE
+    {
+      Teuchos::RCP<iNoiseOp<usedType> > inoisePtr = Teuchos::RCP<iNoiseOp<usedType> >(new iNoiseOp<usedType>());
+      $$ = Teuchos::RCP<astNode<usedType> >(inoisePtr);
+      newExp.getINoiseOpVec().push_back(inoisePtr);
+      delete $1;
+    }
+  | TOK_MAX  exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>($2,$4));
+    }
+  | TOK_MIN  exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new minOp<usedType>($2,$4));
+    }
+  | TOK_POWER TOK_CURRENTDEV
+    {
+      Teuchos::RCP<powerOp<usedType> > powerPtr = Teuchos::RCP<powerOp<usedType> >(new powerOp<usedType>(*$1,*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(powerPtr);
+      newExp.getPowerOpVec().push_back(powerPtr);
+
+      std::vector<std::string> & leadCurrentNameVec = newExp.getLeadCurrentNameVec();
+      std::vector<std::string> & leadCurrentExcludeBsrcNameVec = newExp.getLeadCurrentExcludeBsrcNameVec();
+      std::vector<std::string>::iterator nameIter = std::find(leadCurrentNameVec.begin(),leadCurrentNameVec.end(), *$2);
+      if ( nameIter == leadCurrentNameVec.end() )
+      {
+        leadCurrentNameVec.push_back(*$2);
+        leadCurrentExcludeBsrcNameVec.push_back(*$2);
+      }
+      delete $1;
+      delete $2;
+    }
+  | TOK_PHASE exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>($2));
+      newExp.getPhaseOpVec().push_back($$);
+    }
+  | TOK_REAL exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>($2));
+    }
+  | TOK_IMAG exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>($2));
+    }
+  | TOK_DB exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType> (20.0));
+      Teuchos::RCP<astNode<usedType> > absPtr = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      Teuchos::RCP<astNode<usedType> > log10Ptr = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>(absPtr));
+      Teuchos::RCP<astNode<usedType> > multPtr = Teuchos::RCP<astNode<usedType> >(new binaryMulOp<usedType>  (numvalPtr,log10Ptr));
+      $$ = Teuchos::RCP<astNode<usedType> >(new realOp <usedType>  (multPtr)); // using realOp forces the getIsComplex to return false
+    }
+  | TOK_SQRT exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sqrt($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new sqrtOp<usedType>($2));
+      }
+    }
+  | TOK_EXP exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::exp($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>($2));
+      }
+    }
+  | TOK_EXP_CONST
+    {
+      Teuchos::RCP<astNode<usedType> > onePtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(1.0));
+      $$ = Teuchos::RCP<astNode<usedType> >(new expOp<usedType>(onePtr));
+    }
+  | TOK_SIN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sin($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new sinOp<usedType>($2));
+      }
+    }
+  | TOK_COS exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::cos($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new cosOp<usedType>($2));
+      }
+    }
+  | TOK_MABS exp TOK_RIGHTPAREN 
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::abs($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        Teuchos::RCP<astNode<usedType> > numvalPtr = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        $$ = Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(numvalPtr)); // using realOp forces the getIsComplex to return false
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      }
+    }
+  | TOK_ABS exp TOK_RIGHTPAREN 
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::abs($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new absOp<usedType>($2));
+      }
+    }
+  | TOK_ACOS exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::acos($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new acosOp<usedType>($2));
+      }
+    }
+  | TOK_ACOSH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::acosh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new acoshOp<usedType>($2));
+      }
+    }
+  | TOK_ASIN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::asin($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new asinOp<usedType>($2));
+      }
+    }
+  | TOK_ASINH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::asinh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new asinhOp<usedType>($2));
+      }
+    }
+  | TOK_ATAN2 exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new atan2Op<usedType>($2,$4));
+    }
+  | TOK_ATAN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::atan($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>($2));
+      }
+    }
+  | TOK_ATANH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::atanh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new atanhOp<usedType>($2));
+      }
+    }
+  | TOK_COSH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::cosh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new coshOp<usedType>($2));
+      }
+    }
+  | TOK_LN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::log($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2));
+      }
+    }
+  | TOK_LOG exp TOK_RIGHTPAREN
+    {
+      if (Xyce::Util::useHspiceMath)
+      {
+        if ($2->numvalType())
+        {
+          usedType tmp = std::log($2->val());
+          Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+          $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        }
+        else { $$ = Teuchos::RCP<astNode<usedType> >(new logOp<usedType>($2)); }
+      }
+      else
+      {
+        if ($2->numvalType())
+        {
+          usedType tmp = std::log10($2->val());
+          Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+          $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+        }
+        else { $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2)); }
+      }
+    }
+  | TOK_LOG10 exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::log10($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new log10Op<usedType>($2)); }
+    }
+  | TOK_SINH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::sinh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new sinhOp<usedType>($2)); }
+    }
+  | TOK_TAN exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::tan($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new tanOp<usedType>($2)); }
+    }
+  | TOK_TANH exp TOK_RIGHTPAREN
+    {
+      if ($2->numvalType())
+      {
+        usedType tmp = std::tanh($2->val());
+        Xyce::Util::fixNan(tmp);  Xyce::Util::fixInf(tmp);
+        $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(tmp));
+      }
+      else { $$ = Teuchos::RCP<astNode<usedType> >(new tanhOp<usedType>($2)); }
+    }
+  | TOK_NINT exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new roundOp<usedType>($2));
+    }
+  | TOK_CEIL exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new ceilOp<usedType>($2));
+    }
+  | TOK_FLOOR exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new floorOp<usedType>($2));
+    }
+  | TOK_INT exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new intOp<usedType>($2));
+    }
+  | TOK_LIMIT exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new twoArgLimitOp<usedType>($2,$4));
+      newExp.getTwoArgLimitOpVec ().push_back($$);
+      newExp.getLocalTwoArgLimitOpVec ().push_back($$);
+    }
+  | TOK_LIMIT exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new limitOp<usedType>($2,$4,$6));
+    }
+  | TOK_STP exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new stpOp<usedType>($2));
+      newExp.getStpNodeVec().push_back($$);
+    }
+  | TOK_URAMP exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new urampOp<usedType>($2));
+    }
+   | polypair 
+    {
+      // the "pair" contains both the POLYSIZE value as well as a vector of ast nodes (the "args")
+      // $1->first  - numvars
+      // $1->second - vars and coefs
+      $$ = setupPoly (newExp,$1->first, ($1->second));
+      delete $1;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_TABLEFILE_END
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > numSamplesNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(-1.0));
+      Teuchos::RCP<astNode<usedType> > logBoolNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,numSamplesNode,logBoolNode)); 
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true); 
+      delete $2;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > logBoolNode = Teuchos::RCP<astNode<usedType> >(new numval<usedType>(0.0));
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,$4,logBoolNode)); 
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true); 
+      delete $2;
+    }
+  | TOK_TABLEFILE TOK_FILENAME TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1),timeNode,*$2,$4,$6)); 
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true); 
+      delete $2;
+    }
+
+   /* tables with or without breakpoints */
+  | table3_threeOrFourArgs nonempty_func_arglist 
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2)); 
+      if ( ($1.node)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back($$);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+      delete $1.keywordPtr;
+    }
+  | table_threeOrFourArgs nonempty_func_arglist 
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2));
+      if ( ($1.node)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back($$);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+      delete $1.keywordPtr;
+    }
+  | table_threeOrFourArgs nonempty_func_arglist2
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2));
+      if ( ($1.node)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back($$);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+      delete $1.keywordPtr;
+    }
+  | table2_threeOrFourArgs nonempty_arg_pairs 
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>(*($1.keywordPtr), $1.node,*$2));
+      if ( ($1.node)->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back($$);
+        newExp.setTimeDependent(true); 
+      }
+      delete $2;
+      delete $1.keywordPtr;
+    }
+
+    /* excluding this pattern b/c it causes shift/reduce errors.  
+     * But this particular pattern doesn't seem to be used by any existing tests 
+  | table2_with_nonempty_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > tmpPtr = Teuchos::RCP<astNode<usedType> >(new tableOp<usedType>($1->first,&($1->second)));
+      $$ = tmpPtr;
+      if ( $1->first->timeSpecialType() )
+      {
+        newExp.getSrcNodeVec().push_back(tmpPtr);
+        newExp.setTimeDependent(true); 
+      }
+      delete $1;
+    }
+    */
+ 
+  | TOK_SCHEDULE nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new scheduleOp<usedType>(*$2, timeNode));
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true);
+      delete $2;
+    }
+  | TOK_SDT exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
+      Teuchos::RCP<astNode<usedType> > sdtPtr = Teuchos::RCP<astNode<usedType> >(new sdtOp<usedType>($2, dtNode, timeNode));
+      $$ = sdtPtr;
+      newExp.getSdtOpVec().push_back(sdtPtr);
+      newExp.getLocalSdtOpVec().push_back(sdtPtr);
+      newExp.setTimeDependent(true);
+    }
+  | TOK_DDT  exp TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      Teuchos::RCP<astNode<usedType> > dtNode = newExp.getDtNode();
+      Teuchos::RCP<astNode<usedType> > ddtPtr = Teuchos::RCP<astNode<usedType> >(new ddtOp<usedType>($2, dtNode, timeNode));
+      $$ = ddtPtr;
+      newExp.getDdtOpVec().push_back(ddtPtr);
+      newExp.getLocalDdtOpVec().push_back(ddtPtr);
+      newExp.setTimeDependent(true);
+    }
+  | TOK_DDX exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new ddxOp<usedType>($2,$4));
+    }
+  | TOK_AGAUSS two_or_more_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<agaussOp<usedType> > agaussPtr = Teuchos::RCP<agaussOp<usedType> >(new agaussOp<usedType> (*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(agaussPtr);
+      newExp.getAgaussOpVec ().push_back(agaussPtr);
+      newExp.getLocalAgaussOpVec ().push_back(agaussPtr);
+      newExp.setIsShallowRandomDependent();
+      newExp.setIsOriginalShallowRandomDependent();
+      delete $2;
+    }
+  | TOK_GAUSS two_or_more_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<gaussOp<usedType> > gaussPtr = Teuchos::RCP<gaussOp<usedType> >(new gaussOp<usedType>(*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(gaussPtr);
+      newExp.getGaussOpVec ().push_back(gaussPtr);
+      newExp.getLocalGaussOpVec ().push_back(gaussPtr);
+      newExp.setIsShallowRandomDependent();
+      newExp.setIsOriginalShallowRandomDependent();
+      delete $2;
+    }
+  | TOK_AUNIF two_or_more_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<aunifOp<usedType> > aunifPtr = Teuchos::RCP<aunifOp<usedType> >(new aunifOp<usedType>(*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(aunifPtr);
+      newExp.getAunifOpVec ().push_back(aunifPtr);
+      newExp.getLocalAunifOpVec ().push_back(aunifPtr);
+      newExp.setIsShallowRandomDependent();
+      newExp.setIsOriginalShallowRandomDependent();
+      delete $2;
+    }
+  | TOK_UNIF two_or_more_arglist TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<unifOp<usedType> > unifPtr = Teuchos::RCP<unifOp<usedType> >(new unifOp<usedType>(*$2));
+      $$ = Teuchos::RCP<astNode<usedType> >(unifPtr);
+      newExp.getUnifOpVec ().push_back(unifPtr);
+      newExp.getLocalUnifOpVec ().push_back(unifPtr);
+      newExp.setIsShallowRandomDependent();
+      newExp.setIsOriginalShallowRandomDependent();
+      delete $2;
+    }
+  | TOK_RAND TOK_RIGHTPAREN
+    {
+      Teuchos::RCP<randOp<usedType> > randPtr = Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
+      $$ = Teuchos::RCP<astNode<usedType> >(randPtr);
+      newExp.getRandOpVec ().push_back(randPtr);
+      newExp.getLocalRandOpVec ().push_back(randPtr);
+      newExp.setIsShallowRandomDependent();
+      newExp.setIsOriginalShallowRandomDependent();
+    }
+
+ /* SPICE time-dependent sources.  These have optional length argument lists */
+ /* pulse( v1,v2,td,tr,tf,pw,per) */
+  | TOK_SPICE_PULSE nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>(*$2, timeNode ));
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true);
+      delete $2;
+    }
+ /* sin (v0,va,frequency,td,theta,phase) */
+  | TOK_SPICE_SIN nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new spiceSinOp<usedType>(*$2, timeNode ));
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true);
+      delete $2;
+    }
+ /* exp ( v1,v2,td1,tau1,td2,tau2) */
+  | TOK_SPICE_EXP nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new spiceExpOp<usedType>(*$2,timeNode));
+      newExp.getSrcNodeVec().push_back($$);
+      newExp.setTimeDependent(true);
+      delete $2;
+    }
+ /* sffm (v0,va,fc,mdi,fs) */
+  | TOK_SPICE_SFFM nonempty_func_arglist 
+    {
+      Teuchos::RCP<astNode<usedType> > timeNode = newExp.getTimeNode();
+      $$ = Teuchos::RCP<astNode<usedType> >(new spiceSffmOp<usedType>(*$2,timeNode));
+      newExp.setTimeDependent(true);
+      delete $2;
+    }
+  | exp TOK_QUESTION_MARK exp TOK_COLON exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>($1,$3,$5));
+    }
+  | TOK_IF exp TOK_COMMA exp TOK_COMMA exp TOK_RIGHTPAREN
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new ifStatementOp<usedType>($2,$4,$6));
+    }
+  | exp TOK_EQ exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new eqOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_NE exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new neOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_GT exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new gtOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_LT exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new ltOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_GE exp
+    {
+      $$  = Teuchos::RCP<astNode<usedType> >(new geOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_LE exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new leOp<usedType>($1,$3));
+      newExp.getCompNodeVec().push_back($$);
+    }
+  | exp TOK_OR exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new orOp<usedType>($1,$3));
+    }
+  | exp TOK_AND exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new andOp<usedType>($1,$3));
+    }
+  | exp TOK_CARET exp
+    {
+      if (Xyce::Util::useHspiceMath)
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  ($1,$3));
+      }
+      else
+      {
+        $$ = Teuchos::RCP<astNode<usedType> >(new xorOp<usedType>($1,$3));
+      }
+    }
+  | TOK_NOT exp
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new unaryNotOp<usedType>($2));
+    }
+// error condition patterns
+   | TOK_BADPOLY 
+    {
+      Xyce::Report::UserError() << "Syntax error in number of nodes in expression: " << newExp.getExpressionString() << std::endl;
+
+      // the "rand" operator is allocated here b/c all of these functions need to return a 
+      // valid operator or else cause a segfault.  It is not intended to be used, as this function
+      // is trapping for an error condition.  randOp is a convenient
+      // choice b/c it doens't require any arguments.
+      Teuchos::RCP<randOp<usedType> > randPtr = Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
+      $$ = Teuchos::RCP<astNode<usedType> >(randPtr);
+    }
+  | exp TOK_INVALID_OP exp
+    {
+      Xyce::Report::UserError() << "Invalid operator in expression " << newExp.getExpressionString() << std::endl;
+
+      // the "rand" operator is allocated here b/c all of these functions need to return a 
+      // valid operator or else cause a segfault.  It is not intended to be used, as this function
+      // is trapping for an error condition.  randOp is a convenient
+      // choice b/c it doens't require any arguments.
+      Teuchos::RCP<randOp<usedType> > randPtr = Teuchos::RCP<randOp<usedType> >(new randOp<usedType>());
+      $$ = Teuchos::RCP<astNode<usedType> >(randPtr);
+    }
+  ;
+
+nonempty_rfparam_arg_list: TOK_RFPARAM_ARG { $$ = new std::vector<int>(1,$1); }
+  | nonempty_rfparam_arg_list  TOK_RFPARAM_ARG  { $1->push_back($2); $$=$1; }
+
+nonempty_noise_device_list: TOK_NOISE_DEV_VAR { $$ = new std::vector< std::string>(1,*$1); }
+  | nonempty_noise_device_list  TOK_NOISE_DEV_VAR  { $1->push_back(*$2); $$ = $1; }
+
+nonempty_voltagenodelist: TOK_VOLTAGENODE { $$ = new std::vector< std::string>(1,*$1); }
+  | nonempty_voltagenodelist  TOK_VOLTAGENODE  { $1->push_back(*$2); $$=$1; }
+
+nonempty_func_arglist: exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,$1);   }
+   |  two_or_more_arglist  TOK_RIGHTPAREN { $$=$1;  }
+
+nonempty_func_arglist2: exp TOK_COMMA TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,$1);   }
+   |  two_or_more_arglist  TOK_COMMA TOK_RIGHTPAREN { $$=$1;  }
+
+two_or_more_arglist: exp TOK_COMMA exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,$1); $$->push_back(($3)); }
+  | two_or_more_arglist TOK_COMMA  exp { $1->push_back(($3)); $$=$1; }
+
+nonempty_arg_pairs: TOK_LEFTPAREN exp TOK_COMMA exp TOK_RIGHTPAREN  { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,$2);  $$->push_back(($4));  } 
+  | nonempty_arg_pairs TOK_LEFTPAREN exp TOK_COMMA exp TOK_RIGHTPAREN  { $1->push_back(($3)); $1->push_back(($5)); $$=$1; }
+
+
+polypair: TOK_POLYSIZE  polyarg 
+  {
+    std::vector< Teuchos::RCP<astNode<usedType> > > first(1,$2);
+    $$ = new std::pair<double, std::vector< Teuchos::RCP<astNode<usedType> > > >($1,first);
+  }
+  | polypair polyarg { $1->second.push_back($2); $$=$1; }
+
+
+polyarg: TOK_POLY_VOLTAGE nonempty_voltagenodelist
+    {
+      createVoltageOp($$,newExp,*$1,*$2);
+      delete $1;
+      delete $2;
+    }
+  | TOK_POLY_CURRENT TOK_CURRENTDEV
+    {
+      createCurrentOp($$,newExp,*$1,*$2);
+      delete $1;
+      delete $2;
+    }
+  | paren_polyword
+    {
+      createParamOp($$,newExp,*$1);
+      delete $1;
+    }
+  | paren_polycoef
+    {
+      $$ = Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
+    }
+
+paren_polycoef: TOK_POLYCOEF
+     {
+       $$ = $1;
+     }
+  | TOK_LEFTPAREN paren_polycoef TOK_RIGHTPAREN
+    {
+       $$ = $2;
+    }
+  | TOK_LEFTCURLYBRACE paren_polycoef TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+
+
+paren_polyword: TOK_POLY_WORD
+     {
+       $$ = $1;
+     }
+  | TOK_LEFTPAREN paren_polyword TOK_RIGHTPAREN
+    {
+       $$ = $2;
+    }
+  | TOK_LEFTCURLYBRACE paren_polyword TOK_RIGHTCURLYBRACE
+    {
+       $$ = $2;
+    }
+
+
+    /* excluding this pattern b/c it causes shift/reduce errors.  
+     * But this particular pattern doesn't seem to be used by any existing tests */
+    /*
+table2_with_nonempty_arglist: table2_threeOrFourArgs exp
+    {
+      std::vector< Teuchos::RCP<astNode<usedType> > > first(1,*$2);
+      $$ = new std::pair< Teuchos::RCP<astNode<usedType> >, std::vector< Teuchos::RCP<astNode<usedType> > > >(*$1,first);
+    }
+    | table2_threeOrFourArgs two_or_more_arglist
+    { 
+      $$ = new std::pair< Teuchos::RCP<astNode<usedType> >, std::vector< Teuchos::RCP<astNode<usedType> > > >(*$1,*$2);
+    }
+    */
+
+table_threeOrFourArgs: TOK_TABLE exp TOK_COMMA
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+  | TOK_TABLE exp TOK_COMMA TOK_EQUALS
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+table2_threeOrFourArgs: TOK_TABLE2 exp TOK_RIGHTCURLYBRACE
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+  | TOK_TABLE2 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+table3_threeOrFourArgs: TOK_TABLE3 exp TOK_RIGHTCURLYBRACE
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+  | TOK_TABLE3 exp TOK_RIGHTCURLYBRACE TOK_EQUALS
+    {
+      Xyce::Util::tableArgs<usedType> ta;
+      ta.keywordPtr = $1;
+      ta.node = $2;
+      $$ = ta;
+    }
+
+%%
+
+int XyceExpressionlex(
+    XyceExpression::ExpressionParser::semantic_type *lvalp, 
+    XyceExpression::location *locp,
+    Xyce::Util::ExpressionLexer *theLexer)
+{
+  return(theLexer->getToken(lvalp,locp));
+}
+
+void
+XyceExpression::ExpressionParser::error(
+  const XyceExpression::ExpressionParser::location_type & l,
+  const std::string &                               message)
+{
+  Xyce::Report::UserError()
+   << message << " in expression " << newExp.getExpressionString() << std::endl;
+}

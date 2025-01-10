@@ -1,0 +1,306 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\label{FFT}
+\index{fft}\index{results!fft}
+
+Performs Fast Fourier Transform analysis of transient analysis output.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.FFT <ov> [NP=<value>] [WINDOW=<value>] [ALFA=<value>]
++ [FORMAT=<value>] [START=<value>] [STOP=<value>]
++ [FREQ=value] [FMIN=value] [FMAX=value]
+\end{alltt}
+
+\examples
+\begin{alltt}
+.FFT v(1)
+.FFT v(1,2) NP=512 WINDOW=HANN
+.FFT \{v(3)-v(2)\} START=1 STOP=2
+\end{alltt}
+
+\arguments
+
+\begin {Arguments}
+
+\argument{ov}
+The desired solution output to be analyzed. Only one
+output variable can be specified on a {\tt .FFT} line. However,
+multiple {\tt .FFT} lines with the same output variable but, for
+example, different windowing functions may be used in a netlist.
+The available outputs are:
+
+\begin{itemize}
+  \item \texttt{V(<circuit node>)} the voltage at \texttt{<circuit node>}
+  \item \texttt{V(<circuit node>,<circuit node>)} to output the voltage
+    difference between the first \texttt{<circuit node>} and second
+    \texttt{<circuit node>}
+  \item \texttt{I(<device>)} the current through a two terminal device
+  \item \texttt{I<lead abbreviation>(<device>)} the current into a particular lead
+    of a three or more terminal device (see the Comments, below, for details)
+  \item \texttt{N(<device parameter>)} a specific device parameter (see the
+    individual devices in Section~\ref{Analog_Devices} for syntax)
+\end{itemize}
+
+\argument{NP}
+The number of points in the FFT.  This value must be a power of 2.  If
+the user-entered value is not a power of two then it will be rounded to
+the nearest power of 2.  The minimum allowed value of {\tt NP} is 4.
+The default value is 1024.
+
+\argument{WINDOW}
+The windowing function that will be applied to the sampled waveform
+values.  The allowed values are as follows, where table~\ref{FFT_Window_Funcs}
+gives their exact definitions:
+
+\begin{itemize}
+  \item \texttt{RECT} (or \texttt{RECTANGULAR}) = rectangular window (default)
+  \item \texttt{BART} (or \texttt{BARTLETT}) = Bartlett (triangular) window
+  \item \texttt{BARTLETTHANN} = Bartlett-Hann window
+  \item \texttt{BLACK} = Blackman window
+  \item \texttt{BLACKMAN} = ``Conventional Blackman'' window
+  \item \texttt{HAMM} (or \texttt{HAMMING}) = Hamming window
+  \item \texttt{HANN} (or \texttt{HANNING}) = Hanning window
+  \item \texttt{HARRIS} (or \texttt{BLACKMANHARRIS}) = Blackman-Harris window
+  \item \texttt{NUTTALL} = Nuttall window
+  \item \texttt{COSINE2} = Power-of-cosine window, with exponent 2.
+  \item \texttt{COSINE4} = Power-of-cosine window, with exponent 4.
+  \item \texttt{HALFCYCLESINE} = Half-cycle sine window
+  \item \texttt{HALFCYCLESINE3} = Half-cycle sine window, with exponent 3.
+  \item \texttt{HALFCYCLESINE6} = Half-cycle sine window, with exponent 6.
+\end{itemize}
+
+\argument{ALFA}
+This parameter is supported for HSPICE compatibility. It currently
+has no effect though, since the {\tt GAUSS} and {\tt KAISER} windows
+are not supported.
+
+\argument{FORMAT}
+The allowed values are {\tt NORM} and {\tt UNORM}.  If {\tt NORM} is
+selected then the magnitude values will be normalized to the largest
+magnitude.  If {\tt UNORM} is selected then the actual magnitude values
+will be output instead.  The default value for this parameter depends
+on the \texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0},
+which is the default options setting, then the default value is {\tt NORM}.
+If \texttt{FFT\_MODE=1} then the default value is {\tt UNORM}.
+
+\argument{START}
+The start time for the FFT analysis.  The default value is the
+start time for the transient analysis. {\tt FROM} is an allowed
+synonym for {\tt START}.
+
+\argument{STOP}
+The end time for the FFT analysis.  The default value is the
+end time for the transient analysis. {\tt TO} is an allowed
+synonym for {\tt STOP}.
+
+\argument{FREQ}
+The ``first harmonic'' of the frequencies provided in the output
+file.  The default value for {\tt FREQ} is {\tt 1/(STOP - START)}.
+If {\tt FREQ} is given then it is rounded to the nearest integer
+multiple of the default value.  The \Xyce{} Users' Guide\UsersGuide
+provides an example.
+
+\argument{FMIN}
+This parameter can use to adjust the harmonics included in the
+``additional metrics'' defined in Section \ref{FFT_metrics}.  It
+has a default value of 1.
+
+\argument{FMAX}
+This parameter can use to adjust the harmonics included in the
+``additional metrics'' defined in Section \ref{FFT_metrics}.  It
+has a default value of \texttt{NP/2}.
+
+\end{Arguments}
+
+\comments
+Multiple \texttt{.FFT} lines may be used in a netlist.  All results from FFT analyses
+will be returned to the user in a file with the same name as the netlist file suffixed
+with \texttt{.fftX} where {\tt X} is the step number.
+
+\texttt{<lead abbreviation>} is a single character designator for individual
+leads on a device with three or more leads.  For bipolar transistors these are:
+c (collector), b (base), e (emitter), and s (substrate).  For mosfets, lead
+abbreviations are: d (drain), g (gate), s (source), and b (bulk).  SOI
+transistors have: d, g, s, e (bulk), and b (body).  For PDE devices, the nodes
+are numbered according to the order they appear, so lead currents are
+referenced like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.
+
+For this analysis, the phase data is always output in degrees.
+
+In \Xyce{}, \texttt{WINDOW=TRIANGULAR} is not an allowed synonym for
+\texttt{WINDOW=BART}.  This is to avoid confusion with other analysis
+packages such as SciPy and Matlab.
+
+\end{Command}
+
+\subsubsection{.OPTIONS FFT FFT\_MODE}
+\label{FFT_MODE}
+\index{fft!options}
+The setting for \texttt{.OPTIONS FFT FFT\_MODE} is used to control whether the
+\Xyce{} FFT processing and output are more compatible with HSPICE (0) or
+Spectre (1).  This setting affects the format of the window functions, the
+conversion from two-sided to one-sided results, and whether the default output
+for the magnitude values is normalized, or not.  The default setting for
+\texttt{FFT\_MODE} is 0.
+
+If \texttt{FFT\_MODE=0} then symmetric window functions are used.  If
+\texttt{FFT\_MODE=1} then periodic window functions are used.  The next
+subsection provides more details on that difference.
+
+If \texttt{FFT\_MODE=0} then the two-sided to one-sided conversion doubles
+the magnitudes of the 1,2,...,NP harmonics. If \texttt{FFT\_MODE=1} then that
+conversion only doubles the magnitudes of the 1,2,...,(NP-1) harmonics.
+
+The default value for the \texttt{FORMAT} parameter depends on the
+\texttt{.OPTIONS FFT FFT\_MODE} setting.  If \texttt{FFT\_MODE=0} then
+the default value for that parameter is {\tt NORM}. If \texttt{FFT\_MODE=1}
+then the default value is {\tt UNORM}.
+
+\subsubsection{Window Functions}
+\index{fft!window functions}
+Table~\ref{FFT_Window_Funcs} gives the definitions of the window functions
+implemented in \Xyce{}.  For HSPICE compatibility, the {\tt BLACK} window type
+is actually the ``-67 dB Three-Term Blackman-Harris window''~\cite{Doerry2017}
+rather than the ``Conventional Blackman Window'' used by Spectre, Matlab and SciPy.
+The Convential Blackman Window can be selected with the {\tt BlACKMAN} window
+type instead.  The definition of the {\tt BART} window type ~\cite{oppenheimSchafer}
+was chosen to match Spectre, Matlab and SciPy.  The \Xyce{} definition may differ
+from HSPICE.
+
+As mentioned in in the previous subsection, the choice of symmetric vs. periodic
+window functions can be selected via the use of \texttt{.OPTIONS FFT FFT\_MODE=<0|1>}.
+If symmetric windows are used then $L = N-1$ in the formulas in
+table~\ref{FFT_Window_Funcs}, where $N$ is the number of points in the FFT.
+If periodic windows are used then $L=N$.
+
+\begin{longtable}[h] {>{\raggedright\small}m{1.15in}|>{\raggedright\let\\\tabularnewline\small}m{1.35in}
+  |>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{.FFT Window Function Definitions (N = Number of Points).} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Value &
+  \color{white}\bf Description &
+  \color{white}\bf Definition \\ \hline \endfirsthead
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Value &
+  \color{white}\bf Description &
+  \color{white}\bf Definition \\ \hline \endhead
+  \label{FFT_Window_Funcs}
+
+  RECT & Rectangular &
+    $w(i)=1, \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+  BART & Barlett~\cite{oppenheimSchafer} &
+    $w(i) = \left\{\begin{array}{ll}\frac{2 i}{L},\hspace*{0.1in}\textrm{if}~i < 0.5 \cdot (N-1) \\
+                                     2-\frac{2 i}{L},\hspace*{0.1in}\textrm{otherwise}\end{array}\right.$\\ \hline
+  BARTLETTHANN & Bartlett-Hann~\cite{Doerry2017}&
+    $w(i) = 0.62 - 0.48 \cdot |\frac{i}{L} -0.5| + 0.38 \cdot cos(2 \pi \cdot (\frac{i}{L} -0.5)), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+  HANN & Hanning~\cite{oppenheimSchafer} &
+    $w(i) = sin^2(\frac{\pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+  HAMM & Hamming~\cite{oppenheimSchafer} &
+    $w(i) = 0.54 - 0.46 \cdot cos(\frac{2 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+  BLACKMAN & ``Conventional Blackman window''~\cite{Doerry2017} &
+    $w(i) = 0.42-0.5 \cdot cos(\frac{2 \pi i}{L})+0.08 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+  BLACK & -67 dB Three-Term Blackman-Harris window~\cite{Doerry2017} &
+    $w(i) = 0.42323-0.49755 \cdot cos(\frac{2 \pi i}{L})+0.07922 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+  HARRIS & -92 dB Four-Term Blackman-Harris window~\cite{Doerry2017} &
+    $w(i) = 0.35875 - 0.48829 \cdot cos(\frac{2 \pi i}{L}) + 0.14128 \cdot cos(\frac{4 \pi i}{L}) - 0.01168 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+  NUTTALL & Four-Term Nuttall, Minimum Sidelobe (Blackman-Nuttall)~\cite{Doerry2017} &
+    $w(i) = 0.3635819 - 0.4891775 \cdot cos(\frac{2 \pi i}{L}) + 0.1365995 \cdot cos(\frac{4 \pi i}{L}) - 0.0106411 \cdot cos(\frac{6 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$  \\ \hline
+   COSINE2 & Power-of-cosine window, with exponent 2 &
+   $w(i) = 0.5 - 0.5 \cdot cos(\frac{2 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N $ \\ \hline
+   COSINE2 & Power-of-cosine window, with exponent 4 &
+   $w(i) = 0.375-0.5 \cdot cos(\frac{2 \pi i}{L})+0.125 \cdot cos(\frac{4 \pi i}{L}), \hspace*{0.1in}\textrm{for}~0 \leq i < N$ \\ \hline
+   HALFCYCLESINE & Half-cycle sine window & $w(i) = sin(\frac{\pi i}{L}) $ \\ \hline
+   HALFCYCLESINE3 & Half-cycle sine window, with exponent 3 & $w(i) = sin^{3}(\frac{\pi i}{L}) $ \\ \hline
+   HALFCYCLESINE6 & Half-cycle sine window, with exponent 6 & $w(i) = sin^{6}(\frac{\pi i}{L}) $ \\ \hline
+\end{longtable}
+
+\subsubsection{Additional FFT Metrics}
+\index{fft!additional metrics}
+\label{FFT_metrics}
+The following additional metrics will be sent to stdout if \texttt{.OPTIONS FFT FFTOUT=1}
+is used in the netlist.  These definitions are also used by the corresponding measure
+types on \texttt{.MEASURE FFT} lines.
+
+Define the integer index of the ``first harmonic'' ($f_{0}$) as follows (where it has a
+default value of 1 and the $ROUND()$ function rounds to the nearest integer):
+
+$f_{0}=\left\{\begin{array}{ll}ROUND(\frac{FREQ}{STOP-START}),\hspace*{0.1in}\textrm{if FREQ given} \\
+ 1,\hspace*{1.4in}\textrm{otherwise}\end{array}\right.$
+
+Finally, define $mag[i]$ as the magnitude of the FFT coefficient at index $i$, and $N$ as
+the number of points in the FFT.
+
+The Signal to Noise-plus-Distortion Ratio (SNDR) is calculated as follows, where the summation
+in the denominator includes all of the frequencies except for the first harmonic frequency $f_{0}$:
+
+$SNDR = 20 \cdot log10(\frac{mag[f_{0}]}{sqrt(\sum mag[i]*mag[i])}),\hspace*{0.1in}\textrm{for}~1 \leq i \leq 0.5 \cdot N ~\textrm{, and}~i \neq f_{0}$
+
+The Effective Number of Bits (ENOB) is calculated as follows, where the units is ``bits'':
+
+$ENOB = \frac{SNDR - 1.76}{6.02}$
+
+For the Signal to Noise Ratio (SNR) metric define the upper frequency limit for the SNR metric as follows,
+with the caveat that if $f_{2}$ is less than $f_{0}$ then its value is set to $f_{0}$:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given}\\
+   0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+The SNR is then calculated as follows, where the summation in the denominator only uses indexes that
+are either not an integer-multiple of $f_{0}$ or that are greater than the upper frequency limit of $f_{2}$.
+(Note: for the default case of $f_{0}$ = 1 and \texttt{FMAX} not given there are no ``noise frequencies''.)
+
+$SNR = 20 \cdot log10(\frac{mag[f_{0}]}{sqrt(\sum mag[i]*mag[i])}),\hspace*{0.1in}\textrm{for}~i > f_{2} ~\textrm{ or }~i\%f_{0} \ne 0$
+
+For the Total Harmonic Distortion (THD) metric define the upper frequency limit ($f_{2}$) in
+the summation in the numerator as:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given} \\ 0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+The THD is then calculated using only the indexes that are multiples of $f_{0}$.  So, if $f_{0}$=2
+then the summation in the numerator would only include indexes 4,6,8,etc.
+
+$THD = 20 \cdot log10(\frac{sqrt(\sum mag[i]*mag[i])}{mag[f_{0}]}),\hspace*{0.1in}\textrm{for}~2 \cdot f_{0} \leq i \leq f_{2} ~\textrm{, and}~i\%f_{0}=0$
+
+For Spurious Free Distortion Ratio (SFDR) metric define the upper and lower frequency
+limits ($f_{2}$ and $f_{1}$) considered in the denominator of the calculation as:
+
+$f_{2}=\left\{\begin{array}{ll}ROUND(\frac{FMAX}{STOP-START}),\hspace*{0.1in}\textrm{if FMAX given} \\
+ 0.5 \cdot N,\hspace*{1.1in}\textrm{otherwise}\end{array}\right.$
+
+and:
+
+$f_{1}=\left\{\begin{array}{ll}ROUND(\frac{FMIN}{STOP-START}),\hspace*{0.1in}\textrm{if FMIN given} \\
+ f_{0},\hspace*{1.35in}\textrm{if FMIN not given, and}~f_{2} \geq f_{0}\\
+ 1,\hspace*{1.4in}\textrm{if FMIN not given, and}~f_{2} < f_{0}\end{array}\right.$
+
+The SFDR is then calculated as:
+
+$SFDR = 20 \cdot log10(\frac{mag[f_{0}]}{MAX(mag[i])}), \hspace*{0.1in}\textrm{for}~f_{1} \leq i \leq f_{2}~\textrm{, and}~i \neq f_{0}$
+
+\subsubsection{Re-Measure}
+\label{FFT_ReMeasure}
+\index{fft!remeasure}
+\Xyce{} can re-calculate (or re-measure) the values for {\tt .FFT} statements
+using existing \Xyce{} output files.  Section~\ref{Measure_ReMeasure} discusses
+this topic in more detail for both {\tt .MEASURE} and {\tt .FFT} statements. One
+additional caveat is that \texttt{FFT\_ACCURATE} is set to 0 during the re-measure
+operation.  This should have no impact on the accuracy of the re-measured results
+if the output file was previously generated with \texttt{FFT\_ACCURATE} set to 1.
+
+\subsubsection{Compatibility Between OUTPUT and FFT Options}
+\index{fft!options}
+Some \texttt{.OPTIONS OUTPUT} settings are incompatible with using the default
+setting of \texttt{.OPTIONS FFT FFT\_ACCURATE=1}.  The use of
+\texttt{.OPTIONS OUTPUT OUTPUTTIMEPOINTS} is compatible.  However, the use of
+\texttt{.OPTIONS OUTPUT INITIAL\_INTERVAL} is not.  In that latter case,
+\texttt{.OPTIONS FFT FFT\_ACCURATE} will be automatically set to 0.

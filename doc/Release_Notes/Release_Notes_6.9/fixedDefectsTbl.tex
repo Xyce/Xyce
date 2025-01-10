@@ -1,0 +1,177 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endhead
+
+     \textbf{972-SON}: Some of the parameter names for the transient sources were incorrect in
+     the \Xyce{} Reference Guide & The parameter names for the \texttt{SIN}, \texttt{PULSE}, 
+     \texttt{EXP} and \texttt{PWL} sources were incorrect for the I device.  The parameter names 
+     for the \texttt{SFFM} source were incorrect for both the V and I devices.  This has been 
+     fixed now.  \\ \hline
+
+     \textbf{957-SON}: Segfaults during device instance-line processing & \Xyce{} could segfault on
+     improperly formatted device instance lines.  Examples included invalid X device lines and
+     invalid composite parameter definitions on YPDE device lines.  This is fixed now.  \\ \hline
+
+     \textbf{955-SON}: Improper handling of netlist lines that only contain an inline comment &
+     If a netlist line only contained an inline comment (e.g., the line started with a semicolon)
+     then \Xyce{} would all treat subsequent netlist lines as comment lines. This is fixed now.
+     \\ \hline
+
+     \textbf{948-SON}: Stepped parameter values are wrong in the ZONE data in .HOMOTOPY.dat files. & 
+     The values in the ZONE data in the \Xyce{}-generated .HOMOTOPY.dat files were incorrect when 
+     \texttt{.PRINT HOMOTOPY FORMAT=TECPLOT} was used with \texttt{.STEP}  They would either be 
+     ``all zeroes'' or the values from the previous step, rather than the correct values for the 
+     current step.  This is fixed now.  \\ \hline
+
+     \textbf{942-SON}: Fix issues with ordering of .PRINT AC\_IC and .PRINT AC 
+     lines, and of .AC and .OP statements in a netlist &  If an explicit .PRINT AC\_IC line 
+     came before a .PRINT AC line in a netlist then \Xyce{} would fail to run.  In addition, 
+     the output from an explicit .PRINT AC\_IC line could contain ``extra columns'' that 
+     were on the .PRINT AC line but not on the .PRINT AC\_IC line.  Finally, the 
+     .PRINT AC\_IC behavior could depend on the relative ordering of the .OP and 
+     .AC lines.  This is fixed now.  \\ \hline
+
+     \textbf{930-SON}: Fix and improve information sent to stdout for .NOISE & 
+     The stdout for a \texttt{.NOISE} analysis was incorrect when \texttt{.STEP} was used.
+     The values output for the ``Total Output Noise'' and ``Total Input Noise'' were wrong.  
+     This is fixed now.  As an improvement, the stdout for \texttt{.NOISE} analysis with 
+     \texttt{.STEP} now also includes the values of the stepped parameters.  
+     \\ \hline
+
+     \textbf{715-SON}: I(*) for subcircuit devices does not work
+     properly on .PRINT lines & A bug in the handling of the wildcard
+     expression for branch currents ( I(*) ) led to \Xyce{} emitting a
+     ``Netlist Error'' about an undefined function or variable if any
+     voltage sources appeared inside subcircuits in the netlist.  This
+     bug was fixed, and \Xyce{} will now properly output the branch
+     currents for voltage sources inside subcircuits.  Only currents
+     associated with devices for which the current is a solution
+     variable are printed by this wildcard.  Voltage sources and
+     inductors are the primary devices of this sort.  Lead currents of
+     other devices, for which the current is not a solution variable,
+     are not included. \\ \hline
+
+     \textbf{618-SRN}: Fix FORMAT=CSV output for sensitivity output & The print format
+     \texttt{FORMAT=CSV} was nominally supported for \texttt{.PRINT SENS} and \texttt{.PRINT
+     TRANADJOINT} in previous \Xyce{} releases.  However, the resultant output files
+     had .prn extensions rather than .csv extensions.  This is fixed now.
+     \\ \hline
+
+     \textbf{2107-SRN and 2109-SRN}: Fix segfaults and inscrutable error messages when 
+     parsing vector composite parameters and MPI hangs when parsing .model statements & 
+     Misformated vector composite parameters could cause \Xyce{} to either segfault or emit 
+     inscrutable error messages when parsing device models.  The triggering of some existing \Xyce{} 
+     error/warning messages for misformatted \texttt{.MODEL} statements could cause \Xyce{} 
+     to hang during parallel execution.  These issues have been fixed.
+     \\ \hline
+
+     \textbf{977-SON}: .MEASURE FOUR is incorrect after the first solve using .STEP &
+     A failure to reinitialize some internal storage variables in the FOUR measure code resulted in
+     incorrect values after the first solve of a .STEP analysis.  This is fixed now.
+     \\ \hline
+
+
+     \textbf{1001-SON}: Improve Bsrc that leads to convergence problems  &
+     The users can specify expressions that have instantaneous transitions with ABM devices. This can 
+     lead to convergence problems when \Xyce{} reaches the transition point. The improved ABM devices 
+     now allow smooth transitions and can be enabled by specifying device options and instance parameters.
+     \\ \hline
+
+     \textbf{37-SON}: Connectivity checker is broken if netlist contains any node with 
+     more than 10 connected leads & The topology of any circuit is checked to ensure that
+     there is a DC path to ground for all voltage nodes.  This code artificially limited
+     the number of lead groups to 10.  Furthermore, the parallel implementation of this
+     topology check exhibited severe performance issues for certain circuit topology structures.
+     These issues have been fixed.
+     \\ \hline
+
+     \textbf{980-SON}: Example .LIB statement that ``swallows'' the rest of the \Xyce{} netlist
+     & \Xyce{} supports the HSPICE .LIB syntax, but in some instances the parser would attempt
+     to treat \texttt{.LIB <name>} statements the same as \texttt{.INC <name>} statements.
+     The logic that supported this was
+     flawed and has been removed.  Now \Xyce{} rigorously supports the HSPICE .LIB syntax
+     where there is a library definition (\texttt{.LIB <library\_name>}) and a library inclusion
+     (\texttt{.LIB <library\_file> <library\_name>}).  Incorrect use of .LIB will now return informative errors.
+     \\ \hline
+
+     \textbf{702-SON}: Expressions that use vsrc-currents (in Bsrc's or in .SENS objfunc specifications) 
+     can produce wrong derivatives & This problem was caused by an obscure issue in the expression library,
+     and it could result in incorrect derivatives.  When this issue was invoked via a sensitivity calculation
+     it resulted in incorrect answers.  When the issue was present in Bsrc devices, it potentially impacted
+     convergence and robustness.  This issue has been fixed.
+     \\ \hline
+
+     \textbf{772-SON}: Order of analysis statements can cause transient sensitivity calculation to 
+     incorrectly exit with error.  & \Xyce{} used to allow only a single \texttt{.PRINT} statement 
+     to be present in the netlist file, and that single \texttt{.PRINT} statement had to explicitly refer
+     to the analysis type that was invoked by that file.  To insure this, the parser contained some error 
+     traps for this. In other words, if the user specified transient analyis, but then invoked 
+     \texttt{.PRINT DC} that would result in an error.   The code for this error trap was fragile, 
+     and not properly updated when \Xyce{} was updated to handle multiple \texttt{.PRINT} lines.  As a result
+     sometimes a fatal error would get improperly thrown.  This issue, as it pertains to 
+     transient sensitivity analysis, has been fixed.
+     \\ \hline
+
+
+     \textbf{774-SON}: Improperly posed objective function causes sensitivity analysis to coredump.  &  
+     Error handling code was missing from the sensitivity analysis functions in the \Xyce{} source.  
+     As a result, even if the user-specified objective function expression was not parsable, 
+     \Xyce{} would still attempt to compute sensitivities,  causing a coredump.  Error 
+     handling code has been added to \Xyce{} to address this issue.
+     \\ \hline
+
+     \textbf{963-SON}:  expression library SDT function doesn't work on .PRINT line, and has lots of other problems & 
+     The expression library supports numerical time integration with the SDT function.  This function is intended to work
+     in both Bsrc devices and also in expressions on the \texttt{.PRINT} line.  Unfortunately, 
+     there were several bookkeeping problems in the SDT source code, which prevented this feature 
+     from producing correct answers in a variety of \texttt{.PRINT} line use cases.  These issues have been fixed.
+     \\ \hline
+
+     \textbf{978-SON}: Vcvs (E-source) device can't be used with PDE devices present in circuit & PDE devices
+     (TCAD devices) are often solved using methods that filter out the external circuit for certain phases of the solve.
+     In order to support this filtering, non-Ohmic devices (such as Vsrcs and E-sources) are required to 
+     conditionally support diagonal matrix elements in their matrix stamp. 
+     Most independent sources in \Xyce{} have conditionally 
+     supported diagonal matrix elements for a long time, but the E-source was neglected.  The E-source 
+     has been updated now, so it will work properly in circuits containing TCAD devices.
+     \\ \hline
+
+     \textbf{1007-SON}:   Wrong nonlinear solver used for the TRANOP phase when running a \texttt{.STEP} 
+     analysis of a transient & This issue affected some transient calculations performed inside of 
+     a \texttt{.STEP} loop.  \Xyce{} uses a different nonlinear solver for the DCOP phase and time 
+     stepping phases of transient calculations.  (When running in transient, the initial DCOP 
+     calculation is sometimes referred to as TRANOP)  When performing a \texttt{.STEP} loop around a \texttt{.TRAN} analysis, 
+     the DCOP solver should be re-established at the beginning of each \texttt{.STEP} iteration. It was not,
+     so the transient solver was used on all DCOP calculations other than the first one.  As a 
+     result, various features unique to the DCOP solver didn't work, except on the first 
+     pass.  These features include the use of \texttt{.IC} and GMIN stepping, among others.
+     This issue has been fixed, and the DCOP solver is properly reallocated and reinitialized 
+     at the beginning of each \texttt{.STEP} iteration.
+\\ \hline
+
+
+\end{longtable}
+}

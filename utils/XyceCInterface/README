@@ -1,0 +1,35 @@
+Code in this directory creates an interface to Xyce as a persistent object.  
+It is used to provide both a ctypes-based Python interface and a Verilog 
+Procedural Interface (VPI) to Xyce.  See the "Application Note: Mixed Signal 
+Simulation with Xyce" document by Peter Sholander and Rich Schiek for more 
+details on:
+
+  1) How to build Xyce as "shared objects" that can be linked with, or
+invoked by, other simulators.
+
+  2) How to set up your Python environment to use the ctypes-based Python
+interface to Xyce.  This entails changes to your PYTHONPATH environment
+variable.
+
+  3) Working examples for both Python and VPI.
+
+Additional examples are also found in the subdirectories Python_examples
+and VPI_examples.  For Xyce 6.11, the interfaces and examples have only
+been tested for a serial build of Xyce on RHEL6 and RHEL7.
+
+The file UpdatePythonPath.sh is a simple "non-working" example of how to set
+the PYTHONPATH environment variable with bash.  The directory path in that
+files must be modified for your local machine, as noted in the Application
+Note referenced above.  It can then be run as:
+
+. ./UpdatePythonPath.sh
+
+The python interface, with the file runACircuit.py, can then be invoked as
+follows:
+
+python runACircuit.py </path/to/where/libxycecinterface/is/installed>
+
+
+
+
+

@@ -1,0 +1,39 @@
+The mvsg_cmc_1.1.0.va code in the "vacode" directory has been modified
+from the original in the following ways:
+
+ - Git's idea of "whitespace errors" (white space at end of line and end
+   of file) has been cleaned up so git will not show these warnings.
+ - A Unicode-encoded apostrophe in a copyright notice was changed to ASCII.
+
+ - Prior to the implementation of ddx in Xyce/ADMS, the single use of ddx in
+   the noise model rendered Xyce unable to implement
+   that noise model.  The entire contents of the noise model have been ifdefed
+   out and replaced with an error condition if noisemod is set to 1.  Though
+   Xyce/ADMS now supports ddx(), the noise model has not been reenabled
+   in our implementation.
+
+
+ - A newly-discovered limitation in the handling of node collapse in Xyce/ADMS
+   requires that the node collapse expression:
+      V(si,src) <+ 0;
+   be written instead as:
+      V(src,si) <+ 0;
+   This is necessary because both src and si are internal nodes, and Xyce/ADMS
+   generally tries to collapse the negative node onto the positive in such
+   cases.  Unfortunately, elsewhere in the device src may be collapsed onto
+   the external node s, and therefore leads to an ambiguous collapse (does
+   src collapse onto s or si?  Or both?).  Reversing the order makes it clear
+   that si may collapse onto src, and src may then also collapse onto s ---
+   resulting in the collapse of si onto s as well.
+
+ - The assignments of rcs_w, rcd_w, and rg were moved from their original
+   location in the main analog block into an @(initial_instance) (ADMS-specific
+   pseudo-event block) so that they are promoted to "global_instance" scope.
+   This is necessary to allow them to be used in Xyce for
+   node collapse conditionals as intended by the model authors.
+
+ - As originally written, the code inside the "gmdisp==0" else block
+   combined both static and dynamic contributions on a single line.  ADMS
+   and Xyce/ADMS will silently accept this usage and then generate incorrect
+   code.  The dynamic contributions (those inside ddt() calls) must be
+   added in a seperate contribution statement than the static contributions.

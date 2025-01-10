@@ -1,0 +1,78 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% LOCA Solver Options Table
+%%
+\index{solvers!continuation!options}
+\begin{OptionTable}{Options for Continuation and Bifurcation Tracking Package.}
+\label{ContinuationPKG}
+STEPPER & Stepping algorithm to use:
+\begin{XyceItemize}
+\item 0 (Natural or Zero order continuation)
+\item 1 (Arc-length continuation)
+\end{XyceItemize} &
+0 (Natural) \\ \hline
+
+PREDICTOR &
+Predictor algorithm to use:
+\begin{XyceItemize}
+\item 0 (Tangent)
+\item 1 (Secant)
+\item 2 (Random)
+\item 3 (Constant)
+\end{XyceItemize} &
+0 (Tangent) \\ \hline
+
+STEPCONTROL &
+Algorithm used to adjust the step size between continuation steps:
+\begin{XyceItemize}
+\item 0 (Constant)
+\item 1 (Adaptive)
+\end{XyceItemize} &
+0 (Constant) \\ \hline
+
+CONPARAM &
+Parameter in which to step during a continuation run &
+VA:V0 \\ \hline
+
+INITIALVALUE & Starting value of the continuation parameter &
+0.0 \\ \hline
+
+MINVALUE & Minimum value of the continuation parameter &
+-1.0E20 \\ \hline
+
+MAXVALUE & Maximum value of the continuation parameter &
+1.0E20 \\ \hline
+
+BIFPARAM & Parameter to compute during bifurcation tracking runs &
+VA:V0 \\ \hline
+
+MAXSTEPS & Maximum number of continuation steps (includes failed steps) & 20 \\ \hline
+
+MAXNLITERS & Maximum number of nonlinear iterations allowed (set this parameter equal to the \texttt{MAXSTEP} parameter in the  \texttt{NONLIN} option block & 20 \\ \hline
+
+INITIALSTEPSIZE & Starting value of the step size & 1.0 \\ \hline
+
+MINSTEPSIZE & Minimum value of the step size & 1.0E20 \\ \hline
+
+MAXSTEPSIZE & Maximum value of the step size & 1.0E-4 \\ \hline
+
+AGGRESSIVENESS & Value between 0.0 and 1.0 that determines how aggressive the step size control algorithm should be when increasing the step size.  0.0 is a constant step size while 1.0 is the most aggressive. & 0.0 \\ \hline
+
+RESIDUALCONDUCTANCE & If set to a nonzero (small) number, this parameter will
+force the GMIN stepping algorithm  to stop and declare victory once the
+artificial resistors have a conductance that is smaller  than this number.
+This should only be used in transient simulations, and \emph{ONLY} if it is
+absolutely necessary to get past the DC operating point calculation. It is
+almost always better to fix the circuit so that residual conductance is not
+necessary. & 0.0 \\ \hline
+
+\end{OptionTable}

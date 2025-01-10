@@ -1,0 +1,74 @@
+`include "discipline.h"
+
+//adms specific definitions
+`define CONSTroot2 1.41421356237309504880
+
+(*xyceModelGroup="Diode", xyceSpiceDeviceName="D", xyceLevelNumber="1002002"*)
+module diode2(anode,cathode);
+   inout anode,cathode;
+   electrical anode,cathode;
+   electrical cathode_internal;
+   
+   (* type="instance" *) parameter real area = 1 from (0:inf);
+   parameter real is=1e-14 from (0:inf);
+   parameter real n=1 from (0:inf);
+   parameter real cjo=0 from [0:inf);
+   parameter real m=0.5 from [0:inf);
+   parameter real phi=0.7 exclude 0;
+   parameter real fc=0.5 from (0:1];
+   parameter real tt=1p from [0:inf);
+   parameter real bv=1.0e+100 from [0:inf);
+   parameter real rs=0 from (0:inf);
+   
+   real           Vd, Id, Qd, Ir;
+   real           f1, f2, f3, fcp;
+   real           ibv;
+   real           vcrit;   
+
+   analog
+     begin
+        @(initial_step)
+          begin
+             f1 = (phi/(1 - m))*(1 - pow((1 - fc), m));
+             f2 = pow((1 - fc), (1 + m));
+             f3 = 1 - fc*(1 + m);
+             fcp = fc*phi;
+             ibv = is*bv/$vt;
+             vcrit = $vt*ln($vt/(`CONSTroot2*is));
+          end
+        
+        Vd = $limit(V(anode,cathode_internal),"pnjlim",$vt,vcrit);
+        if (rs == 0)
+          Ir = 0;
+        else
+          Ir = V(cathode_internal,cathode)/rs;
+
+        // intrinsic diode.
+        if (Vd < -5*n*$vt)
+          begin
+             if (Vd == -bv)
+               Id =  -area*ibv;
+             else
+               if (Vd > -bv)
+                 Id =  -area*is;
+               else
+                 Id =  -area*is*(exp(-(bv + Vd)/$vt) - 1 + bv/$vt);
+          end
+        else
+          Id =  area*is*(exp((Vd)/(n*$vt)) - 1);
+        
+        // capacitance (junction and diffusion).
+        if (Vd <= fcp)
+          Qd = tt*Id + area*cjo*phi*(1 - pow((1 - Vd/phi), (1 - m)))/(1 - m);
+        else
+          Qd = tt*Id + area*cjo*(f1 + (1/f2)*(f3*(Vd - fcp) +
+                                              (0.5*m/phi)*(Vd*Vd - fcp*fcp)));
+        I(anode,cathode_internal) <+ Id;
+        I(anode,cathode_internal) <+ ddt(Qd);
+        if ( rs == 0 )
+          V(cathode_internal,cathode) <+ 0;
+        else
+          I(cathode_internal,cathode) <+ Ir;
+     end
+endmodule
+

@@ -1,0 +1,28 @@
+--- N_DEV_ADMSvbic13.h	2024-01-22 13:31:55.528714000 -0700
++++ N_DEV_ADMSvbic13.h	2023-02-20 10:50:18.599492000 -0700
+@@ -730,6 +730,7 @@
+   static const char *deviceTypeName() {return "Q level 11";}
+ 
+   static int numNodes() {return 3;}
++  static int numOptionalNodes() { return 6;}
+ 
+ 
+   static bool modelRequired() {return true;}
+@@ -1265,7 +1266,16 @@
+     // vt at $temperature;
+     double adms_vt_nom;
+ 
+-
++  // This is used to flag whether any internal nodes are exposed on the instance
++  // line.  They are set if the user specifies more than the minimum number of
++  // required nodes.
++  bool dtExternalNodeMode;
++  bool cxExternalNodeMode;
++  bool ciExternalNodeMode;
++  bool bxExternalNodeMode;
++  bool biExternalNodeMode;
++  bool eiExternalNodeMode;
++  
+     // This one is for the annoying bogus "XyceADMSInstTemp" parameter
+     // that we need so we can set it from the device manager when there's no
+     // "TEMP" parameter to use

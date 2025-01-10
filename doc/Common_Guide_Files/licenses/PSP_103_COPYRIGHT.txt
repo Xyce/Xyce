@@ -1,0 +1,35 @@
+Software is distributed as is, completely without warranty or service
+support.  The Commissariat a l'energie atomique et aux energies
+alternatives (CEA), NXP Semiconductors, and Delft University of
+Technology, along with their employees are not liable for the
+condition or performance of the software.
+
+NXP Semiconductors, Delft University of Technology, and CEA own the
+copyright and grant users a perpetual, irrevocable, worldwide,
+non-exclusive, royalty-free license with respect to the software as
+set forth below.
+
+NXP Semiconductors, Delft University of Technology, and CEA hereby
+disclaim all implied warranties.
+
+NXP Semiconductors, Delft University of Technology, and CEA grant the
+users the right to modify, copy, and redistribute the software and
+documentation, both within the user's organization and externally,
+subject to the following restrictions:
+
+  1. The users agree not to charge for the NXP Semiconductors, Delft
+     University of Technology, and CEA-developed code itself but may
+     charge for additions, extensions, or support.
+
+  2. In any product based on the software, the users agree to
+     acknowledge NXP Semiconductors, Delft University of Technology,
+     and CEA that developed the software. This acknowledgment shall
+     appear in the product documentation.
+
+  3. Redistributions to others of source code and documentation must
+     retain the copyright notice, disclaimer, and list of conditions.
+
+  4. Redistributions to others in binary form must reproduce the
+     copyright notice, disclaimer, and list of conditions in the
+     documentation and/or other materials provided with the
+     distribution.

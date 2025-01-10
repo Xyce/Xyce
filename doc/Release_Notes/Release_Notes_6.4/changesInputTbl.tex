@@ -1,0 +1,72 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endhead
+
+.MEASURE output is in scientific notation. &  The .MEASURE output, in both the
+.mt0 file and standard output, is in scientific notation now.   \\ \hline
+
+The SIN() transient specification for the V and I devices supports a
+\texttt{PHASE} parameter. & The \texttt{PHASE} parameter was supported 
+in past \Xyce{} releases but was not documented in the Reference Guide. 
+\\ \hline 
+
+\Xyce{} now supports the DIGINITSTATE option.  &  PSpice supports a
+DIGINITSTATE option that controls the behavior of latches and flip-flops during
+the DC Operating Point calculation. This capability is now in \Xyce{}, but for
+backwards compatibility, its default behavior differs from PSpice.
+\\ \hline
+
+The behavior of a \Xyce{} piecewise linear (PWL) source when the time-voltage
+list omits an entry for time=0. & The \Xyce{} behavior in this case now
+matches PSpice and HSpice.  See the V and I device sections of the Reference
+Guide for more details. \\ \hline 
+
+The behavior of \texttt{.PRINT HB FILE=} was broken in previous releases. & It
+was discovered that \Xyce{} 6.3 would output both time-domain and
+frequency-domain data into the same file when the \texttt{FILE} option was used
+on harmonic balance print lines.  This was never intended behavior.  \Xyce{}
+6.4 outputs time and frequency domain data to separate files, whether or not
+the \texttt{FILE} option is given.  In this release of \Xyce{}, the named file
+is where the frequency-domain data is sent.  The time-domain data is sent to a
+file whose name is the netlist name with the suffix ``.HB.FD'' followed by an
+extension determined by the output format.  To send the time-domain data to a
+file with a different name, use the \texttt{.print HB\_TD FILE=} line {\em in
+addition to\/} either a \texttt{.print HB} or \texttt{.print HB\_FD} line.
+\\ \hline
+
+In previous releases, \Xyce{} treated all lines with leading whitespace as
+comments. & The \Xyce{} behavior now is to treat lines that begin with
+whitespace as comments UNLESS the first non-whitespace character is a ``+'', in
+which case it treats the line as a continuation.  This is consistent with how
+Spice3F5 handles lines with leading whitespace.
+\\ \hline
+
+Character limit of top-level netlist title line. & In previous releases,
+\Xyce{} limited the first line of any top-level netlist file (the title line)
+to 256 characters.  This limitation has been removed.
+\\ \hline
+
+\end{longtable}
+}

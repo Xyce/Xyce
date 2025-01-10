@@ -1,0 +1,6 @@
+DESCRIPTION
+===========
+
+This is a Xyce installer created using CPack (http://www.cmake.org).
+Please consult the Xyce Installation Guide that was provided along
+with this installer for instructions specific to your system.

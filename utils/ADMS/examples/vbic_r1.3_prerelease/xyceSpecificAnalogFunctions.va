@@ -1,0 +1,22 @@
+// limiter for Rth This is a very simplistic limiter function that
+// prevents the change in a thermal "voltage" from swinging by more
+// than 5 degrees per step
+
+analog function real limRTH;
+   input orig, old;
+   real  orig,old;
+   real  t0,t1,retval;
+
+   begin
+      t0=orig-old;
+      t1=abs(t0);
+      retval=orig;
+      if (t1>5.0) begin
+         if (t0>0)
+           retval=old+5.0;
+         else
+           retval=old-5.0;
+      end
+      limRTH=retval;
+   end
+endfunction 

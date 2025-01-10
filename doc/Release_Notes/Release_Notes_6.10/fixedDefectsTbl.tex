@@ -1,0 +1,256 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endhead
+
+     \textbf{1040-SON}: Capacitor initial conditions incorrectly
+     applied with NOOP & \Xyce{} was incorrectly applying initial
+     conditions from the \texttt{IC} parameter of capacitors in the
+     specific case of transient runs with \texttt{NOOP}
+     or \texttt{UIC} keywords on the \texttt{.TRAN} line.  This has
+     been fixed, and now these initial conditions are applied in a
+     manner that produces identical results to the other methods of
+     specifiying initial conditions.
+
+     \textbf{Note:} This bug did not apply to initial conditions
+     specified on \texttt{.IC} lines, or initial conditions applied
+     when an operating point was calculated (i.e.,
+     without \texttt{NOOP} or \texttt{UIC} on the \texttt{.TRAN}
+     line). Those other use cases have always been correct.\\ \hline
+
+     \textbf{1038-SON}: \Xyce{} will not run a netlist with a .LIB statement
+     that includes a subcircuit &
+     \Xyce{} rigorously supports the HSPICE .LIB syntax.  In correcting 
+     this behavior for \Xyce{} version 6.9, a small logic error was introduced
+     that could cause issues with parsing library definitions when subcircuit 
+     definitions were inside.  This has been corrected. \\ \hline
+
+     \textbf{1033-SON}: Issues with use of reserved words TEMP and VT
+     in expressions in device instance parameters and .GLOBAL\_PARAM
+     statements & If the reserved words \texttt{TEMP} or \texttt{VT}
+     were used in expressions for device instance parameters or
+     in \texttt{.GLOBAL\_PARAM} statements then their values would
+     always be 0.  This is fixed now.  \\ \hline
+
+     \textbf{1030-SON}: The N() operator does not work in expressions &
+     The syntax \texttt{.PRINT TRAN {N(A)}} where A was a valid
+     node name in the netlist did not work.  It would return a 
+     parsing error about ``Function or variable N() is not defined''.  
+     This is fixed now.  \\ \hline
+
+     \textbf{1026-SON}: Fix issues with ordering of .HB (or .NOISE) 
+     and .OP statements in a netlist &  If the \texttt{.OP} statement 
+     preceded the \texttt{.HB} statement (or \texttt{.NOISE} statement) 
+     in the netlist then no \texttt{.OP} output would be made.  Instead, 
+     an error message about the analysis and print types being 
+     inconsistent would be produced, if the netlist also had a 
+     \texttt{.PRINT HB} (or \texttt{.PRINT NOISE}) line in it. This is 
+     fixed now.   \\ \hline
+
+     \textbf{1021-SON}: Segfaults from improperly formatted .SENS
+     lines and improper handling of vector parameters on .OPTIONS
+     lines &  Extra or missing commas on \texttt{.SENS} or 
+     \texttt{.OPTIONS} lines could cause \Xyce{}  to segfault during 
+     netlist parsing.  Also, a missing or misformatted \texttt{PARAM} 
+     variable on a \texttt{.SENS} line could also cause a segfault 
+     during netlist parsing.  This is fixed now. \\ \hline
+
+     \textbf{1020-SON}: F and H sources incorrectly handle when gain
+     is expression & \Xyce{} always converts F and H sources
+     (current-controlled current source and current-controled voltage
+     source, respectively) into equivalent B sources when the netlist
+     is parsed.  It was recently discovered that the code would
+     produce an invalid expression for the B source if the user had
+     specified the gain (or transresistance) of the device as a
+     brace-delimited expression, and \Xyce{} would exit with a syntax
+     error that inadequately explained the problem.  The conversion of
+     F and H sources into B sources has been fixed and now \Xyce{}
+     will perform correctly even if the user specifies the gain as an
+     expression.\\ \hline
+
+     \textbf{1012-SON}: Incorrect values for failed EQN Measures when 
+     used with .STEP & The values for a failed EQN measure in the 
+     \texttt{<netlistname>.mtx} or \texttt{<netlistname>.msx} files 
+     were incorrectly reported as 0 rather than as the ``default 
+     value'' (\texttt{DEFAULT\_VAL}) if \texttt{.STEP} was used in the 
+     netlist.  This is fixed now.  \\ \hline
+
+     \textbf{1011-SON}: Fix behaviors of .PRINT HB\_FD and .PRINT HB\_TD 
+     lines &  In previous \Xyce{} versions, no harmonic balance output 
+     would be produced if the netlist only had a \texttt{.PRINT HB\_FD} 
+     line or a \texttt{.PRINT HB\_TD} line, but not both.  In addition, 
+     it was not possible to request different print formats on the 
+     \texttt{.PRINT HB\_FD} and \texttt{.PRINT HB\_TD} lines.  Both of 
+     these issues are fixed now. \\ \hline
+
+     \textbf{1000-SON}: Fix the measurement window information in the 
+     stdout for a failed DC measure &  The descriptive output (to 
+     stdout) for a failed DC measure was incomplete.  For that case, 
+     it now contains the start and end values of the first variable 
+     in the DC Sweep vector, since those values likely did not overlap 
+     with the FROM-TO window for that DC measure. For a netlist with a 
+     .OP statement but no .DC statement, no measurement window information 
+     will be printed to stdout now since there is no DC sweep vector in 
+     that case.\\ \hline
+
+     \textbf{958-SON}: Support voltage operators (e.g., V()) for .PRINT 
+     NOISE & This line (\texttt {.PRINT NOISE  INOISE ONOISE V(4)}) would 
+     print out ``all zeroes'' for \texttt{V(4)} in the output file, rather 
+     than the complex values from the AC solution.  This is fixed now.  
+     \\ \hline
+
+     \textbf{966-SON}: Improve compatibility of -r command line option 
+     with multifile output &  In previous \Xyce{} versions, no output
+     was produced for \texttt{.PRINT SENS} or \texttt{.PRINT HOMOTOPY}
+     lines when the -r command line option was used to get RAW file 
+     output.  This was changed so that the output from any 
+     \texttt{.PRINT SENS} or \texttt{.PRINT HOMOTOPY} lines is now 
+     generated, as specified by those two print lines, when -r is used.
+     The new behavior is documented in the ``Output File Redirection'' section 
+     of the \Xyce{} Users' Guide.
+     \\ \hline
+
+     \textbf{941-SON}: Extra columns in .hb\_ic.prn and .startup.prn 
+     files when separate .PRINT HB\_FD and .PRINT HB\_TD lines were 
+     used in a netlist &  For previous versions of \Xyce{}, the columns 
+     in those two output files would be the combination of the columns 
+     requested by the \texttt{.PRINT HB\_FD} and \texttt{.PRINT HB\_TD} 
+     lines.  This is fixed now in the sense that a \texttt{.PRINT HB\_FD} 
+     line now only produces the \texttt{<netlistname>.HB.FD.prn} file and 
+     a \texttt{.PRINT HB\_TD} line now only produces the 
+     \texttt{<netlistname>.HB.TD.prn} file.  If the 
+     \texttt{<netlistname>.hb\_ic.prn} and \texttt{<netlistname>.startup.prn} 
+     files are needed then either a \texttt{.PRINT HB} line or explicit 
+     \texttt{.PRINT HB\_IC} and \texttt{.PRINT HB\_STARTUP} lines should 
+     be used. \\ \hline
+
+     \textbf{911-SON}: Improve compatibility of multi-file output with 
+     the -o command line option & If \Xyce{} was invoked with the -o command line
+     option then the output could be ``interleaved'' in one file.  For example, 
+     if the netlist \texttt{example.cir} had these two \texttt{.PRINT} lines: 
+     {\tt
+     \begin{verbatim}
+     .PRINT TRAN V(1)
+     .PRINT HOMOTOPY V(1)
+     \end{verbatim}
+     }
+     and was invoked with \texttt{Xyce -o output.text example.cir} then the
+     output that would normally appear in separate \texttt{example.cir.prn}
+     and \texttt{example.cir.HOMOTOPY.prn} files would be jumbled together
+     in the single file \texttt{output.txt}.  
+
+     This was fixed by simplifying the behavior of the -o command line
+     option.  See the new ``Output File Redirection'' section of the
+     \Xyce{} Users' Guide for more details. \\ \hline
+
+     \textbf{718-SON}: Missing error message for invalid nodes in expressions 
+     on .PRINT lines & If an invalid node is specified on a \Xyce{} 
+     \texttt{.PRINT TRAN} line then \Xyce{} returns a fatal error
+     during netlist parsing (e.g., \texttt{.PRINT TRAN V(BOGONODE)}
+     will produce an error message of \texttt{undefined symbol in .PRINT
+     command: node BOGONODE}, if \texttt{BOGONODE} does not exist in the
+     netlist).  However, if the invalid node was inside a \Xyce{} expression
+     (e.g., \texttt{.PRINT TRAN \{V(BOGONODE)\}}) then \Xyce{} did not
+     produce an error message during netlist parsing and the output value
+     for \texttt{\{V(BOGONODE)\}} would be zero for all time-steps.  This
+     is fixed now.  For the expression case, \Xyce{} netlist parsing will 
+     now emit an error message like \texttt{Function or variable V(BOGONODE) 
+     is not defined}.  \\ \hline
+
+     \textbf{707-SON}: Fix behavior for invalid nodes on .FOUR lines and in 
+     .MEASURE statements & There were issues with \texttt{.FOUR} lines and
+     \texttt{.MEASURE} statements that accidentally used node names that
+     were not in the netlist.  In that case, the \texttt{.cir.four} output
+     file would contain a mix of all zero's and NaN's, and \Xyce{} would 
+     not produce a warning or error message about the invalid node name.
+     Similarly, the measure statement would run without a warning message
+     about the invalid node name.  The measure result would then be zero,
+     rather than FAILED.  \Xyce{} parsing will now issue an error message
+     instead.  An example is ``Function or variable V(A) is not defined'' 
+     when V(A) refers to an invalid node name on \texttt{.FOUR} or 
+     \texttt{.MEASURE} lines. \\ \hline
+     
+     \textbf{274-SON}: String valued parameters not working as expected &
+     String values are interpreted as a filename and then parsed into a 
+     table expression.  This limits the ability of \Xyce{} to take pure
+     string values and assign them to parameters.  For this release
+     \Xyce{} will issue a warming when it encounters the syntax 
+     \texttt{PARAMETER="filename"} and recommend using the new syntax
+     \texttt{PARAMETER=tablefile("filename")}.  In a future \Xyce{} release
+     the old syntax, \texttt{PARAMETER="filename"}, will only attempt to assign
+     the string to the parameter and not try to automatically read it in
+     as a data file.  Thus, the old syntax for specifying a filename from 
+     which to read data will not work.  So, it is recommended that users use this
+     release to transition to the new \texttt{PARAMETER=tablefile("filename")}
+     syntax.  Additionally, this release introduces 
+     \texttt{PARAMETER=string("string value")} to specify parameters that 
+     are just strings.  In a future release, the \texttt{string()} keyword will
+     be deprecated and the syntax for specifying string valued parameters 
+     will become \texttt{PARAMETER="string value"}.\\ \hline 
+
+
+     \textbf{1063-SON}: The device initial states are not set correctly when
+     the tahb option is turned off in HB analysis  & This bug could have
+     affected the convergence of HB for the circuits with certain devices, such as BJTs.
+     This is fixed now. \\ \hline
+
+     \textbf{1060-SON}: The startupperiods option and .IC do not work together for 
+     HB analysis  & The \texttt{startupperiods} option and \texttt{.IC} can help find a good initial
+     guess for HB analysis. When they were used together, the initial condition found  
+     by startup transient analysis was overwritten by the IC specified in the \texttt{.IC.}
+     This is fixed now. \\ \hline
+
+     \textbf{1962-SRN}: Voltages from interface nodes for subcircuits may not 
+     work correctly in expressions on \texttt{.PRINT}, \texttt{.MEASURE}, 
+     \texttt{.FOUR}, \texttt{.SENS}, \texttt{.RESULT}, \texttt{.IC} and 
+     \texttt{.NODESET} lines & An expression that used a voltage from an 
+     interface node to a subcircuit on a \texttt{.PRINT} line would only work 
+     if that voltage node was also used outside of the expression on the 
+     \texttt{.PRINT} line.  A simple example was as follows.  The expression 
+     \texttt{\{V(X1:a)*I(X1:R1)\}} would print out as 0, unless 
+     \texttt{V(X1:a)} was also on the \texttt{.PRINT} line.  Similar issues
+     also existed for \texttt{.MEASURE}, \texttt{.FOUR}, \texttt{.SENS}, 
+     \texttt{.RESULT}, \texttt{.IC} and \texttt{.NODESET} lines.  This bug
+     has been fixed for all of those line types now.
+     \\ \hline
+
+     \textbf{1070-SON}: Parameters specified with curly braces confuse \Xyce{} sensitivity analysis  &
+     If the parameters specified for sensitivity analysis were surrounded by curly braces (as one
+     might do if they were global parameters, by convention), sensitivity analysis couldn't find
+     the parameter properly, but didn't exit with an error.  Instead it computed an incorrect answer.
+     This is fixed now. \\ \hline
+
+     \textbf{1073-SON}: Sensitivities which rely on finite differences are badly broken in transient &
+     There was an error in how numerical derivatives were computed that caused them to be incorrect 
+     for transient direct sensitivities.  This did not affect steady-state (DC) sensitivities, and it 
+     also did not affect sensitivities that relied entirely on analytical derivatives.
+     This is fixed now. \\ \hline
+
+     \textbf{1077-SON}: Transient sensitivity analysis seg faults if used with .STEP or .SAMPLING &
+     There was a mistake in how the nonlinear solver was reset between step iterations.
+     This is fixed now. \\ \hline
+
+\end{longtable}
+}

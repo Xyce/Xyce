@@ -1,0 +1,16 @@
+  # This file contains a list of cmake build options for xyce and the
+ # corresponding tag as used by run_xyce_regression.
+# test comment
+Xyce_ADMS_MODELS|adms, admssens
+ Xyce_ATHENA|athena
+ 	
+Xyce_NONFREE_MODELS|nonfree
+
+ 
+Xyce_PARALLEL_MPI|parallel
+Xyce_PYMI|pymi
+Xyce_RAD_MODELS|rad
+Xyce_ROL|rol
+Xyce_STOKHOS_ENABLE|stokhos
+Xyce_USE_BSIM3|bsim3
+Xyce_USE_FFT|fft

@@ -1,0 +1,291 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\chapter{Circuit Diagnostics and Troubleshooting}
+\index{\Xyce{}!troubleshooting}
+\index{\Xyce{}!diagnostics}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter provides guidance on using \Xyce{}'s diagnostic output 
+to understand simulation performance and aid in correcting
+circuit problems.
+\begin{XyceItemize}
+\item Section~\ref{DiagnosticOutput}, {\em Diagnostic Output}
+%\item Section~\ref{SimulationIssues}, {\em Simulation Issues}
+\end{XyceItemize}
+}
+
+\section{Diagnostic Output}
+\label{DiagnosticOutput}
+
+\subsection{Introduction}
+To aid in understanding circuit simulation performance, \Xyce{} has a diagnostic output mode
+where additional data can be sent to an external file for the user to study.  The data 
+can include information about GMIN stepping and source stepping during the DC operating
+point calculation as well as times and values of currents and voltages that are either 
+extreme or over some user defined limit.  Additionally, there is a capability to output 
+solution nodes that appear to be discontinuous within a user specified limit.  The data 
+is sent to a separate file to avoid it being lost in the normal simulation output.  The 
+following sections will present examples of using diagnostic output in a circuit.
+
+
+\subsection{Enabling Diagnostic Output}
+To enable diagnostic output in a simulation add the line
+\begin{NetlistFigure}{Basic diagnostic option line}{diagOptionExample}
+.options diagnostic <diagnostic mode> 
++ diagfilename=<output file name>
+\end{NetlistFigure}
+where \texttt{<diagnostic mode>} can be any of the following modes
+\begin{itemize}
+  \item \texttt{EXTREMALIMIT=<value>}  Output the single most extreme solution value 
+    whose absolute value is greater than \texttt{value}.
+  \item \texttt{CURRENTLIMIT=<value>}  Output all of the branch currents and lead currents  
+    whose absolute value is greater than \texttt{value}.
+  \item \texttt{VOLTAGELIMIT=<value>}  Output all of the solution voltages  
+    whose absolute value is greater than \texttt{value}
+  \item \texttt{DISCLIMIT=<value>}  Output all solution variables where the absolute value
+    of the difference between the predictor and corrector is greater than \texttt{value}
+\end{itemize}
+Multiple modes can be specified and the results will be grouped by diagnostic mode for 
+each step within the diagnostic output file.
+
+Finally, the \texttt{.options diagnostic diagfilename} is optional.  If it is not given then 
+the diagnostic output will be saved in a file called \texttt{[input file name].dia}.  
+No matter whether it is set, or left at its default value, Xyce will overwrite any existing 
+file with new output each time Xyce is run.  
+
+The next sections will give examples for each of the diagnostic modes listed above.
+
+\subsection{DC Operating Point Information}
+When Xyce attempts to calculate the DC operating point of a circuit, if the initial 
+Newton solver approach doesn't converge then Xyce will automatically attempt GMIN
+stepping and then source stepping to find a solution.  Information about the DC
+Operating point calculation and if GMIN or source stepping are used will be sent 
+to the diagnostic output file.  For example this is the output one might see
+if both GMIN and source stepping are needed:
+
+\begin{verbatim}
+Xyce Dagnostic Output
+Analysis event INITIALIZE DC
+Analysis event STEP_STARTED DC
+Analysis event DC_OP_STARTED DC
+Analysis event STEP_FAILED DC
+Analysis event DC_OP_GMIN_STEPPING DC
+Analysis event  DC_OP_GMIN_STEPPING_FAILED DC smallest gmin = 1.057478e-03
+Analysis event DC_OP_SOURCE_STEPPING DC
+Analysis event STEP_SUCCESSFUL DC
+\end{verbatim}
+
+In this example the default DC OP calculation is started and fails as reported with:
+\begin{verbatim}
+Analysis event DC_OP_STARTED DC
+Analysis event STEP_FAILED DC
+\end{verbatim}
+
+Then GMIN stepping is tried and it fails at a GMIN of around 1e-3.
+\begin{verbatim}
+Analysis event DC_OP_GMIN_STEPPING DC
+Analysis event  DC_OP_GMIN_STEPPING_FAILED DC smallest gmin = 1.057478e-03
+\end{verbatim}
+
+Then source stepping is attempted and that is successful.
+\begin{verbatim}
+Analysis event DC_OP_SOURCE_STEPPING DC
+Analysis event STEP_SUCCESSFUL DC
+\end{verbatim}
+
+Understanding how Xyce obtained or failed to obtain a DC Operating point can 
+be helpful in diagnosing a circuit topology or initial condition problem.
+
+\subsection{Extrema Output}
+To obtain the solution node name and value that has the largest absolute value over some 
+limit, use the \texttt{EXTREMALIMIT} option. 
+
+In this simple \Xyce{} input netlist, \texttt{EXTREMALIMIT} is used to output values over 6.0 Volts
+
+\begin{NetlistFigure}{Sample use of the diagnostic EXTREMALIMIT}{extremaExample}
+* 4049 Circuit
+
+X2 node3 node8 node2 0 CD4049UB
+V1 node2 0 5
+C1 node8 node5 1.088N
+R1 node3 node5 46.5K
+R2 node1 node5 98.6K
+X1 node1 node3 node2 0 CD4049UB
+
+.tran .05U 500U NOOP
+
+.options timeint method=gear abstol=1.0e-7 
++ reltol=1.0e-6
+
+.options diagnostic EXTREMALIMIT=6.0 
++ diagfilename=ExtremaCheck1.dia
+
+.print tran V(node8) v(node5) V(node1) V(node3)
+
+* Subcircuit and Model Definitions
+.SUBCKT CD4049UB 1  2   3   4
+*HEX BUFFER    IN OUT VCC VSS
+M1 2 1 3 3 CD4049P
+M2 2 1 4 4 CD4049N
+.MODEL CD4049P PMOS (LEVEL=1 VTO=-2.9 KP=2M 
++ GAMMA=3.97U PHI=.75 LAMBDA=1.87M RD=28.2 
++ RS=45.2 IS=31.2F PB=.8 MJ=.46 CBD=148P 
++ CBS=177P CGSO=218N CGDO=182N CGBO=299N)
+.MODEL CD4049N NMOS (LEVEL=1 VTO=2.1 KP=5M 
++ GAMMA=3.97U PHI=.75 LAMBDA=1.87M RD=4.2 
++ RS=4.2 IS=31.2F PB=.8 MJ=.46 CBD=105P 
++ CBS=127P CGSO=156N CGDO=130N CGBO=214N)
+.ENDS
+
+.END
+\end{NetlistFigure}
+
+Running this netlist in \Xyce{} will produce a diagnostic output file with 
+\begin{verbatim}
+Xyce Diagnostic Output
+ Solution Extrema output requested with extremalimit = 6
+ Extreme value found in TRAN analysis at STEP_STARTED time=0.000174793
+     V(NODE5)=6.0347
+ Extreme value found in TRAN analysis at STEP_SUCCESSFUL time=0.000174793
+     V(NODE5)=6.0347
+\end{verbatim}
+
+The output shows what type of diagnostic was requested, the diagnostic limit imposed
+and then points at when the limit was reached in the solution.  In this case, the 
+voltage node \texttt{NODE5} exceeded the limit of 6 with a value of 6.0347 at the 
+simulation time of 0.000174793 seconds.
+
+The extrema output diagnostic can be useful to determine the largest values encountered
+during a simulation.  Once the extrema are known it can be useful to focus on when 
+voltages or currents exceed a set value.  That will be examined in the next section.
+
+\subsection{Voltage and Current Output}
+Similar to \texttt{EXTREMALIMIT}, the diagnostic output options, \texttt{VOLTAGELIMIT} and
+\texttt{CURRENTLIMIT} allow reporting on voltages and currents at different limits.  Additionally,
+unlike \texttt{EXTREMALIMIT}, \texttt{VOLTAGELIMIT} and \texttt{CURRENTLIMIT} report {\bf all} 
+voltages and currents that are over a given limit at each step.
+
+Thus, the line
+\begin{verbatim}
+.options diagnostic VOLTAGELIMIT=5.0 CURRENTLIMIT=3e-2 diagfilename=VICheck1.dia
+\end{verbatim}
+will report voltage variables that have absolute values greater than 5.0 and currents
+with absolute values greater than 3.0e-2.  If used in the oscillator circuit from 
+Figure \ref{extremaExample}, the diagnostic output will look like:
+
+\begin{verbatim}
+Xyce Diagnostic Output
+ Node voltage output requested with voltagelimit = 5
+ Lead current output requested with currentlimit = 0.03
+...
+Voltage over limit value found in TRAN analysis at STEP_STARTED time=7.18202e-05
+     V(M:X2:1_drainprime)=5.00228
+     V(M:X2:1_sourceprime)=5.00023
+     V(NODE8)=5.00232
+     V(M:X2:2_drainprime)=5.00233
+...
+Current over limit value found in TRAN analysis at STEP_STARTED time=0.000102911
+     solution I(L3_branch)=0.0300498
+     solution I(V2_branch)=-0.0300498
+     lead I(L3:BRANCH_D)=0.0300498
+     lead I(R5:BRANCH_D)=0.0300469
+     lead I(V2:BRANCH_D)=-0.0300498
+\end{verbatim}
+
+\noindent Note that unlike the extrema diagnostic, the voltage and current diagnostic report all 
+solution values and branch currents whose absolute values exceed the limits.  This can
+be useful in understanding the operational ranges of currents and voltages within a circuit.
+
+\subsection{Discontinuity Output}
+Discontinuous behavior in a solution variable can cause problems for step progression 
+in transient analysis as the time integrator will try to minimize dramatic changes 
+in the solution.  The time integrator does this by comparing the predicted solution 
+that is based on the trajectory of the prior solution points with the actual solution, i.e. corrector, 
+found by the nonlinear solver.  If the difference between the predicted solution and the corrector 
+is greater than some tolerance, then the time integrator
+will reject that step and try a smaller time step.  When the circuit has a true 
+discontinuity in it, smaller time steps will not make the discontinuity smaller and 
+time integration may ultimately fail.
+
+The following example circuit has discontinuous behavior in the output from 
+the device \texttt{bsrc} which changes from 0 to 1 when the voltage on node 1 goes 
+above 1.  Normally this would cause the transient simulation to fail, but this netlist
+also instructs the time integrator to ignore predictor-corrector error and just 
+accept steps where the nonlinear solver converges.  This option is {\bf not recommended}, 
+but used just for illustrative purposes.  
+
+\begin{NetlistFigure}{Example circuit with an intentional discontinuity}{DiscExample}
+*
+* circuit with an intentional discontinuity 
+*
+
+Vin 1 0 pulse 0 5 1e-7 1e-6 1e-6 1e-3 2e-3
+
+rload 1 0 10
+
+
+bsrc 3 0 v = \{if(v(1)>1, 1,0)\}
+rload3 3 0 100
+
+
+.options timeint erroption=1
+
+.options diagnostic DISCLIMIT=1e-2 
++ diagfilename=DisconCheck2.dia
+
+.print tran v(1) v(3)
+.tran 0 1e-2
+
+.end
+
+\end{NetlistFigure}
+
+\noindent When this circuit is run in \Xyce{}, the diagnostic output will look like:
+\begin{verbatim}
+Xyce Diagnostic Output
+ Discontinuity output requested with disclimit = 0.01
+ ...
+ Discontinuity over limit value found in TRAN analysis at STEP_STARTED time=4.27e-07
+     V(3)=1 xPredictor  = 0 qPredictor  = 0 |diff| = 1
+\end{verbatim}
+
+\noindent The output shows what type of diagnostic was requested, the diagnostic limit imposed
+and then points at when node 3 had a discontinuity of 1 at the simulation time where
+node 1 triggered the step change in output.  If we used \Xyce{}'s standard time integration 
+options and removed the \texttt{.options timeint erroption=1} line from the above netlist 
+then \Xyce{} would fail with a time-step-too-small error.  The diagnostic output would show:
+
+\begin{verbatim}
+Xyce Diagnostic Output
+ Discontinuity output requested with disclimit = 0.01
+ ...
+ Discontinuity over limit value found in TRAN analysis at STEP_STARTED time=3.01602e-07
+     V(1)=0.990008 xPredictor  = 1.06201 qPredictor  = 0 |diff| = 0.072
+ Discontinuity over limit value found in TRAN analysis at STEP_FAILED time=3.01602e-07
+     V(1)=0.990008 xPredictor  = 1.00801 qPredictor  = 0 |diff| = 0.018
+\end{verbatim}
+
+At the start of a transient step \texttt{V(1)=0.990008} and the predicted 
+value for \texttt{V(1)} the end of that step would be 1.06201.  That would trigger \texttt{V(3)} 
+to jump from 0 to 1 and thus the step fails.  When running the time integration with the default 
+step-error control, the actual discontinuity at node 3 is harder to see because its effect
+is limiting the change on node 1.  However, given that the simulation is having 
+problems when node 1 is trying to cross the voltage threshold 1.0, it provides useful insight into
+where the problem is.  Thus, for best use of discontinuity output, it may be necessary to try 
+turning step error control on and off in a set of simulations.  
+
+Finally, it is recommended to not set \texttt{DISCLIMIT} 
+too small, i.e. below the time integrator \texttt{ABSTOL}, as this will cause most of the 
+solution variables to be reported as discontinuous. 
+
+%\section{Simulation Issues}
+\label{SimulationIssues}
+

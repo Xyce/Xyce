@@ -1,0 +1,239 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Fixed Defects.
+%%
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+  SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline \endfirsthead
+  \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+  SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline \endhead
+
+%\textbf{bug xxxx }: Describe issue & Describe fix. \\ \hline 
+
+% joseki (-SON)bugs:
+%% \textbf{BUG NUMBER-SON}: Bug title & Bug and fix description \\ \hline
+\textbf{351-SON}: .MEASURE console output by every processor in parallel. &
+When .MEASURE is used in parallel, every processor outputs to the console.  
+However only the root processor's output might appear in the 
+"***Measure functions***" part of the output file.  The rest of the .MEASURE output
+could be scattered around and mixed with the execution statistics. 
+
+\textbf{\textit{Solution}}: Only the root processor outputs the .MEASURE results.
+\\ \hline 
+
+\textbf{368-SON}: Fix and document the REPEAT feature of the PWL transient
+specification  &  The repeat (\texttt{R}) and time delay (\texttt{TD})
+features of the Piecewise Linear voltage or current source, PWL, 
+were undocumented and did not work correctly.
+
+\textbf{\textit{Solution}}: This is fixed but partially incompatible with
+HSpice syntax since \texttt{R} (without the \texttt{=0}), to mean repeat the
+waveform starting at time=0, is legal in HSpice.  \Xyce{} requires \texttt{R=0},
+in that case. The \Xyce{} syntax for PWL sources is not compatible with
+PSpice's REPEAT syntax.
+\\ \hline 
+
+\textbf{380-SON}: Measure statements need to support expressions &
+The variable that .measure used in a calculation had to be a solution
+or state/store variable.  Expressions, such as \texttt{max(v(node1)-v(node2))}
+were not allowed.  
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{384-SON}: Errors compiling \Xyce{} with Bison 3.0.  &  Bison 3.0
+deprecated access to identifiers that \Xyce{} used for error reporting.
+
+\textbf{\textit{Solution}}: This is fixed and \Xyce{} should compile with
+either Bison 2.7 or Bison 3.0.x.
+\\ \hline
+
+\textbf{427-SON}: Certain subcircuit nodes cannot be accessed in expressions &
+\Xyce{} allows nodes within a subcircuit to be referenced in expressions and on
+.print lines using the syntax ``$<$subcircuit instance
+name$>$:$<$nodename$>$''.  This works on .print lines even if the node named is
+one that is on the subcircuit declaration line (i.e., dummy argument nodes,
+which are just aliases for names in the calling circuit context).  This does
+not work inside expressions.
+
+\textbf{\textit{Solution}}: These values are now accessible within expressions.
+\\ \hline
+
+\textbf{438-SON}: .step output for HB in Standard (.prn) format does not reset
+Index for each step or otherwise mark new step data &  It is difficult to separate the results, 
+in an .HB.FD.prn file, for each step because the Index column is monotonic instead of resetting
+to zero at the beginning of each step, as in transient or DC analysis runs. 
+
+\textbf{\textit{Solution}}: The index is now reset at the start of each .STEP.
+\\ \hline
+
+
+\textbf{439-SON}: Interpolation does not work well with TRAP and GEAR &
+The problem occurs in certain situations when the output is interpolated. For
+Trap, the problem can occur when the 2nd order Trap is used. For Gear, the
+problem occurs when the lead currents are interpolated.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{441-SON}: \texttt{.AC} output for step-tecplot is wrong. &  When
+using STD output, \Xyce{} would create both \texttt{netlist.cir.FD.prn} and 
+\texttt{netlist.cir.prn} files.  When using tecplot output, \Xyce{} would
+only create one file, \texttt{netlist.cir.dat}.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{442-SON}: lead currents are not correctly output for HB analysis &
+
+The lead currents were not calculated in HB analysis. The output would be
+all zeros for the lead currents in HB analysis.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{483-SON}: ASCII rawfile output does not work with .dc without the
+-r flag. &  Running \texttt{Xyce -a <filename>} resulted in a file in
+binary format, rather than ASCII. However, using both the \texttt{-r <rawfile>}
+and \texttt{-a} flags resulted in the \texttt{<rawfile>} being in ASCII format.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{484-SON}: Putting resistor parameter on \texttt{.PRINT} line, with
+homotopy simulation causes segfault &  Including \texttt{RC:R} on the 
+\texttt{.PRINT} line caused \Xyce{} to seg-fault.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{487-SON}: \texttt{.OP} with PDE devices gives a seg fault & In some 
+circuits with PDE devices, \texttt{.OP} would cause \Xyce{} to crash.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{488-SON}: HB-specific output should be excluded from the *.hb\_ic.prn
+file & If the following HB print line \texttt{.print HB VDB(1)} was used
+then the output files associated with the initial condition (which are
+the transient output files) would print \texttt{-inf} for VDB.  This caused problems
+with Tecplot. 
+
+\textbf{\textit{Solution}}: This can be resolved by by adding an 
+\texttt{HB\_IC} output specifier.  Please see the \Xyce{} Reference Guide,
+Version 6.2 for more details.
+\\ \hline
+
+\textbf{493-SON}: Ill-formed Source Definitions Cause a Core Dump & A source
+definition without any parameters caused a core dump.  An example instance
+line was: \texttt{V1 1 0 sin}
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{494-SON}: Remove metacharacters (\%) in the specification of 
+devices and variables & \Xyce{} used \% as a white space filler for various
+internal variables.  So, the use of \% in device names (which is legal in
+other SPICE-like circuit simulators) would have unpredictable results in
+\Xyce{}.
+
+\textbf{\textit{Solution}}: \% is now a legal character in a \Xyce{} device
+names.
+\\ \hline
+
+\textbf{496-SON}: Calling RAND() from within a user defined function causes a 
+segmentation fault & An external user reported that using \texttt{RAND()} in
+a user defined function caused \Xyce{} to crash with a segmentation fault. 
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{497-SON}: FILE keyword in voltage/current source PWL function doesn't
+work in lower case. &  The Piecewise Linear function for a voltage or current
+source, PWL, can read its data from a file with the syntax: \texttt{ImySource
+ 1 0 PWL FILE "mydata.dat"}.  If the FILE keyword was in lower case text as in
+"file" then \Xyce{} emitted an error.
+
+\textbf{\textit{Solution}}: This is fixed in the parser.
+\\ \hline 
+
+\textbf{507-SON}: Parser bottleneck for .PRINT lines with many arguments &
+An external user wanted to output the lead current through every resistor in
+a very large (more than 1M device) circuit. This caused \Xyce{} to get
+stuck during the .PRINT line processing.  
+
+\textbf{\textit{Solution}}: This is fixed in the parser. 
+\\ \hline
+
+\textbf{511-SON}: Remove Unused .OUTPUT feature. &  .output was obsolete code
+that was not documented in the \Xyce{} User Guide or Reference Guide.  It
+was the predecessor of the currently documented mechanism for specifying
+output intervals, .options output. 
+
+\textbf{\textit{Solution}}: This was feature was removed from the parser.  
+Consult the \Xyce{} Reference Guide, Version 6.2 for the syntax for .options
+output instead.
+\\ \hline 
+
+\textbf{518-SON}: Non-Linear Mutual Inductor should cleanly handle
+magnetic moment equation & The non-linear mutual inductor adds an equation
+for the magnetic moment of the device to the system of equations.  If the user
+specifies model parameters where the gap is zero and the domain flexing
+parameter is small, (e.g., \texttt{C $\ll$ 0.1}), then the magnetic moment
+equation becomes very similar to the sum of the current derivatives equation
+(R(t) in \Xyce{}'s formulation).  This can cause the simulation to be unstable.
+
+\textbf{\textit{Solution}}:  The non-linear mutual inductor drops the magnetic
+moment equation from the system of equations it adds when the domain flexing
+parameter (\texttt{C}) is below a user settable limit (\texttt{CLIM}). The
+user can recover \Xyce{}'s previous behavior by setting \texttt{CLIM} to zero.
+The defaults are \texttt{CLIM=0.005} and \texttt{C=0.2}.
+\\ \hline
+
+\textbf{519-SON}: Raw file outputs zero for resistor lead current & An open
+source customer reported that \Xyce{} was improperly outputting lead currents in the rawfile
+format.  When run with "Xyce -a netlist", the ascii rawfile always showed I(R1)= zero.
+Replacing the .print line with a default format (removing FORMAT=RAW and
+FILE=foobar.raw) produced a standard columnar output file with the correct lead
+current in it.
+
+\textbf{\textit{Solution}}: This is fixed.
+\\ \hline
+
+\textbf{1788-SRN}: Make level 57 synonym for level 10 mosfet & This is a
+compatibility request to better accomodate SmartSpice and HSpice users. 
+
+\textbf{\textit{Solution}}:  \Xyce{} provide partial compatibility that is
+adequate for internal Sandia users.  In most SPICE-like codes, 
+\texttt{level=57} is the BSIM4 SOI.  In \Xyce{}, \texttt{level=57} is the
+BSIM3 SOI. 
+\\ \hline
+
+\textbf{1922-SRN}: \Xyce{} nonlinear core model defaults seriously underestimate
+hysteresis effects for small signals & The magnetic core model has some
+parameter defaults that effectively turn off magnetic effects when
+small-amplitude driving signals are applied.  
+
+\textbf{\textit{Solution}}: The performance of the \Xyce{} non-linear 
+mutual inductor model has been improved for small-signal inputs.  Please
+consult the Inductor section of the \Xyce{} Reference Guide for more
+details on the usage of the \texttt{DEVSCALING} and 
+\texttt{CONSTANTDEVSCALING} parameters.
+\\ \hline
+
+\end{longtable}
+

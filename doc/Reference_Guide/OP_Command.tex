@@ -1,0 +1,47 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.OP}}
+\index{analysis!op} \index{operating point analysis}
+The .OP command causes detailed information about the bias point to be printed.
+
+\begin{Command}\label{OP_COMMAND}
+
+\format
+.OP 
+
+\comments
+
+This type of analysis can be specified by itself, in which case \Xyce{}
+will run a nominal operating point.  However, if specified with another
+analysis type, no additional operating point will be calculated, as most
+analyses require a DC operating point for initialization.
+
+\texttt{.OP} outputs the parameters for all the device models
+and all the device instances present in the circuit.  For large
+circuits, this can be a very large amount of output, so use with
+caution.
+
+If no analysis command is provided, \texttt{.OP} will run a DC Operating
+Point calculation (i.e., a DC analysis) with all the voltage sources 
+left at their nominal (instance line) values.
+
+The \Xyce{} \texttt{.OP} statement may provide less, or different, output than other simulators.  
+For some of the missing quantities, a \Xyce{} \texttt{.PRINT} line can give similar information.  
+Nodal voltages are always available  on a \texttt{.PRINT} line.  Device currents for many 
+devices are available on a \texttt{.PRINT} line using the lead current notation 
+\texttt{(I(devicename))}. Similarly, device power is available on a \texttt{.PRINT} line
+via \texttt{P(devicename)} or \texttt{W(devicename)}.  However, these capabilities are not 
+supported in all devices.  Table \ref{deviceFeatureSupportTable} shows which devices 
+support these lead current and power notations.  Currently, there is no way to print 
+out internal capacitances. 
+
+\end{Command}
+

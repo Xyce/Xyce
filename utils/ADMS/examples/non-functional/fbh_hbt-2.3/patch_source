@@ -1,0 +1,46 @@
+--- N_DEV_ADMSHBT_X.C_unmolested	2011-10-20 09:37:59.000000000 -0600
++++ N_DEV_ADMSHBT_X.C_HACKED	2011-10-20 09:44:33.000000000 -0600
+@@ -495,7 +495,7 @@
+ 
+     // we're going to have to come up with a way of generating the addModelType
+     // deal
+-    //  FIXME!    addModelType("WTF");
++    addModelType("NPN");
+ 
+ 
+     // Set up each parameter directly, using the up-cased variable name 
+@@ -519,6 +519,12 @@
+   if (!given("XYCEADMSINSTTEMP"))
+     admsInstTemp=devOptions.temp.dVal();
+ 
++  // Fix the TEMP parameter that has "helpfully" been converted to Kelvin
++  // by the DeviceEntity class
++
++  if (given("TEMP"))
++    Temp -= CONSTCtoK;
++
+   //calculate any parameters specified as expressions
+   updateDependentParameters();
+ 
+@@ -1429,7 +1435,7 @@
+   Ic1ra = (*M_iter)->analogFunctions.diode<AdmsFadType>(vbci,(((*M_iter)->XCjc)*((*M_iter)->Jsr)),((*M_iter)->Vgr),((*M_iter)->nr),Area,Tj,((*M_iter)->Tnom));
+   if (((((*M_iter)->VAF)>0.0)&&(((*M_iter)->VAR)>0.0)))
+   {
+-    q1 = ((1.0+(((*M_iter)->analogFunctions.charge<AdmsFadType>(vbeii,1.0,((*M_iter)->Vje),((*M_iter)->mje),1.0)-(*M_iter)->analogFunctions.charge<AdmsFadType>(0.0,1.0,((*M_iter)->Vje),((*M_iter)->mje),1.0))/((*M_iter)->VAR)))+(((*M_iter)->analogFunctions.charge<AdmsFadType>(vbci,1.0,((*M_iter)->Vjc),((*M_iter)->mjc),1.0)-(*M_iter)->analogFunctions.charge<AdmsFadType>(0.0,1.0,((*M_iter)->Vjc),((*M_iter)->mjc),1.0))/((*M_iter)->VAF)));
++    q1 = ((1.0+(((*M_iter)->analogFunctions.charge<AdmsFadType>(vbeii,1.0,((*M_iter)->Vje),((*M_iter)->mje),1.0)-(*M_iter)->analogFunctions.charge<double>(0.0,1.0,((*M_iter)->Vje),((*M_iter)->mje),1.0))/((*M_iter)->VAR)))+(((*M_iter)->analogFunctions.charge<AdmsFadType>(vbci,1.0,((*M_iter)->Vjc),((*M_iter)->mjc),1.0)-(*M_iter)->analogFunctions.charge<double>(0.0,1.0,((*M_iter)->Vjc),((*M_iter)->mjc),1.0))/((*M_iter)->VAF)));
+   }
+   else
+   {
+@@ -4066,6 +4072,12 @@
+   if (!given("XYCEADMSMODTEMP"))
+     admsModTemp=devOptions.temp.dVal();
+ 
++  // Fix the TNOM parameter that has "helpfully" been converted to Kelvin
++  // by the DeviceEntity class
++
++  if (given("TNOM"))
++    Tnom -= CONSTCtoK;
++
+   // Calculate any parameters specified as expressions:
+ 
+   updateDependentParameters();

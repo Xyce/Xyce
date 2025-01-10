@@ -1,0 +1,171 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+% -------------------------------------------------------------------------
+% Installing and Running Xyce Chapter -------------------------------------
+% -------------------------------------------------------------------------
+
+\chapter{Installing and Running Xyce}
+\label{Running_Installing_Xyce}
+\chapteroverview{Chapter Overview}
+{
+This chapter describes the basic mechanics of installing and running
+\Xyce{}.  It includes the following sections:
+\begin{XyceItemize}
+\item Section~\ref{Xyce_Installation}, {\em \Xyce{} Installation}
+\item Section~\ref{Running_Xyce}, {\em Running \Xyce{}}
+\end{XyceItemize}
+}
+
+\section{Xyce Installation}
+\label{Xyce_Installation}
+
+\Xyce{} is distributed in two ways: source code and binary installers.
+Instructions for both methods of installation are available on the \Xyce\ web
+site {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\subsection{Postinstallation steps: PATH setting}
+In order to run \Xyce{}, either type the path to its binary every time, or
+add the installed location of \Xyce{} to the PATH variable.  Do so by editing
+the shell start-up file (\texttt{.bashrc} if your shell is bash,
+\texttt{.profile} if the shell is sh, or \texttt{.cshrc} if the shell is the
+c-shell).  Exact syntax depends on the shell used, but for bash and sh the
+syntax is:
+
+\begin{quote}
+  \verb+export PATH=$PATH:/usr/local/Xyce-Release-6.9.0/bin+
+\end{quote}
+
+The exact path will depend on the installed version of \Xyce{}.  Look in
+\texttt{/usr/local} with the following command:
+\begin{quote}
+  \verb+ls -l /usr/local+
+\end{quote}
+to identify the actual install directory used by the installed version of
+\Xyce{}.  Once entered into the start-up file, the path will be set this way at
+the next log in.  The same command can be issued directly in the command line
+and it will take effect immediately.
+
+Binary installations on Windows create a ``Command Prompt'' shortcut
+for Xyce that sets this path for you.  When the command prompt is
+opened with this shortcut, Xyce may simply be invoked by typing its
+name.
+
+\section{Running Xyce}
+\label{Running_Xyce}
+\index{running \Xyce{}}\index{\Xyce{}!running}
+
+While it is possible to connect \Xyce{} to graphical interfaces, such as
+gEDA~\cite{geda} or Qucs-s~\cite{qucs-s}, \Xyce{} is not provided with any graphical user interface. It
+is primarily used as a command-line-only program across all supported
+platforms, including traditionally ``GUI-centered'' platforms such as Mac OS X
+and Microsoft Windows.
+
+This section describes how \Xyce{} is run from the command line, for serial and
+MPI\index{MPI} parallel simulations.
+
+\subsection{Command Line Simulation}
+\index{command line}
+\label{command_line_simulation}
+
+The syntax for running \Xyce{} from the command line differs depending
+it is the serial or parallel version.
+
+\paragraph{Running \Xyce{}}
+
+Assuming the \texttt{Xyce} executable in in the user's path, then the
+commands for running \Xyce\ are:
+\begin{XyceItemize}
+\item Running serial \Xyce:
+\begin{vquote}
+  Xyce [options] <netlist filename>
+\end{vquote}
+\item Running \Xyce\ in parallel:
+\begin{vquote}
+  mpirun -np <# procs> Xyce [options] <netlist filename>
+\end{vquote}
+\end{XyceItemize}
+Note that \texttt{mpiexec} is sometimes provided as an alternative to
+\texttt{mpirun}. With Open MPI, the two commands are identical, but
+that is not the case for all MPI implementations.
+
+\paragraph{General comments}
+The \texttt{[options]} are the command line arguments for \Xyce{}.  For example,
+to log output to a file named \texttt{sample.log} \index{output!log file}type:
+\begin{vquote}
+  Xyce -l sample.log <netlist filename>
+\end{vquote}
+
+The next example runs parallel \Xyce{} on four processors and places
+the results into a set of files with the ``basename'' of \texttt{results}
+\index{output!specifying file name}.  So, for example, the output from any
+\texttt{.PRINT TRAN} and/or \texttt{.MEASURE TRAN} lines in the netlist
+would be placed into the files \texttt{results.prn} and \texttt{results.mt0},
+respectively (assuming a source code install):
+\begin{vquote}
+  mpirun -np 4 Xyce -o results <netlist filename>
+\end{vquote}
+
+While \Xyce{} is running, simulation progress is output to the
+command line\index{command line!output} window along with any error
+messages.  
+
+\Xyce\ assumes that \texttt{<netlist filename>} is either in
+the current working directory, or includes the path (full or relative)
+to the netlist file.  Enclose the filename in quotation
+marks~(\texttt{"}) if the path contains spaces.  Help is accessible with
+the \texttt{-h} option.
+
+Consult the documentation installed with MPI on the user's platform for more
+details concerning MPI options.  The \texttt{-np <\# procs>} denotes the number
+of processors\index{parallel!number of processors} to use for the
+simulation.\newline \emph{NOTE: It is critical that the number of processors
+used must be smaller than the number of devices and voltage nodes in the
+netlist.}
+
+\subsubsection{Guidance for Running Xyce in Parallel}
+\index{parallelGuidance}
+
+The basic mechanics of running \Xyce{} in parallel have been discussed above.
+For general guidance regarding solver options, partitioning options, and
+other parallel issues, refer to chapter~\ref{Parallel}.
+Distributed memory circuit simulation still contains a number of research
+issues, so obtaining an optimal simulation in parallel is a bit of an art. 
+
+\emph{NOTE:  If you are running on Linux, please see chapter~\ref{Parallel}, especially section~\ref{paffinity}, for critical guidance on OpenMPI options that can seriously impact the performance of parallel jobs on a multiuser system.}
+
+\subsection{Command Line Options}
+\label{cmd_line_args}
+\index{command line!options}
+
+\Xyce{} supports a handful of command line options that must be given
+{\em before} the netlist filename. Table~\ref{cmd_line_arg_list} lists \Xyce{} core options.
+
+\LTXtable{\textwidth}{commandlinetbl}
+
+While these options are intended for general use, others may exist for new
+features that are disabled by default, and older, deprecated features.  The
+\Xyce{} Reference Guide\ReferenceGuide{} provides a comprehensive list, including trial and
+deprecated options.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_UG_ch02.tex ************

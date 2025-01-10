@@ -1,0 +1,208 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Known defects and workarounds.
+%%
+%% This section should highlight significant defects that were not fixed in
+%% the release
+
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endfirsthead
+  \caption[]{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endhead
+% EXAMPLE:
+%\textbf{bug number-SRN}: bug title & Description of KNOWN BUG THAT HAS NOT BEEN
+  %FIXED.
+
+%\textbf{\textit{Workaround}}: Describe how to work around this bug.
+%\\ \hline
+%
+%  
+\textbf{783-SON}: Use of ddt in a B-Source definition may produce incorrect results  & The \texttt{DDT()} 
+function from the \Xyce{} expression package, which implements a time derivative, may not function 
+correctly in a B-Source definition.
+
+\textbf{\textit{Workaround}}: None. \\ \hline
+
+\textbf{754-SON}: Problems with use of global parameters for DC source values & The internal handling of global parameters in expressions can interfere with the handling of DC source sweeps and ``source stepping''.  It was not possible to fix this bug in time for Release 6.5, as the impact of changing the behavior is too broad.
+
+\textbf{\textit{Workaround}}: Do not use global parameters in expressions for the DC value of a voltage or current sources that are swept using a \texttt{.DC} analysis.  Since any circuit which has to fall back on ``source stepping'' for DCOP convergence will not work as intended if any source has a global parameter for its DC value, it is advisable not to use global parameters at all in DC sources, even for sources that are not swept by a \texttt{.DC} analysis. \\ \hline
+
+\textbf{718-SON}: Missing error message for invalid nodes in expressions on .PRINT lines & If an invalid node
+is specified on a \Xyce{} \texttt{.PRINT TRAN} line then \Xyce{} should return a fatal error during netlist
+parsing (e.g., \texttt{.PRINT TRAN V(BOGONODE)} will produce an error message of \texttt{undefined 
+symbol in .PRINT command: node BOGONODE}, if \texttt{BOGONODE} does not exist in the netlist).  However, if the
+invalid node is inside a \Xyce{} expression (e.g., \texttt{.PRINT TRAN \{V(BOGONODE)\}}) then \Xyce{} will 
+not produce an error message during netlist parsing and the output value for \texttt{\{V(BOGONODE)\}} will 
+be zero for all time-steps.
+
+\textbf{\textit{Workaround}}: There is none, other than noticing that a output waveform value is unexpectedly all zeroes,
+and correcting the \texttt{.PRINT} statement. \\ \hline
+
+\textbf{707-SON}: Behavior for invalid nodes on .FOUR lines and in .MEASURE statements &
+There are issues with \texttt{.FOUR} lines and \texttt{.MEASURE} statements that accidentally
+use node names that are not in the netlist.  In that case, the \texttt{.cir.four} output file 
+will contain a mix of all zero's and NaN's, and \Xyce{} will not produce a warning or error 
+message about the invalid node name.  Similarly, the measure statement will run without a 
+warning message about the invalid node name.  The measure result will then be zero, rather than 
+FAILED. \\ \hline
+
+\textbf{704-SON}: Lead currents do not work in AC analyses, crash \Xyce{} & Lead currents for devices other than voltage sources are not solution variables, and are computed by \Xyce{} as a derived quantity in a post-processing step.  This is not set up correctly to work when doing small-signal AC analysis.  Attempting to print such a lead current or any of its computed quantities (magnitude, phase, real or imaginary parts) will cause \Xyce{} to crash.  The lead currents do work as expected in time-domain analysis such as transient and DC.  Lead currents work properly in HB frequency-domain analysis.
+
+\textbf{\textit{Workaround}}: Do not attempt to print currents through a device other than a voltage source in any AC simulation.  If you need the current through a device under AC analysis, place a zero-volt voltage source in series with that device, and print the current through the voltage source.  
+\\ \hline
+
+\textbf{667-SON} Make \texttt{.IC} and \texttt{.NODESET} usable inside subcircuits & 
+\texttt{.IC} and \texttt{.NODESET} statements within subcircuits are
+silently ignored by \Xyce{}. \textbf{\textit{Workaround}}: The \texttt{.IC}
+\texttt{.NODESET} sections of the \Xyce{} Reference Guide describe how to
+work around this bug by moving the statements to the top-level of the
+circuit.
+\\ \hline
+
+\textbf{661-SON} Branch Currents and Power Accessors (I(), P() and W()) Do Not Work 
+Properly in .RESULT Statements  & There are two issues.  First, \texttt{.RESULT} statements 
+will fail netlist parsing if the requested branch current is omitted from the \texttt{.PRINT TRAN} 
+line.  As an example, this statement (\texttt{.RESULT I(R1)}) requires either \texttt{I(R1)},
+\texttt{P(R1)} or \texttt{W(R1)} to be on the \texttt{.PRINT TRAN} line.  Second, the
+output value, in the \texttt{.res} file, for the lead current or power calculation will 
+always be zero.
+\\ \hline 
+
+\textbf{652-SON}: HB output is buggy & While a straightforward use of \texttt{.print HB} works as described in the users and reference guides, several of the documented features do not work as intended.
+
+\texttt{.print HB\_FD} and \texttt{.print HB\_TD} are intended as a way of specifying variable lists for frequency- and time-domain outputs, respectively.  It has been discovered that these only produce output if there are print specifications for {\em both\/} frequency and time domain.  That is, if only one of \texttt{.print HB\_FD} or \texttt{.print HB\_TD} is present in the netlist, no output will be produced at all.   
+
+This bug was discovered too late to be fixed in time for release 6.4.
+
+\textbf{\textit{Workaround}}: When performing harmonic balance analysis, always specify enough print lines so that both time- and frequency-domain variables are output.  This could be by specifing \texttt{.print HB} alone, by specifying both \texttt{.print HB} and \texttt{.print HB\_TD}, or by specifying both \texttt{.print HB\_FD} and \texttt{.print HB\_TD}.
+\\ \hline
+
+
+\textbf{583-SON}: Switch with RON=0 leads to convergence failure. &  The switch device does not prevent a user from specifying \texttt{RON=0} in its model, but then takes the inverse of this value to get the ``on'' conductance.  The resulting invalid division will either lead to a division by zero error on platforms that throw such errors, or produce a conductance with ``Not A Number'' or ``Infinity'' as value.  This will lead to a convergence failure.
+
+\textbf{\textit{Workaround}}: Do not specify an identically zero resistance for the switch's ``on'' value.  A small value of resistance such as 1e-15 or smaller will generally work well as a substitute. \\ \hline
+
+
+\textbf{469-SON}: Belos memory consumption on FreeBSD and excessive CPU on other
+platforms &
+Memory or thread bloat can result when using multithreaded dense linear algebra
+libraries, which are employed by Belos.  If this situation is observed, either build
+\Xyce{} with a serial dense linear algebra library or use environment variables to control
+the number of spawned threads in a multithreaded library.
+\\ \hline
+
+
+\textbf{468-SON}: It should be legal to have two model cards with the same model
+name, but different model types. & SPICE3F5 and ngspice only require that
+model cards of the same type have unique model names. They accept model cards
+of different types with the same name.  \Xyce{} requires that all model card names be unique.
+\\ \hline
+
+
+\textbf{250-SON}: NODESET in \Xyce{} is not equivalent to NODESET in SPICE & As
+currently implemented, \texttt{.NODESET} applies the initial conditions given throughout
+a full nonlinear solve for the operating point, then uses the result as an
+initial guess for a second nonlinear solve with no constraints.  This is not
+the same as SPICE, which merely applies the given initial conditions to a
+single nonlinear solve for the first two iterations, then lets the problem
+converge with no further constraints.  This can lead to \Xyce{}'s \texttt{.NODESET} failing
+where the same netlist in SPICE might not, if the initial conditions are such
+that a full nonlinear solve cannot converge with those constraints in place.
+There is no workaround.
+\\ \hline
+
+\textbf{247-SON}: Expressions don't work on .options lines & Expressions enclosed
+in braces (\{ \}) are handled specially throughout \Xyce{}, and may only be used
+in certain contexts such as in device model or instance parameters or on
+\texttt{.PRINT} lines.
+\\ \hline
+
+
+\textbf{49-SON} \Xyce{} BSIM models recognize the model TNOM, but not the
+instance TNOM & 
+\\ \hline
+
+\textbf{37-SON}: Connectivity checking is broken for devices with more than 10
+leads & The diagnostic code used by the \Xyce{} setup that checks circuit
+topology for basic errors such as a node having no DC path to ground or a node
+being connected to only one device has a bug in it that causes the code to emit
+a cryptic error message, after which the code will exit.  This error has so far
+only been seen when a user has attempted to connect a large number of inductors
+together using multiple mutual inductor lines.  The maximum number of
+non-ground leads that can be used without confusing this piece of code is 10.
+If your circuit has that type of large, highly-connected mutual inductor and
+the code exits with an error message, this bug may be the source of the problem.
+
+The error message now includes a recommendation to use the workaround below.
+
+\textbf{\textit{Workaround}}: Disable connectivity checking by adding the line
+
+\begin{alltt} .OPTIONS TOPOLOGY CHECK_CONNECTIVITY=0 \end{alltt}
+
+to your netlist.  This will disable the check for the basic errors such as
+floating nodes and improperly connected devices, but will allow the netlist to
+run with a highly-connected mutual inductor.
+\\ \hline
+
+
+\textbf{27-SON}: Fix handling of .options parameters & When specifying .options
+  for a particular package, what gets applied as the non-specified default
+  options might change.  \\ \hline
+
+\textbf{1962-SRN}: Voltages from interface nodes for subcircuits may not work
+correctly in expressions on \texttt{.PRINT} lines & An expression that uses a 
+voltage from an interface node to a subcircuit on a \texttt{.PRINT} line 
+may only work if that voltage node is also used outside of the expression on 
+the \texttt{.PRINT} line.  A simple example is as follows.  The expression 
+\texttt{\{V(X1:a)*I(X1:R1)\}} prints out as 0, unless \texttt{V(X1:a)} is also on 
+the \texttt{.PRINT} line.
+\\ \hline
+
+\textbf{1923-SRN}: LC lines run out of memory, even if equivalent (larger) RLC
+lines do not. &  In some cases, circuits that run fine using an RLC approximation for a
+transmission line, exit with an out-of-memory error if the (supposedly smaller) LC
+approximation is used.
+\\ \hline
+
+\textbf{1903-SRN}: \Xyce{} fails to collect several inductors into a linear mutual inductor &
+In some rare cases with complex include file usage, the mutual inductor syntax with multiple couplings can fail to work. \Xyce{} will return an error message that it can not find 
+\texttt{L\_L1}:
+{\tt
+\begin{verbatim}
+L_L1         node1 node1 inductance1
+L_L2         node3 node4  inductance2
+L_L3         node5  node6  inductance3
+L_L4         node7 node8  inductance4
+K_K1         L_L1 L_L2 L_L3 L_L4   .999 
+\end{verbatim}
+}
+
+\\ \hline
+
+\textbf{1595-SRN}: \Xyce{} won't allow access to inductors within subcircuits for
+mutual inductors external to subcircuits & It is not possible to have a mutual
+inductor outside of a subcircuit couple to inductors in a subcircuit.
+
+\textbf{\textit{Workaround}}: Put all inductors and mutual inductance lines that couple to
+them together at the same level of circuit hierarchy.
+\\ \hline
+
+
+\end{longtable}
+}

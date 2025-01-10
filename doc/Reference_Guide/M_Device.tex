@@ -1,0 +1,1013 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}\label{M_DEVICE}
+
+\symbol
+{\includegraphics{nmosSymbol}}
+{\includegraphics{pmosSymbol}}
+
+\device
+\begin{alltt}
+M<name> <drain node> <gate node> <source node>
++ <bulk/substrate node> <model name>
++ [L=<value>] [W=<value>]
++ [AD=<value>] [AS=<value>]
++ [PD=<value>] [PS=<value>]
++ [NRD=<value>] [NRS=<value>]
++ [M=<value] [IC=<value, ...>]
+\end{alltt}
+
+\vbox{\hrulefill}
+\item[Special Form (BSIMSOI)]
+\begin{alltt}
+M<name> <drain node> <gate node> <source node>
++ <substrate node (E)>
++ [<External body contact (P)>]
++ [<internal body contact (B)>]
++ [<temperature node (T)>]
++ <model name>
++ [L=<value>] [W=<value>]
++ [AD=<value>] [AS=<value>]
++ [PD=<value>] [PS=<value>]
++ [NRD=<value>] [NRS=<value>] [NRB=<value>]
++ [BJTOFF=<value>]
++ [IC=<val>,<val>,<val>,<val>,<val>]
++ [RTH0=<val>] [CTH0=<val>]
++ [NBC=<val>] [NSEG=<val>] [PDBCP=<val>] [PSBCP=<val>]
++ [AGBCP=<val>] [AEBCP=<val>] [VBSUSR=<val>] [TNODEOUT]
++ [FRBODY=<val>] [M=<value>]
+\end{alltt}
+\vbox{\hrulefill}
+
+\item[Special Form (MVS)]
+\begin{alltt}
+M<name> <drain node> <gate node> <source node> <model name>
+\end{alltt}
+
+\item[Special Form (PSP103 with self-heating)]
+\begin{alltt}
+M<name> <drain node> <gate node> <source node> <bulk node> <dt node> <model name> [instance parameters]
+\end{alltt}
+
+\model
+\begin{alltt}
+.MODEL <model name> NMOS [model parameters]
+.MODEL <model name> PMOS [model parameters]
+\end{alltt}
+
+\examples
+\begin{alltt}
+M5 4 12 3 0 PNOM L=20u W=10u
+M3 5 13 10 0 PSTRONG
+M6 7 13 10 0 PSTRONG M=2
+M8 10 12 100 100 NWEAK L=30u W=20u
++ AD=288p AS=288p PD=60u PS=60u NRD=14 NRS=24
+\end{alltt}
+
+\parameters
+
+\begin{Parameters}
+
+\param{\vbox{\hbox{L\hfil}\hbox{M\hfil}}}
+
+The MOSFET channel length and width that are decreased to get the actual
+channel length and width. They may be given in the device
+\texttt{.MODEL} or \texttt{.OPTIONS} statements. The value in the device
+statement overrides the value in the model statement, which overrides
+the value in the \texttt{.OPTIONS} statement. If \texttt{L} or \texttt{W}
+values are not given, their default value is 100~$\mu$m.
+
+\param{\vbox{\hbox{AD\hfil}\hbox{AS\hfil}}}
+
+The drain and source diffusion areas. Defaults for \texttt{AD} and
+\texttt{AS} can be set in the \texttt{.OPTIONS} statement.  If
+\texttt{AD} or \texttt{AS} defaults are not set, their default value is
+0.
+
+\param{\vbox{\hbox{PD\hfil}\hbox{PS\hfil}}}
+The drain and source diffusion perimeters. Their default value is 0.
+
+\param{\vbox{\hbox{NRD\hfil}\hbox{NRS\hfil}}}
+
+Multipliers (in units of $\Box$) that can be multiplied by \texttt{RSH}
+to yield the parasitic (ohmic) resistances of the drain (\texttt{RD})
+and source (\texttt{RS}), respectively.  \texttt{NRD}, \texttt{NRS}
+default to 0.
+
+Consider a square sheet of resistive material. Analysis shows that the
+resistance between two parallel edges of such a sheet depends upon its
+composition and thickness, but is independent of its size as long as it is
+square. In other words, the resistance will be the same whether the square's
+edge is 2~mm, 2~cm, or 2~m. For this reason, the \emph{sheet resistance} of
+such a layer, abbreviated \texttt{RSH}, has units of Ohms per square,
+written $\mathsf{\Omega}/\Box$.
+
+\param{M}
+
+If specified, the value is used as a number of parallel MOSFETs to be
+simulated.  For example, if \texttt{M=2} is specified, \Xyce{} simulates two
+identical mosfets connected to the same nodes in parallel.
+
+\param{IC}
+
+The BSIM3 (model level 9), BSIM4 (model level 14 or 54) and BSIMSOI (model
+level 10) allow one to specify the initial voltage difference across
+nodes of the device during the DC operating point calculation.  For the
+BSIM3 and BSIM4 the syntax is \texttt{IC=$V_{ds}, V_{gs}, V_{bs}$}
+where $V_{ds}$ is the voltage difference between the drain and source,
+$V_{gs}$ is the voltage difference between the gate and source and
+$V_{bs}$ is the voltage difference between the body and source.  The
+BSIMSOI device's initial condition syntax is \texttt{IC=$V_{ds},
+  V_{gs}, V_{bs}, V_{es}, V_{ps}$} where the two extra terms are the
+voltage difference between the substrate and source, and the external
+body and source nodes respectively.  Note that for any of these lists of
+voltage differences, fewer than the full number of options may be
+specified.  For example, \texttt{IC=5.0} specifies an initial condition on $V_{ds}$
+but does not specifiy any initial conditions on the other nodes.
+Therefore, one cannot specify $V_{gs}$ without specifying $V_{ds}$, etc.
+
+It is illegal to specify initial conditions on any nodes that are tied
+together.  \Xyce{} attempts to catch such errors, but complex circuits may
+stymie this error trap.
+
+\end{Parameters}
+
+\vbox{\hrulefill}
+\item[BSIM-SOI Options]
+
+There are a large number of extra instance parameters and optional
+nodes available for the BSIM-SOI (level 10 (BSIM-SOI 3.2), level 70
+(BSIM-SOI 4.6.1), and level 70450 (BSIM-SOI 4.5.0)) MOSFET.  Please
+consult the BSIM-SOI technical manual, available at
+\url{http://bsim.berkeley.edu/models/bsimsoi/}, for full details.
+
+\begin{Parameters}
+
+\param{substrate node}
+
+The fourth node of the BSIM-SOI device is always the substrate node,
+which is referred to as the \texttt{E} node. 
+
+\param{external body contact node}
+
+If given, the fifth node is the external body contact node,
+\texttt{P}.  It is connected to the internal body node through a body
+tie resistor.  If \texttt{P} is not given, the internal body node is
+not accessible from the netlist and floats.
+
+{\em For the BSIM-SOI 3.2 (level=10) only):} If there are only five
+nodes specified and \texttt{TNODEOUT} is also specified, the fifth
+node is the temperature node instead.
+
+\param{internal body contact node}
+
+If given, the sixth node is the internal body contact node, \texttt{B}.  It is
+connected to the external body node through a body tie resistor.  If \texttt{B}
+is not given and \texttt{P} is given, the internal body node is not accessible
+from the netlist, but is still tied to the external body contact through the
+tie resistance.
+
+{\em For the BSIM-SOI 3.2 (level=10) only):} If there are only six
+nodes specified and \texttt{TNODEOUT} is also specified, the sixth
+node is the temperature node instead.
+
+\param{temperature node}
+
+{\em For the BSIM-SOI 3.2 (level=10) only):} If the parameter \texttt{TNODEOUT} is specified, the final node (fifth, sixth,
+or seventh) is interpreted as a temperature node.  The temperature node is
+intended for thermal coupling simulation.
+
+{\em For the BSIM-SOI 4.x (level=70 or 70450) only):} The temperature
+node is only accessible for thermal coupling if it is the seventh
+node.  It is available for printing as an internal node in all other
+configurations.
+
+\param{BJTOFF}
+Turns off the parasitic BJT currents.
+
+\param{IC}
+The \texttt{IC} parameter allows specification of the five junction initial
+conditions, $V_{ds}, V_{gs}, V_{bs}, V_{es}$ and $V_{ps}$.  $V_{ps}$ is ignored
+in a four-terminal device.
+
+\param{RTH0}
+Thermal resistance per unit width.  Taken from model card if not given.
+
+\param{CTH0}
+Thermal capacitance per unit width.  Taken from model card if not given.
+
+\param{NBC}
+Number of body contact isolation edges.
+
+\param{NSEG}
+Number of segments for channel width partitioning.
+
+\param{PDBCP}
+Parasitic perimeter length for body contact at drain side.
+
+\param{PSBCP}
+Parasitic perimeter length for body contact at source side.
+
+\param{AGBCP}
+Parasitic gate-to-body overlap area for body contact.
+
+\param{AEBCP}
+Parasitic body-to-substrate overlap area for body contact.
+
+\param{VBSUSR}
+Optional initial value of VBS specified by user for use in transient
+analysis.  (unused in \Xyce{}).
+
+\param{FRBODY}
+Layout-dependent body resistance coefficient.
+
+\end{Parameters}
+
+\comments
+
+The simulator provides multiple MOSFET device models, which differ in the
+formulation of the I-V characteristic. The \texttt{LEVEL} parameter
+selects among different models as shown below.
+
+For HSPICE compatibility, the BSIM4 model can be specified with either
+level 14 or level 54.
+
+If a model supports parameter aliases (e.g. ``U0'' and ``UO'' or
+``VT0'' and ``VTO'' in the levels 1-6 MOSFETS), it would be a mistake
+to specify both parameters and give them different values.  There is
+no warning or error message if you do that.  Don't do that.
+
+\end{Device}
+
+\paragraph{MOSFET Operating Temperature}
+Model parameters may be assigned unique measurement temperatures using the
+\textrmb{TNOM} model parameter. See the MOSFET model parameters for more
+information.
+
+\paragraph{MOSFET Power Calculations}
+Power dissipated in the transistor is calculated with $I_{D}*V_{DS}+I_{G}*V_{GS}$ where
+$I_{D}$ is the drain current, $I_{G}$ is the gate current, $V_{DS}$ is the
+voltage drop between the drain and the source and $V_{GS}$ is the voltage drop
+between the gate and the source. This formula may differ from other simulators,
+such as HSPICE and PSpice.
+
+\paragraph{Internal Device Variables Accessible with {\tt N()} Syntax}
+For the BSIM3, BSIM4, and BSIM-CMG version 110 models, several
+internal variables have been made accessible with the {\tt N()} syntax
+on a {\tt .PRINT} line.  They are $g_{m}$ (tranconductance), $V_{th}$,
+$V_{ds}$, $V_{gs}$, $V_{bs}$, and $V_{dsat}$.  An example {\tt .PRINT}
+line command for a MOSFET device named {\tt m1} would be:
+\begin{alltt}
+.print dc N(m1:gm) N(m1:Vth) N(m1:Vdsat) N(m1:Vds) N(m1:Vgs) N(m1:Vbs)
+\end{alltt}
+The BSIM-CMG also supports output of $I_{ds}$ (drain-source current)
+in this manner.
+
+If the user runs \texttt{Xyce -namesfile <filename> <netlist>} then
+\Xyce{} will output into the first filename a list of all solution
+variables generated by that netlist. This can be useful for
+determining the ``fully-qualified'' device name, needed for the {\tt
+  N()} syntax, if the device is in a subcircuit.
+
+\paragraph{Instance Parameters}
+Tables ~\ref{M_1_Device_Instance_Params}, ~\ref{M_2_Device_Instance_Params}, 
+~\ref{M_3_Device_Instance_Params},  ~\ref{M_6_Device_Instance_Params},
+\ref{M_9_Device_Instance_Params} and \ref{M_10_Device_Instance_Params}  
+give the available instance parameters for the levels 1,2,3,6,9 and 10 MOSFETs,
+respectively.
+
+In addition to the parameters shown in the tables, where a list of
+numbered initial condition parameters are shown, the MOSFETs support a vector
+parameter for the initial conditions.  \texttt{IC1} and \texttt{IC2}
+may therefore be specified compactly as \texttt{IC=<ic1>,<ic2>}.
+
+\paragraph{Model Parameters}
+Tables ~\ref{M_1_Device_Model_Params}, ~\ref{M_2_Device_Model_Params},
+~\ref{M_3_Device_Model_Params}, ~\ref{M_6_Device_Model_Params},
+~\ref{M_9_Device_Model_Params}, and ~\ref{M_10_Device_Model_Params}
+give the available model parameters for the levels 1,2,3,6,9 and 10 MOSFETs,
+respectively.
+
+For a thorough description of MOSFET models see~\cite{Antognetti:1988, HLJHCKH,
+BLETK:1997, SH:1968, VL:1980,
+SSKJ:1987, Pierret:1984, YEC:1983, BSIM3:V3:1, BN}.
+
+\subparagraph{All MOSFET models}
+The parameters shared by all MOSFET model levels are principally parasitic
+element values (e.g., series resistance, overlap capacitance, etc.).
+
+\subparagraph{Model levels 1 and 3}
+The DC behaviors of the level 1 and 3 MOSFET models are defined by the
+parameters \textrmb{VTO}, \textrmb{KP}, \textrmb{LAMBDA}, \textrmb{PHI}, and
+\textrmb{GAMMA}.  The simulator calculates these if the process parameters
+(e.g., \textrmb{TOX}, and \textrmb{NSUB}) are specified, but these are always
+overridden by any user-defined values. The \textrmb{VTO} value is positive
+(negative) for modeling the enhancement mode and negative (positive) for the
+depletion mode of N-channel (P-channel) devices.
+
+For MOSFETs, the capacitance model enforces charge conservation,
+influencing just the Level 1 and 3 models.
+
+Effective device parameter lengths and widths are calculated as follows:
+\[
+P_i = P_0 + P_L / L_e + P_W / W_e
+\]
+where
+\[
+\begin{array}{rclcl}
+L_e & = & \mbox{effective length} & = & \mathbf{L} - (2 \cdot \mathbf{LD}) \\
+W_e & = & \mbox{effective width} & = & \mathbf{W} - (2 \cdot \mathbf{WD})
+\end{array}
+\]
+
+See \textrmb{.MODEL} (model definition) for more information.
+
+\subparagraph{Model level 9 (BSIM3 version 3.2.2)}
+The University of California, Berkeley BSIM3 model is a physical-based model
+with a large number of dependencies on essential dimensional and processing
+parameters.  It incorporates the key effects that are critical in modeling
+deep-submicrometer MOSFETs.  These include threshold voltage reduction,
+nonuniform doping, mobility reduction due to the vertical field, bulk charge
+effect, carrier velocity saturation, drain-induced barrier lowering (DIBL),
+channel length modulation (CLM), hot-carrier-induced output resistance
+reduction, subthreshold conduction, source/drain parasitic resistance,
+substrate current induced body effect (SCBE) and drain voltage reduction in LDD
+structure.
+
+The BSIM3 Version 3.2.2 model is a deep submicron MOSFET model with several major
+enhancements over earlier versions.  These include a single I-V formula used
+to define the current and output conductance for operating regions, improved
+narrow width device modeling, a superior capacitance model with improved short
+and narrow geometry models, a new relaxation-time model to better transient
+modeling and enhanced model fitting of assorted W/L ratios using a single
+parameter set.  This version preserves the large number of integrated
+dependencies on dimensional and processing parameters of the Version 2 model.
+For further information, see Reference~\cite{HLJHCKH}.
+
+\subparagraph{Additional notes}
+\begin{enumerate}
+\item If any of the following BSIM3 3.2.2 model parameters are not specified,
+they are computed via the following:
+
+If \textrmb{VTHO} is not specified, then:
+\[
+\mathbf{VTHO} = \mathbf{VFB} + \phi_s \mathbf{K1} \sqrt{\phi_s}
+\]
+where:
+\[
+\mathbf{VFB} = -1.0
+\]
+If \textrmb{VTHO} is given, then:
+\begin{eqnarray*}
+\mathbf{VFB} & = & \mathbf{VTHO} - \phi_s + \mathbf{K1}\sqrt{phi_s} \\
+\mathbf{VBX} & = & \phi_s - \frac{q\cdot\mathbf{NCH} \cdot
+\mathbf{XT}^2}{2\varepsilon_{si}} \\
+\mathbf{CF} & = & \left( \frac{2\varepsilon_{ox}}{\pi} \right)
+\ln \left(1 + \frac{1}{4 \times 10^7\cdot\mathbf{TOX}} \right)
+\end{eqnarray*}
+where:
+\[
+E_g(T) = \mbox{the energy bandgap at temperature }T = 1.16 - \frac{T^2}{7.02
+\times 10^4(T + 1108)}
+\]
+
+\item If \textrmb{K1} and \textrmb{K2} are not given then they are computed via
+the following:
+\begin{eqnarray*}
+\mathbf{K1} &=& \mathbf{GAMMA2} - 2 \cdot \mathbf{K2} \sqrt{\phi_s -
+\mathbf{VBM}} \\
+\mathbf{K2} &=& \frac{(\mathbf{GAMMA1} -
+\mathbf{GAMMA2})(\sqrt{\phi_s - \mathbf{VBX}} -
+\sqrt{\phi_s})}{2\sqrt{\phi_s}(\sqrt{\phi_s - \mathbf{VBM}} -
+\sqrt{\phi_s}) + \mathbf{VBM}}
+\end{eqnarray*}
+where:
+\begin{eqnarray*}
+\phi_s & = & 2V_t \ln \left(\frac{\mathbf{NCH}}{n_i} \right) \\
+V_t    & = & kT / q \\
+n_i    & = & 1.45 \times 10^{10} \left(\frac{T}{300.15}
+\right)^{1.5} \exp \left(21.5565981 - \frac{E_g(T)}{2V_t} \right)
+\end{eqnarray*}
+
+\item If \textrmb{NCH} is not specified and \textrmb{GAMMA1} is, then:
+\[
+\mathbf{NCH} = \frac{\mathbf{GAMMA1^2 \times \mathbf{COX}^2}}
+{2q \varepsilon_{si}}
+\]
+If \textrmb{GAMMA1} and \textrmb{NCH} {\em are not} specified, then
+\textrmb{NCH} defaults to $1.7\times10^{23}\;m^{-3}$ and \textrmb{GAMMA1} is
+computed using \textrmb{NCH}:
+\[
+\mathbf{GAMMA1} = \frac{\sqrt{2q\varepsilon_{si} \cdot \mathbf{NCH}}}
+{\mathbf{COX}}
+\]
+If \textrmb{GAMMA2} is not specified, then:
+\[
+\mathbf{GAMMA2} = \frac{\sqrt{2q\varepsilon_{si} \cdot \mathbf{NSUB}}}
+{\mathbf{COX}}
+\]
+
+\item If \textrmb{CGSO} is not specified and $\mathbf{DLC} > 0$, then:
+\[
+\mathbf{CGSO} = \left\{ \begin{array}{ll}
+0, & ((\mathbf{DLC \cdot COX) - CGSL)} < 0        \\
+0.6 \cdot \mathbf{XJ \cdot COX}, & ((\mathbf{DLC \cdot COX) - CGSL)}
+\geq 0
+\end{array}
+\right.
+\]
+
+\item If \textrmb{CGDO} is not specified and $\mathbf{DLC} > 0$, then:
+\[
+\mathbf{CGDO} = \left\{ \begin{array}{ll}
+0, & ((\mathbf{DLC \cdot COX) - CGSL)} < 0 \\
+0.6 \cdot \mathbf{XJ \cdot COX},
+& ((\mathbf{DLC \cdot COX) - CGSL)} \geq 0
+\end{array}
+\right. \]
+\end{enumerate}
+
+\subparagraph{Model level 10 (BSIM-SOI version 3.2)}
+
+The BSIM-SOI is an international standard model for SOI (silicon on insulator)
+circuit design and is formulated on top of the BSIM3v3 framework.
+A detailed description can be found in the BSIM-SOI 3.1 User's
+Manual~\cite{BSIMSOI:Manual} and the BSIM-SOI 3.2 release
+notes~\cite{BSIMSOI:3p2:Notes}.
+
+This version (v3.2) of the BSIM-SOI includes three depletion models;
+the partially depleted BSIM-SOI PD (soiMod=0), the fully depleted BSIM-SOI
+FD (soiMod=2), and the unified SOI model (soiMod=1).
+
+BSIMPD is the
+Partial-Depletion (PD) mode of the BSIM-SOI.  A typical PD SOI MOSFET is formed
+on a thin SOI film which is layered on top of a buried oxide.  BSIMPD has
+the following features and enhancements:
+\begin{XyceItemize}
+\item Real floating body simulation of both I-V and C-V.  The body potential is
+      determined by the balance of all body current components.
+\item An improved parasitic bipolar current model.  This includes enhancements in
+      the various diode leakage components, second order effects (high-level
+      injection and Early effect), diffusion charge equation, and temperature
+      dependence of the diode junction capacitance.
+\item An improved impact-ionization current model.  The contribution from BJT
+      current is also modeled by the parameter Fbjtii.
+\item A gate-to-body tunneling current model, which is important to thin-oxide
+      SOI technologies.
+\item Enhancements in the threshold voltage and bulk charge formulation of the
+      high positive body bias regime.
+\item Instance parameters (Pdbcp, Psbcp, Agbcp, Aebcp, Nbc) are provided to model
+      the parasitics of devices with various body-contact and isolation structures.
+\item An external body node (the 6th node) and other improvements are introduced
+      to facilitate the modeling of distributed body resistance.
+\item Self heating.  An external temperature node (the 7th node) is supported to
+      facilitate the simulation of thermal coupling among neighboring devices.
+\item A unique SOI low frequency noise model, including a new excess noise resulting
+      from the floating body effect.
+\item Width dependence of the body effect is modeled by parameters (K1,K1w1,K1w2).
+\item Improved history dependence of the body charges with two new parameters
+      (Fbody, DLCB).
+\item An instance parameter Vbsusr is provided for users to set the transient initial
+      condition of the body potential.
+\item The new charge-thickness capacitance model introduced in BSIM3v3.2,
+      \texttt{capMod=3}, is included.
+\end{XyceItemize}
+
+\paragraph{Quadratic Temperature Compensation}
+SPICE temperature effects are the default, but MOSFET levels 18, 19 and 20 have
+a more advanced temperature compensation available.  By specifying
+\texttt{TEMPMODEL=QUADRATIC} in the netlist, parameters can be interpolated
+quadratically between measured values extracted from data.  See
+Section~\ref{Model_Interpolation} for more details.
+
+\paragraph{MOSFET Equations}
+The following equations define an N-channel MOSFET. The P-channel
+devices use a reverse the sign for all voltages and currents.  The
+equations use the following variables:
+\begin{eqnarray*}
+V_{bs}  &=&\mbox{intrinsic substrate-intrinsic source voltage} \\
+V_{bd}  &=&\mbox{intrinsic substrate-intrinsic drain voltage} \\
+V_{ds}  &=&\mbox{intrinsic drain-substrate source voltage} \\
+V_{dsat}&=&\mbox{saturation voltage} \\
+V_{gs}  &=&\mbox{intrinsic gate-intrinsic source voltage} \\
+V_{gd}  &=&\mbox{intrinsic gate-intrinsic drain voltage} \\
+V_t     &=&kT / q \mbox{ (thermal voltage)} \\
+V_{th}  &=&\mbox{threshold voltage} \\
+C_{ox}  &=&\mbox{the gate oxide capacitance per unit area} \\
+f       &=&\mbox{noise frequency} \\
+k       &=&\mbox{Boltzmann's constant} \\
+q       &=&\mbox{electron charge} \\
+Leff    &=&\mbox{effective channel length} \\
+Weff    &=&\mbox{effective channel width} \\
+T       &=&\mbox{analysis temperature (K)} \\
+T_0     &=&\mbox{nominal temperature (set using TNOM option)}
+\end{eqnarray*}
+Other variables are listed in the BJT Equations section~\ref{bjt_equations}.
+
+\clearpage
+\LTXtable{\textwidth}{mosfeteqntbl}
+
+%%
+%% MOSFET Equation Capacitance Table
+%%
+\paragraph{Capacitance}
+\LTXtable{\textwidth}{mosfeteqncaptbl}
+
+%%
+%% MOSFET Equation Temperature Effects
+%%
+\clearpage
+\paragraph{Temperature Effects}
+\LTXtable{\textwidth}{mosfeteqntemptbl}
+
+%%
+%% MOSFET Parameters Table
+%%
+\clearpage
+\subsubsection{Level 1 MOSFET Tables (SPICE Level 1)}
+\input{M_1_Device_Instance_Params}
+\input{M_1_Device_Model_Params}
+\clearpage
+\subsubsection{Level 2 MOSFET Tables (SPICE Level 2)}
+\input{M_2_Device_Instance_Params}
+\input{M_2_Device_Model_Params}
+\clearpage
+\subsubsection{Level 3 MOSFET Tables (SPICE Level 3)}
+\input{M_3_Device_Instance_Params}
+\input{M_3_Device_Model_Params}
+\clearpage
+\subsubsection{Level 6 MOSFET Tables (SPICE Level 6)}
+\input{M_6_Device_Instance_Params}
+\input{M_6_Device_Model_Params}
+\clearpage
+\subsubsection{Level 9 MOSFET Tables (BSIM3)}
+For complete documentation of the BSIM3 model, see the users' manual for
+the BSIM3, available for download at
+\url{http://bsim.berkeley.edu/models/bsim4/bsim3/}.
+\Xyce{} implements Version 3.2.2 of the BSIM3.
+
+In addition to the parameters shown in
+table~\ref{M_9_Device_Instance_Params}, the BSIM3 supports a vector
+parameter for the initial conditions.  \texttt{IC1} through
+\texttt{IC3} may therefore be specified compactly as
+\texttt{IC=<ic1>,<ic2>,<ic3>}.
+
+\textbf{NOTE:  Many BSIM3 parameters listed in
+tables~\ref{M_9_Device_Instance_Params} and \ref{M_9_Device_Model_Params} as
+having default values of zero are actually replaced with internally computed
+defaults if not given.  Specifying zero in your model card will override this
+internal computation.  It is recommended that you only set model parameters
+that you are actually changing from defaults and that you not generate model
+cards containing default values from the tables.}
+\input{M_9_Device_Instance_Params}
+\input{M_9_Device_Model_Params}
+
+\clearpage
+\subsubsection{Level 10 MOSFET Tables (BSIM-SOI)}
+For complete documentation of the BSIM-SOI model, see the users' manual
+for the BSIM-SOI, available for download at
+\url{http://bsim.berkeley.edu/models/bsimsoi/}.
+\Xyce{} implements Version 3.2 of the BSIM-SOI, you will have to get the
+documentation from the FTP archive on the Berkeley site.
+
+In addition to the parameters shown in table~\ref{M_10_Device_Instance_Params}, 
+the BSIM3SOI supports a vector parameter for the initial conditions.    \texttt{IC1} through \texttt{IC5}
+may therefore be specified compactly as \texttt{IC=<ic1>,<ic2>,<ic3>, <ic4>,<ic5>}.
+
+\textbf{NOTE:  Many BSIM SOI parameters listed in
+tables~\ref{M_10_Device_Instance_Params} and \ref{M_10_Device_Model_Params} as
+having default values of zero are actually replaced with internally computed
+defaults if not given.  Specifying zero in your model card will override this
+internal computation.  It is recommended that you only set model parameters
+that you are actually changing from defaults and that you not generate model
+cards containing default values from the tables.}
+\input{M_10_Device_Instance_Params}
+\input{M_10_Device_Model_Params}
+
+\clearpage
+\subsubsection{Level 14/54 MOSFET Tables (BSIM4)}
+The level 14 MOSFET device in \Xyce{} is based on the Berkeley BSIM4 model
+version 4.6.1.  (For HSPICE compatibility, the Xyce BSIM4 model can also be
+specified as level 54.)  The model's parameters are given in the following
+tables.  Note that the parameters have not all been properly categorized with
+units in place.  For complete documentation of the BSIM4 model, see the BSIM4
+User’s Manual, available for download at
+\url{http://bsim.berkeley.edu/models/bsim4/}.
+
+Note that the BSIM4 device in Xyce now supports multiple versions
+selectable with the \texttt{VERSION} parameter in the model card.  At
+this time versions 4.6.1, 4.7.0, and 4.8.2 are supported.  This
+version parameter may be specified either in legacy text format
+(``4.6.1'' or ``4.8.2'') or in the CMC standard floating point format
+(``4.61'' or ``4.82'').
+
+If a \texttt{VERSION} parameter is not given, the latest version
+supported is used.
+
+If a \texttt{VERSION} parameter is given that is not one of the
+supported version numbers, the closest matching supported version is
+used instead and a warning given.  If a version older than the lowest
+supported version is chosen, the lowest supported version (4.6.1) is
+used and a warning given.  If a model lower than version 4.7.0 is
+requested, version 4.6.1 is used (and a warning given).  If a version
+newer than 4.7.0 but older than 4.8.0 is requested, 4.7.0 is used and
+a warning given.  If a version 4.8.0 or later is requested, 4.8.2 is
+used with an appropriate warning.
+
+Specifying any model parameter that is
+not supported in the chosen version results in a warning and the
+parameter being ignored.  Parameters that are only valid for specific
+ranges of versions are noted as such in the
+tables~\ref{M_14_Device_Instance_Params} and
+\ref{M_14_Device_Model_Params}.
+
+At this time, the BSIM4 is the only device in Xyce that supports
+multiple versions in this manner.  All other devices that have
+multiple version in Xyce are handled by having a unique level number
+for each version.
+
+\textbf{NOTE: Many BSIM4 parameters listed in
+  tables~\ref{M_14_Device_Instance_Params} and
+  \ref{M_14_Device_Model_Params} as having default values of zero are
+  actually replaced with internally computed defaults if not given.
+  Specifying zero in your model card will override this internal
+  computation.  It is recommended that you only set model parameters
+  that you are actually changing from defaults and that you not
+  generate model cards containing default values from the tables.
+}
+
+\textbf{
+  Furthermore, the value of \texttt{FGIDL} changed from 0 to 1 with
+  version 4.8.2 of the BSIM4.  This change is NOT reflected in the
+  table, which is generated automatically, and which shows only the
+  default value of this parameter that applies to versions 4.6.1 and
+  4.7.0.}
+
+
+\input{M_14_Device_Instance_Params}
+\input{M_14_Device_Model_Params}
+
+\clearpage
+\subsubsection{Level 18 MOSFET Tables (VDMOS)}
+The vertical double-diffused power MOSFET model is based on the uniform charge
+control model (UCCM) developed at Rensselaer Polytechnic Institute~\cite{Fjeldly:1998}.
+The VDMOS current-voltage characteristics are described by a single, continuous
+analytical expression for all regimes of operation.  The physics-based model
+includes effects such as velocity saturation in the channel, drain induced barrier
+lowering, finite output conductance in saturation, the quasi-saturation effect
+through a bias dependent drain parasitic resistance, effects of bulk charge, and
+bias dependent low-field mobility.  An important feature of the implementation
+is the utilization of a single continuous expression for the drain current, which
+is valid below and above threshold, effectively removing discontinuities and
+improving convergence properties.
+
+The following tables give parameters for the level 18 MOSFET.
+
+\input{M_18_Device_Instance_Params}
+\input{M_18_Device_Model_Params}
+
+\clearpage
+\subsubsection{Levels 70 and 70450 MOSFET Tables (BSIM-SOI 4.6.1 and 4.5.0)}
+For complete documentation of the BSIM-SOI model, see the users'
+manual for the BSIM-SOI, available for download at
+\url{http://bsim.berkeley.edu/models/bsimsoi/}.  \Xyce{} implements
+Version 4.6.1 of the BSIM-SOI as the level 70 device and version 4.5.0
+as level 70450.
+
+Instance and model parameters of the level 70 MOSFET are given in
+tables~\ref{M_70_Device_Instance_Params} and
+\ref{M_70_Device_Model_Params}.
+
+Beginning with \Xyce{} 7.2, the BSIM-SOI models level 70 and 70450
+have {\em limited} support for the optional 5th, 6th, and 7th nodes.
+See the BSIM-SOI technical manual at the BSIM web site for details of
+what configurations the full device supports.  Only some of these use
+cases are supported: Use of the BSIM-SOI 4.x with \texttt{TNODEOUT=0}
+(the default) is supported in 4-, 5-, 6-, and 7-node configurations.
+\texttt{TNODEOUT=1} is supported only in the 7-node configuration,
+with the 7th node being temperature.  No access to the external
+temperature node is available in 5- or 6- node configuration.
+
+When \texttt{TNODEOUT=0}, the temperature node is an internal node of
+the device even when not specified on the instance line, and its value
+may still be printed using the N() notation (see
+section~\ref{Print_Device_Info}).  This somewhat minimizes the impact
+of the lack of support for \texttt{TNODEOUT=1} in \Xyce{} --- the
+temperature rise due to self-heating is always available for printing,
+but it is not available for creation of a thermal coupling network
+except in the 7-node configuration.
+
+Note that with some choices of model parameters, the BSIM-SOI devices
+attempt to ``collapse'' the ``P'' and ``B'' nodes (external and
+internal body nodes, 5th and 6th netlist nodes if given, internal
+nodes if not given).  Xyce is unable to perform such collapse when the
+nodes are externally specified, and will issue warnings when it finds
+the model trying to do so.  Depending on the actual nodes used for P
+and B, the device may fail to converge or produce invalid results; as
+an example, if P and B are actually specified on the netlist line to
+be the same node, this failure to collapse will not matter --- the
+nodes are already the same.  But if two different node names are used
+for the 5th and 6th nodes, the failure to collapse will leave one node
+floating and the simulation will likely fail if the printed warnings
+are ignored.
+
+A similar problem exists for other choices of model parameter: in some
+cases neither the ``P'' nor ``B'' nodes are used, and if the nodes are
+specified on the netlist line the BSIM-SOI code attempts to collapse
+them to ground.  This is not something \Xyce{} can do, and therefore
+instead \Xyce{} ignores the specified nodes.  This can leave those
+nodes floating and lead to convergence failures unless the specified
+nodes are already the ground node (node 0).  \Xyce{} will issue
+appropriate warnings when this condition exists and suggest removal of
+the unused external nodes from the instance line.
+
+The BSIM SOI 4.6.1 device supports output of the internal variables in
+table~\ref{M_70_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 70 M device in your netlist.
+
+\textbf{NOTE:} It has been observed that the gate capacitance model of
+BSIM-SOI 4.6.1 behaves differently than earlier versions, and the team
+has seen significant disagreement of gate currents when comparing
+identical simulations with other simulators that have only earlier
+BSIM-SOI models.  For this reason, we are also providing BSIM-SOI
+4.5.0 as the level 70450 MOSFET.  This model does agree with these
+other simulators.  The parameters and output variables are given in
+tables~\ref{M_70450_Device_Instance_Params},
+\ref{M_70450_Device_Model_Params}, and \ref{M_70450_OutputVars}.
+Unlike BSIM-SOI 4.6.1, the 4.5.0 model's original Verilog-A source
+code does not contain descriptions and units for the parameters, and
+these appear blank in the tables.  For descriptions and units, see the
+corresponding parameters in the level 70 tables.
+
+\input{M_70_Device_Instance_Params}
+\input{M_70_Device_Model_Params}
+\input{M_70_OutputVars}
+\input{M_70450_Device_Instance_Params}
+\input{M_70450_Device_Model_Params}
+\input{M_70450_OutputVars}
+
+\clearpage
+\subsubsection{Level 77 MOSFET Tables (BSIM6 version 6.1.1)}
+\Xyce{} includes the BSIM6 MOSFET model, version 6.1.1.  Full
+documentation of the BSIM6 is available at its web site,
+\url{http://bsim.berkeley.edu/models/bsim6/}.  Instance and model
+parameters for the BSIM6 are given in
+tables~\ref{M_77_Device_Instance_Params} and
+\ref{M_77_Device_Model_Params}.  These tables are generated directly
+from information present in the original Verilog-A implementation of
+the BSIM6, and lack many descriptions for the parameters.  Consult the
+BSIM6 technical manual from the BSIM group for further details about
+these parameters.
+
+Beginning with version 7.2 of \Xyce{}, an optional fifth node may be
+specified for BSIM6 devices.  If specified, it is the temperature
+node, which is used by the self-heating model and is internal if not
+specified on the instance line.
+
+The BSIM6 device supports output of the internal variables in
+table~\ref{M_77_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 77 M device in your netlist.
+
+\input{M_77_Device_Instance_Params}
+\input{M_77_Device_Model_Params}
+\input{M_77_OutputVars}
+
+\clearpage
+\subsubsection{Level 102 MOSFET Tables (PSP version 102.5)}
+
+\Xyce{} includes a legacy version of the PSP MOSFET model, version
+102.5.  This version is provided because the more recent 103 versions
+are not backward compatible with the older 102 versions, and some
+foundries provide model cards that use the version 102.  Development
+of new model cards should be done using the more recent, supported
+versions of PSP.
+
+The PSP102 device supports output of the internal variables in
+table~\ref{M_102_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific PSP102 M device in your netlist.
+
+\input{M_102_Device_Instance_Params}
+\input{M_102_Device_Model_Params}
+\input{M_102_OutputVars}
+
+\subsubsection{Level 103 and 1031 MOSFET Tables (PSP version 103.4)}
+
+\Xyce{} includes the PSP MOSFET model, version 103.4~\cite{PSP:2006}.
+The version without self-heating is the level 103 MOSFET, and the
+version with self-heating is the level 1031.  Note that the level 1031
+MOSFET requires five nodes on its instance line: drain, gate, source,
+bulk, and dt.  The fifth node will be the temperature rise of the
+device due to self-heating.
+
+Full documentation for the PSP model is available on its web site,
+\url{http://www.cea.fr/cea-tech/leti/pspsupport}.  Instance and model
+parameters for the PSP model are given in
+tables~\ref{M_103_Device_Instance_Params}, \ref{M_103_Device_Model_Params},
+\ref{M_1031_Device_Instance_Params}, and \ref{M_1031_Device_Model_Params}.
+
+The PSP103 devices support output of the internal variables in
+table~\ref{M_103_OutputVars} and table~\ref{M_1031_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific PSP103 M device in your netlist.
+
+\input{M_103_Device_Instance_Params}
+\input{M_103_Device_Model_Params}
+\input{M_103_OutputVars}
+\input{M_1031_Device_Instance_Params}
+\input{M_1031_Device_Model_Params}
+\input{M_1031_OutputVars}
+
+\clearpage
+
+\subsubsection{Level 111 MOSFET Tables (BSIM CMG version 111.2.1)}
+\Xyce{} includes the BSIM CMG Common Multi-gate model version 111.
+The code in \Xyce{} was generated from the BSIM group's Verilog-A
+input using the default ``ifdef'' lines provided, and therefore
+supports only the subset of BSIM CMG features those defaults enable.
+Instance and model parameters for the BSIM CMG model are given in
+tables~\ref{M_111_Device_Instance_Params} and
+\ref{M_111_Device_Model_Params}.  Details of the model are documented
+in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
+the BSIM web site at
+\url{http://bsim.berkeley.edu/models/bsimcmg/}.
+
+The BSIM CMG devices support output of the internal variables in
+tables~\ref{M_107_OutputVars}, \ref{M_108_OutputVars}, and  \ref{M_111_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 107 or 108 M device in your netlist.
+
+\input{M_111_Device_Instance_Params}
+\input{M_111_Device_Model_Params}
+\input{M_111_OutputVars}
+
+
+\subsubsection{Level 110 MOSFET Tables (BSIM CMG version 110.0.0)}
+
+\Xyce{} includes the legacy BSIM CMG Common Multi-gate model versions 110. 
+This model has been superceded by the level 111 version, but has been retained for 
+backward compatibility with previous versions of Xyce and older model cards and PDKs.
+The code in \Xyce{} was generated from the BSIM group's Verilog-A
+input using the default ``ifdef'' lines provided, and therefore
+supports only the subset of BSIM CMG features those defaults enable.
+Instance and model parameters for the BSIM CMG model are given in
+tables~\ref{M_110_Device_Instance_Params} and
+\ref{M_110_Device_Model_Params}.  Details of the model are documented
+in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
+the BSIM web site at
+\url{http://bsim.berkeley.edu/models/bsimcmg/}.
+
+The BSIM CMG devices support output of the internal variables in
+tables~\ref{M_107_OutputVars}, \ref{M_108_OutputVars}, and  \ref{M_110_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 107 or 108 M device in your netlist.
+
+\input{M_110_Device_Instance_Params}
+\input{M_110_Device_Model_Params}
+\input{M_110_OutputVars}
+
+\subsubsection{Level 107  and 108 MOSFET Tables (BSIM CMG versions 107.0.0 and 108.0.0)}
+\Xyce{} includes the legacy BSIM CMG Common Multi-gate model versions 107 and 108.
+These models have been superceded by the level 110 version, but has been
+retained for backward compatibility with previous versions of Xyce and
+older model cards and PDKs.  The code in \Xyce{} was generated from the BSIM
+group's Verilog-A input using the default ``ifdef'' lines provided,
+and therefore supports only the subset of BSIM CMG features those
+defaults enable.  Instance and model parameters for the BSIM CMG model
+are given in tables~\ref{M_107_Device_Instance_Params},
+\ref{M_107_Device_Model_Params}, \ref{M_108_Device_Instance_Params},
+and~\ref{M_108_Device_Model_Params}.  Details of the model are documented
+in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
+the BSIM web site at \url{http://bsim.berkeley.edu/models/bsimcmg/}.
+
+Note that the TNOIMOD=1 option of BSIM-CMG 108 is not supported in
+Xyce, as it uses features of Verilog-A that are not supported in our
+Verilog-A compiler.  This noise model was added in version 108 and
+removed in version 109.  The TNOIMOD=2 option of BSIM-CMG 108 is the
+same as the TNOIMOD=1 option of BSIM-CMG 110.
+
+\input{M_107_Device_Instance_Params}
+\input{M_107_Device_Model_Params}
+\input{M_107_OutputVars}
+
+\input{M_108_Device_Instance_Params}
+\input{M_108_Device_Model_Params}
+\input{M_108_OutputVars}
+
+
+\clearpage
+\subsubsection{Levels 2000 and 2001 MOSFET Tables (MVS version 2.0.0)}
+\Xyce{} includes the MIT Virtual Source (MVS) MOSFET model version
+2.0.0 in both ETSOI and HEMT variants.  The code in \Xyce{} was
+generated from the MIT Verilog-A input.  Model parameters for the MVS
+model are given in \ref{M_2000_Device_Model_Params} and
+\ref{M_2001_Device_Model_Params}.  The MVS model does not have
+instance parameters.  Details of the model are documented MVS
+Nanotransistor Model 2.0.0 manual, available from the NEEDS web site
+at \url{https://nanohub.org/publications/74/1}.
+
+{\bf NOTE: } Unlike all other MOSFET models in Xyce, the MVS model
+takes only 3 nodes, the drain, gate and source.  It takes no substrate
+node.
+
+\input{M_2000_Device_Model_Params}
+\input{M_2001_Device_Model_Params}
+
+\clearpage
+
+\subsubsection{Level 2002 MOSFET Tables (MVSG\_CMC version 1.1.0)}
+\Xyce{} includes the MIT Virtual Source GaN HEMT High-Voltage
+(MVSG\_CMC) MOSFET model version 1.1.0.  The code in \Xyce{} was
+generated from the MIT Verilog-A input.  Model parameters for the MVS
+model are given in \ref{M_2002_Device_Instance_Params} and
+\ref{M_2002_Device_Model_Params}, and its output variables in
+\ref{M_2002_OutputVars}.  More information about this model may be
+obtained from the CMC standard models page at
+\url{https://si2.org/standard-models}.
+
+\input{M_2002_Device_Instance_Params}
+\input{M_2002_Device_Model_Params}
+\input{M_2002_OutputVars}
+
+
+\clearpage
+\subsubsection{Level 260 MOSFET Tables (EKV version 2.6)}
+
+\Xyce{} includes the EKV MOSFET model, version 2.6 as the level 260
+MOSFET device.
+
+Official documentation of this model may be found at \url{https://www.epfl.ch/labs/iclab/wp-content/uploads/2019/02/ekv_v262.pdf}.
+
+We have implemented EKV 2.6 directly from the Verilog-A source
+published by its authors at \url{https://github.com/ekv26/model}.
+While it is a faithful implementation of the model provided there, we
+have had anecdotal evidence that other simulators have different
+implementations that contain additional parameters and possibly a
+different extrinsic model.  Model cards containing parameters
+extracted from other simulators may not result in \Xyce{} simulations
+that match those other simulators.  Watch carefully for any warnings
+from \Xyce{} regarding unrecognized model parameters, as these are a
+strong indication that the model card is not extracted using the exact
+version of EKV provided by \Xyce{}.
+
+Tables of EKV MOSFET 2.6 parameters are in
+tables~\ref{M_260_Device_Instance_Params} and
+\ref{M_260_Device_Model_Params}.
+
+Note that in the tables the device claims that the default
+\texttt{TNOM} and \texttt{TEMP} parameter values is 1e21.  This is
+merely an artifact of an unusual way the authors have defined those
+parameters in the Verilog-A source.  In fact, if not given
+\texttt{TNOM} defaults to 25 $^\circ$ C, and if not given \texttt{TEMP}
+defaults to the ambient temperature of the simulation.
+
+\input{M_260_Device_Instance_Params}
+\input{M_260_Device_Model_Params}
+
+\clearpage
+\subsubsection{Level 301 MOSFET Tables (EKV version 3.0.1)}
+\Xyce{} includes the EKV MOSFET model, version
+3.0.1~\cite{BLETK:1997}\cite{EKV:2006}\cite{EKV:2007}.  Full
+documentation for the EKV3 model is available on the \Xyce{} internal web site;
+the documentation for the EKV3 model may be freely redistributed.  Instance and
+model parameters for the EKV model are given in
+tables~\ref{M_301_Device_Instance_Params} and \ref{M_301_Device_Model_Params}.
+
+The EKV3 model is developed by the EKV Team of the Electronics Laboratory-TUC
+(Technical University of Crete). It is included in \Xyce{} under license from
+Technical University of Crete.  The official web site of the EKV model is
+\url{http://ekv.epfl.ch/}.
+
+\textbf{Due to licensing restrictions, the EKV3 MOSFET is not available in
+     open-source versions of \Xyce{}.  The license for EKV3 authorizes Sandia
+     National Laboratories to distribute EKV3 only in binary versions of code.}
+
+
+\input{M_301_Device_Instance_Params}
+\input{M_301_Device_Model_Params}
+
+\clearpage
+\subsubsection{Level 10240 MOSFET Tables (L\_UTSOI Version 102.4.0)}
+Select \Xyce{} binaries include the L\_UTSOI MOSFET model as the level
+10240 MOSFET.  This model's parameters and output variables are listed in tables~\ref{M_10240_Device_Instance_Params}, \ref{M_10240_Device_Model_Params}, and \ref{M_10240_OutputVars}
+
+\input{M_10240_Device_Instance_Params}
+\input{M_10240_Device_Model_Params}
+\input{M_10240_OutputVars}
+

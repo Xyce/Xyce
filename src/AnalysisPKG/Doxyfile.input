@@ -1,0 +1,2 @@
+INPUT += ../../src/AnalysisPKG/index.dox \
+         ../../src/AnalysisPKG/

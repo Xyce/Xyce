@@ -1,0 +1,47 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, there is a non-exclusive license for use of this work by or on
+//   behalf of the U.S. Government.  Export of this data may require a
+//   license from the United States Government.
+//
+//
+//   OFFICIAL USE ONLY
+//   May be exempt from public release under the Freedom of Information Act
+//   (5 U.S.C. 552), exemption number and category: 3. Statutory Exemption.
+//
+//   Department of Energy review required before public release
+//
+//   Name/Org: Jason C. Verley / 1355        Date: September 26, 2017
+//   Guidance (if applicable):
+//
+//
+//   Export Controlled Information
+//   WARNING – This document contains technical data whose export is
+//   restricted by the Atomic Energy Act of 1954, as amended, 42 U.S.C.
+//   § 2011, et seq.  Violations of these export laws are subject to
+//   severe criminal penalties.
+//
+//   Further dissemination authorized to the Department of Energy and DOE
+//   contractors only; other requests shall be approved by the originating
+//   facility or higher DOE programmatic authority.
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+//
+// Purpose        : Describe the purpose of the contents of the file. If the
+//                  contains the header file of a class, provide a clear
+//                  description of the nature of the class.
+//
+// Special Notes  : Specify any "hidden" or subtle details of the class here.
+//                  Portability details, error handling information, etc.
+//
+// Creator        : {Name of the Creator of the File}
+//
+// Creation Date  : {mm/dd/yy}
+//
+//
+//
+//
+//-------------------------------------------------------------------------
+

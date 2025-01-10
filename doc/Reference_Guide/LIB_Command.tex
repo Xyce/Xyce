@@ -1,0 +1,125 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+The \texttt{.LIB} command is similar to \texttt{.INCLUDE}, in that it
+brings in an external file.  However, it is
+designed to only bring in specific parts of a library file, as designated
+by an entry name.
+Note that the \Xyce{} version of \texttt{.LIB} has been designed to be compatible
+with HSPICE~\cite{Hspice}, not PSpice~\cite{Pspice}.
+
+There are two forms of the \texttt{.LIB} statement, the call and the
+definition.  The call statement reads in a specified subset of a
+library file, and the definition statement defines the subsets.
+
+\subsubsection{.LIB call statement}
+\begin{Command}
+\format
+.LIB <file name> <entry name>
+
+\examples
+\begin{alltt}
+.LIB models.lib nom
+.LIB 'models.lib'  low
+.LIB "models.lib"  low
+.LIB "path/models.lib"  high
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{file name}
+Name of file containing netlist data.  Single or double quotes
+(\texttt{"} or \texttt{'}) may be used around the file name.
+
+\argument{entry name}
+Entry name, which determines the section of the file to be included.
+These sections are defined in the included file using the definition
+form of the \texttt{.LIB} statement.
+
+\end{Arguments}
+\end{Command}
+
+The library file name can be surrounded by quotes (single or double),
+as in "path/filename" but this is not necessary.  The directory for
+the library file is assumed to be the execution directory unless a
+full or relative path is given as a part of the file name.  The
+section name denotes the section or sections of the library file to
+include.
+
+If {\texttt <file name>} uses an absolute path then that path is used.
+Otherwise, the search-path order for {\texttt <file name>} is:
+\begin{XyceItemize}
+  \item Relative to the directory that contains {\texttt <file name>}.
+  \item Relative to the directory that contains the file with the top-level
+netlist.
+  \item Relative to the \Xyce{} execution directory.
+\end{XyceItemize}
+
+\subsubsection{.LIB definition statement}
+The format given above is when the \texttt{.LIB} command is used to reference
+a library file; however, it is also used as part of the syntax in a library
+file. 
+
+\begin{Command}
+\format
+\begin{alltt}
+.LIB <entry name>
+<netlist lines>*
+.endl <entry name>
+\end{alltt}
+
+\examples
+\begin{alltt}
+
+* Library file res.lib
+.lib low
+.param rval=2
+r3  2  0  9
+.endl low
+
+.lib nom
+.param rval=3
+r3  2  0  8
+.endl nom
+\end{alltt}
+
+\arguments
+\begin{Arguments}
+\argument{entry name}
+The name to be used to identify this library component.  When used on a \texttt{.LIB} call line, these segments of the library file will be included in the calling file.
+\end{Arguments}
+\end{Command}
+
+Note that for each entry name, there is a matched \texttt{.lib}
+and \texttt{.endl}.  Any valid netlist commands can be placed inside
+the \texttt{.lib} and \texttt{.endl} statements.  The following is an
+example calling netlist, which refers to the library in the examples above:
+
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}* Netlist file res.cir\color{black}
+V1  1   0   1
+R   1   2   \{rval\}
+.lib res.lib nom
+.tran 1 ps 1ns
+.end
+\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+In this example, only the netlist commands that are inside of the
+``nom'' library will be parsed, while the commands inside of the
+``low'' library will be discarded.  As a result, the value for
+resistor r3 is 8, and the value for rval is 3.

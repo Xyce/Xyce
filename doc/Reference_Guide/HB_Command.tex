@@ -1,0 +1,48 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.HB}}
+\index{analysis!HB} \index{harmonic balance analysis}
+Calculates steady states of nonlinear circuits in the frequency domain.
+
+\begin{Command}
+
+\format
+.HB <fundamental frequencies>
+
+\examples
+.HB 1e4
+
+.hb 1e4 2e2
+\arguments
+
+\begin{Arguments}
+\argument{fundamental frequencies}
+Sets the fundamental frequencies for the analysis.
+
+\end{Arguments}
+
+\comments
+
+Harmonic balance analysis calculates the magnitude and phase of voltages
+and currents in a nonlinear circuit. Use a \texttt{.OPTIONS HBINT}
+statement to set additional harmonic balance analysis options.
+
+The \texttt{.PRINT HB}\index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{HB}}
+statement must be used to get the results of the harmonic balance analysis. 
+See section \ref{.PRINT}.
+
+Some devices that may be expected to work in HB analysis do not at this time.  
+  This includes some use cases of B sources (but not all).  A time-dependent B 
+  source will not work with HB.  However, a B source that is purely dependent 
+  (such as a nonlinear resistor) will work.    This same guidance applies to the 
+  E,F,G, and H dependent sources.
+
+\end{Command}

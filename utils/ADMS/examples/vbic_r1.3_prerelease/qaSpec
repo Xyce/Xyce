@@ -1,0 +1,121 @@
+
+//
+// CMC QA test specification file for VBIC (4T version)
+//
+
+//
+// Simulator specific information
+//
+
+`ifdef mica
+nTypeSelectionArguments     vbic type=-1
+pTypeSelectionArguments     vbic type=+1
+scaleParameters             scale shrink m
+`endif
+`ifdef ads
+nTypeSelectionArguments     vbic type=-1
+pTypeSelectionArguments     vbic type=+1
+keyLetter                   a
+scaleParameters             m
+`endif
+`ifdef spectre
+nTypeSelectionArguments     vbic type=-1
+pTypeSelectionArguments     vbic type=+1
+scaleParameters             scale shrink m
+`endif
+`ifdef xyce
+nTypeSelectionArguments     npn level=12
+pTypeSelectionArguments     pnp level=12
+keyLetter                   q
+scaleParameters             m
+`endif
+
+//
+// General test-independent information
+//
+
+pins                        c b e s
+temperature                 27
+verilogAfile                vbic_1p3.va
+checkPolarity               yes
+
+//
+// DC tests for various conditions bias and parameter sets and temperatures
+//
+
+test                        dcFg
+biases                      V(c,b)=0 V(e)=0 V(s)=0
+biasSweep                   V(b)=0.2,1.2,0.01
+outputs                     I(c) I(b) I(s)
+modelParameters             parameters/pars
+instanceParameters             sw_et=0
+
+test                        dcFo
+biases                      V(e)=0 V(s)=0
+biasList                    V(b)=0.70,0.75,0.80,0.85,0.90,0.95,1.00
+biasSweep                   V(c)=0.00,5.00,0.05
+outputs                     I(c) I(b) I(s)
+modelParameters             parameters/pars
+instanceParameters             sw_et=0
+
+test                        dcRg
+biases                      V(e,b)=0 V(c)=0 V(s)=0
+biasSweep                   V(b)=0.2,1.0,0.01
+outputs                     I(e) I(b) I(s)
+modelParameters             parameters/pars
+instanceParameters             sw_et=0
+
+test                        dcRo
+biases                      V(c)=0 V(s)=0
+biasList                    V(b)=0.70,0.75,0.80,0.85,0.90,0.95,1.00
+biasSweep                   V(e)=0.00,5.00,0.05
+outputs                     I(e) I(b) I(s)
+modelParameters             parameters/pars
+instanceParameters             sw_et=0
+
+test                        dcTemp
+biases                      V(c,b)=0 V(e)=0 V(s)=0
+biasSweep                   V(b)=0.2,1.2,0.01
+outputs                     I(c) I(b)
+modelParameters             parameters/pars
+temperature                 -50,50,150
+instanceParameters             sw_et=0
+
+//
+// AC test (same set up as excess phase test but with TD=0)
+//
+
+test                        acCf
+biases                      V(c)=3 V(e)=0 V(s)=0 V(b)=0.7
+frequency                   dec 10 1e6 1e10
+outputs                     G(c,b) C(c,b)
+modelParameters             parameters/pars
+instanceParameters             sw_et=0
+
+//
+// DC tests with self-heating
+//
+
+test                        dcFoEt
+biases                      V(e)=0 V(s)=0
+biasList                    V(b)=0.70,0.75,0.80,0.85,0.90,0.95,1.00
+biasSweep                   V(c)=0.00,5.00,0.05
+outputs                     I(c) I(b) I(s)
+modelParameters             parameters/pars
+
+test                        dcFgHbt
+biases                      V(e)=0 V(s)=0 V(c,b)=0
+biasSweep                   V(b)=0.50,2.00,0.01
+outputs                     I(c) I(b)
+modelParameters             parameters/pars_hbt
+
+//
+// AC test with excess phase
+//
+
+test                        acXf
+biases                      V(c)=3 V(e)=0 V(s)=0 V(b)=0.7
+frequency                   dec 10 1e6 1e10
+outputs                     G(c,b) C(c,b)
+modelParameters             parameters/pars_td
+instanceParameters             sw_et=0

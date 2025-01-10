@@ -1,0 +1,90 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Known defects and workarounds.
+%%
+\small
+
+\begin{longtable}[h,t,b,p] {|
+>{\setlength{\hsize}{0.40\hsize}}Y|
+>{\setlength{\hsize}{0.60\hsize}}Y|} 
+
+  \caption{Known Defects and Workarounds.} \\ \hline
+
+\rowcolor{XyceDarkBlue}
+\color{white}\bf Defect &
+\color{white}\bf Description
+\\ \hline
+\endhead
+
+{\bf 855-SRN}: AC and HB analysis do not work in parallel & In this
+version of \Xyce{}, analysis types that require use of block linear
+algebra classes in Trilinos/Epetra do not work in parallel.  The analysis
+types that use block linear algebra classes are AC and HB.
+
+{\bf\it Workaround:} There is no workaround other than to run all such
+problems in serial. \\ \hline
+   
+{\bf 37-SON}: Connectivity checking is broken for devices with more
+than 10 leads & The diagnostic code used by the \Xyce{} setup that
+checks circuit topology for basic errors such as a node having no DC
+path to ground or a node being connected to only one device has a bug
+in it that causes the code to emit a cryptic error message, after
+which the code will exit.  This error has so far only been seen when a
+user has attempted to connect a large number of inductors together
+using multiple mutual inductor lines.  The maximum number of
+non-ground leads that can be used without confusing this piece of code
+is 10.  If you have such a large mutual inductor and the code exits
+with an error message, this bug is the source of the problem.
+
+The error message now includes a recommendation to use the workaround below.
+
+{\bf\it Workaround:} Disable connectivity checking by adding the line
+
+\begin{alltt}
+.OPTIONS TOPOLOGY CHECK_CONNECTIVITY=0
+\end{alltt}
+
+to your netlist.  This will disable the check for the basic errors such
+as floating nodes and improperly connected devices, but will allow the
+netlist to run with a highly-connected mutual inductor. \\ \hline
+
+\texttt{.DC} sweep output. & \texttt{.DC} sweep calculation does not
+automatically output the sweep variable.  Only variables explicitly listed on the \texttt{.PRINT} line are output.
+
+{\bf\it Workaround:} List output sweep variable(s) explicitly in the \texttt{.PRINT} statement.  \\ \hline
+
+{\bf 772-SRN}: Infinite-slope transitions in B-sources causes "time step
+too small" errors & The nonlinear dependent source (``B-source'') allows
+the user to specify expressions that could have infinite-slope
+transitions, such as
+
+\begin{alltt}
+Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} 
+\end{alltt}
+
+This can lead to ``timestep too small'' errors when \Xyce{} reaches
+the transition point.  Infinite-slope transitions in expressions
+dependent only on the \texttt{time} variable are a special case,
+because \Xyce{} can detect that they are going to happen in the future
+and set a ``breakpoint'' to capture them.  Infinite-slope transitions
+depending on other solution variables cannot be predicted in advance,
+and cause the time integrator to scale back the timestep repeatedly in
+an attempt to capture the feature until the timestep is too small to
+continue.
+
+{\bf\it Workaround:} Do not use step-function or other infinite-slope
+transitions dependent on variables other than \texttt{time}.  Smooth
+the transition so that it is more easily integrated through. \\ \hline
+
+
+\end{longtable}
+

@@ -1,0 +1,553 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Send analysis results to an output file.
+\index{\texttt{.PRINT}}
+\index{results!print}
+
+\Xyce{} allows multiple output files to be created during the run and
+supports several options for each.
+
+\newenvironment{PrintCommandTable}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{3in}<{\normalfont}>{\raggedright\small}m{1.75in}>{\raggedright\let\\\tabularnewline\small}m{1.75in}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Trigger &
+                   \color{white}\bf Files &
+                   \color{white}\bf Columns/Description \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Trigger &
+                   \color{white}\bf Files &
+                   \color{white}\bf Columns/Description \endhead}
+               {\end{longtable}}
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.PRINT <print type> [FILE=<output filename>]
++ [FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT|SPLOT>]
++ [WIDTH=<print field width>]
++ [PRECISION=<floating point output precision>]
++ [FILTER=<absolute value below which a number outputs as 0.0>]
++ [DELIMITER=<TAB|COMMA|SEMICOLON|COLON|"string">] 
++ [TIMESCALEFACTOR=<real scale factor>]
++ [OUTPUT\_SAMPLE\_STATS=<boolean>] [OUTPUT\_ALL\_SAMPLES=<boolean>]
++ <output variable> [output variable]*
+\end{alltt}
+
+\examples
+\begin{alltt}
+.print tran format=tecplot V(1) I(Vsrc) \{V(1)*(I(Vsrc)**2.0)\}
+
+.PRINT TRAN FORMAT=PROBE FILE=foobar.csd V(1) \{abs(V(1))-5.0\}
+
+.PRINT DC FILE=foobar.txt WIDTH=19 PRECISION=15 FILTER=1.0e-10
++ I(VSOURCE5) I(VSOURCE6)
+
+.print tran FORMAT=RAW V(1) I(Vsrc)
+
+R1 1 0 100
+X1 1 2 3 MySubcircuit
+V1 3 0 1V
+.SUBCKT MYSUBCIRCUIT 1 2 3
+R1 1 2  100K
+R2 2 4  50K
+R3 4 3  1K
+.ENDS
+
+.PRINT DC V(X1:4) V(2) I(V1)
+\end{alltt}
+
+
+\arguments
+
+\begin{Arguments}
+
+\argument{print type}
+
+A print type is the name of an analysis, one of the analysis specific
+print subtypes, or a specialized output command.
+
+\input{Print_Types.tex}
+
+A netlist may contain many \texttt{.PRINT} commands, but only commands
+with analysis types which are appropriate for the analysis being
+performed are processed.  This feature allows you to generate multiple
+formats and variable sets in a single analysis run.
+
+For analysis types that generate multiple output files, the print
+subtype allows you to specify variables and output parameters for each
+of those output files.  If there is no \texttt{.PRINT <subtype>} provided in the
+net list, the variables and parameters from the analysis type will be
+used.
+
+\argument{FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT|SPLOT>}
+
+The output format may be specified using the \texttt{FORMAT} option.
+The \texttt{STD} format outputs the data divided up into data columns.
+The \texttt{NOINDEX} format is the same as the \texttt{STD} format
+except that the index column is omitted. The \texttt{PROBE} format
+specifies that the output should be formatted to be compatible with the
+\index{PSpice!Probe} PSpice Probe plotting utility.  The
+\texttt{TECPLOT} format specifies that the output should be formatted to
+be compatible with the Tecplot plotting program.  The \texttt{RAW}
+format specifies that the output should comply with the SPICE binary
+rawfile format.  The {\bf -a} command line option, in conjunction with
+\texttt{FORMAT=RAW} on the \texttt{.PRINT} line, can then be used to output an
+ASCII rawfile.  The \texttt{CSV} format specifies that the output file
+should be a comma-separated value file with a header indicating the
+variables printed in the file.  It is similar to, but not identical to
+using \texttt{DELIMITER=COMMA}; the latter will also print a footer that
+is not compatible with most software that requires CSV format.  The \texttt{GNUPLOT}
+(or \texttt{SPLOT}) format is the same as the \texttt{STD} format except
+that if \texttt{.STEP} is used then two (or one) blank lines are inserted
+before the data for steps 1,2,3,... where the first step is step 0. The
+\texttt{SPLOT} format is useful for when the ``splot'' command in gnuplot
+is used to produce 3D perspective plots.
+
+\argument{FILE=<output filename>}
+
+Specifies the name of the file to which the output will be written.
+See the ``Results Output and Evaluation Options'' section of the 
+\Xyce{} Users' Guide\UsersGuide for more information on how this
+feature works for analysis types (e.g., AC and HB) that can produce 
+multiple output files. 
+
+\argument{WIDTH=<print field width>}
+
+Controls the output width used in formatting the output.
+
+\argument{PRECISION=<floating point precision>}
+
+Number of floating point digits past the decimal for output data.
+
+\argument{FILTER=<filter floor value>}
+
+Used to specify the absolute value below which output variables will be
+printed as \texttt{0.0}.
+
+\argument{DELIMITER=<TAB|COMMA|SEMICOLON|COLON|"string">}
+
+Used to specify an alternate delimiter in the STD, NOINDEX, GNUPLOT or CSV format
+output.  In addition to \texttt{TAB}, \texttt{COMMA}, \texttt{SEMICOLON} and 
+\texttt{COLON}, the delimiter can also be specified using a quoted 
+character string.  When this option is used, that string is the delimiter.
+
+\argument{TIMESCALEFACTOR=<real scale factor>}
+
+Specify a constant scaling factor for time.  Time is normally printed in
+units of seconds, but if one would like the units to be milliseconds,
+then set TIMESCALEFACTOR=1000.
+
+\argument{OUTPUT\_SAMPLE\_STATS=<boolean>}
+Output the sample statistics for an \texttt{EMBEDDEDSAMPLING}
+analysis.This argument is only supported for \texttt{.PRINT ES}.
+Its default value is true.  Section \ref{EMBEDDEDSAMPLING_section}
+has more details.
+
+\argument{OUTPUT\_ALL\_SAMPLES=<boolean>}
+Output all of the sample values for an \texttt{EMBEDDEDSAMPLING}
+analysis.  This argument is only supported for \texttt{.PRINT ES}.
+Its default value is false.  Section \ref{EMBEDDEDSAMPLING_section}
+has more details.
+
+\argument{<output variable>}
+
+Following the analysis type and other options is a list of output
+variables. There is no upper bound on the number of output variables.
+The output is divided up into data columns and output according to any
+specified options (see options given above).  Output variables can be
+specified as:
+
+\begin{XyceItemize}
+\item \texttt{V(<circuit node>)} to output the voltage at \texttt{<circuit node>}
+\item \texttt{V(<circuit node>,<circuit node>)} to output the voltage difference between the first \texttt{<circuit node>} and second \texttt{<circuit node>}
+\item \texttt{I(<device>)} to output current through a two terminal device
+\item \texttt{I<lead abbreviation>(<device>)} to output current into a particular lead of a three or more terminal device (see the Comments, below, for details) \index{lead currents}
+\item \texttt{P(<device>)} or \texttt{W(<device>)} to output the power dissipated/generated in a device. 
+At this time, not all devices support power calculations. In addition, the results for semiconductor devices
+(D, J, M, Q and Z devices) and the lossless transmission device (T device) may differ from other simulators.  
+Consult the Features Supported by Xyce Device Models table
+in section \ref{Analog_Devices} and the individual sections on each device for more details.  Finally,
+power calculations are not supported for any devices for \texttt{.AC} and \texttt{.NOISE} analyses.
+\item \texttt{N(<device internal variable>)} to output a specific device's internal variable. (The comments section
+below has more detail on this syntax.)
+\item \texttt{\{expression\}} to output an expression
+\item \texttt{<device>:<parameter>} to output a device parameter
+\item \texttt{<model>:<parameter>} to output a model parameter
+\end{XyceItemize}
+When the analysis type is AC, HB or Noise, additional output variable formats are available:
+\begin{XyceItemize}
+\item \texttt{VR(<circuit node>)} to output the real component of voltage response at a point in the circuit
+\item \texttt{VI(<circuit node>)} to output the imaginary component of voltage response at a point in the circuit
+\item \texttt{VM(<circuit node>)} to output the magnitude of voltage response
+\item \texttt{VP(<circuit node>)} to output the phase of voltage response in degrees
+\item \texttt{VDB(<circuit node>)} to output the magnitude of voltage response in decibels.
+\item \texttt{VR(<circuit node>,<circuit node>)} to output the real component of voltage response between two nodes in the circuit
+\item \texttt{VI(<circuit node>,<circuit node>)} to output the imaginary component of voltage response between two nodes in the circuit
+\item \texttt{VM(<circuit node>,<circuit node>)} to output the magnitude of voltage response between two nodes in the circuit
+\item \texttt{VP(<circuit node>,<circuit node>)} to output the phase of voltage response between two nodes in the circuit in degrees
+\item \texttt{VDB(<circuit node>,<circuit node>)} to output the magnitude of voltage response between two nodes in the circuit, in decibels
+\item \texttt{IR(<device>)} to output the real component of the current through a two terminal device
+\item \texttt{II(<device>)} to output the imaginary component of the current through a two terminal device
+\item \texttt{IM(<device>)} to output the magnitude of the current through a two terminal device
+\item \texttt{IP(<device>)} to output the phase of the current through a two terminal device in degrees
+\item \texttt{IDB(<device>)} to output the magnitude of the current through a two terminal device in decibels.
+\end{XyceItemize}
+
+In AC and Noise analyses, outputting a voltage node without any of these
+optional designators results in output of the real and imaginary parts of the signal.
+Note that under AC and Noise analyses, current variables are only supported for
+devices that have ``branch currents''that are part of the solution vector. This includes
+the V, E, H and L devices.  It also includes the voltage-form of the B device.
+
+Note that when using the variable list for time domain output, usage of
+frequency domain functions like \texttt{VDB} can result in -Inf output being
+written to the output file.  This is easily solved by defining the time
+domain equivalent command to specify the correct output for time domain
+data.
+
+Further explanation of the current specifications is given in comments section below.
+
+When a \texttt{.LIN} analysis is done then additional output variable formats are available
+via the \texttt{.PRINT AC} line, where \texttt{<index1>} and \texttt{<index2>} must both
+be greater than 0 and also both less than or equal to the number of ports in the netlist:
+\begin{XyceItemize}
+\item \texttt{SR(<index1>,<index2>)} to output the real component of an S-parameter
+\item \texttt{SI(<index1>,<index2>)} to output the imaginary component of an S-parameter
+\item \texttt{SM(<index1>,<index2>)} to output the magnitude of an S-parameter
+\item \texttt{SP(<index1>,<index2>)} to output the phase of an S-parameter in degrees
+\item \texttt{SDB(<index1>,<index2>)} to output the magnitude of an S-parameter in decibels.
+\item \texttt{YR(<index1>,<index2>)} to output the real component of a Y-parameter
+\item \texttt{YI(<index1>,<index2>)} to output the imaginary component of a Y-parameter
+\item \texttt{YM(<index1>,<index2>)} to output the magnitude of a Y-parameter
+\item \texttt{YP(<index1>,<index2>)} to output the phase of a Y-parameter in degrees
+\item \texttt{YDB(<index1>,<index2>)} to output the magnitude of a Y-parameter in decibels.
+\item \texttt{ZR(<index1>,<index2>)} to output the real component of a Z-parameter
+\item \texttt{ZI(<index1>,<index2>)} to output the imaginary component of a Z-parameter
+\item \texttt{ZM(<index1>,<index2>)} to output the magnitude of a Z-parameter
+\item \texttt{ZP(<index1>,<index2>)} to output the phase of a Z-parameter in degrees
+\item \texttt{ZDB(<index1>,<index2>)} to output the magnitude of a Z-parameter in decibels.
+\end{XyceItemize}
+
+When the analysis type is Noise, additional output variable formats are available
+via the \texttt{.PRINT NOISE} line for devices that support stationary noise.
+\begin{XyceItemize}
+\item \texttt{INOISE} to output the input noise contributions
+\item \texttt{ONOISE} to output the output noise contributions
+\item \texttt{DNI(<deviceName>)} to output the input noise contribution from device <deviceName>
+\item \texttt{DNI(<deviceName>,<noiseSource>)} to output the input noise contribution from
+                source <noiseSource> for device <deviceName>
+\item \texttt{DNO(<deviceName>)} to output the output noise contribution from device <deviceName>
+\item \texttt{DNO(<deviceName>,<noiseSource>)} to output the output noise contribution from
+                source <noiseSource> for device <deviceName>
+\end{XyceItemize}
+
+\end{Arguments}
+
+\comments
+
+\begin{XyceItemize}
+\item Currents are positive flowing from node 1 to node 2 for two node
+  devices, and currents are positive flowing into a particular lead for
+  multi-terminal devices.
+
+\item \texttt{<circuit node>} is simply the name of any node in your
+  top-level circuit, or \texttt{<subcircuit name>:<node>} to reference
+  nodes that are internal to a subcircuit.
+
+\item \texttt{<device>} is the name of any device in your top-level
+  circuit, or \texttt{<subcircuit name>:<device>} to reference devices
+  that are internal to a subcircuit.
+
+\item \texttt{<lead abbreviation>} is a single character designator for
+  individual leads on a device with three or more leads.  For bipolar
+  transistors these are: c (collector), b (base), e (emitter), and s
+  (substrate).  For MOSFETs, JFETs, and MESFETs, lead abbreviations
+  are: d (drain), g (gate), s (source), and for MOSFETS and JFETs,
+  b (bulk).  In addition to these standard leads, SOI
+  and CMG MOSFETs have e (bulk) nodes and SOI transistors have
+  optional b (body) nodes whose lead currents may also be printed in
+  this manner.  For PDE devices, the nodes are numbered according to
+  the order they appear, so lead currents are referenced like
+  I1(\texttt{<device>}), I2(\texttt{<device>}), etc.  In \Xyce{},
+  a \texttt{.PRINT} line request like \texttt{I(Q1)} is a parsing
+  error for a multi-terminal device.  Instead, an explicit lead
+  current designator like \texttt{IC(Q1)} must be used.
+
+\item The "lead current" method of printing from devices in Xyce is done
+  at a low level with special code added to each device; the method is
+  therefore only supported in specific devices that have this extra
+  code.  So, if \texttt{.PRINT I(Y)} does not work, for a device called
+  Y, then you will need to attach an ammeter (zero-volt voltage source)
+  in series with that device and print the ammeter's current instead.
+
+\item Lead currents of subcircuit ports are not supported.  However,
+  access is provided via specific node names (e.g.,
+  \texttt{X1:internalNodeName}) or specific devices (e.g.,
+  \texttt{X1:V3}) inside the subcircuit.
+
+\item For STD formatted output, the values of the output variables are
+  output as a series of columns (one for each output variable).
+
+\item When the command line option \texttt{-r <raw-file-name>} is used,
+  all of the output is diverted to the \emph{raw-file-name} file as a
+  concatenation of the plots, and each plot includes all of the
+  variables of the circuit instead of the variable list(s) given on the
+  \texttt{.PRINT} lines in the netlist.  Using the \texttt{-a} options in
+  conjunction with the \texttt{-r} option results in a raw file that is
+  output all in ASCII characters.
+
+\item Any output going to the same file from one simulation of \Xyce{}
+  results in the concatenation of output.  However, if a simulation is
+  re-run then the original output will we over-written.
+
+\item During analysis a number of output files may be generated.  The
+  selection of which files are created depends on a variety of factors,
+  most obvious of which is the \texttt{.PRINT} command. See
+  section~\ref{Netlist_Commands} for more details.
+
+\item Frequency domain values are output as complex values for Raw,
+  TecPlot and Probe formats when a complex variable is printed.  For STD
+  and CSV formats, the output appears in two columns, the real part
+  followed by the imaginary part.  The print variables 
+  \texttt{VR, VI, VM, VDB} and \texttt{VP} print the scalar values 
+  for the real part, imaginary part,
+  magnitude, magnitude in decibels, and phase, respectively.
+
+\item When outputting a device or model parameter, it is usually
+  necessary to specify both the device name and the parameter name,
+  separated by a colon.  For example, the saturation current of a
+  diode model \texttt{DMOD} would be requested
+  as \texttt{DMOD:IS}. Section~\ref{Print_Device_Info} on ``Device
+  Parameters and Internal Variables'' below gives more details and
+  provides an example.
+
+\item The \texttt{N()} syntax is used to access internal solution variables 
+that are not normally visible from the netlist, such as voltages on
+internal nodes and/or branch currents within a given device.  The
+internal solution variables for each \Xyce{} device are not given in
+the Reference Guide sections on those devices.  However, if the user
+runs \texttt{Xyce -namesfile <filename> <netlist>} then \Xyce{} will
+output into the first filename a list of all solution variables
+generated by that netlist.  Section~\ref{Print_Device_Info} on
+``Device Parameters and Internal Variables'' below gives more details
+and provides an example.
+
+\item The \texttt{DNI()} and \texttt{DNO()} syntax is used to print out the
+  individual input and output noise contributions for each noise source within
+  a device. The user can get a listing of the noise source names for each device in
+  a netlist by running \texttt{Xyce -noise\_names\_file <filename> <netlist>}.
+  The \Xyce{} Users' Guide\UsersGuide provides an example.
+
+\item If multiple \texttt{.PRINT} lines are given for the same analysis type,
+  the same output file name, and the same format, the variable lists
+  of all matching \texttt{.PRINT} lines are merged together in the order
+  found, and the resulting output is the same as if all the print line
+  variable lists had been specified on a single \texttt{.PRINT} line.
+
+\item Attempting to specify multiple \texttt{.PRINT} lines for the same
+  analysis type to the same file with different specifications
+  of \texttt{FORMAT} is an error.
+
+\item \Xyce{} should emit a warning or error message, similar to 
+  ``Could not open filename'' if: 1) the name of the output file is 
+  actually a directory name; or 2) the output file is in a 
+  subdirectory that does not already exist.  \Xyce{} 
+  will not create new subdirectories.
+
+\item The output filename specified with the -r command line option,
+  to produce raw file output, should take precedence over
+  a {\tt FILE=} parameter specified on a {\tt .PRINT} line.
+
+\item The print statements for some analysis types could result in multiple
+  output files.  For example, \texttt{.PRINT HB} will produce both
+  frequency- and time-domain output, and place these in different files.
+  The default name of these files is the name of the netlist followed by
+  a data type suffix, followed by a format-specific extension.
+
+  In \Xyce{}, if a \texttt{FILE} option is given to such a print
+  statement, only the ``primary'' data for that analysis type is sent to
+  the named file.  The secondary data is still sent to the default file
+  name.  This behavior may be subject to change in future releases.
+
+  For analysis types that can produce multiple files,
+  special \texttt{.PRINT} lines have been provided to allow the user to
+  control the handling of the additional files.  These additional print
+  line specifiers are enumerated in the analysis-specific sections
+  below.
+
+  If one desires that all outputs for a given analysis type be given
+  user-defined file names, it is necessary to use additional print lines
+  with additional \texttt{FILE} options.  For example, if one uses
+  a \texttt{FILE} option to a \texttt{.PRINT HB} line, only
+  frequency-domain data will be sent to the named file.  To redirect the
+  time-domain data to a file with a user-defined name, add
+  a \texttt{.PRINT HB\_TD} line.  See the individual analysis types
+  below for details of what additional print statements are available.
+\end{XyceItemize}
+
+\end{Command}
+
+\subsubsection{Print AC Analysis}
+\index{\texttt{.PRINT}!AC Analysis}
+\index{\texttt{.PRINT}!\texttt{AC}}
+\input{PRINT_AC_Command.tex}
+
+\subsubsection{Print DC Analysis}
+\index{\texttt{.PRINT}!DC Analysis}
+\index{\texttt{.PRINT}!\texttt{DC}}
+\input{PRINT_DC_Command.tex}
+
+\subsubsection{Print Harmonic Balance Analysis}
+\index{\texttt{.PRINT}!Harmonic Balance Analysis}
+\index{\texttt{.PRINT}!\texttt{HB}}
+\input{PRINT_HB_Command.tex}
+
+\subsubsection{Print Noise Analysis}
+\index{\texttt{.PRINT}!Noise Analysis}
+\index{\texttt{.PRINT}!\texttt{NOISE}}
+\input{PRINT_NOISE_Command.tex}
+
+\subsubsection{Print Transient Analysis}
+\index{\texttt{.PRINT}!Transient Analysis}
+\index{\texttt{.PRINT}!\texttt{TRAN}}
+\input{PRINT_TRAN_Command.tex}
+
+\subsubsection{Print Homotopy}
+\label{Print_Homotopy}
+\index{\texttt{.PRINT}!Homotopy Analysis}
+\input{PRINT_HOMOTOPY_Command.tex}
+
+\subsubsection{Print Sensitivity}
+\label{Print_Sensitivity}
+\index{\texttt{.PRINT}!Homotopy Analysis}
+\input{PRINT_SENS_Command.tex}
+
+\subsubsection{Print Embedded Sampling Analysis}
+\index{\texttt{.PRINT}!EMBEDDEDSAMPLING Analysis}
+\index{\texttt{.PRINT}!\texttt{ES}}
+\input{PRINT_ES_Command.tex}
+
+\subsubsection{Print Intrusive PCE Analysis}
+\index{\texttt{.PRINT}!PCE Analysis}
+\index{\texttt{.PRINT}!\texttt{PCE}}
+\input{PRINT_PCE_Command.tex}
+
+\subsubsection{Parameter Stepping}
+\label{Print_Step}
+\index{\texttt{.PRINT}!Parameter Stepping}
+\input{PRINT_STEP_Command.tex}
+
+\subsubsection{Print Wildcards}
+\label{Print_Wildcards}
+\index{\texttt{.PRINT}!Wildcards}
+Wildcards are supported on \texttt{.PRINT} lines, as described below.  In particular, 
+\texttt{V(*)} will print all of the node voltages in the circuit for all
+analysis modes.  The \texttt{P(*)}  and \texttt{W(*)} wildcards are supported
+for analysis modes (TRAN and DC) that support power calculations.
+
+For TRAN and DC analysis modes, \texttt{I(*)} will print all of the
+currents.  This includes both solution variables, which generally means those
+associated  with voltage sources and inductors that are not coupled through
+a mutual inductance device, and the lead currents associated with most
+other devices.  For TRAN and DC, the \texttt{I(*)} wildcard also supports
+lead currents for the multi-terminal J, M and Z devices via
+\texttt{IB(*)}, \texttt{ID(*)}, \texttt{IG(*)} and \texttt{IS(*)}, and 
+for the multi-terminal Q device via \texttt{IB(*)}, \texttt{IC(*)}, \texttt{IE(*)}
+and \texttt{IS(*)}.  The \texttt{IE(*)} wildcard is also supported for SOI
+and CMG devices.  A  request for \texttt{I(*)} will not return any of the lead currents
+for  J, M, Q or Z devices.  Wildcards of the form \texttt{I1(*)},
+that use numerical designators, are only supported for the T and YGENEXT devices.
+Finally, as an example, a request for IC(*) in a netlist that does not contain
+any Q devices will be silently ignored. 
+
+For AC and NOISE analysis modes, the \texttt{I(*)} operator will only output
+the branch currents, since lead currents are not supported for those two
+analysis modes.  The \texttt{VR(*)}, \texttt{VI(*)}, \texttt{VP(*)},
+\texttt{VM(*)}, \texttt{VDB(*)}, \texttt{IR(*)}, \texttt{II(*)},
+\texttt{IP(*)}, \texttt{IM(*)} and \texttt{IDB(*)} wildcards are also
+supported for these two analysis modes.
+
+There is also support for the * character (meaning ``zero or more
+characters'') and the ? character (meaning ``any one character'') in more
+complex wildcards, where the * and/or ? characters can be in
+any positions in the wildcard specification.  For example, \texttt{V(X1*)}
+will output the voltage at all nodes in subcircuit X1 for all analysis
+modes.  As another example, \texttt{V(1?)} will output the voltage at all
+nodes that have two-character names that start with the character 1.  These
+more complex wildcards should work for all supported voltage operators.
+
+Similarly, \texttt{P(X1*)} or \texttt{W(X1*)} will output the
+power for all devices, that support power calculations, in subcircuit X1.
+Devices that don't support power calculations
+will be silently omitted.  Alternately, \texttt{P(R?)} or \texttt{W(R?)}
+will output the power for all resistors that have two-character names.
+
+More complex wildcards are also supported for all valid current operators.
+The caveats are that for DC and TRAN analyses, the wildcard will include
+both branch and lead currents.  For AC and NOISE analyses, the wildcard will
+only include branch currents. 
+
+\subsubsection{Device Parameters and Internal Variables}
+\label{Print_Device_Info}
+\index{\texttt{.PRINT}!Device Parameters and Internal Variables}
+This subsection describes how to print out device parameters and device 
+internal variables, via a simple V-R circuit example. In particular, 
+the example given below gives illustrative examples of how to print out the voltage
+at a node ({\tt V(1)}), the current through a device ({\tt I(V1)}), the current through
+a device using using an internal solution variable ({\tt N(V1\_branch)}), a device 
+parameter ({\tt R1:R}) and the power dissipated by a device ({\tt P(R1)}).  It also shows
+how device parameters and internal variables can be used in a \Xyce{} expression.
+\begin{alltt}
+* filename is example.cir
+.DC V1 1 2 1
+V1 1 0 1
+R1 1 0 2
+.PRINT DC FORMAT=NOINDEX PRECISION=2 WIDTH=8 
++ V(1) I(V1) N(V1_branch) R1:R P(R1) \{R1:R*N(V1_branch)*I(V1)\}
+.END
+\end{alltt}
+The \Xyce{} output would then be (where the {\tt NOFORMAT}, {\tt WIDTH} and {\tt PRECISION}
+arguments were used mainly to format the example output for this guide):
+\begin{alltt}
+   V(1)        I(V1)    N(V1\_BRANCH)    R1:R        P(R1)    \{R1:R*N(V1\_BRANCH)*I(V1)\}
+   1.00e+00   -5.00e-01   -5.00e-01    2.00e+00    5.00e-01    5.00e-01
+   2.00e+00   -1.00e+00   -1.00e+00    2.00e+00    2.00e+00    2.00e+00
+\end{alltt}
+The internal solution variables for each \Xyce{} device are typically not given in the Reference 
+Guide sections on those devices.  However, if for the example given above, the user runs \texttt{Xyce 
+-namesfile example\_names example.cir} then the file \texttt{example\_names} would contain a list
+of the two solution variables that are accessible with the {\tt N()} syntax on a {\tt .PRINT} line.
+In this simple example, they are the voltage at Node 1 and the branch current through the voltage
+source {\tt V1}.  If {\tt V1} was in a subcircuit then the \texttt{example\_names} file would have shown
+the ``fully-qualified'' device name, including the subcircuit names.
+\begin{alltt}
+HEADER
+	0	   v1_branch
+	1	           1
+\end{alltt}
+Additional (and more useful) examples for using the N() syntax to print out:
+\begin{XyceItemize}
+\item The $M$, $R$, $B$ and $H$ internal variables for mutual inductors are given in Section
+   \ref{K_DEVICE}.  This includes an example where the mutual inductor is in a sub-circuit.
+\item The $g_{m}$ (tranconductance), $V_{th}$, $V_{ds}$, $V_{gs}$, $V_{bs}$, and $V_{dsat}$ 
+   internal variables for the BSIM3 and BSIM4 models for the MOSFET are given in 
+   Section \ref{M_DEVICE}.
+\end{XyceItemize}
+In these two cases, only the $M$ and $R$ variables for the mutual inductors are
+actually solution variables.  However, the {\tt -namesfile} approach can still be
+used to determine the fully-qualified \Xyce{} device names required to use the {\tt N()}
+syntax.
+

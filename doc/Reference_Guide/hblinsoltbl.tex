@@ -1,0 +1,57 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Linear Solver Options Table
+%%
+\index{solvers!linear!options}
+\label{HBLinSolPKG}
+\begin{OptionTable}{Options for Linear Solver Package for HB.}  \\ \hline
+
+type & Determines which linear solver will be used
+\begin{XyceItemize}
+\item AztecOO 
+\item Belos
+\item Direct
+\end{XyceItemize}
+&
+AztecOO\\ \hline
+
+prec\_type & Determines which preconditioner will be used with an iterative linear solver 
+\begin{XyceItemize}
+\item block\_jacobi
+\end{XyceItemize}
+A preconditioner will not be used if {\tt type=Direct} is specified
+& block\_jacobi\\ \hline
+
+block\_jacobi\_corrected & Enable one-step correction to the {\tt block\_jacobi} preconditioner.
+& 0 (FALSE)\\ \hline
+ 
+direct\_solver & Determines which direct linear solver will be used if {\tt type=Direct}
+is specified
+\begin{XyceItemize}
+\item LAPACK
+\end{XyceItemize}
+&
+LAPACK\\ \hline
+
+AZ\_kspace & Maximum size of Krylov subspace & 50 \\ \hline
+
+AZ\_max\_iter & Maximum number of iterative solver iterations & 200 \\ \hline
+
+AZ\_tol & Convergence tolerance & 1.0E-9 \\ \hline
+
+output\_ls & Write out linear system matrix and right-hand-side vector to Matrix Market file every \# solves
+& 0 (no output) \\ \hline 
+\end{OptionTable}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:

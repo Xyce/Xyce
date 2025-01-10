@@ -1,0 +1,38 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Incompatibilities with other circuit simulators.
+%%
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Resolved incompatibilities with other circuit simulators.\label{incomp}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endfirsthead
+  \caption[]{Resolved incompatibilities with other circuit simulators.\label{incomp}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endhead
+
+  PSpice models cards for resistors, capacitors and inductors. &  \texttt{R} and
+  \texttt{RES} are now synonyms in \texttt{.MODEL} statements for resistors.
+  \texttt{C} and \texttt{CAP} are now synonyms in \texttt{.MODEL} statements for capacitors.
+  \texttt{L} and \texttt{IND} are now synonyms in \texttt{.MODEL} statements for inductors.
+  \\ \hline
+
+\end{longtable}
+

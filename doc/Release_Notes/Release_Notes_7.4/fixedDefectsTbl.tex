@@ -1,0 +1,233 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have multiple issue
+     tracking systems for Sandia users.  SON, which bugzilla on the
+     open network, and SRN, which is bugzilla on the restricted
+     network.  We are also transitioning from bugzilla to gitlab issue
+     tracking.  Further, some issues are reported by open source users
+     on GitHub and these issues may be tracked using multiple issue
+     numbers.} \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
+     SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endhead
+
+\textbf{Gitlab-ex issue 301}: Level 2, Nonlinear mutual inductor could cause valgrind errors &
+     The level 2, nonliner mutual inductor was using an uninitialized data structure 
+     in the calculation of lead currents.  This was causing valgrind to issue errors for 
+     tests using this device.  The underlying code has been corrected.\\ \hline
+
+\textbf{Gitlab-ex issue 310}: Modulus operator didn't correctly handle real-numbered inputs &
+   The modulus operator in the expression library was incorrectly casting its inputs to type integer.  
+   This has been corrected and real numbered inputs are handled correctly now.
+     \\ \hline
+
+\textbf{Gitlab-ex issue 279/Github issue 41}: Incomplete support for ATAN2 in Xyce/ADMS &
+Xyce/ADMS previously had incomplete support for the standard Verilog-A
+function ``atan2''.  If used in normal module scope, correct code
+would be emitted for the evaluation of the function itself, but place
+holder comments would be emitted instead of the derivatives.  If used
+in analog function context there would be a fatal error stating that
+the feature was not yet implemented.  Correct code for atan2 and its
+derivatives is now generated in both contexts. \\ \hline
+
+\textbf{Gitlab-ex issue 291}: Incorrect behavior for DERIV measure at first
+simulation step for AC, DC, NOISE and TRAN measure modes & If the user
+requested the \texttt{DERIV-WHEN} measure value at the first
+simulation step then the measured value could be wrong in some
+cases. \\ \hline
+
+\textbf{Gitlab-ex issue 283}: FIND-AT measure gives incorrect value if the AT value
+is the first time, frequency or DC sweep value in the simulation & As an example,
+this set of \texttt{.AC} and \texttt{.MEASURE AC} lines would return a measure
+value of -nan.
+\begin{verbatim}
+.ac dec 5 100 1e6
+.MEASURE AC vibat100 FIND vi(b) at=100
+\end{verbatim}
+\\ \hline
+
+\textbf{Gitlab-ex issue 290}: Indexing mistake in the expression library's \texttt{DDX} operator & 
+The \texttt{DDX} operator had a mistake in the routine which found the dependent variable in the 
+expression syntax tree.  This mistake only applied to derivatives that were taken with respect to 
+voltage nodes, when there were multiple nodes present in the expression.  The consequence would be 
+  that the derivative was taken with respect to the wrong variable.  This mistake has been corrected.  \\ \hline
+
+\textbf{Gitlab-ex issue 263}: Nonlinear mutual inductor parameter handling is incompatible with \texttt{STEP} &
+The nonlinear mutual inductor was performing unit conversion of model parameters within the model
+constructor.  While this works in most cases, it would fail in a \texttt{STEP} analysis where
+a model parameter is changing.  The model parameteres, gap, path and area are now handled
+correctly and are compatible with \texttt{STEP}. \\ \hline
+\textbf{Gitlab-ex issue 274}: Xyce/ADMS generages incorrect code for derivatives of ``min'' function &
+A logic error in the Xyce/ADMS code generation back-end was producing
+incorrect code for derivatives of expressions involving the ``min''
+function whose arguments were dependent on probes.  This had minor
+impact on the convergence behavior some internal models in \Xyce{} due
+to errors in the Jacobians of those models that used this
+function.  \\ \hline
+\textbf{Gitlab-ex issue 264}: Add multiplicity to levels 1 and 2 diodes &
+ An instance parameter ``M'' has been added to the level 1 and 2
+diodes to implement multiplicity (number of devices in parallel).
+This instance parameter must not be confused with the model parameter
+of the same name, which implements the P-N junction grading
+parameter. \\ \hline
+
+\textbf{Gitlab-ex issue 257}: Improve error handling for invalid
+FREQ values on .FOUR lines and invalid AT values on FOUR measure
+lines & If a \Xyce{} user entered an invalid \texttt{FREQ} value
+on a \texttt{.FOUR} line or an invalid \texttt{AT} value on a
+\texttt{FOUR} measure line then that would cause the simulation
+to exit before all of the post-processing output files had been
+made at the end of the transient simulation. \\ \hline
+
+\textbf{Gitlab-ex issue 243/Github issue 29}: I(*) not expanded in external output &
+The design of the code that handled output wildcards involving
+currents (including I(*), P(*), and W(*)) was such that wildcards
+requested by external output interfaces through the library API would
+not have currents provided unless a \texttt{.PRINT} line in the
+netlist also requested that wildcard.  The handling of this feature
+has been reworked so that wildcards in external output requests
+function correctly irrespective of any \texttt{.PRINT} lines in the
+netlist, and even if there are no \texttt{.PRINT} lines at
+all.\\ \hline
+
+\textbf{Gitlab-ex issue 204/Github issue 24}: Interlibrary dependency problems &
+For user-compiled and installed Xyce builds beginning with release 6.1
+and up to release 7.3, Xyce created and installed multiple,
+interdependent libraries such as ``libxyce'', ``libADMS'' and
+``libNeuronModels'', all of which had to be linked into any user code
+that used Xyce.  As of release 7.4, only libxyce is installed, and it
+contains all functions previously placed into the other libraries.  If
+you are building codes to be linked against Xyce libraries, you must
+simplify your link line to link in just ``-lxyce''.\\ \hline
+
+  \textbf{Gitlab-ex issue 221}: \texttt{.OPTIONS MEASURE MEASFAIL=1}
+does not work properly for successful \texttt{TRIG-TARG} measures &
+If \texttt{.OPTIONS MEASURE MEASFAIL=1} was used in a netlist then the
+results for a successful \texttt{TRIG-TARG} measure would be correct
+in the descriptive information sent to stdout.  However, the measure's
+value would be shown as FAILED in the \texttt{<netlistName>.mt0}
+file. \\ \hline
+
+  \textbf{Gitlab-ex issue 229}: Parsing error when V() expression
+contains extraneous trailing spaces & The new expression library did
+not handle whitespace correctly, in certain contexts.  This has been
+fixed in the expression lexer.  \\ \hline
+
+  \textbf{Gitlab-ex issue 235}: Extend the R=0 capability to allow use
+of resistor .MODELs & Resistors that have a resistance value of zero
+are treated different inside of Xyce.  This different handling did not
+allow for such resistors to refer to \texttt{.MODEL} statements.  That
+has been fixed and now this use case works.  \\ \hline
+
+  \textbf{Gitlab-ex issue 239}: \texttt{.options parser scale} doesn't
+play nice with dependent parameters & If Xyce was used with a PDK that
+used \texttt{.option scale} (or Xyce's version \texttt{.options parser
+scale}), Xyce would apply this scale factor in the
+Instance::processParams function of the relevant MOSFET devices.
+However, if the device instance contained any dependent parameters,
+then every time those parameters were updated, this function was
+called again, and thus the scale factor was applied each time. This
+resulted in the wrong L and W values.  This has been corrected and
+scale factors are now applied no more than once.  \\ \hline
+
+  \textbf{Gitlab-ex issue 245}: An endless loop in parsing can be caused 
+if a \texttt{.SUBCKT} in an include file is not terminated properly &
+If a subcircuit was defined in an include file that was not terminated
+properly, the Xyce parser would continue parsing without acknowledging
+that the subcircuit had ended.  This would result in an error in the
+parsing later or an endless loop.  This has been corrected. \\ \hline
+ 
+  \textbf{Gitlab-ex issue 262}: Bug in \texttt{.PREPROCESS ADDRESISTORS} 
+logic that generates file output & If \texttt{.PREPROCESS ADDRESISTORS}
+is used in a file to add resistors to one-terminal connections or to
+make DC paths to ground, then all \texttt{.PREPROCESS} calls are 
+commented out in the file outputted that includes those resistors.
+This included \texttt{.PREPROCESS} calls that are executed to replace
+ground synonyms or remove unused devices, which need to be called each
+time the circuit is simulated.  This no longer happens. \\ \hline
+
+  \textbf{Gitlab-ex issue 277}: Measure names that start with an "operator
+letter" do not work in EQN measures & A measure name that started with a
+letter that was valid as the first character in an operator name ('V', 'I',
+'P', 'W', 'D', 'N' or 'S') would work correctly in (for example) a
+\texttt{MAX} measure.  However, that \texttt{MAX} measure could not
+subsequently be used in an \texttt{EQN} measure.  A simple example is
+as follows:
+\begin{verbatim}
+.MEASURE TRAN V1MAX MAX V(1)
+.MEASURE TRAN EQN1 EQN V1MAX
+\end{verbatim}
+\\ \hline
+
+  \textbf{Gitlab-ex issue 296}: Error in Parallel::Directory when dependent 
+variables for devices included the ground node &  A runtime failure was observed
+from the Parallel::Directory when the ground node was a dependent variable
+for a device parameter.  The Parallel::Directory is a class that the Topology package 
+uses to determine ownership of shared voltage nodes in parallel, which cannot 
+include the ground node.  The dependent variable
+resolution has changed to address this issue. \\ \hline
+
+  \textbf{1322-SON}: Preserve ordering of .PRINT line wildcards &
+In previous \Xyce{} versions, these two \texttt{.PRINT} lines would
+both output the \texttt{V(*)} wildcard results before the \texttt{I(*)}
+wildcard results.
+\begin{verbatim}
+.PRINT TRAN V(*) I(*)
+.PRINT TRAN I(*) V(*)
+\end{verbatim}
+\\ \hline
+
+  \textbf{1145-SON}: \texttt{.GLOBAL\_PARAM} does not work
+in \texttt{.IC} statements & This has been resolved and global
+parameters can be used to set the value of an \texttt{.IC}
+statement.\\ \hline
+
+  \textbf{1134-SON}: Mismatched (or missing) expression delimiters
+are not flagged as an error on .MEASURE lines & In previous versions
+of \Xyce{}, incorrect use of expression delimiters might not be
+flagged as an error during netlist parsing of \texttt{.MEASURE}
+lines.  A simple example was:
+\begin{verbatim}
+.measure tran noEndCurly eqn {V(1)
+\end{verbatim}
+\\ \hline
+
+  \textbf{1029-SON}: Improve checking of \texttt{.PRINT} type versus
+analysis type & The checking of the \texttt{.PRINT} type versus the
+analysis type had some deficiencies. It would falsely report an error
+if a \texttt{.PRINT TRANADJOINT} line preceeded the \texttt{.PRINT
+TRAN} line.  It could falsely not report an error if the \texttt{.OP}
+statement preceeded the primary analysis statement (e.g.,
+\texttt{.TRAN}), or if a valid \texttt{.PRINT} line was the first \texttt{.PRINT}
+line in the netlist but a subsequent \texttt{.PRINT} line was not allowed
+for the requested primary analysis type. \\ \hline
+
+\end{longtable}
+}

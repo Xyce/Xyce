@@ -1,0 +1,44 @@
+The Regents of the University of California and Analog Devices, Inc.
+("Authors") own the copyright but shall not be liable for any
+infringement of copyright or other proprietary rights brought by third
+parties against the users of the software.
+
+The Authors jointly grant the users the right to modify, copy, and
+redistribute the software and documentation, both within the user's
+organization and externally, subject to the following conditions:
+
+1. The users agree not to charge for the original source code itself
+   but may charge for additions, extensions, or support.
+
+2. In any product based on the software, the users agree to acknowledge
+   the UC Berkeley BSIM Research Group that developed the software. This
+   acknowledgment shall appear in the product documentation.
+
+3. The users agree to obey all U.S. Government restrictions governing
+   redistribution or export of the software.
+
+4. Redistributions of source code must retain the above copyright
+   notices, this list of conditions and the following disclaimer.
+
+5. Redistributions in binary form must reproduce the above copyright
+   notices, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+6. Users may not claim authorship of the original software. Modified
+   versions of the software must be plainly marked as such.
+
+7. Users may not suggest any sponsorship or endorsement by the Authors
+   of users' product.
+
+THIS SOFTWARE IS PROVIDED BY AUTHORS AS IS AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, AND
+NONINFRINGEMENT OF THIRD PARTY RIGHTS ARE DISCLAIMED.  IN NO EVENT SHALL
+THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+

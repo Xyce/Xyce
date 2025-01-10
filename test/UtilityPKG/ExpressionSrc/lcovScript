@@ -1,0 +1,21 @@
+#!/bin/sh
+
+make -f Makefile.gcov_gcc clean
+make -f Makefile.gcov_gcc  parserUnitTest
+
+./parserUnitTest 
+
+# Note:  lcov version 1.13 is busted!  Use 1.14 if possible.
+# I have lcov installed via macports in /opt/local/bin
+
+rm -rf newExpressionLibrary.info
+/opt/local/bin/lcov -t "newExpressionLib" --directory . -c -o newExpressionLibrary.info
+
+/opt/local/bin/lcov --remove newExpressionLibrary.info "/Library/*" "/opt/local/include/FlexLexer.h" "/Users/erkeite/XYCE/Xyce_Lib/*" "/Users/erkeite/GTEST/*" "/opt/local/include/*" -o newExpressionLibrary.info
+
+/opt/local/bin/genhtml -o . -t "newExpressionLib coverage" --num-spaces 2 newExpressionLibrary.info
+open index.html
+
+
+
+

@@ -1,0 +1,476 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% BJT Description Table
+%%
+
+\begin{Device}\label{Q_DEVICE}
+
+\symbol
+{\includegraphics{npnSymbol}}
+{\includegraphics{pnpSymbol}}
+
+\device
+\begin{alltt}
+Q<name> <collector node> <base node> <emitter node>
+ + [substrate node] <model name> [area value]
+
+Q<name> <collector node> <base node> <emitter node>
+ + [thermal node] <VBIC 1.3 3-terminal model name>
+
+Q<name> <collector node> <base node> <emitter node>
+ + <substrate> [thermal node] <VBIC 1.3 4-terminal model name>
+
+ Q<name> <collector node> <base node> <emitter node>
+ + <substrate> <thermal node> <HICUM model name>
+\end{alltt}
+
+\model
+\begin{alltt}
+.MODEL <model name> NPN [model parameters]
+.MODEL <model name> PNP [model parameters]
+\end{alltt}
+
+\examples
+\begin{alltt}
+Q2 10 2 9 PNP1
+Q12 14 2 0 1 NPN2 2.0
+Q6 VC 4 11 [SUB] LAXPNP
+Q7 Coll Base Emit DT VBIC13MODEL2
+Q8 Coll Base Emit VBIC13MODEL3 SW\_ET=0
+Q9 Coll Base Emit Subst DT VBIC13MODEL4
+Q10 Coll Base Emit Subst DT HICUMMMODEL1
+\end{alltt}
+
+\parameters
+\begin{Parameters}
+\param{substrate node}
+  Optional and defaults to ground. Since \Xyce{} permits alphanumeric
+  node names and because there is no easy way to make a distinction between
+  these and the model names, the name (not a number) used for the substrate
+  node must be enclosed in square brackets \texttt{[ ]}.  Otherwise, nodes
+  would be interpreted as model names. See the fourth example above.
+
+\param{area value}
+  The relative device area with a default value of 1.
+
+\end{Parameters}
+
+\comments
+The BJT is modeled as an intrinsic transistor using ohmic resistances in series
+with the collector (RC/area), with the base (value varies with current, see BJT
+equations) and with the emitter (RE/area).For model parameters with optional
+names, such as VAF and VA (the optional name is in parentheses), either may be
+used.For model types NPN and PNP, the isolation junction capacitance is
+connected between the intrinsic-collector and substrate nodes. This is the same
+as in SPICE and works well for vertical IC transistor structures.
+
+\textbf{Only the VBIC 1.3 model is available in \Xyce{} 6.11 and
+  later.}  The VBIC 1.3 model is provided in both 3-terminal (Q level
+  11) and 4-terminal (Q level 12) variants, both supporting
+  electrothermal and excess-phase effects.  These variants of the Q line
+  are shown in the fourth through sixth examples above. VBIC 1.3
+  instance lines have three or four required nodes, depending on model
+  level, and an \emph{optional} ``dt'' node.  The first three are the
+  normal collector, base,and emitter. In the level 12 (4-terminal) the
+  fourth node is the substrate, just as for the level 1 BJT.  If the
+  optional ``dt'' node is specified for either variant, it can be used
+  to print the local temperature rise due to self-heating, and could
+  possibly be used to model coupled heating effects of several VBIC
+  devices.  It is, however, unnecessary to specify a ``dt'' node just
+  to print the local temperature rise, because when this node is
+  omitted from the instance line it simply becomes and internal node,
+  and may still be printed using the syntax
+  \texttt{N(instancename:dt)}.  For the ``Q8'' example above, one
+  could print \texttt{N(Q8:dt)}.
+
+As of release 6.10 of Xyce, the VBIC 1.3 3-terminal device (Q level
+11) has been the subject of extensive optimization, and runs much
+faster than in previous releases.
+
+\textbf{ The HICUM models require both a substrate and thermal node.}
+
+\end{Device}
+
+
+% BJT model schematic.
+\begin{figure}[ht]
+  \centering
+  \scalebox{0.6}
+  {\includegraphics{bjtSchematic}}
+  \caption[BJT model schematic]{BJT model schematic.  Adapted from
+reference~\cite{PSpiceUG:1998}. \label{figBJTschematic}}
+\end{figure}
+
+\paragraph{BJT Level selection}
+
+\Xyce{} supports the level 1 BJT model, which is based on the
+documented standard SPICE 3F5 BJT model, but was coded independently
+at Sandia.  It is mostly based on the classic Gummel-Poon BJT
+model~\cite{GummelPoon}.
+
+Two variants of the VBIC model are provided as BJT levels 11  and 12.
+Levels 11 and 12 are the
+3-terminal and 4-terminal variants of the VBIC 1.3.
+
+An experimental release of the FBH HBT\_X model version
+2.1\cite{Rudolph_documentationof} is provided as BJT level 23.
+
+Both the HICUM/L0 (level 230) and HICUM/L2 (level 234) models are also
+provided (\url{https://www.iee.et.tu-dresden.de/iee/eb/hic_new/hic_start.html}).
+
+The MEXTRAM\cite{MEXTRAM_home} BJT model version 504.12.1 model is provided.
+Two variants of this model are available: the level 504 model without
+self-heating and without external substrate node, and the level 505 model with
+self heating but without external substrate node.  The level 505 instance line
+requires a fourth node for the 'dt' node, similar to the usage in all of the
+VBIC models (levels 11-12), but is otherwise identical to the level 504 model.
+
+\paragraph{BJT Power Calculations}
+Power dissipated in the transistor is calculated with
+$|I_{B}*V_{BE}|+|I_{C}*V_{CE}|$, where $I_{B}$ is the base current, $I_{C}$ is
+the collector current, $V_{BE}$ is the voltage drop between the base and the
+emitter and $V_{CE}$ is the voltage drop between the collector and the emitter.
+This formula may differ from other simulators.
+
+\subsubsection{The Level 1 Model}
+\paragraph{BJT Equations}\label{bjt_equations}
+The Level 1 BJT implementation within \Xyce{} is based on \cite{Fjeldly:1998}.
+The equations in this section describe an NPN transistor. For the PNP device,
+reverse the signs of all voltages and currents.  The equations use the
+following variables:
+%insert variables here
+\begin{eqnarray*}
+V_{be} & = & \mbox{intrinsic base-intrinsic emitter voltage} \\
+V_{bc} & = & \mbox{intrinsic base-intrinsic collector voltage} \\
+V_{bs} & = & \mbox{intrinsic base-substrate voltage} \\
+V_{bw} & = & \mbox{intrinsic base-extrinsic collector voltage
+(quasi-saturation only)} \\
+V_{bx} & = & \mbox{extrinsic base-intrinsic collector voltage} \\
+V_{ce} & = & \mbox{intrinsic collector-intrinsic emitter voltage} \\
+V_{js} & = & \mbox{(NPN) intrinsic collector-substrate voltage} \\
+&        = & \mbox{(PNP) intrinsic substrate-collector voltage} \\
+% THIS DOESN'T EXIST IN XYCE
+%&        = & \mbox{(LPNP) intrinsic base-substrate voltage} \\
+V_{t}  & = & \mbox{$kT/q$ (thermal voltage)} \\
+V_{th} & = & \mbox{threshold voltage} \\
+k      & = & \mbox{Boltzmann's constant} \\
+q      & = & \mbox{electron charge} \\
+T      & = & \mbox{analysis temperature (K)} \\
+T_{0}  & = & \mbox{nominal temperature (set using \textrmb{TNOM} option)}
+\end{eqnarray*}
+Other variables are listed above in BJT Model Parameters.
+
+\subparagraph{DC Current}
+The BJT model is based on the Gummel and Poon model~\cite{Grove:1967} where the
+different terminal currents are written
+%insert equations here
+\begin{eqnarray*}
+I_{e} & = & -I_{cc} - I_{be} + I_{re} + (C_{dife} +C_{de})\frac{dV_{be}}{dt} \\
+I_{c} & = & -I_{cc} + I_{bc} - I_{rc} - (C_{difc}+ C_{dc})\frac{dV_{bc}}{dt} \\
+I_b & = & I_e -I_c
+\end{eqnarray*}
+Here, $C_{dife}$ and $C_{difc}$ are the capacitances related to the hole
+charges per unit area in the base, $Q_{dife}$ and $Q_{difc}$,
+affiliated with the electrons introduced across the emitter-base and
+collector-base junctions, respectively.  Also, $C_{be}$ and $C_{bc}$ are the
+capacitances related to donations to the hole charge of the base, $Q_{be}$ and
+$Q_{bc}$,  affiliated with the differences in the depletion regions of the
+emitter-base and collector-base junctions, respectively.  The
+intermediate currents used are defined as
+%insert equations here
+\begin{eqnarray*}
+-I_{be} & = & \mathbf{\frac{IS}{BF}} \left[\exp \left(\frac{V_{be}}
+{\mathbf{NF}V_{th}} \right) -1 \right] \\
+-I_{cc} & = & \frac{Q_{bo}}{Q_{b}}\mathbf{IS} \left[\exp \left(\frac{V_{be}}
+{\mathbf{NF} V_{th}} \right) -
+\exp \left(\frac{V_{bc}}{\mathbf{NF}V_{th}} \right) \right] \\
+-I_{bc} & = & \mathbf{\frac{IS}{BR}} \left[\exp \left(\frac{V_{bc}}
+{\mathbf{NR}V_{th}} \right) - 1 \right] \\
+I_{re} & = & \mathbf{ISE} \left[\exp \left(\frac{V_{be}}
+{\mathbf{NE} V_{th}} \right) - 1 \right] \\
+I_{rc} & = & \mathbf{ISC} \left[\exp \left(\frac{V_{bc}}
+{\mathbf{NC}V_{th}} \right) - 1 \right]
+\end{eqnarray*}
+where the last two terms are the generation/recombination currents related to
+the emitter and collector junctions, respectively.  The charge $Q_{b}$ is the
+majority carrier charge in the base at large injection levels and is a key
+difference in the Gummel-Poon model over the earlier Ebers-Moll model.  The
+ratio $Q_b/Q_{bo}$ (where $Q_{bo}$ represents the zero-bias base charge, i.e.
+the value of $Q_b$ when $V_{be}=V_{bc}=0$) as computed by \Xyce{} is given by
+\[\frac{Q_b}{Q_{bo}} = \frac{q_1}{2}\left(1+\sqrt{1+4q_2}\right)\]
+where
+\begin{eqnarray*}
+q_1 & = & \left(1-\frac{V_{be}}{\mathbf{VAR}}-\frac{V_{bc}}{\mathbf{VAF}}
+\right)^{-1} \\
+q_2 & = & \frac{\mathbf{IS}}{\mathbf{IKF}}\left[\exp\left(\frac{V_{be}}
+{\mathbf{NF}V_{th}}\right)-1\right] + \frac{\mathbf{IS}}{\mathbf{IKR}}
+\left[\exp\left(\frac{V_{bc}}{\mathbf{NR}V_{th}}\right)-1\right]
+\end{eqnarray*}
+
+\subparagraph{Capacitance Terms}
+The capacitances listed in the above DC $I-V$ equations each consist of a
+depletion layer capacitance $C_{d}$ and
+a diffusion capacitance $C_{dif}$.  The first is given by
+\[
+C_d = \left\{
+\begin{array}{ll}
+\mathbf{CJ} \left(1 - \frac{V_{di}}{\mathbf{VJ}} \right)^{\mathbf{-M}} &
+V_{di} \leq \mathbf{FC \cdot VJ} \\
+\mathbf{CJ} \left(1 - \mathbf{FC} \right)^{-(1+\mathbf{M})} \
+\left[1 - \mathbf{FC}(1 + \mathbf{M}) + \mathbf{M}
+\frac{V_{di}}{\mathbf{VJ}} \right]
+& V_{di} > \mathbf{FC \cdot VJ}
+\end{array}
+\right. \]
+
+where $\mathbf{CJ}=\mathbf{CJE}$ for $C_{de}$, and where $\mathbf{CJ}=
+\mathbf{CJC}$ for $C_{dc}$.
+The diffusion capacitance (sometimes referred to as the transit time
+capacitance) is
+\[
+C_{dif} = \mathbf{TT} G_d = \mathbf{TT} \frac{dI}{dV_{di}}
+\]
+where $I$ is the diode DC current given, $G_d$ is the corresponding junction
+conductance, and where $\mathbf{TT}=\mathbf{TF}$ for $C_{dife}$ and
+$\mathbf{TT}=\mathbf{TR}$ for $C_{difc}$.
+
+\subparagraph{Temperature Effects}
+SPICE temperature effects are default, but all levels of the BJT have a more
+advanced temperature compensation available.  By specifying
+\texttt{TEMPMODEL=QUADRATIC} in the netlist, parameters can be interpolated
+quadratically between measured values extracted from data.  In the BJT, IS and
+ISE are interpolated logarithmically because they can change over an order of
+magnitude or more for temperature ranges of interest.  See the
+Section~\ref{Model_Interpolation} for more details on how to include quadratic
+temperature effects.
+
+% \subparagraph{Noise}
+% Noise is calculated with a 1.0 Hz bandwidth using the following spectral power
+% densities (per unit bandwidth).
+
+% Thermal Noise due to Parasitic Resistance: $I_{n}^{2} =
+% \frac{4kT}{\mathbf{RS}/area}$
+
+% Intrinsic Diode Shot and Flicker Noise: $I_{n}^{2} = 2qI_{D} +
+% \mathbf{KF}\cdot\frac{I_{D}^{\mathbf{AF}}}{\omega}$
+
+For further information on BJT models, see~\cite{Grove:1967}.  For a thorough
+description of the U.C. Berkeley SPICE models see
+Reference~\cite{Antognetti:1988}.
+
+\subsubsection{VBIC Temperature Considerations}
+\index{VBIC (temperature considerations)}
+The VBIC (Q levels 11 and 12) model both support a self-heating
+model.  The model works by computing the power dissipated by all
+branches of the device, applying this power as a flow through a small
+thermal network consisting of a power flow (``current'') source
+through a thermal resistance and thermal capacitance, as shown in
+Figure~\ref{vbicthermal}.  The circuit node DT will therefore be the
+``thermal potential'' (temperature) across the parallel thermal
+resistance and capacitance.  This temperature is the temperature rise
+due to self heating of the device, which is added to the ambient
+temperature and \texttt{TRISE} parameter to obtain the device
+operating temperature.
+\begin{figure}
+  \centering
+  \scalebox{0.3}
+  {\includegraphics{VBIC_Thermal_Net}}
+  \caption[VBIC thermal network schematic]{VBIC thermal network  schematic.}
+  \label{vbicthermal}
+\end{figure}
+
+In VBIC 1.3, the dt node is optional on the netlist line.  If not
+given, the dt node is used internally for thermal effects
+calculations, but not accessible from the rest of the netlist.  The
+VBIC 1.3 provides an instance parameter \texttt{SW\_ET} that may be
+set to zero to turn off electrothermal self-heating effects.  When set
+to zero, no thermal power is sourced into the dt node.  This parameter
+defaults to 1, meaning that thermal power is computed and flows into
+dt even when dt is unspecified on the netlist and remains an internal
+node.
+
+In VBIC 1.3, setting RTH to zero does {\em NOT\/} disable the
+self-heating model, and does not short the dt node to ground, even
+though one might expect that to be the behavior.  Rather, it simply
+removes the RTH resistor from the equivalent circuit of
+figure~\ref{vbicthermal} and leaves the dt node floating.  This is an
+important point to recognize when using the VBIC.
+
+If a node name is given as the fourth node of a VBIC \Xyce{} will emit
+warnings about the node not having a DC path to ground and being
+connected to only one device.  These warnings may safely be ignored,
+and are a harmless artifact of Xyce's connectivity checker.  It is
+possible to silence this warning by adding a very large resistance
+between the dt node and ground --- 1GOhm or 1TOhm are effectively the
+same as leaving the node floating, and will satisfy the connectivity
+checker's tests.  This used to be the recommended means of silencing
+the connectivity checker for the VBIC 1.2 where dt was a required
+node, but it is safe {\em if and only if a nonzero\/} \texttt{RTH}
+{\em value is specified for the device.}  If, however, RTH is zero,
+then dt would otherwise be floating and your external resistance now
+becomes the primary path for thermal power flow; rather than turning
+off self-heating effects, it will be as if you had set RTH to a very
+large value.  We therefore recommend that you not tie the dt node to
+ground via a resistor, and if you are not using it to connect VBIC
+devices together via a thermal network, simply leave off the dt node
+to silence the connectivity checker warning.  Turn off self-heating
+effects ONLY by setting the \texttt{SW\_ET} instance parameter to zero.
+
+Users of earlier versions of \Xyce{} may have been using the VBIC 1.2
+model that was removed in release 6.11.  All netlists containing the
+old level=10 VBIC 1.2 model must be modified to run in \Xyce{} 6.11
+and later.  The following points should be observed when converting an
+old VBIC 1.2 netlist and model card to VBIC 1.3.
+
+\begin{itemize}
+  \item Generally speaking, most VBIC 1.2 model cards can be converted
+    to VBIC 1.3 model cards by the simple substitution of
+    \texttt{level=11} for \texttt{level=10}, with the following provisos.
+
+  \item VBIC 1.2 in \Xyce{} 6.10 and earlier did not support excess
+    phase effects, and so the \texttt{TD} parameter governing excess
+    phase was ignored.
+
+    The \Xyce{} team has observed that some users' VBIC 1.2 parameter
+    extractions have a non-zero value for the \texttt{TD} parameter.
+    The impact of this is twofold:
+    \begin{itemize}
+      \item Circuits that use such model cards with only the level
+        number changed will likely not produce identical results when
+        compared to simulation results of older versions of \Xyce{}
+        using VBIC 1.2 due to the excess phase effects.  If strict
+        comparison between VBIC 1.3 runs with \Xyce{} 6.11 or later
+        against older runs with VBIC 1.2 is desired, change the
+        \texttt{TD} parameter to zero.  This will disable the excess
+        phase effects and make VBIC 1.3 equivalent to the VBIC 1.2
+        that was previously provided.
+      \item The \Xyce{} team has seen some instances where the
+        previously ignored \texttt{TD} parameter value is such that
+        \Xyce{} will fail to converge when the equivalent VBIC 1.3
+        model is substituted.  The VBIC 1.2 behavior can be recovered
+        by setting the model parameter \texttt{TD} to zero, which will
+        disable the excess phase effect in VBIC 1.3.  We can only
+        suggest that the model card be re-extracted using VBIC 1.3 to
+        determine the correct value for \texttt{TD}.
+    \end{itemize}
+
+  \item VBIC 1.2 had a model parameter called \texttt{DTEMP}, which
+    \Xyce{} also recognized on the instance line.  In VBIC 1.3 this
+    parameter has been replaced by another called \texttt{TRISE},
+    which is only an instance parameter, and is unrecognized in model
+    cards.  VBIC 1.3 also recognizes \texttt{DTEMP} on the instance
+    line as an alias for \texttt{TRISE}.  If you had been specifying
+    \texttt{DTEMP} in your VBIC 1.2 model cards, you will need to move it
+    to the instance line instead in order for the parameter to be
+    properly recognized by both VBIC 1.2 and VBIC 1.3.
+  \item Turning off self-heating effects in VBIC 1.2 was done by
+    grounding the mandatory dt node.  This is not the recommended way
+    of disabling self-heating in VBIC 1.3.  To disable self-heating,
+    set the \texttt{SW\_ET} parameter to zero on the instance line (as
+    is done in the ``Q8'' example above).
+  \item If not using the dt node as a way of thermally coupling
+    devices to each other, leave it off of VBIC 1.3 instance lines,
+    allowing it to be an internal variable irrespective of whether
+    self-heating is enabled or not.  This will silence any connectivity
+    warnings from Xyce.  Since the dt node may be printed using the
+    N() syntax even when internal, it is unnecessary to put a dt node
+    on the instance line just to print the local temperature rise due
+    to self-heating.  The only reasons to include it on the instance
+    line would be for backward compatibility to VBIC 1.2 netlists, or
+    to implement a thermal coupling network between devices.
+  \item Finally, VBIC 1.3 introduced a number of constraints on model
+    parameters that the previous version did not.  \Xyce{} will emit
+    warnings if any parameter on a VBIC 1.3 model card is out of the
+    range specified by the VBIC 1.3 authors.  These warnings should
+    not be ignored lightly, as they indicate that the model is being
+    used in a manner not intended by its authors.  They are generally
+    a sign that the model may not be well-behaved, and may indicate an
+    improperly extracted model card.
+
+\end{itemize}
+
+\subsubsection{Level 1 BJT Tables}
+\input{Q_1_Device_Instance_Params}
+\input{Q_1_Device_Model_Params}
+
+\subsubsection{Level 11 and 12 BJT Tables (VBIC 1.3)}
+The VBIC 1.3 (level 11 transistor for 3-terminal, level 12 for
+4-terminal) supports a number of instance parameters that are not
+available in the VBIC 1.2.  The level 11 and level 12 differ only by
+the number of required nodes.  The level 11 is the 3-terminal device,
+having only collector, base, and emitter as required nodes.  The level
+12 is the 4-terminal device, requiring collector, base, emitter and
+substrate nodes.  Both models support an optional 'dt' node as their
+last node on the instance line.
+
+\textbf{Model cards extracted for the VBIC 1.2 will mostly work with the VBIC
+1.3,  with one notable exception:} in VBIC 1.2 the \texttt{DTEMP} parameter was
+a model parameter, and \Xyce{} allowed it also to be specified on the instance
+line, overriding whatever was specified in the model.  This parameter was
+replaced in VBIC 1.3 with the \texttt{TRISE} parameter, which is {\em only\/}
+an instance parameter.  \texttt{DTEMP} and \texttt{DTA} are both supported as
+aliases for the \texttt{TRISE} instance parameter.
+
+\input{Q_11_Device_Instance_Params}
+\input{Q_11_Device_Model_Params}
+\clearpage
+\input{Q_12_Device_Instance_Params}
+\input{Q_12_Device_Model_Params}
+\clearpage
+
+\subsubsection{Level 23 BJT Tables (FBH HBT\_X)}
+\input{Q_23_Device_Instance_Params}
+\input{Q_23_Device_Model_Params}
+\clearpage
+
+\subsubsection{Level 230 BJT Tables (HICUM/L0)}
+The HICUM/L0 device supports output of the internal variables in
+table~\ref{Q_230_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific HICUM/L0 Q device in your netlist.
+
+\input{Q_230_Device_Instance_Params}
+\input{Q_230_Device_Model_Params}
+\input{Q_230_OutputVars}
+\clearpage
+
+\subsubsection{Level 234 BJT Table (HICUM/L2)}
+\textbf{NOTE:} The HICUM/L2 model has no instance parameters.
+The HICUM/L2 device supports output of the internal variables in
+table~\ref{Q_234_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific HICUM/L2 Q device in your netlist.
+\input{Q_234_Device_Model_Params}
+\input{Q_234_OutputVars}
+\clearpage
+
+\subsubsection{Level 504 and 505 BJT Tables (MEXTRAM)}
+
+
+The MEXTRAM device supports output of the internal variables in
+tables~\ref{Q_504_OutputVars} and~\ref{Q_504_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific MEXTRAM Q device in your netlist.
+
+\input{Q_504_Device_Instance_Params}
+\input{Q_504_Device_Model_Params}
+\input{Q_504_OutputVars}
+\clearpage
+
+\input{Q_505_Device_Instance_Params}
+\input{Q_505_Device_Model_Params}
+\input{Q_505_OutputVars}
+\clearpage
+

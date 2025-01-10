@@ -1,0 +1,59 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+\small
+
+\begin{longtable}[h,t,b,p] {|
+>{\setlength{\hsize}{0.40\hsize}}Y|
+>{\setlength{\hsize}{0.60\hsize}}Y|} 
+
+  \caption{Fixed Defects.  Note that we have two different bugzilla systems.  SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+
+\rowcolor{XyceDarkBlue}
+\color{white}\bf Defect &
+\color{white}\bf Description
+\\ \hline
+\endhead
+
+%{\bf bug xxxx }: Describe issue and fix. \\ \hline 
+
+% joseki (-SON)bugs:
+{\bf 308-SON}: Step analysis has bug in transient & There was a subtle bug in .STEP that was not properly resetting solver parameters for each step.  This led to very subtle differences between transient runs inside the step loop and identical transient runs without a step loop.  \\ \hline
+{\bf 264-SON}: Crashes attempting to print expression with global\_param& In prior versions of \Xyce{}, printing a global\_param in an expression on a .PRINT line would cause Xyce to crash.  The bug was fixed and printing such parameters is now supported.  \\ \hline
+{\bf 267-SON}: .print lines in an include file cause the output file to be named after the included file & In prior releases of \Xyce{}, a bug in netlist parsing improperly caused the output file created by a .print line that appeared in an include file to be named after the include file instead of the main netlist file.  This was fixed, and now the default name for files created by .print is always based on the name of the top-level netlist file, irrespective of the name of the file where the .print actually occurs. \\ \hline
+{\bf 271-SON}: Lines with leading tabs not treated as comments & The SPICE3 netlist format states that lines beginning with white space are to be treated as comments.  Xyce was not treating leading tabs as such white space, and was processing such lines.  This has been corrected. \\ \hline
+{\bf 263-SON/1871-SRN}:Use of PDE devices in parallel hangs \Xyce{} & A bug in handling of multiple DCOP phases caused any netlist that contained a PDE device to hang \Xyce{} if run in parallel.  The issue was fixed, and PDE devices can now safely be used in parallel runs.   \\ \hline
+{\bf 266-SON}: .AC line error if units specified on frequencies after MEG & An error in the ExtendedString class caused the .AC line (and, as it turns out, .DC lines) not to correctly ignore any units specified after multicharacter scale factors such as MEG, i.e. 100MEGHz was not correctly being treated as equivalent to 100MEG.  This was fixed, and all such uses now work correctly. \\ \hline
+{\bf 272-SON}: Missing AC output features & In previous versions of \Xyce{},  output of AC results was severely limited as compared to SPICE implementations.  \Xyce{} output from .print AC is now fully functional. \\ \hline
+{\bf 229-SON}: User defined functions not resolved on .PRINT lines & Functions defined in .func statements were not properly being resolved when used in expressions on .PRINT lines.  This usage is now working.  \\ \hline
+{\bf 85-SON}: Expressions with parameters invalid in .PRINT lines & Attempting to print a parameter (e.g. a symbol defined in a .PARAM statement) in an expression on a .PRINT line would result in an error message about an undefined parameter.  The error has been addressed, and printing of .PARAM parameters in print line expressions now works correctly. \\ \hline
+%% {\bf BUG NUMBER-SON}: Bug title & Bug and fix description \\ \hline
+
+% charleston (-SRN) bugs:
+{\bf 1152-SRN}: \Xyce{} does not allow device names that match node names  & A long standing issue in \Xyce{} was that an implementation detail of the topology package forbade a user to have a device name that was the same as a node name.  This has now been fixed, and node and device names no longer interfere with each other.  \\ \hline
+{\bf 1289-SRN}: Output interpolation fails to produce expected, smooth curve & The implementation of lead currents for devices was not done in a way that allowed output of those values to be interpolated in the same manner as the solution would be.  Output interpolation is required when using high order time integration scheme or \texttt{.options output} statements.  Lead currents have been reimplemented in a manner that allows their interpolation, and now these signals can have the correct behavior even when output is interpolated. \\ \hline
+{\bf 1909-SRN}: Output of voltage differences V(A,B) broken in parallel & Use of voltage difference syntax (V(A,B) to denote the voltage difference between nodes A and B) has never worked in parallel in any prior version of \Xyce{}.  Older versions of \Xyce{} emitted an error message to inform users that the feature didn't work, but very recent versions mistakenly accepted the syntax and emitted results that could be incorrect depending on how nodes were partitioned across processors.  The feature has been carefully debugged and now works correctly in both serial and parallel runs. \\ \hline
+{\bf 1852-SRN}: VBIC crashes under certain high current conditions & Lack of guarding of a square root expression's argument and issues with voltage limiting led to misbehavior of the VBIC model under some conditions.  Both issues have been addressed, and the VBIC model is more robust. \\ \hline
+{\bf 695-SRN}: .STEP and .DC sometimes skip final iteration & Roundoff error in an expression used to compute what steps to take sometimes caused the final requested step of a .STEP or .DC loop to be omitted.  This has been corrected, and \Xyce{} now always runs all requested steps of such sweeps.  \\ \hline
+{\bf 291 and 618-SRN}: Unclean handling of very small circuits in parallel & The parallel processing features of \Xyce{} have always been intended to address very large problems.  Early versions of \Xyce{} did not always handle very small problems gracefully when run in parallel.  The code now examines problem size and is able to run very small circuits in parallel mode.  Doing so is almost never beneficial, but the code will let you do it without crashing.  \\ \hline
+{\bf 1902-SRN}: Harmonic balance crashes if too many frequencies requested & Memory allocation issues involving very large requests have been resolved. \\ \hline
+{\bf 1130-SRN}: Parallel version of Xyce cannot run on a single processor & Builds of \Xyce{} that were built to be run in parallel were previously unable to be run in serial mode.  They are now able to be run both in serial and parallel mode.  For routine serial runs, a serial build is preferrable, but parallel builds can now be pressed into serial service if needed. \\ \hline
+{\bf 438-SRN}: Output B-H loops from the print line.  & It is now possible
+to output the magnetic flux density $B$ and magnetic field strength $H$ on the print line. 
+See the mutual-inductor device in the reference guide for detailed information. \\ \hline
+%% {\bf BUG NUMBER-SRN}: Bug title & Bug and fix description \\ \hline
+
+
+
+\end{longtable}
+

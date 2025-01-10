@@ -1,0 +1,173 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Time integration and MPDE info
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  
+%% Creator        : Richard Schiek, Electrical and Microsystem Simulation, SNL
+%% Creation Date  : {05/16/2007}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Time Integration and Multi-time Partial Differential Equations (MPDE)}
+\label{TimeInt}
+\index{Time integration}
+\index{MPDE}
+\index{DAE}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter provides an overview and guidance on the time integration algorithms in \Xyce{},
+Different time integration options can significantly effect simulation performance and accuracy.  
+Additionally, this chapter provides an  overview and using instructions for the 
+new Multi-Time Partial Differential Equation (MPDE) capability in \Xyce{}.
+This chapter includes the following sections:
+\begin{XyceItemize}
+  \item Section~\ref{TimeInt}, {\em Differential Algebraic Equation (DAE) Time Integration}
+  \item Section~\ref{MPDE_Overview}, {\em Multi-time Partial Differential Equations (MPDE) Overview}
+  \item Section~\ref{MPDE_Usage}, {\em MPDE Usage}
+\end{XyceItemize}
+}
+
+\section{Differential Algebraic Equation (DAE) Time Integration}
+\label{TimeInt_Discussion}
+\Xyce{} version 4.0 includes a major upgrade to the time integration capability.  
+This upgrade will result in transient simulations running more accurately and with 
+substantially fewer computed time steps.  This improved accuracy and efficiency comes at
+a small cost, as more data structures must be maintained in the code to support this 
+capability.  However, this cost has been minimized and the benefits of the new integrator
+should be substantial.
+
+The old time integrator was similar to that of Spice3f5, and its descendents.  Spice-style
+integrators are based around older ordinary-differential-equation (ODE) 
+integrators, which assume every equation in the system of equations include time derivatives.
+In circuit problems, there are some fraction of the system of equations are purely algebraic.
+For example, the KCL equation for a voltage node that has only linear resistors attached
+to it is an algebraic equation, not a differential equation.  Systems of equations
+that include some algebraic constraints are referred to as differential algebraic
+equations (DAE), and such systems (as can be found in circuit simulation) are better served by 
+time integrators that have been specifically designed for DAE's.  
+
+Part of the reason for this is numerical stability.  Systems of DAE's are often characterized
+by the DAE index, which is defined as ``the minimum number of times that all or part of [the DAE] 
+must be differentiated with respect to $t$'' in order to reduce it to an ODE\cite{Petzold:1996}. 
+A system of index=0 is an ODE system.  Many circuits have an index of 1 or more, and 
+integrated MOSFET circuits usually have an index of at least 2~\cite{Brachtendorf1}.  This is important
+because higher index systems are only stable and accurate for higher orders of 
+integration, and are also very sensitive to initial conditions.
+In contrast, an ODE (index=0) integrator has the luxury of assuming that any implicit 
+time integration scheme will be stable.
+
+\subsection{Solver Options and Guidance}
+
+In general, from a user point of view, the switch to the new time integrator should be transparent,
+and \Xyce{} version 4.0 should behave the same with previous \Xyce{} releases.  
+Also, over the long term, the new time integrator should be a significant improvement over the old one.  
+However, there
+will be some rare exception circuits in which the new time integrator will have more difficulty than
+the old one.  This is mostly due to the fact that the new time integrator hasn't been 
+in the code long enough to be completely mature.  If a transient circuit that ran fine in previous 
+releases does not run successfully in \Xyce{} version 4.0, there are several options available.
+
+\begin{XyceItemize}
+  \item Loosen the time integrator tolerances.  The default absolute and relative truncation error tolerances are the same as they were before, with the default abstol=1.0e-6 and the default reltol=1.0e-2.  The new time integrator will generally get accurate results with looser tolerances, because the integration scheme is inherently more accurate and less subject to numerical dispersion.  If a simulation exits with a time-step-too-small error, try using larger numbers for abstol and/or reltol.  For example:  \texttt{.options timeint abstol=1e-4 reltol=1e-2}.
+  \item Change the maximum order.  In the old time integrator, the maximum integration order by default was 1.  In the new time integrator, the maximum order is, by default, 5.  In some cases, this will make the simulation less robust. It is possible to set the maximum order=1, in the netlist by adding \texttt{.options timeint maxord=1}.
+\end{XyceItemize}
+
+
+\section{Multi-time Partial Differential Equations (MPDE) Overview}
+\label{MPDE_Overview}
+
+\Xyce{} version 4.0 includes a new analysis option specially designed
+for circuits with two disparate time scales.  Normally, when a circuit
+has multiple time scales, the time integrator must take many small steps
+to fully resolve the fast time scale which can greatly slow simulation
+progress and reduce accuracy.  Now, \Xyce{} can discretize the system on
+the fast time scale converting the fast time DAE to a multi-time partial
+differential equation, hence MPDE.~\cite{meiMpdeDAC2004}  This dramatically
+reduces the number of steps the time integrator must take resulting in a faster
+and more accurate simulation.  
+
+In general, best results will be obtained when there is a large
+difference between the fast and slow time scales.  The quality of the
+solution of the fast time scale depends on the number of points used
+in the fast time discretization which also impacts simulation
+performance. Typically, if one needs $n$ points to accurately discretize
+the fast time scale, then the fast and slow time scales should be
+separated by at least a factor of $n$, {\em i.e.} if one needed 10
+points to represent the fast time solution, then best performance would
+be found when the fast and slow time scales differ by at lest a factor
+of 10.  In an MPDE analysis, \Xyce{} is effectively modeling $n$ versions of 
+the simulated circuit, so memory usage will grow proportionally with the number 
+of points in the fast time domain.
+
+\section{MPDE Usage}
+\label{MPDE_Usage}
+
+To use MPDE analysis in a simulation, place the following option line in the 
+netlist:
+
+\noindent\texttt{.OPTIONS MPDE OSCSRC=<v1,v2...> IC=<1,2>} [other optional switches]
+
+\begin{XyceItemize}
+
+\item \texttt{OSCSRC=...} A list of voltage and, or current sources that are 
+to be considered as changing on the fast time scale.  Typically these will 
+be all the sources that change at or more quickly than the fast time scale.
+
+\item \texttt{IC=[1,2]} Specifies the method used to calculate the
+initial conditions for the MPDE problem.  1 uses the {\em Sawtooth}
+algorithm while 2 uses an initial transient run for the initial
+condition.  During the initial condition calculation, the slow sources
+are deactivated so one is integrating only along the fast time axis.
+
+\item \texttt{N2=integer} Specifies the number of equally spaced points 
+to use in discretizing the fast time scale.  This option can only be used
+exclusive of the \texttt{AUTON2} and \texttt{AUTON2MAX} options.
+
+\item \texttt{AUTON2=[true | false]}  False by default.  If it is set to
+true, then an initial transient run is done to generate a {\em mesh} of
+time points for the fast time scale.  The belief here is that the time
+integrator can do a better job picking out where it needs more points to
+accurately describe the fast time solution.   Note: you can use
+\texttt{AUTON2} with \texttt{IC=1} or texttt{IC=2}.  If you use it with
+\texttt{IC=1}, then the time mesh is just used for the set of points the
+for the Sawtooth initial conditions.  This option can only be used exclusive 
+to the \texttt{N2} option.
+
+\item \texttt{AUTON2MAX=integer}  This sets the maximum number of fast
+time points that will be kept from the initial transient run so one has
+some control over the size of the simulation.  If the initial transient
+run produces 2,000 points and this is set at 50, \Xyce{} will uniformly
+sample points from the solution set for the MPDE simulation. This option
+can only be used exclusive to the \texttt{N2} option.
+
+\item \texttt{STARTUPPERIODS=integer}  This is the number of fast time
+periods that \Xyce{} should integrate through using normal transient analysis
+before trying to generate initial conditions for the MPDE analysis. 
+
+\item \texttt{diff=[0,1]}  Specifies the differentiation technique to use in 
+calculating time derivatives on the fast time scale.  0 uses backward 
+differences for the fast time differentiation while 1 uses central differences.
+
+\end{XyceItemize}
+
+As an example here are two valid options lines for MPDE:
+
+
+\Example{\texttt{.options MPDE IC=1 N2=21 OSCSRC=Vsine}}
+\Example{\texttt{.options MPDE IC=2 AUTON2=true AUTON2MAX=50 OSCSRC=VIN1,VIN2}}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+%% END of Xyce_UG_TimeInt.tex ************

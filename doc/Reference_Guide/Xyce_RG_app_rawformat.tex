@@ -1,0 +1,177 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\chapter{Rawfile Format}
+\label{rawformat}
+\index{rawfile}
+
+The rawfile format produced by \Xyce{} closely follows SPICE3
+conventions.  Differences are noted in section~\ref{rawformatnotes}. 
+Details on the both the ASCII and binary formats are provided here for
+reference. 
+
+
+\section{ASCII Format}
+\label{rawformatascii}
+\index{rawfile!ASCII}
+
+The ASCII file format can be created using the \texttt{-a} flag on the command
+line. See Chapter \ref{cmd_line_args} for more information.
+
+The ASCII format standard dictates that the file consist of lines or sets of
+lines introduced by a keyword. The \texttt{Title} and \texttt{Date} lines
+should be the first in the file, and should occur only once. They are followed
+by the \texttt{Plotname}, \texttt{Flags}, \texttt{No.~Variables}, and
+\texttt{No.~Points} lines for each plot. 
+
+Listed next are sets of \texttt{Variables}, and \texttt{Values} lines. Let
+\emph{numvars} be the number of variables (as specified in the
+\texttt{No.~Variables} line), and \emph{numpts} be the number of points (as
+shown on the \texttt{No.~Points} line). After the \texttt{Variables} keyword
+there must be \emph{numvars} declarations of outputs, and after the
+\texttt{Values} keyword, there must be \emph{numpts} lines, each consisting of
+\emph{numvars} values. 
+
+Finally, \Xyce{} also allows for a \texttt{Version} line to be placed after the
+\texttt{No.~Points} line for compatibility with various software programs.
+
+See Table~\ref{table_rawformatascii} for a summary of the above.
+
+\begin{longtable}[h] {>{\raggedright\small}m{1.5in}|>{\raggedright\let\\\tabularnewline\small}m{4.5in}}
+  \caption{\Xyce{} ASCII rawfile format.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue & 
+  \color{white}\bf Comment \\ \hline \endfirsthead  
+  \label{table_rawformatascii}
+
+    \texttt{Title:} & 
+    An arbitrary string describing the circuit.
+    \\ \hline
+
+    \texttt{Date:} & 
+    A free-format date string.
+    \\ \hline
+
+    \texttt{Plotname:} & 
+    A string describing the analysis type.
+    \\ \hline
+
+    \texttt{Flags:} & 
+    A string describing the data type (\emph{real} or \emph{complex}).
+    \\ \hline
+
+    \texttt{No.~Variables:} & 
+    The number of variables.
+    \\ \hline
+
+    \texttt{No.~Points:} & 
+    The number of points.
+    \\ \hline
+    
+    \texttt{Version:} (optional) &
+    The version of \Xyce{} used to generate this output. By default the version is not output in the header.  It can 
+    be output with the \texttt{.options output outputversioninrawfile=true} option.
+    \\ \hline
+
+    \texttt{Variables:} & 
+    A newline followed by multiple lines, one for each variable, of the form 
+    \texttt{[tab] <index> [tab] <name> [tab] <type>}.
+    \\ \hline
+
+    \texttt{Values:} & 
+    A newline followed by multiple lines, for each point and variable, of the form
+    \texttt{[tab] <value> }
+    with an integer index preceeding each set of points.  Complex values are output 
+    as \texttt{[tab] <real component>, <imaginary component> }.
+    \\ \hline
+
+  %\end{tabularx}
+\end{longtable}
+
+
+
+\section{Binary Format}
+\label{rawformatbinary}
+\index{rawfile!binary}
+
+The binary format is similar to the ASCII format, except that strings are null
+terminated rather than newline terminated. In addition, all the \texttt{values}
+lines are stored in a binary format. The binary storage of real values as
+double precision floats is architecture specific.
+
+See Table~\ref{table_rawformatbinary} for a summary of the binary table format.
+
+\begin{longtable}[h] {>{\raggedright\small}m{1.5in}|>{\raggedright\let\\\tabularnewline\small}m{4.5in}}
+  \caption{\Xyce{} binary rawfile format.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue & 
+  \color{white}\bf Comment \\ \hline \endfirsthead  
+  \label{table_rawformatbinary}
+
+    \texttt{Title:} & 
+    An arbitrary string describing the circuit.
+    \\ \hline
+
+    \texttt{Date:} & 
+    A free-format date string.
+    \\ \hline
+
+    \texttt{Plotname:} & 
+    A string describing the analysis type.
+    \\ \hline
+
+    \texttt{Flags:} & 
+    A string describing the data type (\emph{real} or \emph{complex}).
+    \\ \hline
+
+    \texttt{No.~Variables:} & 
+    The number of variables.
+    \\ \hline
+
+    \texttt{No.~Points:} & 
+    The number of points.
+    \\ \hline
+    
+    \texttt{Version:} (optional) &
+    The version of \Xyce{} used to generate this output. By default the version is not output in the header.  It can 
+    be output with the \texttt{.options output outputversioninrawfile=true} option.
+    \\ \hline
+
+    \texttt{Variables:} & 
+    A newline followed by multiple lines, one for each variable, of the form 
+    \texttt{[tab] <index> [tab] <name> [tab] <type>}.
+    \\ \hline
+
+    \texttt{Binary:} & 
+    Each real data point is stored contiguously in \texttt{sizeof(double)} byte blocks. 
+    Complex values are output as real and imaginary components in a block of size 
+    \texttt{2*sizeof(double)} byte blocks.
+    \\ \hline
+
+\end{longtable}
+
+
+\section{Special Notes}
+\label{rawformatnotes}
+
+\begin{XyceItemize}
+\item Complex data points are only output under \texttt{AC} analysis.
+\item \texttt{Commands} and \texttt{Options} lines are not used.
+\item Binary header is formatted ASCII.
+\item \Xyce{} can output an optional \texttt{Version} line in the header.
+\end{XyceItemize}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_RG_app_rawfile.tex ************

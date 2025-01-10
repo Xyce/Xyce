@@ -1,0 +1,30 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Embedded Sampling Table
+%%
+\index{solvers!embeddedsampling!options}
+\begin{OptionTable}{Options for Embedded Sampling Package.} \label{EmbeddedSamplesPKG}
+NUMSAMPLES   & Total number of samples & 0 \\ \hline
+SAMPLE\_TYPE & Sampling type (MC or LHS) & MC \\ \hline
+OUTPUTS      & Comma separated list of outputs (anything that would be a valid \texttt{.PRINT} output variable) & -- \\ \hline
+COVMATRIX    & Covariance matrix specified in row major form as comma-separated double precision numbers. & -- \\ \hline
+SEED         & Random seed & See footnote.\footnotemark[1] \\ \hline
+OUTPUT\_SAMPLE\_STATS   &  Compute and outputs statistics for specified outputs. & -- \\ \hline
+REGRESSION\_PCE    & Enable regression based PCE.  If this is enabled, the randomly sampled points will be used to produce a PCE approximation using regression methods.     & -- \\ \hline
+PROJECTION\_PCE    & Enable projection based PCE (quadrature).  If this is enabled, a PCE approximation will be created using quadrature methods.  The NUMSAMPLES parameter will be ignored, and the samples will be the quadrature points used by projection PCE.     & -- \\ \hline
+RESAMPLE    & Once the PCE coefficients are obtained, perform sampling on the PCE approximation & -- \\ \hline
+OUTPUT\_PCE\_COEFFS    & Output the PCE coefficients & -- \\ \hline
+SPARSE\_GRID    &  Use sparse grid methods if using projection PCE.    & -- \\ \hline
+STDOUTPUT    &  Send sampling and PCE output to the terminal   & -- \\ \hline
+\end{OptionTable}
+
+\footnotetext[1]{The seed can also be set using command line option, -randseed.   The command line seed will override the netlist seed value.  If the seed is not set in either the netlist or on the command line, then Xyce generates a seed internally.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}
+

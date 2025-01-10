@@ -1,0 +1,27 @@
+This directory contains Verilog-A source for all the open-source
+models in Xyce, as well as a set of Verilog-A source examples to
+demonstrate use of Xyce/ADMS.  It contains one additional model, the
+FBH HBT 2.3 model that does not work in Xyce.
+
+The demo examples are all under the "toys" directory.
+
+The FBH HBT 2.3 model is in the "non-functional" directory.
+
+All of the remaining directories under this one are models that have
+already been processed with ADMS and the Xyce/ADMS templates, and C++
+code for these is found under src/DeviceModelPKG/ADMS.  The Xyce build
+system does not rebuild this C++ code automatically from the Verilog-A
+sources, as this would be a very time-consuming process and would
+require that end-users have a copy of ADMS, even if they weren't
+interested in using Verilog-A themselves.
+
+Conversion of these models to C++ is done manually by the
+"generate_ADMS.sh" script in the utils directory.  The converted C++
+is moved to the src/DeviceModelPKG/ADMS directory by the
+"install_ADMS.sh" script in the utils directory .  This is done by the
+Xyce team whenever the Xyce/ADMS back-end changes, and is not
+generally something that end-users need to worry about.
+
+Wherever the Xyce team has had to modify published Verilog-A models
+in order to use them in Xyce, the changes are documented in a
+README_Xyce file in the model's directory.

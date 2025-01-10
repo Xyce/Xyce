@@ -1,0 +1,72 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Device Selections Table
+%%
+
+\begin{OptionTable}{Options for Device Package}
+\label{DevicePKG}%
+DEFAD & MOS Drain Diffusion Area & 0.0 \\ \hline
+DEFAS & MOS Source Diffusion Area & 0.0 \\ \hline
+DEFL & MOS Default Channel Length & 1.0E-4 \\ \hline
+DEFW & MOS Default Channel Width & 1.0E-4 \\ \hline
+DIGINITSTATE & This option controls the behavior of the Digital Latch (DLTCH), D Flip-Flop (DFF),
+JK Flip-Flop (JKFF) and T Flip-Flop (TFF) behavioral digital devices during the DC Operating Point (DCOP)
+calculations. See ~\ref{U_DEVICE} for more details.  & 3 \\ \hline 
+GMIN & Minimum Conductance & 1.0E-12 \\ \hline
+MINRES & This is a minimum resistance to be used in place of the default zero value of semiconductor device internal resistances.  It is only used when model specifications (\texttt{.MODEL} cards) leave the parameter at its default value of zero, and is not used if the model explicitly sets the resistance to zero.   & 0.0 \\ \hline
+MINCAP & This is a minimum capacitance to be used in place of the default zero value of semiconductor device internal capacitances.  It is only used when model specifications (\texttt{.MODEL} cards) leave the parameter at its default value of zero, and is not used if the model explicitly sets the capacitance to zero.   & 0.0 \\ \hline
+TEMP & Temperature & 27.0 $^\circ$C (300.15K) \\ \hline
+TNOM & Nominal Temperature & 27.0 $^\circ$C (300.15K) \\ \hline
+% TVR: I can't find any use of this parameter in Xyce!
+%\debug{\texttt{SCALESRC}} & \debug{Scaling factor for source scaling} & \debug{0.0} \\ \hline
+\debug{NUMJAC} & \debug{Numerical Jacobian flag (only use for small problems)}
+& \debug{0 (FALSE)} \\ \hline
+VOLTLIM & Voltage limiting & 1 (TRUE) \\ \hline
+B3SOIVOLTLIM & BSIMSOI3 Voltage limiting.  This flag is similar to VOLTLIM, except that it only 
+  applies to the BSIMSOI version 3  (the newer versions of the BSIM SOI do not have voltage limiting).  
+  Turning this off will often improve numerical robustness.  Unlike VOLTLIM, turning this off 
+  does not disable the initial condition code in the BSIMSOI model.  & 1 (TRUE) \\ \hline
+B3SOIGMINSCALING & This flag enables scaling of gmin in the BSIMSOI version 3 device model. When
+it is enabled, a scaling factor of 1e-6 is applied to the gmin value. & 1 (TRUE) \\ \hline
+
+\debug{icFac} 
+& \debug{This is a multiplicative factor which is applied to right-hand side vector loads of 
+.IC initial conditions during the DCOP phase. }
+& \debug{10000.0} \\ \hline
+
+MAXTIMESTEP & Maximum time step size & 1.0E+99 \\ \hline
+
+SMOOTHBSRC & This flag enables smooth transitions by adding a RC network to the output of ABM devices    &    0  \\ \hline
+
+
+RCCONST & This option controls the smoothness of the transitions if the
+SMOOTHBSRC flag is enabled. This is done by specifying the RC constant of the
+RC network & 1e-9 \\ \hline
+
+\\ \hline
+\multicolumn{3}{|c|}{\color{XyceDarkBlue}\em\bfseries MOSFET Homtopy parameters} \\ \hline
+
+VDSSCALEMIN & Scaling factor for Vds    & 0.3      \\ \hline
+VGSTCONST   & Initial value for Vgst    & 4.5 Volt \\ \hline
+LENGTH0     & Initial value for length  & 5.0e-6   \\ \hline
+WIDTH0      & Initial value for width   & 200.0e-6 \\ \hline
+TOX0        & Initial value for oxide thickness & 6.0e-8  \\ \hline
+
+\\ \hline
+\multicolumn{3}{|c|}{\color{XyceDarkBlue}\em\bfseries Debug output parameters} \\ \hline
+
+\debug{DEBUGLEVEL} & \debug{The higher this number, the more info is output} & \debug{1} \\ \hline
+\debug{DEBUGMINTIMESTEP} & \debug{First time-step debug information is output} & \debug{0} \\ \hline
+\debug{DEBUGMAXTIMESTEP} & \debug{Last time-step of debug output} & \debug{65536} \\ \hline
+\debug{DEBUGMINTIME} & \debug{Same as \texttt{DEBUGMINTIMESTEP} except controlled by time (sec.) instead of step number} & \debug{0.0} \\ \hline
+\debug{DEBUGMAXTIME} & \debug{Same as \texttt{DEBUGMAXTIMESTEP} except controlled by time (sec.) instead of step number} & \debug{100.0} \\ \hline
+\end{OptionTable}

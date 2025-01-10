@@ -1,0 +1,51 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.NODESET}}
+\index{initial condition!NODESET}
+\index{initial condition}
+\label{NODESET_section}
+
+The \texttt{.NODESET} command sets initial conditions for operating point
+calculations.  It is similar to \texttt{.IC} (Section~\ref{IC_section}), except 
+it is applied as an initial guess, rather than as a firmly enforced
+condition. Like \texttt{.IC}, \texttt{.NODESET} initial conditions can be specified
+for some or all of the circuit nodes.
+
+Consult the \Xyce{} Users' Guide~\UsersGuide{} for more guidance.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.NODESET < V(<node>)=<value>
+.NODESET <node> <value>
+\end{alltt}
+
+\examples
+\begin{alltt}
+.NODESET V(2)=3.1
+.NODESET 2 3.1
+\end{alltt}
+
+\comments
+The \Xyce{} \texttt{.NODESET} command uses a different strategy than either
+SPICE or HSPICE.  When \texttt{.NODESET} is specified, \Xyce{} does two solves
+for the DC operating point.  One with the \texttt{.NODESET} values held as 
+initial conditions (i.e., the same as if it was an .IC solve). The second solve
+is then done without any conditions imposed, but with the first solution as an
+initial guess. 
+
+The \texttt{.NODESET} capability can only set voltage values, not current values.
+
+The \texttt{.NODESET} capability can not be used, within subcircuits, to set voltage values on global nodes.
+
+\end{Command}
+

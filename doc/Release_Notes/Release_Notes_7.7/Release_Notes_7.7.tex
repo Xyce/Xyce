@@ -1,0 +1,259 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\documentclass[letterpaper]{scrartcl}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{7.7}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes}
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Approved April TBD 2023
+% SAND Number SAND2023-TBD
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+
+\section*{Highlights}
+\begin{XyceItemize}
+\item Xyce now handles local variation with the same netlist convention as
+      HSPICE and other simulators.  This allows users to more easily simulate
+      things like mismatch using commercial PDKs.
+
+\item The parser, expression library and device package have undergone various
+      efficiency improvements with respect to parameter handling.  In the case
+      of the parser, this speeds up parsing in many cases.  For the device
+      package, it speeds up analysis.  In the case of the expression library, it
+      often speeds up both parsing and analysis.
+\end{XyceItemize}
+
+\section{New Features and Enhancements}
+
+\subsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+\item The Xyce diode now supports sidewall effects supported by other
+  simulators such as ngspice and HSPICE.
+\item The open source version of Xyce now includes the published
+  version of EKV MOSFET model version 2.6 as the level 260 MOSFET.
+  Previously, this model was only available in our ``non free''
+  binaries.
+\end{XyceItemize}
+
+\subsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+
+\item The expression library \texttt{TABLE} and \texttt{SPLINE} operators now
+     support a ``downsampling'' feature, in which the user can request that a
+     large data file can automatically have the number of points used by the
+     source reduced.  For \texttt{TABLE} based sources, which are based on a
+     PWL linear approximation, this can dramatically speed up simulations, as
+     the number of required breakpoints is reduced.
+
+\item The random operators in the expression library (such as \texttt{AGAUSS}
+     and \texttt{AUNIF}) now support implicit local and global variation,
+     consistent with other simulators.
+
+\item Parameter handling in the parser has been refactored. As a result, the
+     parsing and setup time for large process design kits (PDKs) has been
+     improved.
+
+\end{XyceItemize}
+
+\subsection*{Interface Improvements}
+\begin{XyceItemize}
+\item Subcircuit multipliers (\texttt{M=}) previously had to have a fixed value.
+  Now, they can be treated like any other parameter, and can change during a simulation
+  using commands such as \texttt{.STEP}.
+
+\item Formatting errors in unused subcircuit definitions (\texttt{.SUBCKT}) will no
+  longer emit errors, only warnings.  This is limited to issues in the (\texttt{.SUBCKT})
+  line of the netlist.  If additional parsing issues are found within the subcircuit
+  definition, they may still result in an error being emitted from the simulator.
+
+\item \Xyce{} now has a diagnostic option, \texttt{.options diagnostic} to aid in
+  debugging of user circuits.  This option can be used to output nodes with extreme
+  solution values, voltages, currents and discontinuities during a simulation.
+  Additionally, it can provide information on continuation methods used during
+  the DC Operating point calculation.  See the Reference Guide section 2.1.25.2
+  and chapter 10 the User's Guide for more details.
+
+\item The third argument (\texttt{num\_sigma}) to the random expression
+     operators \texttt{AGAUSS} and \texttt{GAUSS} is now optional.
+
+\item The metrics tracking and reporting feature now has an option to include
+  error messages. When enabled, the tracking data reported by Xyce is encoded as
+  a JSON string. If certain error conditions occur, the JSON string may now
+  include a list of diagnostic messages. These error messages will be encoded as
+  an array under the tag name “ErrorMessages” next to the “audit” field
+  (e.g. {“audit”:\{\dots\},”ErrorMessages”:[\dots]}).
+
+\item Expressions are now allowed on the following analysis lines:
+     \texttt{.TRAN}, \texttt{.DC} and \texttt{.AC}.
+
+\item Data files read in via the expression library operators such as
+     \texttt{TABLE} and \texttt{TABLEFILE} can now contain comments.
+
+\item Data files read in via the expression library operators such as
+     \texttt{TABLE} and \texttt{TABLEFILE} can now include dashes in the
+     filename.
+
+\item When running a frequency domain analysis such as \texttt{.HB} or
+     \texttt{.AC}, complex-valued expressions on the \texttt{.PRINT} line will
+     now automatically output both the real and imaginary parts.
+
+\item \texttt{.params} can now be complex-valued.  When used in a real-valued
+     context, only the real part will be used, but in complex (i.e. frequency
+     domain) contexts, complex arithmetic is performed.
+
+\end{XyceItemize}
+
+
+\subsection*{XDM}
+\begin{XyceItemize}
+\item Fixed bug where an instance of a SPECTRE device is not translated as an
+    instance or a comment if it appears after a definition of a SPECTRE device.
+\end{XyceItemize}
+
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 7.7 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
+    and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Note: Coupled Simulation with the \Xyce{} General
+    External Interface
+  \item Application Note: Mixed Signal Simulation with \Xyce{} 7.2
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Dept.\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and
+operated by National Technology and Engineering Solutions of Sandia,
+LLC, a wholly owned subsidiary of Honeywell International, Inc., for
+the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-NA0003525.
+
+\vspace{0.2in}
+\noindent
+\parbox{\textwidth}
+{
+    \includegraphics[height=0.6in]{DOEbwlogo}
+    \hfill
+    \includegraphics[height=0.5in]{NNSA_logo}
+    \hfill
+    \includegraphics[height=0.5in]{snllineblk}
+}
+\vspace{0.1in}
+
+\parbox{\textwidth}{\hfill SAND2023-07328 O}
+\end{document}
+

@@ -1,0 +1,9 @@
+INPUT += ../../src/DeviceModelPKG/index.dox \
+         ../../src/DeviceModelPKG/Core \
+         ../../src/DeviceModelPKG/OpenModels \
+         ../../src/DeviceModelPKG/ADMS \
+         ../../src/DeviceModelPKG/NeuronModels \
+         ../../src/DeviceModelPKG/TCADModels \
+         ../../src/DeviceModelPKG/Xyce_NonFree \
+         ../../src/DeviceModelPKG/SandiaModels \
+         ../../src/DeviceModelPKG/SandiaModels/ATHENA

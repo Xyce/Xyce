@@ -1,0 +1,19 @@
+`include "disciplines.vams"
+`include "constants.vams"
+
+
+module vsrc (p,n);
+  electrical p,n;
+  inout p,n;
+
+  // In this example we've explicitly stated that the parameter is allowed
+  // to be a time-dependent expression in the netlist, which by default
+  // is not allowed.
+  (*desc="Time-dependent voltage expression", type="instance", dependence="TIME_DEP"*)
+  parameter real Voltage=0 from (-inf:inf);
+
+  analog
+  begin
+    V(p,n) <+ Voltage;
+  end
+endmodule

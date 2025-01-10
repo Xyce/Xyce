@@ -1,0 +1,235 @@
+ADMS is powerful, but it basically is completely undocumented, and one
+learns how to use it mostly by analysis of existing ADMS templates for
+open source codes that use it.
+
+Most of these notes were written in the very early days (circa 2008)
+of trying to write Xyce/ADMS, when they came in much more handy than
+they do now.  I tried to go through them in late 2019 just to make them
+relevant again, since I'd forgotten this file even existed.
+
+1)  <admst:value-of select="path"/>
+    <admst:text format="%s"/>
+
+     is the same as
+    <admst:text format="%(path)"/>
+
+----
+2)  One can also apply templates without using "apply-templates":
+
+    <admst:text format="$e=%(e(rhs/tree));\n"/>
+
+    applies the template "e" to rhs/tree before output.
+
+    This works fine  as long as what "e" does is output with "adms:text", and
+    as long as we're using it to output with adms:text.  Where it becomes
+    wrong is if one were trying, say, to create a variable with the output
+    of "e" embedded in it.  That doesn't work:
+
+
+    <admst:variable name="foo" select="%(e(rhs/tree))"/> 
+
+    does NOT save the output of e(rhs/tree) into the variable foo.  To get
+    that done generally requires using apply-templates to templates that
+    don't do output (but rather return values).
+
+   (Note added 2019: This is not strictly correct.  If e() has a "return"
+   statement, one *can* access it and assign it to a variable by accessing
+   more of the data path for the template, for example:
+      <admst:variable name="foo" select="%(e(.)/[name='returnName']/value)"/>
+   where the template "e" has a "<admst:return name="returnName" value="..."/>
+   statement in it.
+
+   Generally speaking, for reasons of readability and maintainability,
+   I think use of template calls like this should probably be limited
+   to templates that just perform a formatting action and return
+   formatted data for output, not those that have side effects by
+   modifying the ADMS data tree.  The explicit apply-templates syntax
+   is better for that kind of work.
+
+----
+3) Each variable/parameter has a node called "parametertype" that defaults to
+   "model".  Apparently, when there is an attribute called "type" in the
+   parameter's definition, e.g.
+
+`ifdef insideADMS
+ `define P(p) (*p*)
+ `define PGIVEN(p)              $given(p)
+ `define INITIAL_MODEL          @(initial_model)
+`else
+ `define P(p)
+ `define PGIVEN(p)              p
+ `define INITIAL_MODEL          @(initial_step)
+`endif
+parameter real dt       = 0.0   `P(spice:name="dt" type="instance" info="Temperature change for particular transistor" unit="K");
+
+
+then that parameter gets the "type" attribute turned into a
+"parametertype".  NOTHING documents this fact except that if you look
+at adms.xml it shows up there.  if you open the "math" top-level
+entity then browse to "subexpression" and open it, then open
+"variable" and then the associated "variableprototype" link, you'll
+find a "parametertype" line.  Further expanding that you can find that
+the acceptable values for the parameter type are "model," "instance,"
+and "analogfunction" (for parameters passed to analog functions).
+
+-----
+4) Use of "return" from templates
+
+   <admst:return name="returnname" value="text"/>
+
+   This allows you to return values, and not even just a single value ---
+   you can have multiple returns.  It is not a flow-of-control thing, but
+   something that adds to the tree.
+
+   Return values are retrieved pretty easily.
+
+   <admst:apply-templates select="/path" match="templatename">
+     <admst:value-of select="returned('returnname')/value"/>
+     <admst:variable name="variablename" select="%s"/>
+   </admst:apply-templates>
+
+   See also note 2, where it is also possible to use an abbreviated version
+   of this like:
+     <admst:variable name="variablename" select="%(templatename(/path)/[name='returnname']/value)"/>
+   which should be exactly the same as the four-line version above.
+
+-------
+
+5) apply-templates will work as a loop over all members of a
+   container.  For example, a block often (usually) has multiple
+   items.  Doing:
+
+   <admst:apply-templates select="item" match="sometemplate"/>
+
+   while . is a block will apply sometemplate to each item in the block.  It
+   is pretty much equivalent to:
+     <admst:for-each select="item">
+       <admst:apply-templates select="." match="sometemplate"/>
+     </admst:for-each>
+
+6) "if-inside" and "if-not-inside" are admst commands that check for the presence of a value in a list:
+      <admst:if-inside select="$derivProbe" list="%(probe)">
+        <admst:variable name="expressionDeriv" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)"/>
+      </admst:if-inside>
+   That is, if the probe stored in $derivProbe is in the list "probe" that
+   is part of the path element currently being processed, do something.
+
+-------
+  Completely undocumented, learned only through email with Laurent Lamaitre:
+
+  You can push an array of items or a scalar value into any part of the
+  ADMS data tree using the "@variable" or "#variable" constructs.  These are
+  used in the uncommented, undocumented adms scripts "arobavariable.xml" and
+  "croixvariable.xml"
+
+  On Laurent's recommendation, I used this feature in the
+  "collectAssignedVariables" template.  This template recursively gathers a
+  list of all the variables that are on the left-hand-side of any assignment
+  at or below the part of the tree passed to it.  It is roughly patterned on
+  a similar template in qucs, ng-spice, and zspice ("block:local:variables")
+  that used a deprecated part of the adms data tree
+  (/module/evaluation/variable).
+
+  To use this method to push something into an array, you can do:
+
+   <admst:push into="/some/data/path/@variable" select="somenode"/>
+
+ which will create the @variable sub-node of /some/data/path if it doesn't
+ exist and add somenode to that list.
+
+   <admst:push into="/some/data/path/#variable" select="somevalue"/>
+
+ pushes a scalar named #variable, and assigns it the given value instead.
+
+ admst:push takes an "onduplicate" option that allows one to control what it
+ does if there's already a value in the list like the one you're pushing:
+
+   onduplicate="ignore"  --- do nothing (don't push), the default
+   onduplicate="abort"   --- exit with error
+   onduplicate="ignore-abort" --- ??
+   onduplicate="passthrough"  --- ??
+
+----------------
+Documented, but not obvious:
+
+-  The module tree contains a "contribution" item that is a list of all the
+   contributions that appear in the module.  This will be *vital* to use
+   for Xyce's purposes, as it means there's one place we can go to figure out
+   all of the dependencies between probes on the RHS of contributions and
+   currents on the LHS.  It will also probably help to figure out how to 
+   declare the Sacado Fad types.
+
+- DUH!  There is a /module/jacobian item that tells EXACTLY what
+   jacobian terms arise from the various contributions.  This should
+   make jacstamp and offset generation very simple.  But this data
+   structure contains ONLY information from conttributions of the form
+   "I(branch) <+ expression", and no information from "V(branch) <+
+   expression."  The latter makes things much more complicated and
+   introduces new variables and equations, and must be handled
+   ourselves.  (Xyce/ADMS has supported this through various
+   templating hacks since 2011, see morannon bug 1779, the template
+   "collectExtraUnknowns" in xyceBasicTemplates, and use of the
+   "@extraUknowns" arobavar throughout our code generation templates.)
+
+-----------------------------------------------------------------------------
+The following Q/A was something that surfaced when I was trying to figure
+out how to do non-sacadoized derivatives of analog functions.  This question
+is once again relevant to a bug I'm working on, so into the Notes it goes.
+
+Q: How can we tell whether and argument in an analog function call
+corresponds to an output variable in the dummy list?  Need to do this so
+we can decide how to differentiate and such.
+
+A:  The following code demonstrates how to go back to the function definition
+    at time of use and extract this
+
+---------------------------------
+diff --git a/utils/ADMS/xyceBasicTemplates.xml b/utils/ADMS/xyceBasicTemplates.xml index 9548d2c71..e3e928829 100644
+--- a/utils/ADMS/xyceBasicTemplates.xml
++++ b/utils/ADMS/xyceBasicTemplates.xml
+@@ -3935,6 +3935,22 @@ other variables does not get propagated into a variable's
+         <admst:variable name="expression" select="$expression($args)"/>
+       </admst:when>
+       <admst:otherwise>
++        <admst:variable name="theAF"/>
++        <admst:variable name="theFoundFunc"/>
++        <admst:variable name="isAF"/>
++        <admst:if test="[class = 'analog']">
++          <admst:message format="Bing!  Hit fall-through on function %(name) of class %(class) \n"/>
++          <admst:variable name="theFoundFunc" select="%(name)"/>
++          <admst:variable name="theAF" select="%(/module/analogfunction[name=$theFoundFunc])"/>
++          <admst:message format="I think I found it as %($theAF), name=%($theAF/name) with %(count($theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)])) args\n"/>
++          <admst:reset select="@AFdummyArgs"/>
++          <admst:push into="@AFdummyArgs" select="$theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)]"/>
++          <admst:reverse select="@AFdummyArgs"/>
++          <admst:for-each select="@AFdummyArgs">
++            <admst:message format="    Dummy arg %(position(.)) = %(name) input=%(input) output=%(output) \n"/>
++          </admst:for-each>
++          <admst:variable name="isAF" select="yes"/>
++        </admst:if>
+         <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
+         <admst:variable name="args" select=""/>
+         <admst:for-each select="arguments">
+@@ -3943,6 +3959,10 @@ other variables does not get propagated into a variable's
+           </admst:if>
+           <admst:apply-templates select="." match="processTerm">
+             <admst:variable name="args" select="$args%(returned('returnedExpression')/value)"/>
++            <admst:if test="[$isAF='yes']">
++              <admst:variable name="theArgIndex" select="%(position(.))"/>
++              <admst:variable name="args" select="$args /* index=%($theArgIndex) input=%(../@AFdummyArgs[$theArgIndex]/input) output=%(../@AFdummyArgs[$theArgIndex]/output)*/"/>
++            </admst:if>
+           </admst:apply-templates>
+         </admst:for-each>
+         <admst:variable name="expression" select="$expression($args)"/>
+
+
+
+---------------------------------
+This patch, which monkeys with the final "otherwise" block of the
+"function" template of xyceBasicTemplates (where all analog functions
+drop through), will annotate each actual argument with its
+input/output status.
+
+Knowing how to access this information will be key to generating good
+function calls for all combinations of in/out variables when we try to
+differentiate.

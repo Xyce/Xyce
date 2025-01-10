@@ -1,0 +1,322 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Copyright @ 2013 Massachusetts Institute of Technology (MIT)
+ 
+//The terms under which the software and associated documentation (the Software) is provided are as the following:
+ 
+//The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
+ 
+//MIT grants, free of charge, to any users the right to modify, copy, and redistribute the Software, both within the user's organization and externally, subject to the following restrictions:
+ 
+//1. The users agree not to charge for the MIT code itself but may charge for additions, extensions, or support.
+ 
+//2. In any product based on the Software, the users agree to acknowledge the MIT VS Model Research Group that developed the software. This acknowledgment shall appear in the product documentation.
+ 
+//3. The users agree to obey all U.S. Government restrictions governing redistribution or export of the software.
+ 
+//4. The users agree to reproduce any copyright notice which appears on the software on any copy or modification of such made available to others.
+ 
+//Agreed to by 
+//Dimitri A. Antoniadis, MIT
+//May 27 2013
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Verilog-A for Improved virtual-source based transport model for Quasi-Ballistic Transistors (Si ETSOI)
+// Based on "An Improved Virtual-Source Based Transport Model for Quasi-Ballistic Transistors -
+// Part I: Capturing Effects of Carrier Degeneracy, Drain-Bias Dependence of Gate Capacitance, and Non-linear Channel-Access Resistance
+// and Part II: Experimental Verification"
+// Authored by S. Rakheja, M. Lundstrom and D. Antoniadis
+
+// The model is specifically made for III-V HEMTs and accounts for the following effects:
+// (i) conduction-band non-parabolicity
+// (ii) carrier degeneracy 
+// (iii) non-linearity of access region
+
+// Implemented on July 27, 2015 by S. Rakheja
+
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+`define attr(txt) (*txt*)
+
+module mvs_2_0_0_hemt(d, g, s) `attr(info="MVS HEMT 2.0.0" xyceModelGroup="MOSFET" xyceLevelNumber="2001" xyceTypeVariable="type" xyceDeviceName="MVS HEMT 2.0.0");
+inout d, g, s;
+electrical d, g, s;
+electrical di, si, sf;
+
+
+`define SMALL_VALUE	(1e-10)
+`define LARGE_VALUE	(40)
+`define M0 		9.10938215e-31 // mass of free electron [Kg]  
+
+parameter real 		version 		= 	2.00;                                         				// MVS model version 
+parameter integer 	type 			= 	1 				from [-1 : 1] exclude 0;  		// Type of transistor. nFET type=1; pFET type=-1
+parameter real 		W          		=	1.0e-6 				from (0:inf);	        		// Transistor width [m]
+parameter real 		Lgdr 			= 	80.0e-9 			from (0:inf);                   	// Physical gate length [m]. 
+																// Designed gate length for litho printing.
+parameter real 		dLg 			= 	10.5e-9 			from [0:inf);                   	// Overlap length including both source and drain sides [m]  
+parameter real 		Cins          		= 	3.17e-2 			from (0:inf);                   	// Insulator capacitance [F/m^2]
+parameter real		Tjun 			= 	300.0	 			from (0:inf);                   	// Junction Temperature [K]
+parameter real 		energy_diff_volt 	= 	0.153 				from (-inf:inf);                   	// Threshold voltage [V]
+parameter real 		delta         		= 	0.120	 			from [0:inf);                   	// Drain induced barrier lowering [V/V]
+parameter real 		n0			= 	1.35 				from [1.0:inf);                   	// Subthreshold swing factor
+																// {typically between 1 and 2}
+parameter real      	Rc0       		= 	160.0e-6           		from (0:inf);      	           	// Contact resistance [Ohm-m]
+parameter real 		nacc			= 	2.25e16				from (0:inf);
+parameter real 		meff			= 	0.041				from (0:1];                   		// Relative mass of carriers [unit-less]
+parameter real		np_mass			=	9.0				from [0:inf);				// Non-parabolicity parameter [1/eV]
+parameter real 		mu_eff 			= 	1.0                   		from (0:inf);                        	// Long channel effective mobility [m^2/V-s]
+parameter real		ksee	 		= 	0.1             		from (0 : inf);                		// Ratio of Lcrit in sat and Leff [unit-less]
+parameter real 		B	 		= 	6.8e-9             		from (0 : inf);                		// Stern QM correction numerator [(C.m)^1/3] 
+parameter real		dqm0	 		= 	4.6e-9             		from (0 : inf);                		// Charge centroid from insulator interface [m]
+parameter real 		eps	 		= 	13.6         			from (0 : inf);                		// Relative permittivity of semiconductor channel material 
+parameter real		theta	 		= 	2.5             		from (0 : inf);                		// Saturation voltage (in phit) for critical length
+parameter real		beta	 		= 	1.55             		from [1 : inf);                		// Fitting parameter for Fsat
+parameter real 		nd			= 	0.0				from [0 : inf);				// Punch-through factor [1/V]
+
+
+
+//Defining variables 
+real kT, hbar, phit, sqrt_pi; // constants
+real Rc, Rs, Rd, Qacc; // parasitics
+real Vds, Vgs, Vgsraw, Vgdraw, Vgd, Vdsi, Vgsi, dir; // voltages
+real Leff;
+real vx0, vT_int, vT, vT_acc, lambda_int, lambda; // velocities and mean free path
+real Vdsat2, Vdsatbeta2, Vdsat, Vdsatbeta, Fsat, Id_sat, Idsatbeta; // saturation parameters
+real  Fs,  Fd, Id; // flux
+real Lcrit_lin, Lcrit_sat, Lcrit, Tx; // critical length
+real mD0, N2D, Qx0, xav, QB, Cstern, Cgc, n; // related with calculation of VS charge
+ 
+real f1, f2, Es, expEs, ffs, sign_Es, Es_sq;
+real meff_np, NP_fac_lambda, NP_fac_velocity, ffd, Ed, expEd, Ed_sq, sign_Ed, FDminushalfs, dgen_lambda; // non-parabolicity and degeneracy
+real j_pow1, a_pow1, b_pow1, c_pow1, num_t1_fd1, aterm1, den_t1_fd1, t2_fd1, u1; // related with FD minus half in main channel
+real u, eta, expMeta, c1, FDhalfs, extr_coef, expu, A1, den1; // related with FD half in manin channel
+real eta_acc, exp_eta_acc, extr_coef_acc, expu_acc, expMeta_acc, c1_acc, A1_acc, den1_acc, FDhalfs_acc; // related with FD half in access region
+
+analog begin
+
+	//Voltage definitions
+	Vgsraw				=	type * ( V(g) - V(si) );
+	Vgdraw				=	type * ( V(g) - V(di) );
+	if (Vgsraw >= Vgdraw) begin
+		Vds			=	type * ( V(d) - V(s) ); 
+		Vgs			=	type * ( V(g) - V(s) );
+		Vdsi			=	type * ( V(di) - V(si) );
+		Vgsi			=	Vgsraw;
+		dir			=	1;
+	end
+	else begin
+		Vds			=	type * ( V(s) - V(d) );
+		Vgs			=	type * ( V(g) - V(d) );
+		Vdsi			=	type * ( V(si) - V(di) );
+		Vgsi			=	Vgdraw;
+		dir			=	-1;
+
+	end
+	
+	// Initialization of geometry dependent parameters
+	Leff				= 	Lgdr - dLg;  // Effective channel length [m]
+	Rc				= 	Rc0/W; // Contact resistance [Ohms]
+
+	//Initialization of variables
+	phit         			= 	`P_K * Tjun / `P_Q; // Thermal voltage [V]
+	kT 				= 	`P_K * Tjun;  // Thermal energy [J]
+	hbar 				= 	`P_H/(2.0*`M_PI); // Reduced planck's constant [J-s]
+	sqrt_pi 			= 	sqrt(`M_PI); // Square root of pi
+
+	// Calculation of intrinsic values with parabolicity
+	mD0				=	meff*`M0; // DOS effective mass of electrons [Kg]
+	vT_int 				= 	sqrt(2.0*kT/`M_PI*1.0/mD0); // NDG thermal velocity of electrons [m/s]
+	lambda_int			= 	2.0*phit*mu_eff/vT_int; // NDG mean free path of electrons [m]
+	N2D 				= 	mD0/(`M_PI*hbar*hbar)*kT;// 2D density of states
+
+	
+	
+
+// XYCE FIX:  These functions need to happen AFTER Es and Ed are set!
+	// Define the sign function for source side Es
+//	if (Es>0) begin
+//		sign_Es = 1.0;
+//	end
+//	else if (Es == 0) begin
+//		sign_Es = 0;
+//	end
+//	else if (Es < 0) begin
+//		sign_Es = -1.0;
+//	end
+
+	// Define the sign function for drain side Ed
+//	if (Ed>0) begin
+//		sign_Ed = 1.0;
+//	end
+//	else if (Ed == 0) begin
+//		sign_Ed = 0;
+//	end
+//	else if (Ed < 0) begin
+//		sign_Ed = -1.0;
+//	end
+
+	// ***** CALCULATION OF SOURCE SIDE FLUX, Fs
+	
+	Es=(energy_diff_volt+V(sf))/phit;
+        // XYCE CHANGE----
+	// Define the sign function for source side Es
+	if (Es>0) begin
+		sign_Es = 1.0;
+	end
+	else if (Es == 0) begin
+		sign_Es = 0;
+	end
+	else if (Es < 0) begin
+		sign_Es = -1.0;
+	end
+        // END XYCE CHANGE----
+        expEs=exp(Es);       
+	// Definition of ffs for large values of argument
+        if (Es >= `LARGE_VALUE)begin
+		ffs = 0;
+	end
+	else begin
+		ffs=1.0/(1.0+expEs*0.6);
+	end
+        
+	Es_sq=(1.0+sign_Es)*Es*Es/4.0;
+        Fs = ln(1.0+expEs)+np_mass*phit*(ffs*expEs+(1-ffs)*Es_sq);// Source flux 
+
+	
+	// ***** CALCULATION OF SOURCE SIDE FLUX, Fd
+	Ed=(energy_diff_volt+V(sf)-Vdsi)/phit;       
+        // XYCE CHANGE----
+	// Define the sign function for drain side Ed
+	if (Ed>0) begin
+		sign_Ed = 1.0;
+	end
+	else if (Ed == 0) begin
+		sign_Ed = 0;
+	end
+	else if (Ed < 0) begin
+		sign_Ed = -1.0;
+	end
+        // END XYCE CHANGE----
+        expEd=exp(Ed);
+	// Definition of ffd for large values of argument
+	if (Ed >= `LARGE_VALUE) begin
+		ffd = 0;
+	end
+	else begin
+        	ffd=1.0/(1.0+expEd*0.6);
+	end
+
+        Ed_sq=(1.0+sign_Ed)*Ed*Ed/4.0;
+        Fd = ln(1.0+expEd)+np_mass*phit*(ffd*expEd+(1.0-ffd)*Ed_sq); // Drain flux
+
+
+	// ***** Computing the effect of non-parabolicity on effective mass and impact on LAMBDA and THERMAL VELOCITY
+	
+	if (Es >=`LARGE_VALUE) begin
+		meff_np = Fs/expEs;
+	end
+	else begin
+        	meff_np = Fs/ln(1.0+expEs); // effective mass with non parabolicity
+	end
+
+
+	NP_fac_lambda = sqrt(meff_np); // NP factor for mean free path
+	NP_fac_velocity = 1.0/NP_fac_lambda; // NP factor for thermal velocity
+
+	// ***** Calculating degeneracy for vT
+	expMeta=1.0/expEs;
+	
+	A1 = 50.0+pow(Es, 4.0)+33.6*Es*(1-0.68*exp(-0.17*(1.0+Es)*(1.0+Es))); 
+	den1 = pow(A1, 3.0/8.0);
+	c1=((3.0/4.0)*sqrt_pi)/den1;
+
+	FDhalfs=1.0/(c1+expMeta);
+	extr_coef = FDhalfs/ln(1.0+expEs); // DEGENERACY FACTOR FOR THERMAL VELOCITY
+
+	// ***** Calculating degeneracy for lambda
+	u1 = Es;
+	j_pow1 = -0.5;
+	a_pow1 = sqrt(1.0+15.0/4.0*(j_pow1+1.0)+1.0/40.0*(j_pow1+1.0)*(j_pow1+1.0)); 
+	b_pow1 = 1.8+0.61*j_pow1;
+	c_pow1 = 2.0+(2.0-sqrt(2.0))*pow(2.0, -j_pow1); 
+
+	num_t1_fd1 = (j_pow1+1.0)*pow(2.0, (1.0+j_pow1));
+	aterm1 = pow((b_pow1+u1+pow(a_pow1, c_pow1)+pow(abs(u1-b_pow1), c_pow1)), 1.0/c_pow1);
+	den_t1_fd1 = pow(aterm1, 1.0+j_pow1);
+	t2_fd1 = exp(-u1)/sqrt(`M_PI);
+	FDminushalfs = 1.0/sqrt(`M_PI)*pow((num_t1_fd1/den_t1_fd1+t2_fd1), -1.0);
+
+	dgen_lambda=ln(1.0+expEs)/FDminushalfs; // DEGENERACY FACTOR FOR MEAN FREE PATH
+	
+	// ***** Computing velocity and MFP in presence of conduction-band non parabolicity 
+	lambda = lambda_int*NP_fac_lambda*dgen_lambda;
+	vT	= vT_int*NP_fac_velocity*extr_coef;
+	
+	// ***** Computing degeneracy in access region
+	eta_acc = ln(exp(nacc/(N2D))-1.0);            
+	exp_eta_acc = exp(nacc/(N2D))-1.0; 
+	expu_acc = exp_eta_acc;
+	expMeta_acc=1.0/expu_acc;
+	A1_acc = 50.0+pow(eta_acc, 4.0)+33.6*eta_acc*(1-0.68*exp(-0.17*(1.0+eta_acc)*(1.0+eta_acc))); 
+	den1_acc = pow(A1_acc, 3.0/8.0);
+	c1_acc=((3.0/4.0)*sqrt_pi)/den1_acc;
+	FDhalfs_acc=1.0/(c1_acc+expMeta_acc);
+	extr_coef_acc = FDhalfs_acc/ln(1.0+exp_eta_acc); 
+	vT_acc	= vT_int*extr_coef_acc; // Thermal velocity in access region in the presence of degeneracy
+
+	//Computing Lcrit and Transmission in the channel
+	Vdsat2 				= 	theta * phit;
+	Vdsatbeta2			=	pow(abs(Vdsi/Vdsat2),beta);
+	f2 				= 	abs(Vdsi/Vdsat2) / pow(1.0+Vdsatbeta2,(1.0/beta));
+	Lcrit_lin 			= 	Leff;
+	Lcrit_sat 			= 	ksee*Leff;
+	Lcrit 				= 	(1.0-f2)*Lcrit_lin + f2*Lcrit_sat; // Critical length [m]
+	Tx 				= 	lambda/(lambda+Lcrit); // Transmission
+
+	//Computing Qx0
+	Qx0 				= 	-`P_Q * N2D/2.0*(Fs*(2.0-Tx) + Fd*Tx); // [C/m^2]
+
+	//Computing Cgc accounting for Stern correction 
+	QB				= 	pow(abs(B/dqm0), 3.0);
+	xav 				= 	B/pow((QB + 11.0/32.0*abs(Qx0)),(1/3.0));
+	Cstern 				= 	eps*`P_EPS0/xav; // QM correction to gate-channel capacitance 
+	Cgc 				= 	Cins*Cstern/(Cins+Cstern);
+	
+
+	//Computing psi or V(sf) self-consistently
+	n 				= 	n0 + abs(nd*Vdsi);
+	V(sf) 				<+ 	(Vgsi + delta*Vdsi + Qx0/Cgc)/n;
+	
+	//Computing Fsat 
+	f1 				= 	((2.0-Tx)*Fs + Tx*Fd)/(2.0*Fs);
+	Vdsat 				= 	2.0*phit* (lambda+Leff)/(lambda+2.0*ksee*Leff) * f1;
+ 	Vdsatbeta 			= 	pow(abs(Vdsi/Vdsat),beta);
+	Fsat 				= 	abs(Vdsi/Vdsat) / pow(1.0+Vdsatbeta,(1.0/beta));
+	
+	//Computing vx0
+	vx0 				= 	vT * lambda/(lambda+2.0*ksee*Leff);
+	
+	//Computing Id
+	Id 				= 	abs (Qx0) * Fsat * vx0 * W;
+
+	// Non-linear resistance of the extrinsic regions
+	Qacc				=	`P_Q*nacc;
+	Id_sat				=	W*Qacc*vT_acc;
+	Idsatbeta			=	pow(abs(Id/Id_sat),beta); 
+	Rs 				=	Rc/(pow(1-Idsatbeta, 1.0/beta));
+	Rd				= 	Rs;
+	
+	//Sub-circuit initialization
+
+	I(di, si) 			<+ 	type * dir * Id;
+	I(d, di) 			<+ 	(V(d)-V(di))/Rd;
+	I(si, s) 			<+ 	(V(si)-V(s))/Rs;
+
+	end
+endmodule
+
+	
+	
+
+

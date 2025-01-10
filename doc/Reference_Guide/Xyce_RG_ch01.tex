@@ -1,0 +1,88 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\chapter{Introduction}
+\label{Introduction}
+
+\chapteroverview{Welcome to \XyceTitle{}}
+{
+The \XyceTM{} Parallel Electronic Simulator has been written to support, in a
+rigorous manner, the simulation needs of the Sandia National Laboratories
+\index{Sandia National Laboratories} electrical designers.  It is targeted 
+specifically to run on large-scale parallel computing
+\index{parallel!computing} platforms but also runs well on a variety
+of architectures including single processor workstations.  It also aims to
+support a variety of devices and models specific to Sandia needs.
+}
+\section{Overview}
+\label{Overview}
+
+This document is intended to complement the \Xyce{} Users' 
+Guide\UsersGuide.  It contains comprehensive, detailed
+information about a number of topics pertinent to the usage of \Xyce{}.  
+Included in this document is a
+netlist reference for the input-file commands and elements supported 
+within \Xyce{}; a command line reference, which describes the 
+available command line arguments for \Xyce{}; and quick-references for 
+users of other circuit codes, such as Orcad's PSpice~\cite{PSpiceUG:1998}.
+
+\section{How to Use this Guide}
+\label{HowTo_Guide}
+
+This guide is designed so you can quickly find the information you need to 
+use \Xyce{}.  It assumes that you are familiar with basic Unix-type 
+commands, how \index{Unix}Unix manages applications and files to 
+perform routine tasks (e.g., starting applications, opening files and 
+saving your work).  Note that while Windows versions of \Xyce{} are 
+available, they are command-line programs meant to be run under the 
+\emph{Command Prompt}, and are used almost identically to their Unix counterparts.
+
+\section{Typographical conventions}
+Before continuing in this Reference Guide, it is important to understand 
+the terms and typographical conventions used.  Procedures for performing 
+an operation are generally indicated with the following typographical 
+conventions.
+
+\begin{table}[htbp]
+  \caption{\Xyce{} typographical conventions.}
+  \begin{tabularx}{\linewidth}{|Y|Y|Y|}
+    \rowcolor{XyceDarkBlue} \color{white}\bf Notation & \color{white}\bf
+    Example & \color{white}\bf Description \\ \hline
+
+    \texttt{Typewriter text} & \texttt{mpirun -np 4}
+    & Commands entered
+    from the keyboard on the command line or text entered in a netlist. \\
+    \hline
+
+    \textrmb{Bold Roman Font} & Set nominal temperature using the
+    \textrmb{TNOM} option. & SPICE-type parameters used in models, etc. \\
+    \hline
+
+    \cellcolor[gray]{0.75} Gray Shaded Text & \cellcolor[gray]{0.75} DEBUGLEVEL
+    & Feature that is designed primarily for use by \Xyce{}
+    developers. \\ \hline
+
+    \texttt{[text in brackets]} & \texttt{Xyce [options] <netlist>} & Optional parameters. \\ \hline
+
+    \texttt{<text in angle brackets>} & \texttt{Xyce [options] <netlist>} &
+    Parameters to be inserted by the user. \\ \hline
+
+    \texttt{<object with asterisk>*} & \texttt{K1 <ind. 1> [<ind. n>*]} &
+    Parameter that may be multiply specified. \\ \hline
+
+    \texttt{<TEXT1|TEXT2>}&
+    \texttt{.PRINT TRAN}
+    \verb-+ DELIMITER=<TAB|COMMA|-
+    \verb- SEMICOLON|COLON|-
+    \verb- ``string''>- & Parameters that may only take specified values. \\ \hline
+
+  \end{tabularx}
+\end{table}
+

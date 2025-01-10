@@ -1,0 +1,74 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\textbf{Change} &
+  \color{white}\textbf{Detail} \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\textbf{Change} &
+  \color{white}\textbf{Detail} \\ \hline \endhead
+
+Change in output file names produced by \texttt{.FOUR} analyses &
+Results from Fourier analyses are now output to \texttt{<netlistName>.four\#} files,
+where the suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation. \\ \hline
+
+Changes in the format of \texttt{.FFT} output sent to the
+\texttt{<netlistName>.fft\#} files  & The output in those
+files is no longer filtered based on the \texttt{FREQ}, \texttt{FMIN} and
+\texttt{FMAX} values on each \texttt{.FFT} line.  Instead the data for
+every harmonic is output.  The \texttt{START} and \texttt{STOP} values
+used for each \texttt{.FFT} analysis are now output. \\ \hline
+
+Additional \texttt{.FFT} output to stdout & If \texttt{.OPTION FFT FFTOUT}
+is set to 1 then the additional metrics (ENOB, SFDR, SNR, SNDR and THD)
+and a sorted list of the 30 largest harmonics, for each \texttt{.FFT} line,
+are now output to stdout. \\ \hline
+
+Changes to output file names produced by the -o command line option &
+In prior releases, the -o filename only applied to the file name
+produced by the primary \texttt{.PRINT} line.  The -o filename is now
+used as the ``basename'' for all of the output files. As an example,
+for a \texttt{.TRAN} analysis, this command line will now produce the
+output file \verb+<results>.prn+, instead of the file \verb+<results>+,
+from the \texttt{.PRINT} line.
+\begin{vquote}
+   Xyce -o results <netlistName>
+\end{vquote}
+
+The results from any \texttt{.MEASURE TRAN}, \texttt{.MEASURE TRAN\_CONT},
+\texttt{.FFT} and/or \texttt{.FOUR} lines in the netlist will now be placed into
+the files \verb+<results>.mt0+, \verb+<results>_measurename.mt0+,
+\verb+<results>.fft0+, and \verb+<results>.four0+, respectively.  For a
+\texttt{.STEP} analysis, the results file \verb+<results>.res+ will also be
+made.
+
+\\ \hline
+
+\end{longtable}
+}

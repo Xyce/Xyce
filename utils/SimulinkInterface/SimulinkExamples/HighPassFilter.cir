@@ -1,0 +1,25 @@
+* a simple high pass filter
+*
+* cutoff frequency  f = 1/(2 Pi R C)
+* R=1000, C=1e-8 f = 16 kHz
+
+* input to filter
+ydac dac_driver Node1 0 
+
+Ccap Node1 Node2 C=1e-8
+Rload Node2 0    R=1000
+
+* output from filter
+yadc adc2 Node2 0 simpleADC R=1T
+
+* need ref. to ground
+rPathToGround Node1 0 1e6
+
+
+.model simpleDAC DAC(tr=5e-9 tf=5e-9)
+.model simpleADC ADC(settlingtime=5ns uppervoltagelimit=5 lowervoltagelimit=-5)
+
+.print tran V(Node1) v(Node2)
+.tran 0 5e-3
+
+.end

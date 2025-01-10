@@ -1,0 +1,84 @@
+#
+#Trilinos_ROOT=/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos_Blessed.7.6_withStokhos_withBasker
+Trilinos_ROOT=/Users/erkeite/XYCE/Xyce_Lib/m3_osx_clang_trilinos_Blessed_14_4_0_withStokhos_withBasker
+
+XYCEPATH=/Users/erkeite/XYCE/GitRepos/Xyce/src/UtilityPKG/
+CXX = /usr/bin/clang++
+FLEX = /opt/local/bin/flex
+BISON = /opt/local/bin/bison
+LIBDIRTRI=-L$(Trilinos_ROOT)/lib
+LIBPATH = -L/opt/local/lib  $(LIBDIRTRI)
+INCLUDE = -I$(Trilinos_ROOT)/include -I$(XYCEPATH)/ExpressionSrc  -I./  -I$(XYCEPATH)/ -I$(XYCEPATH)/../ErrorHandlingPKG/ -I$(XYCEPATH)/../ParallelDistPKG/ -I$(XYCEPATH)/../IOInterfacePKG/
+CXXFLAGS_AST =  -std=c++17  -g  -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS =  -std=c++17 -g -I/opt/local/include/ $(INCLUDE)
+
+#    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
+
+RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosnumerics -lteuchosremainder
+
+all:  test
+test:  complexParserUnitTest 
+
+# expression lexer/parser
+ExpressionLexer.cxx: $(XYCEPATH)/ExpressionSrc/ExpressionLexer.l  $(XYCEPATH)/ExpressionSrc/ast.h $(XYCEPATH)/ExpressionSrc/ast_visitor.h $(XYCEPATH)/ExpressionSrc/astfuncs.h $(XYCEPATH)/ExpressionSrc/astbinary.h $(XYCEPATH)/ExpressionSrc/astcomp.h $(XYCEPATH)/ExpressionSrc/ast_spice_src.h $(XYCEPATH)/ExpressionSrc/ast_random.h $(XYCEPATH)/ExpressionSrc/astRandEnum.h $(XYCEPATH)/ExpressionSrc/ExpressionType.h $(XYCEPATH)/N_UTL_ExtendedString.h $(XYCEPATH)/N_UTL_Interpolators.h
+	$(FLEX) -i -+ --full  --prefix=exp  -o ExpressionLexer.cxx $(XYCEPATH)/ExpressionSrc/ExpressionLexer.l
+
+ExpressionParser.cxx: $(XYCEPATH)/ExpressionSrc/ExpressionParser.yxx  $(XYCEPATH)/ExpressionSrc/ast.h $(XYCEPATH)/ExpressionSrc/ast_visitor.h $(XYCEPATH)/ExpressionSrc/astfuncs.h $(XYCEPATH)/ExpressionSrc/astbinary.h $(XYCEPATH)/ExpressionSrc/astcomp.h $(XYCEPATH)/ExpressionSrc/ast_spice_src.h $(XYCEPATH)/ExpressionSrc/ast_random.h $(XYCEPATH)/ExpressionSrc/astRandEnum.h $(XYCEPATH)/ExpressionSrc/ExpressionType.h $(XYCEPATH)/N_UTL_Interpolators.h $(XYCEPATH)/N_UTL_CheckIfValidFile.h 
+	$(BISON) --graph -o$@ $(XYCEPATH)/ExpressionSrc/ExpressionParser.yxx
+
+ExpressionLexer.o: ExpressionLexer.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+ast.o:  $(XYCEPATH)/ExpressionSrc/ast.C  $(XYCEPATH)/ExpressionSrc/ast.h $(XYCEPATH)/ExpressionSrc/ast_visitor.h $(XYCEPATH)/ExpressionSrc/astfuncs.h $(XYCEPATH)/ExpressionSrc/astbinary.h $(XYCEPATH)/ExpressionSrc/astcomp.h $(XYCEPATH)/ExpressionSrc/ast_spice_src.h $(XYCEPATH)/ExpressionSrc/ast_random.h $(XYCEPATH)/ExpressionSrc/astRandEnum.h  $(XYCEPATH)/N_UTL_CheckIfValidFile.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+ExpressionParser.o: ExpressionParser.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+expressionGroup.o: $(XYCEPATH)/ExpressionSrc/expressionGroup.C $(XYCEPATH)/ExpressionSrc/expressionGroup.h 
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_BreakPoint.o: $(XYCEPATH)/N_UTL_BreakPoint.C $(XYCEPATH)/N_UTL_BreakPoint.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_ExtendedString.o: $(XYCEPATH)/N_UTL_ExtendedString.C $(XYCEPATH)/N_UTL_ExtendedString.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_NoCase.o: $(XYCEPATH)/N_UTL_NoCase.C $(XYCEPATH)/N_UTL_NoCase.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_ERH_Message.o: $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_Message.C $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_Message.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_ERH_Messenger.o: $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_Messenger.C $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_Messenger.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_ERH_ErrorMgr.o: $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_ErrorMgr.C $(XYCEPATH)/../ErrorHandlingPKG/N_ERH_ErrorMgr.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_NetlistLocation.o: $(XYCEPATH)/N_UTL_NetlistLocation.C $(XYCEPATH)/N_UTL_NetlistLocation.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_Marshal.o: $(XYCEPATH)/N_UTL_Marshal.C $(XYCEPATH)/N_UTL_Marshal.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_LogStream.o: $(XYCEPATH)/N_UTL_LogStream.C $(XYCEPATH)/N_UTL_LogStream.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_ReportHandler.o: $(XYCEPATH)/N_UTL_ReportHandler.C $(XYCEPATH)/N_UTL_ReportHandler.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_CheckIfValidFile.o: $(XYCEPATH)/N_UTL_CheckIfValidFile.C $(XYCEPATH)/N_UTL_CheckIfValidFile.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+newExpression.o: $(XYCEPATH)/ExpressionSrc/newExpression.C $(XYCEPATH)/ExpressionSrc/newExpression.h $(XYCEPATH)/ExpressionSrc/ExpressionLexer.h  $(XYCEPATH)/ExpressionSrc/ast.h $(XYCEPATH)/ExpressionSrc/ast_visitor.h $(XYCEPATH)/ExpressionSrc/astfuncs.h $(XYCEPATH)/ExpressionSrc/astbinary.h $(XYCEPATH)/ExpressionSrc/astcomp.h $(XYCEPATH)/ExpressionSrc/ast_spice_src.h $(XYCEPATH)/ExpressionSrc/ast_random.h $(XYCEPATH)/ExpressionSrc/astRandEnum.h $(XYCEPATH)/ExpressionSrc/ExpressionType.h  $(XYCEPATH)/N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o $(XYCEPATH)/N_UTL_Interpolators.h $(XYCEPATH)/N_UTL_CheckIfValidFile.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+complexParserUnitTest: complexParserUnitTest.C ast.o  $(XYCEPATH)/ExpressionSrc/ast.h $(XYCEPATH)/ExpressionSrc/ast_visitor.h $(XYCEPATH)/ExpressionSrc/astbinary.h $(XYCEPATH)/ExpressionSrc/astfuncs.h $(XYCEPATH)/ExpressionSrc/astcomp.h $(XYCEPATH)/ExpressionSrc/ast_spice_src.h $(XYCEPATH)/ExpressionSrc/ast_random.h $(XYCEPATH)/ExpressionSrc/astRandEnum.h $(XYCEPATH)/ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o  N_UTL_NetlistLocation.o  N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o N_UTL_CheckIfValidFile.o  $(XYCEPATH)/N_UTL_Interpolators.h $(XYCEPATH)/N_UTL_CheckIfValidFile.h $(XYCEPATH)/../IOInterfacePKG/N_IO_fwd.h
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C ast.o newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  N_ERH_ErrorMgr.o N_ERH_Message.o N_ERH_Messenger.o   N_UTL_NetlistLocation.o N_UTL_Marshal.o N_UTL_LogStream.o N_UTL_ReportHandler.o  N_UTL_CheckIfValidFile.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+
+clean:
+	rm -f complexParserUnitTest  *.o \
+		NetlistLexer.cxx NetlistParser.cxx  	stack.hh  position.hh location.hh  \
+		ExpressionLexer.cxx  ExpressionParser.cxx  ExpressionParser.hxx ExpressionParser.dot
+

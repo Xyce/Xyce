@@ -1,0 +1,149 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Calculates the operating point\index{Operating Point} for the circuit for a
+range of values.  Primarily, this capability is applied to independent
+voltage sources, but it can also be applied to most device parameters.
+Note that this may be repeated for multiple sources in the
+same \texttt{.DC} line.
+
+The .DC command can specify a linear sweep, decade logarithmic sweep,
+octave logarithmic sweep, a list of values, or a data table of multivariate values.
+
+\subsubsection{Linear Sweeps}
+\index{analysis!DC!Linear sweeps} \index{DC analysis!Linear sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.DC [LIN] <sweep variable name> <start> <stop> <step>
++ [<sweep variable name> <start> <stop> <step>]*
+\end{alltt}
+
+\examples
+\begin{alltt}
+.DC LIN V1 5 25 5
+.DC VIN -10 15 1
+.DC R1 0 3.5 0.05 C1 0 3.5 0.5
+
+.param start=5, stop=25, points=5
+.DC \{start\} \{stop\} \{points\} 
+\end{alltt}
+
+\comments
+A \texttt{.PRINT DC} must be used to get the results of the DC sweep
+analysis.  See Section \ref{.PRINT}.
+\index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{DC}}
+
+A \texttt{.OP} comand will result in a linear DC analysis if there is no .DC specified.
+
+If the stop value is smaller than the start value, the step value
+should be negative.  If a positive step value is given in this case,
+only a single point (at the start value) will be performed, and a
+warning will be emitted.
+
+\end{Command}
+
+\subsubsection{Decade Sweeps}
+\index{analysis!DC!Decade sweeps} \index{DC analysis!Decade sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.DC DEC <sweep variable name> <start> <stop> <points>
++ [DEC <sweep variable name> <start> <stop> <points>]*
+\end{alltt}
+
+\examples
+\begin{alltt}
+.DC DEC VIN 1 100 2 
+.DC DEC R1 100 10000 3 DEC VGS 0.001 1.0 2
+
+.param start=1, stop=100, points=2
+.DC DEC VIN \{start\} \{stop\} \{points\}
+\end{alltt}
+
+\comments
+The stop value should be larger than the start value.  If a stop value
+smaller than the start value is given, only a single point at the
+start value will be performed, and a warning will be emitted.  The
+points value must be an integer.
+
+\end{Command}
+
+\subsubsection{Octave Sweeps}
+\index{analysis!DC!Octave sweeps} \index{DC analysis!Octave sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.DC OCT <sweep variable name> <start> <stop> <points>
++ [OCT <sweep variable name><start> <stop> <points>]\ldots 
+\end{alltt}
+
+\examples
+\begin{alltt}
+.DC OCT VIN 0.125 64 2 
+.DC OCT R1 0.015625 512 3 OCT C1 512 4096 1
+
+.param start=0.125, stop=64, points=2
+.DC OCT VIN \{start\} \{stop\} \{points\}
+\end{alltt}
+
+\comments
+The stop value should be larger than the start value.  If a stop value
+smaller than the start value is given, only a single point at the
+start value will be performed, and a warning will be emitted.  The
+points value must be an integer.
+
+\end{Command}
+
+\subsubsection{List Sweeps}
+\index{analysis!DC!List Sweeps} \index{DC analysis!List sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.DC <sweep variable name> LIST <val> <val> <val>*
++ [ <sweep variable name> LIST <val> <val>* ]*
+\end{alltt}
+
+\examples
+\begin{alltt}
+.DC VIN LIST 1.0 2.0 5.0 6.0 10.0 
+.DC VDS LIST 0 3.5 0.05 VGS LIST 0 3.5 0.5
+.DC TEMP LIST 10.0 15.0 18.0 27.0 33.0
+
+.param val1=0, val2=3.5, val3=0.5
+.DC VDS LIST \{val1\} \{val2\} \{val3\} 
+\end{alltt}
+
+\end{Command}
+
+
+\subsubsection{Data Sweeps}
+\index{analysis!DC!Data Sweeps} \index{DC analysis!Data sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.DC DATA=<data table name> 
+\end{alltt}
+
+\examples
+.DC data=resistorValues
+
+.data resistorValues \\
++ r1   r2 \\
++ 8.0000e+00  4.0000e+00 \\
++ 9.0000e+00  4.0000e+00 \\
+.enddata
+
+\end{Command}

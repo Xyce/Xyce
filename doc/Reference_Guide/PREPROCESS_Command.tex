@@ -1,0 +1,159 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\newpage
+\subsection{\texttt {.PREPROCESS REPLACEGROUND} (Ground Synonym)}
+
+The purpose of ground synonym replacement is to treat nodes with the names
+{\tt GND}, {\tt GND!}, {\tt GROUND} or any capital/lowercase variant thereof
+as synonyms for node {\tt 0}.  The general invocation is
+\index{\texttt{.PREPROCESS}!{\tt REPLACEGROUND}}
+
+\begin{Command}
+
+\format
+.PREPROCESS REPLACEGROUND <bool>
+
+\arguments
+
+\begin{Arguments}
+
+\argument{bool} 
+
+If {\tt TRUE}, \Xyce~will treat all instances of {\tt GND}, {\tt GND!}, {\tt GROUND},
+or any capital/lowercase variant thereof, as synonyms for node {\tt 0}.  If
+{\tt FALSE}, \Xyce~will consider each term as a separate node.  Only one
+{\tt .PREPROCESS REPLACEGROUND} statement is permissible in a given netlist file.
+
+\end{Arguments}
+\end{Command}
+
+\newpage
+\subsection{\texttt {.PREPROCESS REMOVEUNUSED} (Removal of Unused Components)}
+\index{\texttt{.PREPROCESS}!{\tt REMOVEUNUSED}}
+If a given netlist file contains devices whose terminals are all connected to
+the same node (\emph{e.g.},~\texttt{R2~1~1~1M}), it may be desirable to remove such
+components from the netlist before simulation begins.  This is the purpose of
+the command
+
+\begin{Command}
+
+\format
+.PREPROCESS REMOVEUNUSED [<value>]
+
+\arguments
+
+\begin{Arguments}
+
+\argument{value}
+
+is a list of components separated by commas.  The allowed values are 
+\begin{basedescript}{
+    \desclabelstyle{\multilinelabel}
+    \desclabelwidth{1in}
+    \renewcommand{\makelabel}[1]{\tt #1\hfill}}
+\item[\tt C] Capacitor
+\item[\tt D] Diode
+\item[\tt I] Independent Current Source
+\item[\tt L] Inductor
+\item[\tt M] MOSFET
+\item[\tt Q] BJT
+\item[\tt R] Resistor
+\item[\tt V] Independent Voltage Source
+\end{basedescript}
+
+\end{Arguments}
+
+\examples
+.PREPROCESS REMOVEUNUSED R,C
+
+\normalfont
+\texttt{.PREPROCESS} will attempt to search for all resistors and capacitors in
+a given netlist file whose individual device terminals are connected to the
+same node and remove these components from the netlist before simulation
+ensues.  A list of components that are supported for removal is given above.
+Note that for MOSFETS and BJTs, three terminals on each device (the gate,
+source, and drain in the case of a MOSFET and the collector, base, and emitter
+in the case of a BJT) must be the same for the device to be removed from the
+netlist.  As before, only one \texttt{.PREPROCESS REMOVEUNUSED} line is allowed
+in a given netlist file.
+
+\end{Command}
+
+\newpage
+\subsection{\texttt {.PREPROCESS ADDRESISTORS} (Adding Resistors to Dangling Nodes)}
+\index{\texttt{.PREPROCESS}!{\tt ADDRESISTORS}}
+
+We refer to a \emph{dangling node} as a circuit node in one of the following
+two scenarios:  either the node is connected to only one device terminal,
+and/or the node has no DC path to ground.  If several such nodes exist in a
+given netlist file, it may be desirable to automatically append a resistor of a
+specified value between the dangling node and ground.  To add resistors to
+nodes which are connected to only one device terminal, one may use the command
+
+\begin{Command}
+
+\format
+.PREPROCESS ADDRESISTORS ONETERMINAL <value>
+
+\arguments
+
+\begin{Arguments}
+
+\argument{value}
+
+is the value of the resistor to be placed between
+nodes with only one device terminal connection and ground.  For instance,
+the command
+
+\end{Arguments}
+
+\examples
+.PREPROCESS ADDRESISTORS ONETERMINAL 1G
+
+\normalfont
+will add resistors of value 1G between ground and nodes with only one
+device terminal connection and ground.  The command
+
+\examples
+
+.PREPROCESS ADDRESISTORS NODCPATH <value>
+
+\normalfont
+
+acts similarly, adding resistors of value {\tt <VALUE>} between ground and
+all nodes which have no DC path to ground.
+
+The {\tt .PREPROCESS ADDRESISTORS} command is functionally different from
+either of the prior {\tt .PREPROCESS} commands in the following way:  while
+the other commands augment the netlist file for the current simulation, a
+{\tt .PREPROCESS ADDRESISTORS} statement creates an auxiliary netlist file
+which explicitly contains a set of resistors that connect dangling nodes to
+ground.  If the original netlist file containing a {\tt .PREPROCESS
+ADDRESISTORS} statement is called {\tt filename}, invoking \Xyce~on this file
+will produce a file {\tt filename\_xyce.cir} which contains the resistors that
+connect dangling nodes to ground.  One can then run \Xyce~on this file to
+run a simulation in which the dangling nodes are tied to ground.  Note that,
+in the original run on the file {\tt filename}, \Xyce~will continue to run a
+simulation as usual after producing the file {\tt filename\_xyce.cir}, but this
+simulation will {\em not} include the effects of adding resistors between the
+dangling nodes and ground.  Refer to the \Xyce{} Users' Guide~\UsersGuide{} for more detailed
+examples on the use of {\tt .PREPROCESS ADDRESISTOR} statements.
+
+Note that it is possible for a node to have one device terminal connection
+and, simultaneously, have no DC path to ground.  In this case, if both a
+{\tt ONETERMINAL} and {\tt NODCPATH} command are invoked, only the resistor
+for the {\tt ONETERMINAL} connection is added to the netlist; the
+{\tt NODCPATH} connection is omitted.
+
+As before, each netlist file is allowed to contain only one {\tt .PREPROCESS
+ADDRESISTORS ONETERMINAL} and one {\tt .PREPROCESS ADDRESISTORS NODCPATH} line
+each, or else \Xyce~will exit in error.
+
+\end{Command}

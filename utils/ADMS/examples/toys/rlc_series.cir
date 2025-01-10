@@ -1,0 +1,16 @@
+Test of series RLC circuit
+* This version uses the improved "rlc2.va" model rather than the naive
+* "rlc.va" version.
+*
+* To run this netlist, you must first process the rlc2.va Verilog-A file in
+* this directory into C++ and link them into a shared-library plugin for Xyce.
+* See the Xyce/ADMS Users' Guide on the Xyce web site http://xyce.sandia.gov
+* for details.
+*
+
+V1 1 0 SIN (5v 5v 20MEG) 
+Yrlc2 rlc1 1 0 R=1kohm L=1mH C=1pf
+
+.tran 1n 4u
+.print tran v(1) I(v1)
+.end

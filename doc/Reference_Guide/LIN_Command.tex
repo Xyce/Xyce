@@ -1,0 +1,118 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Extracts linear transfer parameters (S-, Y- and Z-parameters) for a general
+multiport network.  Those parameters can be output in either
+Touchstone format \cite{touchstone2_std_2009}.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.LIN [SPARCALC=<1|0>] [FORMAT=<TOUCHSTONE2|TOUCHSTONE>]
++ [LINTYPE=<S|Y|Z>] [DATAFORMAT=<RI|MA|DB>]
++ [FILE=<output filename>] [WIDTH=<print field width>]
++ [PRECISION=<floating point output precision>]
+\end{alltt}
+
+\examples
+\begin{alltt}
+.LIN
+.LIN FORMAT=TOUCHSTONE DATAFORMAT=MA FILE=foo
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{SPARCALC=<1|0>}
+If this is set to 1 then the \texttt{LIN} analysis is done
+at the frequency values specified on the \texttt{.AC} line.
+The default value is 1.
+
+\argument{FORMAT=<TOUCHSTONE2|TOUCHSTONE>} Output file format
+\begin{description}
+\item[\tt TOUCHSTONE] Output file is in Touchstone 1 format
+
+\item[\tt TOUCHSTONE2] Output file is in Touchstone 2 format. The default
+is \texttt{TOUCHSTONE2}.
+\end{description}
+
+\argument{LINTYPE=<S|Y|Z>} The type of parameter data (S, Y or Z) in the
+output file.  The default is S.
+
+\argument{DATAFORMAT=<RI|MA|DB>} Format for the S-, Y- or Z-parameter data
+
+\begin{description}
+\item[\tt RI] Real-imaginary format \\
+The data is output as the real and imaginary parts for each
+extracted S-, Y- or Z-parameter.  This is the default.
+
+\item[\tt MA] Magnitude-angle format \\
+The data is output as the magnitude and the phase angle of each
+extracted S-, Y- or Z-parameter.  For compatibility with Touchstone formats,
+the angle values are in degrees.
+
+\item[\tt DB] Magnitude(dB)-angle format \\
+The data is output as the magnitude (in dB) and the phase angle of
+each extracted S-, Y- or Z-parameter.  For compatibility with Touchstone
+formats, the angle values are in degrees.
+\end{description}
+
+\argument{FILE=<output filename>}
+Specifies the name of the file to which the output will be written.
+For HSPICE compatibility \texttt{FILENAME=} is an allowed synonym
+for \texttt{FILE=} on \texttt{.LIN} lines.
+
+\argument{WIDTH=<print field width>}
+
+Controls the output width used in formatting the output.
+
+\argument{PRECISION=<floating point precision>}
+
+Number of floating point digits past the decimal for output data.
+
+\end{Arguments}
+
+
+\comments
+
+The \texttt{.LIN} command line functions like a \texttt{.PRINT} line for
+the extracted S-, Y- or Z-parameter data.  So, a netlist can have multiple
+\texttt{.LIN} lines with different values for the \texttt{LINTYPE},
+\texttt{DATAFORMAT} and \texttt{FILE} arguments on each line.  If there are
+multiple \texttt{.LIN} lines in the netlist, then a linear analysis will
+be performed if \texttt{SPARCALC=1} on any of those \texttt{.LIN} lines.
+
+The default filename for both Touchstone formats is \texttt{<netlistName>.sNp}
+where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist.
+
+The \Xyce{} Touchstone output is based on the Touchstone standard
+\cite{touchstone2_std_2009}. So, it differs slightly from the
+corresponding HSPICE output.  In particular, the full matrix of
+S-, Y- or Z-parameters is always output.
+
+The HSPICE \texttt{SPARDIGIT} and \texttt{FREQDIGIT} arguments are
+not supported.  Instead, the \texttt{PRECISION} argument is used for
+all of the output values.
+
+The output of individual S-parameters via the \texttt{.PRINT AC} line is
+supported.
+
+If the \texttt{-r <raw-file-name>} and \texttt{-a} command line options
+are used with \texttt{.LIN} with \texttt{SPARCALC=1} then \Xyce{} will
+exit with a parsing error.
+
+The \texttt{-o} command line option can be used with \texttt{.LIN}.
+In that case, the output defaults to Touchstone 2 format and any
+\texttt{FILE=<filename>} argument on the \texttt{.LIN} line is
+ignored.
+
+\end{Command}

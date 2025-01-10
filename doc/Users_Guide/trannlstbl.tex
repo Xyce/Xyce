@@ -1,0 +1,109 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Nonlinear Solver Under Transient Options Table
+%%
+\small
+\caption[Options for Nonlinear Solver Package under transient
+operation.] {Options for Nonlinear Solver Package under transient
+operation.\label{Nonlin-TranPKG}}
+\index{solvers!nonlinear-transient!options}
+\begin{longtable}[htbp]{|>{\setlength{\hsize}{.9\hsize}}Y|
+>{\setlength{\hsize}{1.2\hsize}}Y|
+>{\setlength{\hsize}{.9\hsize}}Y|} \hline
+
+\rowcolor{XyceDarkBlue}\color{white}\textbf{Nonlinear Solver (PKG =
+NONLIN-TRAN) Tag} & \color{white}\bf Description
+& \color{white}\bf Default \endhead
+
+%\multicolumn{3}{|l|}{ Same as NONLIN but applied to transient
+%nonlinear solutions (not including DCOP).} \\ \hline
+
+\texttt{NLSTRATEGY} & Nonlinear solution strategy.  Supported Strategies:
+\begin{XyceItemize}
+\item 0 (Newton)
+\item 1 (Gradient)
+\item 2 (Trust Region)
+%\item 3 (Modified Newton - testing)
+%\item 4 (BFGS - testing)
+%\item 5 (Broyden - testing)
+%\item 6 (Tensor - testing)
+%\item 7 (Fast Newton - testing)
+%\item 8 (Steepest Descent/Newton Combo - testing)
+\end{XyceItemize} &
+0 (Newton) \\ \hline
+
+\texttt{SEARCHMETHOD} &
+Line-search method used by the nonlinear solver.  Supported
+line-search methods:
+\begin{XyceItemize}
+\item 0 (Full Newton - no line search)
+\item 1 (Interval Halving)
+\item 2 (Quadratic Interpolation)
+\item 3 (Cubic Interpolation)
+\item 4 (More'-Thuente)
+\end{XyceItemize} &
+0 (Full Newton) (NOTE: for iterative linear solves, the default is Quadratic
+Linesearch - 2) \\ \hline
+
+\texttt{ABSTOL}\index{\texttt{ABSTOL}} & Absolute residual vector tolerance &
+1.0E-06 \\ \hline
+
+\texttt{RELTOL}\index{\texttt{RELTOL}} & Relative residual vector tolerance &
+1.0E-02 \\ \hline
+
+\texttt{DELTAXTOL} & Weighted nonlinear-solution update norm convergence
+tolerance & 0.33 \\ \hline
+
+\texttt{RHSTOL} & Residual convergence tolerance (unweighted 2-norm) &
+1.0E-02 \\ \hline
+
+\texttt{MAXSTEP}\index{\texttt{MAXSTEP}} & Maximum number of Newton steps & 20
+\\ \hline
+
+\texttt{MAXSEARCHSTEP} & Maximum number of line-search steps & 2 \\ \hline
+
+\texttt{IN\_FORCING} & Inexact Newton-Krylov forcing flag & 0 (FALSE) \\ \hline
+
+\texttt{AZ\_TOL} &  Sets the minimum allowed linear solver tolerance. Valid only if \texttt{IN\_FORCING}=1.  & 1.0E-12 \\ \hline
+
+\texttt{DEBUGLEVEL} & The higher this number, the more info is output & 1
+\\ \hline
+
+\texttt{DEBUGMINTIMESTEP} & First time-step debug information is output & 0
+\\ \hline
+
+\texttt{DEBUGMAXTIMESTEP} & Last time-step of debug output & 99999999 \\
+\hline
+
+\texttt{DEBUGMINTIME} & Same as \texttt{DEBUGMINTIMESTEP} except controlled by
+time (sec.) instead of step number & 0.0 \\ \hline
+
+\texttt{DEBUGMAXTIME} & Same as \texttt{DEBUGMAXTIMESTEP} except controlled by
+time (sec.) instead of step number & 1.0E+99 \\ \hline
+
+\texttt{RECOVERYSTEPTYPE} &  If using a line search, this option determines the type of step to take if the line search fails. Supported strategies:
+\begin{XyceItemize}
+\item 0 (Take the last computed step size in the line search algorithm)
+\item 1 (Take a constant step size set by \texttt{RECOVERYSTEP})
+\end{XyceItemize} & 0 \\ \hline
+
+\texttt{RECOVERYSTEP} & Value of the recovery step if a constant step length is selected & 1.0 \\ \hline
+
+\texttt{CONTINUATION} & Enables the use of Homotopy/Continuation algorithms for the nonlinear solve.  Options are:
+\begin{XyceItemize}
+\item 0 (Standard nonlinear solve)
+\item 1 (Natural parameter homotopy.  See LOCA options list)
+\item 2 (Specialized dual parameter homotopy for MOSFET circuits)
+%\item 3 (Artificial parameter homotopy - unsupported)
+\end{XyceItemize} & 0 (Standard nonlinear solve) \\ \hline
+
+
+\end{longtable}

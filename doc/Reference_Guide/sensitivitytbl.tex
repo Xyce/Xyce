@@ -1,0 +1,25 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Sensitivity Solver Options Table
+%%
+\index{solvers!sensitivity!options}
+\begin{OptionTable}{Options for Sensitivity Package.} \label{SensitivityPKG}
+ADJOINT & Flag to enable adjoint sensitivity calculation & false \\ \hline
+DIRECT & Flag to enable direct sensitivity calculation & false \\ \hline
+OUTPUTSCALED & Flag to enable output of scaled sensitivities & false \\ \hline
+OUTPUTUNSCALED & Flag to enable output of unscaled sensitivities & true \\ \hline
+STDOUTPUT & Flag to enable output of sensitivies to std output & false \\ \hline
+ADJOINTBEGINTIME & Start time for set of time steps over which to compute transient adjoints. & 0.0 \\ \hline
+ADJOINTFINALTIME & End time for set of time steps over which to compute transient adjoints. & 1.0e+99 \\ \hline
+ADJOINTTIMEPOINTS & List of comma-separated time points at which to compute transient adjoints. & -- \\ \hline
+\end{OptionTable}
+

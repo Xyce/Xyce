@@ -1,0 +1,26 @@
+The HICUM Level 0, version 1.32 Verilog-A source was obtained from 
+https://www.iee.et.tu-dresden.de/iee/eb/hic_new/hic_start.html
+
+The following modifications to the original have been made:
+
+- module attributes have been added to allow HICUM to plug in to Xyce as BJT
+  level 230.
+
+- Xyce/ADMS cannot perform collapse of external nodes to ground.  The block of
+  code in HICUM that does this has been commented out, and the alternate block
+  of code provided by developers in case collapse-to-ground is not supported
+  has been uncommented
+
+- The "INITIAL_MODEL" macro was added to the commented-out code that followed
+  it, since the use of @(initial_model) throws an error otherwise; the code
+  appears to be commented out due to a change in handling of the transistor
+  type (NPN vs. PNP), so INITAL_MODEL should do nothing.
+
+- While Xyce/ADMS does support operating point variables, it does not
+  support port currents such as "I(<B>)" and in fact generates
+  incorrect code when they are used.  Hicum attempts to use these
+  things to provide three output variables for base, collector, and
+  emitter currents.  These had to be ifdeffed out.  The same
+  information can be obtained using the IC(instance), IB(instance),
+  and IE(instance) accessors on a Xyce print line.
+

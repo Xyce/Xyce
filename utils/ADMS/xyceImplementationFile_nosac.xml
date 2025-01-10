@@ -1,0 +1,3332 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE admst SYSTEM "/users/tvrusso/src/QucsADMS/ADMS/admst.dtd">
+<admst version="2.3.0" xmlns:admst="http://mot-adms.sourceforge.net/xml-files/admst">
+
+  <!--
+      Purpose:       Generate the .C file for a Xyce implementation of a
+                     verilog model.
+      Special Notes: You must include "xyceBasicTemplates.xml" to use this
+                     script
+      Creator:       Tom Russo, SNL, Electrical and Microsystems Modeling
+      Creation Date: 13 May 2008
+
+
+     Copyright 2002-2024 National Technology &amp; Engineering Solutions of
+     Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+     NTESS, the U.S. Government retains certain rights in this software.
+
+     This file is part of the Xyce(TM) Parallel Electrical Simulator.
+
+     Xyce(TM) is free software: you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation, either version 3 of the License, or
+     (at your option) any later version.
+
+     Xyce(TM) is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License
+     along with Xyce(TM).
+     If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<admst:for-each select="/module">
+
+  <!-- this GLOBAL VARIABLE (ugh) used in templates to figure out how to access
+     certain class members (e.g. how to get at model variables from an instance
+     -->
+  <admst:variable name="globalCurrentScope" select="instance"/>
+
+  <!-- this GLOBAL VARIABLE (ugh) used in templates to figure out whether to
+       force a template instantiation of a function
+     -->
+  <admst:variable name="globalMustUseTemplate" select="no"/>
+
+  <!-- this GLOBAL VARIABLE (ugh!) used by the assignment template to flag
+       to lower-level templates that it should force ".val()" onto
+       Fad variables -->
+  <admst:variable name="globalMustForceScalar" select="no"/>
+
+  <!-- save the module so we can reference it later -->
+  <admst:variable name="theModule" select="%(.)"/>
+
+
+  <admst:variable name="skipFunctionPrecomp" select="y"/>
+
+  <!-- Set up some useful variables: the N_DEV_(foo) class, and its
+     related Instance and Model classes -->
+  <admst:apply-templates select="." match="xyceClassBaseName">
+    <admst:value-of select="returned('classname')/value"/>
+    <admst:variable name="classname" select="%s"/>
+  </admst:apply-templates>
+
+  <admst:apply-templates select="." match="xyceDeviceNamespace">
+    <admst:value-of select="returned('classname')/value"/>
+    <admst:variable name="nameSpace" select="%s"/>
+  </admst:apply-templates>
+
+  <admst:apply-templates select="." match="xyceModelClassName">
+    <admst:value-of select="returned('classname')/value"/>
+    <admst:variable name="modelName" select="%s"/>
+  </admst:apply-templates>
+
+  <admst:apply-templates select="." match="xyceInstanceClassName">
+    <admst:value-of select="returned('classname')/value"/>
+    <admst:variable name="instanceName" select="%s"/>
+  </admst:apply-templates>
+
+  <admst:variable name="numNodes" select="%(count(node[grounded='no']))"/>
+
+  <!-- check for correctness of collapse constructions -->
+  <admst:apply-templates   select="analog/code/item" match="recursiveFindContrib"/>
+  <admst:if test="[$collapseFailure = 'yes']">
+    <admst:fatal format="Aborting due to collapse-related errors.\n"/>
+  </admst:if>
+
+  <!-- First collect any voltage limiting information: -->
+  <admst:apply-templates select="." match="collectLimiters"/>
+  <!-- Now handle collapsible nodes -->
+  <admst:apply-templates select="." match="collectCollapsibles"/>
+  <!-- Now identify parameters that have defaults depending on others  -->
+  <admst:apply-templates select="." match="collectInterdependentParams"/>
+
+  <!-- label any noise contributions for later use -->
+  <admst:apply-templates select="." match="xyceLabelNoiseContributions"/>
+
+  <!-- Now identify branch equations needed: -->
+  <admst:apply-templates select="." match="collectExtraUnknowns"/>
+  <admst:variable name="numSolVars" select="$numNodes+%(count(/module/@extraUnknowns))"/>
+
+  <!-- Now go through the special blocks and identify which variables they -->
+  <!-- assign into                                                         -->
+  <admst:for-each select="analog/code/item">
+    <admst:if test="adms[datatypename='block']/..[name='initial_instance' or name='initial_model']">
+      <admst:apply-templates select="." match="collectAssignedVariables"/>
+      <admst:message format="Block %(name) assigns to %(count(@assignedVars)) variables.\n"/>
+    </admst:if>
+  </admst:for-each>
+
+  <!-- the previous operation dumped all the variables set by those special -->
+  <!-- blocks into the @assignedVars array of the analog/code block, which  -->
+  <!-- we now need to clear out:                                            -->
+  <admst:reset select="analog/code/@assignedVars"/>
+
+  <!-- Now let's collect into analog/code/@assignedVars only those          -->
+  <!-- variables that are assigned to in code EXCLUDING the special blocks  -->
+  <admst:for-each select="analog/code/item">
+    <!-- if a block and not special -->
+    <admst:if test="adms[datatypename='block']/..[name!='initial_instance' and name!='initial_model' and name != 'initial_step']">
+      <admst:apply-templates select="." match="collectAssignedVariables"/>
+    </admst:if>
+    <!-- if not a block -->
+    <admst:if test="adms[datatypename!='block']">
+      <admst:apply-templates select="." match="collectAssignedVariables"/>
+    </admst:if>
+  </admst:for-each>
+  <admst:message format="Top-level analog/code assigns to %(count(analog/code/@assignedVars)) variables.\n"/>
+  <admst:if test="variable[insource='yes' and exists(derivate) and derivate='yes']">
+    <admst:variable name="doSecondDerivatives" select="yes"/>
+  </admst:if>
+  <admst:if test="[exists(@optnodes)]">
+    <admst:message format="Module has %(count(@optnodes)) optional nodes:\n"/>
+    <admst:for-each select="@optnodes">
+      <admst:message format="   %(name)\n"/>
+    </admst:for-each>
+  </admst:if>
+  <!-- The output proper -->
+  <admst:open file="$classname.C">
+//-------------------------------------------------------------------------
+//   Copyright 2002-2024 National Technology &amp; Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see &lt;http://www.gnu.org/licenses/&gt;.
+//-------------------------------------------------------------------------
+
+
+//-------------------------------------------------------------------------
+//
+// Purpose        :
+//
+// Special Notes  : Generated from verilog file %(/filename) with ADMS
+//                  interface for %(/simulator/package_string)
+//                  DO NOT EDIT THIS FILE DIRECTLY!  It may be overwritten!
+//
+// Creator        : %(/simulator/fullname)
+//
+// Creation Date  : %(/simulator/currentdate)
+//
+//-------------------------------------------------------------------------
+// Shut up clang&apos;s warnings about extraneous parentheses
+#ifdef __clang__
+#  pragma clang diagnostic ignored &quot;-Wparentheses-equality&quot;
+#endif
+
+#include &lt;Xyce_config.h&gt;
+
+<admst:text format="#include &lt;%($classname).h&gt;\n"/>
+
+#include &lt;N_DEV_Const.h&gt;
+#include &lt;N_DEV_DeviceOptions.h&gt;
+#include &lt;N_DEV_DeviceMaster.h&gt;
+#include &lt;N_DEV_ExternData.h&gt;
+#include &lt;N_DEV_SolverState.h&gt;
+#include &lt;N_DEV_Message.h&gt;
+
+#include &lt;N_LAS_Matrix.h&gt;
+#include &lt;N_LAS_Vector.h&gt;
+
+<admst:if test="[count(contribution[whitenoise='yes' or flickernoise='yes'])>0]">
+  #include &lt;N_ANP_NoiseData.h&gt;
+</admst:if>
+
+#include &lt;N_UTL_FeatureTest.h&gt;
+#include &lt;unordered_map&gt;
+using std::unordered_map;
+
+#include &lt;algorithm&gt;
+
+// Xyce_config.h contains a VERSION macro from autoconf, and some
+// Verilog-A models like to define a variable of that name.  This can be
+// a serious problem, and we don't need the VERSION macro.  Get rid of it.
+// This must happen *after* all includes of Xyce headers, each of which
+// includes Xyce_config.h!
+#ifdef VERSION
+#undef VERSION
+#endif
+
+namespace Xyce {
+namespace Device {
+namespace %($nameSpace) {
+
+<admst:if test="[exists(analogfunction)]">
+<admst:text format="namespace AnalogFunctions {\n"/>
+    <admst:for-each select="analogfunction">
+      <admst:variable name="globalCurrentScope" select="AF"/>
+      <admst:apply-templates select="." match="xyceAnalogFunctionDefinition"/>
+      <admst:variable name="globalCurrentScope" select="instance"/>
+      <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
+      <admst:apply-templates select="." match="xyceAnalogFunctions:ClassImplementations"/>
+    </admst:for-each>
+<admst:text format="} // namepace AnalogFunctions\n"/>
+</admst:if>
+
+<admst:if test="[count(node[#collapsible='yes'])=0]">
+<admst:text format="JacobianStamp Instance::jacStamp;\n"/>
+
+<admst:text format="IdVector Instance::nodeMap;\n"/>
+<admst:text format="PairMap Instance::pairToJacStampMap;\n"/>
+</admst:if>
+
+//This is necessary because the IntPair usage can trip undefined references
+
+<admst:for-each select="node[grounded='no']">
+  <admst:text format="    const int Instance::%(xyceNodeConstantName(.)/[name='nodeConstant']/value);\n"/>
+</admst:for-each>
+<admst:text format="     const int Instance::admsNodeID_GND;\n"/>
+<admst:text format="   // Additional IDs for branch equations\n"/>
+<admst:for-each select="/module/@extraUnknowns">
+  <admst:text format="    const int Instance::%(xyceBranchConstantName(.)/[name='branchConstant']/value);\n"/>
+</admst:for-each>
+
+void
+Traits::loadInstanceParameters(ParametricData&lt;%($nameSpace)::Instance&gt; &amp;p)
+{
+  // Set up each parameter directly, using the up-cased variable name
+  // as the tag.
+
+  // This kludge is to force us always to have an instance parameter
+  // that the device manager can set to the temperature, even if we have
+  // no "TEMP".
+  p.addPar(&quot;XYCEADMSINSTTEMP&quot;, 0.0, &amp;%($nameSpace)::Instance::admsInstTemp)
+    .setExpressionAccess(NO_DOC)
+    .setUnit(U_DEGK)
+    .setCategory(CAT_TEMP)
+    .setDescription(&quot;Internal-use parameter for setting device instance temperature&quot;);
+
+    <admst:for-each select="variable[parametertype='instance' and input='yes']">
+      <admst:text format="  p.addPar(&quot;%(upper-case(name))&quot;, "/>
+      <admst:choose>
+        <admst:when test="[exists(default) and not exists(#dependent)]">
+          <admst:choose>
+            <admst:when test="[type='real']">
+              <admst:text format="static_cast&lt;double&gt;(%(printTerm(default)))"/>
+            </admst:when>
+            <admst:when test="[type='integer']">
+              <admst:text format="static_cast&lt;int&gt;(%(printTerm(default)))"/>
+            </admst:when>
+            <admst:when test="[type='string']">
+              <admst:text format="%(printTerm(default))"/>
+            </admst:when>
+          </admst:choose>
+        </admst:when>
+        <admst:otherwise>
+          <admst:choose>
+            <admst:when test="[type='real']">
+              <admst:text format="0.0"/>
+            </admst:when>
+            <admst:when test="[type='integer']">
+              <admst:text format="0"/>
+            </admst:when>
+            <admst:when test="[type='string']">
+              <admst:text format="&quot;&quot;"/>
+            </admst:when>
+          </admst:choose>
+        </admst:otherwise>
+      </admst:choose>
+      <admst:text format=", &amp;%($nameSpace)::Instance::%(name))"/>
+      <admst:if test="[exists(attribute[name='dependence'])]">
+          <admst:text format="\n    .setExpressionAccess(ParameterType::%(attribute[name='dependence']/value))"/>
+      </admst:if>
+
+      <admst:if test="[exists(attribute[name='xyceUnit'])]">
+          <admst:text format="\n    .setUnit(%(attribute[name='xyceUnit']/value))"/>
+      </admst:if>
+      <admst:if test="[exists(attribute[name='units']) and not exists(attribute[name='xyceUnit'])]">
+          <admst:text format="\n    .setUnit(%(textUnit2XyceUnit(.)))"/>
+      </admst:if>
+      <admst:if test="[exists(attribute[name='xyceCategory'])]">
+          <admst:text format="\n    .setCategory(%(attribute[name='xyceCategory']/value))"/>
+      </admst:if>
+      <admst:choose>
+        <admst:when test="[exists(attribute[name='info'])]">
+          <admst:text format="\n    .setDescription(&quot;%(attribute[name='info']/value)&quot;)"/>
+        </admst:when>
+        <admst:when test="[exists(attribute[name='desc'])]">
+          <admst:text format="\n    .setDescription(&quot;%(attribute[name='desc']/value)&quot;)"/>
+        </admst:when>
+      </admst:choose>
+      <admst:if test="[upper-case(name)='TEMP' or upper-case(name)='TNOM']">
+        <admst:text format="\n   .setAutoConvertTemperature(false)"/>
+      </admst:if>
+      <admst:if test="[type='real']">
+        <admst:text format="\n#ifdef Xyce_ADMS_SENSITIVITIES"/>
+        <admst:text format="\n    .setAnalyticSensitivityAvailable(true)"/>
+        <admst:text format="\n    .setSensitivityFunctor(&amp;instSens)"/>
+        <admst:text format="\n#endif // Xyce_ADMS_SENSITIVITIES\n"/>
+      </admst:if>
+      <admst:text format=";\n"/>
+
+
+      <!-- Ick.  Have to duplicate all that for each alias!-->
+      <admst:if test="[not(nilled(alias))]">
+        <admst:variable name="theParam" select="%(.)"/>
+        <admst:for-each select="alias">
+          <admst:text format="  p.addPar(&quot;%(upper-case(.))&quot;, "/>
+          <admst:choose>
+            <admst:when test="[exists($theParam/default) and not exists($theParam/#dependent)]">
+              <admst:choose>
+                <admst:when test="[$theParam/type='real']">
+                  <admst:text format="static_cast&lt;double&gt;(%(printTerm($theParam/default)))"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='integer']">
+                  <admst:text format="static_cast&lt;int&gt;(%(printTerm($theParam/default)))"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='string']">
+                  <admst:text format="%(printTerm($theParam/default))"/>
+                </admst:when>
+              </admst:choose>
+            </admst:when>
+            <admst:otherwise>
+              <admst:choose>
+                <admst:when test="[$theParam/type='real']">
+                  <admst:text format="0.0"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='integer']">
+                  <admst:text format="0"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='string']">
+                  <admst:text format="&quot;&quot;"/>
+                </admst:when>
+              </admst:choose>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:text format=", &amp;%($nameSpace)::Instance::%($theParam/name))"/>
+          <admst:if test="[exists($theParam/attribute[name='dependence'])]">
+            <admst:text format="\n    .setExpressionAccess(ParameterType::%($theParam/attribute[name='dependence']/value))"/>
+          </admst:if>
+
+          <admst:if test="[exists($theParam/attribute[name='xyceUnit'])]">
+            <admst:text format="\n    .setUnit(%($theParam/attribute[name='xyceUnit']/value))"/>
+          </admst:if>
+          <admst:if test="[exists($theParam/attribute[name='units'])  and not exists($theParam/attribute[name='xyceUnit'])]">
+            <admst:text format="\n    .setUnit(%(textUnit2XyceUnit($theParam)))"/>
+          </admst:if>
+          <admst:if test="[exists($theParam/attribute[name='xyceCategory'])]">
+            <admst:text format="\n    .setCategory(%($theParam/attribute[name='xyceCategory']/value))"/>
+          </admst:if>
+          <admst:text format="\n    .setDescription(&quot; Alias for %($theParam/name)&quot;)"/>
+          <admst:if test="[$theParam/type='real']">
+            <admst:text format="\n#ifdef Xyce_ADMS_SENSITIVITIES"/>
+            <admst:text format="\n    .setAnalyticSensitivityAvailable(true)"/>
+            <admst:text format="\n    .setSensitivityFunctor(&amp;instSens)"/>
+            <admst:text format="\n#endif // Xyce_ADMS_SENSITIVITIES\n"/>
+          </admst:if>
+          <admst:text format=";\n"/>
+        </admst:for-each>
+      </admst:if>
+    </admst:for-each>
+
+}
+
+void Traits::loadModelParameters(ParametricData&lt;%($nameSpace)::Model&gt; &amp;p)
+{
+  // Set up each parameter directly, using the up-cased variable name
+  // as the tag.
+
+  // This kludge is to force us always to have a model parameter
+  // that the device manager can set to the temperature, even if we have
+  // no "TEMP".
+  p.addPar("XYCEADMSMODTEMP", 0.0, &amp;%($nameSpace)::Model::admsModTemp)
+    .setExpressionAccess(NO_DOC)
+    .setUnit(U_DEGK)
+    .setCategory(CAT_TEMP)
+    .setDescription("Internal-use parameter for setting device model temperature");
+
+    <admst:for-each select="variable[(parametertype='model' and input='yes') or (parametertype='instance' and input='yes' and exists(attribute[name='xyceAlsoModel']))]">
+      <admst:choose>
+        <admst:when test="[exists(attribute[name='hidden']) and attribute[name='hidden']/value='yes']">
+          <admst:text format="//Hidden parameter %(name)\n"/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:text format="  p.addPar(&quot;%(upper-case(name))&quot;, "/>
+          <admst:choose>
+            <admst:when test="[exists(default) and not exists(#dependent)]">
+              <admst:choose>
+                <admst:when test="[type='real']">
+                  <admst:text format="static_cast&lt;double&gt;(%(printTerm(default)))"/>
+                </admst:when>
+                <admst:when test="[type='integer']">
+                  <admst:text format="static_cast&lt;int&gt;(%(printTerm(default)))"/>
+                </admst:when>
+                <admst:when test="[type='string']">
+                  <admst:text format="%(printTerm(default))"/>
+                </admst:when>
+              </admst:choose>
+            </admst:when>
+            <admst:otherwise>
+              <admst:choose>
+                <admst:when test="[type='real']">
+                  <admst:text format="0.0"/>
+                </admst:when>
+                <admst:when test="[type='integer']">
+                  <admst:text format="0"/>
+                </admst:when>
+                <admst:when test="[type='string']">
+                  <admst:text format="&quot;&quot;"/>
+                </admst:when>
+              </admst:choose>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:text format=", &amp;%($nameSpace)::Model::%(name))"/>
+
+          <admst:if test="[exists(attribute[name='dependence'])]">
+              <admst:text format="\n    .setExpressionAccess(ParameterType::%(attribute[name='dependence']/value))"/>
+          </admst:if>
+          <admst:if test="[exists(attribute[name='xyceUnit'])]">
+              <admst:text format="\n    .setUnit(%(attribute[name='xyceUnit']/value))"/>
+          </admst:if>
+          <admst:if test="[exists(attribute[name='units']) and not exists(attribute[name='xyceUnit'])]">
+            <admst:text format="\n    .setUnit(%(textUnit2XyceUnit(.)))"/>
+          </admst:if>
+          <admst:if test="[exists(attribute[name='xyceCategory'])]">
+              <admst:text format="\n    .setCategory(%(attribute[name='xyceCategory']/value))"/>
+          </admst:if>
+          <admst:choose>
+            <admst:when test="[exists(attribute[name='info'])]">
+              <admst:text format="\n    .setDescription(&quot;%(attribute[name='info']/value)&quot;)"/>
+            </admst:when>
+            <admst:when test="[exists(attribute[name='desc'])]">
+              <admst:text format="\n    .setDescription(&quot;%(attribute[name='desc']/value)&quot;)"/>
+            </admst:when>
+          </admst:choose>
+          <admst:if test="[upper-case(name)='TEMP' or upper-case(name)='TNOM']">
+            <admst:text format="\n   .setAutoConvertTemperature(false)"/>
+          </admst:if>
+          <admst:if test="[type='real']">
+            <admst:text format="\n#ifdef Xyce_ADMS_SENSITIVITIES"/>
+            <admst:text format="\n    .setAnalyticSensitivityAvailable(true)"/>
+            <admst:text format="\n    .setSensitivityFunctor(&amp;modSens)"/>
+            <admst:text format="\n#endif // Xyce_ADMS_SENSITIVITIES\n"/>
+          </admst:if>
+          <admst:text format=";\n"/>
+        </admst:otherwise>
+      </admst:choose>
+
+      <!-- Ick.  Have to duplicate for aliases -->
+      <admst:if test="[not(nilled(alias))]">
+        <admst:variable name="theParam" select="%(.)"/>
+        <admst:for-each select="alias">
+          <admst:text format="  p.addPar(&quot;%(upper-case(.))&quot;, "/>
+          <admst:choose>
+            <admst:when test="[exists($theParam/default) and not exists($theParam/#dependent)]">
+              <admst:choose>
+                <admst:when test="[$theParam/type='real']">
+                  <admst:text format="static_cast&lt;double&gt;(%(printTerm($theParam/default)))"/>
+                </admst:when>
+                <admst:when test="[type='integer']">
+                  <admst:text format="static_cast&lt;int&gt;(%(printTerm($theParam/default)))"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='string']">
+                  <admst:text format="%(printTerm($theParam/default))"/>
+                </admst:when>
+              </admst:choose>
+            </admst:when>
+            <admst:otherwise>
+              <admst:choose>
+                <admst:when test="[$theParam/type='real']">
+                  <admst:text format="0.0"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='integer']">
+                  <admst:text format="0"/>
+                </admst:when>
+                <admst:when test="[$theParam/type='string']">
+                  <admst:text format="&quot;&quot;"/>
+                </admst:when>
+              </admst:choose>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:text format=", &amp;%($nameSpace)::Model::%($theParam/name))"/>
+
+          <admst:if test="[exists($theParam/attribute[name='dependence'])]">
+              <admst:text format="\n    .setExpressionAccess(ParameterType::%($theParam/attribute[name='dependence']/value))"/>
+          </admst:if>
+          <admst:if test="[exists($theParam/attribute[name='xyceUnit'])]">
+              <admst:text format="\n    .setUnit(%($theParam/attribute[name='xyceUnit']/value))"/>
+          </admst:if>
+          <admst:if test="[exists($theParam/attribute[name='units']) and not exists($theParam/attribute[name='xyceUnit'])]">
+            <admst:text format="\n    .setUnit(%(textUnit2XyceUnit($theParam)))"/>
+          </admst:if>
+          <admst:if test="[exists($theParam/attribute[name='xyceCategory'])]">
+              <admst:text format="\n    .setCategory(%($theParam/attribute[name='xyceCategory']/value))"/>
+          </admst:if>
+          <admst:text format="\n    .setDescription(&quot; Alias for %($theParam/name)&quot;)"/>
+          <admst:if test="[$theParam/type='real']">
+            <admst:text format="\n#ifdef Xyce_ADMS_SENSITIVITIES"/>
+            <admst:text format="\n    .setAnalyticSensitivityAvailable(true)"/>
+            <admst:text format="\n    .setSensitivityFunctor(&amp;modSens)"/>
+            <admst:text format="\n#endif // Xyce_ADMS_SENSITIVITIES\n"/>
+          </admst:if>
+          <admst:text format=";\n"/>
+        </admst:for-each>
+      </admst:if>
+    </admst:for-each>
+}
+
+<admst:variable name="skipFunctionPrecomp" select="n"/>
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::processParams()
+{
+  // set any non-constant parameter defaults
+
+  // copy any model variables that have associated instance variables, but
+  // are only given in the model card:
+
+  <admst:apply-templates select="$theModule" match="xyceCopyModelVars"/>
+
+
+  // Set any parameters that were not given and whose defaults depend on other
+  // parameters:
+
+  <admst:for-each select="variable[parametertype='instance' and input='yes']">
+    <admst:if test="[exists(default) and exists(#dependent)]">
+      <admst:text format="  if (!given(&quot;%(name)&quot;))\n  {\n"/>
+      <admst:text format="  %(name) = %(printTerm(default));\n  }\n"/>
+    </admst:if>
+  </admst:for-each>
+
+// Now we need to check that any parameters are within their ranges as
+  // specified in the verilog:
+
+  <admst:for-each select="variable[parametertype='instance' and input='yes' and not(nilled(range))]">
+//    Parameter %(name) : %(formatted_range(.))
+
+    <admst:apply-templates select="." match="check_range"/>
+  </admst:for-each>
+
+  // this seems a little stupid, but verilog models that use \$temperature
+  // don't also use a defined parameter "Temp", and count on \$temperature
+  // to be the one the simulator wants:
+
+  updateTemperature(admsInstTemp);
+
+  // and of course, this routine is where we should put the initial_instance
+  // stuff
+
+  <admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_instance']">
+    <!-- first declare any variables local to the initial_instance block -->
+    <admst:for-each select="@assignedVars/[scope='local']">
+      <admst:text format="  "/>
+      <admst:apply-templates select="." match="xyceDeclareVariable"/>
+    </admst:for-each>
+    <!-- then emit the code -->
+    <admst:apply-templates select="." match="block"/>
+  </admst:for-each>
+
+  return true;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::Instance
+// Purpose       : "instance block" constructor
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+
+Instance::Instance(
+  const Configuration &amp; configuration,
+  const InstanceBlock &amp; instance_block,
+  Model &amp;               model,
+  const FactoryBlock &amp;  factory_block)
+  : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
+    model_(model)
+<admst:apply-templates select="." match="xyceInstanceInitializers"/>
+{
+
+  <admst:text format="    numIntVars = %(xyceNumberInternalNodes(.)) + %(count(/module/@extraUnknowns));\n"/>
+  <admst:text format="    numExtVars = %(xyceNumberExternalNodes(.));\n"/>
+
+
+  <admst:if test="[exists(@optnodes)]">
+    portsConnected_.resize(%(xyceNumberExternalNodes(.)),true);
+    if (instance_block.numExtVars &lt; %(xyceNumberExternalNodes(.)))
+    {
+       // some of our optional nodes were not given...
+       for (int i=instance_block.numExtVars ; i&lt;numExtVars; i++)
+       {
+         portsConnected_[i]=false;
+       }
+       numIntVars += (%(xyceNumberExternalNodes(.))-instance_block.numExtVars);
+       numExtVars = instance_block.numExtVars;
+     }
+  </admst:if>
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(%(count(@limitedProbes))+%(count(/module/variable[output='yes' and input!='yes'])));
+
+  // Do not allocate "branch" (lead current) vectors by default
+  setNumBranchDataVars(0);
+
+  <admst:choose>
+    <admst:when test="[exists(@optnodes)]">
+      <admst:text format="  numBranchDataVarsIfAllocated = std::min(%(xyceNumberLeadCurrents(.)),numExtVars);\n"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="  numBranchDataVarsIfAllocated = %(xyceNumberLeadCurrents(.));\n"/>
+    </admst:otherwise>
+  </admst:choose>
+
+
+  <!-- We always allocate these arrays to be equal to the number of
+       external nodes, even if we're only going to use one of them,
+       as in the case of two-terminal devices, and even if some are
+       optional nodes that aren't specified -->
+  leadCurrentF.resize(%(count(node[grounded='no' and location='external'])));
+  leadCurrentQ.resize(%(count(node[grounded='no' and location='external'])));
+
+  // Set up jacobian stamp:
+  // Create a vector of the non-zero elements of the stamp
+
+  <admst:apply-templates select="." match="xyceGenerateJacStamp2"/>
+
+
+  setDefaultParams();
+  setParams(instance_block.params);
+
+  // Real bogosity here...
+  if (!given("XYCEADMSINSTTEMP"))
+    admsInstTemp=getDeviceOptions().temp.getImmutableValue&lt;double&gt;();
+
+  //calculate any parameters specified as expressions
+  updateDependentParameters();
+
+  // calculate dependent (i.e. computed params) and check for errors.
+  processParams();
+
+  PairVector collapsedNodes;
+<admst:if test="[count(node[#collapsible='yes'])>0]">
+  collapseNodes();
+
+  <admst:for-each select="node/[#collapsible='yes']">
+  if (collapseNode_%(name))
+  {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, we only *literally* collapse it if it's not
+  // connected
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
+  collapsedNodes.push_back(IntPair(%(xyceNodeConstantName(.)/[name='nodeConstant']/value),%(xyceNodeConstantName(@collapsesTo)/[name='nodeConstant']/value)));
+  <admst:choose>
+    <admst:when test="[exists(#optional) and @collapsesTo/name='GND']">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to ground.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+    </admst:when>
+    <admst:when test="[exists(#optional)]">
+  }
+  else
+  {
+  UserWarning(*this) &lt;&lt; &quot;Collapsing optional external node %(.) (node &quot; &lt;&lt; %(xyceNodeConstantName(.)/[name='nodeConstant']/value)+1 &lt;&lt; &quot;) to %(@collapsesTo/name), but this is not possible, so we're not actually doing it.  This can lead to singular matrices and convergence problems.  Consider removing this optional node from the instance line if convergence problems result.&quot; &lt;&lt; std::endl;
+  }
+    </admst:when>
+  </admst:choose>
+  }
+  </admst:for-each>
+</admst:if>
+
+// Now generate the jacstamp from what we already have.
+// This jacstamp will have all the correct node mapping.  map will be the nodal mapping of original
+// node IDs to row/column ids in the reduced (non-sparse) representation of the jacobian.
+// (for devices that have no collapsibles, this will be static, so check that it hasn't already
+// been filled in)
+if (jacStamp.empty())
+{
+int originalSize = %(count(node[grounded='no']))+%(count(@extraUnknowns));
+computeJacStampAndMaps(jacobianElements,collapsedNodes,jacStamp,nodeMap,pairToJacStampMap,originalSize);
+}
+
+}
+
+<admst:if test="[count(node[#collapsible='yes'])>0]">
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::collapseNodes
+// Purpose       : function to handle collapsing of nodes
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::collapseNodes()
+{
+
+  <admst:for-each select="node/[#collapsible='yes']">
+    <admst:text format="collapseNode_%(name) = false;\n"/>
+  </admst:for-each>
+
+
+  <admst:for-each select="analog/code[datatypename='block']/item">
+    <admst:if test="[(datatypename!='block') or (datatypename='block'
+         and name!='initial_model' and name!='initializeModel' and name!='initial_instance' and name!='initializeInstance' and name != 'noise' and name != 'initial_step')]">
+<!--      <admst:warning format="Processing item %(.) of type %(datatypename)\n"/> -->
+      <admst:apply-templates select="." match="evaluateCollapse">
+        <admst:value-of select="returned('outputSomething')/value"/>
+        <admst:variable name="outputSomething" select="%s"/>
+        <admst:value-of select="returned('output')/value"/>
+        <admst:variable name="output" select="%s"/>
+        <admst:if test="[$outputSomething='yes']">
+          <admst:text format="%($output)\n"/>
+        </admst:if>
+      </admst:apply-templates>
+    </admst:if>
+  </admst:for-each>
+
+
+  <admst:for-each select="node/[#collapsible='yes']">
+  if (collapseNode_%(name))
+  {
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  //this node is optional, and is external if it's connected --- so don't
+  // decrement the internal node count!
+  if(!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])
+  {
+  </admst:if>
+    numIntVars--;
+  <admst:if test="[exists(#optional) and #collapsesTo/name='GND']">
+  }
+  </admst:if>
+  }
+  </admst:for-each>
+}
+
+</admst:if>
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::~Instance
+// Purpose       : destructor
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+Instance::~Instance()
+{
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::registerLIDs
+// Purpose       : function for registering, and setting up, local IDs.
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::registerLIDs( const LocalIdVector &amp; intLIDVecRef,
+                             const LocalIdVector &amp; extLIDVecRef)
+{
+  AssertLIDs(intLIDVecRef.size() == numIntVars);
+  AssertLIDs(extLIDVecRef.size() == numExtVars);
+
+  LocalIdVector localLIDVec;
+
+  if (DEBUG_DEVICE &amp;&amp; isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() &lt;&lt; std::endl &lt;&lt; section_divider &lt;&lt; std::endl
+                 &lt;&lt; &quot;In $nameSpace::Instance::register LIDs\\n\\n&quot;
+                 &lt;&lt; &quot;name             = &quot; &lt;&lt; getName() &lt;&lt; std::endl
+                 &lt;&lt; &quot;number of internal variables: &quot; &lt;&lt; numIntVars &lt;&lt; std::endl
+                 &lt;&lt; &quot;number of external variables: &quot; &lt;&lt; numExtVars &lt;&lt; std::endl;
+  }
+
+  // copy over the global ID lists into a local array.
+  // The end result of this is an array of LIDs corresponding to all the
+  // nodes we actually have, in the order that topology thinks of them
+  intLIDVec = intLIDVecRef;
+  extLIDVec = extLIDVecRef;
+  localLIDVec.resize(numExtVars+numIntVars);
+  for (int localNodeIndex=0;localNodeIndex&lt;numExtVars;++localNodeIndex)
+  {
+    localLIDVec[localNodeIndex]=extLIDVec[localNodeIndex];
+  }
+  for (int localNodeIndex=numExtVars;localNodeIndex&lt;numExtVars+numIntVars;++localNodeIndex)
+  {
+    localLIDVec[localNodeIndex]=intLIDVec[localNodeIndex-numExtVars];
+    }
+
+  // Now pull the LIDs for each of our nodes out of the local array.
+  // Use the node mapping created by createJacStampAndMaps to handle
+  // all the node collapse complications.
+
+  <!-- Note:  Here we don't care if the external node is optional.  We
+       are taking care of that in the setting of the localLIDVec -->
+  <!-- for the moment, we'll forbid collapsing external nodes to anything
+       even if they're just optional nodes.  This might be a problem.  -->
+  <admst:for-each select="node[grounded='no' and location='external']">
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+          <!-- even though this node is external, its node has been mapped
+               to ground *and* we never, ever use this LID.  So we don't 
+               need to check portsConnected_ -->
+          <admst:text format="  if (collapseNode_%(name))\n"/>
+          <admst:text format="  {\n    %(xyceNodeLIDVariable(.)) = -1;\n  }\n"/>
+          <admst:text format="  else\n  {\n"/>
+      </admst:if>
+    </admst:if>
+    <admst:text format="  %(xyceNodeLIDVariable(.)) = localLIDVec[nodeMap[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)]];\n"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes' and exists(#optional)]">
+      <admst:if test="[@collapsesTo/name='GND']">
+        <admst:text format="  }\n"/>
+      </admst:if>
+    </admst:if>
+  </admst:for-each>
+
+  <admst:for-each select="node[grounded='no' and location='internal']">
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:if test="[@collapsesTo/name='GND']">
+          <admst:text format="  if (collapseNode_%(name))\n  "/>
+          <admst:text format="    {\n    %(xyceNodeLIDVariable(.)) = -1;\n    }\n"/>
+          <admst:text format="  else\n    {\n"/>
+      </admst:if>
+    </admst:if>
+    <admst:text format="  %(xyceNodeLIDVariable(.)) = localLIDVec[nodeMap[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)]];\n"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:if test="[@collapsesTo/name='GND']">
+        <admst:text format="    }\n"/>
+      </admst:if>
+    </admst:if>
+
+
+  </admst:for-each>
+
+  <!-- Make sure to generate LIDs for the branch equations, too -->
+  <admst:for-each select="/module/@extraUnknowns">
+    <admst:text format="  %(xyceBranchLIDVariable(.)) = localLIDVec[nodeMap[%(xyceBranchConstantName(.)/[name='branchConstant']/value)]];\n"/>
+  </admst:for-each>
+
+  if (DEBUG_DEVICE &amp;&amp; isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() &lt;&lt; &quot;\\nSolution and RHS variables:\\n&quot;;
+    <admst:for-each select="node[grounded='no']">
+      Xyce::dout() &lt;&lt; &quot;\\n%(xyceNodeLIDVariable(.)) = &quot; &lt;&lt; %(xyceNodeLIDVariable(.)) &lt;&lt; std::endl;
+    </admst:for-each>
+    <admst:for-each select="/module/@extraUnknowns">
+      Xyce::dout() &lt;&lt; &quot;\\n%(xyceBranchLIDVariable(.)) = &quot; &lt;&lt; %(xyceBranchLIDVariable(.)) &lt;&lt; std::endl;
+    </admst:for-each>
+
+    Xyce::dout() &lt;&lt; &quot;\\nEnd of $nameSpace::Instance::register LIDs\\n&quot;;
+    Xyce::dout() &lt;&lt; section_divider &lt;&lt; std::endl;
+  }
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::loadNodeSymbols
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
+{
+  <admst:for-each select="node[grounded='no' and location='external' and exists(#optional)]">
+      <admst:text format="\n    if (!portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {"/>
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    if (!collapseNode_%(name))\n    {"/>
+    </admst:if>
+    addInternalNode(symbol_table, %(xyceNodeLIDVariable(.)), getName(), &quot;%(name)&quot;);
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    }"/>
+    </admst:if>
+    <admst:text format="\n    }"/>
+  </admst:for-each>
+  <admst:for-each select="node[grounded='no' and location='internal']">
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    if (!collapseNode_%(name))\n    {"/>
+    </admst:if>
+    addInternalNode(symbol_table, %(xyceNodeLIDVariable(.)), getName(), &quot;%(name)&quot;);
+    <admst:if test="[exists(#collapsible) and #collapsible='yes']">
+      <admst:text format="\n    }"/>
+    </admst:if>
+  </admst:for-each>
+
+  <admst:for-each select="$theModule/@extraUnknowns">
+    addInternalNode(symbol_table, %(xyceBranchLIDVariable(.)), getName(), &quot;%(pnode)_%(nnode)_branch&quot;);
+  </admst:for-each>
+
+  <admst:for-each select="$theModule/variable[output='yes' and input!='yes']">
+    addStoreNode(symbol_table, li_store_%(name), getName().getEncodedName() + &quot;:%(name)&quot;);
+  </admst:for-each>
+
+  if (loadLeadCurrent)
+  {
+
+  <admst:choose>
+    <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
+      <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_D&quot;);\n"/>
+    </admst:when>
+    <admst:otherwise>
+      <!-- and here we have to do special things for MOSFETS and BJTs. -->
+      <admst:choose>
+        <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and ($theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET' or $theModule/attribute[name='xyceModelGroup']/value='BJT')]">
+          <admst:choose>
+            <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET']">
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DD&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DG&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DS&quot;);\n"/>
+            </admst:when>
+            <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='BJT']">
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), &quot;BRANCH_DC&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), &quot;BRANCH_DB&quot;);\n"/>
+              <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), &quot;BRANCH_DE&quot;);\n"/>
+            </admst:when>
+          </admst:choose>
+          <admst:for-each select="$theModule/node[grounded='no' and location='external']">
+            <admst:if test="[position(.) > 3]">
+              <admst:if test="[exists(#optional)]">
+                <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+              </admst:if>
+              <admst:choose>
+                <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='e']">
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DE&quot;);\n"/>
+                </admst:when>
+                <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' and name='b']">
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_DB&quot;);\n"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+                </admst:otherwise>
+              </admst:choose>
+              <admst:if test="[exists(#optional)]">
+                <admst:text format="    }\n"/>
+              </admst:if>
+            </admst:if>
+          </admst:for-each>
+        </admst:when>
+        <admst:otherwise>
+          <admst:for-each select="$theModule/node[grounded='no' and location='external']">
+            <admst:if test="[exists(#optional)]">
+              <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+            </admst:if>
+            <admst:text format="    addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable(.)), getName(), &quot;BRANCH_D%(position(.))&quot;);\n"/>
+            <admst:if test="[exists(#optional)]">
+              <admst:text format="    }\n"/>
+            </admst:if>
+          </admst:for-each>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:otherwise>
+  </admst:choose>
+
+  }
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::registerStoreLIDs
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::registerStoreLIDs( const LocalIdVector &amp; stoLIDVecRef)
+{
+  AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+<admst:if test="[count(@limitedProbes)>0 or count(variable[output='yes' and input!='yes'])>0]">
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto &gt; 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+    <admst:for-each select="@limitedProbes">
+    %(xyceLimitedProbeStoreLIDVariable(.)) = stoLIDVec[i++];
+    </admst:for-each>
+    <admst:for-each select="variable[output='yes' and input!='yes']">
+      li_store_%(name)= stoLIDVec[i++];
+    </admst:for-each>
+  }
+</admst:if>
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::registerBranchDataLIDs
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 12/09/11
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::registerBranchDataLIDs(const std::vector&lt;int&gt; &amp; branchLIDVecRef)
+{
+  AssertLIDs(branchLIDVecRef.size() == getNumBranchDataVars());
+
+  if (loadLeadCurrent)
+  {
+
+    <!-- two-terminal devices are special, we only use one of the
+         two possible lead currents, the first one. -->
+    <admst:choose>
+      <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
+        <!-- The first node is always GND -->
+        <admst:text format="    %(xyceLeadBranchLIDVariable($theModule/node[2])) = branchLIDVecRef[0];\n"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="    int i = 0;\n"/>
+        <admst:for-each select="node[grounded='no' and location='external']">
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    %(xyceLeadBranchLIDVariable(.)) = branchLIDVecRef[i++];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:otherwise>
+    </admst:choose>
+  }
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::jacobianStamp
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+const JacobianStamp &amp; Instance::jacobianStamp() const
+{
+    return jacStamp;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::registerJacLIDs
+// Purpose       : Create Offset variables used for referencing jacobian
+//                 elements
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::registerJacLIDs( const JacobianStamp &amp; jacLIDVec)
+{
+  DeviceInstance::registerJacLIDs(jacLIDVec);
+<admst:apply-templates select="." match="xyceRegisterJacLIDs"/>
+
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::setupPointers
+// Purpose       : Create pointer variables used for referencing jacobian
+//                 elements
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::setupPointers( )
+{
+
+  Linear::Matrix &amp; dFdx = *(extData.dFdxMatrixPtr);
+  Linear::Matrix &amp; dQdx = *(extData.dQdxMatrixPtr);
+
+  <admst:apply-templates select="." match="xyceSetupPointers"/>
+
+}
+
+// RHS load functions
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::loadDAEFVector
+// Purpose       : load F vector (static contributions) for one instance for
+//                 NEW DAE formulation
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::loadDAEFVector()
+{
+
+  bool bsuccess=true;
+
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+      <admst:text format="if (!collapseNode_%(name))\n  "/>
+    </admst:if>
+    <admst:text format="(*extData.daeFVectorPtr)[%(xyceNodeLIDVariable(.))] += staticContributions[$nodeConstantName];\n"/>
+  </admst:for-each>
+
+  <!-- now handle branch equations -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    (*extData.daeFVectorPtr)[%(xyceBranchLIDVariable(.))] += staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+  </admst:for-each>
+
+  <admst:if test="[count(@limitedProbes)>0]">
+  if (getDeviceOptions().voltageLimiterFlag &amp;&amp; !origFlag)
+  {
+    double *dFdxdVp = extData.dFdxdVpVectorRawPtr;
+
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+      <admst:text format="if (!collapseNode_%(name))\n  "/>
+    </admst:if>
+    <admst:text format="dFdxdVp[%(xyceNodeLIDVariable(.))] += Jdxp_static[$nodeConstantName];\n"/>
+  </admst:for-each>
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:variable name="branchConstantName" select="%(xyceBranchConstantName(.)/[name='branchConstant']/value)"/>
+    dFdxdVp[%(xyceBranchLIDVariable(.))] += Jdxp_static[$branchConstantName];
+  </admst:for-each>
+
+  }
+  </admst:if>
+
+  if (loadLeadCurrent)
+  {
+    double * leadF = extData.nextLeadCurrFCompRawPtr;
+
+    <admst:choose>
+      <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
+        <admst:text format="    leadF[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentF[0];\n"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:for-each select="$theModule/node[grounded='no' and location='external']">
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    leadF[%(xyceLeadBranchLIDVariable(.))] = leadCurrentF[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:otherwise>
+    </admst:choose>
+
+
+    // here we have to do special things for BJTs, MOSFETs and 2-terminal
+    // devices for power computation.
+
+    <admst:choose>
+      <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and($theModule/attribute[name='xyceModelGroup']/value='BJT' or $theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET')]">
+        double * solVec = extData.nextSolVectorRawPtr;
+        double * junctionV = extData.nextJunctionVCompRawPtr;
+        junctionV[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = solVec[%(xyceNodeLIDVariable($theModule/node[2]))] - solVec[%(xyceNodeLIDVariable($theModule/node[4]))];
+        junctionV[%(xyceLeadBranchLIDVariable($theModule/node[3]))] = solVec[%(xyceNodeLIDVariable($theModule/node[3]))] - solVec[%(xyceNodeLIDVariable($theModule/node[4]))];
+      </admst:when>
+      <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
+        double * solVec = extData.nextSolVectorRawPtr;
+        double * junctionV = extData.nextJunctionVCompRawPtr;
+        junctionV[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = solVec[%(xyceNodeLIDVariable($theModule/node[2]))] - solVec[%(xyceNodeLIDVariable($theModule/node[3]))];
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="// power not supported for this device type, don't load junctionV\n"/>
+      </admst:otherwise>
+    </admst:choose>
+
+  }
+  return bsuccess;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::loadDAEQVector
+// Purpose       : load Q vector (dynamic contributions) for one instance for
+//                 NEW DAE formulation
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::loadDAEQVector()
+{
+
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+      <admst:text format="if (!collapseNode_%(name))\n  "/>
+    </admst:if>
+    <admst:text format="(*extData.daeQVectorPtr)[%(xyceNodeLIDVariable(.))] += dynamicContributions[$nodeConstantName];\n"/>
+  </admst:for-each>
+
+  <!-- now handle branch equations -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    (*extData.daeQVectorPtr)[%(xyceBranchLIDVariable(.))] += dynamicContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+  </admst:for-each>
+  <admst:if test="[count(@limitedProbes)>0]">
+  if (getDeviceOptions().voltageLimiterFlag &amp;&amp; !origFlag)
+  {
+    double *dQdxdVp = extData.dQdxdVpVectorRawPtr;
+
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+      <admst:text format="if (!collapseNode_%(name))\n  "/>
+    </admst:if>
+    <admst:text format="dQdxdVp[%(xyceNodeLIDVariable(.))] += Jdxp_dynamic[$nodeConstantName];\n"/>
+  </admst:for-each>
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:variable name="branchConstantName" select="%(xyceBranchConstantName(.)/[name='branchConstant']/value)"/>
+    dQdxdVp[%(xyceBranchLIDVariable(.))] += Jdxp_dynamic[$branchConstantName];
+  </admst:for-each>
+  }
+  </admst:if>
+
+  if (loadLeadCurrent)
+  {
+    double * leadQ = extData.nextLeadCurrQCompRawPtr;
+
+    <admst:choose>
+      <admst:when test="[count($theModule/node[grounded='no' and location='external']) = 2 ]">
+        <admst:text format="    leadQ[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = leadCurrentQ[0];\n"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:for-each select="$theModule/node[grounded='no' and location='external']">
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    if (portsConnected_[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)])\n    {\n"/>
+          </admst:if>
+          <admst:text format="    leadQ[%(xyceLeadBranchLIDVariable(.))] = leadCurrentQ[%(xyceNodeConstantName(.)/[name='nodeConstant']/value)];\n"/>
+          <admst:if test="[exists(#optional)]">
+            <admst:text format="    }\n"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:otherwise>
+    </admst:choose>
+
+  }
+  return true;
+}
+
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::updatePrimaryState
+// Purpose       :
+// Special Notes : In this initial implementation, does little more than
+//                 call updateIntermediateVars()
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::updatePrimaryState()
+{
+  bool bsuccess = true;
+
+  bsuccess = updateIntermediateVars();
+
+  // if old DAE were implemented, we'd save dynamic contributions as state
+  // here.
+
+<admst:if test="[count(@limitedProbes)>0 or count(variable[output='yes' and input!='yes'])>0]">
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  <admst:for-each select="@limitedProbes">
+  stoVec[%(xyceLimitedProbeStoreLIDVariable(.))] = probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)];
+  </admst:for-each>
+
+  <admst:for-each select="variable[output='yes' and input!='yes']">
+  stoVec[li_store_%(name)] = %(name);
+  </admst:for-each>
+
+</admst:if>
+
+  return bsuccess;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::updateSecondaryState
+// Purpose       :
+// Special Notes : In this initial implementation, does nothing
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::updateSecondaryState()
+{
+  bool bsuccess = true;
+
+  // were old DAE implemented, we'd pull dynamic contribution derivatives
+  // out of state.
+
+  return bsuccess;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::updateIntermediateVars
+// Purpose       : update intermediate variables for one %(name) instance
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::updateIntermediateVars()
+{
+
+  bool bsuccess=true;
+  Linear::Vector * solVectorPtr = extData.nextSolVectorPtr;
+
+  if (DEBUG_DEVICE &amp;&amp; isActive(Diag::DEVICE_PARAMETERS) &amp;&amp; getSolverState().debugTimeFlag)
+  {
+    Xyce::dout() &lt;&lt; std::endl &lt;&lt; subsection_divider &lt;&lt; std::endl;
+    Xyce::dout() &lt;&lt; &quot;  In $nameSpace::Instance::updateIntermediateVars\\n\\n&quot;;
+    Xyce::dout() &lt;&lt; &quot;  name = &quot; &lt;&lt; getName() &lt;&lt; std::endl;
+  }
+
+  <!-- Declare all variables in analog/code that are not of global scope
+       or used only in special sub-blocks (initial_model or initial_instance).
+
+       This relies on us having called collectAssignedVariables for the
+       top level already.  We did that in the first few lines of this file.
+
+       The only things that need declaring here are the ones with local scope
+   -->
+  // Local variables
+
+  <admst:for-each select="analog/code/@assignedVars">
+    <admst:if test="[scope='local' and block/adms/datatypename='module']">
+      <admst:text format="  "/>
+      <admst:apply-templates select="." match="xyceDeclareVariable"/>
+    </admst:if>
+  </admst:for-each>
+
+  <admst:if test="[count(@limitedProbes)>0]">
+    <admst:apply-templates select="." match="xyceDeclareLimitingTemporaries"/>
+  </admst:if>
+
+  // set the sizes of the Fad arrays:
+
+  if (probeVars.size() != (%(xyceNumberProbes($theModule))))
+  {
+    probeVars.resize(%(xyceNumberProbes($theModule)));
+    d_probeVars.resize(%(xyceNumberProbes($theModule)));
+    for (int i=0;i&lt;%(xyceNumberProbes($theModule));i++)
+    {
+      d_probeVars[i].resize(%(xyceNumberProbes($theModule)));
+      for (int j=0;j&lt;%(xyceNumberProbes($theModule));j++)
+        d_probeVars[i][j]=0.0;
+    }
+    staticContributions.resize(%($numSolVars));
+    d_staticContributions.resize(%($numSolVars));
+    for (int i=0;i&lt;%($numSolVars);i++)
+      d_staticContributions[i].resize(%(xyceNumberProbes($theModule)));
+    dynamicContributions.resize(%($numSolVars));
+    d_dynamicContributions.resize(%($numSolVars));
+    for (int i=0;i&lt;%($numSolVars);i++)
+      d_dynamicContributions[i].resize(%(xyceNumberProbes($theModule)));
+    <admst:if test="[count(@limitedProbes)>0]">
+    probeDiffs.resize(%(xyceNumberProbes($theModule)),0.0);
+    Jdxp_static.resize(%($numSolVars));
+    Jdxp_dynamic.resize(%($numSolVars));
+    </admst:if>
+  }
+
+  <admst:if test="[count(contribution[whitenoise='yes' or flickernoise='yes'])>0]">
+    noiseContribsPower.resize(%(count(contribution[whitenoise='yes' or flickernoise='yes'])));
+    noiseContribsExponent.resize(%(count(contribution[whitenoise='yes' or flickernoise='yes'])));
+  </admst:if>
+
+  // initialize contributions to zero (automatically sets derivatives to zero)
+  for (int i=0; i &lt; %($numSolVars) ; ++i)
+  {
+     staticContributions[i]=0;
+     for (int j=0;j&lt;%(xyceNumberProbes($theModule));j++)
+        d_staticContributions[i][j] = 0.0;
+     dynamicContributions[i]=0;
+     for (int j=0;j&lt;%(xyceNumberProbes($theModule));j++)
+        d_dynamicContributions[i][j] = 0.0;
+     <admst:if test="[count(@limitedProbes)>0]">
+     Jdxp_static[i]=0;
+     Jdxp_dynamic[i]=0;
+     </admst:if>
+  }
+
+  <admst:if test="[count(@limitedProbes)>0]">
+  <!-- initialize probeDiffs to zero -->
+  for (int i=0; i &lt; %(xyceNumberProbes($theModule)) ; ++i)
+  {
+    probeDiffs[i] = 0.0;
+  }
+  </admst:if>
+  // extract solution variables and set as Fad independent variables.
+
+  <admst:for-each select="probe">
+    <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+    <admst:choose>
+      <admst:when test="[nature=discipline/potential]">
+        <admst:choose>
+          <admst:when test="branch/nnode[grounded='yes']">
+            <admst:choose>
+              <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+                <admst:text format="probeVars[%($probeConstantName)] = ((collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[%(xyceNodeLIDVariable(branch/pnode))]));\n"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format="probeVars[%($probeConstantName)] = (*solVectorPtr)[%(xyceNodeLIDVariable(branch/pnode))];\n"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <admst:otherwise>
+            <admst:text format="probeVars[%($probeConstantName)] = "/>
+            <admst:choose>
+              <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+                <admst:text format="(collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[%(xyceNodeLIDVariable(branch/pnode))])"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format="(*solVectorPtr)[%(xyceNodeLIDVariable(branch/pnode))]"/>
+              </admst:otherwise>
+            </admst:choose>
+            <admst:choose>
+              <admst:when test="[exists(branch/nnode/#collapsible) and (branch/nnode/@collapsesTo/name='GND')]">
+                <admst:text format=" - ((collapseNode_%(branch/nnode/name))?(0):((*solVectorPtr)[%(xyceNodeLIDVariable(branch/nnode))]))"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format=" - (*solVectorPtr)[%(xyceNodeLIDVariable(branch/nnode))]"/>
+              </admst:otherwise>
+            </admst:choose>
+            <admst:text format=";\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[nature=discipline/flow]">
+        <admst:text format="probeVars[%($probeConstantName)] = (*solVectorPtr)[%(xyceBranchLIDVariable(branch))];\n"/>
+      </admst:when>
+    </admst:choose>
+    <admst:text format="d_probeVars[%($probeConstantName)][%($probeConstantName)] = 1.0;\n"/>
+
+  </admst:for-each>
+
+  <!-- do the assignments of probes that weren't caught by ADMS, because
+       they're implicit in the use of voltage sources -->
+  <admst:for-each select="@extraProbeBranches">
+    <admst:variable name="probeConstantName" select="%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)"/>
+    <admst:text format="probeVars[%($probeConstantName)] = (*solVectorPtr)[%(xyceBranchLIDVariable(.))];\n"/>
+    <admst:text format="d_probeVars[%($probeConstantName)][%($probeConstantName)] = 1.0;\n"/>
+  </admst:for-each>
+
+  <admst:if test="[count(@limitedProbes)>0]">
+
+    // pre-multiply any "typed" probes (i.e. those limited with "typedpnjlim")
+
+  <admst:for-each select="@limiters/rhs/[probe/#typed='yes']">
+    <admst:if test="[count(function[name='\$limit']/arguments)>2]">
+      <admst:choose>
+        <admst:when test="[function/[name='\$limit']/arguments[3]/datatypename='string']">
+          <admst:if test="[function/[name='\$limit']/arguments[3]/value='typed']">
+            <admst:text format="probeVars[%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[4]));\n"/>
+            <admst:text format="d_probeVars[%(xyceProbeConstantName(probe)/[name='probeConstant']/value)][%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[4]));\n"/>
+          </admst:if>
+        </admst:when>
+        <admst:otherwise>
+          <admst:text format="probeVars[%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[5]));\n"/>
+          <admst:text format="d_probeVars[%(xyceProbeConstantName(probe)/[name='probeConstant']/value)][%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[5]));\n"/>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:if>
+  </admst:for-each>
+
+  <admst:text format="\n// Copy probes into limiting vars\n"/>
+  <admst:for-each select="@limiters">
+  %(printTerm(lhs))_orig = %(printTerm(lhs))_limited = probeVars[%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];
+  probeDiffs[%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)] = 0.0;
+  </admst:for-each>
+
+  origFlag = true;
+
+  if (getSolverState().newtonIter == 0)
+  {
+
+    if (!(getSolverState().dcopFlag)||(getSolverState().locaEnabledFlag &amp;&amp; getSolverState().dcopFlag))
+    {
+     <admst:for-each select="@limiters">
+       %(printTerm(lhs))_old = ((*extData.currStoVectorPtr))[%(xyceLimitedProbeStoreLIDVariable(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];
+     </admst:for-each>
+    }
+    else
+    {
+     <admst:for-each select="@limiters">
+       %(printTerm(lhs))_old = %(printTerm(lhs))_limited;
+     </admst:for-each>
+    }
+  }
+  else
+  {
+  <admst:for-each select="@limiters">
+     %(printTerm(lhs))_old = ((*extData.nextStoVectorPtr))[%(xyceLimitedProbeStoreLIDVariable(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];
+  </admst:for-each>
+  <admst:text format="\n}\n"/>
+  </admst:if>
+
+  <admst:if test="[exists(analog/code/item[adms/datatypename='block' and name='initial_step'])]">
+    <admst:text format="if (getSolverState().dcopFlag)\n"/>
+    <admst:text format="{\n"/>
+            <admst:apply-templates select="analog/code/item[adms/datatypename='block' and name='initial_step']" match="block"/>
+    <admst:text format="}\n"/>
+  </admst:if>
+
+  <admst:text format="// -- code converted from analog/code block\n"/>
+  <!-- this belongs in a template -->
+  <admst:for-each select="analog/code/item">
+    <admst:choose>
+      <admst:when test="adms[datatypename!='block']">
+        <admst:apply-templates select="." match="%(adms/datatypename)"/>
+      </admst:when>
+      <admst:otherwise>
+          <admst:if test="[name!='initial_model' and name !='initial_instance' and name != 'initial_step' ]">
+            <admst:apply-templates select="." match="block"/>
+        </admst:if>
+      </admst:otherwise>
+    </admst:choose>
+  </admst:for-each>
+
+  <!-- Ok... finish up the hackage for branch equations, because those
+     still need one more term added -->
+  <admst:apply-templates select="." match="finishUpBranchEquations"/>
+
+  // -- endcode converted from analog/code block
+  if (DEBUG_DEVICE &amp;&amp; isActive(Diag::DEVICE_PARAMETERS) &amp;&amp; getSolverState().debugTimeFlag)
+  {
+  <admst:for-each select="probe">
+    <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+    Xyce::dout() &lt;&lt; &quot; probeVars[%($probeConstantName)] =  &quot;
+         &lt;&lt;probeVars[%($probeConstantName)] &lt;&lt; std::endl;
+  </admst:for-each>
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    Xyce::dout() &lt;&lt; &quot; staticContributions[%($nodeConstantName)] =  &quot;
+         &lt;&lt;staticContributions[%($nodeConstantName)] &lt;&lt; std::endl;
+    <admst:for-each select="$theModule/probe">
+      <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+      Xyce::dout() &lt;&lt; &quot;    staticContributions[%($nodeConstantName)].dx(%($probeConstantName)) =  &quot; &lt;&lt;d_staticContributions[%($nodeConstantName)][%($probeConstantName)] &lt;&lt; std::endl;
+    </admst:for-each>
+    Xyce::dout() &lt;&lt; &quot; dynamicContributions[%($nodeConstantName)] =  &quot;
+         &lt;&lt;dynamicContributions[%($nodeConstantName)] &lt;&lt; std::endl;
+    <admst:for-each select="$theModule/probe">
+      <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+      Xyce::dout() &lt;&lt; &quot;    dynamicContributions[%($nodeConstantName)].dx(%($probeConstantName)) =  &quot; &lt;&lt;d_dynamicContributions[%($nodeConstantName)][%($probeConstantName)] &lt;&lt; std::endl;
+    </admst:for-each>
+    <admst:if test="[$theModule/count(@limitedProbes)>0]">
+    Xyce::dout() &lt;&lt; &quot; Jdxp_static[%($nodeConstantName)] =  &quot;
+         &lt;&lt;Jdxp_static[%($nodeConstantName)] &lt;&lt; std::endl;
+    Xyce::dout() &lt;&lt; &quot; Jdxp_dynamic[%($nodeConstantName)] =  &quot;
+         &lt;&lt;Jdxp_dynamic[%($nodeConstantName)] &lt;&lt; std::endl;
+    </admst:if>
+
+  </admst:for-each>
+
+  <!-- Now debugging output for the branch currents -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:variable name="branchConstantName" select="%(xyceBranchConstantName(.)/[name='branchConstant']/value)"/>
+    Xyce::dout() &lt;&lt; &quot; staticContributions[%($branchConstantName)] =  &quot;
+         &lt;&lt;staticContributions[%($branchConstantName)] &lt;&lt; std::endl;
+    <admst:for-each select="$theModule/probe">
+      <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+      Xyce::dout() &lt;&lt; &quot;    staticContributions[%($branchConstantName)].dx(%($probeConstantName)) =  &quot; &lt;&lt;d_staticContributions[%($branchConstantName)][%($probeConstantName)] &lt;&lt; std::endl;
+    </admst:for-each>
+    Xyce::dout() &lt;&lt; &quot; dynamicContributions[%($branchConstantName)] =  &quot;
+         &lt;&lt;dynamicContributions[%($branchConstantName)] &lt;&lt; std::endl;
+    <admst:for-each select="$theModule/probe">
+      <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+      Xyce::dout() &lt;&lt; &quot;    dynamicContributions[%($branchConstantName)].dx(%($probeConstantName)) =  &quot; &lt;&lt;d_dynamicContributions[%($branchConstantName)][%($probeConstantName)] &lt;&lt; std::endl;
+    </admst:for-each>
+  </admst:for-each>
+
+    if (!origFlag)
+      Xyce::dout() &lt;&lt; "This step was limited by this device." &lt;&lt; std::endl;
+  }
+
+
+  if (loadLeadCurrent)
+  {
+    // If needed, we must now copy all the data from staticContributions
+    // and dynamicContributionsinto the lead current F vector
+    // Must make sure all collapsed node contributions get summed into the
+    // external nodes properly.
+    for ( int unmappedNode=0; unmappedNode &lt; %(count($theModule/node[grounded='no' and location='external'])) ; unmappedNode++)
+    {
+      leadCurrentF[unmappedNode] = 0.0;
+      leadCurrentQ[unmappedNode] = 0.0;
+    }
+    for ( int unmappedNode=0; unmappedNode &lt; %(count($theModule/node[grounded='no'])); unmappedNode++)
+    {
+      if (nodeMap[unmappedNode] &lt; %(count($theModule/node[grounded='no' and location='external'])) &amp;&amp; nodeMap[unmappedNode] != -1 )
+      {
+        leadCurrentF[nodeMap[unmappedNode]] += staticContributions[unmappedNode];
+        leadCurrentQ[nodeMap[unmappedNode]] += dynamicContributions[unmappedNode];
+      }
+    }
+  }
+  return true;
+}
+
+<admst:if test="[count(contribution[whitenoise='yes' or flickernoise='yes'])>0]">
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::getNumNoiseSources
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+int Instance::getNumNoiseSources () const
+{
+return %(count(contribution[whitenoise='yes']) + count(contribution[flickernoise='yes']));
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::setupNoiseSources
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::setupNoiseSources (Xyce::Analysis::NoiseData &amp; noiseData)
+{
+int numSources=getNumNoiseSources();
+noiseData.numSources = numSources;
+noiseData.resize(numSources);
+
+noiseData.deviceName = getName().getEncodedName();
+std::string theNoiseName;
+
+<admst:for-each select="contribution[whitenoise='yes' or flickernoise='yes']">
+  <admst:variable name="theNoiseContributionName" select="%(xyceNoiseContributionName(.))"/>
+  <admst:text format="theNoiseName = std::string(&quot;noise_&quot;)+getName().getEncodedName()+std::string(&quot;_%($theNoiseContributionName/[name='noiseName']/value)&quot;)"/>
+  <admst:if test="[not(nilled($theNoiseContributionName/[name='givenName']))]">
+    <admst:text format="+std::string(&quot;_&quot;)+std::string(%($theNoiseContributionName/[name='givenName']/value))"/>
+  </admst:if>
+  <admst:text format=";\n"/>
+  <admst:text format="std::replace(theNoiseName.begin(), theNoiseName.end(), ' ', '_');\n"/>
+  <admst:text format="noiseData.noiseNames[%(#noiseContIndex)]=theNoiseName;\n"/>
+  <admst:choose>
+    <admst:when test="[lhs/branch/pnode/grounded='yes']">
+      <admst:text format="noiseData.li_Pos[%(#noiseContIndex)]=-1;\n"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="noiseData.li_Pos[%(#noiseContIndex)]=%(xyceNodeLIDVariable(lhs/branch/pnode));\n"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:choose>
+    <admst:when test="[lhs/branch/nnode/grounded='yes']">
+      <admst:text format="noiseData.li_Neg[%(#noiseContIndex)]=-1;\n"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="noiseData.li_Neg[%(#noiseContIndex)]=%(xyceNodeLIDVariable(lhs/branch/nnode));\n"/>
+    </admst:otherwise>
+  </admst:choose>
+</admst:for-each>
+
+}
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::getNoiseSources
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+void Instance::getNoiseSources (Xyce::Analysis::NoiseData &amp; noiseData)
+{
+  <admst:for-each select="contribution[whitenoise='yes' or flickernoise='yes']">
+
+    <admst:text format="noiseData.noiseDens[%(#noiseContIndex)] = noiseContribsPower[%(#noiseContIndex)];\n"/>
+
+    <admst:if test="[flickernoise='yes']">
+      noiseData.noiseDens[%(#noiseContIndex)] /= pow(noiseData.freq,noiseContribsExponent[%(#noiseContIndex)]);
+    </admst:if>
+
+    <admst:text format="noiseData.lnNoiseDens[%(#noiseContIndex)] = std::log(std::max(noiseData.noiseDens[%(#noiseContIndex)],N_MINLOG));\n"/>
+
+  </admst:for-each>
+}
+</admst:if>
+
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::loadDAEdFdx
+// Purpose       :
+// Special Notes : Load the dFdx ("static jacobian") matrix
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::loadDAEdFdx()
+{
+  bool bsuccess = true;
+  Linear::Matrix &amp; dFdx = *(extData.dFdxMatrixPtr);
+
+#ifndef Xyce_NONPOINTER_MATRIX_LOAD
+
+  <admst:for-each select="$theModule/jacobian">
+    <admst:if test="[static='yes']">
+      <!-- determine which drops this thing depends on, and use the chain rule
+           to get the derivative with respect to the desired node -->
+      <!-- We do this by stuffing the list of probes into an array in the
+           /module path.  I'd rather do it by stuffing the array into the
+           jacobian entry itself, but this segfaults ADMS -->
+      <admst:variable name="jacrow" select="%(row/name)"/>
+      <admst:variable name="jaccol" select="%(column/name)"/>
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName(row)/[name='nodeConstant']/value)"/>
+      <!-- find all the static contributions into flows that impact this
+           jacobian row, and collect up all the probes for that
+           contribution that involve this column -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="/module/contribution[lhs/nature=lhs/discipline/flow and (lhs/branch/pnode/name='$jacrow' or lhs/branch/nnode/name='$jacrow') ]">
+        <admst:if test="[rhs/static = 'yes']">
+          <admst:for-each select="rhs/probe[branch/pnode/name = '$jaccol' or branch/nnode/name='$jaccol']">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:for-each>
+        </admst:if>
+      </admst:for-each>
+      <!-- now /module/@tempProbes has all the probes that impact this row. -->
+
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(row/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(column/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  (*%(xycedFdXPtrName(.))) += "/>
+
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$jaccol]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$jaccol]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_staticContributions[$rowConstant][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:text format=";\n"/>
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+
+    </admst:if>
+  </admst:for-each>
+
+<!-- Now handle the extra columns of the jacobian for nodes that depend
+     on branch variables -->
+  <admst:for-each select="$theModule/node[not(nilled(@branchDeps))]">
+    <admst:variable name="theNode" select="%(.)"/>
+    <admst:for-each select="@branchDeps">
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName($theNode)/[name='nodeConstant']/value)"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%($theNode/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  (*f_%($theNode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Ptr) += "/>
+      <admst:text format="d_staticContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+
+    </admst:for-each>
+  </admst:for-each>
+
+<!-- finally, handle the branch equation rows themselves. -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:text format="    // there also need to be extra loads for branch %(.)\n"/>
+    <admst:variable name="theBranch" select="%(.)"/>
+    <admst:for-each select="@nodeDeps">
+      <admst:variable name="theVar" select="%(.)"/>
+      <admst:text format="    // Load for branch %($theBranch) equ var %($theVar)\n"/>
+      <!-- Find all contributions into POTENTIALS involving this branch, and
+          collect up all voltage probes on the RHS that involve this variable.
+          -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="$theModule/contribution[lhs/nature=lhs/discipline/potential and (lhs/branch/pnode/name=$theBranch/pnode/name and lhs/branch/nnode/name=$theBranch/nnode/name) and rhs/static='yes']">
+        <admst:for-each select="rhs/probe[branch/pnode/name=$theVar/name or branch/nnode/name=$theVar/name]">
+          <admst:if test="[nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:for-each>
+
+      <!-- We now know what probes this branch depends on.  Make noise -->
+      <admst:for-each select="/module/@tempProbes">
+        <admst:text format="     // depends on probe %(.)\n"/>
+      </admst:for-each>
+
+      <!-- Now emit the code -->
+      <admst:if test="[count(/module/@tempProbes)>0 or $theVar/name=$theBranch/pnode/name or ($theVar/name=$theBranch/nnode/name and $theVar/grounded='no')]">
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="if (!collapseNode_%(name))\n"/>
+          <admst:text format="{\n"/>
+        </admst:if>
+        <admst:text format="  (*f_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_%(name)_Node_Ptr) += "/>
+      </admst:if>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$theVar/name]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$theVar/name]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_staticContributions[%($rowConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <!-- if this var is the positive node of our branch, then we add -1
+           and if negative, add +1.  This is because the branch equation is:
+           (sum of contributions into V(b)) - v(b) = 0
+           or
+           (sum of contributions into V(b)) - (V(pnode) - V(nnode)) = 0
+           or
+           (sum of contributions into V(b)) - V(pnode) + V(nnode) = 0
+      -->
+      <admst:if test="[$theBranch/pnode/name=$theVar/name]">
+        <admst:text format=" -1"/>
+      </admst:if>
+      <admst:if test="[$theBranch/nnode/name=$theVar/name]">
+        <admst:text format=" +1"/>
+      </admst:if>
+      <admst:if test="[count(/module/@tempProbes)>0 or name=$theBranch/pnode/name or (name=$theBranch/nnode/name and grounded='no')]">
+        <admst:text format=";\n"/>
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="}\n"/>
+        </admst:if>
+      </admst:if>
+
+    </admst:for-each>
+
+
+    <!-- Now handle branch dependence on branches -->
+    <admst:for-each select="@branchDeps">
+      <admst:text format="    //load for branch %($theBranch) equ branch %(.) var\n"/>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:text format="  (*f_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Ptr) += d_staticContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+
+    </admst:for-each>
+  </admst:for-each>
+#else
+  //use the offsets instead of pointers
+
+  <admst:for-each select="$theModule/jacobian">
+    <admst:if test="[static='yes']">
+      <!-- determine which drops this thing depends on, and use the chain rule
+           to get the derivative with respect to the desired node -->
+      <!-- We do this by stuffing the list of probes into an array in the
+           /module path.  I'd rather do it by stuffing the array into the
+           jacobian entry itself, but this segfaults ADMS -->
+      <admst:variable name="jacrow" select="%(row/name)"/>
+      <admst:variable name="jaccol" select="%(column/name)"/>
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName(row)/[name='nodeConstant']/value)"/>
+      <!-- find all the static contributions into flows that impact this
+           jacobian row, and collect up all the probes for that
+           contribution that involve this column -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="/module/contribution[lhs/nature=lhs/discipline/flow and (lhs/branch/pnode/name='$jacrow' or lhs/branch/nnode/name='$jacrow') ]">
+        <admst:if test="[rhs/static = 'yes']">
+          <admst:for-each select="rhs/probe[branch/pnode/name = '$jaccol' or branch/nnode/name='$jaccol']">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:for-each>
+        </admst:if>
+      </admst:for-each>
+      <!-- now /module/@tempProbes has all the probes that impact this row. -->
+
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(row/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(column/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  dFdx[%(xyceNodeLIDVariable(row))][%(xyceJacobianOffsetName(.))] += "/>
+
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$jaccol]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$jaccol]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_staticContributions[$rowConstant][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:text format=";\n"/>
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+
+    </admst:if>
+  </admst:for-each>
+
+<!-- Now handle the extra columns of the jacobian for nodes that depend
+     on branch variables -->
+  <admst:for-each select="$theModule/node[not(nilled(@branchDeps))]">
+    <admst:variable name="theNode" select="%(.)"/>
+    <admst:for-each select="@branchDeps">
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName($theNode)/[name='nodeConstant']/value)"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%($theNode/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  dFdx[%(xyceNodeLIDVariable($theNode))][A_%($theNode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Offset] += "/>
+      <admst:text format="d_staticContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+
+    </admst:for-each>
+  </admst:for-each>
+
+<!-- finally, handle the branch equation rows themselves. -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:text format="    // there also need to be extra loads for branch %(.)\n"/>
+    <admst:variable name="theBranch" select="%(.)"/>
+    <admst:for-each select="@nodeDeps">
+      <admst:variable name="theVar" select="%(.)"/>
+      <admst:text format="    // Load for branch %($theBranch) equ var %($theVar)\n"/>
+      <!-- Find all contributions into POTENTIALS involving this branch, and
+          collect up all voltage probes on the RHS that involve this variable.
+          -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="$theModule/contribution[lhs/nature=lhs/discipline/potential and (lhs/branch/pnode/name=$theBranch/pnode/name and lhs/branch/nnode/name=$theBranch/nnode/name) and rhs/static='yes']">
+        <admst:for-each select="rhs/probe[branch/pnode/name=$theVar/name or branch/nnode/name=$theVar/name]">
+          <admst:if test="[nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:for-each>
+
+      <!-- We now know what probes this branch depends on.  Make noise -->
+      <admst:for-each select="/module/@tempProbes">
+        <admst:text format="     // depends on probe %(.)\n"/>
+      </admst:for-each>
+
+      <!-- Now emit the code -->
+      <admst:if test="[count(/module/@tempProbes)>0 or $theVar/name=$theBranch/pnode/name or ($theVar/name=$theBranch/nnode/name and $theVar/grounded='no')]">
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="if (!collapseNode_%(name))\n"/>
+          <admst:text format="{\n"/>
+        </admst:if>
+        <admst:text format="  dFdx[%(xyceBranchLIDVariable($theBranch))][A_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_%(name)_Node_Offset] += "/>
+      </admst:if>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$theVar/name]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$theVar/name]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_staticContributions[%($rowConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <!-- if this var is the positive node of our branch, then we add -1
+           and if negative, add +1.  This is because the branch equation is:
+           (sum of contributions into V(b)) - v(b) = 0
+           or
+           (sum of contributions into V(b)) - (V(pnode) - V(nnode)) = 0
+           or
+           (sum of contributions into V(b)) - V(pnode) + V(nnode) = 0
+      -->
+      <admst:if test="[$theBranch/pnode/name=$theVar/name]">
+        <admst:text format=" -1"/>
+      </admst:if>
+      <admst:if test="[$theBranch/nnode/name=$theVar/name]">
+        <admst:text format=" +1"/>
+      </admst:if>
+      <admst:if test="[count(/module/@tempProbes)>0 or name=$theBranch/pnode/name or (name=$theBranch/nnode/name and grounded='no')]">
+        <admst:text format=";\n"/>
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="}\n"/>
+        </admst:if>
+      </admst:if>
+
+    </admst:for-each>
+
+
+    <!-- Now handle branch dependence on branches -->
+    <admst:for-each select="@branchDeps">
+      <admst:text format="    //load for branch %($theBranch) equ branch %(.) var\n"/>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:text format="  dFdx[%(xyceBranchLIDVariable($theBranch))][A_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Offset] += d_staticContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+
+    </admst:for-each>
+  </admst:for-each>
+#endif
+
+  return bsuccess;
+}
+
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::loadDAEdQdx
+// Purpose       :
+// Special Notes : Load the dQdx ("dynamic jacobian") matrix
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::loadDAEdQdx()
+{
+  bool bsuccess = true;
+  Linear::Matrix &amp; dQdx = *(extData.dQdxMatrixPtr);
+
+#ifndef Xyce_NONPOINTER_MATRIX_LOAD
+
+  <admst:for-each select="$theModule/jacobian">
+    <admst:if test="[dynamic='yes']">
+      <!-- determine which drops this thing depends on, and use the chain rule
+           to get the derivative with respect to the desired node -->
+      <!-- We do this by stuffing the list of probes into an array in the
+           /module path.  I'd rather do it by stuffing the array into the
+           jacobian entry itself, but this segfaults ADMS -->
+      <admst:variable name="jacrow" select="%(row/name)"/>
+      <admst:variable name="jaccol" select="%(column/name)"/>
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName(row)/[name='nodeConstant']/value)"/>
+      <!-- find all the dynamic contributions into flows that impact this
+           jacobian row, and collect up all the probes for that
+           contribution that involve this column -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="/module/contribution[lhs/nature=lhs/discipline/flow and (lhs/branch/pnode/name='$jacrow' or lhs/branch/nnode/name='$jacrow') ]">
+        <admst:if test="[rhs/dynamic = 'yes']">
+          <admst:for-each select="rhs/probe[branch/pnode/name = '$jaccol' or branch/nnode/name='$jaccol'and nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:for-each>
+        </admst:if>
+      </admst:for-each>
+      <!-- now /module/@tempProbes has all the probes that impact this row. -->
+
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(row/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(column/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  (*%(xycedQdXPtrName(.))) += "/>
+
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$jaccol]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$jaccol]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_dynamicContributions[$rowConstant][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:text format=";\n"/>
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+    </admst:if>
+  </admst:for-each>
+
+<!-- Now handle the extra columns of the jacobian for nodes that depend
+     on branch variables -->
+  <admst:for-each select="$theModule/node[not(nilled(@branchDeps))]">
+    <admst:variable name="theNode" select="%(.)"/>
+    <admst:for-each select="@branchDeps">
+    <admst:variable name="rowConstant" select="%(xyceNodeConstantName($theNode)/[name='nodeConstant']/value)"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%($theNode/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+    <admst:text format="  (*q_%($theNode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Ptr) += "/>
+    <admst:text format="d_dynamicContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+    </admst:for-each>
+  </admst:for-each>
+
+<!-- finally, handle the branch equation rows themselves. -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:text format="    // there also need to be extra loads for branch %(.)\n"/>
+    <admst:variable name="theBranch" select="%(.)"/>
+    <admst:for-each select="@nodeDeps">
+      <admst:variable name="theVar" select="%(.)"/>
+      <admst:text format="    // Load for branch %($theBranch) equ var %($theVar)\n"/>
+      <!-- Find all contributions into POTENTIALS involving this branch, and
+          collect up all voltage probes on the RHS that involve this variable.
+          -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="$theModule/contribution[lhs/nature=lhs/discipline/potential and (lhs/branch/pnode/name=$theBranch/pnode/name and lhs/branch/nnode/name=$theBranch/nnode/name) and rhs/dynamic='yes']">
+        <admst:for-each select="rhs/probe[branch/pnode/name=$theVar/name or branch/nnode/name=$theVar/name]">
+          <admst:if test="[nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:for-each>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:text format="     // depends on probe %(.)\n"/>
+      </admst:for-each>
+      <admst:if test="[count(/module/@tempProbes)>0]">
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="if (!collapseNode_%(name))\n"/>
+          <admst:text format="{\n"/>
+        </admst:if>
+        <admst:text format="  (*q_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_%(name)_Node_Ptr) += "/>
+      </admst:if>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$theVar/name]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$theVar/name]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_dynamicContributions[%($rowConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:if test="[count(/module/@tempProbes)>0]">
+        <admst:text format=";\n"/>
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="}\n"/>
+        </admst:if>
+      </admst:if>
+    </admst:for-each>
+    <admst:for-each select="@branchDeps">
+      <admst:text format="    //load for branch %($theBranch) equ branch %(.) var\n"/>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:text format="  (*q_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Ptr) += d_dynamicContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+    </admst:for-each>
+  </admst:for-each>
+#else
+  //use the offsets instead of pointers
+
+  <admst:for-each select="$theModule/jacobian">
+    <admst:if test="[dynamic='yes']">
+      <!-- determine which drops this thing depends on, and use the chain rule
+           to get the derivative with respect to the desired node -->
+      <!-- We do this by stuffing the list of probes into an array in the
+           /module path.  I'd rather do it by stuffing the array into the
+           jacobian entry itself, but this segfaults ADMS -->
+      <admst:variable name="jacrow" select="%(row/name)"/>
+      <admst:variable name="jaccol" select="%(column/name)"/>
+      <admst:variable name="rowConstant" select="%(xyceNodeConstantName(row)/[name='nodeConstant']/value)"/>
+      <!-- find all the dynamic contributions into flows that impact this
+           jacobian row, and collect up all the probes for that
+           contribution that involve this column -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="/module/contribution[lhs/nature=lhs/discipline/flow and (lhs/branch/pnode/name='$jacrow' or lhs/branch/nnode/name='$jacrow') ]">
+        <admst:if test="[rhs/dynamic = 'yes']">
+          <admst:for-each select="rhs/probe[branch/pnode/name = '$jaccol' or branch/nnode/name='$jaccol'and nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:for-each>
+        </admst:if>
+      </admst:for-each>
+      <!-- now /module/@tempProbes has all the probes that impact this row. -->
+
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(row/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%(column/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+      <admst:text format="  dQdx[%(xyceNodeLIDVariable(row))][%(xyceJacobianOffsetName(.))] += "/>
+
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$jaccol]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$jaccol]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_dynamicContributions[$rowConstant][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:text format=";\n"/>
+      <admst:if test="[exists(row/#collapsible) and (row/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+      <admst:if test="[not(column=row) and exists(column/#collapsible) and (column/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+
+    </admst:if>
+  </admst:for-each>
+
+<!-- Now handle the extra columns of the jacobian for nodes that depend
+     on branch variables -->
+  <admst:for-each select="$theModule/node[not(nilled(@branchDeps))]">
+    <admst:variable name="theNode" select="%(.)"/>
+    <admst:for-each select="@branchDeps">
+    <admst:variable name="rowConstant" select="%(xyceNodeConstantName($theNode)/[name='nodeConstant']/value)"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="if (!collapseNode_%($theNode/name))\n"/>
+        <admst:text format="{\n"/>
+      </admst:if>
+    <admst:text format="  dQdx[%(xyceNodeLIDVariable($theNode))][A_%($theNode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Offset] += "/>
+    <admst:text format="d_dynamicContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+      <admst:if test="[exists($theNode/#collapsible) and ($theNode/@collapsesTo/name='GND')]">
+        <admst:text format="}\n"/>
+      </admst:if>
+    </admst:for-each>
+  </admst:for-each>
+
+<!-- finally, handle the branch equation rows themselves. -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    <admst:text format="    // there also need to be extra loads for branch %(.)\n"/>
+    <admst:variable name="theBranch" select="%(.)"/>
+    <admst:for-each select="@nodeDeps">
+      <admst:variable name="theVar" select="%(.)"/>
+      <admst:text format="    // Load for branch %($theBranch) equ var %($theVar)\n"/>
+      <!-- Find all contributions into POTENTIALS involving this branch, and
+          collect up all voltage probes on the RHS that involve this variable.
+          -->
+      <admst:reset select="/module/@tempProbes"/>
+      <admst:for-each select="$theModule/contribution[lhs/nature=lhs/discipline/potential and (lhs/branch/pnode/name=$theBranch/pnode/name and lhs/branch/nnode/name=$theBranch/nnode/name) and rhs/dynamic='yes']">
+        <admst:for-each select="rhs/probe[branch/pnode/name=$theVar/name or branch/nnode/name=$theVar/name]">
+          <admst:if test="[nature=discipline/potential]">
+            <admst:push into="/module/@tempProbes" select="." onduplicate="ignore"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:for-each>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:text format="     // depends on probe %(.)\n"/>
+      </admst:for-each>
+      <admst:if test="[count(/module/@tempProbes)>0]">
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="if (!collapseNode_%(name))\n"/>
+          <admst:text format="{\n"/>
+        </admst:if>
+        <admst:text format="  dQdx[%(xyceBranchLIDVariable($theBranch))][A_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_%(name)_Node_Offset] += "/>
+      </admst:if>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:for-each select="/module/@tempProbes">
+        <admst:choose>
+          <admst:when test="[branch/pnode/name=$theVar/name]">
+            <admst:text format=" +"/>
+          </admst:when>
+          <admst:when test="[branch/nnode/name=$theVar/name]">
+            <admst:text format=" -"/>
+          </admst:when>
+        </admst:choose>
+        <admst:text format="d_dynamicContributions[%($rowConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:for-each>
+      <admst:if test="[count(/module/@tempProbes)>0]">
+        <admst:text format=";\n"/>
+        <admst:if test="[exists(#collapsible) and (@collapsesTo/name='GND')]">
+          <admst:text format="}\n"/>
+        </admst:if>
+      </admst:if>
+    </admst:for-each>
+    <admst:for-each select="@branchDeps">
+      <admst:text format="    //load for branch %($theBranch) equ branch %(.) var\n"/>
+      <admst:variable name="rowConstant" select="%(xyceBranchConstantName($theBranch)/[name='branchConstant']/value)"/>
+      <admst:text format="  dQdx[%(xyceBranchLIDVariable($theBranch))][A_BRA_%($theBranch/pnode/name)_%($theBranch/nnode/name)_Equ_BRA_%(pnode)_%(nnode)_Var_Offset] += d_dynamicContributions[$rowConstant][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+    </admst:for-each>
+  </admst:for-each>
+
+#endif
+  return bsuccess;
+}
+
+
+<admst:if test="[count($theModule/callfunction[function/name='\$bound_step'])>0]">
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::getMaxTimeStepSize
+// Purpose       : restrict time integrator max time step
+// Special Notes : 
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+double Instance::getMaxTimeStepSize()
+{
+return maxTimeStep_;
+}
+
+</admst:if>
+
+
+<admst:text format="\n\n\n//-----------------------------------------------------------------------------"/>
+// Function      : Instance::updateTemperature
+// Purpose       : Set temperature and update any parameters that depend on it
+// Special Notes : In Xyce ADMS, we'll simply copy the temperature, which is
+//                 in Kelvin, to our "admsTemperature" variable, which needs
+//                 to be in Celsius.
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Instance::updateTemperature(const double &amp; temperatureTemp)
+{
+
+  admsTemperature = temperatureTemp;
+  adms_vt_nom = adms_vt(temperatureTemp);
+
+  return true;
+}
+
+  <!-- this GLOBAL VARIABLE (ugh) used in templates to figure out how to access
+     certain class members (e.g. how to get at model variables from an instance
+     -->
+  <admst:variable name="globalCurrentScope" select="model"/>
+// Class Model
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Model::processParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+bool Model::processParams()
+{
+
+  // Set any non-constant parameter defaults:
+  // Set any parameters that were not given and whose defaults depend on other
+  // parameters:
+
+  <admst:for-each select="variable[(parametertype='model'  or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes']">
+    <admst:if test="[exists(default) and exists(#dependent)]">
+      <admst:text format="  if (!given(&quot;%(name)&quot;))\n  {\n"/>
+      <admst:text format="  %(name) = %(printTerm(default));\n  }\n"/>
+    </admst:if>
+    <admst:if test="[exists(../attribute[name='xyceModelGroup']) and (../attribute[name='xyceModelGroup']/value='MOSFET' or ../attribute[name='xyceModelGroup']/value='BJT' or ../attribute[name='xyceModelGroup']/value='JFET') and (exists(../attribute[name='xyceTypeVariable']) and ../attribute[name='xyceTypeVariable']/value=name)]">
+      <admst:apply-templates match="xyceSetTypeVariable" select=".."/>
+
+    </admst:if>
+
+  </admst:for-each>
+
+
+  // Now we need to check that any parameters are within their ranges as
+  // specified in the verilog:
+
+  <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel'])))and input='yes' and not(nilled(range))]">
+//    Parameter %(name) : %(formatted_range(.))
+
+    <admst:apply-templates select="." match="check_range"/>
+  </admst:for-each>
+  // and of course, this routine is where we should put the initial_model
+  // stuff
+
+  <admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_model']">
+    <!-- first declare any variables local to the initial_model block -->
+    <admst:for-each select="@assignedVars/[scope='local']">
+      <admst:text format="  "/>
+      <admst:apply-templates select="." match="xyceDeclareVariable"/>
+    </admst:for-each>
+    <!-- then emit the code -->
+    <admst:apply-templates select="." match="block"/>
+  </admst:for-each>
+
+  return true;
+}
+//----------------------------------------------------------------------------
+// Function      : Model::processInstanceParams
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       :
+// Creation Date :
+//----------------------------------------------------------------------------
+bool Model::processInstanceParams()
+{
+
+  std::vector&lt;Instance*&gt;::iterator iter;
+  std::vector&lt;Instance*&gt;::iterator first = instanceContainer.begin();
+  std::vector&lt;Instance*&gt;::iterator last  = instanceContainer.end();
+
+  for (iter=first; iter!=last; ++iter)
+  {
+    (*iter)-&gt;processParams();
+  }
+
+  return true;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Model::Model
+// Purpose       : model block constructor
+// Special Notes :
+// Scope         : public
+// Creator       :
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+Model::Model(
+  const Configuration &amp; configuration,
+  const ModelBlock &amp;    model_block,
+  const FactoryBlock &amp;  factory_block)
+  : DeviceModel(model_block, configuration.getModelParameters(), factory_block)
+<admst:apply-templates select="." match="xyceModelInitializers"/>
+{
+  // Set params to constant default values (from parTable):
+  setDefaultParams();
+
+  // Set params according to .model line and constant defaults from metadata:
+  setModParams(model_block.params);
+
+  if (!given("XYCEADMSMODTEMP"))
+    admsModTemp=getDeviceOptions().temp.getImmutableValue&lt;double&gt;();
+
+  // Calculate any parameters specified as expressions:
+
+  updateDependentParameters();
+
+  // calculate dependent (ie computed) params and check for errors:
+  processParams();
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Model::~Model
+// Purpose       : destructor
+// Special Notes :
+// Scope         : public
+// Creator       :
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+Model::~Model()
+{
+  std::vector&lt;Instance*&gt;::iterator iterI;
+  std::vector&lt;Instance*&gt;::iterator firstI = instanceContainer.begin ();
+  std::vector&lt;Instance*&gt;::iterator lastI  = instanceContainer.end ();
+
+  // loop over instances:
+  for (iterI = firstI; iterI != lastI; ++iterI)
+  {
+    delete (*iterI);
+  }
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Model::printOutInstances
+// Purpose       : debugging tool.
+// Special Notes :
+// Scope         : public
+// Creator       :
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+std::ostream &amp;Model::printOutInstances(std::ostream &amp;os) const
+{
+  std::vector&lt;Instance*&gt;::const_iterator iter;
+  std::vector&lt;Instance*&gt;::const_iterator first = instanceContainer.begin();
+  std::vector&lt;Instance*&gt;::const_iterator last  = instanceContainer.end();
+
+  int i;
+  os &lt;&lt; std::endl;
+  os &lt;&lt; "    name     model name  Parameters" &lt;&lt; std::endl;
+  for (i=0, iter=first; iter!=last; ++iter, ++i)
+  {
+    os &lt;&lt; "  " &lt;&lt; i &lt;&lt; ": " &lt;&lt; (*iter)-&gt;getName() &lt;&lt; "      ";
+    os &lt;&lt; getName();
+
+    os &lt;&lt; std::endl;
+    <admst:for-each select="variable[parametertype='instance' and input='yes']">
+      os &lt;&lt; &quot;%(upper-case(name))  =  &quot; &lt;&lt; (*iter)-&gt;%(name) &lt;&lt; std::endl;
+    </admst:for-each>
+    os &lt;&lt; std::endl;
+  }
+
+  os &lt;&lt; std::endl;
+
+  return os;
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : Model::forEachInstance
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : David Baur
+// Creation Date : 2/4/2014
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+/// Apply a device instance "op" to all instances associated with this
+/// model
+///
+/// @param[in] op Operator to apply to all instances.
+///
+///
+void Model::forEachInstance(DeviceInstanceOp &amp;op) const
+{
+  for (std::vector&lt;Instance *&gt;::const_iterator it = instanceContainer.begin(); it != instanceContainer.end(); ++it)
+    op(*it);
+}
+
+
+<admst:apply-templates select="$theModule" match="xyceDeviceFactoryandRegisterDevice"/>
+
+<admst:variable name="globalCurrentScope" select="sensitivity"/>
+<admst:variable name="globalSensitivityScope" select="instance"/>
+#ifdef Xyce_ADMS_SENSITIVITIES
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : evaluateInitialInstance
+// Purpose       : Evaluate the statements in the initial_instance block
+// Special Notes : specific for sensitivity use
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
+
+<admst:text format="void evaluateInitialInstance(\n"/>
+<admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:join select="node[grounded='no']" separator=",\n">
+    <admst:text format="const int "/>
+    <admst:text format="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n const std::vector&lt;bool&gt; &amp; portsConnected_,\n"/>
+</admst:if>
+<admst:text format=" double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
+<admst:text format="{\n"/>
+<admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_instance']">
+  <!-- first declare any variables local to the initial_instance block -->
+  <admst:for-each select="@assignedVars/[scope='local']">
+    <admst:text format="  "/>
+    <admst:apply-templates select="." match="collectParamDependence"/>
+    <admst:apply-templates select="." match="xyceDeclareVariable"/>
+  </admst:for-each>
+  <!-- then emit the code -->
+  <admst:apply-templates select="." match="block"/>
+</admst:for-each>
+<admst:text format="}\n\n"/>
+
+<admst:variable name="globalSensitivityScope" select="model"/>
+
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
+// Function      : evaluateInitialModel
+// Purpose       : Evaluate the statements in the initial_model block
+// Special Notes : specific for sensitivity use
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
+
+<admst:text format="void evaluateInitialModel(\n"/>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
+<admst:text format=" double admsTemperature, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
+<admst:text format="{\n"/>
+<admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_model']">
+  <!-- first declare any variables local to the initial_model block -->
+  <admst:for-each select="@assignedVars/[scope='local']">
+    <admst:text format="  "/>
+    <admst:apply-templates select="." match="collectParamDependence"/>
+    <admst:apply-templates select="." match="xyceDeclareVariable"/>
+  </admst:for-each>
+  <!-- then emit the code -->
+  <admst:apply-templates select="." match="block"/>
+</admst:for-each>
+<admst:text format="}\n\n"/>
+
+<admst:variable name="globalSensitivityScope" select="neither"/>
+
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
+// Function      : evaluateModelEquations
+// Purpose       : Evaluate the main module block.  Similar to
+//                 updateIntermediateVars, but takes all instance and model
+//                 parameters and variables as arguments instead of using
+//                 the ones stored in the objects.
+// Special Notes : specific for sensitivity use
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------\n"/>
+
+<admst:text format="void evaluateModelEquations(\n"/>
+<admst:variable name="globalDeclareVars" select="yes"/>
+<admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:text format=")\n"/>
+<admst:text format="{\n"/>
+
+  <!-- Declare all variables in analog/code that are not of global scope
+       or used only in special sub-blocks (initial_model or initial_instance).
+
+       This relies on us having called collectAssignedVariables for the
+       top level already.  We did that in the first few lines of this file.
+
+       The only things that need declaring here are the ones with local scope
+   -->
+  // Local variables
+
+  <admst:for-each select="analog/code/@assignedVars">
+    <admst:if test="[scope='local' and block/adms/datatypename='module']">
+      <admst:text format="  "/>
+      <admst:apply-templates select="." match="collectParamDependence"/>
+      <admst:apply-templates select="." match="xyceDeclareVariable"/>
+    </admst:if>
+  </admst:for-each>
+
+  // -- code converted from analog/code block
+
+  <!-- this belongs in a template -->
+  <admst:for-each select="analog/code/item">
+    <admst:choose>
+      <admst:when test="adms[datatypename!='block']">
+        <admst:apply-templates select="." match="%(adms/datatypename)"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:if test="[name!='initial_model' and name !='initial_instance' and name != 'noise']">
+          <admst:apply-templates select="." match="block"/>
+        </admst:if>
+      </admst:otherwise>
+    </admst:choose>
+  </admst:for-each>
+<admst:text format="}\n\n"/>
+
+<admst:text format="\n\n//-----------------------------------------------------------------------------"/>
+// Function      : InstanceSensitivity::operator()
+// Purpose       : return sensitivity for a single instance parameter
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+/// Compute sensitivity of a device instance&apos;s outputs to a specified instance
+/// parameter
+///
+///
+/// @param[in] entity  The device entity that owns the parameter
+/// @param[in] name    The unadorned parameter name specific to the entity
+/// @param[out] dfdp   The derivative of the F vector with respect to the parameter
+/// @param[out] dqdp   The derivative of the Q vector with respect to the parameter
+/// @param[out] dbdp   The derivative of the B vector with respect to the parameter
+/// @param[out] Findices   The indices into the F vector corresponding to the elements of dfdp
+/// @param[out] Qindices   The indices into the Q vector corresponding to the elements of dfdp
+/// @param[out] Bindices   The indices into the B vector corresponding to the elements of dfdp
+///
+///
+void InstanceSensitivity::operator()
+(
+const ParameterBase &amp;entity,
+const std::string &amp;name,
+std::vector&lt;double&gt; &amp; dfdp,
+std::vector&lt;double&gt; &amp; dqdp,
+std::vector&lt;double&gt; &amp; dbdp,
+std::vector&lt;int&gt; &amp; Findices,
+std::vector&lt;int&gt; &amp; Qindices,
+std::vector&lt;int&gt; &amp; Bindices
+) const
+{
+const ParameterBase * e1 = &entity;
+const Instance &amp; in = *(dynamic_cast&lt;const Instance *&gt; (e1));
+const Model &amp; mod =in.model_;
+
+dfdp.resize(%($numSolVars));
+dqdp.resize(%($numSolVars));
+Findices.resize(%($numSolVars));
+Qindices.resize(%($numSolVars));
+
+std::vector &lt;double&gt; probeVars(%(xyceNumberProbes($theModule)));
+std::vector &lt;double&gt; d_staticContributions_dX(%($numSolVars));
+std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
+
+
+// initialize contributions to zero (automatically sets derivatives to zero)
+for (int i=0; i &lt; %($numSolVars) ; ++i)
+{
+   d_staticContributions_dX[i]=0;
+   d_dynamicContributions_dX[i]=0;
+}
+
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
+//reals
+
+<admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']">
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+  <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+</admst:for-each>
+
+// hidden reals
+
+  <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']">
+    <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+    <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+  </admst:for-each>
+
+// non-reals (including hiddens)
+
+  <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
+    <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+    <admst:if test="[not(exists(attribute[name='hidden']))]">
+      <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+    </admst:if>
+  </admst:for-each>
+
+
+// Copy out all the instance parameters (doubles) into local struct
+// Keep a map so we can set the right one to the independent variable
+// We do this solely to avoid a big ugly &quot;if/else&quot; block just to find the
+// one parameter we&apos;re doing sensitivities on.
+unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
+instanceSensStruct instanceStruct;
+// reals
+
+<admst:for-each select="variable[parametertype='instance' and input='yes' and type='real']">
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+  <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+  <admst:text format="inParamMap[&quot;%(name)&quot;] = &amp;(instanceStruct.d_instancePar_%(name)_dX);\n"/>
+</admst:for-each>
+
+// Copy all the real hidden instance params into local struct
+
+<admst:for-each select="variable[parametertype='instance' and (input='no' and exists(attribute[name='hidden'])) and type='real']">
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+</admst:for-each>
+
+
+// Copy all the non-real instance params into vars of their appropriate type:
+
+<admst:for-each select="variable[parametertype='instance' and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+  <admst:if test="[not(exists(attribute[name='hidden']))]">
+    <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+  </admst:if>
+</admst:for-each>
+
+// Set the one parameter whose name was passed in to be the independent
+// variable for differentiation purposes.  Since we stored variable pointers, this
+// makes sure that that ONE variable gets set right.
+// FIXME: make this check the name first, otherwise segfault on invalid name!
+*(inParamMap[name])=1.0;
+
+//make local copies of all instance vars
+//reals
+
+<admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
+  <admst:if test="[exists(#Pdependent)]">
+    <!-- Initialize this, but we're gonna clobber it -->
+    <admst:text format="instanceStruct.d_instanceVar_%(name)_dX=0.0;\n"/>
+  </admst:if>
+</admst:for-each>
+
+//non-reals
+
+<admst:for-each select="variable[scope='global_instance' and input='no' and not(type='real')]">
+  <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
+</admst:for-each>
+
+//make local copies of all model vars
+//reals
+
+<admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
+  <admst:if test="[exists(#Pdependent)]">
+    <!-- Initialize this, but we're gonna clobber it -->
+    <admst:text format="modelStruct.d_modelVar_%(name)_dX=0.0;\n"/>
+  </admst:if>
+</admst:for-each>
+
+// non-reals
+
+<admst:for-each select="variable[scope='global_model' and input='no' and not(type='real')]">
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
+</admst:for-each>
+
+
+Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
+
+// extract solution variables
+
+<admst:for-each select="probe">
+  <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+  <admst:choose>
+    <admst:when test="[nature=discipline/potential]">
+      <admst:choose>
+        <admst:when test="branch/nnode[grounded='yes']">
+            <admst:choose>
+              <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+                <admst:text format="probeVars[in.%($probeConstantName)] = (in.collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))]);\n"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format="probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))];\n"/>
+              </admst:otherwise>
+            </admst:choose>
+        </admst:when>
+        <admst:otherwise>
+          <admst:text format="probeVars[in.%($probeConstantName)] = "/>
+          <admst:choose>
+            <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+              <admst:text format="(in.collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))])"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format="(*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))]"/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:choose>
+            <admst:when test="[exists(branch/nnode/#collapsible) and (branch/nnode/@collapsesTo/name='GND')]">
+              <admst:text format=" - ((in.collapseNode_%(branch/nnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/nnode))]))"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:text format="- (*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/nnode))]"/>
+            </admst:otherwise>
+          </admst:choose>
+          <admst:text format=";\n"/>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:when>
+    <admst:when test="[nature=discipline/flow]">
+      probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceBranchLIDVariable(branch))];
+    </admst:when>
+  </admst:choose>
+</admst:for-each>
+  <!-- do the assignments of probes that weren't caught by ADMS, because
+       they're implicit in the use of voltage sources -->
+  <admst:for-each select="@extraProbeBranches">
+    <admst:variable name="probeConstantName" select="%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)"/>
+    probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceBranchLIDVariable(.))];
+  </admst:for-each>
+
+
+  <admst:if test="[(count(@limitedProbes)>0) and exists(@limiters/rhs/[probe/#typed='yes'])]">
+
+    // pre-multiply any "typed" probes (i.e. those limited with "typedpnjlim")
+
+    <admst:variable name="globalMustForceScalar" select="yes"/>
+    <admst:for-each select="@limiters/rhs/[probe/#typed='yes']">
+      <admst:if test="[count(function[name='\$limit']/arguments)>2]">
+        <admst:choose>
+          <admst:when test="[function/[name='\$limit']/arguments[3]/datatypename='string']">
+            <admst:if test="[function/[name='\$limit']/arguments[3]/value='typed']">
+              <admst:apply-templates select="function/[name='\$limit']/arguments[4]" match="collectParamDependence"/>
+              probeVars[in.%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[4]));
+            </admst:if>
+          </admst:when>
+          <admst:otherwise>
+            <admst:apply-templates select="function/[name='\$limit']/arguments[5]" match="collectParamDependence"/>
+            probeVars[in.%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[5]));
+          </admst:otherwise>
+        </admst:choose>
+      </admst:if>
+    </admst:for-each>
+  </admst:if>
+  <admst:variable name="globalMustForceScalar" select="no"/>
+
+  <admst:text format="\n\n"/>
+
+<admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_model'])]">
+  // Need to use processParams-like function to process the
+  // initial_model and initial_instance blocks with the LOCAL copies of
+  // instance and model vars, and local copies of instance and model
+  // params.
+
+<admst:text format="evaluateInitialModel(\n"/>
+<admst:text format="modelStruct,\n"/>
+<admst:text format=" mod.admsModTemp,in.getDeviceOptions().gmin,in);\n"/>
+</admst:if>
+
+<admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_instance'])]">
+  <admst:text format="evaluateInitialInstance(\n"/>
+  <admst:text format="instanceStruct,\n"/>
+  <admst:text format="modelStruct,\n"/>
+  <admst:if test="[exists(@optnodes)]">
+    <admst:join select="node[grounded='no']" separator=",\n">
+      <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    </admst:join>
+    <admst:text format=",\n in.portsConnected_,\n"/>
+  </admst:if>
+  <admst:text format="in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
+</admst:if>
+
+// Now call  the function that does the heavy lifting.
+evaluateModelEquations(
+probeVars,
+// probe constants
+
+<admst:if test="[count(probe)>0]">
+  <admst:join select="probe" separator=",\n">
+    <admst:text format="in.%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n"/>
+</admst:if>
+<admst:if test="[count(@extraProbeBranches)>0]">
+  <admst:join select="@extraProbeBranches" separator=",\n">
+    <admst:text format="in.%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n"/>
+</admst:if>
+// node constants
+
+<admst:join select="node[grounded='no']" separator=",\n">
+  <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+</admst:join>
+<admst:if test="[count(@extraUnknowns)>0]">
+  <admst:text format=",\n"/>
+  <admst:join select="@extraUnknowns" separator=",\n">
+    <admst:text format="in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)"/>
+  </admst:join>
+</admst:if>
+<admst:variable name="globalDeclareVars" select="no"/>
+<admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format="in.portsConnected_,\n"/>
+</admst:if>
+<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
+
+// We now have the F and Q vector stuff, populate the dependencies:
+
+<admst:for-each select="node[grounded='no']">
+  <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    dfdp[in.$nodeConstantName] += d_staticContributions_dX[in.$nodeConstantName];
+    dqdp[in.$nodeConstantName] += d_dynamicContributions_dX[in.$nodeConstantName];
+    Findices[in.$nodeConstantName] = in.%(xyceNodeLIDVariable(.));
+    Qindices[in.$nodeConstantName] = in.%(xyceNodeLIDVariable(.));
+</admst:for-each>
+
+<!-- now handle branch equations -->
+<admst:for-each select="$theModule/@extraUnknowns">
+  dfdp[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)] += d_staticContributions_dX[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+  dqdp[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)] += d_dynamicContributions_dX[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+  Findices[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)] = in.%(xyceBranchLIDVariable(.));
+  Qindices[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)] = in.%(xyceBranchLIDVariable(.));
+  </admst:for-each>
+
+
+}
+
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+// Function      : ModelSensitivity::operator()
+// Purpose       : return sensitivity for a single model parameter
+// Special Notes :
+// Scope         : public
+// Creator       : admsXml
+// Creation Date :
+<admst:text format="\n//-----------------------------------------------------------------------------"/>
+/// Compute sensitivity to a specified model
+/// parameter of all device instances of that model's outputs
+///
+///
+/// @param[in] entity  The device entity that owns the parameter
+/// @param[in] name    The unadorned parameter name specific to the entity
+/// @param[out] dfdp   The derivative of the F vector with respect to the parameter
+/// @param[out] dqdp   The derivative of the Q vector with respect to the parameter
+/// @param[out] dbdp   The derivative of the B vector with respect to the parameter
+/// @param[out] Findices   The indices into the F vector corresponding to the elements of dfdp
+/// @param[out] Qindices   The indices into the Q vector corresponding to the elements of dfdp
+/// @param[out] Bindices   The indices into the B vector corresponding to the elements of dfdp
+///
+///
+void ModelSensitivity::operator()
+(
+const ParameterBase &amp;entity,
+const std::string &amp;name,
+std::vector&lt;double&gt; &amp; dfdp,
+std::vector&lt;double&gt; &amp; dqdp,
+std::vector&lt;double&gt; &amp; dbdp,
+std::vector&lt;int&gt; &amp; Findices,
+std::vector&lt;int&gt; &amp; Qindices,
+std::vector&lt;int&gt; &amp; Bindices
+) const
+{
+const ParameterBase * e1 = &entity;
+const Model &amp; mod = *(dynamic_cast&lt;const Model *&gt; (e1));
+int sizeInstance = mod.instanceContainer.size();
+
+dfdp.resize((%($numSolVars))*sizeInstance);
+dqdp.resize((%($numSolVars))*sizeInstance);
+Findices.resize((%($numSolVars))*sizeInstance);
+Qindices.resize((%($numSolVars))*sizeInstance);
+
+std::vector &lt;double&gt; probeVars(%(xyceNumberProbes($theModule)));
+std::vector &lt;double&gt; d_staticContributions_dX(%($numSolVars));
+std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
+
+
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
+// Keep a map so we can set the right one to the independent variable
+// We do this solely to avoid a big ugly "if/else" block just to find the
+// one parameter we're doing sensitivities on.
+unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; modParamMap;
+
+// reals
+
+<admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']">
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+  <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+  <admst:text format="modParamMap[&quot;%(name)&quot;] = &amp;(modelStruct.d_modelPar_%(name)_dX);\n"/>
+</admst:for-each>
+
+// hidden reals
+
+<admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']">
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+</admst:for-each>
+
+// non-reals (including hiddens)
+
+<admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:if test="[not(exists(attribute[name='hidden']))]">
+    <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+  </admst:if>
+</admst:for-each>
+
+// Set the one parameter whose name was passed in to be the independent
+// variable for differentiation purposes.  Since we stored variable pointers, this
+// makes sure that that ONE variable gets set right.
+// FIXME: make this check name for presence first!  Segfault on invalid.
+*(modParamMap[name])=1.0;
+
+//make local copies of all model vars
+//reals
+
+<admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
+  <admst:if test="[exists(#Pdependent)]">
+    <!-- Initialize this, but we're gonna clobber it -->
+    <admst:text format="modelStruct.d_modelVar_%(name)_dX=0.0;\n"/>
+  </admst:if>
+</admst:for-each>
+
+// non-reals
+
+<admst:for-each select="variable[scope='global_model' and input='no' and not(type='real')]">
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
+</admst:for-each>
+
+
+// Now loop over all instances and do the deed
+int inst=0;
+for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.begin(); in_it != mod.instanceContainer.end(); ++in_it,++inst)
+{
+
+  Instance &amp; in=*(*in_it);
+  // initialize contributions to zero (automatically sets derivatives to zero)
+  for (int i=0; i &lt; %($numSolVars) ; ++i)
+  {
+  d_staticContributions_dX[i]=0;
+  d_dynamicContributions_dX[i]=0;
+  }
+
+
+
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
+
+  <admst:for-each select="variable[parametertype='instance' and input='yes' and type='real']">
+    <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+    <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+    <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+  </admst:for-each>
+
+  // real hidden instance
+
+  <admst:for-each select="variable[parametertype='instance' and (input='no' and exists(attribute[name='hidden'])) and type='real']">
+    <admst:text format="instanceStruct.instancePar_%(name)X=in.%(name);\n"/>
+    <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+  </admst:for-each>
+
+  // Copy all the non-real instance params into vars of their appropriate type:
+
+  <admst:for-each select="variable[parametertype='instance' and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
+    <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+    <admst:if test="[not(exists(attribute[name='hidden']))]">
+      <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+    </admst:if>
+  </admst:for-each>
+
+
+
+  // If there are any instance parameters that were not given, and have
+  // corresponding model params, copy the model param into the instance.
+  // This was already done by the instance constructor, but we do it again
+  // because now we're propagating derivatives, and the user could be trying
+  // to get sensitivity to the model parameter.
+
+  <admst:for-each select="variable[parametertype='instance' and exists(attribute[name='xyceAlsoModel']) and input='yes']">
+    <admst:text format="   if (!(in.given(&quot;%(name)&quot;)))\n"/>
+    <admst:text format="   {\n"/>
+    <admst:text format="      instanceStruct.instancePar_%(name) = modelStruct.modelPar_%(name);\n"/>
+    <admst:if test="[type='real']">
+      <admst:text format="      instanceStruct.d_instancePar_%(name)_dX = modelStruct.d_modelPar_%(name)_dX;\n"/>
+    </admst:if>
+    <admst:text format="   }\n"/>
+  </admst:for-each>
+
+  //make local copies of all instance vars
+  //reals
+
+  <admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
+    <admst:apply-templates select="." match="collectParamDependence"/>
+    <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
+    <admst:if test="[exists(#Pdependent)]">
+      <!-- this will wind up being set properly either in the evaluateInitialInstance
+           or evaluateModelEquations calls -->
+      <admst:text format="instanceStruct.d_instanceVar_%(name)_dX=0.0;\n"/>
+    </admst:if>
+  </admst:for-each>
+
+  //non-reals
+
+  <admst:for-each select="variable[scope='global_instance' and input='no' and not(type='real')]">
+    <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
+  </admst:for-each>
+
+
+  Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
+
+  // extract solution variables
+
+  <admst:for-each select="probe">
+    <admst:variable name="probeConstantName" select="%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+    <admst:choose>
+      <admst:when test="[nature=discipline/potential]">
+        <admst:choose>
+          <admst:when test="branch/nnode[grounded='yes']">
+            <admst:choose>
+              <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+                <admst:text format="probeVars[in.%($probeConstantName)] = (in.collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))]);\n"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format="probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))];\n"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <admst:otherwise>
+            <admst:text format="probeVars[in.%($probeConstantName)] = "/>
+            <admst:choose>
+              <admst:when test="[exists(branch/pnode/#collapsible) and (branch/pnode/@collapsesTo/name='GND')]">
+                <admst:text format="(in.collapseNode_%(branch/pnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))])"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format="(*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/pnode))]"/>
+              </admst:otherwise>
+            </admst:choose>
+            <admst:choose>
+              <admst:when test="[exists(branch/nnode/#collapsible) and (branch/nnode/@collapsesTo/name='GND')]">
+                <admst:text format=" - ((in.collapseNode_%(branch/nnode/name))?(0):((*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/nnode))]))"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:text format=" - (*solVectorPtr)[in.%(xyceNodeLIDVariable(branch/nnode))]"/>
+              </admst:otherwise>
+            </admst:choose>
+            <admst:text format=";\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[nature=discipline/flow]">
+        <admst:text format="probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceBranchLIDVariable(branch))];\n"/>
+      </admst:when>
+    </admst:choose>
+  </admst:for-each>
+  <!-- do the assignments of probes that weren't caught by ADMS, because
+       they're implicit in the use of voltage sources -->
+  <admst:for-each select="@extraProbeBranches">
+    <admst:variable name="probeConstantName" select="%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)"/>
+    <admst:text format="probeVars[in.%($probeConstantName)] = (*solVectorPtr)[in.%(xyceBranchLIDVariable(.))];\n"/>
+  </admst:for-each>
+
+
+  <admst:if test="[(count(@limitedProbes)>0) and exists(@limiters/rhs/[probe/#typed='yes'])]">
+
+    // pre-multiply any "typed" probes (i.e. those limited with "typedpnjlim")
+
+    <admst:variable name="globalMustForceScalar" select="yes"/>
+    <admst:for-each select="@limiters/rhs/[probe/#typed='yes']">
+      <admst:if test="[count(function[name='\$limit']/arguments)>2]">
+        <admst:choose>
+          <admst:when test="[function/[name='\$limit']/arguments[3]/datatypename='string']">
+            <admst:if test="[function/[name='\$limit']/arguments[3]/value='typed']">
+              <admst:apply-templates select="function/[name='\$limit']/arguments[4]" match="collectParamDependence"/>
+              <admst:text format="probeVars[in.%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[4]));\n"/>
+            </admst:if>
+          </admst:when>
+          <admst:otherwise>
+            <admst:apply-templates select="function/[name='\$limit']/arguments[5]" match="collectParamDependence"/>
+            <admst:text format="probeVars[in.%(xyceProbeConstantName(probe)/[name='probeConstant']/value)] *= %(printTerm(function/[name='\$limit']/arguments[5]));\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:if>
+    </admst:for-each>
+  </admst:if>
+  <admst:variable name="globalMustForceScalar" select="no"/>
+
+  <admst:text format="\n\n"/>
+
+  <admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_model'])]">
+    // Need to use processParams-like function to process the
+    // initial_model block with the LOCAL copies of
+    //  model vars, and local copies of model
+    // params.
+
+    <admst:text format="evaluateInitialModel(\n"/>
+    <admst:text format="modelStruct,\n"/>
+    <admst:text format=" mod.admsModTemp,in.getDeviceOptions().gmin,in);\n"/>
+  </admst:if>
+
+  <admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_instance'])]">
+    <admst:text format="evaluateInitialInstance(\n"/>
+    <admst:text format="instanceStruct,\n"/>
+    <admst:text format="modelStruct,\n"/>
+    <admst:if test="[exists(@optnodes)]">
+      <admst:join select="node[grounded='no']" separator=",\n">
+        <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+      </admst:join>
+      <admst:text format=",\n in.portsConnected_,\n"/>
+    </admst:if>
+    <admst:text format="in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
+  </admst:if>
+
+// Now call  the function that does the heavy lifting.
+
+evaluateModelEquations(
+probeVars,
+// probe constants
+
+<admst:if test="[count(probe)>0]">
+  <admst:join select="probe" separator=",\n">
+    <admst:text format="in.%(xyceProbeConstantName(.)/[name='probeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n"/>
+</admst:if>
+<admst:if test="[count(@extraProbeBranches)>0]">
+  <admst:join select="@extraProbeBranches" separator=",\n">
+    <admst:text format="in.%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)"/>
+  </admst:join>
+  <admst:text format=",\n"/>
+</admst:if>
+// node constants
+
+<admst:join select="node[grounded='no']" separator=",\n">
+  <admst:text format="in.%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+</admst:join>
+<admst:if test="[count(@extraUnknowns)>0]">
+  <admst:text format=",\n"/>
+  <admst:join select="@extraUnknowns" separator=",\n">
+    <admst:text format="in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)"/>
+  </admst:join>
+</admst:if>
+<admst:variable name="globalDeclareVars" select="no"/>
+<admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
+<admst:if test="[exists(@optnodes)]">
+  <admst:text format=" in.portsConnected_,\n"/>
+</admst:if>
+<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
+
+  // We now have the F and Q vector stuff, populate the dependencies:
+
+  <admst:for-each select="node[grounded='no']">
+    <admst:variable name="nodeConstantName" select="%(xyceNodeConstantName(.)/[name='nodeConstant']/value)"/>
+    dfdp[in.$nodeConstantName+inst*(%($numSolVars))] += d_staticContributions_dX[in.$nodeConstantName];
+    dqdp[in.$nodeConstantName+inst*(%($numSolVars))] += d_dynamicContributions_dX[in.$nodeConstantName];
+    Findices[in.$nodeConstantName+inst*(%($numSolVars))] = in.%(xyceNodeLIDVariable(.));
+    Qindices[in.$nodeConstantName+inst*(%($numSolVars))] = in.%(xyceNodeLIDVariable(.));
+  </admst:for-each>
+
+  <!-- now handle branch equations -->
+  <admst:for-each select="$theModule/@extraUnknowns">
+    dfdp[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)+inst*(%($numSolVars))] += d_staticContributions_dX[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+    dqdp[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)+inst*(%($numSolVars))] += d_dynamicContributions_dX[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)];
+    Findices[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)+inst*(%($numSolVars))] = in.%(xyceBranchLIDVariable(.));
+    Qindices[in.%(xyceBranchConstantName(.)/[name='branchConstant']/value)+inst*(%($numSolVars))] = in.%(xyceBranchLIDVariable(.));
+  </admst:for-each>
+}
+
+}
+
+#endif // Xyce_ADMS_SENSITIVITIES
+<admst:variable name="skipFunctionPrecomp" select="y"/>
+
+} // namespace %($nameSpace)
+} // namespace Device
+} // namespace Xyce
+
+    </admst:open>
+  </admst:for-each>
+</admst>

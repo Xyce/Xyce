@@ -1,0 +1,79 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% MOSFET Equation Table
+%%
+\begin{longtable}[H]{>{\setlength{\hsize}{\textwidth}}W}
+\hline \\
+\bf All Levels \\
+\begin{eqnarray*}
+I_g&=&\mbox{gate current} = 0 \\
+I_b&=&\mbox{bulk current} = I_{bs} + I_{bd} \\
+\mbox{where} && \\
+I_{bs}&=&\mbox{bulk-source leakage current} =
+I_{ss}\left(e^{V_{bs}/(NV_t)} - 1\right) \\
+I_{ds}&=&\mbox{bulk-drain leakage current} = I_{ds}\left(
+e^{V_{bd}/(NV_t)} - 1\right)\\
+\mbox{where} && \\
+\mathit{if} && \\
+&&\mathbf{JS}=0, \mbox{ or } \mathbf{AS}=0 \mbox{ or }
+\mathbf{AD}=0 \\
+\mathit{then} && \\
+&&I_{ss} = \mathbf{IS} \\
+&&I_{ds} = \mathbf{IS} \\
+\mathit{else} && \\
+&&I_{ss} = \mathrm{AS}\times\mathbf{JS} + \mathrm{PS}\times
+\mathbf{JSSW} \\
+&&I_{ds} = \mathrm{AD}\times\mathbf{JS} + \mathrm{PD}\times
+\mathbf{JSSW} \\
+&&I_d = \mbox{drain current} = I_{drain} - I_{bd} \\
+&&I_s = \mbox{source current} = -I_{drain} - I_{bs}
+\end{eqnarray*} \\
+
+\hline \\
+\bf Level 1: Idrain \\
+
+\textbf{Normal Mode:} $V_{ds} > 0$ \linebreak
+\textbf{Case 1} \linebreak
+For cutoff region: $V_{gs} - V_{to} < 0$
+\[ I_{drain} = 0\]
+\textbf{Case 2} \linebreak
+For linear region: $V_{ds} < V_{gs} - V_{to}$
+\[ I_{drain} = (W/L)(\mathbf{KN}/2)(1 + \mathbf{LAMBDA}\times
+V_{ds})V_{ds}(2(V_{gs} - V_{to}) - V_{ds}) \]
+\textbf{Case 3} \linebreak
+For saturation region: $0\leq V_{gs} - V_{to} \leq V_{ds}$
+\[ I_{drain} = (W/L)(\mathbf{KN}/2)(1 + \mathbf{LAMBDA}\cdot
+V_{ds})(V_{gs} - V_{to})^2 \]
+where
+\[ V_{to} = \mathbf{VTO + GAMMA}\cdot\left((\mathbf{PHI} -
+V_{bs})^{1/2}\right)^{1/2} \]
+\textbf{Inverted Mode:} $V_{ds} < 0$\\
+
+Here, simply switch the source and drain in the normal mode
+equations given above.\\
+
+\hline \\
+\bf Level %s 2 and
+3: Idrain \\
+
+See Reference~\cite{VL:1980} below for detailed information. \\
+
+\end{longtable}
+
+% Eric Keiter.  1/19/04:
+% As this table does not have a caption, it should not have a number
+% assigned to it.  This line is needed to fix latex so that the tables in
+% chapter 2, which actually have their numbers printed in table captions, 
+% and the list of tables,  do not start at 2.9, but start at 2.1.
+\addtocounter{table}{-1}
+
+

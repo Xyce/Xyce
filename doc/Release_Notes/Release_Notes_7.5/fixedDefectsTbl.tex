@@ -1,0 +1,278 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy's National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy's National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have multiple issue
+     tracking systems for Sandia users.  SON, which bugzilla on the
+     open network, and SRN, which is bugzilla on the restricted
+     network.  We are also transitioning from bugzilla to gitlab issue
+     tracking.  Further, some issues are reported by open source users
+     on GitHub and these issues may be tracked using multiple issue
+     numbers.} \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two multiple issue tracking systems for Sandia Users.
+     SON and SRN refer to our legacy open- and restricted-network Bugzilla system, and Gitlab refers to issues in our gitlab repositories.  } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endhead
+
+\textbf{Gitlab-ex issue 220}:  .MEASURE trig/targ doesn't match ngspice
+when there is negative setup time. & Previous \Xyce{} versions would
+not return a negative value from a \texttt{TRIG-TARG} measure. The
+\texttt{TARG} clause would only be evaluated if the \texttt{TRIG} clause
+was satisfied.  A measure line such as this will now properly return
+M4 = -0.5 with targ = 0.25 and trig = 0.75, instead of
+failing to find the targ time.
+
+\begin{verbatim}
+VPWL2 2 0 pwl(0 0 0.5 1 1 0)
+.MEASURE TRAN M4 TRIG V(2)=0.5 CROSS=2
++ TARG V(2)=0.5 CROSS=1
+\end{verbatim}
+ \\ \hline
+
+ \textbf{Gitlab-ex issue 270}: Inconsistency in column headers for .PRINT SENS for TRAN/DC and AC &
+  The format of the column headers in the sensitivity output files is different
+  between AC and DC/TRAN analysis. An example of a sensitivity data column name
+  in a DC analysis output file might look like this:\begin{verbatim}
+  d{V(B)}/d(R1:R)_Dir\end{verbatim}
+  while in an AC analysis output file the title of the sensitivity data might be
+  \begin{verbatim}
+  d_VR(B)/d_R1:R_dir\end{verbatim}
+  Additionally, the complex and polar notation in the AC output implies that the
+  objective is a voltage (using VR, VI, VM, VP). This change tries to make all
+  the sensitivity column headers follow the same convention:
+  \begin{verbatim}d_{expression}/d_parameter_dir\end{verbatim}
+  (the suffix may be either {\_}dir or {\_}adj). The component notaion on the AC
+  output has been updated to use Re({exp}), Im({exp}), Mag({exp}) and Ph({exp}).
+  In working this issue, the processing logic for AC .SENS lines was also
+  refactored. The objvars and acobjfunc components of a .SENS line are now
+  handled by the same processing functions. With this change, the restriction
+  against using both objective function specifiers on the same .SENS line was
+  removed. \\ \hline
+
+\textbf{Gitlab-ex issue 289} Improvements to TRIG-TARG measure &
+Separate \texttt{TD} (time delay) and/or \texttt{AT} qualifiers
+are now allowed for both the \texttt{TRIG} and \texttt{TARG}
+clauses.  Expression support has also been improved.  Previously,
+expressions did not work correctly in the \texttt{TARG} clause.
+Examples are as follows:
+
+\begin{verbatim}
+.TRAN 0 1
+.MEASURE TRAN M1 TRIG V(1)=0.5 CROSS=1 TD=0.3
++ TARG V(1)=0.5 CROSS=1 TD=0.8
+.MEASURE TRAN M2 TRIG AT=0.05
++ TARG V(1)=0.5 CROSS=1
+.MEASURE TRAN M3 TRIG V(1)=0.5
++ CROSS=1 TARG AT=0.8
+\end{verbatim}
+
+Xyce will now properly report M1 = 0.5 with targ = 0.875 and
+trig = 0.375, M2 = 0.075 with targ = 0.125 and trig = 0.05, and
+M3 = 0.675 with targ = 0.8 and trig = 0.125.
+\\ \hline
+
+\textbf{Gitlab-ex issue 304}: Change \Xyce{} behavior for failed measures &
+\Xyce{} was using ``-1'' as the output value when any measure (from a
+\texttt{.MEASURE} statement) failed.  This was inappropriate, because -1 is a
+legal value for many measures, making it difficult to tell whether the
+measure worked or not.  In \Xyce{} 7.4 an option \texttt{.options
+measure MEASFAIL=1} that allowed a user to request that Xyce output
+``FAILED'' for failed measures instead.  In \Xyce{} 7.5 this style of
+output has been made the default.  The old behavior can be forced by
+using \texttt{.options measure MEASFAIL=0 DEFAULT\_VAL=-1} if
+desired. \\ \hline
+
+\textbf{Gitlab-ex issue 306}:  Using expression random operators with sampling is too slow for large numbers of parameters &
+For complicated netlists and PDKs, \Xyce{} was inefficient in
+processing large numbers of uncertain parameters, when specified using
+expression-based random operators such as \texttt{AGAUSS}.  There were
+several compounding issues that caused this to happen, and they have
+been corrected.  \\ \hline
+
+\textbf{Gitlab-ex issue 318}:  Fix .PREPROCESS REPLACEGROUND to avoid
+unnecessary replacement of ground synonyms & When using ``.PREPROCESS
+REPLACEGROUND TRUE'' to replace ground synonyms, character strings
+were being replaced on lines where it was not necessary, like
+subcircuit definition lines.  This has been corrected. \\ \hline
+
+\textbf{Gitlab-ex issue 319}:  Improve error checking for invalid
+.MEASURE lines & The error checking for invalid \texttt{DERIV-AT},
+\texttt{DERIV-WHEN}, \texttt{FIND-AT}, \texttt{FIND-WHEN} and
+\texttt{WHEN} measures has been improved.  Some invalid measure
+lines that would previously be reported as ``FAILED'' are now
+correctly reported as parsing errors. \\ \hline
+
+\textbf{Gitlab-ex issue 321}:  Fix Inf/NaN trap in DampedNewton nonlinear solver &
+The convergence check in the DampedNewton nonlinear solver was not
+correctly trapping NaNs in the residual vector.  Thus, the nonlinear
+solver failure logic would not be correct, allowing the nonlinear
+solver to continue when it should stop.  This has been
+corrected. \\ \hline
+
+\textbf{Gitlab-ex issue 328}:  Support C for temperature units &
+  When specifying temperature, \Xyce{} would inappropriately exit with
+  error if the units of Celsius were explicitly used in the netlist.
+  This has been corrected, and now a line such as \texttt{.options
+  device temp=25C} will work correctly.  The units for temperature
+  in \Xyce{} have always been Celsius, so this was only a parsing
+  issue. \\ \hline
+
+\textbf{Gitlab-ex issue 338}: Added the function \texttt{Simulator:: getTimeVoltagePairsSz} &
+The function \texttt{Simulator::getTimeVoltagePairsSz} supplies the
+maximum number of time, voltage or state values for an ADC in a
+subsequent call to \texttt{Simulator::getTimeVoltagePairs}
+or \texttt{Simulator::getTimeStatePairs}.  Also,
+calling \texttt{Simulator::getTimeStatePairs} no longer clears the
+voltage history of an ADC, so a calling program that needs both state
+and voltage history can first
+call \texttt{Simulator::getTimeStatePairs} and then call
+\texttt{Simulator::getTimeVoltagePairs} to get both.  Calling
+\texttt{Simulator::getTimeVoltagePairs} still clears the ADC history.
+See the Application note, Mixed Signal Simulation with \Xyce{} 7.5 for further
+details. \\ \hline
+
+\textbf{Gitlab-ex issue 340}: Bug in breakpointing, when an expression combines a ternary and a table &
+  Under rare circumstances, if an expression combined a ternary
+  operator and a time-dependent table, an error in breakpointing could
+  cause the time integrator to get stuck in a near-infinite loop.
+  This has been fixed.  \\ \hline
+
+\textbf{Gitlab-ex issue 348}:  Added the function \texttt{xyce\_getTimeVoltagePairs\-ADCLimitData()}  &
+  A new function has been added to the \texttt{XyceCInterface}
+  called \texttt{xyce\_getTimeVoltagePairsADCLimitData()} which limits
+  the data copied to the caller allocated space to whatever maximum
+  allocation length is provided.  This avoids potential memory
+  overwriting that could occur with the general access
+  function \texttt{xyce\_getTimeVoltagePairsADC()}.  See the
+  Application note, Mixed Signal Simulation with \Xyce{} 7.5 for
+  further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 351}: Support Python 3 in Xyce &
+  The Python interface to Xyce in \texttt{xyce\_interface.py}
+  has been updated to support Python 3.x.  See the Application note,
+  Mixed Signal Simulation with \Xyce{} 7.5 for further details.  \\ \hline
+
+\textbf{Gitlab-ex issue 355}:  Make it possible to turn off initial junction voltages globally in device package w/o turning off voltlim &
+Most semiconductor device models apply a initial junction voltages
+during the initial iterations of a DCOP solve.  However, when applying
+source stepping to obtain the solution, it doesn't make sense to apply
+these initial junction voltages, as the intent of source stepping is
+to initially start with all sources set to zero.  This has been fixed,
+and is automatically applied when Xyce performs source stepping.  It
+is also possible to manually disable initial junction voltages from
+then netlist via \texttt{.options device all\_off=true}.  \\ \hline
+
+\textbf{Gitlab-ex issue 358/GitHub issue 49}: Ternary operator broken in
+analog function context & There were some use cases in which Xyce/ADMS
+would emit bad code for ternary operator expressions in analog
+function context.  Correct code is now emitted in all
+cases.  \\ \hline
+
+\textbf{Gitlab-ex issue 364}:  AC sensitivities for nonlinear parameters are very slow &
+ The AC sensitivity calculation had an inefficiency in it which made
+ it really slow for large numbers of parameters, particularly for
+ parameters from nonlinear devices, which had to rely on a finite
+ differenced matrix derivative.  Most of the work required could be
+ performed a single time, rather than every time through the main
+ loop.  \\ \hline
+
+\textbf{Gitlab-ex issue 365}: IE() does not work for BSIM-SOI 4.x
+& The BSIM-SOI 3 (level 10) and BSIM-SOI 4.x (levels 70 and 70450)
+devices all support a fourth node named ``E'', but until now the
+``IE()'' print operator only worked for printing lead currents through
+this node for the BSIM-SOI 3.  Prior versions of Xyce required use of
+``I4()'' to output this lead current.
+
+Now, BSIM-SOI 4 and all BSIM-CMG models support ``IE()'' lead current
+operators.  Wildcards for IE will now print lead currents for all
+devices that have an ``E'' node. \\ \hline
+
+\textbf{Gitlab-ex issue 366}: IB() does not work for MOSFETs derived from Verilog-A
+& Most MOSFET devices have ``B'' nodes (either bulk or body, depending
+on which model is under consideration).  None of the devices generated
+from Verilog-A supported printing of the lead current associated with
+this node via the ``IB()'' print accessor, and required instead that
+one use ``In'' (where ``n'' is the position of the node on the
+instance line).  Now they are correctly accessible using ``IB()''. \\
+\hline
+
+\textbf{Gitlab-ex issue 369}:  Out-of-bounds data storage in dx2 capability of expression library  &
+The expression library, when used to support a behavioral model,
+computes an array of one or more derivatives when it is evaluated.
+The expression library was incorrectly written to assume that the size
+of this array would never change.  However, this was incorrect for the
+use case of \texttt{.func}, which might be called multiple times, with
+arguments containing differing numbers differentiable variables.  This
+was a use case that didn't come up very often, but when it did caused
+a memory error.\\ \hline
+
+\textbf{Gitlab-ex issue 371}: Missing parameter definitions on .SENS line can cause Xyce to crash &
+When processing a .SENS line in Xyce, some error cases were not being
+checked. As a result, certain incomplete .SENS lines would either cause
+Xyce to crash or silently fail to generate sensitivity output (with no
+error message generated). Additional error checks have been put into
+place to ensure a .SENS line is valid (or report an error if not).  \\ \hline
+
+\textbf{Gitlab-ex issue 372}:  AC sensitivities are incorrect when using .param for sensitivity parameters &
+When performing AC sensitivities with respect to .param parameters,
+there was an arithmetic mistake in the setup of the right-hand-side
+vector.  This has been corrected.  \\ \hline
+
+\textbf{Gitlab-ex issue 377}:  The limit random operator (2-argument version) is not correct in the expression library &
+\Xyce{} has supported two versions of limit, one with two arguments and one
+with three.  The version with two arguments was not correct, in
+multiple ways.  When used without UQ (or sampling) it was supposed to
+return the mean, but instead returned the sum of the two arguments.
+When used with sampling, it incorrectly behaved the same
+as \texttt{rand()}.  Both problems have been corrected.  \\ \hline
+
+\textbf{Gitlab-ex issue 390}:  Level 1 BJT lacks a multiplicity factor &
+Multiplicity is not supported in Xyce except at a low level inside
+each device model.  The level 1 BJT did not have the code needed to
+support this common option. \\ \hline
+
+\textbf{Gitlab-ex issue 396}: Incorrect code generated for noise contributions that reference analog functions &
+Xyce/ADMS was generating incorrect C++ code when a noise contribution
+referenced analog functions on its RHS.  \\ \hline
+
+\textbf{Gitlab-ex issue 398}: Incorrect code generated for single-line case items &
+Xyce/ADMS was generating incorrect C++ code when a case item consisted
+of a single probe-dependent assignment, and in analog functions when
+the case item was a single line assignment that depends on the
+function arguments.  There was no error if the item was enclosed in a
+begin/end pair.  \\ \hline
+
+\textbf{Gitlab-ex issue 405}: 
+Xyce does not resolve subcircuit instance parameters referencing other subcircuit 
+instance parameters on the same line &
+Subcircuit instance parameters were handled in the same manner as device instance 
+parameters, and thus forbidden to directly reference each other.  However, this was 
+not the behavior of most simulators so this has been corrected.
+\\ \hline
+
+\end{longtable}
+}

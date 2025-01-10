@@ -1,0 +1,37 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{measure!options}
+\begin{OptionTable}{Options for MEASURE.}
+\label{measurePKG}
+
+DEFAULT\_VAL & Default value for ``failed measures'' in the .mt\# 
+( or .ms\# or .ma\#) files. & -1 \\ \hline
+MEASDGT & Precision for all .MEASURE statements.  This value applies to the
+output to both the .mt\# ( or .ms\# or .ma\#) files and the standard output. & 6 \\ \hline
+MEASFAIL & Specify output format for failed measures & 1 \\ \hline
+MEASOUT & Control whether the .mt0 file is made or not & 1 \\ \hline
+MEASPRINT & Measure Output
+\begin{XyceItemize}
+\item ALL (Output measure information to both file(s) and stdout)
+\item STDOUT (Output measure information to stdout only)
+\item NONE (Suppress all measure output)
+\end{XyceItemize}
+& ALL \\ \hline
+USE\_CONT\_FILES & Specifies whether ``continuous'' mode measures use
+separate output files for each such measure & 1 (TRUE) \\ \hline
+USE\_LTTM & Use the ``Legacy Trig-Trag Mode``.  This option is included
+for backwards compatibility with previous \Xyce{} versions.  It may be
+removed in the future & 0 (FALSE).
+\end{OptionTable}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:

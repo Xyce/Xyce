@@ -1,0 +1,142 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+%\SANDmain           % Start the main part of the report
+
+\chapter{Introduction}
+\label{Introduction}
+
+\chapteroverview{Welcome to \XyceTitle{}}
+{
+The \XyceTM{} Parallel Electronic Simulator is a
+SPICE-compatible~\cite{NagelRohrer}~\cite{Spice3f5-user-guide}
+circuit simulator that has been written to support
+the unique simulation needs of electrical designers at Sandia National
+Laboratories\index{Sandia National Laboratories}.  It is specifically targeted 
+to run on large-scale parallel computing
+\index{parallel!computing} platforms, but is also available on a variety
+of architectures including single processor workstations.  It aims to
+support a variety of devices and models specific to Sandia needs, as well
+as standard capabilities available from current commercial simulators.
+}
+\section{Xyce Overview}
+\label{Xyce_Overview}
+
+The \Xyce{} Parallel Electronic Simulator project was started in 1999
+to support the simulation needs of electrical designers at Sandia
+National Laboratories and has evolved into a mature platform for large-scale
+circuit simulation.
+
+\Xyce{} includes several unique features.  An important driver 
+has been the need to simulate very large-scale
+circuits (100,000 devices or more) on the transistor level.  To this end,
+scalable algorithms for simulating large circuits in parallel have been
+developed.  In addition \Xyce{} includes novel 
+approaches to numerical kernels including model-order reduction, continuation algorithms, 
+time-integration, nonlinear and linear solvers.  Also, unlike most SPICE-based codes, 
+\Xyce{} uses a differential-algebraic-equation (DAE) formulation, which better isolates the 
+device model package from solver algorithms. 
+
+\section{Xyce Capabilities}
+\label{Xyce_Capabilities}
+
+\subsection{Support for Large-Scale Parallel Computing}
+\label{Parallel_Support}
+\Xyce{} is a truly parallel simulation code, designed and written from the
+ground up to support large-scale\index{parallel!large scale} parallel computing\index{parallel!computing} architectures with up to thousands of processors.
+This provides \Xyce{} the capability to solve large circuit problems 
+with quick enough runtimes to make these simulations practical.
+\Xyce{} uses a message passing
+parallel\index{parallel!message passing} implementation, allowing it to run
+efficiently on a variety of parallel computing platforms.  These
+include serial, shared-memory\index{parallel!shared-memory} and
+distributed-memory parallel\index{parallel!distributed-memory}.
+Careful attention has been paid to the
+specific nature of circuit-simulation problems to ensure optimal parallel
+efficiency\index{parallel!efficiency}, even as the number of processors increases.
+
+\subsection{Differential-Algebraic Equation (DAE) formulation}
+\Xyce{} has been designed to use a DAE formulation.  Among other advantages, 
+this has the benefit of allowing the device models to be nearly independent 
+of the type analysis to be performed, and allows a lot of encapsulation between
+the models and the solver layers of the source code.  In a SPICE-based code,
+new device functions are created for each type of analysis, such as transient 
+and AC analysis.  With \Xyce{}'s DAE implementation, this is not necessary.
+The same device load functions can be used for all analysis types, resulting in
+faster development time for new types of analysis.
+
+\subsection{Device Model Support}
+The \Xyce{} development team continually adds new device models to \Xyce{} to meet
+the needs of Sandia users.  This includes the full set of models that can be found in 
+most SPICE-based codes.  For 
+current device availability, consult The \Xyce{} Reference Guide\ReferenceGuide{}.
+
+\section{Reference Guide}
+\label{Reference_Guide}
+The \Xyce{} User's Guide companion document, the \Xyce{} Reference Guide\ReferenceGuide{},
+contains detailed information including a
+netlist reference for \Xyce{}-supported input-file commands and elements; a command line reference, which describes the available command line arguments; and quick-references for 
+users of other circuit codes, such as Orcad's PSpice~\cite{PSpiceUG:1998}.
+\index{Reference Guide}
+\index{PSpice}
+\index{Users of other circuit codes}
+
+\section{How to Use this Guide}
+\label{HowTo_Guide}
+
+This guide is designed to enable one to quickly find the information needed to use \Xyce{}.  It assumes familiarity with basic \index{Unix} Unix-type commands, and how Unix manages applications and files to perform routine tasks (e.g., starting applications, opening files, and saving work).
+
+\subsubsection{Typographical conventions}
+Table~\ref{typog} defines the typographical conventions used in this guide.
+
+\begin{table}[htbp]
+    \caption{\Xyce{} typographical conventions.}\label{typog}
+  \begin{tabularx}{\linewidth}{|Y|Y|Y|}
+    \rowcolor{XyceDarkBlue} \color{white}\bf Notation & \color{white}\bf
+    Example & \color{white}\bf Description \\ \hline
+
+    \texttt{Typewriter text} & \texttt{mpirun -np 4}
+    & Commands entered
+    from the keyboard on the command line or text entered in a netlist. \\
+    \hline
+
+    \textrmb{Bold Roman Font} & Set nominal temperature using the
+    \textrmb{TNOM} option. & SPICE-type parameters used in models, etc. \\
+    \hline
+
+    \cellcolor[gray]{0.75} Gray Shaded Text & \cellcolor[gray]{0.75} DEBUGLEVEL
+    & Feature that is designed primarily for use by \Xyce{}
+    developers. \\ \hline
+
+    \texttt{[text in brackets]} & \texttt{Xyce [options] <netlist>} & Optional parameters. \\ \hline
+
+    \texttt{<text in angle brackets>} & \texttt{Xyce [options] <netlist>} &
+    Parameters to be inserted by the user. \\ \hline
+
+    \texttt{<object with asterisk>*} & \texttt{K1 <ind. 1> [<ind. n>*]} &
+    Parameter that may be multiply specified. \\ \hline
+
+    \texttt{<TEXT1|TEXT2>}&
+    \texttt{.PRINT TRAN}
+    \verb-+ DELIMITER=<TAB|COMMA|-
+    \verb- SEMICOLON|COLON|-
+    \verb- ``string''>- & Parameters that may only take specified values. \\ \hline
+
+  \end{tabularx}
+\end{table}
+% END of Xyce_UG_ch01.tex ************

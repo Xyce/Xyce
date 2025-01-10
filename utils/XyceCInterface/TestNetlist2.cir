@@ -1,0 +1,11 @@
+* This netlist is used to demonstrate the Python simulateUntil() method
+V1 1 0 SIN(0 1 1)
+R1 1 0 1
+
+.TRAN 0 1
+.PRINT TRAN V(1) R1:R
+.MEASURE TRAN MAXV1 MAX V(1)
+.MEASURE TRAN MINV1 MIN V(1)
+
+.END
+

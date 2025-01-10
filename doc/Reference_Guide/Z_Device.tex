@@ -1,0 +1,87 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}\label{Z_DEVICE}
+
+\symbol
+{\includegraphics{nmesfetSymbol}}
+{\includegraphics{pmesfetSymbol}}
+
+\device
+\begin{alltt}
+Z<name> < drain node> <gate node> <source node> <model name>
++ [area value] [device parameters]
+\end{alltt}
+
+\model
+\begin{alltt}
+.MODEL <model name> NMF [model parameters]
+.MODEL <model name> PMF [model parameters]
+\end{alltt}
+
+\examples
+\begin{alltt}
+Z1 2 3 0 MESMOD AREA=1.4
+Z1 7 2 3 ZM1
+\end{alltt}
+
+\parameters
+
+\begin{Parameters}
+
+\param{drain node}
+Node connected to drain.
+
+\param{gate node}
+Node connected to gate.
+
+\param{source node}
+Node connected to source.
+
+\param{source node}
+Name of model defined in .MODEL line.
+
+\param{area value}
+
+The \texttt{MESFET} is modeled as an intrinsic FET using an ohmic
+resistance (\texttt{RD/area}) in series with the drain and another ohmic
+resistance (\texttt{RS/area}) in series with the source.  \texttt{area value}
+is a scaling factor with a default of 1.
+
+\param{device parameters}
+
+Parameters listed in Table~\ref{Z_1_Device_Instance_Params} may be
+provided as space separated \texttt{<parameter>=<value>} specifications
+as needed.  Any number of parameters may be specified.
+
+\end{Parameters}
+
+\comments
+
+Although MESFETs can be made of Si, such devices are not as common as
+GaAs MESFETS.  And since the mobility of electrons is much higher than
+holes in GaAs, nearly all commercial devices are n-type MESFETS.
+
+\end{Device}
+
+\pagebreak
+
+\paragraph{Device Parameters}
+\input{Z_1_Device_Instance_Params}
+
+\paragraph{Model Parameters}
+\input{Z_1_Device_Model_Params}
+
+\paragraph{MESFET Power Calculations}
+Power dissipated in the transistor is calculated with $I_{D}*V_{DS}+I_{G}*V_{GS}$ where
+$I_{D}$ is the drain current, $I_{G}$ is the gate current, $V_{DS}$ is the 
+voltage drop between the drain and the source and $V_{GS}$ is the voltage drop 
+between the gate and the source. This formula may differ from other simulators,
+such as HSPICE and PSpice.

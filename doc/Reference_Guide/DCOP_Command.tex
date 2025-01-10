@@ -1,0 +1,58 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{DCOP_section}
+\index{\texttt{.DCOP}}
+\index{initial condition!DCOP}
+\index{initial condition}
+
+The \texttt{.DCOP} command allows the user to set initial conditions for operating 
+point calculations from a file rather than via \texttt{.IC} or \texttt{.DCVOLT}
+commands in the netlist.  These operating point conditions will be enforced the entire 
+way through the nonlinear solve.  Initial conditions can be given for some or all of 
+the circuit nodes.
+
+The \texttt{.DCOP} command also allows the user to save the operating point conditions,
+for all nodes in the netlist, to a file.  That file can be re-used in subsequent
+simulations.
+ 
+Consult the \Xyce{} User's Guide for more guidance on \texttt{.DCOP} usage.  
+
+\begin{Command}
+\format
+\begin{alltt}
+.DCOP <io type>=<file name>
+\end{alltt}
+
+\examples
+\begin{alltt}
+.DCOP input=initialConditions.op
+.DCOP output=initialConditions.op
+\end{alltt}
+
+\arguments
+\begin{Arguments}
+\argument{io type}
+The io type can be input or output.  Input reads in the initial conditions from the
+specified file.  Output writes the initial conditions to the specified file.
+
+\argument{file name}
+Specifies the name of the file used for input or output.
+\end{Arguments}
+
+\comments
+The \texttt{.DCOP} capability can only set voltage values, not current values.  See 
+section \ref{IC_section} for more details on other limitations on initial conditions.
+
+The input and output files are two-column text files. One column has the variable name, 
+the other column has the value of that variable.
+
+\end{Command}
+

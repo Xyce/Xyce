@@ -1,0 +1,526 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Working with Subcircuits and Models}
+\label{Models}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter provides model examples and summarizes ways to create and
+modify models.  Sections include:
+\begin{XyceItemize}
+\item Section~\ref{Model_Def}, {\em Model Definition}
+\item Section~\ref{Subcircuit_Sect}, {\em Subcircuit Creation}
+\item Section~\ref{Model_Organization}, {\em Model Organization}
+\item Section~\ref{subcircuit_multiplier}, {\em Subcircuit Multiplier \texttt{M}}
+\end{XyceItemize}
+}
+
+\section{Model Definitions}
+\label{Model_Def}
+\index{model!definition}
+
+A model describes the electrical performance of a {\em part}, such as
+a specific vendor's version of a 2N2222 transistor.  To simulate a
+part requires specification of {\em simulation properties}.  
+These properties define the model of the part.
+
+Depending on the given device type and the requirements of the circuit
+design, a model is specified using a model parameter set, a subcircuit
+netlist, or both.
+
+In general, {\em model parameter sets} define the parameters used in ideal
+models of specific device types, while {\em subcircuit netlists} allow the user
+to combine ideal device models to simulate more complex effects.  For example,
+one could simulate a bipolar transistor using the \Xyce{} BJT device by specifying
+model parameters extracted to fit the simulation behavior to the behavior of
+the part used. One could also develop a subcircuit macro-model of a capacitor
+that adds effects such as lead inductance and resistance to the basic capacitor
+device.
+
+Both methods of defining a model use a netlist format, with precise
+syntax rules.  In this section we give an overview of how to define
+model parameter sets in \Xyce{}.  A subsequent subsection will provide a
+similar overview of how to define subcircuit models.  For full
+details, consult the \Xyce{} Reference Guide\ReferenceGuide.
+
+\paragraph{Defining models using model parameters}
+
+Although \Xyce{} has no built-in part models,  models can be defined for a
+device by changing some or all of the {\em model parameters} from their
+defaults via the \texttt{.MODEL} statement. For example:
+
+\begin{vquote}
+ \texttt{M5 3 2 1 0 MLOAD1}
+ \texttt{.MODEL MLOAD1 NMOS (LEVEL=3 VTO=0.5 CJ=0.025pF)}
+\end{vquote}
+
+This example defines a MOSFET device \texttt{M5} that is an instance of a part
+described by the model parameter set \texttt{MLOAD1}.  The \texttt{MLOAD1}
+parameter set is defined in the \texttt{.MODEL} statement.
+
+Most device types in \Xyce{} support some form of model parameters.  Consult
+the \Xyce{} Reference Guide\ReferenceGuide{} for the model parameters supported
+by each device type.
+
+\paragraph{Defining models using subcircuit netlists}
+
+In \Xyce{}, models may also be defined using the
+\texttt{.SUBCKT}/\texttt{.ENDS} subcircuit syntax. This syntax allows the
+creation of {\em Netlists}, which define the configuration and function of the
+part, and the use of {\em Variable input parameters}, which can be used to
+create device-specific implementations of the model.  The \texttt{.SUBCKT}
+syntax, and an example of how to use \texttt{.SUBCKT} to implement a model, is
+given in Section~\ref{Subcircuit_Sect}.
+
+\clearpage
+\section{Subcircuit Creation}
+\label{Subcircuit_Sect}
+\index{\texttt{.SUBCKT}}
+\index{subcircuits}
+
+A subcircuit can be created within \Xyce{} using the \texttt{.SUBCKT} keyword.
+The \texttt{.ENDS} keyword is used to mark the end of the subcircut. All the
+lines between the two keywords are considered to be part of the subcurcuit.  
+Figure~\ref{Subcircuit_Example} provides an example of how a subcircuit is
+defined and used.
+
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+****other devices
+X5 5  6  7  8 l3dsc1 PARAMS: ScaleFac=2.0
+X6 9 10 11 12 l3dsc1
+****more netlist commands
+
+*** SUBCIRCUIT: l3dsc1
+*** Parasitic Model: microstrip
+*** Only one segment
+.SUBCKT l3dsc1 1 3 2 4 PARAMS: ScaleFac=1.0
+C01 1 0 4.540e-12
+RG01 1 0 7.816e+03
+L1 1 5 3.718e-08
+R1 5 2 4.300e-01
+C1 2 0 4.540e-12
+RG1 2 0 7.816e+03
+C02 3 0 4.540e-12
+RG02 3 0 7.816e+03
+L2 3 6 3.668e-08
+R2 6 4 4.184e-01
+C2 4 0 4.540e-12
+RG2 4 0 7.816e+03
+CM012 1 3 5.288e-13
+KM12 L1 L2 2.229e-01
+CM12 2 4 \{5.288e-13*ScaleFac\}
+.ENDS
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit model.\label{Subcircuit_Example}}
+\index{Example!subcircuit definition}
+\end{centering}
+\end{figure}
+
+In this example, a subcircuit model named \texttt{l3dsc1}, which implements one
+part of a microstrip transmission line, is defined between the
+\texttt{.SUBCKT}/\texttt{.ENDS} lines; and two different instances of the
+subcircuit are used in the \texttt{X} lines.  This somewhat artificial example
+shows how input parameters are used, where the last capacitor in the subcircuit
+is scaled by the input parameter \texttt{ScaleFac}.  If input parameters are
+not specified on the \texttt{X} line (as in the case of device \texttt{X6}),
+then the default values specified on the \texttt{.SUBCKT} line are used.
+Non-default values are specified on the \texttt{X} line after the optional
+\texttt{PARAMS:} keyword.  Consult the \Xyce{} Reference Guide\ReferenceGuide{}
+for precise syntax.
+
+In addition to devices, a subcircuit may contain definitions, such as models
+via the \texttt{.MODEL} statement, parameters via the \texttt{.PARAM}
+statement, and functions via either the \texttt{.FUNC} or \texttt{.PARAM} statements.  
+\Xyce{} also supports the definition of one or more subcircuits within another subcircuit.
+\index{subcircuits!hierarchy} Subcircuits can be nested to an arbitrary extent,
+where one subcircuit can contain another subcircuit, which can contain yet
+another subcircuit, and so on.
+
+The creation of nested subcircuits requires an understanding of ``scope,''
+\index{subcircuits!scope} such that each subcircuit defines the scope for the
+definitions it contains.  That is, {\em the definitions contained within a
+subcircuit can be used within that subcircuit and within any subcircuit it
+contains, but not at any higher level.}  Definitions occurring in the main
+circuit have global scope and can be used anywhere in the circuit.  A name,
+such as a model, parameter, function, or subcircuit name, occurring in a
+definition at one level of a circuit hierarchy can be redefined at any lower
+level contained directly by that subcircuit.  In this case, the new definition
+applies at the given level and those below.
+
+\subsection{Examples of Scoping for Parameters, Models and Functions}
+\index{parameter!scope}\index{model!scope}\index{subcircuit!scope}
+The idea of ``scope'' may be best illustrated by examples.  This section gives
+example for parameters and models.  However, this discussion also applies to
+functions (defined with \texttt{.FUNC} or \texttt{.PARAM} statements). 
+
+In the netlist provided
+in Figure~\ref{Subcircuit_Example_2}, the model named \texttt{MOD1} can be used
+in subcircuits \texttt{SUB1} and \texttt{SUB2}, but not in the subcircuit
+\texttt{SUB3}. The parameter \texttt{P1} has a value of $10$ in subcircuit
+\texttt{SUB1} and a value of $20$ in subcircuit \texttt{SUB2}. In subcircuit
+\texttt{SUB3}, \texttt{P1} has no meaning.  In addition, \texttt{MOD1}
+and \texttt{P1} would have no meaning at the main circuit level.
+
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+.SUBCKT SUB1 1 2 3 4
+.MODEL MOD1 NMOS(LEVEL=2)
+.PARAM P1=10
+*
+* subcircuit devices omitted for brevity
+*
+.SUBCKT SUB2 1 3 2 4
+.PARAM P1=20
+*
+* subcircuit devices omitted for brevity
+*
+.ENDS
+.ENDS
+
+.SUBCKT SUB3 1 2 3 4
+*
+* subcircuit devices omitted for brevity
+*
+.ENDS
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit hierarchy, with scoping.\label{Subcircuit_Example_2}}
+\index{Example!subcircuit model hierarchy with model and parameter scoping}
+\end{centering}
+\end{figure}
+
+In the netlist provided in Figure~\ref{Subcircuit_Example_3}, the parameters
+\texttt{P2} and \texttt{P3} are defined in the main circuit.  So, \texttt{P2}
+is accessible in subcircuit \texttt{SUB4}, and has a value of 5 there. The
+parameter \texttt{P3} was redefined in the context of subcircuit \texttt{SUB4}.
+So, \texttt{P3} has a value of 10 in the main circuit, and a value of 15
+in the context of subcircuit \texttt{SUB4} and any subcircuit subsequently 
+defined within subcircuit \texttt{SUB4}.  
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+* parameters defined in main circuit
+.PARAM P2=5
+.PARAM P3=10
+
+.SUBCKT SUB4 1 2 3 4
+.PARAM P3=15
+*
+* subcircuit devices omitted for brevity
+*
+.ENDS
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit, with parameter definition override.\label{Subcircuit_Example_3}}
+\index{Example!subcircuit, with parameter definition override}
+\end{centering}
+\end{figure}
+
+In the netlist provided in Figure~\ref{Subcircuit_Example_4}, the 
+definition of subcircuit \texttt{SUB5} defines the argument \texttt{A1}.
+The subcircuit instance \texttt{X1} would use the default value of 5
+for \texttt{A1}.  So the resistance value of device \texttt{X1:R1}
+would be 5.  The subcircuit instance \texttt{X2} uses the specified
+\texttt{A1} value of 10. So the resistance value of device \texttt{X2:R1}
+would be 10.  Another key point about ``scope'' is that node, device, and
+model names are scoped to the subcircuit in which they are defined. 
+So, It is allowable to use names in a subcircuit that has been previously
+used in either the main circuit netlist or in other subcircuit definitions.   
+When the subcircuits are flattened (expanded to become part of the main 
+netlist), all of their names are given prefixes via their subcircuit 
+instance names. For example, device \texttt{R1} in subcircuit \texttt{X1} 
+becomes the unique device name X1:R1 after expansion. 
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+* subcircuit instance lines
+X1 a b  SUB5 
+X2 e f SUB5 PARAMS: A1=10
+R1 1 2 2
+
+* Note use of \{\} around A1 and FSIN parameters in
+* the body of the subcircuit definition.
+.SUBCKT SUB5 1 2 PARAMS: A1=5 FSIN=1
+VSIN 1 g SIN(0 1V \{FSIN\} 0)
+R1 g 2 \{A1\}
+.ENDS
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit, with PARAMS arguments.\label{Subcircuit_Example_4}}
+\index{Example!subcircuit, with PARAMS arguments}
+\end{centering}
+\end{figure}
+
+\clearpage
+\section{Model Organization}
+\label{Model_Organization}
+\index{model!model organization}
+
+While it is always possible to make a self-contained netlist in which
+all models for all parts are included along with the circuit
+definition, \Xyce{} provides a simple mechanism to conveniently organize
+frequently used models into separate model libraries.  Models are simply
+collected into model library files, and then accessed by netlists as needed by
+inserting an \texttt{.INCLUDE}\index{\texttt{.INCLUDE}} directive.  This
+section describes that process in detail.
+
+\subsection{Model Libraries}
+
+Device model and subcircuit definitions may be organized into model
+libraries as text files (similar to netlist files) with one or more model
+definitions. Many users choose to name model library files ending with
+\texttt{.lib}, but they may be named using any convention.
+
+In general, most users create model libraries files that include similar model
+types.  In these files, the {\em header comments} describe the models therein.  
+
+\subsection{Model Library Configuration using \texttt{.INCLUDE}}
+
+\Xyce{} uses model libraries by inserting an \texttt{.INCLUDE}
+statement into a netlist.  Once a file is included, its contents become
+available to the netlist just as if the entire contents had been
+inserted directly into the netlist.
+
+As an example, one might create the following model library file
+called \texttt{bjtmodels.lib}, containing \texttt{.MODEL} statements for
+common types of bipolar junction transistors:
+
+\begin{vquote}
+*bjtmodels.lib
+* Bipolar transistor models
+.MODEL Q2N2222 NPN (Is=14.34f Xti=3 Eg=1.11 Vaf=74.03 Bf=5 Ne=1.307
++  Ise=14.34f Ikf=.2847 Xtb=1.5 Br=6.092 Nc=2 Isc=0 Ikr=0 Rc=1
++  Cjc=7.306p Mjc=.3416 Vjc=.75 Fc=.5 Cje=22.01p Mje=.377 Vje=.75
++  Tr=46.91n Tf=411.1p Itf=.6 Vtf=1.7 Xtf=3 Rb=10)
+
+.MODEL 2N3700 NPN (IS=17.2E-15 BF=100)
+
+.MODEL 2N2907A PNP (IS=1.E-12 BF=100)
+\end{vquote}
+
+The models \texttt{Q2N2222}, \texttt{2N3700} and \texttt{2N2907A} could then be
+used in a netlist by including the \texttt{bjtmodels.lib} file.
+
+\begin{vquote}
+.INCLUDE "bjtmodels.lib"
+Q1 1 2 3 Q2N2222
+Q2 5 6 7 2N3700
+Q3 8 9 10 2N2907A
+*other netlist entries
+.END
+\end{vquote}
+
+Because the contents of an included file are simply inserted into the netlist
+at the point where the \texttt{.INCLUDE} statement appears, the scoping rules
+for \texttt{.INCLUDE} statements are the same as for other types of definitions
+as outlined in the preceding subsections. 
+
+NOTE:	The path to the library file is assumed to be relative to the execution
+directory, but absolute pathnames are permissible.  The entire file name,
+including its ``extension'' must be specified.  There is no assumed default
+extension.
+
+\subsection{Model Library Configuration using \texttt{.LIB}}
+
+An alternative technique for organizing model libraries employs the
+\texttt{.LIB} command.  With \texttt{.LIB}, a library file can contain
+multiple versions of a model and specific versions may be selected at
+the top level using a keyword on the \texttt{.LIB} line.  
+
+There are two different uses for the \texttt{.LIB} command.  In the
+main netlist, \texttt{.LIB} functions in a similar manner to
+\texttt{.INCLUDE}: it reads in a file.  Inside that file,
+\texttt{.LIB} and \texttt{.ENDL} are used to specify blocks of model
+code that may be included independently of other parts of the same
+file.
+
+As an example, if you had two different 2N2222 transistor models extracted 
+at different \textrmb{TNOM} values, you could define them in a model library
+inside \texttt{.LIB}/\texttt{.ENDL} pairs:
+
+\begin{vquote}
+* transistors.lib file
+.lib roomtemp
+.MODEL Q2N2222 NPN (TNOM=27 Is=14.34f Xti=3 Eg=1.11 Vaf=74.03 Bf=5 Ne=1.307
++  Ise=14.34f Ikf=.2847 Xtb=1.5 Br=6.092 Nc=2 Isc=0 Ikr=0 Rc=1
++  Cjc=7.306p Mjc=.3416 Vjc=.75 Fc=.5 Cje=22.01p Mje=.377 Vje=.75
++  Tr=46.91n Tf=411.1p Itf=.6 Vtf=1.7 Xtf=3 Rb=10)
+.endl
+
+.lib hightemp
+.MODEL Q2N2222 NPN (TNOM=55 [...parameters omitted for brevity...])
+.endl
+\end{vquote}
+
+Note that both models are given identical names, but are enclosed
+within \texttt{.LIB}/\texttt{.ENDL} pairs with different names.  When
+this file is used in a netlist, a specific model can be used by
+specifying it on the \texttt{.LIB} line in the main netlist.
+
+\begin{vquote}
+*This netlist uses only the high temperature model from the library
+.lib transistors.lib hightemp
+Q1 collector base emitter Q2N2222
+[...]
+\end{vquote}
+
+The exact format and usage of the \texttt{.LIB} command is documented in the
+\Xyce{} Reference Guide\ReferenceGuide{}.
+
+\section{Subcircuit Multiplier \texttt{M}}
+\label{subcircuit_multiplier}
+\index{multiplier!subcircuit}
+\index{subcircuits!multiplier}
+
+Similar to many device models, subcircuits support a scalar multiplier, \texttt{M} on the instance line.
+The usage syntax is similar to that of subcircuit parameters, except that it is 
+implicitly applied to all devices (see table~\ref{Devices_with_multipliers}) in 
+the subcircuit instance which support multipliers.
+If the devices in a subcircuit already have multiplier parameters specified, 
+the value is multiplied by the subcircuit instance value.  This is applied recursively 
+for nested subcircuits.
+
+Note that it is not necessary to specify it as a parameter on the \texttt{.subckt} line.  
+Also, the multiplier is \emph{not} considered to be a normal user-defined parameter that can be 
+used in expressions.
+
+A very simple example of a subcircuit instance multiplier usage is given in figure~\ref{Subcircuit_Multiplier_Example_1}.  In this example, a multiplier, \texttt{M=5}, is given on the subcircuit line, \texttt{Xtest}.   This multiplier is automatically applied to the resistor \texttt{R1} inside the \texttt{Xtest} instance, so the effective multiplier on \texttt{Xtest:R1} is \texttt{M=5}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest 2 3 testA \color{blue}M=5\color{black}
+.subckt testB A B
+R1 A B 0.5  
+.ends
+\end{vquote}
+\end{minipage}
+}
+\caption{Example subcircuit using a multiplier.\label{Subcircuit_Multiplier_Example_1}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+An example of nested subcircuits using instance multipliers is given in 
+figure~\ref{Subcircuit_Multiplier_Example_2}.  In this example, multipliers are
+specified at each level of the hierarchy, including on the resistor, \texttt{R1}.  
+As each multiplier is applied multiplicatively, the effective multiplier on 
+\texttt{Xtest1:Xtest:R1} is \texttt{M=4*3*5=60}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+
+Xtest1 2 3 testA \color{blue}M=5\color{black}
+
+.subckt testA A B
+Xtest A B testB \color{blue}M=3\color{black}
+.ends
+
+.subckt testB A B
+R1 A B 0.5  \color{blue}M=4\color{black}
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example nested subcircuits using a multiplier.\label{Subcircuit_Multiplier_Example_2}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+A slightly more complicated example of nested subcircuits, which also makes use of expressions, 
+is given in figure~\ref{Subcircuit_Multiplier_Example_3}.  In this example the effective multiplier
+on \texttt{Xtest1:Xtest:R1} will be \texttt{M=4*0.5*2*15=60}.
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest1 2 3 testA  \color{blue}M=15\color{black}
+
+.subckt testA A B
+.param fred=2
+Xtest A B testB \color{blue}M='0.5*fred'\color{black}
+.ends
+
+.subckt testB A B
+R1 A B 0.5 \color{blue}M=4\color{black}
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example nested subcircuits using a multiplier, where a multiplier is set with an expression.\label{Subcircuit_Multiplier_Example_3}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+
+As noted above, the \texttt{M} subcircuit instance multiplier is not considered to be 
+a parameter available to expressions.  So, attempting to use it in an expression will
+not work, resulting in a fatal error.
+However, it is allowed to declare a parameter named \texttt{M}, and use it in combination with multlipliers.
+For example of such usage, see figure~\ref{Subcircuit_Multiplier_Example_4}.  
+\begin{figure}[H]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Xtest1 2 3 testA  M=15
+
+.subckt testA A B 
+Xtest A B testB M=2
+.ends
+
+.subckt testB A B M=3
+R1 A B 0.5 M='4*M'
+.ends
+
+\end{vquote}
+\end{minipage}
+}
+\caption{Example of \texttt{M} being used as a subcircuit multiplier and a user-defined parameter.\label{Subcircuit_Multiplier_Example_4}}
+\index{Example!subcircuit multiplier}
+\end{centering}
+\end{figure}
+In this case, \texttt{M} is being declared as a user-defined parameter of value \texttt{M=3} inside the subcircuit \texttt{testB}, and this parameter is used inside the right-hand-side expression of \texttt{M='4*M'}.   The expression \texttt{4*M} will evaluate to \texttt{12}.  The other \texttt{M} keywords in this netlist are multipliers on the subcircuit instance lines, and they are applied in the usual way.  As a result, the final multiplier on \texttt{Xtest1:Xtest:R1} is \texttt{M=12*2*15=360}.
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+%%% END of Xyce_UG_ch05.tex ************

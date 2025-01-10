@@ -1,0 +1,191 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% When compiling at Sandia, uncomment 'sand' and SANDreport
+% Outside of Sandia, uncomment 'report' and scrreprt:
+\documentclass[11pt,report]{SANDreport}
+\usepackage[sand]{optional}
+%\documentclass[11pt,letterpaper]{scrreprt}
+%\usepackage[report]{optional}
+
+\usepackage{Xyce}
+\usepackage{makeidx,ltxtable, multirow}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{mdwlist}
+\usepackage{float}
+\restylefloat{table}
+%\usepackage{pdfdraftcopy}
+%\draftstring{DRAFT}
+\include{Xyce_RG_macros}
+% Xyce_RG_macros includes some ``short-hand'' definitions to not have to type
+% so much stuff out explicitly!
+
+\opt{report}{
+     \usepackage{fullpage}
+     \DeclareOldFontCommand{\rm}{\normalfont\rmfamily}{\mathrm}
+     \DeclareOldFontCommand{\sf}{\normalfont\sffamily}{\mathsf}
+     \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\mathtt}
+     \DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+     \DeclareOldFontCommand{\it}{\normalfont\itshape}{\mathit}
+     \DeclareOldFontCommand{\sl}{\normalfont\slshape}{\@nomath\sl}
+     \DeclareOldFontCommand{\sc}{\normalfont\scshape}{\@nomath\sc}
+}
+
+\includeonly{
+acktrade,
+Xyce_RG_ch01,
+Xyce_RG_app1,
+Xyce_RG_PDE,
+Xyce_RG_app2,
+Xyce_RG_app_rawformat,
+Xyce_RG_dist
+}
+
+%\draft
+
+\makeindex
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\Reference Guide, Version 7.9}
+\SANDauthor{Eric R. Keiter,
+            Richard L. Schiek,
+            Heidi K. Thornquist,\\
+            Ting Mei,
+            Jason C. Verley,
+            Karthik V. Aadithya,\\
+            Joshua D. Schickling,
+            Gary L. Hennigan
+}
+\date{}
+
+% ---------------------------------------------------------------------------- %
+% Set some things we need for SAND reports. These are mandatory
+%
+\opt{sand}{
+\SANDnum{SAND2024-14132}
+\SANDprintDate{October 2024}
+}
+
+\begin{document}
+
+% Set to roman page numbers for front matter
+%\pagenumbering{roman}
+
+\maketitle
+
+\opt{report}{
+\noindent
+Issued by Sandia National Laboratories, operated for the United States
+Department of Energy by National Technology \& Engineering Solutions of Sandia,
+LLC.\\
+\\
+NOTICE:  This report was prepared as an account of work sponsored by an agency
+of the United States Government. Neither the United States Government, nor any
+agency thereof, nor any of their employees, nor any of their contractors,
+subcontractors, or their employees, make any warranty, express or implied, or
+assume any legal liability or responsibility for the accuracy, completeness, or
+usefulness of any information, apparatus, product, or process disclosed, or
+represent that its use would not infringe privately owned rights. Reference
+herein to any specific commercial product, process, or service by trade name,
+trademark, manufacturer, or otherwise, does not necessarily constitute or imply
+its endorsement, recommendation, or favoring by the United States Government,
+any agency thereof, or any of their contractors or subcontractors. The views
+and opinions expressed herein do not necessarily state or reflect those of the
+United States Government, any agency thereof, or any of their contractors.
+\vfill
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and operated
+by National Technology \& Engineering Solutions of Sandia, LLC, a wholly owned
+subsidiary of Honeywell International Inc., for the U.S.  Department of
+Energy’s National Nuclear Security Administration under contract DE-NA0003525.
+}
+
+\begin{abstract}
+
+This document is a reference guide to the \Xyce{} Parallel Electronic
+Simulator, and is a companion document to the \Xyce{} Users' Guide\UsersGuide.
+The focus of this document is (to the extent
+possible) exhaustively list device parameters, solver options, parser
+options, and other usage details of \Xyce{}.  This document is \emph{not}
+intended to be a tutorial.  Users who are new to circuit simulation are 
+better served by the \Xyce{} Users' Guide\UsersGuide.
+
+\end{abstract}
+
+\clearpage
+
+% acknowledgements, trademarks, contact information.
+\include{acktrade}
+
+\cleardoublepage
+\pdfbookmark[1]{Table of Contents}{TOC}
+\tableofcontents
+
+\cleardoublepage
+\pdfbookmark[1]{List of Figures}{LOF}
+\listoffigures
+
+\cleardoublepage
+\pdfbookmark[1]{List of Tables}{LOT}
+\listoftables
+
+\cleardoublepage
+
+\opt{sand}{
+\SANDmain
+}
+
+\include{Xyce_RG_ch01}
+\cleardoublepage
+\include{Xyce_RG_app1}
+\cleardoublepage
+\include{Xyce_RG_PDE}
+\cleardoublepage
+\include{Xyce_RG_app2}
+\cleardoublepage
+\include{Xyce_RG_app_rawformat}
+
+%%%
+%%% End of Text
+%%%
+\cleardoublepage
+\opt{report}{
+\addcontentsline{toc}{chapter}{Bibliography}
+}
+\bibliographystyle{unsrt}
+\bibliography{circuit}
+
+%%% Appendix:
+%%% Third Party License Information
+\appendix
+\chapter{Third Party Licenses}
+\input{third_party_license}
+
+%%
+%% Index
+%%
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+\opt{sand}{
+\addcontentsline{toc}{chapter}{Distribution}
+\include{Xyce_RG_dist}
+}
+\cleardoublepage
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_RG.tex ************

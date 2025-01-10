@@ -1,0 +1,141 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
+     \endhead
+
+\textbf{1224-SON}: Improved error handling for .SAMPLING &
+In the previous release of Xyce, a \texttt{.SAMPLING} analysis would run
+even if the user-specified \texttt{STD\_DEVIATIONS}, \texttt{ALPHA} and
+\texttt{BETA} values were invalid.  For Gamma distributions, the
+user-specified \texttt{ALPHA} and \texttt{BETA} values must now be
+strictly positive.  The \texttt{STD\_DEVIATIONS} values specified for
+Gaussian distributions must now be non-negative. \\ \hline
+
+\textbf{1223-SON}: ADMS and Xyce/ADMS do not correctly handle analog functions with output arguments  &
+A long-standing bug in ADMS fails to propagate probe and variable
+dependence from analog function call input arguments into the output
+arguments.  This leads to incorrect code generation by Xyce/ADMS when
+such functions are used.  Xyce/ADMS now uses a modified version of
+ADMS's ``implicit'' templates that it invokes explicitly instead.
+Analog function output variables should now be processed just as
+correctly as if they had appeared on the left hand side of an
+assignment.  The relevant fixes to ADMS's implicit templates have also been
+provided upstream to the ADMS maintainers.  \\ \hline
+
+\textbf{1219-SON}: Add PSP 103 model with self-heating &
+This model has been added as the level 1031 MOSFET.  \\ \hline
+
+\textbf{1210-SON}: Sign of negative values in parameter files ignored &
+When the \texttt{-prf} command line argument was used to pass Xyce a
+parameter file the leading negative signs of parameter values was
+ignored.  This has been fixed.  \\ \hline
+
+\textbf{1204-SON}: Fix issue with extra blank lines in Touchstone 1 formatted output
+for .LIN analysis &
+
+There could be extra blank lines inserted in the Touchstone 1
+formatted output, between the S-parameter values output for each
+frequency, if a
+\texttt{.LIN} analysis used any number of ports other than 2.  The Touchstone 2
+formatted output, which is the default output format for \texttt{.LIN} analyses,
+was not affected by this bug. \\ \hline
+
+\textbf{1202-SON}: Fix segfaults caused by using .LIN SPARCALC=1 in a netlist
+without any port (P) devices & The use of a \texttt{.LIN} line with the
+parameter \texttt{SPARCALC} set to 1 in a netlist that requested a \texttt{.AC}
+analysis without any valid port (P) devices in the netlist would cause
+\Xyce{} to segfault. \\ \hline
+
+\textbf{1198-SON}: Binning doesn't work for BSIM6 and other models in the ADMS directory &
+Binning (the kind enabled by \texttt{.options parser
+model\_binning=true}) did not work properly for several MOSFET models
+derived from Verilog-A, because the authors of those models had not
+included the dummy
+parameters \textbf{LMIN}, \textbf{LMAX}, \textbf{WMIN},
+and \textbf{WMAX}.  These dummy parameters are not used directly by
+any model, but must be present in order for the binning code to select
+the correct model card from a collection of cards based on
+the \textbf{L} and \textbf{W} parameter on the instance line.  These
+models were BSIM6, PSP102, MVSG-HV, and the non-free EKV models.
+Dummy parameters have been added for all these models and they should
+now work with binning. \\ \hline
+
+\textbf{1197-SON}: Allow dependent parameters, other than C and Q, for
+the C-device that use expressions without solution variables in them &
+The C and Q instance parameters are allowed to be solution-dependent
+for the C-device.  In \Xyce{} 6.11, or earlier, an attempt to use an
+expression (that did not depend on solution variables such as nodal voltages)
+in the definition of other parameters, such as TEMP, for the C device
+would cause a parsing error.  This is fixed now.
+\\ \hline
+
+\textbf{1196-SON}: -hspice-ext math command line option fails on .FUNC
+statements the use Logical OR and Logical AND & The \texttt{-hspice-ext}
+command line option would fail on \texttt{.FUNC} statements that contained
+logical OR or logical AND operators.  Examples were as follows, where
+\texttt{P1} and \texttt{P2} were previously defined on \texttt{.PARAM}
+lines:
+\begin{verbatim}
+.FUNC ANDFUNC(p1,p2) {(P1&&P2) ? 1.0 : 2.0}
+.FUNC ORFUNC(p1,p2)  {(P1||P2) ? 1.0 : 2.0}
+\end{verbatim}
+\\ \hline
+
+\textbf{1188-SON}: Various ill-formed .DATA, .DC and .STEP lines could cause
+\Xyce{} to segfault & An attempt to use \texttt{.DATA}, \texttt{.DC} or
+\texttt{.STEP} lines with less than the required number of elements on
+those lines could cause \Xyce{} to segfault.  In addition, the error
+messages emitted for invalid uses of \texttt{DATA=<tableName>} on
+\texttt{.AC} \texttt{.DC} and \texttt{.STEP} lines, or for ill-formed
+\texttt{.DATA} statements, could be cryptic and unhelpful.
+\\ \hline
+
+\textbf{989-SON}: I(*) will not print branch currents that are part of a Y
+device & Until this release of \Xyce{}, the I(*) feature of
+the \texttt{.PRINT} would not output any branch currents (extra
+solution variables describing internal currents of a device)
+associated with Y devices.  No Y devices in \Xyce{} have such branch
+currents, but Y devices imported from Verilog-A plugins could.  These
+branch currents are now output by I(*).
+
+\\ \hline
+
+
+
+\textbf{1242-SON}: Allow S-parameter analysis to handle DC and negative  frequencies &
+The non-positive frequencies were not allowed in the S-parameter analysis previously.
+The linear frequency sweep can now handle DC and negative frequencies.    
+\\ \hline
+
+\end{longtable}
+}

@@ -1,0 +1,177 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\label{modelCommand}
+The \texttt{.MODEL} command provides a set of device parameters to be
+referenced  by device instances in the circuit.
+
+\begin{Command}
+
+\format
+.MODEL <model name> <model type> (<name>=<value>)*
+
+\examples
+\begin{alltt}
+.MODEL RMOD R (RSH=1)
+.MODEL MOD1 NPN BF=50 VAF=50 IS=1.E-12 RB=100 CJC=.5PF TF=.6NS
+.MODEL NFET NMOS(LEVEL=1 KP=0.5M VTO=2V)
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{model name}
+The model name used to reference the model.
+
+\argument{model type}
+
+The model type used to define the model.  This determines if the model
+is (for example) a resistor, or a MOSFET, or a diode, etc.  For
+transistors, there will usually be more than one type possible, such as
+NPN and PNP for BJTs, and NMOS and PMOS for MOSFETs.
+
+\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
+
+The name of a parameter and its value.  Most models will have a list of
+parameters available for specification.  Those which are not set will
+receive default values.  Most will be floating point numbers, but some
+can be integers and some can be strings, depending on the definition of
+the model.
+
+\end{Arguments}
+
+\comments
+\index{\texttt{.MODEL}!subcircuit scoping}The scoping rules for models are:
+\begin{XyceItemize}
+\item If a \texttt{.MODEL}, statement is included in the main circuit 
+netlist, then it is accessible from the main circuit and all subcircuits. 
+\item \texttt{.MODEL} statements defined within a subcircuit are scoped 
+to that subciruit definition.  So, their models are only accessible within 
+that subcircuit definition, as well as within ``nested subcircuits'' also 
+defined within that subcircuit definition.
+\end{XyceItemize}
+
+Additional illustative examples of scoping are given in the
+``Working with Subcircuits and Models'' section of the \Xyce{} Users' 
+Guide\UsersGuide. 
+
+A model name can be the same as a device name in \Xyce{}.  However, that
+usage will generate a warning message during netlist parsing.  
+The reason is that it can lead to ambiguous \texttt{.PRINT} lines 
+when a model parameter and instance parameter, for a given device, have
+the same name but a different meaning.  For example, \texttt{R1} 
+could be used as both a resistor device-name, and as a resistor model-name.
+However, \texttt{.PRINT TRAN R1:R} would then be ambiguous.  In addition,
+the use of duplicate model and device names is not recommended if those
+names will be used within a \Xyce{} expression since that can result in 
+an ambiguous expression.
+
+\end{Command}
+
+\subsubsection{\textrmb{LEVEL} Parameter}
+\index{model!level parameter}
+\index{level parameter}
+
+A common parameter is the \textrmb{LEVEL} parameter, which is set to an
+integer value.  This parameter will define exactly which model of the
+given type is to be used.  For example, there are many different
+available MOSFET models.  All of them will be specified using the same
+possible names and types.  The way to differentiate (for example)
+between the BSIM3 model and the PSP model is by setting the appropriate
+\textrmb{LEVEL}.
+
+\subsubsection{Model Binning}
+\index{model!binning}
+\index{model binning}
+
+Model binning is supported for MOSFET models.  For model binning, the netlist 
+contains a set of similar \texttt{.MODEL} cards which correspond to different 
+sizing information (length and width).  They are similar in that they are for the same
+model (and same \texttt{LEVEL} number), and have the same prefix.  They are different in that 
+they have different \texttt{lmin,lmax,wmin,wmax} parameters, and the name suffix will be
+the bin number.  For a MOSFET device instance, \Xyce{} will automatically select the
+appropriate binned model, based on the \texttt{L} and \texttt{W} parameters of that 
+instance.   It will only seach the models with matching name prefixes, and can only work if
+all the binned models have specified all the \texttt{lmin,lmax,wmin,wmax} parameters.
+
+Model binning is enabled by default.  To disable it, specify \texttt{.options parser model\_binning=false}.
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* Model binning example adapted from the BSIM4 tests\color{black}
+m1 2 1 0 b nch L=0.11u W=10.1u NF=5 rgeomod=1 geomod=0
+vgs 1 0 1.2
+vds 2 0 1.2
+Vb b 0 0.0
+
+.dc vds 0.0 1.21 0.02 vgs 0.2 1.21 0.2
+
+.print dc v(2) v(1) i(vds)
+
+* model binning
+.model nch.1 nmos(level=14 
++ lmin=0.1u lmax=20u 
++ wmin=0.1u wmax=10u)
+.model nch.2 nmos(level=14 
++ lmin=0.1u lmax=20u 
++ wmin=10u  wmax=100u)
+
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Model Binning Example]
+{Model Binning Example\label{binningExample} }
+\end{centering}
+\end{figure}
+
+\subsubsection{Length Scaling}
+\index{model!scale}
+\index{scale}
+
+It can be convenient to specify the lengths and widths for MOSFET instances in scaled units.  
+To enable this, the netlist should include \texttt{.options parser scale} or \texttt{.option scale}.
+This feature is only supported in MOSFET compact models.  An example usage is given in figure~\ref{scaleExample}.
+In this example, the scaled length and width for transistor \texttt{mn1} is \texttt{l=5.0e-6} and \texttt{w=175e-6}.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}mos level 1 model cmos inverter using scale]\color{black}
+.tran 20ns 6us
+.print tran v(vout) v(in) v(1)
+vdddev 	vdd	0	5v
+rin	in	1	1k
+vin1  1	0  5v pulse (5v 0v 1.5us 5ns 5ns 1.5us 3us)
+r1    vout  0  10k  
+c2    vout  0  0.1p 
+mn1   vout  in 0 0 cd4012\_nmos l=5 w=175 
+mp1   vout in vdd vdd cd4012\_pmos l=5 w=270 
+
+.options parser scale=1.0e-6
+
+\color{blue}* also valid:
+*.option scale=1.0e-6\color{black}
+
+.model cd4012\_pmos pmos (level=1 uo=310  vto=-1.6 tox=6e-08)
+.model cd4012\_nmos nmos (level=1 uo=190 vto=1.679 tox=6e-08)
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Scale Example]
+{Scale Example\label{scaleExample} }
+\end{centering}
+\end{figure}
+

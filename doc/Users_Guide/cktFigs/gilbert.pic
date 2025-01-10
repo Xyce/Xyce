@@ -1,0 +1,1053 @@
+% gilbert.m4
+%
+% 
+%
+.PS                            # Pic input begins with .PS
+# cct_init Version 8.5.1: TikZ PGF m4 macro settings.
+  
+  # gen_init Version 8.5.1: TikZ PGF m4 macro settings.
+  
+
+  define rpoint__ {
+    rp_wid = last line.end.x-last line.start.x
+    rp_ht = last line.end.y-last line.start.y
+    rp_len = sqrt(abs((rp_wid)^2+(rp_ht)^2)); move to last line.start
+    rp_ang = atan2(rp_ht,rp_wid) }
+
+  rtod_ = 57.295779513082323;  dtor_ = 0.017453292519943295
+  twopi_ = 6.2831853071795862;  pi_ = (twopi_/2)
+  rp_ang = 0;  right
+  
+  
+  linethick = 0.8
+  arrowwid = 0.05*scale; arrowht = 0.1*scale 
+  
+  
+  # gen_init end
+
+  
+
+# cct_init end
+                       # Set defaults
+
+elen = 0.75                    # Variables are allowed; default units are inches
+Origin: Here                   # Position names are capitalized
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+GndV2: box invis ht 0 wid 0 with .c at Here
+    {  m4sd_ang = rp_ang; rp_ang = (-90)*(dtor_)  ; 
+  line from last box.c to Here+((linewid/4)*(cos(rp_ang)),(linewid/4)*(sin(rp_ang)))
+  {line from Here+((linewid/6)*((-sin(rp_ang))),(linewid/6)*(cos(rp_ang))) \
+          to Here+((-linewid/6)*((-sin(rp_ang))),(-linewid/6)*(cos(rp_ang)))}
+   {line from Here+(((linewid/16)*(cos(rp_ang))+(linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(linewid/9)*(cos(rp_ang)))) \
+          to Here+(((linewid/16)*(cos(rp_ang))+(-linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(-linewid/9)*(cos(rp_ang))))}
+   line from Here+(((2*linewid/16)*(cos(rp_ang))+(linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(linewid/14)*(cos(rp_ang)))) \
+          to Here+(((2*linewid/16)*(cos(rp_ang))+(-linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(-linewid/14)*(cos(rp_ang))))
+    right ; rp_ang = m4sd_ang
+  } 
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+
+  V2: line invis  up elen
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  {"$_-$" at Here+((-(0.25*linewid)/2)*(cos(rp_ang)),(-(0.25*linewid)/2)*(sin(rp_ang))) }
+          {"$_+$" \
+              at Here+(((0.25*linewid)/2)*(cos(rp_ang)),((0.25*linewid)/2)*(sin(rp_ang))) }
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis ;   {"$ V_2$" \
+     at last [].w rjust };  ;   {"$ 6V$" \
+     at last [].r ljust };  ;
+  Lv2: line  right 0.5*elen; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}1}$" \
+     at last [].n above };  ;
+
+  # first transistor pair (Q3,Q4)
+  Rq3b:    line invis  right 1.5*elen from Lv2.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_5$" \
+     at last [].n above };  ;   {"$ 100 \Omega$" \
+     at last [].s below };  ; 
+  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}2}$" \
+     at last [].n above };  ;
+  line 0.25*elen from Rq3b.end
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q3:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*((6.5)))*((-sin(rp_ang))),((linewid/10)*((6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*((4)))*((-sin(rp_ang))),((linewid/10)*((4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc cw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang))))
+    A2: arc cw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang))))
+  ;  ]  with .B at Here
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_3$" \
+     at last [].r ljust };  
+  LQ3e2Q4e1: line right 0.5*elen from Q3.E;
+  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;
+  LQ3e2Q4e2: line right 0.5*elen from LQ3e2Q4e1.end;
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q4:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*(-(6.5)))*((-sin(rp_ang))),((linewid/10)*(-(6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*(-(4)))*((-sin(rp_ang))),((linewid/10)*(-(4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc ccw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang))))
+    A2: arc ccw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang))))
+  ;  ]  with .E at Here
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_4$" \
+     at last [].w rjust };  
+
+  # base Q4 to base Q5 connection line
+  LQ4b2Q5b1: line right 0.5*elen from Q4.B; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;    {"$ \texttt{\color{red}6}$" \
+     at last [].n  above }; ; 
+  Point1: LQ4b2Q5b1.end;
+  LQ4b2Q5b2: line right 0.5*elen from LQ4b2Q5b1.end;
+  VLO: line invis  down 0.75*elen from Point1
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  { 
+  right
+     [ Origin: (0,0)
+  Tmin: ((-(0.25*linewid)/2),0) ; Tmax: (((0.25*linewid)/2),0)
+  h = (0.25*linewid)/2-(-(0.25*linewid)/2)
+  tm = 2*(twopi_/((0.25*linewid)))
+  w0 = tm*(-(0.25*linewid)/2) + 2*(pi_/2)
+  h0 = -((-1+(((0.25*linewid)/2)/2))*(h)-(((0.25*linewid)/2)/2)/tm*(sin(tm*(h)+w0)-sin(w0)))/h;
+  n = (int(h/(twopi_/(tm/2)))+1)*12
+  for i = 0 to n do {
+    t = -(0.25*linewid)/2+((h0+(((0.25*linewid)/2)/2))*(h*i/n)-(((0.25*linewid)/2)/2)/tm*(sin(tm*(h*i/n)+w0)-sin(w0)));
+    M4S_[i]: (t,((0.25*linewid)/2)*cos((twopi_/((0.25*linewid)))*(t)+(pi_/2))) }
+  Start: M4S_[0]
+  End: M4S_[n]
+  define case { exec sprintf("$%g",floor($1+0.5)+1); }
+define dfitcurve { if "$4"=="" then { m_dfit=0 } else { m_dfit=$4 }
+ n_dfit = $2; np_dfit = n_dfit-m_dfit
+ M4P_[0]: $1[m_dfit]
+ case( min(max(np_dfit,-1),3)+1,
+   spline 0.551784 $3 from M4P_[0] to M4P_[0],
+   spline 0.551784 $3 from M4P_[0] to $1[n_dfit],
+   M4P_[3]: $1[n_dfit]; Q_dfit: (M4P_[3]-M4P_[0])/4 
+   M4P_[1]: $1[m_dfit+1]-Q_dfit; M4P_[2]: $1[m_dfit+1]+Q_dfit
+   spline 0.551784 $3 from M4P_[0] to M4P_[1] then to M4P_[2] then to M4P_[3],
+   for i_dfit=m_dfit+1 to n_dfit-1 do { M4P_[i_dfit-m_dfit]: $1[i_dfit]*(4/3) }
+   M4P_[np_dfit]: $1[n_dfit]
+   M4P_[1]: M4P_[1]-M4P_[0]/6    # forward substitution
+   d[1] = 1
+   for i_dfit = 2 to np_dfit-1 do {
+     M4P_[i_dfit]: M4P_[i_dfit]-M4P_[i_dfit-1]/(d[i_dfit-1]*6)
+     d[i_dfit] = 1-1/d[i_dfit-1]/36 }
+   for i_dfit= np_dfit-1 to 1 by -1 do {    # backward substitution
+     M4P_[i_dfit]: (M4P_[i_dfit]-M4P_[i_dfit+1]/6)/d[i_dfit] }
+                                 # draw using computed control points
+     spline 0.551784 $3 from M4P_[0] to 11/32 between M4P_[0] and M4P_[1] \
+        then to 5/32 between M4P_[1] and M4P_[2]
+     for i_dfit=2 to np_dfit-2 do { continue to M4P_[i_dfit] }
+     continue to 27/32 between M4P_[np_dfit-2] and M4P_[np_dfit-1] \
+       then to 21/32 between M4P_[np_dfit-1] and M4P_[np_dfit] \
+       then to M4P_[np_dfit]) } 
+ dfitcurve(M4S_,n,) 
+   ] with .Origin at Here
+     
+  }
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis ;  {"$ +$" \
+     at last [].n ljust above };  {"$ -$" \
+     at last [].s ljust below }; ;  {"$ V_{LO}$" \
+     at last [].l rjust };  ;
+
+  # second transistor pair (Q5,Q6)
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q5:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*((6.5)))*((-sin(rp_ang))),((linewid/10)*((6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*((4)))*((-sin(rp_ang))),((linewid/10)*((4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc cw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang))))
+    A2: arc cw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang))))
+  ;  ]  with .B at LQ4b2Q5b2.end
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_5$" \
+     at last [].r ljust };  
+  LQ5e2Q6e1: line right 0.5*elen from Q5.E;
+  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;
+  LQ5e2Q6e2: line right 0.5*elen from LQ5e2Q6e1.end;
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q6:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*(-(6.5)))*((-sin(rp_ang))),((linewid/10)*(-(6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*(-(4)))*((-sin(rp_ang))),((linewid/10)*(-(4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc ccw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang))))
+    A2: arc ccw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang))))
+  ;  ]  with .E at Here
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_6$" \
+     at last [].w rjust };  
+  Lq6b: line 0.25*elen from Q6.B; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;    {"$ \texttt{\color{red}2}$" \
+     at last [].n  above }; ;
+  Rq6b:    line invis  right 1.5*elen from Lq6b.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_6$" \
+     at last [].n above };  ;   {"$ 100 \Omega$" \
+     at last [].s below };  ; 
+ 
+  # the big line (conecting the base resistor of Q3 and base resistor of Q6 to V2=6.0V)
+  L12a: line  down 3.75*elen from Lv2.end;
+  L12c: line  down 3.75*elen from Rq6b.end;
+  L12b: line from L12a.end to L12c.end;
+
+  # connecting emitter of Q3 to collector of Q1, and setting up Q1:
+  Lq3e2q1c: line  down 0.5*elen from LQ3e2Q4e1.end; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q1:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+((linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+((linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*((6.5)))*((-sin(rp_ang))),((linewid/10)*((6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*((4)))*((-sin(rp_ang))),((linewid/10)*((4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*((4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*((4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc cw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-5.5)))*(cos(rp_ang))))
+    A2: arc cw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*((-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*((-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*((2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*((2.5)))*(cos(rp_ang))))
+  ;  ]  with .C at Here
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_1$" \
+     at last [].r ljust };  
+
+  Lq1b: line  left 0.25*elen from Q1.B; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}10}$" \
+     at last [].t above };  ;
+  Rq1b:    line invis  left elen from Lq1b.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_3$" \
+     at last [].t above };  ;  {"$ 1500 \Omega$" \
+     at last [].s below };  ;
+  Lq1b2: line down 0.75*elen from Rq1b.end; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;    {"$ \texttt{\color{red}16}$" \
+     at last [].w above rjust }; ;
+  Lq1b3: line down 1.25*elen from Lq1b2.end;
+  Lv1: line  left 0.5*elen from Lq1b2.end;
+  V1: line invis  down elen
+  rpoint__
+  
+   
+  line invis from last line.end to last line.start
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  {"$_-$" at Here+((-(0.25*linewid)/2)*(cos(rp_ang)),(-(0.25*linewid)/2)*(sin(rp_ang))) }
+          {"$_+$" \
+              at Here+(((0.25*linewid)/2)*(cos(rp_ang)),((0.25*linewid)/2)*(sin(rp_ang))) }
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis 
+  rp_ht = -rp_ht; rp_wid = -rp_wid; rp_ang = rp_ang - pi_
+  line invis to last line.start ;    {"$ 1.8V$" \
+     at last [].s ljust below }; ;  {"$ V_1$" \
+     at last [].l rjust };  ;
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+GndV1: box invis ht 0 wid 0 with .c at Here
+    {  m4sd_ang = rp_ang; rp_ang = (-90)*(dtor_)  ; 
+  line from last box.c to Here+((linewid/4)*(cos(rp_ang)),(linewid/4)*(sin(rp_ang)))
+  {line from Here+((linewid/6)*((-sin(rp_ang))),(linewid/6)*(cos(rp_ang))) \
+          to Here+((-linewid/6)*((-sin(rp_ang))),(-linewid/6)*(cos(rp_ang)))}
+   {line from Here+(((linewid/16)*(cos(rp_ang))+(linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(linewid/9)*(cos(rp_ang)))) \
+          to Here+(((linewid/16)*(cos(rp_ang))+(-linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(-linewid/9)*(cos(rp_ang))))}
+   line from Here+(((2*linewid/16)*(cos(rp_ang))+(linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(linewid/14)*(cos(rp_ang)))) \
+          to Here+(((2*linewid/16)*(cos(rp_ang))+(-linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(-linewid/14)*(cos(rp_ang))))
+    down ; rp_ang = m4sd_ang
+  } 
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+
+
+  # connecting emitter of Q6 to collector of Q2 :
+  Lq6e2q2c: line  down 0.5*elen from LQ5e2Q6e1.end; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",1,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+Q2:   [ line invis  up elen
+  rpoint__
+  
+   ; M4_xyO: last line.c
+
+    E: last line.start; line from E to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(-3))*(cos(rp_ang)),((linewid/10)*(-3))*(sin(rp_ang))) + ((((linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),(((linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+    C: E+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))); line from C to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) \
+        then to M4_xyO+(((linewid/10)*(3))*(cos(rp_ang)),((linewid/10)*(3))*(sin(rp_ang))) + (((-(linethick *(scale/72))*0.15)*(cos(rp_ang))+(-(linethick *(scale/72))/3)*((-sin(rp_ang)))),((-(linethick *(scale/72))*0.15)*(sin(rp_ang))+(-(linethick *(scale/72))/3)*(cos(rp_ang))))
+  Bulk: line  from M4_xyO+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang)))) \
+         to M4_xyO+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+  B: M4_xyO+(((linewid/10)*(-(6.5)))*((-sin(rp_ang))),((linewid/10)*(-(6.5)))*(cos(rp_ang))); line from B to M4_xyO+(((linewid/10)*(-(4)))*((-sin(rp_ang))),((linewid/10)*(-(4)))*(cos(rp_ang)))
+   
+   
+   
+   
+   
+   
+   
+   
+  
+   E0: M4_xyO+(((linewid/10)*(-(3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*(-(3+(0)*1.5)))*(sin(rp_ang)))
+    Em0: line from E0 to M4_xyO+((((linewid/10)*(-(1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*(-(1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    arrow ht linewid/10*10/6 wid linewid/10*10/9 <- \
+      from 1/4 between Em0.start and Em0.end \
+      to 3/4 between Em0.start and Em0.end
+    
+   
+   
+   
+   
+   
+   
+   
+   
+  
+  C0: M4_xyO+(((linewid/10)*((3+(0)*1.5)))*(cos(rp_ang)),((linewid/10)*((3+(0)*1.5)))*(sin(rp_ang)))
+    Cm0: line from C0 to M4_xyO+((((linewid/10)*((1.2+(0)*1.5)))*(cos(rp_ang))+((linewid/10)*(-(4)))*((-sin(rp_ang)))),(((linewid/10)*((1.2+(0)*1.5)))*(sin(rp_ang))+((linewid/10)*(-(4)))*(cos(rp_ang))))
+    
+    
+  
+  
+  
+  
+  
+  
+  A1: arc ccw from Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang)))) with .c at Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L1: line to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-5.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-5.5)))*(cos(rp_ang))))
+    A2: arc ccw to Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang)))) \
+      with .c at Bulk.start+((((linewid/10)*(2))*(cos(rp_ang))+((linewid/10)*(-(-1.5)))*((-sin(rp_ang)))),(((linewid/10)*(2))*(sin(rp_ang))+((linewid/10)*(-(-1.5)))*(cos(rp_ang))))
+    L2: line to Bulk.end+((((linewid/10)*(-2))*(cos(rp_ang))+((linewid/10)*(-(2.5)))*((-sin(rp_ang)))),(((linewid/10)*(-2))*(sin(rp_ang))+((linewid/10)*(-(2.5)))*(cos(rp_ang))))
+  ;  ]  with .C at Here
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+;   {"$ Q_2$" \
+     at last [].w rjust };  
+
+  Lq2b: line  right 0.25*elen from Q2.B; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}15}$" \
+     at last [].n above };  ;
+  Rq2b:    line invis  right elen from Lq2b.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_4$" \
+     at last [].n above };  ;  {"$ 1500 \Omega$" \
+     at last [].s below };  ;
+  Lq2b2: line  down 2*elen from Rq2b.end; 
+
+  # crossover line(s) connecting base of Q3 (inside base resistor) to base of Q6, and also the the VLO source.
+  L222a: line  down 0.75*elen from Rq3b.end;
+  Point2: L222a.end;
+  L222b: line invis  right from L222a.end to VLO.end
+  rpoint__
+  
+     M4_Tmp: last line.end
+    line to (((Lq3e2q1c.start.x-last line.start.x)*(Lq3e2q1c.start.y-Lq3e2q1c.end.y)-(Lq3e2q1c.start.y-last line.start.y)*(Lq3e2q1c.start.x-Lq3e2q1c.end.x))/\
+   ((M4_Tmp.x-last line.start.x)*(Lq3e2q1c.start.y-Lq3e2q1c.end.y)-(M4_Tmp.y-last line.start.y)*(Lq3e2q1c.start.x-Lq3e2q1c.end.x))\
+   between last line.start and M4_Tmp)\
+      chop 0 chop linewid/12-(linethick *(scale/72)/2)
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+    arc cw to Here+((2*linewid/12)*(cos(rp_ang)),(2*linewid/12)*(sin(rp_ang))) with .c at Here+((linewid/12)*(cos(rp_ang)),(linewid/12)*(sin(rp_ang)))
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+        line to M4_Tmp; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}2}$" \
+     at last [].s below };  ;
+  L222d: line  down 0.75*elen from Lq6b.end;
+  L222c: line invis  left from L222d.end to VLO.end
+  rpoint__
+  
+     M4_Tmp: last line.end
+    line to (((Lq6e2q2c.start.x-last line.start.x)*(Lq6e2q2c.start.y-Lq6e2q2c.end.y)-(Lq6e2q2c.start.y-last line.start.y)*(Lq6e2q2c.start.x-Lq6e2q2c.end.x))/\
+   ((M4_Tmp.x-last line.start.x)*(Lq6e2q2c.start.y-Lq6e2q2c.end.y)-(M4_Tmp.y-last line.start.y)*(Lq6e2q2c.start.x-Lq6e2q2c.end.x))\
+   between last line.start and M4_Tmp)\
+      chop 0 chop linewid/12-(linethick *(scale/72)/2)
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+    arc ccw to Here+((2*linewid/12)*(cos(rp_ang)),(2*linewid/12)*(sin(rp_ang))) with .c at Here+((linewid/12)*(cos(rp_ang)),(linewid/12)*(sin(rp_ang)))
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+        line to M4_Tmp; 
+
+
+  # connect node 10 to node 15, with a Vin sin source in-between.  (big line, 3rd from bottom)
+  Lnode10: line  down 1.75*elen from Lq1b.end;
+  Lnode15: line  down 0.75*elen from Lq2b.end;
+  V5: line invis  down elen
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  { 
+  right
+     [ Origin: (0,0)
+  Tmin: ((-(0.25*linewid)/2),0) ; Tmax: (((0.25*linewid)/2),0)
+  h = (0.25*linewid)/2-(-(0.25*linewid)/2)
+  tm = 2*(twopi_/((0.25*linewid)))
+  w0 = tm*(-(0.25*linewid)/2) + 2*(pi_/2)
+  h0 = -((-1+(((0.25*linewid)/2)/2))*(h)-(((0.25*linewid)/2)/2)/tm*(sin(tm*(h)+w0)-sin(w0)))/h;
+  n = (int(h/(twopi_/(tm/2)))+1)*12
+  for i = 0 to n do {
+    t = -(0.25*linewid)/2+((h0+(((0.25*linewid)/2)/2))*(h*i/n)-(((0.25*linewid)/2)/2)/tm*(sin(tm*(h*i/n)+w0)-sin(w0)));
+    M4S_[i]: (t,((0.25*linewid)/2)*cos((twopi_/((0.25*linewid)))*(t)+(pi_/2))) }
+  Start: M4S_[0]
+  End: M4S_[n]
+  
+ dfitcurve(M4S_,n,) 
+   ] with .Origin at Here
+     
+  }
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis ;  {"$ +$" \
+     at last [].n ljust above };  {"$ -$" \
+     at last [].s ljust below }; ;  {"$ V_5$" \
+     at last [].l rjust };  ;
+  L10to15: line from V5.end to Lnode10.end;
+
+  # connecting Q2 base resistor to the Q1 base resistor.  (big line, 2nd from bottom)
+  Lq1b2q2b: line from Lq2b2.end to Lq1b3.end;
+
+  # connecting Q1 RE to Q2 RE:
+  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Q1.E 
+  move to last [].c;  {"$ \texttt{\color{red}11}$" \
+     at last [].n ljust above };   ;
+  Rq1e:    line invis  right from Q1.E to (Point1,Q1.E )
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_1$" \
+     at last [].n above };  ;  {"$ 10 \Omega$" \
+     at last [].s below };  ;  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;   {"$ \texttt{\color{red}12}$" \
+     at last [].n above };  ;
+  Rq2e:    line invis  right from (Point1,Q1.E) to Q2.E
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis ht linewid/6/4*2*2 wid linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_2$" \
+     at last [].n above };  ;  {"$ 10 \Omega$" \
+     at last [].s below };  ;   [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;  {"$ \texttt{\color{red}13}$" \
+     at last [].w above rjust };   ;
+
+  I1: line invis  down 0.75*elen from (Point1,Q1.E)
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  {arrow from Here+((-(0.25*linewid)*3/4)*(cos(rp_ang)),(-(0.25*linewid)*3/4)*(sin(rp_ang))) \
+          to Here+(((0.25*linewid)*3/4)*(cos(rp_ang)),((0.25*linewid)*3/4)*(sin(rp_ang)))}
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis ;   {"$ I_1$" \
+     at last [].l rjust };  ;   {"$ 1.8mA$" \
+     at last [].e ljust };  ;
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+GndI1: box invis ht 0 wid 0 with .c at Here
+    {  m4sd_ang = rp_ang; rp_ang = (-90)*(dtor_)  ; 
+  line from last box.c to Here+((linewid/4)*(cos(rp_ang)),(linewid/4)*(sin(rp_ang)))
+  {line from Here+((linewid/6)*((-sin(rp_ang))),(linewid/6)*(cos(rp_ang))) \
+          to Here+((-linewid/6)*((-sin(rp_ang))),(-linewid/6)*(cos(rp_ang)))}
+   {line from Here+(((linewid/16)*(cos(rp_ang))+(linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(linewid/9)*(cos(rp_ang)))) \
+          to Here+(((linewid/16)*(cos(rp_ang))+(-linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(-linewid/9)*(cos(rp_ang))))}
+   line from Here+(((2*linewid/16)*(cos(rp_ang))+(linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(linewid/14)*(cos(rp_ang)))) \
+          to Here+(((2*linewid/16)*(cos(rp_ang))+(-linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(-linewid/14)*(cos(rp_ang))))
+    down ; rp_ang = m4sd_ang
+  } 
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+
+
+
+  # outputs:
+  # Lout1
+  Lq3c: line up 0.75*elen from Q3.C; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;  {"$ \texttt{\color{red}3}$" \
+     at last [].n ljust above };   ;
+  Lq5c: line up 0.75*elen from Q5.C; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;  {"$ \texttt{\color{red}3}$" \
+     at last [].n ljust above };   ;
+  Lout1a: line from Lq3c.end to Lq5c.end;
+
+  
+  # Lout2
+  Lq4c: line up 0.25*elen from Q4.C; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;  {"$ \texttt{\color{red}5}$" \
+     at last [].n ljust above };   ;
+  Lq6c: line up 0.25*elen from Q6.C; [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;  {"$ \texttt{\color{red}5}$" \
+     at last [].n ljust above };   ;
+  Lout2a: line invis  right from Lq4c.end to Lq6c.end
+  rpoint__
+  
+     M4_Tmp: last line.end
+    line to (((Lq5c.start.x-last line.start.x)*(Lq5c.start.y-Lq5c.end.y)-(Lq5c.start.y-last line.start.y)*(Lq5c.start.x-Lq5c.end.x))/\
+   ((M4_Tmp.x-last line.start.x)*(Lq5c.start.y-Lq5c.end.y)-(M4_Tmp.y-last line.start.y)*(Lq5c.start.x-Lq5c.end.x))\
+   between last line.start and M4_Tmp)\
+      chop 0 chop linewid/12-(linethick *(scale/72)/2)
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+    arc cw to Here+((2*linewid/12)*(cos(rp_ang)),(2*linewid/12)*(sin(rp_ang))) with .c at Here+((linewid/12)*(cos(rp_ang)),(linewid/12)*(sin(rp_ang)))
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+        line to M4_Tmp;
+
+
+
+  # R8 and Vdd (V3):
+  R8:    line invis  up 0.75*elen from Lq3c.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis wid linewid/6/4*2*2 ht linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;   {"$ R_8$" \
+     at last [].w rjust };  ;   {"$ 1500 \Omega$" \
+     at last [].r ljust };  ;
+  [  circle rad (0.04*linewid)  fill 0 
+  ] with .c at Here
+  move to last [].c;    {"$ \texttt{\color{red}17}$" \
+     at last [].n ljust above }; ;
+  Lv3: line  left elen from R8.end;
+  V3: line invis  down elen from Lv3.end
+  rpoint__
+  
+   
+  { line to Here+((rp_len/2-(0.25*linewid))*(cos(rp_ang)),(rp_len/2-(0.25*linewid))*(sin(rp_ang)))
+    move to Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang)))
+  { Src_C: circle rad (0.25*linewid)  at Here }
+  
+  line from Here+(((0.25*linewid))*(cos(rp_ang)),((0.25*linewid))*(sin(rp_ang))) \
+          to Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang)))} 
+  { [box invis wid (0.25*linewid)*2 ht (0.25*linewid)*2] at Here+((rp_len/2)*(cos(rp_ang)),(rp_len/2)*(sin(rp_ang))) }
+  line to Here+((rp_len)*(cos(rp_ang)),(rp_len)*(sin(rp_ang))) invis ;  {"$ +$" \
+     at last [].n ljust above };  {"$ -$" \
+     at last [].s ljust below }; ; {"$ V_{3}$" \
+     at last [].n rjust above };  {"$ 8V$" \
+     at last [].s rjust below }; ;
+  
+  command sprintf("\definecolor{lcspec}{rgb}{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command sprintf("\color[rgb]{%7.5f,%7.5f,%7.5f}%%",0,0,1)
+  command "\global\let\dpiclidraw=\dpicdraw\global\let\dpicfidraw=\filldraw"
+   command "\global\def\dpicdraw{\dpiclidraw[color=lcspec]}"
+   command "\global\def\filldraw{\dpicfidraw[color=lcspec]}"
+box invis ht 0 wid 0 with .c at Here
+    {  m4sd_ang = rp_ang; rp_ang = (-90)*(dtor_)  ; 
+  line from last box.c to Here+((linewid/4)*(cos(rp_ang)),(linewid/4)*(sin(rp_ang)))
+  {line from Here+((linewid/6)*((-sin(rp_ang))),(linewid/6)*(cos(rp_ang))) \
+          to Here+((-linewid/6)*((-sin(rp_ang))),(-linewid/6)*(cos(rp_ang)))}
+   {line from Here+(((linewid/16)*(cos(rp_ang))+(linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(linewid/9)*(cos(rp_ang)))) \
+          to Here+(((linewid/16)*(cos(rp_ang))+(-linewid/9)*((-sin(rp_ang)))),((linewid/16)*(sin(rp_ang))+(-linewid/9)*(cos(rp_ang))))}
+   line from Here+(((2*linewid/16)*(cos(rp_ang))+(linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(linewid/14)*(cos(rp_ang)))) \
+          to Here+(((2*linewid/16)*(cos(rp_ang))+(-linewid/14)*((-sin(rp_ang)))),((2*linewid/16)*(sin(rp_ang))+(-linewid/14)*(cos(rp_ang))))
+    down ; rp_ang = m4sd_ang
+  } 
+ 
+  command "\color{black}\global\let\dpicdraw=\dpiclidraw%"
+    command "\global\let\filldraw=\dpicfidraw" 
+
+
+  # R7:
+  Lq6c2: line   up 0.5*elen from Lq6c.end;
+  R7:    line invis  up 0.75*elen from Lq6c2.end
+  rpoint__
+  
+   
+          if linewid/6/4*6*2 > rp_len then { line invis to Here+((linewid/6/4*6*2)*(cos(rp_ang)),(linewid/6/4*6*2)*(sin(rp_ang)))
+  rpoint__
+  
+    }
+    M4_xyO: last line.c
+    { line from last line.start to M4_xyO+(((linewid/6/4)*(-6))*(cos(rp_ang)),((linewid/6/4)*(-6))*(sin(rp_ang)))\
+       then to M4_xyO+((((linewid/6/4)*(-5))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-5))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(-3))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(-3))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+(((-(linewid/6/4))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),((-(linewid/6/4))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+(((linewid/6/4)*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),((linewid/6/4)*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+   then to M4_xyO+((((linewid/6/4)*(3))*(cos(rp_ang))+((linewid/6/4)*((2)))*((-sin(rp_ang)))),(((linewid/6/4)*(3))*(sin(rp_ang))+((linewid/6/4)*((2)))*(cos(rp_ang)))) \
+         then to M4_xyO+((((linewid/6/4)*(5))*(cos(rp_ang))+((linewid/6/4)*((-2)))*((-sin(rp_ang)))),(((linewid/6/4)*(5))*(sin(rp_ang))+((linewid/6/4)*((-2)))*(cos(rp_ang)))) \
+           then to M4_xyO+(((linewid/6/4)*(6))*(cos(rp_ang)),((linewid/6/4)*(6))*(sin(rp_ang))) \
+         then to last line.end
+      [box invis wid linewid/6/4*2*2 ht linewid/6/4*6*2] at 2nd last line.c
+      }
+  
+  
+  line invis from 2nd last line.start to 2nd last line.end ;  {"$ R_7$" \
+     at last [].w rjust };  ;   {"$ 1500 \Omega$" \
+     at last [].r ljust };  ;
+  Lq6c2q3c: line left from R7.end to R8.end;
+
+
+  #final Lout1 crossover:
+  Lout1b: line invis  right 2*elen from Lout1a.end
+  rpoint__
+  
+     M4_Tmp: last line.end
+    line to (((Lq6c2.start.x-last line.start.x)*(Lq6c2.start.y-Lq6c2.end.y)-(Lq6c2.start.y-last line.start.y)*(Lq6c2.start.x-Lq6c2.end.x))/\
+   ((M4_Tmp.x-last line.start.x)*(Lq6c2.start.y-Lq6c2.end.y)-(M4_Tmp.y-last line.start.y)*(Lq6c2.start.x-Lq6c2.end.x))\
+   between last line.start and M4_Tmp)\
+      chop 0 chop linewid/12-(linethick *(scale/72)/2)
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+    arc cw to Here+((2*linewid/12)*(cos(rp_ang)),(2*linewid/12)*(sin(rp_ang))) with .c at Here+((linewid/12)*(cos(rp_ang)),(linewid/12)*(sin(rp_ang)))
+    move to Here+((-(linethick *(scale/72)/2))*(cos(rp_ang)),(-(linethick *(scale/72)/2))*(sin(rp_ang)))
+        line to M4_Tmp;
+#llabel(,\texttt{\color{red}3},);
+
+  #final Lout2:
+  Lout2b: line  right elen from Lout2a.end;
+
+.PE                            # Pic input ends

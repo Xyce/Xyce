@@ -1,0 +1,70 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\textbf{Change} &
+  \color{white}\textbf{Detail} \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\textbf{Change} &
+  \color{white}\textbf{Detail} \\ \hline \endhead
+
+Mixed Signal Interface behavior when a ``backwards or null time step'' is requested.  &
+Previously, for the Mixed Signal Interface, if the \texttt{requestedUntilTime}
+in a \texttt{simulateUntil()} call was less than the current simulation time
+then the \Xyce{} simulation would run to completion.  If the \texttt{requestedUntilTime}
+was equal to the current simulation time then the simulation would get stuck in a
+``time-step too small'' error loop.  The interface change is that both of these
+cases are now simulation errors that will cause the \Xyce{} simulation to abort.
+\\ \hline
+
+Removed support for RISE, CROSS and FALL qualifiers for DUTY measure & This change
+makes all of the duty-cycle calculation measures (\texttt{DUTY}, \texttt{FREQ},
+\texttt{OFF\_TIME} and \texttt{ON\_TIME)} have similar behavior.  The
+\texttt{FROM}, \texttt{TO} and \texttt{TD} qualifiers are still supported
+for all four measure types.
+\\ \hline
+
+Handling of measures with duplicate names & In previous versions of \Xyce{},
+measures with duplicate names would both be evaluated correctly.  However,
+this could cause ambiguity if that name was also used as part of an
+expression such as in an \texttt{EQN} measure.  An example is this
+netlist fragment:
+\begin{verbatim}
+.MEASURE TRAN M1 MIN V(1)
+.MEASURE TRAN M1 MAX V(1)
+.MEASURE TRAN EQNM1 EQN M1
+\end{verbatim}
+To remove this ambiguity, \Xyce{} will now use the last \texttt{M1}
+measure definition, which is the \texttt{MAX} measure in this example,
+and issue a warning message about (and discard) any previous \texttt{M1}
+definitions.  This change applies to all measure modes (\texttt{AC},
+\texttt{DC} and \texttt{TRAN}).
+\\ \hline
+
+\end{longtable}
+}

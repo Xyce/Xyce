@@ -1,0 +1,10 @@
+hspice -hdlpath ../code -i idvg_nmos.sp -o idvg_nmos
+hspice -hdlpath ../code -i idvg_pmos.sp -o idvg_pmos
+hspice -hdlpath ../code -i idvd_nmos.sp -o idvd_nmos
+hspice -hdlpath ../code -i idvd_pmos.sp -o idvd_pmos
+hspice -hdlpath ../code -i gummel_nmos.sp -o gummel_nmos
+hspice -hdlpath ../code -i gummel_pmos.sp -o gummel_p
+hspice -hdlpath ../code -i inv_dc.sp -o inv_dc
+hspice -hdlpath ../code -i inverter_transient.sp -o inverter_transient
+hspice -hdlpath ../code -i ringosc_17.sp -o ringosc_17
+

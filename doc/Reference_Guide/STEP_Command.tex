@@ -1,0 +1,238 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.STEP}}
+\index{analysis!step} \index{step parametric analysis}
+Calculates a full analysis (\verb|.DC|, \verb|.TRAN|, \verb|.AC|, etc.) over a range of
+parameter values.  This type of analysis is very similar to .DC analysis.
+Similar to .DC analysis, .STEP supports sweeps which are
+linear, decade logarithmic, octave logarithmic, a list of values, or over a multivariate data table.
+
+\begin{description}
+
+\item[\tt LIN] Linear sweep \\
+The sweep variable is swept linearly from the starting to the ending value.
+
+\item[\tt OCT] Sweep by octaves \\
+The sweep variable is swept logarithmically by octaves.
+
+\item[\tt DEC] Sweep by decades \\
+The sweep variable is swept logarithmically by decades.
+
+\item[\tt LIST] Sweep over specified values \\
+The sweep variable is swept over an enumerated list of values.
+
+\item[\tt DATA] Sweep over table of multivariate values\\
+The sweep variables are swept over the rows of a table.  
+
+\end{description}
+
+\subsubsection{Linear Sweeps}
+\index{analysis!STEP!Linear sweeps} \index{STEP analysis!Linear sweeps}
+
+\begin{Command}
+
+\format
+.STEP [LIN] <parameter name> <initial> <final> <step>
+
+\examples
+\begin{alltt}
+.STEP R1 45 50 5
+.STEP V1 20 10 -1
+.STEP LIN V1 20 10 -1
+.STEP TEMP -45 -55 -10
+.STEP C101:C 45 50 5
+.STEP DLEAK:IS 1.0e-12 1.0e-11 1.0e-12
+
+.global_param v1_val=10
+V1 1 0 DC \{v1_val\}
+.STEP v1_val 20 10 -1
+
+.param v2_val=10
+V2 2 0 DC \{v2_val\}
+.STEP v2_val 20 10 -1
+
+.data table
++ c1 r1
++ 1e-8  1k
++ 2e-8  0.5k
++ 3e-8  0.25k
+.enddata
+.STEP data=table
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{parameter name}
+Name of the parameter to be swept.  This may be the special parameter
+name \texttt{TEMP} (the ambient simulation temperature), a device
+name, device instance or model parameter name, or global parameter
+name as defined in a \texttt{.global\_param} or globally-scoped \texttt{.param} statement.  
+
+If a device name is given, the primary parameter for that device is
+taken as the parameter; in the first two examples above, the primary
+parameters of the devices R1 and V1 are stepped (resistance and DC
+voltage, respectively).  The C, L and I devices are then the other
+devices with primary parameters, which are the capacitance, inductance 
+and DC current, respectively.
+
+To specify a device instance parameter other than the device's primary
+parameter, or if the device has no primary parameter, use the 
+syntax \texttt{<device name>}:\texttt{<parameter name>}, as
+in the fourth example above.
+
+To sweep a device model parameter, use the syntax \texttt{<model
+name>}:\texttt{<parameter name>}, as in the fifth example above.
+
+\argument{initial}
+Initial value for the parameter.
+
+\argument{final}
+Final value for the parameter.
+
+\argument{step}
+Value that the parameter is incremented at each step.
+
+\end{Arguments}
+
+\comments
+
+For linear sweeps, the LIN keyword is optional.
+
+STEP parameter analysis will sweep a parameter from its initial value to
+its final value, at increments of the step size.  At each step of this
+sweep, it will conduct a full analysis (\texttt{.DC}, \texttt{.TRAN},
+\texttt{.AC}, etc.) of the circuit.
+
+The specification is similar to that of a \texttt{.DC} sweep, except
+that unlike \texttt{.DC}, only one parameter may be swept on
+each \texttt{.STEP} line.  Multiple \texttt{.STEP} lines may be
+specified, forming nested step loops.  The variables will be stepped
+in order such that the first \texttt{.STEP} line that appears in the
+netlist will be the innermost loop, and the last \texttt{.STEP} line
+will be the outermost.
+
+Output, as designated by a \texttt{.PRINT} statement, is slightly more
+complicated in the case of a \texttt{.STEP} simulation.  If the user
+has specified a \texttt{.PRINT} line in the input file, \Xyce{} will
+output two files.  All steps of the sweep will be output to a single file as
+usual, but with the results of each step appearing one after another
+with the ``Index'' column starting over at zero.  Additionally, a file
+with a ``.res'' suffix will be produced indicating what parameters
+were used for each iteration of the step loops; this file will always
+be in columnar text format, irrespective of any \texttt{FORMAT=}
+option specified on \texttt{.PRINT} lines.  If \texttt{.RESULT} lines
+(see section~\ref{.RESULT}) appear in the netlist, the ``.res'' file
+will also contain columns for each expression given
+on the \texttt{.RESULT} lines, and the value of the result expression
+will be printed for each step taken.
+
+Note that analysis lines in \Xyce{} do not currently support use of
+expressions to define their parameters (e.g., end times
+for \texttt{.TRAN} analysis, or fundamental frequencies
+for \texttt{.HB} analysis), and so it is not possible to use stepped
+parameters to vary how the analysis will be run at each step.  If each
+step requires different analysis parameters, this would have to be
+accomplished by performing separate runs of \Xyce{}.
+
+If the stop value is smaller than the start value, the step value
+should be negative.  If a positive step value is given in this case,
+only a single point (at the start value) will be performed, and a
+warning will be emitted.
+
+\end{Command}
+
+\subsubsection{Decade Sweeps}
+\index{analysis!STEP!Decade sweeps} \index{STEP analysis!Decade sweeps}
+
+\begin{Command}
+
+\format
+.STEP DEC <sweep variable name> <start> <stop> <points>
+
+\examples
+
+\begin{alltt}
+.STEP DEC VIN 1 100 2
+.STEP DEC R1 100 10000 3 
+.STEP DEC TEMP 1.0 10.0 3
+\end{alltt}
+
+\comments
+The stop value should be larger than the start value.  If a stop value
+smaller than the start value is given, only a single point at the
+start value will be performed, and a warning will be emitted.  The
+points value must be an integer.
+
+\end{Command}
+
+\subsubsection{Octave Sweeps}
+\index{analysis!STEP!Octave sweeps} \index{STEP analysis!Octave sweeps}
+
+\begin{Command}
+
+\format
+.STEP OCT <sweep variable name> <start> <stop> <points>
+
+\examples
+
+\begin{alltt}
+.STEP OCT VIN 0.125 64 2 
+.STEP OCT TEMP 0.125 16.0 2 
+.STEP OCT R1 0.015625 512 3
+\end{alltt}
+
+\comments
+The stop value should be larger than the start value.  If a stop value
+smaller than the start value is given, only a single point at the
+start value will be performed, and a warning will be emitted.  The
+points value must be an integer.
+
+\end{Command}
+
+\subsubsection{List Sweeps}
+\index{analysis!STEP!List sweeps} \index{STEP analysis!List sweeps}
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.STEP <sweep variable name> LIST <val> <val> <val>\ldots
+\end{alltt}
+
+\examples
+\begin{alltt}
+.STEP VIN LIST 1.0 2.0 10. 12.0 
+.STEP TEMP LIST 8.0 21.0
+\end{alltt}
+
+\end{Command}
+
+\subsubsection{Data Sweeps}
+\index{analysis!DC!Data Sweeps} \index{DC analysis!Data sweeps}
+
+\begin{Command}
+\format
+\begin{alltt}
+.STEP DATA=<data table name> 
+\end{alltt}
+
+\examples
+.STEP data=resistorValues
+
+.data resistorValues \\
++ r1   r2 \\
++ 8.0000e+00  4.0000e+00 \\
++ 9.0000e+00  4.0000e+00 \\
+.enddata
+
+\end{Command}

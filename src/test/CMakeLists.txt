@@ -1,0 +1,6 @@
+add_subdirectory(MPITest)
+add_subdirectory(FFTInterface)
+add_subdirectory(LinearAlgebraTest)
+add_subdirectory(DeviceInterface)
+add_subdirectory(GenExtTestHarnesses)
+add_subdirectory(TwoLevelNewton)

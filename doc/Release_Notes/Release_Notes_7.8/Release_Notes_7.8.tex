@@ -1,0 +1,210 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\documentclass[letterpaper]{scrartcl}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+\usepackage{eso-pic}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{7.8}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes}
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+\AddToShipoutPictureBG*{%
+  \AtPageUpperLeft{%
+    \hspace{\dimexpr\paperwidth-1in\relax}%
+    \raisebox{-0.5in}{%
+         \makebox[0pt][r]{\textsf{SAND2023-13932R}}%
+}}}
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{XDM}
+\begin{XyceItemize}
+\item XDM did not change in this release, so new installers were not generated.
+\end{XyceItemize}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+\item The PSP103 model has been modified so that the DTA parameter can be
+     specified on the instance line.  Previously it was exclusively a model
+     parameter.
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+\item  \Xyce{} can now handle the sources that involve transient specifications
+     during source stepping. Source stepping is one of the solver techniques
+     that \Xyce{} automatically attempts when trying to solve the DC operating
+     point (DCOP). Previously, source stepping would only apply to DC sources
+     that had no transient specifications. It now applies to sources that
+     involve transient specifications, with or without DC specifications. When
+     a source has inconsistent DC and transient specifications, the value used
+     in the source stepping depends on the analysis type. See the \Xyce{} Users
+     Guide for details. This leads to improved robustness and convergence of
+     source stepping in circuits using these sources for the DCOP calculation.
+
+\item \Xyce{} now provides a sequential source stepping algorithm that will
+     ramp up sources with non-zero DC value in sequence, which can be more
+     robust than the default simultaneous source stepping algorithm.  This new
+     source stepping approach can be called directly using \texttt{.options
+     nonlin continuation=35} or \texttt{.options nonlin
+     continuation=sourcestep2}.  It will not replace simultaneous source
+     stepping in the default DCOP strategy at this time.
+
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+\item \Xyce{} can now handle multiple \texttt{.OPTIONS} statements for the same
+     keyword.   So, for example, if the netlist contains more than one
+     \texttt{.OPTIONS TIMEINT} command, \Xyce{} will combine all the statements
+     into a single, combined \texttt{.OPTIONS TIMEINT} statement.  Previously,
+     Xyce's behavior in this respect was undefined.  For example, if the
+     netlist contained multiple \texttt{.options timeint} statements, \Xyce{}
+     would only use one of them and silently ignore the others.  \Xyce{} now
+     treats multiple statements as a combined single statement, consistent with
+     other simulators, and issues warnings for duplicate parameters.
+
+\item The \texttt{.GLOBAL} statement now supports multiple global nodes on the
+     same line.  Previously each specified node needed its own unique
+     \texttt{.GLOBAL} statement.
+
+\end{XyceItemize}
+
+\subsubsection*{Important Announcements}
+\begin{XyceItemize}
+\item The model interpolation technique previously described in the \Xyce{}
+  Reference Guide has been removed from Xyce.
+\end{XyceItemize}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 7.8 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Microsoft Windows 11${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ macOS, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 12.X on Intel x86-64 and AMD64 architectures (serial
+    and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Note: Coupled Simulation with the \Xyce{} General
+    External Interface
+  \item Application Note: Mixed Signal Simulation with \Xyce{} 7.2
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Dept.\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\noindent
+Sandia National Laboratories is a multimission laboratory managed and
+operated by National Technology and Engineering Solutions of Sandia,
+LLC, a wholly owned subsidiary of Honeywell International, Inc., for
+the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-NA0003525.
+
+\end{document}
+

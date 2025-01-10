@@ -1,0 +1,111 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Incompatibilities with other circuit simulators.
+%%
+\index{PSpice}
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Incompatibilities with Other Circuit Simulators.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment \\ \hline \endfirsthead
+  \label{Incompat_Other_SPICE}
+
+    \texttt{.DC} sweep output. & The \texttt{.DC} sweep calculation does not
+    automatically output the sweep variable.  Only variables explicitly listed on
+    the \texttt{.PRINT} line are output.\\ \hline
+
+    MOSFET levels. & In \Xyce{} the MOSFET levels are not the same. In \Xyce{},
+    a BSIM3 is MOSFET level 9.  Other simulators have different levels for the 
+    BSIM3. \\ \hline
+
+    BSIM SOI v3.2 level. & In \Xyce{} the BSIM SOI (v3.2) is MOSFET level 10.  
+    Other simulators have different levels for the BSIM SOI. \\ \hline
+
+    BSIM4 level. & In \Xyce{} the BSIM4 is MOSFET levels 14 and 54.  
+    Other simulators have different levels for the BSIM4. \\ \hline
+
+    Syntax for \texttt{.STEP} is different. & The manner of specifying
+    a model parameter to be swept is slightly different than in some
+    other simulators.  See the \Xyce{} Users' and Reference Guides for
+    details.  \\ \hline
+
+    Switch is not the same as SPICE3F5. &  The \Xyce{} switches are not
+    compatible with the simple switch implementation in SPICE3F5.  The
+    switch in \Xyce{} smoothly transitions between the ON and OFF
+    resistances over a small range between the ON and OFF values of the
+    control signal (voltage, current, or control expression).  See the
+    \Xyce{} Reference Guide for the precise equations that are used to compute the
+    switch resistance from the control signal values.  The SPICE3F5 switch
+    has a single switching threshold voltage or current, and RON is used
+    above threshold while ROFF is used below threshold.  \Xyce{}'s switch is
+    considerably less likely to cause transient simulation failures. Results
+    similar to SPICE3F5 can be obtained by setting VON and VOFF to the same
+    threshold value, but this is not a recommended practice.  \\ \hline
+
+    Piecewise Linear (PWL) source not fully compatible with either HSPICE
+    or PSpice. & See Sections \ref{I_DEVICE} and \ref{PWL_SOURCE_SYNTAX_DIFF} 
+    of the \Xyce{} Reference Guide for more details. \\ \hline
+
+    Acceptable prefixes in the metric system. &
+    The ``atto'' prefix, which is designated by ``a'', is acceptable in HSPICE,
+    but is not accepted in \Xyce{}. 
+    The use of the ``atto'' prefix in \Xyce{} must be replaced with ``E-18''. \\ \hline
+
+    Hierarchical parameters. & In \Xyce{} hierarchical parameters, \texttt{M} (multiplier
+    or multiplicity factor) and \texttt{S} (scale), are not commonly supported.  The \texttt{M} 
+    parameter is only supported by the R, L, C and MOSFET device models and some BJT 
+    device models (VBIC 1.3 and MEXTRAM).\\ \hline
+
+    \texttt{.MEASURE} has some incompatibilities and differences with HSPICE. &
+    See Section \ref{Measure_HSpice_Compatibility} of the \Xyce{} Reference Guide 
+    for more details. \\ \hline
+
+    The \texttt{P()} accessor for power may give different results for semiconductor devices
+    (D, J, M, Q and Z devices) and the lossless transmission device (T device) than with HSPICE.  
+    & See Sections \ref{D_DEVICE}, \ref{J_DEVICE}, \ref{M_DEVICE}, \ref{Q_DEVICE} \ref{T_DEVICE}
+    and \ref{Z_DEVICE}  for more details. \\ \hline
+
+    The \Xyce{} \texttt{.OP} statement provides less output than other simulators. & See 
+    Section \ref{OP_COMMAND} for more details.    \\ \hline
+
+    Initial conditions for lossless and lossy transmission lines & In SPICE3F5 and PSpice, 
+    initial conditions can be set on the initial voltages and currents at each end of the 
+    lossless transmission line, but not for the lossy transmission line.  In \Xyce{}, 
+    initial conditions can be set on the initial voltages and currents at each end of the
+    lossy transmission line, but not for the lossless transmission line  \\ \hline
+
+    Use of vgs(Mxxx) style syntax on the .PRINT line & Some SPICE-style circuit simulators 
+    can use the \texttt{.PRINT} line to (for example) print out the vds, vgb, vsd, etc. 
+    values for a PMOS transistor (say, \texttt{M1}) using \texttt{.PRINT TRAN vgs(M1) 
+    vbs(M1) vds(M1)}.  This is not directly supported in \Xyce{}.  See Section \ref{Q_DEVICE}
+    for how this is supported with the \texttt{N()} syntax for the BSIM3 and BSIM4 models.  
+    For other transistor devices, use something like this on the \Xyce{} \texttt{.PRINT} 
+    line, \texttt{V(ng,ns)} where ng and ns are the names of the circuits nodes attached 
+    to the gate and source terminals of the transistor. \\ \hline
+
+    Some devices do not work in frequency-domain analysis & Devices
+    that may be expected to work in AC or HB analysis do not at this
+    time.  For AC analysis this includes, but is not limited to, the
+    lossy transmission line (LTRA) and lossless transmission line
+    (TRA).  The LTRA and TRA models will need to be replaced with
+    lumped transmission line models (YTRANSLINE) to perform
+    small-signal AC analysis.  For harmonic balance, the two
+    transmission line models do work correctly in frequency domain.
+
+    Independent behavioral sources, such as a time-dependent B, E, F, G, or H 
+    source, will not work correctly with either AC or HB. 
+    However, such sources which are purely dependent (only depending on solution 
+    variables and not time) will work in AC and HB.
+    \\ \hline
+
+\end{longtable}
+
