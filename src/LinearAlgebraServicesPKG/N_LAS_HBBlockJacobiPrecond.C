@@ -204,7 +204,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     rowIdxs[i] = origIdxs[i];
     rowIdxs[origLocalRows+i] = origIdxs[i] + origGlobalRows;
   }
-  epetraMap_ = rcp(new Epetra_Map( -1, refRows, &rowIdxs[0], 0, e_origMap->petraMap()->Comm() ) );
+  epetraMap_ = rcp(new Epetra_Map( -1, refRows, rowIdxs.data(), 0, e_origMap->petraMap()->Comm() ) );
 
   // Count up the number of nonzero entries for the 2x2 block matrix.
   std::vector<int> refNNZs(refRows);
@@ -214,7 +214,7 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     refNNZs[origLocalRows+i] = refNNZs[i];
     if (refNNZs[i] > maxRefNNZs_) maxRefNNZs_ = refNNZs[i];
   }
-  epetraGraph_ = rcp(new Epetra_CrsGraph( Copy, *epetraMap_, &refNNZs[0], true ));
+  epetraGraph_ = rcp(new Epetra_CrsGraph( Copy, *epetraMap_, refNNZs.data(), true ));
 
   // Communicate the maximum number of nonzeros for all processors.
   int tmpMaxNNZs = maxRefNNZs_;
@@ -228,22 +228,22 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
    for ( int i=0; i<origLocalRows; ++i ) {
 
     // Get the indices for the first block of the matrix (G_bar)
-    appdFdx->getRowCopy( rowIdxs[i], maxRefNNZs_, tmpNNZs, &tmpCoeffs[0], &refIdxs[0] );
+     appdFdx->getRowCopy( rowIdxs[i], maxRefNNZs_, tmpNNZs, tmpCoeffs.data(), refIdxs.data() );
 
     // Get the indices for the third block of the matrix (C_bar)
-    appdQdx->getRowCopy( rowIdxs[i], maxRefNNZs_, tmpNNZs2, &tmpCoeffs[0], &refIdxs2[0] );
+     appdQdx->getRowCopy( rowIdxs[i], maxRefNNZs_, tmpNNZs2, tmpCoeffs.data(), refIdxs2.data() );
 
     // Insert the indices for the third block into refIdxs, as they are the indices of the second block
     for (int j=0; j<tmpNNZs2; ++j) {
       refIdxs[tmpNNZs+j] = refIdxs2[j]+origGlobalRows;
     }
-    epetraGraph_->InsertGlobalIndices( rowIdxs[i], refNNZs[i], &refIdxs[0] );
+    epetraGraph_->InsertGlobalIndices( rowIdxs[i], refNNZs[i], refIdxs.data() );
 
     // Insert the indices for the first block into refIdxs2, as they are the indices of the fourth block
     for (int j=0; j<tmpNNZs; ++j) {
       refIdxs2[tmpNNZs2+j] = refIdxs[j]+origGlobalRows;
     }
-    epetraGraph_->InsertGlobalIndices( rowIdxs[origLocalRows+i], refNNZs[origLocalRows+i], &refIdxs2[0] );
+    epetraGraph_->InsertGlobalIndices( rowIdxs[origLocalRows+i], refNNZs[origLocalRows+i], refIdxs2.data() );
   }
   epetraGraph_->FillComplete();
   epetraGraph_->OptimizeStorage();
@@ -315,13 +315,13 @@ bool HBBlockJacobiPrecond::initGraph( const Teuchos::RCP<Problem> & problem )
     singleGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *singleMap_, 0 ) );
     for (int i=0; i<numAll; i++)
     {
-      serialGraph_[myPID]->ExtractMyRowCopy( i, maxLen, n, &lIdxs[0] );
+      serialGraph_[myPID]->ExtractMyRowCopy( i, maxLen, n, lIdxs.data() );
       for (int j=0; j<n; j++)
       {
         gIdxs[j] = gidList_[ lIdxs[j] ];
       } 
      
-      singleGraph_->InsertGlobalIndices( gidList_[i], n, &gIdxs[0] );
+      singleGraph_->InsertGlobalIndices( gidList_[i], n, gIdxs.data() );
     }
 
     // Now the fill is complete for each graph.

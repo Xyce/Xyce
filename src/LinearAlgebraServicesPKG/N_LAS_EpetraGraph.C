@@ -58,7 +58,7 @@ EpetraGraph::EpetraGraph(  const Parallel::ParMap & solution_overlap,
               const std::vector<std::vector<int> >& rcData)
   {
     const Epetra_Map* epetraMap = dynamic_cast<const Parallel::EpetraParMap&>(solution_overlap).petraMap();
-    epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, &numIndicesPerRow[0] ) );
+    epetraGraph_ = Teuchos::rcp( new Epetra_CrsGraph( Copy, *epetraMap, numIndicesPerRow.data() ) );
 
     int numLocalRows_Overlap = rcData.size();
     for(int i = 0; i < numLocalRows_Overlap; ++i)

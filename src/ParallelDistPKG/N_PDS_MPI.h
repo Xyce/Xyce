@@ -491,7 +491,7 @@ AllReduce(MPI_Comm mpi_comm, MPI_Op op, std::vector<T> &dest)
   if (mpi_parallel_run(mpi_comm)) {
     std::vector<T> source(dest);
 
-    if (MPI_Allreduce(&source[0], &dest[0], (int) dest.size(), Datatype<T>::type(), op, mpi_comm) != MPI_SUCCESS )
+    if (MPI_Allreduce(source.data(), dest.data(), (int) dest.size(), Datatype<T>::type(), op, mpi_comm) != MPI_SUCCESS )
       throw std::runtime_error("MPI_Allreduce failed");
   }
 }

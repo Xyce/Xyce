@@ -225,7 +225,7 @@ operator()( std::vector<int> const & pList,
       max_size = std::max( max_size, PackTraits<KT>::size( *citKL ) );
 
     int importCnt;
-    distributor.CreateFromSends( exportCnt, &(pList[0]), true, importCnt ); 
+    distributor.CreateFromSends( exportCnt, pList.data(), true, importCnt ); 
 
     double d_max_size = static_cast<double>(max_size);
     double d_max_all;
@@ -246,10 +246,10 @@ operator()( std::vector<int> const & pList,
     for( int i = 0; citKL != cendKL; ++citKL, ++i )
     {
       pos = max_all * i;
-      PackTraits<KT>::pack( *citKL, &(exports_[0]), (max_all*exportCnt ), pos, comm_ );
+      PackTraits<KT>::pack( *citKL, exports_.data(), (max_all*exportCnt ), pos, comm_ );
     }
 
-    distributor.Do( &(exports_[0]), max_all, importSize_, imports_ );
+    distributor.Do( exports_.data(), max_all, importSize_, imports_ );
 
     oKeys.resize( importCnt );
     for( int i = 0; i < importCnt; ++i )
@@ -300,7 +300,7 @@ operator()( std::vector<int> const & pList,
                  + PackTraits<DT>::size( *(citDM->second) ) );
 
     int importCnt;
-    distributor.CreateFromSends( exportCnt, &(pList[0]), true, importCnt ); 
+    distributor.CreateFromSends( exportCnt, pList.data(), true, importCnt ); 
 
     double d_max_size = static_cast<double>(max_size);
     double d_max_all;
@@ -325,7 +325,7 @@ operator()( std::vector<int> const & pList,
       PackTraits<DT>::pack( *(citDM->second), &(exports_[0]), (max_all*exportCnt ), pos, comm_ );
     }
 
-    distributor.Do( &(exports_[0]), max_all, importSize_, imports_ );
+    distributor.Do( exports_.data(), max_all, importSize_, imports_ );
 
     oData.clear();
     KT key;
@@ -380,7 +380,7 @@ rvs( std::vector<int> const & pList,
     int importCnt = pList.size();
     int exportCnt;
 
-    distributor.CreateFromSends( importCnt, &(pList[0]), true, exportCnt );
+    distributor.CreateFromSends( importCnt, pList.data(), true, exportCnt );
 
     if( exportCnt != (int)keys.size() )
       Xyce::Report::DevelFatal().in("Xyce::Parallel::Migrate::rvs")
@@ -413,11 +413,11 @@ rvs( std::vector<int> const & pList,
     for( ; citKL != cendKL; ++citKL, ++i )
     {
       pos = max_all * i;
-      PackTraits<KT>::pack( *citKL, &(exports_[0]), (max_all*exportCnt ), pos, comm_ );
-      PackTraits<DT>::pack( *(iData[*citKL]), &(exports_[0]), (max_all*exportCnt ), pos, comm_ );
+      PackTraits<KT>::pack( *citKL, exports_.data(), (max_all*exportCnt ), pos, comm_ );
+      PackTraits<DT>::pack( *(iData[*citKL]), exports_.data(), (max_all*exportCnt ), pos, comm_ );
     }
 
-    distributor.DoReverse( &(exports_[0]), max_all, importSize_, imports_ );
+    distributor.DoReverse( exports_.data(), max_all, importSize_, imports_ );
 
     oData.clear();
     KT key;
