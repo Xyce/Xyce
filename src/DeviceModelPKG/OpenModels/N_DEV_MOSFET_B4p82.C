@@ -2882,7 +2882,7 @@ bool Instance::updateIntermediateVars4p82_ ()
   ScalingFactor = 1.0e-9;
 
   // Don't do charge computations in DC sweeps.
-  if (getSolverState().tranopFlag || getSolverState().acopFlag || getSolverState().transientFlag)
+  if (getSolverState().tranopFlag || getSolverState().acopFlag || getSolverState().transientFlag || getSolverState().dcsweepFlag)
   {
     ChargeComputationNeeded = true;
   }
