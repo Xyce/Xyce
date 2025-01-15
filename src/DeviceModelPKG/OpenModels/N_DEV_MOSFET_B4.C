@@ -6922,8 +6922,8 @@ bool Instance::updatePrimaryState ()
   stoVec[li_store_Vdsat] = Vdsat;
   stoVec[li_store_Vth] = Vth;
   stoVec[li_store_Gds] = gds;
-  stoVec[li_store_Cgs] = CAPcgsb;
-  stoVec[li_store_Cgd] = CAPcgdb;
+  stoVec[li_store_Cgs] = cgsb;
+  stoVec[li_store_Cgd] = cgdb;
 
   // intrinsic capacitors:
   // Note the weirdness --- we have a "qg", "qb" and "qd" state variable,
@@ -10578,8 +10578,8 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     stoVec[mi.li_store_Vth] = mi.Vth;
 
     stoVec[mi.li_store_Gds] = mi.gds;
-    stoVec[mi.li_store_Cgs] = mi.CAPcgsb;
-    stoVec[mi.li_store_Cgd] = mi.CAPcgdb;
+    stoVec[mi.li_store_Cgs] = mi.cgsb;
+    stoVec[mi.li_store_Cgd] = mi.cgdb;
 
     // intrinsic capacitors:
     // Note the wierdness --- we have a "qg", "qb" and "qd" state variable,
