@@ -166,7 +166,7 @@ Pack<Device::DeviceState>::pack(const Device::DeviceState &device_state, char * 
   //----- pack double data
   length = device_state.data.size();
   comm->pack( &length, 1, buf, bsize, pos );
-  comm->pack( &(device_state.data[0]), length, buf, bsize, pos );
+  comm->pack( device_state.data.data(), length, buf, bsize, pos );
 
   //----- pack int data
   length = device_state.dataInt.size();
@@ -196,7 +196,7 @@ Pack<Device::DeviceState>::unpack(Device::DeviceState &device_state, char * buf,
   //----- unpack data
   comm->unpack( buf, bsize, pos, &length, 1 );
   device_state.data.resize(length);
-  comm->unpack( buf, bsize, pos, &(device_state.data[0]), length );
+  comm->unpack( buf, bsize, pos, device_state.data.data(), length );
 
   //----- unpack int data
   comm->unpack( buf, bsize, pos, &length, 1 );
