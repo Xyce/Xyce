@@ -39,6 +39,7 @@
 // ---------- Standard Includes ----------
 
 #include <N_UTL_FFTInterfaceDecl.hpp>
+#define __CLAPACK_H
 #include <Accelerate/Accelerate.h>
 #include <iostream>
 

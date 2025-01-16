@@ -45,6 +45,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 // ---------- Structure definitions ----------
 
@@ -120,15 +121,33 @@
         yTdImag[i] = 0.0;
       }
       
-      vDSP_DFT_ExecuteD(forwardSetup_, yTdReal.data(), yTdImag.data(), yFdReal.data(), yFdImag.data());
-      // now interleave the output vectors for return.
-      for( int i=0;i<nextLargestPowerOf2_;i++)
+      if(nextLargestPowerOf2_ == signalLength_)
       {
-        if( (2*i+1)<dftOutData_->size())
+        vDSP_DFT_ExecuteD(forwardSetup_, yTdReal.data(), yTdImag.data(), yFdReal.data(), yFdImag.data());
+      
+        // now interleave the output vectors for return.
+        for( int i=0;i<nextLargestPowerOf2_;i++)
         {
-          (*dftOutData_)[2*i] = yFdReal[i];
-          (*dftOutData_)[2*i+1] = yFdImag[i];
+          if( (2*i+1)<dftOutData_->size())
+          {
+            (*dftOutData_)[2*i] = yFdReal[i];
+            (*dftOutData_)[2*i+1] = yFdImag[i];
+          }
         }
+      }
+      else
+      {
+        for( auto k=0; k<(1+signalLength_/2); k++)
+        {
+          (*dftOutData_)[2*k] = 0.0;
+          (*dftOutData_)[2*k+1] = 0.0;
+          for( auto j=0; j<signalLength_; j++)
+          {
+            (*dftOutData_)[2*k] += std::cos(-2*M_PI*j*k/signalLength_)*(*dftInData_)[j];
+            (*dftOutData_)[2*k+1] += std::sin(-2*M_PI*j*k/signalLength_)*(*dftInData_)[j];
+          }
+        }
+        //(*dftOutData_)[signalLength_-1] = (*dftOutData_)[1];
       }
     }
   }
@@ -191,23 +210,38 @@
           yFdImag[i] = 0.0;
         }
       }
-      vDSP_DFT_ExecuteD(inverseSetup_, yFdReal.data(), yFdImag.data(), yTdReal.data(), yTdImag.data() );
-      // now combine the output arrays into an interleaved result.
-      for( int i=0;i<nextLargestPowerOf2_;i++)
+      if(nextLargestPowerOf2_ == signalLength_)
       {
-        if( i<iftOutData_->size())
+        vDSP_DFT_ExecuteD(inverseSetup_, yFdReal.data(), yFdImag.data(), yTdReal.data(), yTdImag.data() );
+        // now combine the output arrays into an interleaved result.
+        for( int i=0;i<nextLargestPowerOf2_;i++)
         {
-          (*iftOutData_)[i] = scaleFactor_ * yTdReal[i];
+          if( i<iftOutData_->size())
+          {
+            (*iftOutData_)[i] = scaleFactor_ * yTdReal[i];
+          }
+          // this allows for a complex result in the time domain.  
+          // not sure if it is needed.
+          /*
+          if( (2*i+1)<iftOutData_->size())
+          {
+            (*iftOutData_)[2*i] = scaleFactor_ * yTdReal[i];
+            (*iftOutData_)[2*i+1] = scaleFactor_ * yTdImag[i];
+          }
+          */
         }
-        // this allows for a complex result in the time domain.  
-        // not sure if it is needed.
-        /*
-        if( (2*i+1)<iftOutData_->size())
+      }
+      else
+      {
+        for( auto k=0; k<signalLength_; k++)
         {
-          (*iftOutData_)[2*i] = scaleFactor_ * yTdReal[i];
-          (*iftOutData_)[2*i+1] = scaleFactor_ * yTdImag[i];
+          (*iftOutData_)[k] = (*iftInData_)[0]/2.0; 
+          for( auto j=1; j<(1+signalLength_/2); j++)
+          {
+            (*iftOutData_)[k] += (std::cos(2*M_PI*j*k/signalLength_)*(*iftInData_)[2*j] - std::sin(2*M_PI*j*k/signalLength_)*(*iftInData_)[2*j+1]);
+          }
+          (*iftOutData_)[k] = 2*(*iftOutData_)[k] / signalLength_;
         }
-        */
       }
     }
   }
