@@ -92,58 +92,32 @@ class N_UTL_AppleFFT_Interface: public N_UTL_FFTInterfaceDecl<VectorType>
       if( std::floor( log2Length)  < log2Length )
       {
         nextLargestPowerOf2_ = (int) std::pow(2,(floor(log2Length)+1));
-        paddingRequired_ = true;
       }
-      //std::cout << "Apple FFT length = " << length << " nextLargestPowerOf2_ = " << nextLargestPowerOf2_;
       
-      interleavedRoutines_ = false;
-      // force non-interleaved routines for now
-      /*
-      if( nextLargestPowerOf2_ <= std::pow(2,14))
-      {
-        interleavedRoutines_ = true;
-        forwardInterleavedSetup_ = vDSP_DFT_Interleaved_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_FORWARD, vDSP_DFT_Interleaved_RealtoComplex);
-        inverseInterleavedSetup_ = vDSP_DFT_Interleaved_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_INVERSE, vDSP_DFT_Interleaved_ComplextoComplex);
-        //std::cout << " interleavedRoutines_ = true" << std::endl;
-      }
-      else
-      */
-      {
-        // create forward and inverse setup objects
-        forwardSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_FORWARD);
-        inverseSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_INVERSE);
-        //std::cout << " interleavedRoutines_ = false" << std::endl;
-      }
+      forwardSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_FORWARD);
+      inverseSetup_ = vDSP_DFT_zop_CreateSetupD(NULL, nextLargestPowerOf2_, vDSP_DFT_INVERSE);
       
       // The forward and backward transform must have a consistent scale factor
       // so that the inverse of a forward transform is the same signal.  By default
       // we'll use 1.0 for the forward scale factor and then 1/n for the inverse transform.
       scaleFactor_ = 1.0 / this->nextLargestPowerOf2_;
       
-      // allocate the input/output vectors
-      yTdReal.resize(nextLargestPowerOf2_);
-      yTdImag.resize(nextLargestPowerOf2_);
-      yFdReal.resize(nextLargestPowerOf2_);
-      yFdImag.resize(nextLargestPowerOf2_);
-      yTdInterleaved.resize(2*nextLargestPowerOf2_);
-      yFdInterleaved.resize(2*nextLargestPowerOf2_);
-      
+      if(nextLargestPowerOf2_ == length)
+      {
+        // allocate the input/output vectors
+        yTdReal.resize(nextLargestPowerOf2_);
+        yTdImag.resize(nextLargestPowerOf2_);
+        yFdReal.resize(nextLargestPowerOf2_);
+        yFdImag.resize(nextLargestPowerOf2_);
+      }
     }
 
     // Basic destructor 
     virtual ~N_UTL_AppleFFT_Interface() 
     {
-      if( interleavedRoutines_ )
-      {
-        vDSP_DFT_Interleaved_DestroySetupD(forwardInterleavedSetup_);
-        vDSP_DFT_Interleaved_DestroySetupD(inverseInterleavedSetup_);
-      }
-      else
-      {
-        // free the setup data 
-        vDSP_DFT_DestroySetupD(forwardSetup_);
-        vDSP_DFT_DestroySetupD(inverseSetup_);
-      }
+      // free the setup data 
+      vDSP_DFT_DestroySetupD(forwardSetup_);
+      vDSP_DFT_DestroySetupD(inverseSetup_);
     }
 
     // Calculate FFT with the vectors that have been registered.
@@ -165,20 +139,14 @@ class N_UTL_AppleFFT_Interface: public N_UTL_FFTInterfaceDecl<VectorType>
 
   private:
     // vector size and next largest power of two size if the input vector is not
-    // a power of 2 in length.  In that case the calculation vectors will need 
-    // to be padded.
+    // a power of 2 in length.  For non-power of two length the calculation is done
+    // by this class as such lengths are not supported by Apple's routines.
     unsigned int nextLargestPowerOf2_;
-    bool paddingRequired_;
-    bool interleavedRoutines_;
     // Data structure which holds info about the fft (size, direction)
     vDSP_DFT_SetupD forwardSetup_;
     vDSP_DFT_SetupD inverseSetup_;
-    vDSP_DFT_Interleaved_SetupD forwardInterleavedSetup_;
-    vDSP_DFT_Interleaved_SetupD inverseInterleavedSetup_; 
-    
-    VectorType yTdReal, yTdImag, yFdReal, yFdImag;  
-    VectorType yTdInterleaved, yFdInterleaved;
-    
+    VectorType yTdReal, yTdImag, yFdReal, yFdImag;   
+       
     // scale factor needed on back transform 
     double scaleFactor_;
 };

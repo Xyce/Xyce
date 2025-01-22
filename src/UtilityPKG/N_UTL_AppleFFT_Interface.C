@@ -71,7 +71,7 @@
     // then leave the input as it is and make a zero vector of the same length 
     //  Also need to two output vectors for the FFT results.
     
-    
+    /*
     if( interleavedRoutines_ )
     {
       // copy dftInData_ to yTdInterleaved
@@ -107,22 +107,24 @@
     }
     else
     {
-      // copy dftInData_ to yTdReal
-      for( int i=0;i<nextLargestPowerOf2_;i++)
-      {
-        if( i<dftInData_->size())
-        {
-          yTdReal[i] = (*dftInData_)[i];
-        }
-        else
-        {
-          yTdReal[i] = 0.0;
-        }
-        yTdImag[i] = 0.0;
-      }
+    */
       
       if(nextLargestPowerOf2_ == signalLength_)
       {
+        // copy dftInData_ to yTdReal
+        for( int i=0;i<nextLargestPowerOf2_;i++)
+        {
+          if( i<dftInData_->size())
+          {
+            yTdReal[i] = (*dftInData_)[i];
+          }
+          else
+          {
+            yTdReal[i] = 0.0;
+          }
+          yTdImag[i] = 0.0;
+        }
+        
         vDSP_DFT_ExecuteD(forwardSetup_, yTdReal.data(), yTdImag.data(), yFdReal.data(), yFdImag.data());
       
         // now interleave the output vectors for return.
@@ -147,9 +149,8 @@
             (*dftOutData_)[2*k+1] += std::sin(-2*M_PI*j*k/signalLength_)*(*dftInData_)[j];
           }
         }
-        //(*dftOutData_)[signalLength_-1] = (*dftOutData_)[1];
       }
-    }
+    //}
   }
 
   // Calculate IFT with the vectors that have been registered.
@@ -169,6 +170,7 @@
     // need to break the interleaved input vector into two vectors 
     // make destination arrays for the real and imaginary results 
     
+    /*
     if( interleavedRoutines_ )
     {
       for( int i=0;i<(2*nextLargestPowerOf2_);i++)
@@ -196,22 +198,23 @@
     }
     else
     {
-      // copy iftInData_ to yFdReal and yFdImag
-      for( int i=0;i<(nextLargestPowerOf2_/2);i++)
-      {
-        if( (2*i)<iftInData_->size())
-        {
-          yFdReal[i] = (*iftInData_)[2*i];
-          yFdImag[i] = (*iftInData_)[2*i+1];
-        }
-        else
-        {
-          yFdReal[i] = 0.0;
-          yFdImag[i] = 0.0;
-        }
-      }
+    */
       if(nextLargestPowerOf2_ == signalLength_)
       {
+        // copy iftInData_ to yFdReal and yFdImag
+        for( int i=0;i<(nextLargestPowerOf2_/2);i++)
+        {
+          if( (2*i)<iftInData_->size())
+          {
+            yFdReal[i] = (*iftInData_)[2*i];
+            yFdImag[i] = (*iftInData_)[2*i+1];
+          }
+          else
+          {
+            yFdReal[i] = 0.0;
+            yFdImag[i] = 0.0;
+          }
+        }
         vDSP_DFT_ExecuteD(inverseSetup_, yFdReal.data(), yFdImag.data(), yTdReal.data(), yTdImag.data() );
         // now combine the output arrays into an interleaved result.
         for( int i=0;i<nextLargestPowerOf2_;i++)
@@ -220,28 +223,23 @@
           {
             (*iftOutData_)[i] = scaleFactor_ * yTdReal[i];
           }
-          // this allows for a complex result in the time domain.  
-          // not sure if it is needed.
-          /*
-          if( (2*i+1)<iftOutData_->size())
-          {
-            (*iftOutData_)[2*i] = scaleFactor_ * yTdReal[i];
-            (*iftOutData_)[2*i+1] = scaleFactor_ * yTdImag[i];
-          }
-          */
         }
       }
       else
       {
         for( auto k=0; k<signalLength_; k++)
         {
-          (*iftOutData_)[k] = (*iftInData_)[0]/2.0; 
-          for( auto j=1; j<(1+signalLength_/2); j++)
+          (*iftOutData_)[k] = 0.0;
+          for( auto j=0; j<((signalLength_/2)+1); j++)
           {
-            (*iftOutData_)[k] += (std::cos(2*M_PI*j*k/signalLength_)*(*iftInData_)[2*j] - std::sin(2*M_PI*j*k/signalLength_)*(*iftInData_)[2*j+1]);
+            (*iftOutData_)[k] += (std::cos(2*M_PI*j*k/signalLength_))*(*iftInData_)[2*j] - (std::sin(2*M_PI*j*k/signalLength_))*(*iftInData_)[2*j+1];
           }
-          (*iftOutData_)[k] = 2*(*iftOutData_)[k] / signalLength_;
+          for( auto j=(signalLength_/2), jc=(signalLength_/2)+1; j>0; j--, jc++)
+          {
+            (*iftOutData_)[k] += (std::cos(2*M_PI*jc*k/signalLength_))*(*iftInData_)[2*j] + (std::sin(2*M_PI*jc*k/signalLength_))*(*iftInData_)[2*j+1];
+          }
+          (*iftOutData_)[k] = (*iftOutData_)[k] / signalLength_;
         }
       }
-    }
+    //}
   }
