@@ -203,6 +203,9 @@ std::string Version::getCapabilities()
 #ifdef Xyce_USE_APPLEFFT
   capabilities += "(Apple FFT)\n";
 #endif
+#ifdef Xyce_USE_BASICFFT
+  capabilities += "(Basic FFT)\n";
+#endif
 #endif
 
 #ifdef Xyce_USE_CURL
