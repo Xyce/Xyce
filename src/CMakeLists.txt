@@ -71,11 +71,6 @@ add_subdirectory(MultiTimePDEPKG)
 target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
      ${FLEX_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
-# add any compiler-specific flags for XyceLib here. at present these are:
-#    * IntelLLVM C++ - requires "-fp-model=precise" for passage of some
-#                      xyce tests
-target_compile_options(XyceLib PRIVATE
-  "$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
 
 #
 # Xyce-Dakota linkage
