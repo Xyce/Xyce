@@ -42,6 +42,10 @@
 
 #include <gtest/gtest.h>
 #include <string.h>
+#include <math.h>
+#if (__cplusplus>=201703L)
+#include <filesystem>
+#endif
 
 //
 // Xyce::Circuit::Simulator functions that need to be tested
@@ -250,7 +254,7 @@ TEST ( XyceCInterface, MultiStepNetlist3)
   EXPECT_TRUE( ((long *)xycePtr) == 0 );
 }
 
-TEST ( XyceSimulator, DACDeviceNamesTestNetlist1 )
+TEST ( XyceCInterface, DACDeviceNamesTestNetlist1 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -274,7 +278,7 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist1 )
 }
 
 
-TEST ( XyceSimulator, DACDeviceNamesTestNetlist3 )
+TEST ( XyceCInterface, DACDeviceNamesTestNetlist3 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -308,7 +312,7 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist3 )
 }
 
 
-TEST ( XyceSimulator, CheckDeviceParamTestNetlist2 )
+TEST ( XyceCInterface, CheckDeviceParamTestNetlist2 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -341,7 +345,7 @@ TEST ( XyceSimulator, CheckDeviceParamTestNetlist2 )
 }
 
 
-TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
+TEST ( XyceCInterface, GetCircuitValuesTestNetlist2 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -431,7 +435,7 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
 
 
 
-TEST ( XyceSimulator, GetADCMapTestNetlist1 )
+TEST ( XyceCInterface, GetADCMapTestNetlist1 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -471,7 +475,7 @@ TEST ( XyceSimulator, GetADCMapTestNetlist1 )
   }
 }
 
-TEST ( XyceSimulator, GetADCMapTestNetlist3 )
+TEST ( XyceCInterface, GetADCMapTestNetlist3 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -512,7 +516,7 @@ TEST ( XyceSimulator, GetADCMapTestNetlist3 )
 }
 
 
-TEST ( XyceSimulator, GetTimeVoltagePairsNetlist3 )
+TEST ( XyceCInterface, GetTimeVoltagePairsNetlist3 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -584,7 +588,7 @@ TEST ( XyceSimulator, GetTimeVoltagePairsNetlist3 )
   }
 }
 
-TEST ( XyceSimulator, UpdateTimeVoltagePairsNetlist3 )
+TEST ( XyceCInterface, UpdateTimeVoltagePairsNetlist3 )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -686,7 +690,7 @@ TEST ( XyceSimulator, UpdateTimeVoltagePairsNetlist3 )
 }
 
 
-TEST ( XyceSimulator, MultiPortGetTimeVoltagePairs )
+TEST ( XyceCInterface, MultiPortGetTimeVoltagePairs )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -796,7 +800,7 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairs )
   }
 }
 
-TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsTimeVariant )
+TEST ( XyceCInterface, MultiPortGetTimeVoltagePairsTimeVariant )
 {
   void * xycePtr = NULL;
   xyce_open( & xycePtr);
@@ -910,6 +914,59 @@ TEST ( XyceSimulator, MultiPortGetTimeVoltagePairsTimeVariant )
   }
 }
 
+
+TEST ( XyceCInterface, SetSimulationDirectory )
+{
+  // This is a test to show that Xyce API function setWorkingDirectory() does change the working directory
+#if (__cplusplus>=201703L)
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  std::filesystem::path startingDirectory = std::filesystem::current_path();
+  std::filesystem::create_directory("TestDir");
+  const char * dirName = "TestDir";
+  xyce_set_working_directory( &xycePtr, dirName);
+  std::filesystem::path currentDirectory = std::filesystem::current_path();
+  EXPECT_NE( startingDirectory.string(), currentDirectory.string());
+  xyce_close( & xycePtr );
+#endif
+}
+
+TEST ( XyceCInterface, InitFromWorkingDirectory )
+{
+  // this test ensures that using Xyce API function setWorkingDirectory() allows 
+  // Xyce it initialize itself with a netlist in that subdirectory.
+#if (__cplusplus>=201703L)
+  void * xycePtr = NULL;
+  xyce_open( & xycePtr);
+  
+  std::filesystem::path startingDirectory = std::filesystem::current_path();
+  std::filesystem::path workingDir("TestDir2");
+  std::filesystem::create_directory(workingDir);
+  std::string netlist("TestNetlist1.cir");
+  std::filesystem::path originalFile(startingDirectory);
+  originalFile /= netlist;
+  std::filesystem::path newFile(startingDirectory);
+  newFile /= workingDir;
+  newFile /=netlist;
+  std::filesystem::copy_file( originalFile, newFile);
+  const char * dirName = "TestDir2";
+  xyce_set_working_directory( &xycePtr, dirName);
+  
+  int numArgs = 4;
+  const char argv0[] = "Xyce";
+  const char argv1[] = "TestNetlist1.cir"; 
+  const char argv2[] = "-l";
+  const char argv3[] = "TestNetlist2.cir.log";
+  char * argvarray[numArgs];
+  argvarray[0] = (char *) &argv0[0];
+  argvarray[1] = (char *) &argv1[0];
+  argvarray[2] = (char *) &argv2[0];
+  argvarray[3] = (char *) &argv3[0];
+  int return_status = xyce_initialize( & xycePtr, 4, argvarray);
+  EXPECT_EQ( return_status, 1);
+  xyce_close( & xycePtr );
+#endif
+}
 
 //-------------------------------------------------------------------------------
 int main (int argc, char **argv)

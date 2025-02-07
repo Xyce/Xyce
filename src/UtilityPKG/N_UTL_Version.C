@@ -232,8 +232,20 @@ std::string Version::getCapabilities()
   capabilities += "ROL enabled\n";
 #endif
 
-#if __cplusplus>=201402L
+#if ((__cplusplus>=201103L) && (__cplusplus<201402L))
+  capabilities += "Build compiler is C++11 compliant\n";
+#endif
+#if ((__cplusplus>=201402L) && (__cplusplus<201703L))
   capabilities += "Build compiler is C++14 compliant\n";
+#endif
+#if ((__cplusplus>=201703L) && (__cplusplus<202002L))
+  capabilities += "Build compiler is C++17 compliant\n";
+#endif
+#if ((__cplusplus>=202002L) && (__cplusplus<202302L))
+  capabilities += "Build compiler is C++20 compliant\n";
+#endif
+#if (__cplusplus>=202302L)
+  capabilities += "Build compiler is C++23 compliant\n";
 #endif
 
 #ifdef Xyce_STOKHOS_ENABLE

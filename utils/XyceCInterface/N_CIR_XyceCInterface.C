@@ -105,6 +105,12 @@ int xyce_initialize_late( void** ptr )
   return( xycePtr->initializeLate() );
 }
 
+void xyce_set_working_directory( void** ptr, const char * dirName)
+{
+  Xyce::Circuit::GenCouplingSimulator * xycePtr = static_cast<Xyce::Circuit::GenCouplingSimulator *>( *ptr );
+  xycePtr->setWorkingDirectory( std::string( dirName ));
+}
+
 int xyce_initialize( void** ptr, int argc, char ** argv )
 {
   int run_status = xyce_initialize_early (ptr, argc, argv);
