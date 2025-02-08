@@ -84,6 +84,10 @@ class xyce_interface:
     print( cargs )
     status = self.lib.xyce_initialize( byref(self.xycePtr), narg, cargs )
     return status
+    
+  def setWorkingDirectory( self, directoryName):
+    cdirectoryName = c_char_p(directoryName.encode('utf-8'))
+    self.lib.xyce_set_working_directory(byref(self.xycePtr), cdirectoryName )
 
   def runSimulation( self ):
     status = self.lib.xyce_runSimulation( byref(self.xycePtr) )
