@@ -174,7 +174,7 @@ void N_UTL_BasicFFT_Interface<std::vector<double> >::calculateIFT()
 void calcCTForwardFFTInt( std::vector<double> & inVec, unsigned int numPoints)
 {
   auto numVals = inVec.size();  
-  if( numVals == 2)
+  if( numVals <= 2)
   {
     // trivial case just return 
   }
@@ -211,7 +211,7 @@ void calcCTForwardFFTInt( std::vector<double> & inVec, unsigned int numPoints)
 void calcCTInverseFFTInt( std::vector<double> & inVec, unsigned int numPoints)
 {
   auto numVals = inVec.size();
-  if( numVals == 2)
+  if( numVals <= 2)
   {
     // trivial case of size 1
   }
