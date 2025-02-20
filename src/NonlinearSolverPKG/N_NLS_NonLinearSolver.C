@@ -947,6 +947,7 @@ bool NonLinearSolver::applyJacobian(const Linear::Vector& input, Linear::Vector&
 //-----------------------------------------------------------------------------
 bool NonLinearSolver::newton_()
 {
+  lasSolverRCPtr_->setNewtonIter( getNumIterations() );
   int solutionStatus = lasSolverRCPtr_->solve( false );
 
   totalLinearSolveTime_ += lasSolverRCPtr_->solutionTime();

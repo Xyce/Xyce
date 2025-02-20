@@ -77,6 +77,7 @@ public:
   // Set the solver options
   bool setOptions(const Util::OptionBlock & OB);
   bool setDefaultOptions();
+  bool setNewtonIter( int nIter ) { nIter_ = nIter; return true; }
 
   // Set individual options
   bool setParam( const Util::Param & param );
@@ -91,6 +92,9 @@ public:
   int doSolve( bool reuse_factors, bool transpose = false );
 
 private:
+
+  // Perform a standard solve without trying to reuse the solver
+  int doStandardSolve( Epetra_LinearProblem * prob );
 
   //Solver Type
   std::string type_;
@@ -115,6 +119,9 @@ private:
   int outputLS_;
   int outputBaseLS_;
   int outputFailedLS_;
+
+  // Newton Iteration
+  int nIter_;
 
   // Transform Support
   Teuchos::RCP<Transform> transform_;
