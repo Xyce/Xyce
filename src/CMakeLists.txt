@@ -302,6 +302,10 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     DeviceModelPKG/Core/N_DEV_SpecieSource.h
     DeviceModelPKG/Core/N_DEV_TransportHelper.h
     DeviceModelPKG/SandiaModels/N_DEV_1D_QASPR.h
+    DeviceModelPKG/SandiaModels/N_DEV_MuTableMgr.h
+    DeviceModelPKG/SandiaModels/N_DEV_NeutronSupport.h
+    DeviceModelPKG/SandiaModels/N_DEV_NfpUpdateMgr.h
+    DeviceModelPKG/SandiaModels/N_DEV_PulseDataMgr.h
     DeviceModelPKG/TCADModels/N_DEV_BernouliSupport.h
     DeviceModelPKG/TCADModels/N_DEV_DevicePDEInstance.h
     DeviceModelPKG/TCADModels/N_DEV_DevicePDEModel.h
@@ -319,8 +323,10 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     UtilityPKG/N_UTL_Dump.h
     UtilityPKG/N_UTL_ExtendedString.h
     UtilityPKG/N_UTL_Factory.h
+    UtilityPKG/N_UTL_IndentStreamBuf.h
     UtilityPKG/N_UTL_Interpolators.h
     UtilityPKG/N_UTL_Listener.h
+    UtilityPKG/N_UTL_LogStream.h
     UtilityPKG/N_UTL_Timer.h
     UtilityPKG/N_UTL_WallTime.h
   DESTINATION include
