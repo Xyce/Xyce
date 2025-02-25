@@ -47,6 +47,10 @@
 #include <N_LAS_TransformTool.h>
 #include <Teuchos_RCP.hpp>
 
+#ifdef Xyce_AMESOS2
+#include <Amesos2.hpp>
+#endif
+
 class Amesos_BaseSolver;
 class Epetra_LinearProblem;
 class Epetra_CrsMatrix;
@@ -110,7 +114,11 @@ private:
   Epetra_LinearProblem * problem_;
 
   //Wrapped solver object
-  Amesos_BaseSolver * solver_;
+  Amesos_BaseSolver * asolver_;
+
+#ifdef Xyce_AMESOS2
+  Teuchos::RCP<Amesos2::Solver<Epetra_CrsMatrix,Epetra_MultiVector> > a2solver_;
+#endif
 
   //Repivot every time or use static pivoting
   bool repivot_;

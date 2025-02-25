@@ -87,7 +87,7 @@ IRSolver::IRSolver(
   : Solver(problem, false),
     type_(type_default_),
     ir_tol_(tol_default_),
-    solver_(0),
+    asolver_(0),
     repivot_(true),
     outputLS_(0),
     outputBaseLS_(0),
@@ -113,7 +113,7 @@ IRSolver::IRSolver(
 //-----------------------------------------------------------------------------
 IRSolver::~IRSolver()
 {
-  delete solver_;
+  delete asolver_;
   delete timer_;
   delete options_;
 }
@@ -265,10 +265,16 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
   else
     dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix())->SetTracebackMode( 0 );
 
-
-  Amesos localAmesosObject;
-  if( !solver_ )
+  bool isAmesos = false, isAmesos2 = false;
+#ifdef Xyce_AMESOS2
+  if( !asolver_ && a2solver_==Teuchos::null )
+#else
+  if( !asolver_ )
+#endif
   {
+    Teuchos::ParameterList amesos2_params("Amesos2");
+    Teuchos::ParameterList amesos_params;
+
     // the Query() function expects a string
     // in lower case with the first letter in upper case
     // So, our "KLU" must become "Klu"
@@ -276,67 +282,122 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
     if( type_ == "KLU" )
     {
       solverType = "Amesos_Klu";
+      isAmesos = true;
     }
     else if( type_ == "SUPERLU" )
     {
       solverType = "Amesos_Superlu";
+      isAmesos = true;
     }
     else if( type_ == "SUPERLUDIST" )
     {
       solverType = "Amesos_Superludist";
+      Teuchos::ParameterList& sludistParams = amesos_params.sublist("Superludist");
+      sludistParams.set("ReuseSymbolic", true );
+      isAmesos = true;
     }
     else if( type_ == "PARAKLETE" )
     {
       solverType = "Amesos_Paraklete";
+      isAmesos = true;
     }
     else if( type_ == "PARDISO" )
     {
       solverType = "Amesos_Pardiso";
+      isAmesos = true;
     }
     else if( type_ == "LAPACK" )
     {
       solverType = "Amesos_Lapack";
+      isAmesos = true;
     }
     else if( type_ == "SCALAPACK" )
     {
       solverType = "Amesos_Scalapack";
+      isAmesos = true;
     }
     else if( type_ == "MUMPS" )
     {
       solverType = "Amesos_Mumps";
+      isAmesos = true;
     }
-
-    if( !localAmesosObject.Query( solverType ) )
-      Report::DevelFatal0() 
-        << "Unknown or Unavailable Linear Solver: " << type_;
-
-    solver_ = localAmesosObject.Create( solverType, *prob );
-
-    Teuchos::ParameterList params;
-
-#ifndef Xyce_PARALLEL_MPI
-    // Inform solver not to check inputs to reduce overhead.
-    params.set( "TrustMe", true );
-    // If repivot == true (default), recompute the pivot order each numeric factorization,
-    // else try to re-use pivot order to expedite numeric factorization.
-    params.set( "Refactorize", !repivot_ );
-#else
-    if (type_ == "SUPERLUDIST") {
-      Teuchos::ParameterList& sludistParams = params.sublist("Superludist");
-      sludistParams.set("ReuseSymbolic", true );
+#ifdef Xyce_AMESOS2_SHYLUBASKER
+    else if( type_ == "SHYLU_BASKER" )
+    {
+      solverType = "ShyLUBasker";
+      amesos2_params.sublist("ShyLUBasker").set("blk_matching", 0);
+      amesos2_params.sublist("ShyLUBasker").set("run_nd_on_leaves", false);
+      amesos2_params.sublist("ShyLUBasker").set("run_amd_on_leaves", true);
+      isAmesos2 = true;
     }
 #endif
+#ifdef Xyce_AMESOS2_BASKER
+    else if (type_ == "BASKER") 
+    {
+      solverType = "Basker";
+      isAmesos2 = true;
+    }
+#endif
+#ifdef Xyce_AMESOS2_KLU2
+    else if (type_ == "KLU2") 
+    {
+      solverType = "klu2";
+      isAmesos2 = true;
+    }
+#endif
+    else 
+    {
+      Report::DevelFatal0() 
+        << "Unknown or Unavailable Linear Solver: " << type_;
+    }
 
     if (VERBOSE_LINEAR)
-      Xyce::dout() << "IRSolver::solve() setting solver : " << type_ << "\n"
-                   << "IRSolver::solve() setting parameters : " << params << std::endl;
-
-    solver_->SetParameters( params );
+      Xyce::dout() << "IRSolver::solve() setting solver : " << type_ << std::endl;
 
     double begSymTime = timer_->elapsedTime();
 
-    // Perform symbolic factorization and check return value for failure
-    linearStatus = solver_->SymbolicFactorization();
+    if (isAmesos)
+    {
+      Amesos localAmesosObject;
+      asolver_ = localAmesosObject.Create( solverType, *prob );
+
+#ifndef Xyce_PARALLEL_MPI
+      // Inform solver not to check inputs to reduce overhead.
+      amesos_params.set( "TrustMe", true );
+      // If repivot == true (default), recompute the pivot order each numeric factorization,
+      // else try to re-use pivot order to expedite numeric factorization.
+      amesos_params.set( "Refactorize", !repivot_ );
+#endif
+    
+      asolver_->SetParameters( amesos_params );
+    
+      // Perform symbolic factorization and check return value for failure
+      linearStatus = asolver_->SymbolicFactorization();
+    }
+    if (isAmesos2)
+    {
+#ifdef Xyce_AMESOS2
+      a2solver_ = Amesos2::create<Epetra_CrsMatrix,Epetra_MultiVector>( solverType,
+                                                                      Teuchos::rcp(dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix()),false));
+  
+      a2solver_->setParameters( rcpFromRef(amesos2_params) );
+ 
+      try
+      {
+        // Perform symbolic factorization and check return value for failure
+        a2solver_->symbolicFactorization();
+      }
+      catch (std::runtime_error& e)
+      {
+        if (VERBOSE_LINEAR)
+          Xyce::dout() << "  Amesos2 (" << type_ << ") error: " << e.what() << std::endl;
+      
+        linearStatus = -1;
+        a2solver_ = Teuchos::null;
+      }
+#endif
+    }
+
     if (linearStatus != 0)
     {
       // Update the total solution time
@@ -354,9 +415,10 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
   }
 
   // Set the transpose flag only if that has changed since the last solve.
-  if ( solver_->UseTranspose() != transpose )
+  if ( asolver_ )
   {
-    solver_->SetUseTranspose( transpose );
+    if ( asolver_->UseTranspose() != transpose )
+      asolver_->SetUseTranspose( transpose );
   }
 
   // Factor the matrix for the first Newton solve
@@ -367,7 +429,12 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
   else 
   {
     // Try to solve with previous factors
-    solver_->Solve();
+    if ( asolver_ )
+      asolver_->Solve();
+#ifdef Xyce_AMESOS2
+    else
+      a2solver_->solve( prob->GetLHS(), prob->GetRHS() );
+#endif
 
     int numrhs = prob->GetLHS()->NumVectors();
     std::vector<double> resNorm(numrhs,0.0), bNorm(numrhs,0.0);
@@ -424,7 +491,12 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
         *(prob->GetRHS()) = res;
 
         // Try to solve with previous factors
-        solver_->Solve();
+        if ( asolver_ )
+          asolver_->Solve();
+#ifdef Xyce_AMESOS2
+        else
+          a2solver_->solve( prob->GetLHS(), prob->GetRHS() );
+#endif
  
         // Now update the soultion and check the residual 
         x.Update( 1.0, *(prob->GetLHS()), 1.0 );
@@ -543,7 +615,28 @@ int IRSolver::doStandardSolve( Epetra_LinearProblem * prob )
   // Perform numeric factorization and check return value for failure
   double begNumTime = timer_->elapsedTime();
 
-  int linearStatus = solver_->NumericFactorization();
+  int linearStatus = 0;
+
+  if ( asolver_ )
+    linearStatus = asolver_->NumericFactorization();
+#ifdef Xyce_AMESOS2
+  else      
+  {
+    try
+    {
+      a2solver_->numericFactorization();
+    }
+    catch (std::runtime_error& e)
+    {
+      if (VERBOSE_LINEAR)
+      {
+        Xyce::dout() << "  Amesos2 (" << type_ << ") error: " << e.what() << std::endl;
+      }
+      linearStatus = -1;
+    }
+  }
+#endif
+
   if (VERBOSE_LINEAR)
   {
     double endNumTime = timer_->elapsedTime();
@@ -575,8 +668,13 @@ int IRSolver::doStandardSolve( Epetra_LinearProblem * prob )
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
 
-  solver_->Solve();
-
+  if ( asolver_ )
+    asolver_->Solve();
+#ifdef Xyce_AMESOS2
+  else
+    a2solver_->solve( prob->GetLHS(), prob->GetRHS() );
+#endif
+ 
   if (VERBOSE_LINEAR)
   {
     double endSolveTime = timer_->elapsedTime();
