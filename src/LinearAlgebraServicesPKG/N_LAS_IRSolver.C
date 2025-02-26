@@ -72,6 +72,7 @@ namespace Linear {
 //Solver defaults.
 const std::string IRSolver::type_default_ = "KLU";
 const double IRSolver::tol_default_ = 1e-9;
+const double IRSolver::min_tol_default_ = 1e-2;
 
 //-----------------------------------------------------------------------------
 // Function      : IRSolver::IRSolver
@@ -86,6 +87,7 @@ IRSolver::IRSolver(
   Util::OptionBlock &   options)
   : Solver(problem, false),
     type_(type_default_),
+    ir_min_tol_(min_tol_default_),
     ir_tol_(tol_default_),
     asolver_(0),
     repivot_(true),
@@ -137,6 +139,8 @@ bool IRSolver::setOptions( const Util::OptionBlock & OB )
     if( tag == "IR_SOLVER_TYPE" ) type_ = it_tpL->usVal();
 
     if( tag == "IR_SOLVER_TOL" ) ir_tol_ = it_tpL->getImmutableValue<double>();
+    
+    if( tag == "IR_MIN_TOL" ) ir_min_tol_ = it_tpL->getImmutableValue<double>();
 
     if( tag == "KLU_REPIVOT" ) repivot_ = static_cast<bool>(it_tpL->getImmutableValue<int>());
     
@@ -446,7 +450,6 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
     bool reuse_success = true;
     bool ir_success = true;
     double max_residual = 0.0;
-    double min_tol_ = 1e-2;
     int max_iters = 10;
     for (int i=0; i<numrhs; i++)
     {
@@ -472,7 +475,7 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
         Xyce::dout() << "Total Linear Solution Time (Reused, Amesos " << type_ << "): "
                      << solutionTime_ << std::endl;
     }
-    else if (max_residual < min_tol_) 
+    else if (max_residual < ir_min_tol_) 
     {
       // Save the original RHS
       Epetra_MultiVector x( prob->GetLHS()->Map(), numrhs );
@@ -484,7 +487,7 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
       int iter = 0;
       bool diverging = false;
       if (VERBOSE_LINEAR)
-        Xyce::dout() << "Trying iterative refinement " << max_residual << " and min_tol_ = " << min_tol_ << " !" << std::endl;
+        Xyce::dout() << "Trying iterative refinement " << max_residual << " and ir_min_tol_ = " << ir_min_tol_ << " !" << std::endl;
       while ((max_residual > ir_tol_)&&(iter < max_iters)&&(!diverging))
       {
         // Copy current residual to the right-hand side of the problem
@@ -555,7 +558,7 @@ int IRSolver::doSolve( bool reuse_factors, bool transpose )
           } 
         }
         if (VERBOSE_LINEAR)
-          Xyce::dout() << "Total Linear Solution Time (Reused, Amesos " << type_ << "): "
+          Xyce::dout() << "Total Linear Solution Time (Reused, iter=" << iter << ", Amesos " << type_ << "): "
                        << solutionTime_ << std::endl;
       }
       else

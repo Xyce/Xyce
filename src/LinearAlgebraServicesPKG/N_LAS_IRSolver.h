@@ -104,11 +104,12 @@ private:
   std::string type_;
 
   //Solver tolerance.
-  double ir_tol_;
+  double ir_min_tol_, ir_tol_;
 
   //Solver defaults.
   static const std::string type_default_;
   static const double tol_default_;
+  static const double min_tol_default_;
 
   //Primary problem access
   Epetra_LinearProblem * problem_;
