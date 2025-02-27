@@ -3611,6 +3611,46 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getSensParamsForDevice
+//
+// Purpose       : Returns a vector of sensitivity parameters associated 
+//                 with a specified device.
+//
+// Special Notes : Setup function for sensitivity analysis.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 02/26/2025
+//-----------------------------------------------------------------------------
+void DeviceMgr::getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, 
+      Parallel::Communicator & parallel_comm)
+{
+  Stats::StatTop _deviceSensStat("Setup device sensitivity params");
+  Stats::TimeBlock _deviceSensTimer(_deviceSensStat);
+
+  DeviceEntity * device_entity = getDeviceEntity(sensDeviceName);
+  int entity_found = (device_entity != 0);
+  int globalFound = 0;
+  if (Parallel::is_parallel_run(parallel_comm.comm()))
+  {
+    parallel_comm.maxAll(&entity_found, &globalFound, 1);
+  }
+  else
+  {
+    globalFound = entity_found;
+  }
+
+  if (globalFound == 0)
+  {
+    Report::UserError() << "Could not find device " << sensDeviceName ;
+  }
+  else
+  {
+    device_entity->getSensitivityParams (sensParams);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::resetScaledParams()
 // Purpose       :
 // Special Notes :

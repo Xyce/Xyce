@@ -153,6 +153,8 @@ Transient::Transient(
     hbAnalysis_(hb_analysis),
     mpdeManager_(mpde_manager),
     numSensParams_(0),
+    sensDeviceNameGiven(false),
+    sensDeviceName(""),
     difference_(Nonlinear::SENS_FWD),
     sqrtEta_(1.0e-8),
     sqrtEtaGiven_(false),
@@ -657,6 +659,12 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
       paramNameVec_.push_back(tag);
     }
 
+    else if (std::string( iter->uTag() ,0,14) == "SENSDEVICENAME")
+    {
+      sensDeviceName = iter->stringValue();
+      sensDeviceNameGiven = true;
+    }
+
     else
     {
       Xyce::Report::UserWarning() << iter->uTag() 
@@ -665,6 +673,33 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
   }
 
   return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Transient::obtainDeviceSensParams()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+bool Transient::obtainDeviceSensParams()
+{
+  if (sensDeviceNameGiven)
+  {
+    Parallel::Manager &pds_manager = *analysisManager_.getPDSManager();
+    Parallel::Communicator &pdsComm = *(pds_manager.getPDSComm());
+
+    std::vector<std::string> sensParams;
+    loader_.getSensParamsForDevice(sensDeviceName, sensParams,pdsComm);
+
+    if ( !(sensParams.empty()) )
+    {
+      paramNameVec_.insert(paramNameVec_.end(), sensParams.begin(), sensParams.end());
+    }
+  }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------

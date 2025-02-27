@@ -138,6 +138,8 @@ Sensitivity::Sensitivity (
     sec(secTmp),
     numSensParams_(0),
     numObjectives_(0),
+    sensDeviceNameGiven(false),
+    sensDeviceName(""),
     mode_(Nonlinear::DC_OP)
 {
   resetNLS( nls );
@@ -1186,6 +1188,11 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
         maxParamStringSize_ = sz;
       }
     }
+    else if (std::string( iter->uTag() ,0,14) == "SENSDEVICENAME")
+    {
+      sensDeviceName = iter->stringValue();
+      sensDeviceNameGiven = true;
+    }
     else
     {
       Xyce::Report::UserWarning() << iter->uTag() 
@@ -1198,9 +1205,16 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
     Report::UserFatal0() << "No objective functions found on .SENS line";
   }
 
-  if (numSensParams_ == 0)
+  if (sensDeviceNameGiven)
   {
-   Report::UserFatal0() << "No PARAM values found on .SENS line";
+    bool tmp = obtainDeviceSensParams();
+  }
+  else
+  {
+    if (numSensParams_ == 0)
+    {
+     Report::UserFatal0() << "No PARAM values found on .SENS line";
+    }
   }
 
   numObjectives_ = objFuncDataVec_.size();
@@ -1227,6 +1241,30 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   return bsuccess;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Sensitivity::obtainDeviceSensParams()
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/4/2021
+//-----------------------------------------------------------------------------
+bool Sensitivity::obtainDeviceSensParams()
+{
+  if (sensDeviceNameGiven)
+  {
+    Parallel::Communicator &pdsComm = *(pdsMgrPtr_->getPDSComm());
+    std::vector<std::string> sensParams;
+    nonlinearEquationLoader_->getSensParamsForDevice(sensDeviceName, sensParams,pdsComm);
+
+    if ( !(sensParams.empty()) )
+    {
+      paramNameVec_.insert(paramNameVec_.end(), sensParams.begin(), sensParams.end());
+    }
+  }
+
+  return true;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Sensitivity::setSensitivityOptions
@@ -1644,6 +1682,7 @@ void Sensitivity::populateMetadata(
     parameters.insert(Util::ParamMap::value_type("OBJFUNC", Util::Param("OBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJVARS", Util::Param("OBJVARS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));
+    parameters.insert(Util::ParamMap::value_type("SENSDEVICENAME", Util::Param("PARAM", "VECTOR")));
   }
 
   options_manager.addCommandParser(".SENS", extractSENSData);

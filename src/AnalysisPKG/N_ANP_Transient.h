@@ -109,6 +109,7 @@ public:
   bool setSensitivityOptions(const Util::OptionBlock &option_block);
   bool setSensAnalysisParams(const Util::OptionBlock &option_block);
 
+  bool obtainDeviceSensParams();
 
   void registerLinearSystem(Linear::System * linear_system_ptr)
   {
@@ -296,6 +297,9 @@ private:
   std::vector<double>   scaled_dOdpAdjVec_;
 
   std::vector<std::string> paramNameVec_;
+
+  bool          sensDeviceNameGiven;
+  std::string   sensDeviceName;
 
   // finite difference variables
   int difference_;
