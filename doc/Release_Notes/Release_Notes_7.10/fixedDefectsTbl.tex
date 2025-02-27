@@ -36,6 +36,11 @@
   &  Examples of calling Xyce from Python, Matlab and Simulink are now included in the 
   installed version of Xyce within the \texttt{share} directory.
   \\\hline
+
+\textbf{Xyce Project Backlog/861}: Diode model led to Inf/NaN
+  &  When the saturation current was set to zero, it would cause the diode model to have Inf/NaN errors.  
+  This is a use case that needs to work, and it has been fixed.
+  \\\hline
   
 \textbf{Xyce Project Backlog/xxx}: Description
   &  Details
