@@ -41,6 +41,11 @@
   &  When the saturation current was set to zero, it would cause the diode model to have Inf/NaN errors.  
   This is a use case that needs to work, and it has been fixed.
   \\\hline
+
+  \textbf{Xyce Project Backlog/884}: Fix doping interpolations to for 1D PDE (TCAD) device to be more robust
+  & The interpolation of doping profiles was not working correctly, when the parameter "nmaxchop" was used.  
+  This resulted in unphysical noisy solutions in regions of high doping.  This has been fixed.
+  \\\hline
   
 \textbf{Xyce Project Backlog/xxx}: Description
   &  Details
