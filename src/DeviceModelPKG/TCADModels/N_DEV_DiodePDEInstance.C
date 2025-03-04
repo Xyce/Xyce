@@ -3544,6 +3544,25 @@ bool Instance::calcVoltDepDensities ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : logScaleVec
+// Purpose       : helper function to put vector values on log scale
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 1/28/2025
+//-----------------------------------------------------------------------------
+void logScaleVec(std::vector<double> & vals)
+{
+  int isize = vals.size();
+  for(int ii=0;ii<isize;ii++)
+  {
+    double tmp = vals[ii];
+    if (tmp<=0.0) { tmp = 1.0e-50; }
+    vals[ii] = std::log10(tmp);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Instance::setupDopingProfile
 // Purpose       :
 // Special Notes :
@@ -3574,6 +3593,8 @@ bool Instance::setupDopingProfile ()
     xloc_pdope_vec.clear();
     xloc_pdope_vec.resize( xloc_ndope_vec.size(), 0.0);
     xloc_pdope_vec = xloc_ndope_vec ;
+    logScaleVec(ndope_vec);
+    logScaleVec(pdope_vec);
     ndopeInterpolator.clear(); ndopeInterpolator.init(xloc_ndope_vec, ndope_vec);
     pdopeInterpolator.clear(); pdopeInterpolator.init(xloc_pdope_vec, pdope_vec);
     bsuccess=true;
@@ -3583,6 +3604,8 @@ bool Instance::setupDopingProfile ()
   {
     DopeInfo::readDopingFile (ndopeFileName, xloc_ndope_vec, ndope_vec);
     DopeInfo::readDopingFile (pdopeFileName, xloc_pdope_vec, pdope_vec);
+    logScaleVec(ndope_vec);
+    logScaleVec(pdope_vec);
     ndopeInterpolator.clear(); ndopeInterpolator.init(xloc_ndope_vec, ndope_vec);
     pdopeInterpolator.clear(); pdopeInterpolator.init(xloc_pdope_vec, pdope_vec);
     bsuccess=true;
@@ -3602,10 +3625,14 @@ bool Instance::setupDopingProfile ()
     for (i=0;i<NX;++i)
     {
       double xtmp = xVec[i];
+      double ndopeDopeLog(0.0), pdopeDopeLog(0.0);
       double ndopeDopeValue(0.0), pdopeDopeValue(0.0);
 
-      ndopeInterpolator.eval(xloc_ndope_vec, ndope_vec, xtmp, ndopeDopeValue);
-      pdopeInterpolator.eval(xloc_pdope_vec, pdope_vec, xtmp, pdopeDopeValue);
+      ndopeInterpolator.eval(xloc_ndope_vec, ndope_vec, xtmp, ndopeDopeLog);
+      pdopeInterpolator.eval(xloc_pdope_vec, pdope_vec, xtmp, pdopeDopeLog);
+
+      ndopeDopeValue = std::pow(10.0,ndopeDopeLog);
+      pdopeDopeValue = std::pow(10.0,pdopeDopeLog);
 
       CVec[i] = ndopeDopeValue-pdopeDopeValue;
 

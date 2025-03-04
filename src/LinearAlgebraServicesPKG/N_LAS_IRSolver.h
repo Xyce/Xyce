@@ -47,6 +47,10 @@
 #include <N_LAS_TransformTool.h>
 #include <Teuchos_RCP.hpp>
 
+#ifdef Xyce_AMESOS2
+#include <Amesos2.hpp>
+#endif
+
 class Amesos_BaseSolver;
 class Epetra_LinearProblem;
 class Epetra_CrsMatrix;
@@ -77,6 +81,7 @@ public:
   // Set the solver options
   bool setOptions(const Util::OptionBlock & OB);
   bool setDefaultOptions();
+  bool setNewtonIter( int nIter ) { nIter_ = nIter; return true; }
 
   // Set individual options
   bool setParam( const Util::Param & param );
@@ -92,21 +97,29 @@ public:
 
 private:
 
+  // Perform a standard solve without trying to reuse the solver
+  int doStandardSolve( Epetra_LinearProblem * prob );
+
   //Solver Type
   std::string type_;
 
   //Solver tolerance.
-  double ir_tol_;
+  double ir_min_tol_, ir_tol_;
 
   //Solver defaults.
   static const std::string type_default_;
   static const double tol_default_;
+  static const double min_tol_default_;
 
   //Primary problem access
   Epetra_LinearProblem * problem_;
 
   //Wrapped solver object
-  Amesos_BaseSolver * solver_;
+  Amesos_BaseSolver * asolver_;
+
+#ifdef Xyce_AMESOS2
+  Teuchos::RCP<Amesos2::Solver<Epetra_CrsMatrix,Epetra_MultiVector> > a2solver_;
+#endif
 
   //Repivot every time or use static pivoting
   bool repivot_;
@@ -115,6 +128,9 @@ private:
   int outputLS_;
   int outputBaseLS_;
   int outputFailedLS_;
+
+  // Newton Iteration
+  int nIter_;
 
   // Transform Support
   Teuchos::RCP<Transform> transform_;

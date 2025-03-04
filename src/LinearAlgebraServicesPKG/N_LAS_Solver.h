@@ -76,6 +76,7 @@ public:
   virtual bool setOptions(const Util::OptionBlock & OB) = 0;
   virtual bool setDefaultOptions() { return true; }
   virtual bool setPreconditioner( const Teuchos::RCP<Preconditioner>& precond ) { return true; }
+  virtual bool setNewtonIter( int nIter ) { return true; }
 
   // Set individual options
   virtual bool setParam( const Util::Param & param ) { return true; }

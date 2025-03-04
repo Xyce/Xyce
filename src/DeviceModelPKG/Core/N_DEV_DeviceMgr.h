@@ -583,6 +583,9 @@ public:
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 
+  void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, 
+      Parallel::Communicator & parallel_comm);
+
   void resetScaledParams();
 
 private:

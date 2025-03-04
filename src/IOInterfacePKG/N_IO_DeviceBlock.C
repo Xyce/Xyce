@@ -2404,6 +2404,27 @@ bool DeviceBlock::setParameterValues()
     std::vector<Xyce::Device::Param>::iterator paramIter = 
       std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("M")));
 
+
+
+    // we should only check for mult if either "M" doesn't exist, or it does exist but wasn't given.
+    bool checkForMult=false;
+    if (paramIter != params.end()) // if M exists
+    {
+      if ( !(paramIter->given()) )  { checkForMult=true;  } // and it was NOT given then look for MULT
+    }
+    else { checkForMult=true; } // if M doesn't exist look for MULT
+
+    if (checkForMult)
+    {
+      std::vector<Xyce::Device::Param>::iterator paramIterMult = 
+          std::find_if( params.begin(), params.end(), Util::EqualParam( std::string("MULT")));
+
+      if (paramIterMult != params.end()) // if we found MULT, then use it instead
+      {
+        paramIter = paramIterMult;
+      }
+    }
+
     if (paramIter != params.end())
     {
       if ( paramIter->given() ) 

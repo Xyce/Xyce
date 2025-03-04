@@ -316,6 +316,19 @@ bool NonlinearEquationLoader::getParamAndReduce(Parallel::Machine comm, const st
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::getParamAndReduce
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void NonlinearEquationLoader::getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm)
+{
+  return deviceManager_.getSensParamsForDevice(sensDeviceName,sensParams,parallel_comm);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::loadRHS
 //
 // Purpose       : This function manages the various function calls necessary

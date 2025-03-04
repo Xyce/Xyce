@@ -347,7 +347,9 @@ static long padsize, padshift;
 
 
 
-
+/* NOTE:  Use of ASSERT is causing odd crashes in Xyce, and substitution
+   with the standard C assert() function seems to fix them.  I am disabling
+   this macro. */
 /*
  *  ASSERT and ABORT
  *
@@ -358,11 +360,13 @@ static long padsize, padshift;
  *  not evaluated unless the DEBUG flag is true.
  */
 
-#if DEBUG
-#define ASSERT(condition) if (NOT(condition)) ABORT()
-#else
-#define ASSERT(condition)
-#endif
+/*
+  #if DEBUG
+  #define ASSERT(condition) if (NOT(condition)) ABORT()
+  #else
+  #define ASSERT(condition)
+  #endif
+*/
 
 #ifndef ABORT
 #if DEBUG

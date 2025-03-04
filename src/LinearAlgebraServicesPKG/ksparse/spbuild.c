@@ -27,7 +27,7 @@ All additions and changes are under the following:
 */
 
 #include "spice.h"
-
+#include <assert.h>
 /*
 #define CHECK_IND
 */
@@ -148,7 +148,7 @@ register  ElementPtr  pElement;
 register  int  I;
 
 /* Begin `spClear'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
     Matrix->Format = FORMAT_SPARSE;
 
 /* Clear matrix. */
@@ -231,7 +231,7 @@ RealNumber  *pElement;
 void  Translate();
 
 /* Begin `spGetElement'. */
-    ASSERT( IS_SPARSE( Matrix ) AND Row >= 0 AND Col >= 0 );
+    assert( IS_SPARSE( Matrix ) AND Row >= 0 AND Col >= 0 );
     if (Matrix->Format != FORMAT_SPARSE)
       spExpandFormat (Matrix);
 
@@ -239,7 +239,7 @@ void  Translate();
         return &Matrix->TrashCan.Real;
 
 #if NOT TRANSLATE
-    ASSERT(Matrix->NeedsOrdering);
+    assert(Matrix->NeedsOrdering);
 #endif
 
 #if TRANSLATE
@@ -249,7 +249,7 @@ void  Translate();
 
 #if NOT TRANSLATE
 #if NOT EXPANDABLE
-    ASSERT(Row <= Matrix->Size AND Col <= Matrix->Size);
+    assert(Row <= Matrix->Size AND Col <= Matrix->Size);
 #endif
 
 #if EXPANDABLE
@@ -442,7 +442,7 @@ register int IntRow, IntCol, ExtRow, ExtCol;
         IntRow = Matrix->CurrentSize;
 
 #if NOT EXPANDABLE
-        ASSERT(IntRow <= Matrix->Size);
+        assert(IntRow <= Matrix->Size);
 #endif
 
 #if EXPANDABLE
@@ -463,7 +463,7 @@ register int IntRow, IntCol, ExtRow, ExtCol;
         IntCol = Matrix->CurrentSize;
 
 #if NOT EXPANDABLE
-        ASSERT(IntCol <= Matrix->Size);
+        assert(IntCol <= Matrix->Size);
 #endif
 
 #if EXPANDABLE
@@ -1230,7 +1230,7 @@ void
 spInstallInitInfo( RealNumber* pElement, char* pInitInfo )
 {
 /* Begin `spInstallInitInfo'. */
-    ASSERT(pElement != NULL);
+    assert(pElement != NULL);
 
     ((ElementPtr)pElement)->pInitInfo = pInitInfo;
 }
@@ -1240,7 +1240,7 @@ char *
 spGetInitInfo( RealNumber* pElement )
 {
 /* Begin `spGetInitInfo'. */
-    ASSERT(pElement != NULL);
+    assert(pElement != NULL);
 
     return (char *)((ElementPtr)pElement)->pInitInfo;
 }
@@ -1254,7 +1254,7 @@ register ElementPtr pElement;
 int J, Error, Col;
 
 /* Begin `spInitialize'. */
-    ASSERT( IS_SPARSE( Matrix ) );
+    assert( IS_SPARSE( Matrix ) );
 
 #if spCOMPLEX
 /* Clear imaginary part of matrix if matrix is real but was complex. */

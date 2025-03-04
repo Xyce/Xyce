@@ -135,6 +135,7 @@ public:
                                 std::vector<int> & BindicesVec );
 
 
+  virtual void getSensitivityParams (std::vector<std::string> & sensParams) { return; }
 
 //
   bool analyticMatrixSensitivityAvailable (const std::string & paramName);

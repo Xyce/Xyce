@@ -2063,6 +2063,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("IR_SOLVER_TYPE", Util::Param("IR_SOLVER_TYPE", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("IR_SOLVER_TOL", Util::Param("IR_SOLVER_TOL", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("IR_MIN_TOL", Util::Param("IR_MIN_TOL", "DEFAULT")));
     parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
     parameters.insert(Util::ParamMap::value_type("KLU_REPIVOT", Util::Param("KLU_REPIVOT", 1)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));

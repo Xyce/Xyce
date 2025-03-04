@@ -373,6 +373,19 @@ void CktLoader::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 }
 
 //-----------------------------------------------------------------------------
+// Function      : CktLoader::getSensParamsForDevice
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void CktLoader::getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm)
+{
+  return deviceManager_.getSensParamsForDevice(sensDeviceName,sensParams,parallel_comm);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : CktLoader::initializeProblem
 // Purpose       : 
 // Special Notes : 

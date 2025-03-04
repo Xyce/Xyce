@@ -129,6 +129,7 @@ public:
    bool calcObjFuncTimeDerivs ();
 
    bool setOptions(const Util::OptionBlock& OB);
+   bool obtainDeviceSensParams();
    bool setSensitivityOptions(const Util::OptionBlock& OB);
    bool doAllocations();
 
@@ -212,6 +213,9 @@ private:
   int numSensParams_;
   int numObjectives_;
   std::vector<std::string> paramNameVec_;
+
+  bool          sensDeviceNameGiven;
+  std::string   sensDeviceName;
 
   // Current analysis mode
   Xyce::Nonlinear::AnalysisMode mode_;

@@ -22,6 +22,8 @@
 #cmakedefine Xyce_USE_FFT
 #cmakedefine Xyce_USE_INTEL_FFT
 #cmakedefine Xyce_USE_FFTW
+#cmakedefine Xyce_USE_APPLEFFT
+#cmakedefine Xyce_USE_BASICFFT
 
 // Binary Restart files
 #cmakedefine Xyce_RESTART_NOPACK

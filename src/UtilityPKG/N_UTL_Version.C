@@ -196,8 +196,15 @@ std::string Version::getCapabilities()
   capabilities += "FFT ";
 #ifdef Xyce_USE_INTEL_FFT
   capabilities += "(Intel FFT)\n";
-#else
+#endif
+#ifdef Xyce_USE_FFTW
   capabilities += "(FFTW)\n";
+#endif
+#ifdef Xyce_USE_APPLEFFT
+  capabilities += "(Apple FFT)\n";
+#endif
+#ifdef Xyce_USE_BASICFFT
+  capabilities += "(Basic FFT)\n";
 #endif
 #endif
 

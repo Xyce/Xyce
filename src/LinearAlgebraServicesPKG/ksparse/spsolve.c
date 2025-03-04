@@ -87,6 +87,7 @@ static char RCSid[] =
 #include "spconfig.h"
 #include "spmatrix.h"
 #include "spdefs.h"
+#include <assert.h>
 
 double total_solve_time;
 
@@ -237,10 +238,10 @@ double *orig_rhs;
     }
     else
     {
-      ASSERT( IS_VALID(Matrix));
+      assert( IS_VALID(Matrix));
     }
     spExpandFormat(Matrix);
-    ASSERT( IS_FACTORED(Matrix) );
+    assert( IS_FACTORED(Matrix) );
 
 #if spCOMPLEX
     if (Matrix->Complex)
@@ -358,7 +359,7 @@ register  int  I, *pExtOrder, Size;
 ElementPtr  pPivot;
 
 /* Begin `spSolve'. */
-    ASSERT( IS_VALID(Matrix));
+    assert( IS_VALID(Matrix));
 
 #if spCOMPLEX
     if (Matrix->Complex)
@@ -689,10 +690,10 @@ RealNumber  Temp;
     }
     else
     {
-      ASSERT( IS_VALID(Matrix));
+      assert( IS_VALID(Matrix));
     }
     spExpandFormat(Matrix);
-    ASSERT( IS_VALID(Matrix) AND IS_FACTORED(Matrix) );
+    assert( IS_VALID(Matrix) AND IS_FACTORED(Matrix) );
 
 #if spCOMPLEX
     if (Matrix->Complex)

@@ -71,11 +71,6 @@ add_subdirectory(MultiTimePDEPKG)
 target_include_directories(XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
      ${FLEX_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS})
 
-# add any compiler-specific flags for XyceLib here. at present these are:
-#    * IntelLLVM C++ - requires "-fp-model=precise" for passage of some
-#                      xyce tests
-target_compile_options(XyceLib PRIVATE
-  "$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
 
 #
 # Xyce-Dakota linkage
@@ -98,6 +93,13 @@ if( Xyce_USE_FFTW )
   
   get_property(FFTWIncludeDir TARGET ${FFT} PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
   target_include_directories(XyceLib PUBLIC ${FFTWIncludeDir} )
+endif()
+
+#
+# if we are using Apple FFT then we need to add the Accelerate framework
+#
+if( Xyce_USE_APPLEFFT )
+   target_link_libraries(XyceLib PUBLIC ${Accelerate_Framework} )
 endif()
 
 target_link_libraries(XyceLib PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS})
@@ -300,6 +302,10 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     DeviceModelPKG/Core/N_DEV_SpecieSource.h
     DeviceModelPKG/Core/N_DEV_TransportHelper.h
     DeviceModelPKG/SandiaModels/N_DEV_1D_QASPR.h
+    DeviceModelPKG/SandiaModels/N_DEV_MuTableMgr.h
+    DeviceModelPKG/SandiaModels/N_DEV_NeutronSupport.h
+    DeviceModelPKG/SandiaModels/N_DEV_NfpUpdateMgr.h
+    DeviceModelPKG/SandiaModels/N_DEV_PulseDataMgr.h
     DeviceModelPKG/TCADModels/N_DEV_BernouliSupport.h
     DeviceModelPKG/TCADModels/N_DEV_DevicePDEInstance.h
     DeviceModelPKG/TCADModels/N_DEV_DevicePDEModel.h
@@ -317,8 +323,10 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     UtilityPKG/N_UTL_Dump.h
     UtilityPKG/N_UTL_ExtendedString.h
     UtilityPKG/N_UTL_Factory.h
+    UtilityPKG/N_UTL_IndentStreamBuf.h
     UtilityPKG/N_UTL_Interpolators.h
     UtilityPKG/N_UTL_Listener.h
+    UtilityPKG/N_UTL_LogStream.h
     UtilityPKG/N_UTL_Timer.h
     UtilityPKG/N_UTL_WallTime.h
   DESTINATION include

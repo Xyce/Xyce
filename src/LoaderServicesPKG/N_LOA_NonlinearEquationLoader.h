@@ -184,6 +184,8 @@ public:
 
   bool getParamAndReduce(Parallel::Machine comm, const std::string & name, double & val) const;
 
+  virtual void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm);
+
   const Loader &getLoader() const {
     return loader_;
   }

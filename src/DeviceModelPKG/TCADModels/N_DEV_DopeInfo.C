@@ -193,6 +193,18 @@ void DopeInfo::processParams()
   }
 }
 
+//-----------------------------------------------------------------------------
+void logScaleVec(std::vector<double> & vals)
+{
+  int isize = vals.size();
+  for(int ii=0;ii<isize;ii++)
+  {
+    double tmp = vals[ii];
+    if (tmp<=0.0) { tmp = 1.0e-50; }
+    vals[ii] = std::log10(tmp);
+  }
+}
+
 // ----------------------------------------------------------------------------
 // Function      : DopeInfo::setupInfo
 // Purpose       :
@@ -383,7 +395,6 @@ void DopeInfo::setupInfo(
     {
       readDopingFile (fileName, xlocVec, dopeVec);
       dopeInterpolator.clear(); 
-      dopeInterpolator.init(xlocVec, dopeVec);
 
       // if the user has requested that this be truncated to a max value,
       // do it here:
@@ -398,12 +409,18 @@ void DopeInfo::setupInfo(
           }
         }
       }
+      logScaleVec(dopeVec); // put doping data on log scale
+      dopeInterpolator.init(xlocVec, dopeVec);
 
       for (i=0;i<NX;++i)
       {
         double xtmp = xVec[i];
+        double tmp(0.0);
         double dopeValue(0.0);
-        dopeInterpolator.eval(xlocVec, dopeVec, xtmp, dopeValue);
+
+        dopeInterpolator.eval(xlocVec, dopeVec, xtmp, tmp);
+        dopeValue = std::pow(10.0,tmp);
+
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;
         if (type == "ptype" || type == "acceptor")
@@ -1115,7 +1132,6 @@ void DopeInfo::setupInfo(
     {
       readDopingFile (fileName, xlocVec, dopeVec);
       dopeInterpolator.clear(); 
-      dopeInterpolator.init(xlocVec, dopeVec);
 
       // if the user has requested that this be truncated to a max value,
       // do it here:
@@ -1131,12 +1147,17 @@ void DopeInfo::setupInfo(
         }
       }
 
+      logScaleVec(dopeVec); // put doping data on log scale
+      dopeInterpolator.init(xlocVec, dopeVec);
+
       for (i=0;i<NX;++i)
       {
         double xtmp = xVec[i];
+        double tmp(0.0);
         double dopeValue(0.0);
 
-        dopeInterpolator.eval(xlocVec, dopeVec, xtmp, dopeValue);
+        dopeInterpolator.eval(xlocVec, dopeVec, xtmp, tmp);
+        dopeValue = std::pow(10.0,tmp);
 
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;

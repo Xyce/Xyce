@@ -1642,7 +1642,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
        (print_type == PrintType::HOMOTOPY) || 
        (print_type == PrintType::SPARAM) ||
        (print_type == PrintType::ES) ||
-       (print_type == PrintType::PCE) )
+       (print_type == PrintType::PCE) ||
+       (print_type == PrintType::TRANADJOINT) )
   {
     print_parameters.formatSupportsOverrideRaw_= false; 
   }

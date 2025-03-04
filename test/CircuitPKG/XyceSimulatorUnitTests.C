@@ -36,9 +36,11 @@
 //
 //-------------------------------------------------------------------------
 
-#include <gtest/gtest.h>
 #include "Xyce_config.h"
+#include <N_UTL_Math.h>
 #include <N_CIR_Xyce.h>
+
+#include <gtest/gtest.h>
 
 //
 // Xyce::Circuit::Simulator functions that need to be tested

@@ -509,19 +509,38 @@ endif()
 
 # If the Intel MKL is not being used, try to find FFTW.
 if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT)
-     find_package(FFTW)
-     if(FFTW_FOUND)
-          message(STATUS "Looking for FFT libraries - found FFTW")
-          add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
-          set_target_properties(FFTW::FFTW PROPERTIES
-               INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
-               INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
-          set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
-          set(FFT FFTW::FFTW)
+     if( NOT (Xyce_USE_APPLEFFT OR Xyce_USE_BASICFFT))
+          find_package(FFTW)
+          if(FFTW_FOUND)
+               message(STATUS "Looking for FFT libraries - found FFTW")
+               add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
+               set_target_properties(FFTW::FFTW PROPERTIES
+                    INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
+                    INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
+               set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
+               set(FFT FFTW::FFTW)
+          endif()
+     endif()
+     if( APPLE AND Xyce_USE_APPLEFFT)
+          # try searching for Apple's FFT functions 
+          find_library(Accelerate_Framework Accelerate)
+          if(Accelerate_Framework)
+               message(STATUS "Looking for Apple FFT libraries - found framework Accelerate")
+               # note ${Accelerate_Framework} will point to Apple's library with full path.
+               # save this in the Cache for later use by downstream products 
+               #message(STATUS "${Accelerate_Framework}")
+               #add_library(${Accelerate_Framework} INTERFACE IMPORTED GLOBAL)
+               set(Xyce_AppleAccelerate ${Accelerate_Framework} CACHE STRING "Apple Accelerate library")
+               set(Xyce_USE_APPLE_FFT TRUE CACHE BOOL "Use Apple FFT Library")
+          endif()
+     else()
+       # fall back to the basic FFT implementation 
+       message(STATUS "Using basic FFT class for FFT Support.")
+       set(Xyce_USE_BASIC_FFT TRUE CACHE BOOL "Use Basic FFT Library")
      endif()
 endif()
-if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW)
-     message("Neither FFTW or Intel MKL enabled - disabling the FFT capability")
+if (Xyce_USE_FFT AND NOT Xyce_USE_INTEL_FFT AND NOT Xyce_USE_FFTW AND NOT Xyce_USE_APPLEFFT AND NOT Xyce_USE_BASICFFT)
+     message("Neither FFTW, Apple FFT or Intel MKL enabled - disabling the FFT capability")
      set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability" FORCE)
 endif()
 
