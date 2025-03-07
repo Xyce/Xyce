@@ -33,6 +33,7 @@ endif()
 
 project(Xyce VERSION 7.10.0 LANGUAGES CXX C)
 
+# Note: setting C++11 standard here can still be overridden by Trilinos later.
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

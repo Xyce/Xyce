@@ -67,6 +67,7 @@ classdef XyceSimMask
     function ScanXyceInputFileButton(callbackContext)
       maskObj = get_param( gcb, 'MaskObject');
       inputFileName  = get_param( gcb, 'XyceInputFileName');
+      workingDirectory = get_param( gcb, 'WorkingDirectory');
       if( 0 )
         %potentialInputNames = getDACNamesFromCircuit(inputFileName);
         s.stats=0;
@@ -100,8 +101,26 @@ classdef XyceSimMask
       
       % user the python interface connection 
       pyXyceObj = py.xyce_interface.xyce_interface();
-      % should check that underlying Xyce pointer is not None at this time.
+      % check that underlying Xyce pointer is not None at this time.
+      if (pyXyceObj == 0)
+        error('XyceSimMask:NullXycePtr Could not access a valid Xyce pointer')
+      end
+      % assume matlab current directory is where the input circuit file is
       argv=py.list({inputFileName});
+      % check if we can find the circuit input file.
+      if( ~isfile(inputFileName) )
+        % file is not in current directory 
+        % try looking for it in workign directory
+        fullFileSpec = fullfile(workingDirectory, inputFileName);
+        if( isfile(fullFileSpec))
+          % found the file.
+          % tell Xyce to change to the directory where the file exists.
+          pyXyceObj.setWorkingDirectory(workingDirectory)
+        else
+          % still cannot find the input file.  Raise an error.
+          error('XyceSimMask:NoInputFile  Could not find the input file.  Please select it again.')
+        end
+      end
       status = pyXyceObj.initialize(argv);
       pStatus = pyXyceObj.getDACDeviceNames();
       dacNames = cell(pStatus{2});

@@ -48,6 +48,7 @@ void xyce_close( void** ptr);
 int xyce_initialize_early( void** ptr, int narg, char ** argv);
 int xyce_initialize( void** ptr, int narg, char ** argv);
 int xyce_initialize_late( void** ptr );
+void xyce_set_working_directory( void** ptr, const char * dirName);
 
 int xyce_runSimulation(void ** ptr);
 
