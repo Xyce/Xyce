@@ -459,6 +459,28 @@ function Start(block)
     %pyXyceObj.xycePtr = block.Dwork(1).Data;
     %pyXyceObj.lib = block.Dwork(5).Data;
     xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+    % check that underlying Xyce pointer is not None at this time.
+    if (xyceObj == 0)
+      error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+    end
+    % before calling initialize we need to ensure Xyce can find the circuit input file.
+    % first check if it is in the current directory
+    circuitInputFile=block.DialogPrm(1).Data
+    workingDirectoryForCircuitFile=block.DialogPrm(2).Data
+    if( ~isfile(circuitInputFile) )
+        % file is not in current directory 
+        % try looking for it in workign directory
+        fullFileSpec = fullfile(workingDirectoryForCircuitFile, circuitInputFile);
+        if( isfile(fullFileSpec))
+          % found the file.
+          % tell Xyce to change to the directory where the file exists.
+          xyceObj.setWorkingDirectory(workingDirectoryForCircuitFile)
+        else
+          % still cannot find the input file.  Raise an error.
+          % looks like Terminate is still called as y=pyrun("y=len(xyceObjects)", "y") shows zero objects
+          error('XyceSFunctionImp:NoInputFile  Could not find the input file.  Please select it again.')
+        end
+      end
     status = xyceObj.initialize(argv);
   end 
   
@@ -550,6 +572,10 @@ function Outputs(block)
           else
             % python access method 
             xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+            % check that underlying Xyce pointer is not None at this time.
+            if (xyceObj == 0)
+              error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+            end
             status = xyceObj.updateTimeVoltagePairs( deviceName, timeArray, dacVData);
           end
         else
@@ -564,6 +590,10 @@ function Outputs(block)
           else
             % python access method 
             xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+            % check that underlying Xyce pointer is not None at this time.
+            if (xyceObj == 0)
+              error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+            end
             status = xyceObj.setCircuitParameter(deviceName, block.InputPort(portID).Data);
           end
           
@@ -599,6 +629,10 @@ function Outputs(block)
     else 
       % python access method 
       xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+      % check that underlying Xyce pointer is not None at this time.
+      if (xyceObj == 0)
+        error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+      end
       % this returns a python tuple
       ptAns = xyceObj.simulateUntil( block.CurrentTime );
       % need to convert the tuple to a cell array in Matlab
@@ -630,6 +664,10 @@ function Outputs(block)
       else 
         % python access method 
         xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+        % check that underlying Xyce pointer is not None at this time.
+        if (xyceObj == 0)
+          error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+        end
         % (status, ADCnames, numADCnames, numPointsArray, timeArray, voltageArray)  = xyceObj.getTimeVoltagePairsADCLimitData()
         ptAns = xyceObj.getTimeVoltagePairsADC();
         cptAns = cell(ptAns);
@@ -671,6 +709,10 @@ function Outputs(block)
           else 
             % python access method 
             xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+            % check that underlying Xyce pointer is not None at this time.
+            if (xyceObj == 0)
+              error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+            end
             block.OutputPort(portNum).Data = xyceObj.getCircuitValue(deviceName);
           end
         end
@@ -729,6 +771,10 @@ function Terminate(block)
   else 
     % python access method
     xyceObj = pyrun("x = xyceObjects[ int(idx)]", "x", idx = block.Dwork(1).Data);
+    % check that underlying Xyce pointer is not None at this time.
+    if (xyceObj == 0)
+      error('XyceSFunctionImp:NullXycePtr Could not access a valid Xyce pointer')
+    end
     %close the object
     xyceObj.close();
     %remove it from the array
