@@ -62,6 +62,7 @@ PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
     .def_readonly("currTimeStep_", &Xyce::Device::SolverState::currTimeStep_)
     .def_readonly("lastTimeStep_", &Xyce::Device::SolverState::lastTimeStep_)
     .def_readonly("currTime_", &Xyce::Device::SolverState::currTime_)
+    .def_readonly("acceptedTime_", &Xyce::Device::SolverState::acceptedTime_)
     .def_readonly("newtonIter", &Xyce::Device::SolverState::newtonIter)
     .def_readonly("initJctFlag_", &Xyce::Device::SolverState::initJctFlag_)
     .def_readonly("inputOPFlag", &Xyce::Device::SolverState::inputOPFlag)
