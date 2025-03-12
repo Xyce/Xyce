@@ -9,7 +9,8 @@
 #   -DBUILD_TESTING=<TRUE|FALSE> # default is TRUE
 #   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
-#   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE for now
+#   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE
+#   -DUSE_GITLAB_CI_TESTING=<TRUE|FALSE> # default FALSE
 #   -DNUM_PROCS=<N> 
 #   -DTDEV_BUILD=<TRUE|FALSE>
 
@@ -238,6 +239,14 @@ if(NOT DEFINED USE_CTEST_TESTING)
   set(USE_CTEST_TESTING FALSE)
 endif()
 
+# default FALSE
+if(NOT DEFINED USE_GITLAB_CI_TESTING)
+  set(USE_GITLAB_CI_TESTING FALSE)
+else()
+  # if gitlab testing is on also set ctest testing on
+  set(USE_CTEST_TESTING TRUE)
+endif()
+
 # default TRUE
 if(NOT DEFINED DASHSUBMIT)
   set(DASHSUBMIT TRUE)
@@ -285,15 +294,20 @@ if(NOT DEFINED ENV{TESTSET})
   message(FATAL_ERROR "ERROR: Required environment variable \"TESTSET\" not set")
 endif()
 
-# WORKSPACE is an environment variable set by jenkins
-if (USE_CTEST_TESTING)
+# WORKSPACE is an environment variable set by jenkins. Note order is
+# significant since, for example, gitlab testing needs ctest testing
+# on as well
+if (USE_GITLAB_CI_TESTING)
+  set(CTEST_SOURCE_DIRECTORY "$ENV{CI_PROJECT_DIR}")
+  set(CTEST_BINARY_DIRECTORY "$ENV{CI_PROJECT_DIR}/build")
+elseif(USE_CTEST_TESTING)
   set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/Xyce")
+  set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 else()
   set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/source/Xyce")
+  set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 endif()
 
-# the specified directory must exist or ctest will error out
-set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
 
 # this should probably be a variable in the environment or passed in,
 # but for now it's hard-coded to 1am
@@ -421,9 +435,15 @@ ctest_build(RETURN_VALUE buildReturnVal)
 set(testReturnVal 0) # initialize
 if(buildReturnVal EQUAL 0)
   if(USE_CTEST_TESTING)
+    # the VERILOGPLUGIN tests don't work with a build of xyce, they
+    # require an installation as well
+    if(VERBOSITY GREATER 1)
+      message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS}")
+    endif()
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
-      INCLUDE_LABEL "^nightly")
+      INCLUDE_LABEL "^nightly"
+      EXCLUDE "^VERILOGPLUGIN.*")
     if(VERBOSITY GREATER 1)
       message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
     endif()
