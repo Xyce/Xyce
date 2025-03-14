@@ -507,7 +507,7 @@ bool Simulator::doAllocations_()
   nonlinearManager_         = new Nonlinear::Manager(commandLine_);
   topology_                 = new Topo::Topology(commandLine_, hangingResistor_, *parallelManager_);
   deviceManager_            = new Device::DeviceMgr(comm_, *topology_, *opBuilderManager_, commandLine_);
-  outputManager_            = new IO::OutputMgr(commandLine_, *opBuilderManager_, *topology_);
+  outputManager_            = new IO::OutputMgr(commandLine_, *opBuilderManager_, *topology_, *deviceManager_, *parallelManager_);
   outputResponse_           = new IO::OutputResponse();
   measureManager_           = new IO::Measure::Manager(commandLine_);
   fourierManager_           = new IO::FourierMgr(commandLine_);

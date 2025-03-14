@@ -120,6 +120,19 @@ bool loadSensitivityResiduals(int difference,
     );
 
 //-----------------------------------------------------------------------------
+bool loadSensitivityResidualsInternalDev(
+    std::string & sensDeviceName,
+    bool sensDeviceNameGiven,
+    int difference, 
+    bool forceFD_, bool forceDeviceFD_, bool forceAnalytic_, 
+    double sqrtEta_,  std::string & netlistFilename_,
+  TimeIntg::DataStore & ds,
+  Loader::NonlinearEquationLoader & nonlinearEquationLoader_,
+  const std::vector<std::string> & paramNameVec_,
+  const Analysis::AnalysisManager & analysisManager_
+    );
+
+//-----------------------------------------------------------------------------
 bool setupOriginalParams ( TimeIntg::DataStore & ds,
   Loader::NonlinearEquationLoader & nonlinearEquationLoader_,
   const std::vector<std::string> & paramNameVec_,

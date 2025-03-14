@@ -370,7 +370,7 @@ bool slowNumericalDerivatives( int iparam,
   // now reset the parameter and rhs to previous values.
   if (!( nonlinearEquationLoader_.setParam (setParamName, paramOrig) ) )
   {
-    Report::DevelFatal().in("Sensitivity::loadSensitivityResiduals")
+    Report::DevelFatal().in("Sensitivity::slowNumericalDerivatives")
       << "cannot find parameter " << setParamName;
   }
 
@@ -453,7 +453,7 @@ bool loadSensitivityResiduals (
   // Also, if any of the sensitivities rely on a numerical derivative, it is necessary to force 
   // the load procedure to NOT use the separate load option (where the linear and nonlinear 
   // portions are separated for efficiency).
-  bool origSeparateLoadFlag = nonlinearEquationLoader_.getSeparateLoadFlag ();
+  bool origSeparateLoadFlag = nonlinearEquationLoader_.getSeparateLoadFlag (); // ERK: why not used? flag should be reset below
   bool allAnalyticalAvailable = testForAnalyticDerivatives ( nonlinearEquationLoader_, paramNameVec_, analysisManager_);
 
   if (forceFD_ || !allAnalyticalAvailable) { nonlinearEquationLoader_.setSeparateLoadFlag (false); }
@@ -581,6 +581,138 @@ bool loadSensitivityResiduals (
   return true;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : loadSensitivityResidualsInternalDev
+//
+// Purpose       : Alternate version of loadSensitivityResiduals for 
+//                 the case of "SENSDEVICENAME" instead of "PARAM"
+//
+// Special Notes : See comments for loadSensitivityResiduals for details
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/28/25
+//-----------------------------------------------------------------------------
+bool loadSensitivityResidualsInternalDev (
+  std::string & sensDeviceName,
+  bool sensDeviceNameGiven,
+  int difference, bool forceFD_, bool forceDeviceFD_, bool forceAnalytic_, 
+  double sqrtEta_, std::string & netlistFilename_,
+  TimeIntg::DataStore & ds,
+  Loader::NonlinearEquationLoader & nonlinearEquationLoader_,
+  const std::vector<std::string> & paramNameVec_,
+  const Analysis::AnalysisManager & analysisManager_
+    )
+{
+  Stats::StatTop _solveTransientAdjointStat("loadSensitivityResidualsInternalDev");
+  Stats::TimeBlock _solveTransientAdjointTimer(_solveTransientAdjointStat);
+
+  int iparam=0;
+  std::string msg;
+
+  Linear::MultiVector * dfdpPtrVector = ds.nextDfdpPtrVector;
+  Linear::MultiVector * dqdpPtrVector = ds.nextDqdpPtrVector;
+  Linear::MultiVector * dbdpPtrVector = ds.nextDbdpPtrVector;
+
+  //setupOriginalParams (ds, nonlinearEquationLoader_, paramNameVec_, analysisManager_);
+
+  // it is necessary to load the Jacobian here to make sure we have the most
+  // up-to-date matrix.  The Jacobian is not loaded for the final 
+  // evaluation of the residual in the Newton solve.
+  //
+  // Also, if any of the sensitivities rely on a numerical derivative, it is necessary to force 
+  // the load procedure to NOT use the separate load option (where the linear and nonlinear 
+  // portions are separated for efficiency).
+  //bool origSeparateLoadFlag = nonlinearEquationLoader_.getSeparateLoadFlag ();
+  //bool allAnalyticalAvailable = testForAnalyticDerivatives ( nonlinearEquationLoader_, paramNameVec_, analysisManager_);
+
+  //if (forceFD_ || !allAnalyticalAvailable) { nonlinearEquationLoader_.setSeparateLoadFlag (false); }
+  nonlinearEquationLoader_.loadJacobian ();
+
+  std::vector<std::string>::const_iterator firstParam = paramNameVec_.begin ();
+  std::vector<std::string>::const_iterator lastParam  = paramNameVec_.end ();
+  std::vector<std::string>::const_iterator iterParam;
+
+  dfdpPtrVector->putScalar(0.0);
+  dqdpPtrVector->putScalar(0.0);
+  dbdpPtrVector->putScalar(0.0);
+
+  for ( iterParam=firstParam, iparam=0;
+        iterParam!=lastParam; ++iterParam, ++iparam )
+  {
+
+
+    std::vector<double> dfdpVec;
+    std::vector<double> dqdpVec;
+    std::vector<double> dbdpVec;
+
+    std::vector<int> FindicesVec;
+    std::vector<int> QindicesVec;
+    std::vector<int> BindicesVec;
+
+    {
+      nonlinearEquationLoader_.getAnalyticSensitivitiesDevice(
+            sensDeviceName, iparam,
+            dfdpVec,dqdpVec,dbdpVec,
+            FindicesVec, QindicesVec, BindicesVec);
+
+      Teuchos::RCP<Linear::Vector> dfdpPtr = Teuchos::rcp( dfdpPtrVector->getNonConstVectorView(iparam) );
+      Teuchos::RCP<Linear::Vector> dqdpPtr = Teuchos::rcp( dqdpPtrVector->getNonConstVectorView(iparam) );
+      Teuchos::RCP<Linear::Vector> dbdpPtr = Teuchos::rcp( dbdpPtrVector->getNonConstVectorView(iparam) );
+
+      // ADMS devices with nodes that collapse to ground can have "-1"
+      // as their LIDs, meaning the node doesn't really exist
+      {
+        int Fsize=FindicesVec.size();
+        for (int i=0;i<Fsize;++i)
+        {
+          if (FindicesVec[i] != -1)
+            (*dfdpPtr)[FindicesVec[i]]  += dfdpVec[i];
+        }
+
+        int Qsize=QindicesVec.size();
+        for (int i=0;i<Qsize;++i)
+        {
+          if (QindicesVec[i] != -1)
+            (*dqdpPtr)[QindicesVec[i]]  += dqdpVec[i];
+        }
+
+        int Bsize=BindicesVec.size();
+        for (int i=0;i<Bsize;++i)
+        {
+          if (BindicesVec[i] != -1)
+            (*dbdpPtr)[BindicesVec[i]]  += dbdpVec[i];
+        }
+      }
+
+      dfdpPtr->fillComplete();
+      dqdpPtr->fillComplete();
+      dbdpPtr->fillComplete();
+
+      if (!(ds.masterIndexVectorSize.empty())) // if empty, then adjoints not requested
+      {
+        if (!ds.masterIndexVectorSize[iparam])  // check if these have been set up yet
+        {
+          computeSparseIndices( iparam, ds, FindicesVec, QindicesVec, BindicesVec );
+        }
+      }
+
+      if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+      {
+        Xyce::dout() << *iterParam << ": " <<std::endl;
+        for (int k1 = 0; k1 < dfdpPtrVector->localLength(); ++k1)
+        {
+          Xyce::dout() 
+            <<"dfdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dfdpPtr)[k1]
+            <<" dqdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dqdpPtr)[k1]
+            <<" dbdp["<<std::setw(3)<<k1<<"]= "<<std::setw(15)<<std::scientific<<std::setprecision(8)<<(*dbdpPtr)[k1]
+            <<std::endl;
+        }
+      }
+    }
+  }
+
+  return true;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : computeSparseIndices

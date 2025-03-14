@@ -211,6 +211,16 @@ public:
       std::vector<int> & QindicesVec,
       std::vector<int> & BindicesVec);
 
+  void getAnalyticSensitivitiesDevice(
+      std::string &             sensDeviceName, 
+      int iparam,
+      std::vector<double> &     dfdpVec, 
+      std::vector<double> &     dqdpVec,
+      std::vector<double> &     dbdpVec,
+      std::vector<int> &        FindicesVec,
+      std::vector<int> &        QindicesVec,
+      std::vector<int> &        BindicesVec) const;
+
   void getNumericalSensitivities(
       const std::string & name,
       std::vector<double> & dfdpVec,
@@ -583,7 +593,9 @@ public:
   void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams,
    Parallel::Communicator & parallel_comm);
 
-  void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, 
+  void getSensParamsForDevice(const std::string & sensDeviceName, 
+      std::vector<std::string> & sensParams, 
+      std::vector<double> & origVals, 
       Parallel::Communicator & parallel_comm);
 
   void resetScaledParams();

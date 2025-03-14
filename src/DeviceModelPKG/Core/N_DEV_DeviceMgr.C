@@ -2032,6 +2032,57 @@ void DeviceMgr::getAnalyticSensitivities
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::getAnalyticSensitivityDevice
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
+// Creation Date : 02/28/2025
+//-----------------------------------------------------------------------------
+void DeviceMgr::getAnalyticSensitivitiesDevice(
+      std::string &             sensDeviceName, 
+      int iparam,
+      std::vector<double> &     dfdpVec, 
+      std::vector<double> &     dqdpVec,
+      std::vector<double> &     dbdpVec,
+      std::vector<int> &        FindicesVec,
+      std::vector<int> &        QindicesVec,
+      std::vector<int> &        BindicesVec) const
+{
+
+  Stats::StatTop _deviceSensStat("Get device sensitivity params");
+  Stats::TimeBlock _deviceSensTimer(_deviceSensStat);
+
+  DeviceEntity * device_entity = getDeviceEntity(sensDeviceName);
+  int entity_found = (device_entity != 0);
+  int globalFound = 0;
+#if 0 
+  if (Parallel::is_parallel_run(parallel_comm.comm()))
+  {
+    parallel_comm.maxAll(&entity_found, &globalFound, 1);
+  }
+  else
+#endif
+  {
+    globalFound = entity_found;
+  }
+
+  bool found=false;
+  if (globalFound == 0)
+  {
+    Report::UserError() << "Could not find device " << sensDeviceName ;
+  }
+  else
+  {
+    found = device_entity->getAnalyticSensitivityDevice(iparam,
+                                                  dfdpVec, dqdpVec, dbdpVec,
+                                                  FindicesVec, QindicesVec, BindicesVec);    
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::getNumericalSensitivities
 // Purpose       :
 // Special Notes :
@@ -3622,7 +3673,9 @@ void DeviceMgr::getRandomParams(std::vector<Xyce::Analysis::SweepParam> & Sampli
 // Creator       : Eric Keiter, SNL
 // Creation Date : 02/26/2025
 //-----------------------------------------------------------------------------
-void DeviceMgr::getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, 
+void DeviceMgr::getSensParamsForDevice(const std::string & sensDeviceName, 
+    std::vector<std::string> & sensParams, 
+    std::vector<double> & origVals, 
       Parallel::Communicator & parallel_comm)
 {
   Stats::StatTop _deviceSensStat("Setup device sensitivity params");
@@ -3646,7 +3699,7 @@ void DeviceMgr::getSensParamsForDevice(const std::string & sensDeviceName, std::
   }
   else
   {
-    device_entity->getSensitivityParams (sensParams);
+    device_entity->getSensitivityParams (sensParams, origVals);
   }
 }
 

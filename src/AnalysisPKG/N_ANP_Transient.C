@@ -691,7 +691,8 @@ bool Transient::obtainDeviceSensParams()
     Parallel::Communicator &pdsComm = *(pds_manager.getPDSComm());
 
     std::vector<std::string> sensParams;
-    loader_.getSensParamsForDevice(sensDeviceName, sensParams,pdsComm);
+    std::vector<double> origVals; // check for complex ?  figure this out later
+    loader_.getSensParamsForDevice(sensDeviceName, sensParams, origVals, pdsComm);
 
     if ( !(sensParams.empty()) )
     {

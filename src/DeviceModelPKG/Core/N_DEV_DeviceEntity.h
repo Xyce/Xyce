@@ -112,6 +112,14 @@ public:
                                 std::vector<int> & QindicesVec,
                                 std::vector<int> & BindicesVec );
 
+  virtual bool getAnalyticSensitivityDevice ( int iparam,
+                                std::vector<double> & dfdpVec,
+                                std::vector<double> & dqdpVec,
+                                std::vector<double> & dbdpVec,
+                                std::vector<int> & FindicesVec,
+                                std::vector<int> & QindicesVec,
+                                std::vector<int> & BindicesVec ) { return true; };
+
   bool getAnalyticSensitivityDefaultParam ( std::vector<double> & dfdpVec,
                                 std::vector<double> & dqdpVec,
                                 std::vector<double> & dbdpVec,
@@ -135,7 +143,9 @@ public:
                                 std::vector<int> & BindicesVec );
 
 
-  virtual void getSensitivityParams (std::vector<std::string> & sensParams) { return; }
+  virtual void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals) { return; }
 
 //
   bool analyticMatrixSensitivityAvailable (const std::string & paramName);

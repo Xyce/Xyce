@@ -458,6 +458,19 @@ int Sensitivity::solve(
   // solver being used.
   nls_->enableSensitivity ();
 
+  if (sensDeviceNameGiven)
+  {
+    loadSensitivityResidualsInternalDev (
+        sensDeviceName, sensDeviceNameGiven,
+        difference_, 
+        forceFD_, 
+        forceDeviceFD_, 
+        forceAnalytic_, 
+        sqrtEta_, netlistFilename_, 
+        *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  }
+  else
+  {
   // first get the derivatives of the DAE RHS vector w.r.t. the
   // user-specified optimization parameters.
   loadSensitivityResiduals (difference_, 
@@ -466,6 +479,7 @@ int Sensitivity::solve(
       forceAnalytic_, 
       sqrtEta_, netlistFilename_, 
       *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  }
 
   calcObjFuncDerivs ();
   if (computeDelays_)
@@ -1164,6 +1178,9 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
 
   for ( ; iter != end; ++ iter)
   {
+#if 0
+    std::cout << "Sensitivity::setOptions:   param = " << iter->uTag() << std::endl;
+#endif
     if ( std::string( iter->uTag() ,0,7) == "OBJFUNC") // this is a vector
     {
       objectiveFunctionData<double> * ofDataPtr = new objectiveFunctionData<double>();
@@ -1205,9 +1222,15 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
     Report::UserFatal0() << "No objective functions found on .SENS line";
   }
 
+  if (sensDeviceNameGiven && numSensParams_ > 0)
+  {
+     Report::UserFatal0() << "Cannot set both .SENS PARAM and SENSDEVICENAME simultaneously";
+  }
+
   if (sensDeviceNameGiven)
   {
     bool tmp = obtainDeviceSensParams();
+    numSensParams_ += paramNameVec_.size();
   }
   else
   {
@@ -1255,11 +1278,19 @@ bool Sensitivity::obtainDeviceSensParams()
   {
     Parallel::Communicator &pdsComm = *(pdsMgrPtr_->getPDSComm());
     std::vector<std::string> sensParams;
-    nonlinearEquationLoader_->getSensParamsForDevice(sensDeviceName, sensParams,pdsComm);
+    std::vector<double> origVals; // check for complex ?  figure this out later
+  //Parallel::Machine comm =  pdsMgrPtr_->getPDSComm()->comm(); // use this instead?
+    nonlinearEquationLoader_->getSensParamsForDevice(sensDeviceName, sensParams, origVals, pdsComm);
 
     if ( !(sensParams.empty()) )
     {
       paramNameVec_.insert(paramNameVec_.end(), sensParams.begin(), sensParams.end());
+    }
+
+    if ( !(origVals.empty()) )
+    {
+      dsPtr_->paramOrigVals_.clear();
+      dsPtr_->paramOrigVals_.insert( dsPtr_->paramOrigVals_.end(), origVals.begin(), origVals.end());
     }
   }
 
@@ -1404,14 +1435,30 @@ bool Sensitivity::setSensitivityOptions(const Util::OptionBlock &OB)
   // Also, note that the "setOptions" function was called before this one, so the
   // parameter vector is set up. (with the parameter names)
 
-  TimeIntg::DataStore & ds = *dsPtr_;
 
-  // call setupOriginalParams to test if these parameters are known.(basically just a setup test)
-  bool origParamsDone =  setupOriginalParams (ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  bool allAnalyticalAvailable = false;
 
-  // determine if any parameters require numerical derivatives.  If so, (or if the user has requested "forceFD"
-  // then we must force full linear system evaluation.
-  bool allAnalyticalAvailable = testForAnalyticDerivatives ( *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  if (sensDeviceNameGiven)
+  {
+    // Assume that if internal device params are being used (rather than PARAM spec) 
+    // that the analytical derivatives are always available.
+    //
+    // Also, when the params were pulled from the device, the original values came with them.
+    allAnalyticalAvailable = true;
+
+  }
+  else
+  {
+    TimeIntg::DataStore & ds = *dsPtr_;
+    
+    // call setupOriginalParams to test if these parameters are known.(basically just a setup test)
+    bool origParamsDone =  setupOriginalParams (ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+    
+    // determine if any parameters require numerical derivatives.  If so, (or if the user has requested "forceFD"
+    // then we must force full linear system evaluation.
+    allAnalyticalAvailable = testForAnalyticDerivatives ( *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  }
+
 
   if (forceFD_ || !allAnalyticalAvailable) 
   { 
@@ -1682,7 +1729,7 @@ void Sensitivity::populateMetadata(
     parameters.insert(Util::ParamMap::value_type("OBJFUNC", Util::Param("OBJFUNC", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OBJVARS", Util::Param("OBJVARS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));
-    parameters.insert(Util::ParamMap::value_type("SENSDEVICENAME", Util::Param("PARAM", "VECTOR")));
+    parameters.insert(Util::ParamMap::value_type("SENSDEVICENAME", Util::Param("SENSDEVICENAME", "VECTOR")));
   }
 
   options_manager.addCommandParser(".SENS", extractSENSData);
