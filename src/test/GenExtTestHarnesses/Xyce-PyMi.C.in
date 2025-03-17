@@ -598,6 +598,11 @@ public:
   }
 
   void finalize() {
+    py::object result = device.attr("finalize")(
+            b_params,
+            d_params,
+            i_params,
+            s_params);
     device = py::none();
   }
 

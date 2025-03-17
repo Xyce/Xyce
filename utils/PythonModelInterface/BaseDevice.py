@@ -122,6 +122,10 @@ class BaseDevice(object):
             b_params, d_params, i_params, s_params):
         pass
 
+    # called at the end of the simulation
+    def finalize(self, b_params, d_params, i_params, s_params):
+        pass
+
     # this function must be overridden to provide device definition
     def computeXyceVectors(self, fSV, solV, stoV, staV, 
             deviceOptions, solverState,
