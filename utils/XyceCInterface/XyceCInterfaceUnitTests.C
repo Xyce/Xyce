@@ -948,7 +948,7 @@ TEST ( XyceCInterface, InitFromWorkingDirectory )
   std::filesystem::path newFile(startingDirectory);
   newFile /= workingDir;
   newFile /=netlist;
-  std::filesystem::copy_file( originalFile, newFile);
+  std::filesystem::copy_file( originalFile, newFile, std::filesystem::copy_options::overwrite_existing);
   const char * dirName = "TestDir2";
   xyce_set_working_directory( &xycePtr, dirName);
   

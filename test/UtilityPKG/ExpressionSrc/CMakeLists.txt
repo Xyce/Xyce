@@ -1,4 +1,4 @@
-if(GTest_FOUND)
+if(GTest_FOUND AND NOT Xyce_PARALLEL_MPI)
      set(TARGET_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/UtilityPKG/ExpressionSrc")
 
      #test executables

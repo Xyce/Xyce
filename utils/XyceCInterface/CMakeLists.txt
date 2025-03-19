@@ -4,7 +4,7 @@ target_sources( xycecinterface PRIVATE N_CIR_XyceCInterface.C PUBLIC N_CIR_XyceC
 target_include_directories( xycecinterface PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
 target_link_libraries( xycecinterface XyceLib )
 
-if(GTest_FOUND)
+if(GTest_FOUND AND NOT Xyce_PARALLEL_MPI)
      #test executables
      add_executable(XyceCInterfaceUnitTests XyceCInterfaceUnitTests.C)
      target_link_libraries(XyceCInterfaceUnitTests PUBLIC xycecinterface GTest::gtest)
