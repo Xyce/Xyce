@@ -42,9 +42,10 @@
 #include <sstream>
 #include <cstring>
 
+//#include <N_DEV_DeviceMgr.h>
+//#include <N_DEV_DeviceBlock.h>
+//#include <N_DEV_DeviceSensitivities.h>
 #include <N_DEV_DeviceMgr.h>
-#include <N_DEV_DeviceBlock.h>
-#include <N_DEV_DeviceSensitivities.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>
 #include <N_IO_CmdParse.h>
@@ -78,6 +79,9 @@
 #include <N_LAS_Matrix.h>
 #include <N_LAS_System.h>
 #include <N_LAS_Vector.h>
+
+#include <N_PDS_Comm.h>
+#include <N_PDS_Manager.h>
 
 #include <N_TOP_Topology.h>
 #include <N_UTL_Algorithm.h>
@@ -118,12 +122,18 @@ enum {
 OutputMgr::OutputMgr(
   const CmdParse &              command_line,
   Util::Op::BuilderManager &    op_builder_manager,
-  const Topo::Topology &        topology)
+  const Topo::Topology &        topology,
+  Device::DeviceMgr & deviceManager,
+  Parallel::Manager &  pdsManager
+  )
   : title_(command_line.getArgumentValue("netlist")),
     netlistFilename_(command_line.getArgumentValue("netlist")),
     filenameSuffix_(),
     opBuilderManager_(op_builder_manager),
     topology_(topology),
+    deviceManager_(deviceManager),
+    pdsManager_(pdsManager),
+
     dotOpSpecified_(false),
     dotACSpecified_(false),
     dotNoiseSpecified_(false),
@@ -150,7 +160,10 @@ OutputMgr::OutputMgr(
     createSnapshots_(false),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
-    maxDCSteps_(0)
+    maxDCSteps_(0),
+    sensDeviceName(std::string("")),
+    sensDeviceNameGiven(false),
+    sensDeviceSetup(false)
 {
   if (command_line.argExists("-delim"))
   {
@@ -673,6 +686,16 @@ void OutputMgr::earlyPrepareOutput(
 
     if (enableSensitivityFlag_)
     {
+      // grab more parameters for the case of SENSDEVICENAME.
+      // This has to happen here.  
+      // If it happens earlier, devices haven't been setup yet.
+      // If it happens later, all the outputters are already enabled, etc 
+      // and it is harder to modify the output variable list
+      if(sensDeviceNameGiven && !sensDeviceSetup) 
+      { 
+        enableDeviceSensitivityOutput();  sensDeviceSetup=true; 
+      }
+
       if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 101)))
       {
         if (analysis_mode == Analysis::ANP_MODE_AC)
@@ -2549,7 +2572,7 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
 {
   bool bsuccess = true;
 
-  std::vector<std::string> functions;
+  //std::vector<std::string> functions;
   std::vector<std::string> parameters;
 
   for (Util::ParamList::const_iterator it = option_block.begin(), end = option_block.end(); it != end; ++it)
@@ -2557,7 +2580,7 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
     std::string tag = (*it).uTag();
     if ( std::string( (*it).uTag() ,0,7) == "OBJFUNC") // this is a vector
     {
-      functions.push_back((*it).stringValue());
+      objFunctions.push_back((*it).stringValue());
     }
     else if ( std::string( (*it).uTag() ,0,7) == "OBJVARS") // this is a vector
     {
@@ -2571,11 +2594,18 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
     {
       parameters.push_back((*it).stringValue());
     }
+    else if (std::string( (*it).uTag() ,0,14) == "SENSDEVICENAME")
+    {
+      sensDeviceName = (*it).stringValue();
+      sensDeviceNameGiven = true;
+    }
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() << " is not a recognized sensitivity solver option.\n" << std::endl;
     }
   }
+
+
 
   // ERK: important to set the index properly to make multiple objectives work correctly.
   //
@@ -2589,7 +2619,7 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
   // called from the OutputMgr::checkPrintParameters function.
   int index = 0;
   int index2 = 0;
-  for (std::vector<std::string>::const_iterator it1 = functions.begin(), end1 = functions.end(); it1 != end1; ++it1,++index2)
+  for (std::vector<std::string>::const_iterator it1 = objFunctions.begin(), end1 = objFunctions.end(); it1 != end1; ++it1,++index2)
   {
     const std::string &function = (*it1);
 
@@ -2642,6 +2672,136 @@ bool OutputMgr::registerSens(const Util::OptionBlock &option_block)
   enableSensitivityFlag_ = true;
 
   return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgr::enableDeviceSensitivityOutput
+//
+// Purpose       : This function was original inside of OutputMgr::registerSens.
+//                 It sets up names for sensitivity analysis, for the use case 
+//                 of SENSDEVICENAME being specified.  For that use case, the 
+//                 sensitivity parameters come from a device, or set of devices 
+//                 directly, and are not directly specified by the user in 
+//                 the netlist.
+//
+//                 However, it needed to be pulled out into a separate function
+//                 because it can only work if the devices have been fully 
+//                 allocated.   The "registerSens" function is called very 
+//                 early in a Xyce calculation.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/13/2025
+//-----------------------------------------------------------------------------
+void OutputMgr::enableDeviceSensitivityOutput() 
+{
+  std::vector<std::string> parameters;
+  Util::ParamList       sensitivityVariableListDevice_;
+
+  if (sensDeviceNameGiven)
+  {
+    Parallel::Communicator &pdsComm = *(pdsManager_.getPDSComm());
+    std::vector<std::string> sensParams;
+    std::vector<double> origVals; // check for complex ?  figure this out later
+    //nonlinearEquationLoader_->getSensParamsForDevice(sensDeviceName, sensParams, origVals, pdsComm);
+    deviceManager_.getSensParamsForDevice(sensDeviceName, parameters, origVals, pdsComm);
+  }
+
+  // ERK: important to set the index properly to make multiple objectives work correctly.
+  //
+  // For sensitivity outputs, a bunch of new variables are automatically added to the variable
+  // list.  For now, they pretend to have the keyword "SENS", as this is an acceptable keyword
+  // in the parser. (I tried using something like "TMPSENS" and the parser barfed.  In addition
+  // to the keyword "SENS", they also have the names of the parameters included to later flesh out
+  // the sensitivity names.
+  //
+  // Later, these lists of variables will be properly set up in the N_IO_OpBuilders.C file, which is
+  // called from the OutputMgr::checkPrintParameters function.
+  int index = 0;
+  int index2 = 0;
+  for (std::vector<std::string>::const_iterator it1 = objFunctions.begin(), end1 = objFunctions.end(); it1 != end1; ++it1,++index2)
+  {
+    const std::string &function = (*it1);
+
+#if 0
+    // this was handled already
+    {
+      Util::Marshal mout;
+      mout << function << std::string("OBJECTIVEFUNCTION") << Util::Op::identifier<SensitivityObjFunctionOp>() << index2;
+      sensitivityVariableListDevice_.push_back(Util::Param("SENS", mout.str()));
+    }
+#endif
+
+    for (std::vector<std::string>::const_iterator it2 = parameters.begin(), end2 = parameters.end(); it2 != end2; ++it2, ++index)
+    {
+      const std::string &parameter = (*it2);
+
+      if (sensitivityOptions_ & SensitivityOptions::DIRECT)
+      {
+        if (sensitivityOptions_ & SensitivityOptions::UNSCALED)
+        {
+          Util::Marshal mout;
+          mout << function << parameter << Util::Op::identifier<SensitivitydOdpDirectOp>() << index;
+          sensitivityVariableListDevice_.push_back(Util::Param("SENS", mout.str()));
+        }
+        if (sensitivityOptions_ & SensitivityOptions::SCALED)
+        {
+          Util::Marshal mout;
+          mout << function << parameter << Util::Op::identifier<SensitivitydOdpDirectScaledOp>() << index;
+          sensitivityVariableListDevice_.push_back(Util::Param("SENS", mout.str()));
+        }
+      }
+
+      if (sensitivityOptions_ & SensitivityOptions::ADJOINT)
+      {
+        if (sensitivityOptions_ & SensitivityOptions::UNSCALED)
+        {
+          Util::Marshal mout;
+          mout << function << parameter << Util::Op::identifier<SensitivitydOdpAdjointOp>() << index;
+          sensitivityVariableListDevice_.push_back(Util::Param("SENS", mout.str()));
+        }
+        if (sensitivityOptions_ & SensitivityOptions::SCALED)
+        {
+          Util::Marshal mout;
+          mout << function << parameter << Util::Op::identifier<SensitivitydOdpAdjointScaledOp>() << index;
+          sensitivityVariableListDevice_.push_back(Util::Param("SENS", mout.str()));
+        }
+
+        adjointSensitivityFlag_ = true;
+      }
+    }
+  }
+
+  //std::copy(sensitivityVariableList_.begin(), sensitivityVariableList_.end(), std::back_inserter(sensitivity_print_parameters.variableList_));
+
+  //addOutputPrintParameters(OutputType::SENS, sensitivity_print_parameters);
+
+  //mapped_type is std::vector<PrintParameters> 
+  //OutputParameterMap::mapped_type &print_parameters_vector = outputParameterMap_[OutputType::SENS];
+  //std::pair<OutputParameterMap::iterator, bool> result = findOutputParameter(OutputType::SENS);
+  
+  
+  OutputParameterMap::iterator itMap = outputParameterMap_.find(OutputType::SENS);
+  
+  if (itMap != outputParameterMap_.end())
+  {
+    for (std::vector<PrintParameters>::iterator it = itMap->second.begin(), end = itMap->second.end(); it != end; ++it) 
+    {
+      PrintParameters & sensitivity_print_parameters = (*it);
+
+      for ( Util::ParamList::const_iterator itVar = sensitivityVariableListDevice_.begin(); 
+          itVar != sensitivityVariableListDevice_.end();
+          itVar++)
+      {
+        sensitivity_print_parameters.variableList_.push_back(*itVar);
+      }
+    }
+  }
+
+  //print_parameters_vector.push_back(sensitivityVariableListDevice_);
+
+  sensDeviceSetup = true;
 }
 
 //-----------------------------------------------------------------------------

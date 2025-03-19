@@ -138,6 +138,16 @@ public:
       std::vector<int> &        QindicesVec,
       std::vector<int> &        BindicesVec) const;
 
+  void getAnalyticSensitivitiesDevice(
+      std::string &             sensDeviceName, 
+      int iparam,
+      std::vector<double> &     dfdpVec, 
+      std::vector<double> &     dqdpVec,
+      std::vector<double> &     dbdpVec,
+      std::vector<int> &        FindicesVec,
+      std::vector<int> &        QindicesVec,
+      std::vector<int> &        BindicesVec) const;
+
   void getNumericalSensitivities(
       std::string &             name, 
       std::vector<double> &     dfdpVec, 
@@ -184,7 +194,11 @@ public:
 
   bool getParamAndReduce(Parallel::Machine comm, const std::string & name, double & val) const;
 
-  virtual void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm);
+  virtual void getSensParamsForDevice
+    (const std::string & sensDeviceName, 
+     std::vector<std::string> & sensParams, 
+     std::vector<double> & origVals, 
+     Parallel::Communicator & parallel_comm);
 
   const Loader &getLoader() const {
     return loader_;

@@ -2141,7 +2141,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     }
     else
     {
-      int numProc = pdsComm.numProc();
+      const int numProc = pdsComm.numProc();
       int thisProc = pdsComm.procID();
       int stringLenPerProcPreCom[ numProc ];
       int stringLenPerProc[ numProc ];
@@ -2248,7 +2248,7 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     }
     else
     {
-      int numProc = pdsComm.numProc();
+      const int numProc = pdsComm.numProc();
       int thisProc = pdsComm.procID();
       int stringLenPerProcPreCom[ numProc ];
       int stringLenPerProc[ numProc ];

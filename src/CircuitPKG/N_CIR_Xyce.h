@@ -181,6 +181,9 @@ class Simulator
   /// where topology needs to query devices for number variables and jacstamp
   RunStatus initializeLate();
 
+  /// Set a directory that should be used as the current directory 
+  /// before trying to load the input netlist
+  void setWorkingDirectory(const std::string dirName);
   //---------------------------------------------------------------------------
   // Function      : runSimulation
   // Purpose       :

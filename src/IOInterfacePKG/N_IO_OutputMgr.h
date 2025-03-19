@@ -48,6 +48,7 @@
 #include <N_ANP_fwd.h>
 #include <N_ANP_UQ_fwd.h>
 #include <N_DEV_fwd.h>
+#include <N_DEV_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_UTL_fwd.h>
 #include <N_TOP_fwd.h>
@@ -107,7 +108,13 @@ public:
   typedef std::map<OutputterKey, OutputterFactory> OutputterFactoryMap;
   typedef std::map<std::string, std::pair<int, std::ostream *> > OpenPathStreamMap;
 
-  OutputMgr(const CmdParse &command_line, Util::Op::BuilderManager &op_builder_manager, const Topo::Topology &topology);
+  OutputMgr(const CmdParse &command_line, 
+            Util::Op::BuilderManager &op_builder_manager, 
+            const Topo::Topology &topology, 
+            Device::DeviceMgr & deviceMgr,
+            Parallel::Manager &  pdsManager
+            );
+
   ~OutputMgr();
 
 private:
@@ -145,6 +152,8 @@ public:
   bool registerSens(const Util::OptionBlock & option_block);
   bool registerSensOptions(const Util::OptionBlock & option_block);
   
+  void enableDeviceSensitivityOutput();
+
   bool registerNoise(const Util::OptionBlock & option_block);
 
   void notify(const Analysis::StepEvent &step_event);
@@ -665,6 +674,8 @@ private:
 
   Util::Op::BuilderManager &    opBuilderManager_;
   const Topo::Topology &        topology_;
+  Device::DeviceMgr &     deviceManager_; // prefer const, but can't for now
+  Parallel::Manager &           pdsManager_;      ///< Parallel services manager object; ERK: ideally not needed but had to add for device-level sensitivites
   OutputterMap                  outputterMap_;
   OutputParameterMap            outputParameterMap_;
   ExternalOutputWrapperMap      externalOutputWrapperMap_;
@@ -742,7 +753,12 @@ private:
   int dcLoopNumber_;
   int maxDCSteps_;
 
-  bool isStarredPrintLineProcessed;
+  std::string sensDeviceName;
+  bool sensDeviceNameGiven;
+  std::vector<std::string> objFunctions;
+  bool sensDeviceSetup;
+
+  //bool isStarredPrintLineProcessed;
 
   AliasNodeMap          aliasNodeMap_;
   Util::ParamMap        mainContextFunctionMap_;

@@ -48,6 +48,10 @@
 #include <stdexcept>
 #include <ctime>
 #include <numeric>
+#if (__cplusplus>=201703L)
+#include <filesystem>
+#endif
+
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -503,7 +507,7 @@ bool Simulator::doAllocations_()
   nonlinearManager_         = new Nonlinear::Manager(commandLine_);
   topology_                 = new Topo::Topology(commandLine_, hangingResistor_, *parallelManager_);
   deviceManager_            = new Device::DeviceMgr(comm_, *topology_, *opBuilderManager_, commandLine_);
-  outputManager_            = new IO::OutputMgr(commandLine_, *opBuilderManager_, *topology_);
+  outputManager_            = new IO::OutputMgr(commandLine_, *opBuilderManager_, *topology_, *deviceManager_, *parallelManager_);
   outputResponse_           = new IO::OutputResponse();
   measureManager_           = new IO::Measure::Manager(commandLine_);
   fourierManager_           = new IO::FourierMgr(commandLine_);
@@ -1341,6 +1345,31 @@ Simulator::RunStatus Simulator::initializeLate()
   XyceTimerPtr_ = new Util::Timer();
 
   return SUCCESS;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::setWorkingDirectory
+// Purpose       : Change the working directory for the simulation
+//
+// Special Notes : This function is for setting a working directory 
+//                 from which Xyce will run and try to load any input files.
+//                 This is needed when Xyce is called as a library and input
+//                 files may not be in the same directory as the calling program
+//
+// Scope         : public
+// Creator       : Rich Schiek
+// Creation Date : 03 Feb 2025
+//-----------------------------------------------------------------------------
+
+void Simulator::setWorkingDirectory(const std::string dirName)
+{
+#if (__cplusplus>=201703L)
+  std::filesystem::path newDirectory( dirName );
+  if( std::filesystem::exists( newDirectory ) )
+  {
+    std::filesystem::current_path( newDirectory);
+  }
+#endif
 }
 
 //-----------------------------------------------------------------------------

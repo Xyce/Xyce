@@ -143,6 +143,29 @@ void NonlinearEquationLoader::getAnalyticSensitivities(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : NonlinearEquationLoader::getAnalyticSensitivities
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void NonlinearEquationLoader::getAnalyticSensitivitiesDevice(
+  std::string &             sensDeviceName, 
+  int iparam,
+  std::vector<double> & dfdpVec,
+  std::vector<double> & dqdpVec,
+  std::vector<double> & dbdpVec,
+  std::vector<int> &    FindicesVec,
+  std::vector<int> &    QindicesVec,
+  std::vector<int> &    BindicesVec) const
+{
+  return deviceManager_.getAnalyticSensitivitiesDevice(
+    sensDeviceName, iparam, dfdpVec, dqdpVec, dbdpVec, 
+    FindicesVec, QindicesVec, BindicesVec);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : NonlinearEquationLoader::getNumericalSensitivities
 // Purpose       : 
 // Special Notes :
@@ -323,9 +346,13 @@ bool NonlinearEquationLoader::getParamAndReduce(Parallel::Machine comm, const st
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void NonlinearEquationLoader::getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm)
+void NonlinearEquationLoader::getSensParamsForDevice
+    (const std::string & sensDeviceName, 
+     std::vector<std::string> & sensParams, 
+     std::vector<double> & origVals, 
+     Parallel::Communicator & parallel_comm)
 {
-  return deviceManager_.getSensParamsForDevice(sensDeviceName,sensParams,parallel_comm);
+  return deviceManager_.getSensParamsForDevice(sensDeviceName,sensParams,origVals, parallel_comm);
 }
 
 //-----------------------------------------------------------------------------

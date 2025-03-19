@@ -244,7 +244,8 @@ public:
 
   virtual void getRandomParams(std::vector<Xyce::Analysis::SweepParam> & SamplingParams, Parallel::Communicator & parallel_comm) {};
 
-  virtual void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams, Parallel::Communicator & parallel_comm) {};
+  virtual void getSensParamsForDevice(const std::string & sensDeviceName, std::vector<std::string> & sensParams,
+     std::vector<double> & origVals, Parallel::Communicator & parallel_comm) {};
 
   // Virtual method which is called to update the sources.
   virtual bool updateSources()

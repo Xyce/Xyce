@@ -42,6 +42,10 @@
 
 #include <gtest/gtest.h>
 
+#if (__cplusplus>=201703L)
+#include <filesystem>
+#endif
+
 //
 // Xyce::Circuit::Simulator functions that need to be tested
 //
@@ -894,6 +898,56 @@ TEST ( XyceSimulator, GetMultiADCTestTimeVariant )
   status = xycePtr->finalize();
   EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
   delete xycePtr;
+}
+
+TEST ( XyceSimulator, SetSimulationDirectory )
+{
+  // This is a test to show that Xyce API function setWorkingDirectory() does change the working directory
+#if (__cplusplus>=201703L)
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  std::filesystem::path startingDirectory = std::filesystem::current_path();
+  std::filesystem::create_directory("TestDir");
+  xycePtr->setWorkingDirectory("TestDir");
+  std::filesystem::path currentDirectory = std::filesystem::current_path();
+  EXPECT_NE( startingDirectory.string(), currentDirectory.string());
+  delete xycePtr;
+#endif
+}
+
+TEST ( XyceSimulator, InitFromWorkingDirectory )
+{
+  // this test ensures that using Xyce API function setWorkingDirectory() allows 
+  // Xyce it initialize itself with a netlist in that subdirectory.
+#if (__cplusplus>=201703L)
+  Xyce::Circuit::Simulator * xycePtr = NULL;
+  xycePtr = new Xyce::Circuit::Simulator();
+  std::filesystem::path startingDirectory = std::filesystem::current_path();
+  std::filesystem::path workingDir("TestDir2");
+  std::filesystem::create_directory(workingDir);
+  std::string netlist("TestNetlist1.cir");
+  std::filesystem::path originalFile(startingDirectory);
+  originalFile /= netlist;
+  std::filesystem::path newFile(startingDirectory);
+  newFile /= workingDir;
+  newFile /=netlist;
+  std::filesystem::copy_file( originalFile, newFile);
+  xycePtr->setWorkingDirectory("TestDir2");
+  
+  int numArgs = 4;
+  char * cmdLineArgs[numArgs];
+  std::string xyceBin("XyceTests");
+  std::string logOption("-l");
+  std::string logFile = netlist + ".log";
+  cmdLineArgs[0] = const_cast<char *>(xyceBin.c_str());
+  cmdLineArgs[1] = const_cast<char *>(logOption.c_str());
+  cmdLineArgs[2] = const_cast<char *>(logFile.c_str());
+  cmdLineArgs[3] = const_cast<char *>(netlist.c_str());
+  Xyce::Circuit::Simulator::RunStatus status = xycePtr->initialize( numArgs, cmdLineArgs);
+  EXPECT_EQ( status, Xyce::Circuit::Simulator::RunStatus::SUCCESS );
+
+  delete xycePtr;
+#endif
 }
 
 //-------------------------------------------------------------------------------
