@@ -1,4 +1,4 @@
-if(GTest_FOUND AND NOT Xyce_PARALLEL_MPI)
+if(GTest_FOUND)
      set(TARGET_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/UtilityPKG/ExpressionSrc")
 
      #test executables
@@ -21,33 +21,34 @@ if(GTest_FOUND AND NOT Xyce_PARALLEL_MPI)
      add_executable(complexParserUnitTest complexParserUnitTest.C)
      target_link_libraries(complexParserUnitTest PUBLIC XyceLib GTest::gtest)
 
-     # The "parserUnitTest" program is written to test the expression library
-     # using doubles.  Therefore, the tests will not pass when linking to
-     # XyceLib, as is done above.  The following forces a
-     # reconstruction/recompile of the parser with USE_TYPE_DOUBLE defined,
-     # thus overriding the parser in XyceLib.  I think one should be able to
-     # simply recompile the C++ source files created by `XyceExpressionParser"
-     # and `XyceExpressionLexer` (as done in the BUILD_ONLY_UNIT_TESTS section,
-     # below), but CMake seems to get confused by that.  That could be due to
-     # the CMake2-style used in the Bison and flex modules.
-     bison_target( ExpressionParserForDouble
-          "${TARGET_SOURCE_DIR}/ExpressionParser.yxx"
-          "${CMAKE_CURRENT_BINARY_DIR}/ExpressionParser.cxx")
-     flex_target( ExpressionLexerForDouble
-          "${TARGET_SOURCE_DIR}/ExpressionLexer.l"
-          "${CMAKE_CURRENT_BINARY_DIR}/ExpressionLexer.cxx"
-          COMPILE_FLAGS "-i -+ --full --prefix=exp")
+     if( NOT Xyce_PARALLEL_MPI )
+          # The "parserUnitTest" program is written to test the expression library
+          # using doubles.  Therefore, the tests will not pass when linking to
+          # XyceLib, as is done above.  The following forces a
+          # reconstruction/recompile of the parser with USE_TYPE_DOUBLE defined,
+          # thus overriding the parser in XyceLib.  I think one should be able to
+          # simply recompile the C++ source files created by `XyceExpressionParser"
+          # and `XyceExpressionLexer` (as done in the BUILD_ONLY_UNIT_TESTS section,
+          # below), but CMake seems to get confused by that.  That could be due to
+          # the CMake2-style used in the Bison and flex modules.
+          bison_target( ExpressionParserForDouble
+               "${TARGET_SOURCE_DIR}/ExpressionParser.yxx"
+               "${CMAKE_CURRENT_BINARY_DIR}/ExpressionParser.cxx")
+          flex_target( ExpressionLexerForDouble
+               "${TARGET_SOURCE_DIR}/ExpressionLexer.l"
+               "${CMAKE_CURRENT_BINARY_DIR}/ExpressionLexer.cxx"
+               COMPILE_FLAGS "-i -+ --full --prefix=exp")
 
-     add_flex_bison_dependency( ExpressionLexerForDouble ExpressionParserForDouble )
+          add_flex_bison_dependency( ExpressionLexerForDouble ExpressionParserForDouble )
 
-     add_executable(parserUnitTest parserUnitTest.C
-          ${BISON_ExpressionParserForDouble_OUTPUTS}
-          ${FLEX_ExpressionLexerForDouble_OUTPUTS}
-          ${TARGET_SOURCE_DIR}/newExpression.C
-          ${TARGET_SOURCE_DIR}/expressionGroup.C)
-     target_compile_definitions(parserUnitTest PUBLIC USE_TYPE_DOUBLE)
-     target_link_libraries(parserUnitTest PUBLIC XyceLib GTest::gtest)
-
+          add_executable(parserUnitTest parserUnitTest.C
+               ${BISON_ExpressionParserForDouble_OUTPUTS}
+               ${FLEX_ExpressionLexerForDouble_OUTPUTS}
+               ${TARGET_SOURCE_DIR}/newExpression.C
+               ${TARGET_SOURCE_DIR}/expressionGroup.C)
+          target_compile_definitions(parserUnitTest PUBLIC USE_TYPE_DOUBLE)
+          target_link_libraries(parserUnitTest PUBLIC XyceLib GTest::gtest)
+     endif()
      # Some tests require a data file; put them in the right place
      file(COPY
           ${CMAKE_CURRENT_SOURCE_DIR}/SubDir1
@@ -61,8 +62,9 @@ if(GTest_FOUND AND NOT Xyce_PARALLEL_MPI)
      gtest_discover_tests(astUnitTest TEST_PREFIX astUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
      gtest_discover_tests(astCopyConstUnitTest TEST_PREFIX astCopyConstUnit: PROPERTIES  "LABELS;nightly;LABELS;unittest;LABELS;expression")
      gtest_discover_tests(complexParserUnitTest TEST_PREFIX complexParserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression" )
-     gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
-
+     if( NOT Xyce_PARALLEL_MPI )
+       gtest_discover_tests(parserUnitTest TEST_PREFIX parserUnit: PROPERTIES "LABELS;nightly;LABELS;unittest;LABELS;expression")
+     endif()
     message(STATUS "Adding expression library unit tests")
 endif()
 
