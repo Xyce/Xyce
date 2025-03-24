@@ -360,11 +360,28 @@ bool Sensitivity::icSensitivity (
   ds.scaled_dOdpVec_.clear();
   ds.scaled_dOdpAdjVec_.clear();
 
+
+  if (sensDeviceNameGiven)
+  {
+    loadSensitivityResidualsInternalDev (
+        sensDeviceName, sensDeviceNameGiven,
+        difference_, 
+        forceFD_, 
+        forceDeviceFD_, 
+        forceAnalytic_, 
+        sqrtEta_, netlistFilename_, 
+        *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  }
+  else
+  {
+
   // first get the derivatives of the DAE RHS vector w.r.t. the
   // user-specified optimization parameters.
   loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
       sqrtEta_, netlistFilename_, 
       *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+
+  }
 
   calcObjFuncDerivs ();
   if (computeDelays_)
