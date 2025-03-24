@@ -931,7 +931,7 @@ TEST ( XyceSimulator, InitFromWorkingDirectory )
   std::filesystem::path newFile(startingDirectory);
   newFile /= workingDir;
   newFile /=netlist;
-  std::filesystem::copy_file( originalFile, newFile);
+  std::filesystem::copy_file( originalFile, newFile, std::filesystem::copy_options::overwrite_existing);
   xycePtr->setWorkingDirectory("TestDir2");
   
   int numArgs = 4;
