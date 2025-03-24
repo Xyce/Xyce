@@ -843,7 +843,7 @@ bool computeSparseIndices ( const int iparam,
     {
       myGhostNodesGIDs[ myStartIdx + i ] = ghostNodes[i];
     }
-    dfdpPtrVector->pdsComm()->sumAll( &myGhostNodesGIDs[0], &totalGhostNodesGIDs[0], totalIdx );
+    dfdpPtrVector->pdsComm()->sumAll( myGhostNodesGIDs.data(), totalGhostNodesGIDs.data(), totalIdx );
     std::sort( totalGhostNodesGIDs.begin(), totalGhostNodesGIDs.end() );
     totalGhostNodesGIDs.erase( std::unique( totalGhostNodesGIDs.begin(), totalGhostNodesGIDs.end() ), totalGhostNodesGIDs.end() );
 
