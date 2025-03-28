@@ -359,6 +359,10 @@ bool FourierMgr::getSensVars (const Util::OptionBlock &option_block)
     {
        // do nothing for now
     }
+    else if (std::string( (*it).uTag() ,0,14) == "SENSDEVICENAME")
+    {
+       // do nothing for now
+    }
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() << " is not a recognized sensitivity solver option.\n" << std::endl;

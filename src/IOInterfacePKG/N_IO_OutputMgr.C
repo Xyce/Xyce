@@ -42,9 +42,6 @@
 #include <sstream>
 #include <cstring>
 
-//#include <N_DEV_DeviceMgr.h>
-//#include <N_DEV_DeviceBlock.h>
-//#include <N_DEV_DeviceSensitivities.h>
 #include <N_DEV_DeviceMgr.h>
 #include <N_ERH_ErrorMgr.h>
 #include <N_IO_CircuitBlock.h>
@@ -2781,7 +2778,8 @@ void OutputMgr::enableDeviceSensitivityOutput()
   //OutputParameterMap::mapped_type &print_parameters_vector = outputParameterMap_[OutputType::SENS];
   //std::pair<OutputParameterMap::iterator, bool> result = findOutputParameter(OutputType::SENS);
   
-  
+ 
+  { 
   OutputParameterMap::iterator itMap = outputParameterMap_.find(OutputType::SENS);
   
   if (itMap != outputParameterMap_.end())
@@ -2797,6 +2795,27 @@ void OutputMgr::enableDeviceSensitivityOutput()
         sensitivity_print_parameters.variableList_.push_back(*itVar);
       }
     }
+  }
+  }
+
+
+  {
+  OutputParameterMap::iterator itMap = outputParameterMap_.find(OutputType::TRANADJOINT);
+  
+  if (itMap != outputParameterMap_.end())
+  {
+    for (std::vector<PrintParameters>::iterator it = itMap->second.begin(), end = itMap->second.end(); it != end; ++it) 
+    {
+      PrintParameters & sensitivity_print_parameters = (*it);
+
+      for ( Util::ParamList::const_iterator itVar = sensitivityVariableListDevice_.begin(); 
+          itVar != sensitivityVariableListDevice_.end();
+          itVar++)
+      {
+        sensitivity_print_parameters.variableList_.push_back(*itVar);
+      }
+    }
+  }
   }
 
   //print_parameters_vector.push_back(sensitivityVariableListDevice_);
