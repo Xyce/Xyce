@@ -146,6 +146,10 @@ std::ostream &operator<<(std::ostream &os, const AnalysisEvent::OutputType &type
     case AnalysisEvent::SENS:
       os << "SENS";
       break;
+
+    case AnalysisEvent::TRANADJOINT:
+      os << "TRANADJOINT";
+      break;
   }
 
   return os;

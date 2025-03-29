@@ -2434,6 +2434,8 @@ bool Transient::doTransientAdjointSensitivity ()
       adjointBeginIndex = numTimePoints-1;
     }
 
+  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::TRANADJOINT));
+
     // reset everything
     analysisManager_.getWorkingIntegrationMethod().initializeAdjoint(adjointBeginIndex);
     ds.setConstantHistoryAdjoint ();
@@ -2447,6 +2449,11 @@ bool Transient::doTransientAdjointSensitivity ()
     // for each point integrate backwards ----------------------------------------
     for (int it=adjointBeginIndex;it>=0;it--)
     {
+      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+        AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::TRANADJOINT));
+          //analysisManager_.getStepErrorControl().nextTime, 
+          //analysisManager_.getStepErrorControl().getNumberOfSteps()));
+
       ds.itAdjointIndex = it;
       ds.updateSolDataArraysAdjoint(it);
 
@@ -2470,6 +2477,11 @@ bool Transient::doTransientAdjointSensitivity ()
       if (itmp == step) { transientLambdaOutput (it); }
 
       analysisManager_.getWorkingIntegrationMethod().completeAdjointStep(tiaParams_);
+     static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+      AnalysisEvent(AnalysisEvent::STEP_SUCCESSFUL, 
+        AnalysisEvent::TRANADJOINT)); 
+        //analysisManager_.getStepErrorControl().nextTime, 
+        //analysisManager_.getStepErrorControl().getNumberOfSteps())); 
     }
 
 #if 0
@@ -2483,6 +2495,9 @@ bool Transient::doTransientAdjointSensitivity ()
         <<std::endl;
     }
 #endif
+
+  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+      AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::TRANADJOINT));
 
     outputManagerAdapter_.tranSensitivityOutput(
       ds.timeHistory[itGlobal],

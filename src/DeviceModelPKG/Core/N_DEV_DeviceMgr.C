@@ -1070,7 +1070,8 @@ void DeviceMgr::notify(const Analysis::AnalysisEvent &analysis_event)
         }
       }
     }
-    else if ( analysis_event.outputType_ == Analysis::AnalysisEvent::TRAN )
+    else if ( analysis_event.outputType_ == Analysis::AnalysisEvent::TRAN ||
+              analysis_event.outputType_ == Analysis::AnalysisEvent::TRANADJOINT)
     {
       timeChanged = true;
       bool all_devices_converged = true; // this should be true at this stage
