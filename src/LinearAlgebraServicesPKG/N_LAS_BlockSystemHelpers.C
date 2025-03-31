@@ -253,9 +253,9 @@ std::vector<Teuchos::RCP<Parallel::ParMap> > createBlockParMaps( int numBlocks,
 
    // Extract the global indices.
    const Parallel::EpetraParMap& e_pmap = dynamic_cast<const Parallel::EpetraParMap&>(pmap);
-   e_pmap.petraMap()->MyGlobalElements( &BaseGIDs[0] );
+   e_pmap.petraMap()->MyGlobalElements( BaseGIDs.data() );
    const Parallel::EpetraParMap& e_omap = dynamic_cast<const Parallel::EpetraParMap&>(omap);
-   e_omap.petraMap()->MyGlobalElements( &oBaseGIDs[0] );
+   e_omap.petraMap()->MyGlobalElements( oBaseGIDs.data() );
    
    int gnd_node = 0;  // Will be decremented before first use.
 

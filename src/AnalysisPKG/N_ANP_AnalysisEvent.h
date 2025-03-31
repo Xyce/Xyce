@@ -50,7 +50,7 @@ struct AnalysisEvent
 public:
   enum State {INITIALIZE, DC_OP_STARTED, DC_OP_GMIN_STEPPING, DC_OP_GMIN_STEPPING_FAILED, 
     DC_OP_SOURCE_STEPPING, DC_OP_SOURCE_STEPPING_FAILED, STEP_STARTED, STEP_SUCCESSFUL, STEP_FAILED, FINISH};
-  enum OutputType {DC, TRAN, AC, AC_IC, HB_FD, HB_TD, HB_IC, HB_STARTUP, DCOP, HOMOTOPY, MPDE, MPDE_IC, SENS, NOISE, NOISE_IC};
+  enum OutputType {DC, TRAN, AC, AC_IC, HB_FD, HB_TD, HB_IC, HB_STARTUP, DCOP, HOMOTOPY, MPDE, MPDE_IC, SENS, NOISE, NOISE_IC, TRANADJOINT};
 
   AnalysisEvent(State state, OutputType output_type, double step = 0.0, int count = 0)
     : state_(state),

@@ -360,11 +360,28 @@ bool Sensitivity::icSensitivity (
   ds.scaled_dOdpVec_.clear();
   ds.scaled_dOdpAdjVec_.clear();
 
+
+  if (sensDeviceNameGiven)
+  {
+    loadSensitivityResidualsInternalDev (
+        sensDeviceName, sensDeviceNameGiven,
+        difference_, 
+        forceFD_, 
+        forceDeviceFD_, 
+        forceAnalytic_, 
+        sqrtEta_, netlistFilename_, 
+        *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+  }
+  else
+  {
+
   // first get the derivatives of the DAE RHS vector w.r.t. the
   // user-specified optimization parameters.
   loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
       sqrtEta_, netlistFilename_, 
       *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+
+  }
 
   calcObjFuncDerivs ();
   if (computeDelays_)
@@ -995,10 +1012,24 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
             Jac0.add(Jac);
           }
 
-          // get the device sensitivities (df/dp, dq/dp, and db/dp)
-          loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
-              sqrtEta_, netlistFilename_, 
-            ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+          if (sensDeviceNameGiven)
+          {
+            loadSensitivityResidualsInternalDev (
+                sensDeviceName, sensDeviceNameGiven,
+                difference_, 
+                forceFD_, 
+                forceDeviceFD_, 
+                forceAnalytic_, 
+                sqrtEta_, netlistFilename_, 
+                *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+          }
+          else
+          {
+            // get the device sensitivities (df/dp, dq/dp, and db/dp)
+            loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
+                sqrtEta_, netlistFilename_, 
+              ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+          }
 
           // save it.
           if (it<ds.itAdjointIndex)
@@ -1022,10 +1053,25 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
           Jac0.put(0.0);   Jac0.add(Jac1);    // Jac0 = Jac1
           Jac1.put(0.0);   Jac1.add(JacTmp);  // Jac1 = JacTmp
 
-          // get the device sensitivities (df/dp, dq/dp, and db/dp)
-          loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
-              sqrtEta_, netlistFilename_, 
-            ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+
+          if (sensDeviceNameGiven)
+          {
+            loadSensitivityResidualsInternalDev (
+                sensDeviceName, sensDeviceNameGiven,
+                difference_, 
+                forceFD_, 
+                forceDeviceFD_, 
+                forceAnalytic_, 
+                sqrtEta_, netlistFilename_, 
+                *dsPtr_, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+          }
+          else
+          {
+            // get the device sensitivities (df/dp, dq/dp, and db/dp)
+            loadSensitivityResiduals (difference_, forceFD_, forceDeviceFD_, forceAnalytic_, 
+                sqrtEta_, netlistFilename_, 
+              ds, *nonlinearEquationLoader_, paramNameVec_, getAnalysisManager());
+          }
 
           // save it, updating the history.
           nonlinearEquationLoader_->updateSensitivityHistoryAdjoint2();
@@ -1092,8 +1138,11 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
     lambda.update(1.0, *(NewtonVectorPtr_),0.0);
 
 #if 0
+    if (timePoint)
+    {
     dout() << "Lambda vector: " << std::endl;
     lambda.print(dout());
+    }
 #endif
 
     // Now that we have lambda, get the dOdp's by doing dot products of
@@ -1121,6 +1170,8 @@ int Sensitivity::solveTransientAdjoint (bool timePoint,
         ds.dOdpAdjVec_[iparam] += tmp[iparam];
 #if 0
         dout() << "solveTransientAdjoint:   tmp["<<iparam<<"] = " << tmp[iparam] << std::endl;
+        // if ( fabs(tmp[iparam]) > 0.0) { dout() << "solveTransientAdjoint:   tmp["<<iparam<<"] = " << tmp[iparam] << std::endl; }
+#else
 #endif
       }
     }
@@ -1213,7 +1264,7 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
     else
     {
       Xyce::Report::UserWarning() << iter->uTag() 
-        << " is not a recognized sensitivity solver option.\n" << std::endl;
+        << " is not a recognized .SENS option.\n" << std::endl;
     }
   }
   
@@ -1411,7 +1462,18 @@ bool Sensitivity::setSensitivityOptions(const Util::OptionBlock &OB)
     {
       // do nothing
     }
-
+    else if ((*it).uTag() == "OUTPUTTRANSIENTADJOINT")
+    {
+      // do nothing
+    }
+    else if ((*it).uTag() == "OUTPUTLAMBDA")
+    {
+      // do nothing
+    }
+    else if ((*it).uTag() == "FULLADJOINTTIMERANGE")
+    {
+      // do nothing
+    }
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() 

@@ -509,7 +509,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
 
           // Wait for a response from the other processors on whether they have 
           // any of these floating nodes.
-          pdsManager_.getPDSComm()->maxAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+          pdsManager_.getPDSComm()->maxAll( tmpNodeCnt.data(), nodeCnt.data(), tFNodes[proc] );
 
           std::vector< Xyce::NodeID >::iterator it = floatingDevs.begin();
           for (int i=0; it != floatingDevs.end(); ++it, ++i)
@@ -558,7 +558,7 @@ void Topology::removeFloatingNodes(Device::DeviceMgr &device_manager)
           }
 
           // Now sum the tmpNodeCnt to see which voltage nodes are on other processors. 
-          pdsManager_.getPDSComm()->maxAll( &tmpNodeCnt[0], &nodeCnt[0], tFNodes[proc] );
+          pdsManager_.getPDSComm()->maxAll( tmpNodeCnt.data(), nodeCnt.data(), tFNodes[proc] );
         }
 
         // Clean up.

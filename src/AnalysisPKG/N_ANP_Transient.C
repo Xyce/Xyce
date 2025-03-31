@@ -681,7 +681,7 @@ bool Transient::setSensAnalysisParams(const Util::OptionBlock & OB)
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
-// Creation Date : 5/4/2021
+// Creation Date : 3/25/2025
 //-----------------------------------------------------------------------------
 bool Transient::obtainDeviceSensParams()
 {
@@ -716,6 +716,8 @@ void Transient::finalExpressionBasedSetup()
   if (sensFlag_)
   {
     Stats::StatTop _sensitivityStat("Sensitivity");
+
+    obtainDeviceSensParams();
 
     nonlinearManager_.enableSensitivity(
         *analysisManager_.getDataStore(), 
@@ -2209,15 +2211,29 @@ bool Transient::saveTransientAdjointSensitivityInfo ()
   {
     // load the direct sensitivity residuals (df/dp) and save.  Some of this is redundant with the direct form.
     Loader::NonlinearEquationLoader & nlsLoader = analysisManager_.getNonlinearEquationLoader();
-    
-    // get the device sensitivities (df/dp, dq/dp, and db/dp)
+
     std::string netlistFilename = analysisManager_.getCommandLine().getArgumentValue("netlist");
-    Nonlinear::loadSensitivityResiduals (difference_, 
-        forceFD_, 
-        forceDeviceFD_, 
-        forceAnalytic_, 
-        sqrtEta_, netlistFilename, 
-        ds, nlsLoader, paramNameVec_, analysisManager_);
+    if (sensDeviceNameGiven)
+    {
+      Nonlinear::loadSensitivityResidualsInternalDev (
+          sensDeviceName, sensDeviceNameGiven,
+          difference_, 
+          forceFD_, 
+          forceDeviceFD_, 
+          forceAnalytic_, 
+          sqrtEta_, netlistFilename, 
+          ds, nlsLoader, paramNameVec_, analysisManager_);
+    }
+    else
+    {
+      // get the device sensitivities (df/dp, dq/dp, and db/dp)
+      Nonlinear::loadSensitivityResiduals (difference_, 
+          forceFD_, 
+          forceDeviceFD_, 
+          forceAnalytic_, 
+          sqrtEta_, netlistFilename, 
+          ds, nlsLoader, paramNameVec_, analysisManager_);
+    }
 
     // now save the DAE into a history:
     if (sparseAdjointStorage_)
@@ -2232,6 +2248,11 @@ bool Transient::saveTransientAdjointSensitivityInfo ()
     {
       // assemble the device sensitivities into a DAE:  function derivative = df/dp + ddt(dq/dp) - db/dp
       nlsLoader.loadFunctionDerivativesForTranAdjoint ();
+
+#if 1
+      dout() << "sensRHS vector" <<std::endl;
+      ds.sensRHSPtrVector->print(dout());
+#endif
 
       ds.functionSensitivityHistory.push_back( ds.sensRHSPtrVector->cloneCopy() );
     }
@@ -2279,15 +2300,29 @@ bool Transient::saveTransientAdjointSensitivityInfoDCOP ()
   {
     // load the direct sensitivity residuals (df/dp) and save.  
     Loader::NonlinearEquationLoader & nlsLoader = analysisManager_.getNonlinearEquationLoader();
-    
-    // get the device sensitivities (df/dp, dq/dp, and db/dp)
+   
     std::string netlistFilename = analysisManager_.getCommandLine().getArgumentValue("netlist");
-    Nonlinear::loadSensitivityResiduals (difference_, 
-        forceFD_, 
-        forceDeviceFD_, 
-        forceAnalytic_, 
-        sqrtEta_, netlistFilename, 
-        ds, nlsLoader, paramNameVec_, analysisManager_);
+    if (sensDeviceNameGiven)
+    {
+      Nonlinear::loadSensitivityResidualsInternalDev (
+          sensDeviceName, sensDeviceNameGiven,
+          difference_, 
+          forceFD_, 
+          forceDeviceFD_, 
+          forceAnalytic_, 
+          sqrtEta_, netlistFilename,
+          ds, nlsLoader, paramNameVec_, analysisManager_);
+    }
+    else
+    {
+      // get the device sensitivities (df/dp, dq/dp, and db/dp)
+      Nonlinear::loadSensitivityResiduals (difference_, 
+          forceFD_, 
+          forceDeviceFD_, 
+          forceAnalytic_, 
+          sqrtEta_, netlistFilename, 
+          ds, nlsLoader, paramNameVec_, analysisManager_);
+    }
 
     // now save the DAE into a history:
     if (sparseAdjointStorage_)
@@ -2399,6 +2434,8 @@ bool Transient::doTransientAdjointSensitivity ()
       adjointBeginIndex = numTimePoints-1;
     }
 
+  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::INITIALIZE, AnalysisEvent::TRANADJOINT));
+
     // reset everything
     analysisManager_.getWorkingIntegrationMethod().initializeAdjoint(adjointBeginIndex);
     ds.setConstantHistoryAdjoint ();
@@ -2412,6 +2449,11 @@ bool Transient::doTransientAdjointSensitivity ()
     // for each point integrate backwards ----------------------------------------
     for (int it=adjointBeginIndex;it>=0;it--)
     {
+      static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+        AnalysisEvent(AnalysisEvent::STEP_STARTED, AnalysisEvent::TRANADJOINT));
+          //analysisManager_.getStepErrorControl().nextTime, 
+          //analysisManager_.getStepErrorControl().getNumberOfSteps()));
+
       ds.itAdjointIndex = it;
       ds.updateSolDataArraysAdjoint(it);
 
@@ -2435,7 +2477,27 @@ bool Transient::doTransientAdjointSensitivity ()
       if (itmp == step) { transientLambdaOutput (it); }
 
       analysisManager_.getWorkingIntegrationMethod().completeAdjointStep(tiaParams_);
+     static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+      AnalysisEvent(AnalysisEvent::STEP_SUCCESSFUL, 
+        AnalysisEvent::TRANADJOINT)); 
+        //analysisManager_.getStepErrorControl().nextTime, 
+        //analysisManager_.getStepErrorControl().getNumberOfSteps())); 
     }
+
+#if 0
+    for(int ieric=0;ieric<dOdpAdjVec_.size();ieric++)
+    {
+      std::cout 
+        << "  dOdp["<<ieric<<"] = " << dOdpVec_[ieric] 
+        << "  scaled_dOdp["<<ieric<<"] = " << scaled_dOdpVec_[ieric] 
+        << "  dOdpAdj["<<ieric<<"] = " << dOdpAdjVec_[ieric] 
+        << "  scaled_dOdpAdj["<<ieric<<"] = " << scaled_dOdpAdjVec_[ieric] 
+        <<std::endl;
+    }
+#endif
+
+  static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(
+      AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::TRANADJOINT));
 
     outputManagerAdapter_.tranSensitivityOutput(
       ds.timeHistory[itGlobal],
