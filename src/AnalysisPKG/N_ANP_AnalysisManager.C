@@ -1956,7 +1956,6 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
   // only output if the stream is open
   if(diagnosticOutputStreamPtr_ != NULL)
   {
-    
     if(analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED)
     {
       (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
@@ -1966,6 +1965,14 @@ void AnalysisManager::OutputDiagnosticInfo(const AnalysisEvent & analysis_event)
     {
       (*diagnosticOutputStreamPtr_) << "Analysis event  " << analysis_event.state_ << " "
         << analysis_event.outputType_ << " source value = " << analysis_event.step_ <<  std::endl;
+    }
+    else if(analysis_event.state_ == AnalysisEvent::DC_OP_SOURCE_STEPPING_SUCCESSFUL || 
+            analysis_event.state_ == AnalysisEvent::DC_OP_GMIN_STEPPING_SUCCESSFUL ||
+            analysis_event.state_ == AnalysisEvent::DC_OP_SUCCESSFUL ||
+            analysis_event.state_ == AnalysisEvent::DC_OP_FAILED)
+    {
+      (*diagnosticOutputStreamPtr_) << "Analysis event " << analysis_event.state_ << " "
+        << analysis_event.outputType_ <<  std::endl;
     }
     else if(analysis_event.step_ == 0) 
     {
