@@ -297,7 +297,7 @@ std::string Version::getLicense()
   License += " a license from the United States Government.\n";
 
 #elif defined Xyce_NONFREE_MODELS
-  License += "\n Copyright 2020-2025 National Technology & Engineering Solutions of\n";
+  License += "\n Copyright 2002-2025 National Technology & Engineering Solutions of\n";
   License += " Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with\n";
   License += " NTESS, there is a non-exclusive license for use of this work by or\n";
   License += " on behalf of the U.S. Government.  Export of this data may require\n";
