@@ -3,7 +3,8 @@
 
 # arguments:
 #   -DVERBOSITY=<0-5>
-#   -DTRACK=<Nightly|OnDemand>
+#   -DGROUP=<Nightly|OnDemand|Deploy>
+#   -DBUILD_SHARED=<ON|OFF>
 #   -DBUILD_WITH_MPI=<ON|OFF>
 #   -DBUILD_DIR=<subdirectory in which to actually build trilinos>
 #   -DBUILD_NAME=<name of build to be displayed on dashboard>
@@ -12,15 +13,15 @@
 #   -DOSX_TOOLKIT_VERSION=<toolkit version (see Xyce root CMakeLists.txt for value)>
 
 if(NOT VERBOSITY)
-  set(VERBOSIT 0)
+  set(VERBOSITY 0)
 endif()
 
 cmake_minimum_required(VERSION 3.23)
 
 set(CTEST_PROJECT_NAME "Xyce")
 
-if(NOT DEFINED TRACK)
-  set(TRACK "Nightly")
+if(NOT DEFINED GROUP)
+  set(GROUP "Nightly")
 endif()
 
 # you need this to match the one you'll be using when building xyce so
@@ -41,10 +42,18 @@ if(NOT DEFINED BUILD_NAME)
 endif()
 
 set(CTEST_BUILD_NAME ${BUILD_NAME})
+if(VERBOSITY GREATER 1)
+  message("[VERB]: CTEST_BUILD_NAME: ${CTEST_BUILD_NAME}")
+endif()
 
 # default is to build without MPI
 if(NOT DEFINED BUILD_WITH_MPI)
   set(BUILD_WITH_MPI "NO")
+endif()
+
+# default is to build shared libraries
+if(NOT DEFINED BUILD_SHARED)
+  set(BUILD_SHARED "ON")
 endif()
 
 # used for invocation of parallel make
@@ -172,7 +181,7 @@ if(VERBOSITY GREATER 3)
 endif()
 
 # now construct command line options for cmake
-set(CMAKE_COMMAND_OPTS "-DTPL_ENABLE_MPI=${BUILD_WITH_MPI}")
+set(CMAKE_COMMAND_OPTS "-DTPL_ENABLE_MPI=${BUILD_WITH_MPI} -DBUILD_SHARED_LIBS=${BUILD_SHARED}")
 foreach(VARNAME ${TRI_CMAKE_VARS_ON})
   set(CMAKE_COMMAND_OPTS "${CMAKE_COMMAND_OPTS} -D${VARNAME}=ON")
 endforeach()
@@ -207,7 +216,7 @@ set(CTEST_CMAKE_GENERATOR "Ninja")
 SET(CMAKE_MODULE_PATH
   "$ENV{WORKSPACE}/Trilinos/cmake/tribits/core/utils")
 
-ctest_start(Nightly GROUP ${TRACK})
+ctest_start(Nightly GROUP ${GROUP})
 ctest_configure()
 ctest_build()
 ctest_submit(RETRY_COUNT 10 RETRY_DELAY 30)

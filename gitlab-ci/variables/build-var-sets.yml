@@ -1,0 +1,128 @@
+# define common tags for CEE and CTS
+.cee_tags: &cee_tags
+  tags:
+    - cee.build
+
+.cts_tags: &cts_tags
+  tags:
+    - ctsCI
+  variables:
+    Platform: cts
+    OS: toss4
+
+#  GNU serial on CEE
+.gnu_serial_vars:
+  <<: *cee_tags
+  variables:
+    Arch: x86_64
+    Platform: cee
+    OS: rhel8
+    ToolsSpec: aue
+    ParallelType: serial
+    BuildWithMPI: "OFF"
+    TrilinosCmakeConfigFile: trilinos-new-base.cmake
+    CompilerSuite: gnu_10.3
+    MyCXX: g++
+    MyCC: gcc
+    MyFC: gfortran
+    MyModules: "
+      aue/gcc/10.3.0
+      aue/intel-oneapi-mkl/2024.1.0
+      aue/boost/1.83.0-gcc-10.3.0-openmpi-4.1.6
+      "
+    ###########################################
+    # build-specific environment variables
+    ###########################################
+    # no parallelism in the MKL
+    MKL_THREADING_LAYER: SEQUENTIAL
+
+# GNU OpenMPI on CEE
+.gnu_openmpi_vars:
+  <<: *cee_tags
+  variables:
+    Arch: x86_64
+    Platform: cee
+    OS: rhel8
+    ToolsSpec: aue
+    ParallelType: openmpi_4.1
+    BuildWithMPI: "ON"
+    TrilinosCmakeConfigFile: trilinos-new-base.cmake
+    CompilerSuite: gnu_10.3
+    MyCXX: mpic++
+    MyCC: mpicc
+    MyFC: mpif90
+    MyModules: "
+      aue/gcc/10.3.0
+      aue/openmpi/4.1.6-gcc-10.3.0
+      aue/intel-oneapi-mkl/2024.1.0
+      aue/boost/1.83.0-gcc-10.3.0-openmpi-4.1.6
+      "
+    ###########################################
+    # build-specific environment variables
+    ###########################################
+    # no parallelism in the MKL
+    MKL_THREADING_LAYER: SEQUENTIAL
+
+# Intel OneAPI serial on CEE
+.intel_serial_vars:
+  <<: *cee_tags
+  variables:
+    Arch: x86_64
+    Platform: cee
+    OS: rhel8
+    ToolsSpec: aue
+    ParallelType: serial
+    BuildWithMPI: "OFF"
+    TrilinosCmakeConfigFile: trilinos-new-base.cmake
+    CompilerSuite: intelone_2024.1
+    MyCXX: icpx
+    MyCC: icx
+    MyFC: ifx
+    MyModules: "
+      aue/intel-oneapi-compilers/2024.1.0
+      aue/intel-oneapi-mkl/2024.1.0
+      aue/boost/1.83.0-oneapi-2024.1.0-openmpi-4.1.6
+      aue/gcc/12.3.0
+      "
+
+# Intel OneAPI OpenMPI on CEE
+.intel_openmpi_vars:
+  <<: *cee_tags
+  variables:
+    Arch: x86_64
+    Platform: cee
+    OS: rhel8
+    ToolsSpec: aue
+    ParallelType: openmpi_4.1
+    BuildWithMPI: "ON"
+    TrilinosCmakeConfigFile: trilinos-new-base.cmake
+    CompilerSuite: intelone_2024.1
+    MyCXX: mpic++
+    MyCC: mpicc
+    MyFC: mpif90
+    MyModules: "
+      aue/intel-oneapi-compilers/2024.1.0
+      aue/intel-oneapi-mkl/2024.1.0
+      aue/openmpi/4.1.6-oneapi-2024.1.0
+      aue/boost/1.83.0-oneapi-2024.1.0-openmpi-4.1.6
+      aue/gcc/12.3.0
+      "
+# GNU serial on CTS
+.gnu_serial_cts_vars:
+  extends: .gnu_serial_vars
+  <<: *cts_tags
+
+# Intel OneAPI serial on CTS
+.intel_serial_cts_vars:
+  extends: .intel_serial_vars
+  <<: *cts_tags
+  
+# GNU OpenMPI on CTS
+.gnu_openmpi_cts_vars:
+  extends: .gnu_openmpi_vars
+  <<: *cts_tags
+
+# Intel OneAPI OpenMPI on CTS
+.intel_openmpi_cts_vars:
+  extends: .intel_openmpi_vars
+  <<: *cts_tags

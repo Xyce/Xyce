@@ -1,0 +1,170 @@
+include:
+  - gitlab-ci/variables/build-var-sets.yml
+
+.generate_modules:
+  extends: .build_base
+  variables:
+    xdmPre: ""
+    GIT_STRATEGY: none
+  stage: generateModules
+  before_script:
+    - echo "USER = ${USER}"
+    - |
+      dirName=$(dirname ${MyModuleFileName})
+      if [ ! -d ${dirName} ]; then
+        mkdir -p ${dirName}
+      fi
+    - |
+      putsOutputLong() {
+        fmt -w 80 <<< "$1" | while IFS= read -r line; do
+          printf 'puts stderr \"%s\"\n' "${line}";
+        done
+      }
+      printModuleFile() {
+        printf "#%%Module########################################\n" > ${MyModuleFileName}
+        printf "#\n" >> ${MyModuleFileName}
+        printf "# help info\n" >> ${MyModuleFileName}
+        printf "#\n" >> ${MyModuleFileName}
+        printf "proc ModulesHelp { } {\n" >> ${MyModuleFileName}
+        putsOutputLong "${ModuleHelp}" >> ${MyModuleFileName}
+        printf "puts stderr \"Access requires subscription to the Xyce resource through WebCARS.\"" >> ${MyModuleFileName}
+        printf "}\n" >> ${MyModuleFileName}
+        printf "\n" >> ${MyModuleFileName}
+        printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
+        printf "puts stderr \"WARNING:\"\n" >> ${MyModuleFileName}
+        printf "puts stderr \"This module enables access to a development version of XyceRad\"\n" >> ${MyModuleFileName}
+        printf "puts stderr \"that should under no circumstances be used for production calculations.\"\n" >> ${MyModuleFileName}
+        printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
+        printf "\n" >> ${MyModuleFileName}
+        printf "module add ${CommonModules} ${MyModules}\n" >> ${MyModuleFileName}
+        printf "\n" >> ${MyModuleFileName}
+        printf "prepend-path PATH ${xyceInstallDir}/bin\n" >> ${MyModuleFileName}
+        printf "prepend-path PATH ${admsInstallDir}/bin\n" >> ${MyModuleFileName}
+        printf "\n" >> ${MyModuleFileName}
+        printf "%smodule load xyce/xdm-dev" "${xdmPre}" >> ${MyModuleFileName}
+      }
+  rules:
+    - if: $DO_MODULE_GENERATION == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+
+GNU_serial.generateModules:
+  extends:
+    - .generate_modules
+    - .gnu_serial_vars
+  variables:
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    ModuleHelp: >
+      The Xyce binary, built with the GNU compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+GNU_OpenMPI.generateModules:
+  extends:
+    - .generate_modules
+    - .gnu_openmpi_vars
+  variables:
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    ModuleHelp: >
+      The Xyce binary, built with the OpenMPI+GNU compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+Intel_serial.generateModules:
+  extends:
+    - .generate_modules
+    - .intel_serial_vars
+  variables:
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    ModuleHelp: >
+      The Xyce binary, built with the Intel OneAPI compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+Intel_OpenMPI.generateModules:
+  extends:
+    - .generate_modules
+    - .intel_openmpi_vars
+  variables:
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    ModuleHelp: >
+      The Xyce binary, built with the OpenMPI+Intel OneAPI compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+
+GNU_OpenMPI.cts.generateModules:
+  extends:
+    - .generate_modules
+    - .gnu_openmpi_cts_vars
+  variables:
+    # cts doesn't currently have an xdm module available
+    xdmPre: "#"
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    ModuleHelp: >
+      The Xyce binary, built with the OpenMPI+GNU compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+GNU_serial.cts.generateModules:
+  extends:
+    - .generate_modules
+    - .gnu_serial_cts_vars
+  variables:
+    # cts doesn't currently have an xdm module available
+    xdmPre: "#"
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    ModuleHelp: >
+      The Xyce binary, built with the GNU compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+Intel_OpenMPI.cts.generateModules:
+  extends:
+    - .generate_modules
+    - .intel_openmpi_cts_vars
+  variables:
+    # cts doesn't currently have an xdm module available
+    xdmPre: "#"
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    ModuleHelp: >
+      The Xyce binary, built with the OpenMPI+Intel OneAPI compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+Intel_serial.cts.generateModules:
+  extends:
+    - .generate_modules
+    - .intel_serial_cts_vars
+  variables:
+    # cts doesn't currently have an xdm module available
+    xdmPre: "#"
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    ModuleHelp: >
+      The Xyce binary, built with the Intel OneAPI compiler, capable of doing analysis
+      with the radiation models. This modulefile defines the default system paths
+      and environment variables needed to use the current ${XyceVersion} version
+      of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
+  script:
+    - printModuleFile
+
+
