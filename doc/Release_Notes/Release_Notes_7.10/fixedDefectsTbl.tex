@@ -47,6 +47,12 @@
   This resulted in unphysical noisy solutions in regions of high doping.  This has been fixed.
   \\\hline
   
+  \textbf{Xyce Project Backlog/953}: Uninitialized return variables can cause Xyce to exit.
+  &  Xyce's parameter class could return an uninitialized value in some instances when 
+  netlist parsing was expecting a numeric value and none was found.  With some newer compilers
+  this caused a premature exit of the code.  This issue has been fixed.
+  \\\hline
+  
 \textbf{Xyce Project Backlog/xxx}: Description
   &  Details
   \\\hline
