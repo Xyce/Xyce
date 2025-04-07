@@ -1,0 +1,108 @@
+# General notes:
+#
+#   *) While you can, in theory, override any of the variables below via
+#      the "Run Pipeline" UI or in the curl command, in practice you
+#      should try to only modify the variables in all caps.
+stages:
+  - deploy
+  - cleanTPLInstalls
+  - buildTPLs
+  - buildTestInstallXyce
+  - generateModules
+  - finalize
+  - testModules
+
+variables:
+  DO_TPL_BUILDS: "OFF"
+  DO_XYCE_BUILDS: "ON"
+  DO_MODULE_GENERATION: "ON"
+  DO_FINALIZE: "ON"
+  DO_TEST_MODULES: "ON"
+
+  BaseInstallDir: /projects/xyce_user/install
+  BaseModuleInstallDir: ${BaseInstallDir}/modules
+
+  # XyceVersion appears in the installation subdirectory name and on
+  # the dashboard. This allows you to do something like set it to
+  # "stable" and have XyceBranch point to something like "master"
+  XyceVersion: "develop"
+
+  # branch specifications for each repo used in actual git
+  # clone|fetch|checkout operations.
+  DEFAULT_BRANCH: "develop"
+
+  # this list is used to dynamically create the names of the variables
+  # that will store the actual branch names by appending "Branch" to
+  # them
+  BranchList: "Xyce XyceFTRegression XyceRegression XyceNonFree XyceSandiaModels XyceSandiaRegression"
+
+  # if you need a branch, or group of branches, specify the values
+  # here. Note that if you leave any or all of these blank then the
+  # value of "DEFAULT_BRANCH" will be used. DEFAULT_BRANCH should never
+  # be blank.
+  XyceBranch: ""
+  XyceFTRegressionBranch: ""
+  XyceRegressionBranch: ""
+  XyceNonFreeBranch: ""
+  XyceSandiaModelsBranch: ""
+  XyceSandiaRegressionBranch: ""
+
+  # these correspond directly to git entities, either tags or
+  # branches, to be built
+  TrilinosVersion: trilinos-release-14-4-0
+  SuiteSparseVersion: v7.8.3
+  ADMSVersion: release-2.3.7
+
+  # set to "-v" for verbose output from ninja
+  VerboseNinja: ""
+
+  CommonModules: "
+    aue/git
+    aue/git-lfs
+    aue/cmake
+    aue/ninja
+    aue/anaconda3
+    aue/binutils
+    "
+
+  # clone the full repo, including branches and tags, for more
+  # flexibility when specifying the versions. this is a built-in
+  # variable and shouldn't be modified
+  GIT_DEPTH: 0
+
+include:
+  - gitlab-ci/buildBase.yml
+  - gitlab-ci/cleanTPLInstalls.yml
+  - gitlab-ci/buildTPLs.yml
+  - gitlab-ci/buildTestInstallXyce.yml
+  - gitlab-ci/generateModules.yml
+  - gitlab-ci/finalize.yml
+  - gitlab-ci/testModules.yml
+
+# this is the stage that will trigger the rest of the pipeline stages,
+# dependent on the value of the releavant "DO_*" booleans.
+trigger_pipeline:
+  stage: deploy
+  tags:
+    - cee.build
+  variables:
+    # no need to clone repo
+    GIT_STRATEGY: none
+  script:
+    - echo "XYCE_JENKINS_PAT = ${XYCE_JENKINS_PAT}"
+    - echo "XYCE_JENKINS_PIPELINE_TRIGGER_TOKEN = ${XYCE_JENKINS_PIPELINE_TRIGGER_TOKEN}"
+    - echo "CI_PROJECT_ID = ${CI_PROJECT_ID}"
+    # XYCE_JENKINS_PAT and XYCE_JENKINS_PIPELINE_TRIGGER_TOKEN are
+    # variables defined via the cee-gitlab UI and should be masked
+    - |
+      curl --request POST \
+        --header "PRIVATE-TOKEN: ${XYCE_JENKINS_PAT}" \
+        --form token=${XYCE_JENKINS_PIPELINE_TRIGGER_TOKEN} \
+        --form ref=${CI_COMMIT_BRANCH} \
+        --form "variables[DO_TPL_BUILDS]=${DO_TPL_BUILDS}" \
+        --form "variables[DO_XYCE_BUILDS]=${DO_XYCE_BUILDS}" \
+        --form "variables[DO_MODULE_GENERATION]=${DO_MODULE_GENERATION}" \
+        --form "variables[DO_FINALIZE]=${DO_FINALIZE}" \
+        "https://cee-gitlab.sandia.gov/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"

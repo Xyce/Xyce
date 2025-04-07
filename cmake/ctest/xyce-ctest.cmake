@@ -11,6 +11,7 @@
 #   -DMPI_TESTING=<TRUE|FALSE>
 #   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE
 #   -DUSE_GITLAB_CI_TESTING=<TRUE|FALSE> # default FALSE
+#   -DCDASH_GROUP=<name> # name of the CDash group to post results to (Nightly, Weekly, Deploy, etc.)
 #   -DNUM_PROCS=<N> 
 #   -DTDEV_BUILD=<TRUE|FALSE>
 
@@ -298,8 +299,8 @@ endif()
 # significant since, for example, gitlab testing needs ctest testing
 # on as well
 if (USE_GITLAB_CI_TESTING)
-  set(CTEST_SOURCE_DIRECTORY "$ENV{CI_PROJECT_DIR}")
-  set(CTEST_BINARY_DIRECTORY "$ENV{CI_PROJECT_DIR}/build")
+  set(CTEST_SOURCE_DIRECTORY "$ENV{CI_PROJECT_DIR}/repos/Xyce")
+  set(CTEST_BINARY_DIRECTORY "$ENV{CI_PROJECT_DIR}/repos/build")
 elseif(USE_CTEST_TESTING)
   set(CTEST_SOURCE_DIRECTORY "$ENV{WORKSPACE}/Xyce")
   set(CTEST_BINARY_DIRECTORY "$ENV{WORKSPACE}/build")
@@ -378,15 +379,32 @@ if(NOT DEFINED ENV{TESTSET})
   message(FATAL_ERROR "ERROR: You must set the environment variable TESTSET to one of Nighlty, Weekly or Experimental")
 endif()
 
-if($ENV{TESTSET} STREQUAL "Nightly")
+if(USE_GITLAB_CI_TESTING)
   set(MODEL "Nightly")
-  set(TESTGROUP "Nightly")
-elseif($ENV{TESTSET} STREQUAL "Weekly")
-  set(MODEL "Nightly")
-  set(TESTGROUP "Weekly")
+  if(NOT CDASH_GROUP)
+    set(TESTGROUP "Deploy")
+  else()
+    set(TESTGROUP "${CDASH_GROUP}")
+  endif()
+  set(XYCE_TEST_LABEL_FILTER "^nightly")
 else()
-  set(MODEL "Experimental")
-  set(TESTGROUP "Experimental")
+  if($ENV{TESTSET} STREQUAL "Nightly")
+    set(MODEL "Nightly")
+    set(TESTGROUP "Nightly")
+    set(XYCE_TEST_LABEL_FILTER "^nightly")
+  elseif($ENV{TESTSET} STREQUAL "Weekly")
+    set(MODEL "Nightly")
+    set(TESTGROUP "Latest_Weekly")
+    set(XYCE_TEST_LABEL_FILTER "^weekly")
+  else()
+    set(MODEL "Experimental")
+    set(TESTGROUP "Experimental")
+  endif()
+endif()
+
+# default "^nightly"
+if(NOT DEFINED XYCE_TEST_LABEL_FILTER)
+  set(XYCE_TEST_LABEL_FILTER "^nightly")
 endif()
 
 set(CTEST_PROJECT_NAME "Xyce")
@@ -410,7 +428,6 @@ endif()
 find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} -DBUILD_TESTING=${BUILD_TESTING}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${CTEST_SOURCE_DIRECTORY}")
@@ -442,7 +459,7 @@ if(buildReturnVal EQUAL 0)
     endif()
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
-      INCLUDE_LABEL "^nightly"
+      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}"
       EXCLUDE "^VERILOGPLUGIN.*")
     if(VERBOSITY GREATER 1)
       message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
