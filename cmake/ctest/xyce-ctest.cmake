@@ -451,7 +451,7 @@ ctest_start(${MODEL} GROUP ${TESTGROUP})
 ctest_configure(RETURN_VALUE confReturnVal)
 
 # this runs make
-ctest_build(PARALLEL_LEVEL ${NUM_PROCS} RETURN_VALUE buildReturnVal)
+ctest_build(RETURN_VALUE buildReturnVal)
 
 # Call cpack to generate an installer if requested.  
 if(USE_CPACK_INSTALLER)
