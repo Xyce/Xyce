@@ -14,6 +14,7 @@
 #   -DCDASH_GROUP=<name> # name of the CDash group to post results to (Nightly, Weekly, Deploy, etc.)
 #   -DNUM_PROCS=<N> 
 #   -DTDEV_BUILD=<TRUE|FALSE>
+#   -DUSE_CPACK_INSTALLER=<TRUE|FALSE>
 
 cmake_minimum_required(VERSION 3.23)
 
@@ -284,6 +285,11 @@ else()
   endif()
 endif()
 
+# default FALSE
+if(NOT DEFINED USE_CPACK_INSTALLER)
+  set(USE_CPACK_INSTALLER FALSE)
+endif()
+
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
   message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
@@ -445,7 +451,12 @@ ctest_start(${MODEL} GROUP ${TESTGROUP})
 ctest_configure(RETURN_VALUE confReturnVal)
 
 # this runs make
-ctest_build(RETURN_VALUE buildReturnVal)
+ctest_build(PARALLEL_LEVEL ${NUM_PROCS} RETURN_VALUE buildReturnVal)
+
+# Call cpack to generate an installer if requested.  
+if(USE_CPACK_INSTALLER)
+  execute_process(COMMAND cpack WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY})
+endif()
 
 # if the build succeeds, as indicated by a zero return value, proceed,
 # otherwise skip to submission
