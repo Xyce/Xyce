@@ -171,9 +171,6 @@ else()
   set(develPhaseStr "-${develPhase}")
 endif()
 
-set(CPACK_PACKAGE_NAME "Xyce-${develOrRelease}-${Xyce_VERSION}${develPhaseStr}")
-message(DEBUG "[DBG]: CPACK_PACKAGE_NAME: ${CPACK_PACKAGE_NAME}")
-
 # if the user didn't specify it set the install directory according to
 # the CPACK_PACKAGE_NAME
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -181,5 +178,9 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 message(DEBUG "[DBG]: CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
+# this causes the creation of CPackConfig.cmake and CPackSourceConfig.cmake 
+# logic for setting package options is set based on 
+# cmake/feature_modes.cmake
+# cmake/CPackConfig.cmake
 include(CPack)
 #See the CPackConfig.cmake in Xyce/cmake for settings
