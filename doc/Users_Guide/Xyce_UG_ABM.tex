@@ -200,7 +200,7 @@ The previous two examples will produce a voltage source (B1) whose voltage
 is a simple linear function of time.  At $t=0$ the voltage is $0$ volts and 
 at time $t=1s$ the voltage is $2$ volts.  Similarly, the voltage will
 be $4$ volts at $t=2s$ and $6$ volts at $t=3s$. Linear interpolation is
-used at times in between those tabulated values.
+used at times in between those tabulated values.  Note that time-dependent data can be specified out of order, and the expression code in \Xyce{} will automatically sort it.
 
 It is also possible to create ABM sources from files of time-value pairs by providing the name of the file containing the pairs between quotation marks:
 
