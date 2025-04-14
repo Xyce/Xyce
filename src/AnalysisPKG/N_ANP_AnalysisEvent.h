@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Copyright 2002-2025 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -48,8 +48,8 @@ struct AnalysisEvent
   friend class Dump<AnalysisEvent>;
 
 public:
-  enum State {INITIALIZE, DC_OP_STARTED, DC_OP_GMIN_STEPPING, DC_OP_GMIN_STEPPING_FAILED, 
-    DC_OP_SOURCE_STEPPING, DC_OP_SOURCE_STEPPING_FAILED, STEP_STARTED, STEP_SUCCESSFUL, STEP_FAILED, FINISH};
+  enum State {INITIALIZE, 
+    DC_OP_STARTED, DC_OP_SUCCESSFUL, DC_OP_FAILED, DC_OP_GMIN_STEPPING, DC_OP_GMIN_STEPPING_SUCCESSFUL, DC_OP_GMIN_STEPPING_FAILED, DC_OP_SOURCE_STEPPING, DC_OP_SOURCE_STEPPING_SUCCESSFUL, DC_OP_SOURCE_STEPPING_FAILED, STEP_STARTED, STEP_SUCCESSFUL, STEP_FAILED, FINISH};
   enum OutputType {DC, TRAN, AC, AC_IC, HB_FD, HB_TD, HB_IC, HB_STARTUP, DCOP, HOMOTOPY, MPDE, MPDE_IC, SENS, NOISE, NOISE_IC, TRANADJOINT};
 
   AnalysisEvent(State state, OutputType output_type, double step = 0.0, int count = 0)

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Copyright 2002-2025 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -2055,29 +2055,12 @@ void DeviceMgr::getAnalyticSensitivitiesDevice(
   Stats::TimeBlock _deviceSensTimer(_deviceSensStat);
 
   DeviceEntity * device_entity = getDeviceEntity(sensDeviceName);
-  int entity_found = (device_entity != 0);
-  int globalFound = 0;
-#if 0 
-  if (Parallel::is_parallel_run(parallel_comm.comm()))
-  {
-    parallel_comm.maxAll(&entity_found, &globalFound, 1);
-  }
-  else
-#endif
-  {
-    globalFound = entity_found;
-  }
-
   bool found=false;
-  if (globalFound == 0)
-  {
-    Report::UserError() << "Could not find device " << sensDeviceName ;
-  }
-  else
+  if (device_entity)
   {
     found = device_entity->getAnalyticSensitivityDevice(iparam,
-                                                  dfdpVec, dqdpVec, dbdpVec,
-                                                  FindicesVec, QindicesVec, BindicesVec);    
+                                      dfdpVec, dqdpVec, dbdpVec,
+                                      FindicesVec, QindicesVec, BindicesVec);    
   }
 
   return;
@@ -3679,28 +3662,153 @@ void DeviceMgr::getSensParamsForDevice(const std::string & sensDeviceName,
     std::vector<double> & origVals, 
       Parallel::Communicator & parallel_comm)
 {
+  int procID = 0;
+  int numProc = 1;
+  if (Parallel::is_parallel_run(parallel_comm.comm())) 
+  { 
+    procID = parallel_comm.procID(); 
+    numProc = parallel_comm.numProc(); 
+  }
+
   Stats::StatTop _deviceSensStat("Setup device sensitivity params");
   Stats::TimeBlock _deviceSensTimer(_deviceSensStat);
 
   DeviceEntity * device_entity = getDeviceEntity(sensDeviceName);
-  int entity_found = (device_entity != 0);
-  int globalFound = 0;
-  if (Parallel::is_parallel_run(parallel_comm.comm()))
-  {
-    parallel_comm.maxAll(&entity_found, &globalFound, 1);
-  }
-  else
-  {
-    globalFound = entity_found;
-  }
 
-  if (globalFound == 0)
-  {
-    Report::UserError() << "Could not find device " << sensDeviceName ;
-  }
-  else
+  if (device_entity)
   {
     device_entity->getSensitivityParams (sensParams, origVals);
+  }
+
+  if (DEBUG_DEVICE) 
+  {
+    for (int proc=0; proc<numProc; ++proc)
+    {
+      parallel_comm.barrier();
+      if (proc == procID)
+      {
+        std::cout  << "BEFORE: procID = " << procID << " numSensParams = " << sensParams.size() <<std::endl;
+        for (int ii=0;ii<sensParams.size();ii++)
+        {
+          std::cout << "BEFORE: procID = " << procID << "  sensParams["<<ii<<"] = " << sensParams[ii] << std::endl;
+        }
+
+        std::cout  << "BEFORE: procID = " << procID << " numOrigVals = " << origVals.size() <<std::endl;
+        for (int ii=0;ii<origVals.size();ii++)
+        {
+          std::cout << "BEFORE: procID = " << procID << "  origVals["<<ii<<"] = " << origVals[ii] << std::endl;
+        }
+      }
+    }
+  }
+
+  if (Parallel::is_parallel_run(parallel_comm.comm()))
+  {
+    // Count the bytes for packing
+    int byteCount = 0;
+
+    // First count the size of the local vector
+    byteCount += sizeof(int); // number of parameters
+
+    // Now count all the params in the vector
+    int sensSize = sensParams.size();
+    for (int ii=0;ii<sensSize;ii++)
+    {
+      byteCount += sizeof( int ); // length of param name
+      byteCount += sensParams[ii].length(); // param name
+      byteCount += sizeof( double ); // orig value
+    }
+
+    std::vector<std::string> externalSensParams;
+    std::vector<double> externalOrigVals;
+
+    for (int proc=0; proc<numProc; ++proc)
+    {
+      parallel_comm.barrier();
+
+      int bsize=0;
+      if (proc == procID) { bsize = byteCount+100; }
+      parallel_comm.bcast( &bsize, 1, proc );
+
+      // Create buffer.
+      int pos = 0;
+      char * paramBuffer = new char[bsize];
+
+      if (proc == procID)
+      {
+        parallel_comm.pack( &sensSize, 1, paramBuffer, bsize, pos );
+
+        for (int ii=0;ii<sensParams.size();ii++)
+        {
+          int length = sensParams[ii].length();
+          parallel_comm.pack( &length, 1, paramBuffer, bsize, pos );
+          parallel_comm.pack(       sensParams[ii].c_str(), length, paramBuffer, bsize, pos);
+        }
+
+        for (int ii=0;ii<origVals.size();ii++)
+        {
+          double tmp = origVals[ii];
+          parallel_comm.pack(&tmp, 1, paramBuffer, bsize, pos);
+        }
+
+        parallel_comm.bcast( paramBuffer, bsize, proc );
+      }
+      else
+      {
+        parallel_comm.bcast( paramBuffer, bsize, proc );
+        int numParams = 0;
+        parallel_comm.unpack( paramBuffer, bsize, pos, &numParams, 1 );
+
+        for (int ii=0; ii<numParams; ++ii)
+        {
+          int length=0;
+          parallel_comm.unpack( paramBuffer, bsize, pos, &length, 1 );
+          std::string tmpParam(std::string( ( paramBuffer + pos ), length ));
+          pos += length;
+          externalSensParams.push_back( tmpParam );
+        }
+
+        for (int ii=0; ii<numParams; ++ii)
+        {
+          double tmp;
+          parallel_comm.unpack(paramBuffer, bsize, pos, &tmp, 1);
+          externalOrigVals.push_back(tmp);
+        }
+      }
+      delete [] paramBuffer;
+    }
+
+    sensParams.insert
+      (sensParams.end(), externalSensParams.begin(), externalSensParams.end());
+
+    origVals.insert
+      (origVals.end(), externalOrigVals.begin(), externalOrigVals.end());
+
+    // no sorting is needed here as this function only returns sensitivity params
+    // for a single specified device (rather than all relevant devices).
+
+    if (DEBUG_DEVICE) 
+    {
+      for (int proc=0; proc<numProc; ++proc)
+      {
+        parallel_comm.barrier();
+        if (proc == procID)
+        {
+          std::cout  << "AFTER: procID = " << procID << " numSensParams = " << sensParams.size() <<std::endl;
+          for (int ii=0;ii<sensParams.size();ii++)
+          {
+            std::cout << "AFTER: procID = " << procID << "  sensParams["<<ii<<"] = " << sensParams[ii] << std::endl;
+          }
+
+          std::cout  << "AFTER: procID = " << procID << " numOrigVals = " << origVals.size() <<std::endl;
+          for (int ii=0;ii<sensParams.size();ii++)
+          {
+            std::cout << "AFTER: procID = " << procID << "  origVals["<<ii<<"] = " << origVals[ii] << std::endl;
+          }
+        }
+      }
+    }
+
   }
 }
 

@@ -114,7 +114,7 @@ endif()
 
 # Search for required TPL packages
 
-message(STATUS "Looking for BLAS and via Trilinos")
+message(STATUS "Looking for BLAS via Trilinos")
 if(TARGET BLAS::all_libs)
      message(STATUS "Looking for BLAS via Trilinos - found")
 else()
@@ -125,7 +125,7 @@ else()
      set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
-message(STATUS "Looking for LAPACK and via Trilinos")
+message(STATUS "Looking for LAPACK via Trilinos")
 if(TARGET LAPACK::all_libs)
      message(STATUS "Looking for LAPACK via Trilinos - found")
 else()

@@ -1,0 +1,17 @@
+finalize:
+  stage: finalize
+  dependencies: []
+  tags:
+    - cee.build
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - set -e
+    - echo "CI_PIPELINE_SOURCE = ${CI_PIPELINE_SOURCE}"
+    - cd ${BaseInstallDir}
+    - chgrp --recursive wg-xyce-users .
+    - find . -type d -print|xargs chmod 750
+    - find . -type f -print|xargs chmod g+r,g-w,o-r,o-w
+    - find . -type f -perm -700 -print|xargs chmod 750
+  rules:
+    - if: $DO_FINALIZE == "ON" && $CI_PIPELINE_SOURCE == "trigger"

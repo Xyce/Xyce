@@ -1,0 +1,130 @@
+include:
+  - gitlab-ci/variables/build-var-sets.yml
+
+.build_test_install_xyce:
+  extends: .build_base
+  stage: buildTestInstallXyce
+  dependencies: []
+  variables:
+    GoogleUnitTesting: "OFF"
+    BuildWithMPI: "OFF"
+    # link against dynamic for now
+    Trilinos_DIR: ${trilinosInstallDir}/dynamic
+    # variables for xyce-ctest.cmake. typically do NOT want to modify
+    # these
+    branch: ${XyceBranch}
+    TESTSET: Experimental
+    WORKSPACE: $CI_PROJECT_DIR
+    GTest_ROOT: /projects/xyce/GTest/RHEL7
+    MYBUILDNAME: Xyce/${XyceVersion}-${archFullName}
+    cmakeArgsList: |
+      -GNinja;\
+      --log-level=STATUS;\
+      -DXyce_REGRESSION=ON;\
+      -DFLEX_ROOT=/projects/xyce/flexbison;\
+      -DBISON_ROOT=/projects/xyce/flexbison;\
+      -DXyce_USE_FFT=ON;\
+      -DXyce_PLUGIN_SUPPORT=ON;\
+      -DBUILD_SHARED_LIBS=ON;\
+      -DCMAKE_BUILD_TYPE=Release;\
+      -DBUILD_TESTING=ON;\
+      -DXyce_GTEST_UNIT_TESTS=${GoogleUnitTesting};\
+      -DXyce_PARALLEL_MPI=${BuildWithMPI};\
+      -DXyce_RAD_MODELS=ON;\
+      -DXyce_AS_SPECIAL_CHARON_TPL=OFF;\
+      -DCMAKE_INSTALL_PREFIX=${xyceInstallDir}
+      
+  script:
+    - set -e
+    - cloneAllXyceRepos
+    # so admsXml will be found
+    - export PATH="${PATH}:${admsInstallDir}/bin"
+    # remove backslashes and newline characters from list for proper
+    # parsing by ctest script
+    - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\n')"
+    - echo "Trilinos_DIR=${Trilinos_DIR}"
+    # note use of the use of the pipeline's xyce-ctest.cmake file, NOT
+    # the build repos copy
+    - ctest --timeout 600 -DVERBOSITY=5
+        -DUSE_GITLAB_CI_TESTING=ON
+        -DCMAKE_ARGS_LIST="${rawCmakeArgsList}"
+        -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/xyce-ctest-log.txt
+    # clean out the installation directory
+    - cleanInstallDir "${xyceInstallDir}"
+    - cmake --install ${CI_PROJECT_DIR}/repos/build
+  artifacts:
+    paths:
+      - logFiles
+    expire_in: 1 day
+  rules:
+    - if: $DO_XYCE_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+  
+
+GNU_serial.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce
+    - .gnu_serial_vars
+
+GNU_OpenMPI.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce
+    - .gnu_openmpi_vars
+
+Intel_serial.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce
+    - .intel_serial_vars
+
+Intel_OpenMPI.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce
+    - .intel_openmpi_vars
+
+.build_test_install_xyce_cts:
+  extends: .build_test_install_xyce
+  script:
+    - set -e
+    - cloneAllXyceRepos
+    # so admsXml will be found
+    - export PATH="${PATH}:${admsInstallDir}/bin"
+    - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\\\n')"
+    - |
+      case $(hostname) in
+        flight*)
+          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci"
+          ;;
+        *)
+          SBATCH_EXTRA_ARGS=""
+          ;;
+      esac
+    - echo "Trilinos_DIR=${Trilinos_DIR}"
+    - sbatch ${SBATCH_EXTRA_ARGS}
+        --wait
+        --time=3:59:00
+        --job-name=xyce_ci
+        --account=FY200136
+        --partition=short,batch
+        ${CI_PROJECT_DIR}/gitlab-ci/cts-sbatch-ctest.sh "${rawCmakeArgsList}" "${xyceInstallDir}" "${CI_PROJECT_DIR}"
+    # clean out the installation directory
+    - cleanInstallDir "${xyceInstallDir}"
+    - cmake --install ${CI_PROJECT_DIR}/repos/build
+
+GNU_OpenMPI.cts.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce_cts
+    - .gnu_openmpi_cts_vars
+
+GNU_serial.cts.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce_cts
+    - .gnu_serial_cts_vars
+
+Intel_OpenMPI.cts.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce_cts
+    - .intel_openmpi_cts_vars
+
+Intel_serial.cts.buildTestInstallXyce:
+  extends:
+    - .build_test_install_xyce_cts
+    - .intel_serial_cts_vars

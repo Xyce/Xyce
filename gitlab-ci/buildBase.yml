@@ -1,0 +1,82 @@
+.build_base:
+  stage: build
+  variables:
+    CC: ""
+    CXX: ""
+    FC: ""
+    archFullName: ${Arch}-${Platform}-${OS}-${ToolsSpec}-${CompilerSuite}-${ParallelType}
+    archInstallDir: ${BaseInstallDir}/${archFullName}
+    ssInstallDir: ${archInstallDir}/SuiteSparse/${SuiteSparseVersion}
+    admsInstallDir: ${archInstallDir}/ADMS/${ADMSVersion}
+    trilinosInstallDir: ${archInstallDir}/trilinos/${TrilinosVersion}
+    xyceInstallDir: ${archInstallDir}/xyce/${XyceVersion}
+  before_script:
+    # exit immediately when an error happens
+    - set -e
+    - myLoginID=$(whoami)
+    # protect against running as anyone other than xyce-jenkins
+    - |
+      if [[ "${myLoginID}" != "xyce-jenkins" ]]; then
+        echo "Error: Unauthorized user ${myLoginID}"
+        exit 1
+      fi
+    # make a directory for any files. this will be use to create
+    # project artifacts that can help diagnose problems with the
+    # pipeline(s)
+    - mkdir -p ${CI_PROJECT_DIR}/logFiles
+    # directory where xyce repos will be cloned, including another
+    # copy of the "Xyce" repo itself
+    - mkdir -p ${CI_PROJECT_DIR}/repos
+    # load modules for build
+    - |
+      module purge
+      for mod in ${CommonModules} ${MyModules}; do
+        module add "${mod}" || { echo "Error: Failed to add module ${mod}"; exit 1; }
+      done
+    - module list
+    - export CXX=${MyCXX}
+    - export CC=${MyCC}
+    - export FC=${MyFC}
+    # generate branch names for use in cloning repos
+    - |
+      for b in ${BranchList}; do
+        var="${b}Branch"
+        if [[ -z "${!var}" ]]; then
+          declare "${var}=${DEFAULT_BRANCH}"
+        fi
+      done
+    - echo "DEFAULT_BRANCH = ${DEFAULT_BRANCH}"
+    - echo "XyceBranch = ${XyceBranch}"
+    - echo "XyceFTRegressionBranch = ${XyceFTRegressionBranch}"
+    - echo "XyceRegressionBranch = ${XyceRegressionBranch}"
+    - echo "XyceNonFreeBranch = ${XyceNonFreeBranch}"
+    - echo "XyceSandiaModelsBranch = ${XyceSandiaModelsBranch}"
+    - echo "XyceSandiaRegressionBranch= ${XyceSandiaRegressionBranch}"
+    - echo "CI_PIPELINE_SOURCE = ${CI_PIPELINE_SOURCE}"
+    # used to clean out installation directories
+    - |
+      cleanInstallDir() {
+        local installDir="$1"
+        if [ -d "${installDir}" ]; then
+          cd "$(dirname ${installDir})"
+          rm -rf "$(basename ${installDir})"
+        else
+          mkdir -p "${installDir}"
+        fi
+      }
+    - |
+      cloneAllXyceRepos() {
+        cloneRepo() {
+          local branch="$1"
+          local repoName="$2"
+          local cloneToDir="$3"
+          git clone --branch ${branch} git@cee-gitlab.sandia.gov:Xyce/code/${repoName} ${cloneToDir} || { echo "Error: Failed to clone ${repoName} branch ${branch} to ${cloneToDir}"; exit 1; }
+        }
+        # clone all relevant repositories
+        cloneRepo "${XyceBranch}" "uur-proprietary/Xyce.git" "${CI_PROJECT_DIR}/repos/Xyce"
+        cloneRepo "${XyceSandiaModelsBranch}" "ouo-exp/Xyce_SandiaModels.git" "${CI_PROJECT_DIR}/repos/Xyce/src/DeviceModelPKG/SandiaModels"
+        cloneRepo "${XyceNonFreeBranch}" "uur-proprietary/Xyce_NonFree.git" "${CI_PROJECT_DIR}/repos/Xyce/src/DeviceModelPKG/Xyce_NonFree"
+        cloneRepo "${XyceRegressionBranch}" "uur-proprietary/Xyce_Regression.git" "${CI_PROJECT_DIR}/repos/Xyce/Xyce_Regression"
+        cloneRepo "${XyceSandiaRegressionBranch}" "ouo-exp/Xyce_SandiaRegression.git" "${CI_PROJECT_DIR}/repos/Xyce/Xyce_Regression/Xyce_SandiaRegression"
+        cloneRepo "${XyceFTRegressionBranch}" "uur-proprietary/Xyce_FastrackRegression.git" "${CI_PROJECT_DIR}/repos/Xyce/Xyce_Regression/Xyce_FastrackRegression"
+      }

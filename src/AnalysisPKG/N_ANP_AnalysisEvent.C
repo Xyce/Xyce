@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Copyright 2002-2025 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -47,6 +47,14 @@ std::ostream &operator<<(std::ostream &os, const AnalysisEvent::State &state)
     case AnalysisEvent::DC_OP_STARTED:
       os << "DC_OP_STARTED";
       break;
+
+    case AnalysisEvent::DC_OP_SUCCESSFUL:
+      os << "DC_OP_SUCCESSFUL";
+      break;
+
+    case AnalysisEvent::DC_OP_FAILED:
+      os << "DC_OP_FAILED";
+      break;
       
     case AnalysisEvent::DC_OP_GMIN_STEPPING:
       os << "DC_OP_GMIN_STEPPING";
@@ -56,13 +64,22 @@ std::ostream &operator<<(std::ostream &os, const AnalysisEvent::State &state)
       os << "DC_OP_SOURCE_STEPPING";
       break;
 
+    case AnalysisEvent::DC_OP_GMIN_STEPPING_SUCCESSFUL:
+      os << "DC_OP_GMIN_STEPPING_SUCCESSFUL";
+      break;
+
     case AnalysisEvent::DC_OP_GMIN_STEPPING_FAILED:
       os << "DC_OP_GMIN_STEPPING_FAILED";
       break;
-    
+
+    case AnalysisEvent::DC_OP_SOURCE_STEPPING_SUCCESSFUL:
+      os << "DC_OP_SOURCE_STEPPING_SUCCESSFUL";
+      break;  
+
     case AnalysisEvent::DC_OP_SOURCE_STEPPING_FAILED:
       os << "DC_OP_SOURCE_STEPPING_FAILED";
       break;  
+
     case AnalysisEvent::STEP_STARTED:
       os << "STEP_STARTED";
       break;

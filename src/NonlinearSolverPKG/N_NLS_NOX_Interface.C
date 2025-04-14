@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2023 National Technology & Engineering Solutions of
+//   Copyright 2002-2025 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -338,7 +338,7 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
     // return to their initial state before starting gmin stepping.
     firstSolveComplete_ = false;
 
-    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::STEP_FAILED, Analysis::AnalysisEvent::DC));
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_FAILED, Analysis::AnalysisEvent::DC));
     int saveSolverType=paramsPtr->getNoxSolverType();
     paramsPtr->setNoxSolverType(3);
     groupPtr_->setNonContinuationFlag (false);
@@ -407,11 +407,25 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
           groupPtr_->computeF();
         }
       }
+      else
+      {
+        analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SOURCE_STEPPING_SUCCESSFUL, Analysis::AnalysisEvent::DC, stepperPtr_->getContinuationParameter()));
+
+      }
 
       paramsPtr->setNoxSolverType(saveSolverType);
 
       nonlinearEquationLoader_->resetScaledParams();
     }
+    else
+    {
+      double finalGmin = std::pow(10.0, stepperPtr_->getContinuationParameter());
+      analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_GMIN_STEPPING_SUCCESSFUL, Analysis::AnalysisEvent::DC, finalGmin));
+    }
+  }
+  else
+  {
+    analysisManager_->notify(Analysis::AnalysisEvent(Analysis::AnalysisEvent::DC_OP_SUCCESSFUL, Analysis::AnalysisEvent::DC));
   }
 
   delete initVec;

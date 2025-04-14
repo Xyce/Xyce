@@ -4,7 +4,7 @@
 % Department of Energy's National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2024 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2025 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 %%
@@ -45,6 +45,12 @@
   \textbf{Xyce Project Backlog/884}: Fix doping interpolations to for 1D PDE (TCAD) device to be more robust
   & The interpolation of doping profiles was not working correctly, when the parameter "nmaxchop" was used.  
   This resulted in unphysical noisy solutions in regions of high doping.  This has been fixed.
+  \\\hline
+  
+  \textbf{Xyce Project Backlog/953}: Uninitialized return variables can cause Xyce to exit.
+  &  Xyce's parameter class could return an uninitialized value in some instances when 
+  netlist parsing was expecting a numeric value and none was found.  With some newer compilers
+  this caused a premature exit of the code.  This issue has been fixed.
   \\\hline
   
 \textbf{Xyce Project Backlog/xxx}: Description

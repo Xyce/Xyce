@@ -1,0 +1,96 @@
+include:
+  - gitlab-ci/variables/build-var-sets.yml
+  
+.test_modules:
+  stage: testModules
+  dependencies: []
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - |
+      case $(hostname) in
+        flight*)
+          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci"
+          ;;
+        *)
+          SBATCH_EXTRA_ARGS=""
+          ;;
+      esac
+  rules:
+    - if: $DO_TEST_MODULES == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+
+GNU_serial.testModule:
+  extends:
+    - .test_modules
+    - .gnu_serial_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - module load xyce/${XyceVersion}/${CompilerSuite}/serial
+    - Xyce -capabilities
+
+GNU_OpenMPI.testModule:
+  extends:
+    - .test_modules
+    - .gnu_openmpi_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - module load xyce/${XyceVersion}/${CompilerSuite}/parallel
+    - mpirun -np 1 Xyce -capabilities
+
+Intel_serial.testModule:
+  extends:
+    - .test_modules
+    - .intel_serial_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - module load xyce/${XyceVersion}/${CompilerSuite}/serial
+    - Xyce -capabilities
+
+GNU_OpenMPI.testModule:
+  extends:
+    - .test_modules
+    - .intel_openmpi_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - module load xyce/${XyceVersion}/${CompilerSuite}/parallel
+    - mpirun -np 1 Xyce -capabilities
+
+GNU_serial.cts.testModule:
+  extends:
+    - .test_modules
+    - .gnu_serial_cts_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XyceVersion}/${CompilerSuite}/serial; Xyce -capabilities"
+
+GNU_OpenMPI.cts.testModule:
+  extends:
+    - .test_modules
+    - .gnu_openmpi_cts_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XyceVersion}/${CompilerSuite}/parallel; mpirun -np 1 Xyce -capabilities"
+    
+Intel_serial.cts.testModule:
+  extends:
+    - .test_modules
+    - .intel_serial_cts_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XyceVersion}/${CompilerSuite}/serial; Xyce -capabilities"
+
+Intel_OpenMPI.cts.testModule:
+  extends:
+    - .test_modules
+    - .intel_openmpi_cts_vars
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XyceVersion}/${CompilerSuite}/parallel; mpirun -np 1 Xyce -capabilities"

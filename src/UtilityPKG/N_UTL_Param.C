@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2024 National Technology & Engineering Solutions of
+//   Copyright 2002-2025 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -595,7 +595,7 @@ bool Param::getImmutableValue<bool>() const
 template<>
 double Param::getMutableValue<double>() const
 {
-  double val;
+  double val=0.0;
 
   if (data_->enumType() != DBLE)
   {
@@ -672,7 +672,7 @@ double Param::getMutableValue<double>() const
 template<>
 std::complex<double> Param::getMutableValue< std::complex<double> >() const
 {
-  std::complex<double> val;
+  std::complex<double> val(0.0,0.0);
 
   if (data_->enumType() != CMPLX)
   {
@@ -749,7 +749,7 @@ std::complex<double> Param::getMutableValue< std::complex<double> >() const
 template<>
 int Param::getMutableValue<int>() const
 {
-  int val;
+  int val=0;
   double dVal;
 
   if (data_->enumType() != INT)
@@ -830,7 +830,7 @@ int Param::getMutableValue<int>() const
 template<>
 long Param::getMutableValue<long>() const
 {
-  long val;
+  long val=0L;
   double dVal;
 
   if (data_->enumType() != LNG)
@@ -911,7 +911,7 @@ long Param::getMutableValue<long>() const
 template<>
 bool Param::getMutableValue<bool>() const
 {
-  bool rVal;
+  bool rVal=false;
   if (data_->enumType() == DBLE)
   {
     rVal = (getValue<double>() != 0.0);
