@@ -15,6 +15,7 @@
 #   -DNUM_PROCS=<N> 
 #   -DTDEV_BUILD=<TRUE|FALSE>
 #   -DUSE_CPACK_INSTALLER=<TRUE|FALSE>
+#   -DUSE_CMAKE_PATH=</path/to/copy/of/cmake/to/use>
 
 cmake_minimum_required(VERSION 3.23)
 
@@ -290,6 +291,11 @@ if(NOT DEFINED USE_CPACK_INSTALLER)
   set(USE_CPACK_INSTALLER FALSE)
 endif()
 
+# default FALSE
+if(NOT DEFINED USE_CMAKE_PATH)
+  set(USE_CMAKE_PATH FALSE)
+endif()
+
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
   message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
@@ -435,10 +441,22 @@ if(VERBOSITY GREATER 4)
   message("[VERB5]: XYCE_CMAKE_CONF_ARG = ${XYCE_CMAKE_CONF_ARG}")
 endif()
 
-# generate the cmake configuration command
-find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
-set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
+if( NOT USE_CMAKE_PATH )
+  # generate the cmake configuration command
+  find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
+else()
+  set(CTEST_CMAKE_COMMAND ${USE_CMAKE_PATH})
+endif()
+# use ninja if found
+find_program(NINJA_COMMAND ninja)
+if(NINJA_COMMAND MATCHES "NINJA_COMMAND-NOTFOUND" )
+  set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+  set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
+else()
+  set(CTEST_CMAKE_GENERATOR "Ninja Multi-Config")
+  set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GNinja Multi-Config\"")
+  set(CTEST_CONFIGURATION_TYPE "Release")
+endif()
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} -DBUILD_TESTING=${BUILD_TESTING}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${CTEST_SOURCE_DIRECTORY}")
@@ -458,25 +476,17 @@ ctest_configure(RETURN_VALUE confReturnVal)
 # this runs make
 ctest_build(RETURN_VALUE buildReturnVal)
 
-# Call cpack to generate an installer if requested.  
-if(USE_CPACK_INSTALLER)
-  execute_process(COMMAND cpack WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY})
-endif()
-
 # if the build succeeds, as indicated by a zero return value, proceed,
 # otherwise skip to submission
 set(testReturnVal 0) # initialize
 if(buildReturnVal EQUAL 0)
   if(USE_CTEST_TESTING)
-    # the VERILOGPLUGIN tests don't work with a build of xyce, they
-    # require an installation as well
     if(VERBOSITY GREATER 1)
-      message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS}")
+      message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS} and label ${XYCE_TEST_LABEL_FILTER}")
     endif()
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
-      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}"
-      EXCLUDE "^VERILOGPLUGIN.*")
+      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}")
     if(VERBOSITY GREATER 1)
       message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
     endif()
@@ -580,6 +590,11 @@ if(buildReturnVal EQUAL 0)
       
     endforeach()
   endif()
+endif()
+
+# Call cpack to generate an installer if requested.  
+if(USE_CPACK_INSTALLER)
+  execute_process(COMMAND cpack WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY})
 endif()
 
 # submit results to the dashboard
