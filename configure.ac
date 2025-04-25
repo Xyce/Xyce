@@ -1173,18 +1173,6 @@ if test -d $srcdir/Xyce_UnitTests; then
   AC_SUBST([MAYBE_UNITTESTS])
 fi
 
-AC_MSG_WARN(
-[
 
-****************************************************************
-Xyce has deprecated the autotools configuration and build
-system for release 7.10.  The CMake configuration and
-build system will be the default for release 7.11.
-
-Please consult the CMake building guide for updated information:
-
-  https://github.com/Xyce/Xyce/blob/master/INSTALL.md
-****************************************************************
-])
 
 AC_OUTPUT
