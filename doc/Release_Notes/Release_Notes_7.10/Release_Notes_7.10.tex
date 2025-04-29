@@ -100,7 +100,12 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
-\item 
+  \item Xyce has deprecated the autotools configuration and build system for release 7.10.  
+  Support for autotools will be removed and the CMake configuration and build system will be the default for release 7.11.  
+  This change is to facilitate planned integrations with new features and capabilities from Trilinos that are not available in the older autotools compliant versions.  
+  This notice is only relevant for users that build Xyce from source code.
+  Please consult the CMake building guide for updated information: \newline
+  {\color{XyceDeepRed}\url{https://github.com/Xyce/Xyce/blob/master/INSTALL.md}}. 
 \end{XyceItemize}
 
 \newpage
