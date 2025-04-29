@@ -145,6 +145,8 @@ file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "};\n" )
 file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "Bootstrap s_bootstrap;\n" )
 # done making the bootstrap file.
 
+add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
+
 add_library("${library_name}" SHARED ${SourceFiles} ${BootstrapFileName} )
 target_include_directories( "${library_name}" PUBLIC ${CMAKE_CURRENT_BINARY_DIR} @CMAKE_BINARY_DIR@/src @XYCE_INCLUDE_DIRECTORIES@)
 target_link_libraries( "${library_name}" ${XYCE_LIBRARY})

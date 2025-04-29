@@ -18,7 +18,6 @@ include:
     GTest_ROOT: /projects/xyce/GTest/RHEL7
     MYBUILDNAME: Xyce/${XyceVersion}-${archFullName}
     cmakeArgsList: |
-      -GNinja;\
       --log-level=STATUS;\
       -DXyce_REGRESSION=ON;\
       -DFLEX_ROOT=/projects/xyce/flexbison;\
@@ -88,13 +87,14 @@ Intel_OpenMPI.buildTestInstallXyce:
     # so admsXml will be found
     - export PATH="${PATH}:${admsInstallDir}/bin"
     - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\\\n')"
+    - licenseArg="--licenses=pscratch,tscratch"
     - |
       case $(hostname) in
         flight*)
-          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci"
+          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci ${licenseArg}"
           ;;
         *)
-          SBATCH_EXTRA_ARGS=""
+          SBATCH_EXTRA_ARGS="${licenseArg}"
           ;;
       esac
     - echo "Trilinos_DIR=${Trilinos_DIR}"
