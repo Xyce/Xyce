@@ -55,8 +55,8 @@ message(STATUS "[DBG]: XyceBuildDir: @CMAKE_CURENT_BINARY_DIR@")
 message(STATUS "[DBG]: XYCE_BINARY: ${XYCE_BINARY}")
 
 # set up compiler to the same as used for Xyce
-#set(CMAKE_CXX_COMPILER ${Xyce_CXX_COMPILER})
-#set(CMAKE_CXX_COMPILER_FLAGS ${Xyce_CXX_COMPILER_FLAGS})
+set(CMAKE_CXX_COMPILER @XYCE_CXX_COMPILER@)
+#set(CMAKE_CXX_COMPILER_FLAGS @XYCE_CXX_COMPILER_FLAGS@)
 enable_language(CXX)
 
 # Determine library name.
