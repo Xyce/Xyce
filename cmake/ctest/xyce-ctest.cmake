@@ -497,7 +497,11 @@ if(buildReturnVal EQUAL 0)
     # only relevant for run_xyce_regression
 
     # generate the taglist for the regression testing script
-    set(XYCE_EXE "${CTEST_BINARY_DIRECTORY}/src/${CTEST_CONFIGURATION_TYPE}/Xyce")
+    if(CTEST_CONFIGURATION_TYPE)
+      set(XYCE_EXE "${CTEST_BINARY_DIRECTORY}/src/${CTEST_CONFIGURATION_TYPE}/Xyce")
+    else()
+      set(XYCE_EXE "${CTEST_BINARY_DIRECTORY}/src/Xyce")
+    endif()
 
     GET_XYCE_CAPABILITIES(${XYCE_EXE})
 
