@@ -20,6 +20,7 @@ set(CMAKE_CXX_FLAGS "@CMAKE_CXX_FLAGS@")
 link_directories("${XYCE_INSTALL}/lib")
 
 # Build shared library.
+add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
 add_library("${library_name}" SHARED ${src_files})
 target_include_directories("${library_name}" PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}
