@@ -87,14 +87,13 @@ Intel_OpenMPI.buildTestInstallXyce:
     # so admsXml will be found
     - export PATH="${PATH}:${admsInstallDir}/bin"
     - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\\\n')"
-    - licenseArg="--licenses=pscratch,tscratch"
     - |
       case $(hostname) in
         flight*)
-          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci ${licenseArg}"
+          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci ${CTS_LICENSE_ARG}"
           ;;
         *)
-          SBATCH_EXTRA_ARGS="${licenseArg}"
+          SBATCH_EXTRA_ARGS="${CTS_LICENSE_ARG}"
           ;;
       esac
     - echo "Trilinos_DIR=${Trilinos_DIR}"
