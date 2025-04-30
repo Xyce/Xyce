@@ -75,9 +75,9 @@
     BuildWithMPI: "OFF"
     TrilinosCmakeConfigFile: trilinos-new-base.cmake
     CompilerSuite: intelone_2024.1
-    MyCXX: icpx
-    MyCC: icx
-    MyFC: ifx
+    MyCXX: "icpx -fp-model=precise"
+    MyCC: "icx -fp-model=precise"
+    MyFC: "ifx -fp-model=precise"
     MyModules: "
       aue/intel-oneapi-compilers/2024.1.0
       aue/intel-oneapi-mkl/2024.1.0
