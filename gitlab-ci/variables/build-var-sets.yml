@@ -75,9 +75,12 @@
     BuildWithMPI: "OFF"
     TrilinosCmakeConfigFile: trilinos-new-base.cmake
     CompilerSuite: intelone_2024.1
-    MyCXX: "icpx -fp-model=precise"
-    MyCC: "icx -fp-model=precise"
-    MyFC: "ifx -fp-model=precise"
+    CFLAGS: "-fp-model=precise"
+    CXXFLAGS: "-fp-model=precise"
+    FFLAGS: "-fp-model=precise"
+    MyCXX: icpx
+    MyCC: icx
+    MyFC: ifx
     MyModules: "
       aue/intel-oneapi-compilers/2024.1.0
       aue/intel-oneapi-mkl/2024.1.0
@@ -97,6 +100,9 @@
     BuildWithMPI: "ON"
     TrilinosCmakeConfigFile: trilinos-new-base.cmake
     CompilerSuite: intelone_2024.1
+    CFLAGS: "-fp-model=precise"
+    CXXFLAGS: "-fp-model=precise"
+    FFLAGS: "-fp-model=precise"
     MyCXX: mpic++
     MyCC: mpicc
     MyFC: mpif90
