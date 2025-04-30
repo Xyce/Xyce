@@ -33,7 +33,10 @@ include:
     - git checkout ${ADMSVersion} || (echo "Failed to checkout ADMS version ${ADMSVersion}";exit 1)
     - mkdir -p ${CI_PROJECT_DIR}/build/adms
     - cd ${CI_PROJECT_DIR}/build/adms
-    - cmake -GNinja -DCMAKE_INSTALL_PREFIX="${admsInstallDir}" ${CI_PROJECT_DIR}/ADMS
+    - cmake
+        -GNinja
+        -DCMAKE_INSTALL_PREFIX="${admsInstallDir}"
+        "${CI_PROJECT_DIR}/ADMS"
     - ninja ${VerboseNinja} install 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/ninja-log.adms.txt
     #########################################################################
     #########################################################################
