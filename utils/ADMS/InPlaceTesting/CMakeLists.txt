@@ -75,6 +75,7 @@ if(NOT DEFINED VERILOG_FILES)
   message( FATAL_ERROR "No Verilog input files given.  Use -DVERILOG_FILES=\"file1.va;...fileN.va\" to specify verilog inputs.")    
 endif()
 
+set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
 file(REAL_PATH "@CMAKE_SOURCE_DIR@" Xyce_DIR )
 file(REAL_PATH "@CMAKE_CURRENT_SOURCE_DIR@/utils/ADMS" Xyce_XmlDir )
 # strip off leading and trailing quotes if those are there
