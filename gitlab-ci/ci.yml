@@ -103,6 +103,7 @@ trigger_pipeline:
         --form "variables[DO_XYCE_BUILDS]=${DO_XYCE_BUILDS}" \
         --form "variables[DO_MODULE_GENERATION]=${DO_MODULE_GENERATION}" \
         --form "variables[DO_FINALIZE]=${DO_FINALIZE}" \
+        --form "variables[CTS_LICENSE_ARG]=${CTS_LICENSE_ARG}" \
         "https://cee-gitlab.sandia.gov/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline"
   rules:
     - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"

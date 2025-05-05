@@ -75,6 +75,9 @@
     BuildWithMPI: "OFF"
     TrilinosCmakeConfigFile: trilinos-new-base.cmake
     CompilerSuite: intelone_2024.1
+    CFLAGS: "-fp-model=precise"
+    CXXFLAGS: "-fp-model=precise"
+    FFLAGS: "-fp-model=precise"
     MyCXX: icpx
     MyCC: icx
     MyFC: ifx
@@ -97,6 +100,9 @@
     BuildWithMPI: "ON"
     TrilinosCmakeConfigFile: trilinos-new-base.cmake
     CompilerSuite: intelone_2024.1
+    CFLAGS: "-fp-model=precise"
+    CXXFLAGS: "-fp-model=precise"
+    FFLAGS: "-fp-model=precise"
     MyCXX: mpic++
     MyCC: mpicc
     MyFC: mpif90

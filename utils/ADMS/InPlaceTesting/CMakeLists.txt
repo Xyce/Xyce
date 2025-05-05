@@ -3,29 +3,33 @@
 # files for use in Xyce as a plugin library
 #
 # Requirements:
+#  This version assumes that Xyce is being tested from a build directory
+#  and not installed.  This is a modified version of Xyce/utils/ADMS/CMakeLists.txt
+#  and does not get installed. 
+#
 #  1. Xyce must be installed on the machine where this is run.
 #  2. Xyce must have been built with plugin support enabled
 #
 #  If Xyce was built and installed properly, then
 #  these required files will be in place
 #
-#    <Path to Xyce Install>/bin/admsXml
-#    <Path to Xyce Install>/share/CMakeLists.txt
-#    <Path to Xyce Install>/share/xyceAnalogFunction_nosac.xml
-#    <Path to Xyce Install>/share/xxyceBasicTemplates_nosac.xml
-#    <Path to Xyce Install>/share/xyceHeaderFile_nosac.xml
-#    <Path to Xyce Install>/share/xyceImplementationFile_nosac.xml
-#    <Path to Xyce Install>/share/xyceVersion_nosac.xml
+#    somewhere on current path admsXml
+#    <Path to build directory>/utils/ADMS/CMakeListsInPlaceTesting.txt
+#    <Path to Xyce source dir>/utils/ADMS/xyceAnalogFunction_nosac.xml
+#    <Path to Xyce source dir>/utils/ADMS/xxyceBasicTemplates_nosac.xml
+#    <Path to Xyce source dir>/utils/ADMS/xyceHeaderFile_nosac.xml
+#    <Path to Xyce source dir>/utils/ADMS/share/xyceImplementationFile_nosac.xml
+#    <Path to Xyce source dir>/utils/ADMS/share/xyceVersion_nosac.xml
 #
 # How to Run this Script
 # 
-# cmake -DVERILOG_FILES="file1.va;file2.va;..."  <Path to Xyce Install>/share/CMakeLists.txt
+# cmake -DVERILOG_FILES="file1.va;file2.va;..."  <Path to build directory>/utils/ADMS/CMakeListsInPlaceTesting.txt
 #
 # or 
 #
-# cmake -DCMAKE_PREFIX_PATH=<Path to Xyce Install> \
+# cmake -DCMAKE_PREFIX_PATH=<Path to Xyce build directory> \
 #  -DVERILOG_FILES="file1.va;file2.va;..."  \
-#  <Path to Xyce Install>/share/CMakeLists.txt
+#  <Path to build directory>/utils/ADMS/CMakeListsInPlaceTesting.txt
 #
 # Optional variables
 #
@@ -42,15 +46,18 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(xyce_plugin NONE)
 
-# Xyce is required 
-#file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.." XyceDirHint )
-find_package(Xyce REQUIRED HINTS @CMAKE_INSTALL_PREFIX@ @CPACK_PACKAGING_INSTALL_PREFIX@)
+# Xyce is required -- find it from the build system that called this.
+# or maybe it needs to be passed in. 
+find_file(XYCE_BINARY NAMES Xyce Xyce.exe PATHS "@CMAKE_BINARY_DIR@/src/" PATH_SUFFIXES "Release" "Debug"  )
+find_library( XYCE_LIBRARY libxyce.so libxyce.dylib xyce.dll PATHS "@CMAKE_BINARY_DIR@/src/" PATH_SUFFIXES "Release" "Debug"  )
+
+message(STATUS "[DBG]: XyceBuildDir: @CMAKE_CURENT_BINARY_DIR@")
+message(STATUS "[DBG]: XYCE_BINARY: ${XYCE_BINARY}")
 
 # set up compiler to the same as used for Xyce
-set(CMAKE_CXX_COMPILER ${Xyce_CXX_COMPILER})
-set(CMAKE_CXX_COMPILER_FLAGS ${Xyce_CXX_COMPILER_FLAGS})
+set(CMAKE_CXX_COMPILER @XYCE_CXX_COMPILER@)
+#set(CMAKE_CXX_COMPILER_FLAGS @XYCE_CXX_COMPILER_FLAGS@)
 enable_language(CXX)
-set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
 
 # Determine library name.
 if(DEFINED PLUGIN_NAME)
@@ -68,14 +75,19 @@ if(NOT DEFINED VERILOG_FILES)
   message( FATAL_ERROR "No Verilog input files given.  Use -DVERILOG_FILES=\"file1.va;...fileN.va\" to specify verilog inputs.")    
 endif()
 
-
+set(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@")
+file(REAL_PATH "@CMAKE_SOURCE_DIR@" Xyce_DIR )
+file(REAL_PATH "@CMAKE_CURRENT_SOURCE_DIR@/utils/ADMS" Xyce_XmlDir )
+# strip off leading and trailing quotes if those are there
+if( ${VERILOG_FILES} MATCHES "^\"(.*)\"$" )
+  set( VERILOG_FILES ${CMAKE_MATCH_1} )
+endif()
+# change ":" to ";" so we can interpret this as a list
+string(REPLACE ":" ";" VERILOG_FILES ${VERILOG_FILES})
 message(STATUS "Verilog files = ${VERILOG_FILES}")
 message(STATUS "Xyce_DIR = ${Xyce_DIR}")
-file(REAL_PATH "${Xyce_DIR}/../../../bin/" Xyce_BinDir )
-file(REAL_PATH "${Xyce_DIR}/../../../share/" Xyce_XmlDir )
-message(STATUS "Xyce_BinDir = ${Xyce_BinDir}")
 message(STATUS "Xyce_XmlDir = ${Xyce_XmlDir}")
-find_file( AdmsXMLCommand NAMES "admsXml" "admsXml.exe" PATHS ${Xyce_BinDir} REQUIRED )
+set(AdmsXMLCommand @ADMS_XML@)
 message(STATUS "admsXml = ${AdmsXMLCommand}")
 
 set(ModuleNames)
@@ -137,8 +149,8 @@ file( APPEND "${CMAKE_CURRENT_BINARY_DIR}/${BootstrapFileName}"  "Bootstrap s_bo
 add_compile_options("$<IF:$<CXX_COMPILER_ID:IntelLLVM>,-fp-model=precise,>")
 
 add_library("${library_name}" SHARED ${SourceFiles} ${BootstrapFileName} )
-target_include_directories( "${library_name}" PUBLIC ${CMAKE_CURRENT_BINARY_DIR} )
-target_link_libraries( "${library_name}" Xyce::XyceLib)
+target_include_directories( "${library_name}" PUBLIC ${CMAKE_CURRENT_BINARY_DIR} @CMAKE_BINARY_DIR@/src @XYCE_INCLUDE_DIRECTORIES@)
+target_link_libraries( "${library_name}" ${XYCE_LIBRARY})
 
 
 message( INFO "Cmake set-up is done.  Run \"cmake --build .\" to build the plugins.")

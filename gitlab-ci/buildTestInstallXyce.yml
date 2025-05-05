@@ -18,7 +18,6 @@ include:
     GTest_ROOT: /projects/xyce/GTest/RHEL7
     MYBUILDNAME: Xyce/${XyceVersion}-${archFullName}
     cmakeArgsList: |
-      -GNinja;\
       --log-level=STATUS;\
       -DXyce_REGRESSION=ON;\
       -DFLEX_ROOT=/projects/xyce/flexbison;\
@@ -91,10 +90,10 @@ Intel_OpenMPI.buildTestInstallXyce:
     - |
       case $(hostname) in
         flight*)
-          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci"
+          SBATCH_EXTRA_ARGS="--reservation=condo-ascic-ci ${CTS_LICENSE_ARG}"
           ;;
         *)
-          SBATCH_EXTRA_ARGS=""
+          SBATCH_EXTRA_ARGS="${CTS_LICENSE_ARG}"
           ;;
       esac
     - echo "Trilinos_DIR=${Trilinos_DIR}"

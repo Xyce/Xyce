@@ -12,9 +12,10 @@
 #   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE
 #   -DUSE_GITLAB_CI_TESTING=<TRUE|FALSE> # default FALSE
 #   -DCDASH_GROUP=<name> # name of the CDash group to post results to (Nightly, Weekly, Deploy, etc.)
-#   -DNUM_PROCS=<N> 
+#   -DNUM_PROCS=<N>
 #   -DTDEV_BUILD=<TRUE|FALSE>
 #   -DUSE_CPACK_INSTALLER=<TRUE|FALSE>
+#   -DUSE_CMAKE_PATH=</path/to/copy/of/cmake/to/use>
 
 cmake_minimum_required(VERSION 3.23)
 
@@ -290,6 +291,11 @@ if(NOT DEFINED USE_CPACK_INSTALLER)
   set(USE_CPACK_INSTALLER FALSE)
 endif()
 
+# default FALSE
+if(NOT DEFINED USE_CMAKE_PATH)
+  set(USE_CMAKE_PATH FALSE)
+endif()
+
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
   message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
@@ -435,10 +441,24 @@ if(VERBOSITY GREATER 4)
   message("[VERB5]: XYCE_CMAKE_CONF_ARG = ${XYCE_CMAKE_CONF_ARG}")
 endif()
 
-# generate the cmake configuration command
-find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
-set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
+if( NOT USE_CMAKE_PATH )
+  # generate the cmake configuration command
+  find_program(CTEST_CMAKE_COMMAND cmake REQUIRED)
+else()
+  set(CTEST_CMAKE_COMMAND ${USE_CMAKE_PATH})
+endif()
+# use ninja if found
+find_program(NINJA_COMMAND ninja)
+if(NINJA_COMMAND MATCHES "NINJA_COMMAND-NOTFOUND" )
+  set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+  set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GUnix Makefiles\"")
+else()
+  set(CTEST_CMAKE_GENERATOR "Ninja Multi-Config")
+  set(CTEST_CONFIGURE_COMMAND "${CTEST_CMAKE_COMMAND} --log-level=Debug \"-GNinja Multi-Config\"")
+  if(NOT CTEST_CONFIGURATION_TYPE)
+    set(CTEST_CONFIGURATION_TYPE "Release")
+  endif()
+endif()
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${XYCE_CMAKE_CONF_ARG}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} -DBUILD_TESTING=${BUILD_TESTING}")
 set(CTEST_CONFIGURE_COMMAND "${CTEST_CONFIGURE_COMMAND} ${CTEST_SOURCE_DIRECTORY}")
@@ -458,60 +478,58 @@ ctest_configure(RETURN_VALUE confReturnVal)
 # this runs make
 ctest_build(RETURN_VALUE buildReturnVal)
 
-# Call cpack to generate an installer if requested.  
-if(USE_CPACK_INSTALLER)
-  execute_process(COMMAND cpack WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY})
-endif()
-
 # if the build succeeds, as indicated by a zero return value, proceed,
 # otherwise skip to submission
 set(testReturnVal 0) # initialize
 if(buildReturnVal EQUAL 0)
   if(USE_CTEST_TESTING)
-    # the VERILOGPLUGIN tests don't work with a build of xyce, they
-    # require an installation as well
     if(VERBOSITY GREATER 1)
-      message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS}")
+      message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS} and label ${XYCE_TEST_LABEL_FILTER}")
     endif()
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
-      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}"
-      EXCLUDE "^VERILOGPLUGIN.*")
+      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}")
     if(VERBOSITY GREATER 1)
       message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
     endif()
   else()
     # DEPRECATED: We can get rid of this once fully ctest-ified. It's
     # only relevant for run_xyce_regression
-    
+
     # generate the taglist for the regression testing script
-    GET_XYCE_CAPABILITIES(${CTEST_BINARY_DIRECTORY}/src/Xyce)
-    
+    if(CTEST_CONFIGURATION_TYPE)
+      set(XYCE_EXE "${CTEST_BINARY_DIRECTORY}/src/${CTEST_CONFIGURATION_TYPE}/Xyce")
+    else()
+      set(XYCE_EXE "${CTEST_BINARY_DIRECTORY}/src/Xyce")
+    endif()
+
+    GET_XYCE_CAPABILITIES(${XYCE_EXE})
+
     # determine if this was a parallel build, if that is the case
     # testing actually consists of two phases, 1) testing with "mpirun"
     # and then 2) running serial tests that don't have the "nompi" tag
     # directly with the "Xyce" executable
     string(FIND ${TAGLIST} "+parallel" doMpiTesting)
-    
+
     if(doMpiTesting LESS 0 AND MPI_TESTING)
       message(FATAL_ERROR "ERROR: Requested MPI testing but the Xyce binary was not built with MPI support. Taglist: ${TAGLIST}")
     endif()
-    
+
     if(MPI_TESTING)
-      
+
       # if this is an openmpi build and mpi testing was requested run the
       # regression testing script for such tests
       message("performing OpenMPI testing...")
-      
+
       # some tests don't work with mpi
       set(TAGLIST "${TAGLIST}?hb?ac?mpde-klu")
-      
-      set(MPICMD "mpirun -np 2 --bind-to none ${CTEST_BINARY_DIRECTORY}/src/Xyce")
-      
+
+      set(MPICMD "mpirun -np 2 --bind-to none ${XYCE_EXE}")
+
       if(VERBOSITY GREATER 1)
         message("[VERB2]: TAGLIST (parallel)=\"${TAGLIST}\"")
       endif()
-      
+
       RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all" ${MPICMD})
       list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/PbPr_regr_test_results_all")
 
@@ -519,12 +537,12 @@ if(buildReturnVal EQUAL 0)
 
       # if this is a parallel build but serial run, set things accordingly
       string(REPLACE "+parallel" "+serial-nompi" TAGLIST ${TAGLIST})
-      
+
       RUNXYCEREGRESSION(${TAGLIST} "${CTEST_BINARY_DIRECTORY}/regr_test_results_all"
-        ${CTEST_BINARY_DIRECTORY}/src/Xyce)
-      
+        ${XYCE_EXE})
+
       list(APPEND regFileNames "${CTEST_BINARY_DIRECTORY}/regr_test_results_all")
-      
+
     endif()
 
     # run the perl script to summarize results for submission to the dashboard
@@ -540,7 +558,7 @@ if(buildReturnVal EQUAL 0)
 
     # combine multiple results files into a single file
     foreach(fname IN LISTS regFileNames)
-      
+
       # read in the results file and convert it to an XML format suitable
       # for submission to cdash
       message("executing custom xyce regression report script, ${XYCE_CDASH_GEN} for ${fname}")
@@ -553,12 +571,12 @@ if(buildReturnVal EQUAL 0)
         OUTPUT_VARIABLE submitOut
         ERROR_VARIABLE submitOut
         RESULT_VARIABLE xyce_cdash_gen_result)
-      
+
       if(VERBOSITY GREATER 3)
         message("[VERB4]: exit status of script ${XYCE_CDASH_GEN}: ${xyce_cdash_gen_result}")
         message("[VERB4]: screen output from script ${XYCE_CDASH_GEN}: ${submitOut}")
       endif()
-      
+
       # figure out the directory for the dashboard submission and copy the
       # custom results file into it
       GETTESTSUBDIR(${CTEST_BINARY_DIRECTORY}/Testing testSubDirName)
@@ -568,7 +586,7 @@ if(buildReturnVal EQUAL 0)
       if(VERBOSITY GREATER 4)
         message("[VERB5]: Using \"${testSubDirName}\" for test results")
       endif()
-      
+
       # this will convert the "BuildStamp" generated and written to the
       # XML file by the custom xyce perl script to the same generated by
       # ctest. this will make the configure, build, and test results
@@ -577,9 +595,14 @@ if(buildReturnVal EQUAL 0)
         ${testSubDirName}
         $ENV{TESTSET}
         "Test")
-      
+
     endforeach()
   endif()
+endif()
+
+# Call cpack to generate an installer if requested.
+if(USE_CPACK_INSTALLER)
+  execute_process(COMMAND cpack WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY})
 endif()
 
 # submit results to the dashboard

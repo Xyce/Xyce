@@ -137,6 +137,9 @@ if(Xyce_PLUGIN_SUPPORT)
 
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/utils/ADMS)
     configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt @ONLY )
+    get_target_property(XYCE_INCLUDE_DIRECTORIES XyceLib INCLUDE_DIRECTORIES)
+    set(XYCE_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    configure_file(${CMAKE_SOURCE_DIR}/utils/ADMS/InPlaceTesting/CMakeLists.txt ${CMAKE_BINARY_DIR}/utils/ADMS/InPlaceTesting/CMakeLists.txt @ONLY )
     install(
       FILES
         ${CMAKE_BINARY_DIR}/utils/ADMS/CMakeLists.txt
