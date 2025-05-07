@@ -19,17 +19,17 @@ column will be included for the STD, GNUPLOT, SPLOT, NOINDEX and CSV formats.
 
 {
 \begin{PrintCommandTable}{Print Sensitivities for .TRAN and .DC}
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS & \emph{circuit-file}.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=GNUPLOT & \emph{circuit-file}.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=SPLOT & \emph{circuit-file}.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=NOINDEX & \emph{circuit-file}.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=CSV & \emph{circuit-file}.SENS.csv & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$][,$p_n$]* \newline
 .PRINT SENS FORMAT=TECPLOT & \emph{circuit-file}.SENS.dat & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
 
 \end{PrintCommandTable}
@@ -37,17 +37,17 @@ column will be included for the STD, GNUPLOT, SPLOT, NOINDEX and CSV formats.
 
 {
 \begin{PrintCommandTable}{Print Sensitivities for .AC}
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$1][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS & \emph{circuit-file}.FD.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$1][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=GNUPLOT & \emph{circuit-file}.FD.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$1][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=SPLOT & \emph{circuit-file}.FD.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$1][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=NOINDEX & \emph{circuit-file}.FD.SENS.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$1][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$1][,$p_n$]* \newline
 .PRINT SENS FORMAT=CSV & \emph{circuit-file}.FD.SENS.csv & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
-.SENS [objvars\textbar acobjfunc]={<$obj$>} \newline + param=[$p_1$][,$p_n$]* \newline
+.SENS [objvars\textbar acobjfunc]={<\{$obj$\}>} \newline + param=[$p_1$][,$p_n$]* \newline
 .PRINT SENS FORMAT=TECPLOT & \emph{circuit-file}.FD.SENS.dat & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}[dir\textbar adj], d{\_}\{$obj$\}/d{\_}$p_n${\_}[dir\textbar adj] \newline \\ \hline
 
 \end{PrintCommandTable}
@@ -55,13 +55,13 @@ column will be included for the STD, GNUPLOT, SPLOT, NOINDEX and CSV formats.
 
 {
 \begin{PrintCommandTable}{Print Transient Adjoint Sensitivities}
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT TRANADJOINT & \emph{circuit-file}.TRADJ.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}adj, d{\_}\{$obj$\}/d{\_}$p_n${\_}adj \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT TRANADJOINT FORMAT=NOINDEX & \emph{circuit-file}.TRADJ.prn & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}adj, d{\_}\{$obj$\}/d{\_}$p_n${\_}adj \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$1][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$1][,$p_n$]* \newline
 .PRINT TRANADJOINT FORMAT=CSV & \emph{circuit-file}.TRADJ.csv & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}adj, d{\_}\{$obj$\}/d{\_}$p_n${\_}adj \newline \\ \hline
-.SENS objfunc={<$obj$>} param=[$p_1$][,$p_n$]* \newline
+.SENS objfunc={<\{$obj$\}>} param=[$p_1$][,$p_n$]* \newline
 .PRINT TRANADJOINT FORMAT=TECPLOT & \emph{circuit-file}.TRADJ.dat & \{$obj$\}, d{\_}\{$obj$\}/d{\_}$p_1${\_}adj, d{\_}\{$obj$\}/d{\_}$p_n${\_}adj \newline \\ \hline
 
 \end{PrintCommandTable}
