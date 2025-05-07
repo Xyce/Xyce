@@ -60,34 +60,8 @@ namespace Device {
  */
 class DeviceModel : public DeviceEntity
 {
-  enum mType {TEMP, DOSE};
-  enum iType {LIN, QUAD, PWL};
-  enum fitType {LINEAR_FIT, LOG_FIT};
 
 public:
-  /**
-   * Add the parameter "TEMPMODEL" to the parametric_data.
-   *
-   * @param parametric_data
-   */
-  template<class T>
-  static void initThermalModel(ParametricData<T> &parametric_data)
-  {
-    parametric_data.addPar("TEMPMODEL", "NONE", &DeviceModel::temperatureModel)
-      .setCategory(CAT_CONTROL)
-      .setDescription("Specifies the type of parameter interpolation over temperature");
-  }
-
-  /**
-   * Add the parameter "DOSEMODEL" to the parametric_data.
-   *
-   * @param parametric_data
-   */
-  template<class T>
-  static void initDoseModel(ParametricData<T> &parametric_data)
-  {
-    parametric_data.addPar("DOSEMODEL", "NONE", &DeviceModel::doseModel);
-  }
 
   DeviceModel(
      const ModelBlock &        model_block,
@@ -141,13 +115,6 @@ public:
     return true;
   }
 
-  // ERK.  these 4 functions are used for interpolating model parameters w.r.t. 
-  // temperature and/or dose.
-  void saveParams ();
-  bool interpolateTNOM (double);
-  bool interpolateDOSE (double);
-  void restoreParams ();
-
   virtual bool getBinPrefixFlag ()
   {
     return false;
@@ -176,11 +143,6 @@ public:
 
 private:
 
-  // these two functions are used for interpolating model parameters w.r.t. 
-  // temperature and/or dose
-  bool interpolated ();
-  bool interpolate (double);
-
 public:
   int getLevel() const
   {
@@ -206,17 +168,6 @@ private:
   int                                   level_;
   std::string                           temperatureModel;
   std::string                           doseModel;
-  mType                                 iModel;
-  iType                                 iMethod;
-  double                                base_temp;
-  std::map<std::string, int>            fitMap;
-  std::vector<double DeviceEntity::*>   fitParams;
-  std::vector<double>                   oldParams;
-  std::vector<double>                   base;
-  std::vector< std::vector<double> >    fit;
-  std::vector<double>                   min_par;
-  std::vector<double>                   max_par;
-  std::vector<fitType>                  parType;
 };
 
 } // namespace Device

@@ -3362,11 +3362,7 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B3SOI::Model> &p)
   p.addPar("BUG1830FIX",0,&MOSFET_B3SOI::Model::bug1830fix)
     .setCategory(CAT_RF)
     .setDescription("Voltage limter fix for bug 1830");
-
-  // Thermal model setup:
-  DeviceModel::initThermalModel(p);
 }
-
 
 // static jacobian maps:
 
@@ -7391,16 +7387,6 @@ if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugT
   {
     temp = temp_tmp;
     temp += dtemp;
-  }
-
-  if (model_.interpolateTNOM(temp))
-  {
-    // make sure interpolation doesn't take any resistance negative
-    if (model_.sheetResistance < 0.0) model_.sheetResistance = 0.0;
-    if (model_.rshg < 0.0) model_.rshg = 0.0;
-
-    // some params may have changed during interpolation
-    model_.processParams();
   }
 
   Tnom = model_.tnom;

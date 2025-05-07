@@ -616,8 +616,6 @@ void Traits::loadModelParameters(ParametricData<VDMOS::Model> &p)
      .setUnit(U_NONE)
      .setCategory(ParameterCategory(CAT_PROCESS | UNDOCUMENTED))
      .setDescription("");
-
-    DeviceModel::initThermalModel(p);
 }
 
 std::vector< std::vector<int> > Instance::jacStamp_DC_SC_GC;
@@ -3613,19 +3611,6 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   {
     temp = temp_tmp;
     temp += dtemp;
-  }
-
-  if (model_.interpolateTNOM(temp))
-  {
-    // make sure interpolation doesn't take any resistance negative
-    if(model_.sheetResistance  < 0) model_.sheetResistance = 0;
-    if(model_.drainResistance  < 0) model_.drainResistance = 0;
-    if(model_.gateResistance   < 0) model_.gateResistance  = 0;
-    if(model_.sourceResistance < 0) model_.sourceResistance= 0;
-    if(model_.D1DIOresist      < 0) model_.D1DIOresist = 0;
-
-    // some params may have changed during interpolation
-    model_.processParams();
   }
 
   VMAX = model_.maxDriftVel;

@@ -332,8 +332,6 @@ void Traits::loadModelParameters(ParametricData<MOSFET1::Model> &p)
    .setUnit(U_NONE)
    .setCategory(CAT_MATERIAL)
    .setDescription("Gate material type (-1 = same as substrate) 0 = aluminum,1 = opposite of substrate)");
-
-  DeviceModel::initThermalModel(p);
 }
 
 std::vector< std::vector<int> > Instance::jacStamp_DC_SC;
@@ -3522,11 +3520,6 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   {
     temp = temp_tmp;
     temp += dtemp;
-  }
-
-  if (model_.interpolateTNOM(temp))
-  {
-    model_.processParams();
   }
 
   tnom = model_.tnom;
