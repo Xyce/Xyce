@@ -1,12 +1,7 @@
 # Xyce Configure, Build and Installation Guide Using CMake
 
-__IMPORTANT NOTE: THE CMAKE SYSTEM IS ACTIVELY BEING DEVELOPED__
-
-This means, if you are reading these instructions from a non-release
-branch/tag, they could be out-of-date. If you need the latest Xyce
-capabilities, it is recommended to use the Autotools build, as documented on
-the [Xyce Building
-Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
+> [!NOTE]
+> __The Autotools configuration and build system is DEPRECATED in Xyce 7.10__
 
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -15,11 +10,13 @@ This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).
 (For instructions on building Xyce with the Autotools system, see the
-[Xyce Building Guide](https://xyce.sandia.gov/documentation-tutorials/building-guide/).)
+[Xyce Building Guide - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide/).)
 
 If you do not want to build from source, binary installers for Windows, Mac and
-Red Hat Linux are made available for every release of Xyce on the
-[Xyce website](https://xyce.sandia.gov).
+Red Hat Linux are made available for the latest release of Xyce on the
+[Xyce website](https://xyce.sandia.gov). Installers for previous versions of Xyce
+may be made available upon request at the Xyce [contact-us](https://xyce.sandia.gov/contact-us/)
+page.
 
 Xyce can be built in two variants: serial or with MPI parallelism. The variant
 is determined by whether Trilinos is built in serial or with MPI. While the
@@ -32,11 +29,8 @@ release tarballs either from GitHub or the [Xyce website](https://xyce.sandia.go
 
 The main challenge in building Xyce involves properly obtaining and/or building
 the third-party libraries (TPLs), particularly
-[Trilinos](https://trilinos.github.io/). We are in the process of developing a
-CMake "superbuild" capability that can automatically download and build many of
-the TPLs. The [Using the Superbuild](#using-the-superbuild) section covers that
-approach. The [Standard Build Approach](#standard-build-approach) section
-covers the more traditional method. For either method, a certain minimal set of
+[Trilinos](https://trilinos.github.io/). The [Standard Build Approach](#standard-build-approach) 
+section covers the traditional build method. A certain minimal set of
 dependencies are required, which is covered first.
 
 Note that the install/uninstall commands may require the use of `sudo` on
@@ -50,7 +44,6 @@ Some systems require modifications to the following instructions. These are
 covered in the [System-Specific Modifications](#system-specific-modifications)
 section for the following systems:
 - [Windows](#windows)
-- [Cygwin](#cygwin)
 - [Ubuntu](#ubuntu) (17.10, 18.x and 19.x)
 - [MacOS](#macos)
 
@@ -62,7 +55,7 @@ systems. (See the Modifications section for [MacOS](#macos) and
 
 You will need to obtain the following tools if they aren't already loaded on
 your system:
-- C/C++ compiler suite — C++11-compatible (e.g., gcc 4.9 or later, Clang 3.3 or
+- C/C++ compiler suite — C++17-compatible (e.g., gcc 9 or later, Clang 5 or
   later)\
   (These could be in separate packages on your system.)
 - Fortran compiler (e.g., gfortran)
@@ -138,10 +131,26 @@ will need to be built from source.
 
 #### Building SuiteSparse
 
-Building SuiteSparse is not difficult. However, the only part of SuiteSparse
-used by Xyce is AMD. As an alternative building process, we have provided a
-"CMakeLists.txt" file in the `Xyce/cmake/trilinos/AMD/` directory. Using CMake,
-the file will allow you to compile and install _only_ the AMD library. See the
+Building SuiteSparse is not difficult, and the more recent versions provide build 
+support with CMake. For building SuiteSparse with CMake, We recommend version 
+version 7.8.3 or newer. Xyce only depends on the AMD and SuiteSparse_config packages
+in SuiteSparse.
+
+```sh
+cmake \
+-D CMAKE_INSTALL_PREFIX=</path/to/install/SuiteSparse> \
+-D SUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd" \
+-S <path to source folder>\ 
+-B <path to build folder>\
+
+cmake --build <> -j 2 -t install
+```
+
+As an alternative building process, we have provided a
+"CMakeLists.txt" file in the `Xyce/cmake/trilinos/AMD/` directory. This 
+"CMakeLists.txt file is primarily intended to provide a CMake compatible build
+option for older versions of SuiteSparse (before SuiteSparse included CMake support).
+The file will allow you to compile and install _only_ the AMD library. See the
 comment block at the top of the [file](cmake/trilinos/AMD/CMakeLists.txt) for
 instructions on its use.
 
@@ -327,43 +336,6 @@ there are some differences from the website:
 - The name of the plugin file can vary by system (e.g., on a Mac, the "toys"
   library will be called, "libtoys.dylib", not "toys.so").
 
-## Using the Superbuild
-
-__AT THE TIME OF THIS WRITING, THE SUPERBUILD DOES NOT WORK. IT WILL BE
-ADDRESSED AS PART OF THE CMake REWRITE__
-
-While easy, this approach has not been thoroughly tested, so should be
-considered a "beta" capability. Also, it currently installs everything into an
-"install" directory in the build directory, which may not be ideal for most
-users. Therefore, we encourage people to use the [standard build
-approach](#standard-build-approach), which involves only a few more steps.
-
-Assuming the dependencies have been installed, CMake will automatically build
-the following components:
-- ADMS
-- FFTW
-- SuiteSparse
-- Trilinos
-
-Then CMake will compile a serial build of Xyce that enables the (optional)
-[Xyce/ADMS](https://xyce.sandia.gov/documentation-tutorials/xyce-adms-users-guide/)
-model plugin capability. Note that, since CMake is building several packages,
-the process could take a long time.
-
-To perform a superbuild, follow this procedure:
-- Create a "build" directory somewhere on your system (the location and
-  directory name are not important)
-- From the build directory, run the following command:
-  ```sh
-  cmake -D Xyce_USE_SUPERBUILD=ON path/to/Xyce
-  ```
-- Then run
-  ```sh
-  cmake --build . -j 2
-  ```
-  The "-j 2" designates the number of processors to be used for compiling.
-  Choose an appropriate number for your system.
-
 ## Uninstalling Xyce
 
 The Xyce CMake does not create an uninstall script. However, on installation it
@@ -425,6 +397,7 @@ for specific systems are added below as we become aware of them.
 
 ### Windows
 
+*Build tools:*  
 Compiling Xyce on Windows is not a small task at the moment, primarily because
 Windows does not have the equivalent of a package manager. Internally, we use
 the Intel compiler suite with the Intel [Math Kernel
@@ -434,41 +407,24 @@ for FFTW). At the beginning of 2021, Intel rebranded their tool chains as the
 [oneAPI](https://software.intel.com/content/www/us/en/develop/tools/oneapi.html)
 Toolkits, and makes them available for free. The [oneAPI Base
 Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html)
-is sufficient for building Xyce and Trilinos. Running the setvars.bat script 
-that installs with oneAPI can help ensure that the necessary environment 
+is sufficient for building Xyce and Trilinos. Running the setvars.bat 
+(Component Directory Layout) or oneapi-vars.bat (Unified Directory Layout) 
+script that installs with oneAPI can help ensure that the necessary environment 
 variables and paths are set for building.
 
-Note that the oneAPI toolkit requires 
+Note that the oneAPI toolkit requires a compatible version of
 [Microsoft C++ BuildTools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-to be installed first to provide required system libraries. The Microsoft
-Build Tools will also supply CMake and the NMAKE build tool. 
+to be installed first to provide required system libraries. Check the 
+[Intel compiler compatibility site](https://www.intel.com/content/www/us/en/developer/articles/reference-implementation/intel-compilers-compatibility-with-microsoft-visual-studio-and-xcode.html).
+To find a suitable version of BuildTools, you may need to refer to one of the 
+Long Term Servicing Channels for Visual Studio [2022](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#release-dates-and-build-numbers) or [2019](https://learn.microsoft.com/en-us/visualstudio/releases/2019/history).
+The Microsoft Build Tools will also supply CMake, as well as several supported 
+build tool options (msbuild, nmake and ninja).
 
-When building Trilinos on Windows, cloning and configuring take a few extra
-steps. To clone on Windows, it may be necessary to to do a sparse checkout;
-for a brief period of time in Trilinos, there were a few files of the form
-`aux.*` which caused an issue in Windows. To work around this issue,
-
-```
-git clone ^
-    --branch develop ^
-    --single-branch ^
-    --no-checkout ^
-    --sparse ^
-    --config core.protectNTFS=false ^
-    --shallow-since 2022-09-15 ^
-    https://github.com/trilinos/Trilinos.git ^
-    source/Trilinos
-
-pushd source\Trilinos
-git sparse-checkout init
-git sparse-checkout set --no-cone "/*" "!/packages/muelu/research"
-git checkout b91cc3dcd9
-popd
-```
-
-Trilinos does not test their code on Windows. The initial configuration file
-for Trilinos in `path/to/Xyce/cmake/trilinos/trilinos-base.cmake` may
-require a few extra options:
+Trilinos does not test their code on Windows (versions 14.0 and earlier may be 
+unstable on Windows platforms). The initial configuration file for Trilinos in 
+`path/to/Xyce/cmake/trilinos/trilinos-base.cmake` may require a few extra 
+options:
 ```
 cmake ^
     -C path\to\Xyce\cmake\trilinos\trilinos-base.cmake ^
@@ -493,40 +449,52 @@ added in generating the build configuration.
 -D Xyce_USE_INTEL_FFT=TRUE
 ```
 
-The Xyce regression suite must be run in a Unix-like environment with Perl.
-Therefore, to use it in Windows, you will need to install Cygwin. It might also
-be possible to use the Windows Subsystem for Linux (WSL), but we have no
-experience with it.
+The Xyce CMake build system also supports a package target. On Windows, this 
+target will generate a standalone installer for Xyce. The package target uses
+[NSIS](https://nsis.sourceforge.io/Main_Page) (version 3.0 or newer) to generate 
+the installer. This is an additional third-party dependency that needs to be 
+installed prior to building the package target.
 
-### Cygwin
+```sh
+cmake --build <path to build folder> -t package
+```
+-- or --
+```sh
+cpack <path to build folder>
+```
 
-Cygwin installs a minimal set of packages by default, so all of the
-dependencies will have to be explicitly added, including the AMD library. As of
-this writing the required packages are:
-- git (optional)
-- gcc-core
-- gcc-g++
+*Test environment:*  
+The Xyce regression suite is intended to run in a Unix-like environment. The 
+engine that runs the regression suite consists primarily of bash, perl, and (to 
+a lesser degree) python scripts.
+
+While there is no native support for running the regression suite on Windows, 
+there are various Unix compatibility tools that enable running the test suite in
+a Windows environment. The Xyce team uses Cygwin to run Xyce regression testing 
+on Windows. Other configurations that leverage utilites such as WSL, Minigw, 
+or MSYS2 may also be possible, but are untested.
+
+Cygwin installs a minimal set of packages by default, so all of the dependencies 
+will have to be explicitly added. To run the full regression suite, the 
+recommended set of packages include:
+- liblapack-devel
+- libopenblas
 - gcc-fortran
-- make (or ninja)
+- gcc-g++
+- perl
+- perl-libwww-perl
+- bash
+- python39
+- python39-numpy
+- python39-devel
+- python39-pip
+- diff
 - cmake
-- bison
-- flex
-- liblapack0, liblapack-devel
-- libsuitesparseconfig-devel, libamd-devel
-- fftw, libfftw3-devel
 
-Cygwin also needs additional flags to be applied when compiling Trilinos and
-Xyce. For Trilinos, add the following to the CMake invocation:
-```sh
--D CMAKE_CXX_FLAGS="-D_BSD_SOURCE -D_GNU_SOURCE" \
--D CMAKE_C_FLAGS="-D_BSD_SOURCE -D_GNU_SOURCE" \
--D AMD_INCLUDE_DIRS="/usr/include/suitesparse" \
-```
-For Xyce, add the following to the CMake invocation:
-```sh
--D CMAKE_CXX_FLAGS="-D_BSD_SOURCE -D_GNU_SOURCE" \
--D CMAKE_C_FLAGS="-D_BSD_SOURCE -D_GNU_SOURCE" \
-```
+There are few tests in the regression suite that use the python package scipy. 
+This package is not included in any of the available cygwin packages. After 
+cygwin is in place, you can use pip to install scipy.
+
 
 ### Ubuntu
 
