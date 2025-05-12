@@ -156,8 +156,6 @@ void Traits::loadModelParameters(ParametricData<MESFET::Model> &p)
     .setUnit(U_VOLT)
     .setCategory(CAT_VOLT)
     .setDescription("Threshold voltage");
-
-    DeviceModel::initThermalModel(p);
 }
 
 std::vector< std::vector<int> > Instance::jacStamp_DC_SC;
@@ -1590,16 +1588,6 @@ bool Instance::updateTemperature ( const double & temp_tmp)
   {
     temp = temp_tmp;
     temp += dtemp;
-  }
-
-  if (model_.interpolateTNOM(temp))
-  {
-   // make sure interpolation doesn't take any resistance negative
-    if(model_.RD < 0) model_.RD = 0;
-    if(model_.RS < 0) model_.RS = 0;
-
-    // some params may have changed during interpolation
-    // model_.processParams();
   }
 
   Pb   = model_.PB;

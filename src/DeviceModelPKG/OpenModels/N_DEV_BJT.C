@@ -762,9 +762,6 @@ void Traits::loadModelParameters(ParametricData<BJT::Model> &p)
    .setSensitivityFunctor(&bjtModelSens);
 
   // Set up non-double precision variables:
-
-  // Thermal model setup:
-  DeviceModel::initThermalModel(p);
 }
 
 std::vector< std::vector<int> > Instance::jacStamp_RB_RC_RE_;
@@ -1868,17 +1865,6 @@ bool Instance::updateTemperature( const double & temp )
   {
     TEMP = temp;
     TEMP += dtemp;
-  }
-
-  if (model_.interpolateTNOM(TEMP))
-  {
-    // make sure interpolation doesn't take any resistance negative
-    if(model_.baseResist < 0) model_.baseResist = 0;
-    if(model_.emitterResist < 0) model_.emitterResist = 0;
-    if(model_.collectorResist < 0) model_.collectorResist = 0;
-
-    // some params may have changed during interpolation
-    model_.processParams();
   }
 
   //Generation of temperature based factors

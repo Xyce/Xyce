@@ -31,7 +31,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
      "RelWithDebInfo" "MinSizeRel")
 endif()
 
-project(Xyce VERSION 7.10.0 LANGUAGES CXX C)
+project(Xyce VERSION 7.11.0 LANGUAGES CXX C)
 
 # Note: setting C++11 standard here can still be overridden by Trilinos later.
 set(CMAKE_CXX_STANDARD 11)

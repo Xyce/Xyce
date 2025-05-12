@@ -193,8 +193,9 @@ void Traits::loadModelParameters(ParametricData<RxnSet::Model> &p)
    .setCategory(CAT_NONE)
    .setDescription("Number of mesh points.");
 
+#if 0
   DeviceModel::initThermalModel(p);
-
+#endif
   p.addComposite("DOPINGPROFILES",DopeInfo::getParametricData(),&RxnSet::Model::dopeInfoMap);
 
   p.addComposite("REGION",DopeInfo::getParametricData(),&RxnSet::Model::dopeInfoMap);
@@ -1583,11 +1584,13 @@ bool Instance::updateTemperature( const double & temp )
   }
   if( temp != -999.0 ) TEMP = temp;
 
+#if 0
   if(model_.interpolateTNOM(TEMP) )
   {
     // some params may have changed during interpolation
     model_.processParams();
   }
+#endif
 
   //Generation of temperature based factors
   double TNOM  = model_.TNOM;
