@@ -217,10 +217,11 @@ Instance::Instance(
   setParams (IB.params);
 
   // look over IB params for IC data
+  initialCondition.clear();   // Clear this vector to make sure it is consistent with the order of the inductors
   std::vector<Param>::const_iterator paramIt = IB.params.begin();
   for( ;paramIt != IB.params.end(); ++paramIt)
   {
-    if( (paramIt->tag() == "IC") && (paramIt->getType() == Xyce::Util::STR))
+    if( (paramIt->tag() == "IC") && ((paramIt->getType() == Xyce::Util::STR) || (paramIt->getType() == Xyce::Util::DBLE)))
     {
       // in the process of packing up the component inductors into a mutual inductor
       // whether an initial condition is given or not is lost.  So check if the
