@@ -9,7 +9,7 @@
     ssInstallDir: ${archInstallDir}/SuiteSparse/${SuiteSparseVersion}
     admsInstallDir: ${archInstallDir}/ADMS/${ADMSVersion}
     trilinosInstallDir: ${archInstallDir}/trilinos/${TrilinosVersion}
-    xyceInstallDir: ${archInstallDir}/xyce/${XyceVersion}
+    xyceInstallDir: ${archInstallDir}/xyce/${XYCE_INSTALL_STRING}
   before_script:
     # exit immediately when an error happens
     - set -e

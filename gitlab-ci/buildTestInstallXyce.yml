@@ -16,7 +16,7 @@ include:
     TESTSET: Experimental
     WORKSPACE: $CI_PROJECT_DIR
     GTest_ROOT: /projects/xyce/GTest/RHEL7
-    MYBUILDNAME: Xyce/${XyceVersion}-${archFullName}
+    MYBUILDNAME: Xyce/${XYCE_INSTALL_STRING}-${archFullName}
     cmakeArgsList: |
       --log-level=STATUS;\
       -DXyce_REGRESSION=ON;\
