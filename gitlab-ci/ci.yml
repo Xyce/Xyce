@@ -23,10 +23,10 @@ variables:
 
   BaseModuleInstallDir: ${BASE_INSTALL_DIR}/modules
 
-  # XyceVersion appears in the installation subdirectory name and on
+  # XYCE_INSTALL_STRING appears in the installation subdirectory name and on
   # the dashboard. This allows you to do something like set it to
   # "stable" and have XyceBranch point to something like "master"
-  XyceVersion: "develop"
+  XYCE_INSTALL_STRING: "develop"
 
   # branch specifications for each repo used in actual git
   # clone|fetch|checkout operations.
@@ -106,6 +106,8 @@ trigger_pipeline:
         --form "variables[DO_FINALIZE]=${DO_FINALIZE}" \
         --form "variables[CTS_LICENSE_ARG]=${CTS_LICENSE_ARG}" \
         --form "variables[BASE_INSTALL_DIR]=${BASE_INSTALL_DIR}" \
+        --form "variables[DEFAULT_BRANCH]=${DEFAULT_BRANCH}" \
+        --form "variables[XYCE_INSTALL_STRING]=${XYCE_INSTALL_STRING}" \
         "https://cee-gitlab.sandia.gov/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline"
   rules:
     - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"

@@ -51,11 +51,11 @@ GNU_serial.generateModules:
     - .generate_modules
     - .gnu_serial_vars
   variables:
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
     ModuleHelp: >
       The Xyce binary, built with the GNU compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -65,11 +65,11 @@ GNU_OpenMPI.generateModules:
     - .generate_modules
     - .gnu_openmpi_vars
   variables:
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
     ModuleHelp: >
       The Xyce binary, built with the OpenMPI+GNU compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -79,11 +79,11 @@ Intel_serial.generateModules:
     - .generate_modules
     - .intel_serial_vars
   variables:
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
     ModuleHelp: >
       The Xyce binary, built with the Intel OneAPI compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -93,11 +93,11 @@ Intel_OpenMPI.generateModules:
     - .generate_modules
     - .intel_openmpi_vars
   variables:
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
     ModuleHelp: >
       The Xyce binary, built with the OpenMPI+Intel OneAPI compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -110,11 +110,11 @@ GNU_OpenMPI.cts.generateModules:
   variables:
     # cts doesn't currently have an xdm module available
     xdmPre: "#"
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
     ModuleHelp: >
       The Xyce binary, built with the OpenMPI+GNU compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -126,11 +126,11 @@ GNU_serial.cts.generateModules:
   variables:
     # cts doesn't currently have an xdm module available
     xdmPre: "#"
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
     ModuleHelp: >
       The Xyce binary, built with the GNU compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -142,11 +142,11 @@ Intel_OpenMPI.cts.generateModules:
   variables:
     # cts doesn't currently have an xdm module available
     xdmPre: "#"
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/parallel
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
     ModuleHelp: >
       The Xyce binary, built with the OpenMPI+Intel OneAPI compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
@@ -158,11 +158,11 @@ Intel_serial.cts.generateModules:
   variables:
     # cts doesn't currently have an xdm module available
     xdmPre: "#"
-    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XyceVersion}/${CompilerSuite}/serial
+    MyModuleFileName: ${BaseModuleInstallDir}/${Platform}/xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
     ModuleHelp: >
       The Xyce binary, built with the Intel OneAPI compiler, capable of doing analysis
       with the radiation models. This modulefile defines the default system paths
-      and environment variables needed to use the current ${XyceVersion} version
+      and environment variables needed to use the current ${XYCE_INSTALL_STRING} version
       of Xyce with the command:\n   mpirun -np <n> Xyce \[xyce options\]
   script:
     - printModuleFile
