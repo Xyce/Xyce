@@ -8,7 +8,7 @@ finalize:
   script:
     - set -e
     - echo "CI_PIPELINE_SOURCE = ${CI_PIPELINE_SOURCE}"
-    - cd ${BaseInstallDir}
+    - cd ${BASE_INSTALL_DIR}
     - chgrp --recursive wg-xyce-users .
     - find . -type d -print|xargs chmod 750
     - find . -type f -print|xargs chmod g+r,g-w,o-r,o-w

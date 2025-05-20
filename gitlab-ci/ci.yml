@@ -19,8 +19,9 @@ variables:
   DO_FINALIZE: "ON"
   DO_TEST_MODULES: "ON"
 
-  BaseInstallDir: /projects/xyce_user/install
-  BaseModuleInstallDir: ${BaseInstallDir}/modules
+  BASE_INSTALL_DIR: /projects/xyce_user/install
+
+  BaseModuleInstallDir: ${BASE_INSTALL_DIR}/modules
 
   # XyceVersion appears in the installation subdirectory name and on
   # the dashboard. This allows you to do something like set it to
@@ -104,6 +105,7 @@ trigger_pipeline:
         --form "variables[DO_MODULE_GENERATION]=${DO_MODULE_GENERATION}" \
         --form "variables[DO_FINALIZE]=${DO_FINALIZE}" \
         --form "variables[CTS_LICENSE_ARG]=${CTS_LICENSE_ARG}" \
+        --form "variables[BASE_INSTALL_DIR]=${BASE_INSTALL_DIR}" \
         "https://cee-gitlab.sandia.gov/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline"
   rules:
     - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"

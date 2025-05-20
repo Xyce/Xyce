@@ -5,7 +5,7 @@
     CXX: ""
     FC: ""
     archFullName: ${Arch}-${Platform}-${OS}-${ToolsSpec}-${CompilerSuite}-${ParallelType}
-    archInstallDir: ${BaseInstallDir}/${archFullName}
+    archInstallDir: ${BASE_INSTALL_DIR}/${archFullName}
     ssInstallDir: ${archInstallDir}/SuiteSparse/${SuiteSparseVersion}
     admsInstallDir: ${archInstallDir}/ADMS/${ADMSVersion}
     trilinosInstallDir: ${archInstallDir}/trilinos/${TrilinosVersion}
