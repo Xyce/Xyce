@@ -195,43 +195,27 @@ cmake --build . -j 2 -t install
 
 ## Building Xyce
 
-A generalized process for building Xyce, including the steps for [building Trilinos](#building-trilinos), can be summarized as:
+A generalized process for building Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
-mkdir trilinos-build
-cd trilinos-build
-
-cmake \
--D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Trilinos> \
--C <path/to/Xyce>/cmake/trilinos/trilinos-base.cmake \
-<path/to/Trilinos>
-
-cmake --build . -j 2 -t install
-cd ..
 mkdir xyce-build
 cd xyce-build
 
 cmake \
 -D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
 -D Trilinos_ROOT=</path/to/Trilinos-install-location> \
-path/to/Xyce
+<path/to/Xyce>
 
 cmake --build . -j 2 -t install
 ```
 
-
-
-
-### Building Xyce
-
-Once Trilinos is installed, you can build and install Xyce. By default, Xyce
-will be installed in the `/usr/local/` directory. To specify a different
+By default, Xyce will be installed in the `/usr/local/` directory. To specify a different
 installation location, add the following flag to the CMake invocation:
 ```sh
 -D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
 ```
-Again, if you plan to have both a parallel and serial build of Xyce on your
+Again, if you plan to have multiple builds of Xyce on your
 system, they must be in different directories. We recommend specifying unique
 sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.
 
