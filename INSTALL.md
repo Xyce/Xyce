@@ -40,9 +40,11 @@ be present on your system, and many can be obtained with package managers. Rarel
 some will have to be built from source. Install all of the required, and any of the
 optional libraries related to capabilities of interest, prior to building Xyce.
 
+>[!NOTE] Please be sure to understand the licenses associated with the various libraries. Most of the licenses are common and should be acceptable to most users. Inclusion of some non-open-source libraries could limit your rights to distribute binaries you produce.
+
 | Name  | Version | Required | Notes |
 | :---  | :---    | :---:    | :---  |
-| CMake | 3.22 or later | No | [CMake](https://cmake.org) will the required in release 7.11. |
+| CMake | 3.22 or later | No | [CMake](https://cmake.org) will be required in release 7.11. |
 | Build system | various | Yes | CMake requires a build system; e.g., [Make](https://www.gnu.org/software/make/), [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom) |
 | C/C++ compiler | various | Yes | C++-17 compliant compiler; e.g., gcc 9 or later, Clang 5 or later |
 | Fortran compiler | various | No | Trilinos has Fortran code, Xyce does not.  It is technically [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code), but not using the Fortran code, though, could result in slower performance. | 
@@ -60,6 +62,26 @@ The [Building Xyce](#building-xyce)
 section covers the traditional build method for Xyce.  Some operating systems require modifications to these instructions for Xyce or prerequisite libraries. Refer to the [System-Specific Modifications](#system-specific-modifications) section to review any notes or 
 issues that have been documented for the operating system you are using.  There are also some general notes collected 
 below to assist in building the prerequisite libraries.
+
+<details>
+<summary>Open MPI</summary>
+
+Some Linux distributions from between 2017 and 2020 have broken versions of Open MPI in their package repositories.  We are not aware of continuing problems in newer releases of these Linux systems.  In the problem releases, the version of Open MPI in the repositories is compiled with the `--enable-heterogeneous` option, which breaks MPI's standard compliance and causes Xyce to fail in some situations.
+
+__Ubuntu — beginning with release 17.10 and continuing up to but not including 20.04 LTS — is an example Linux distribution we have encountered with this issue.  See comment 11 of the [Launchpad bug
+report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11).__
+
+To check whether your system's install of Open MPI has this issue,
+you can run a small test program from the Xyce source tree. To test your
+Open MPI package, copy the file,
+[Xyce/src/test/MPITest/testBUG967.c](src/test/MPITest/testBUG967.c), into
+temporary directory. Then compile and run it using the following commands:
+```sh
+mpicc -o testBUG967 testBUG967.c
+mpirun -np 2 ./testBUG967
+```
+If the run produces any output with the word __BAD__, your Open MPI install is broken and cannot be used. 
+</details>
 
 <details>
 <summary>Building SuiteSparse</summary>
@@ -195,7 +217,7 @@ cmake --build . -j 2 -t install
 
 ## Building Xyce
 
-A generalized process for a serial build of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+A generalized process for a serial configuration of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
@@ -225,7 +247,7 @@ You may need to use a full path if they cannot be located in your default paths.
 system, they must be in different directories. We recommend specifying unique
 sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.__
 
-If a required prerequiste is not found in your default path, like flex or bison, then you can specify the location of those executables with these commands:
+If a required prerequiste is not found in your default path, then you must specify the location of those executables.  For flex and bison, add these commands:
 ```sh
 -D FLEX_EXECUTABLE=<path/to/flex-install-location>/bin/flex \
 -D FLEX_INCLUDE_DIR=<path/to/flex-install-location>/include \
@@ -242,7 +264,7 @@ Choose an appropriate number for your system.
 
 ### Building Xyce with MPI Parallelism
 
-A generalized process for a parallel build of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+A generalized process for a parallel configuration of Xyce, given that MPI-enabled Trilinos libraries are already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
@@ -261,9 +283,9 @@ The simple CMake invocation above assumes that:
 - All the required [prerequisites](#prerequisites) are found in your default paths  
 - Trilinos is installed in the `Trilinos_ROOT` directory
 - Xyce will be installed in the `CMAKE_INSTALL_PREFIX` directory
-- The MPI compilers provided to `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`  is the __same__ one used to build Trilinos.  
+- The MPI compilers provided to `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`  are the __same__ ones used to build Trilinos.  
 
-You may need to use a full path to the MPI compilers if they cannot be located in your default paths.  Also, if a required prerequiste is not found in your default path, like flex or bison, then you can specify the location of those executables (see above).  
+You may need to use a full path to the MPI compilers if they cannot be located in your default paths.  Also, if a required prerequisite is not found in your default path, like flex or bison, then you must specify the location of those executables (see above).  
 
 As with the serial build, 
 once the configuration step is done, run the
@@ -453,29 +475,6 @@ There are few tests in the regression suite that use the python package scipy.
 This package is not included in any of the available cygwin packages. After 
 cygwin is in place, you can use pip to install scipy.
 
-</details>
-
-<details>
-<summary>Ubuntu</summary>
-
-Ubuntu releases starting with 17.10 and through the 19.x series (including 18.04), have a broken version of Open MPI in their package repositories. __Open MPI is functional in Ubuntu 20.04.__
-- In the problem releases, the version of Open MPI in the repositories is compiled with the `--enable-heterogeneous`
-option, which breaks MPI's standard compliance and causes Xyce to fail in some situations.
-- If you are running a version of Ubuntu that has this issue, the only workaround is to uninstall the Open MPI package and build Open MPI from source, without the `--enable-heterogeneous` option. Comment 11 of the [Launchpad bug
-report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11)
-contains instructions for how to rebuild and install Open MPI using the Debian
-package building system.
-
-To check whether your system's install of Open MPI has this issue,
-you can run a small test program from the Xyce source tree. To test your
-Open MPI package, copy the file,
-[Xyce/src/test/MPITest/testBUG967.c](src/test/MPITest/testBUG967.c), into
-temporary directory. Then compile and run it using the following commands:
-```sh
-mpicc -o testBUG967 testBUG967.c
-mpirun -np 2 ./testBUG967
-```
-If the run produces any output with the word __BAD__, your Open MPI install is broken and cannot be used. You must instead use the workaround described above.
 </details>
 
 <details>
