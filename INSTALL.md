@@ -25,9 +25,9 @@ page.
 
 Building and installing Xyce from source requires the following general steps:
 - Install the tools required in the list of [prerequisites](#prerequisites)
-- Build and install Trilinos from [source code](https://github.com/trilinos/Trilinos)
+- [Build and install](#building-trilinos) Trilinos from [source code](https://github.com/trilinos/Trilinos)
 - [Download](https://xyce.sandia.gov/downloads/source-code) or [clone](https://github.com/Xyce/Xyce) the Xyce repository
-- Build and install Xyce
+- [Build and install](#building-xyce) Xyce
 
 > [!NOTE] 
 > Using install/uninstall commands may require administrative priviledges on Unix-like systems.
@@ -52,8 +52,8 @@ optional libraries related to capabilities of interest, prior to building Xyce.
 | BLAS  | any | Yes | Most systems have a version of BLAS included with the compiler or in their package management systems.  If not, BLAS source code may be [downloaded](http://www.netlib.org/blas). |
 | LAPACK | any | Yes | Most systems have a version of LAPACK included with the compiler or in their package management systems.  If not, LAPACK source code may be [downloaded](http://www.netlib.org/lapack). |
 | FFT | FFTW 3.x or Intel MKL | No | This is required for Harmonic Balance analysis, which will be disabled without an FFT library.  FFTW3 is available in most package management systems. If not, download [FFTW](http://www.fftw.org) or the [Intel MKL](http://software.intel.com). |
-| SuiteSparse | 7.8.3 or later | Yes | Xyce uses AMD through Trilinos, which is part of the SuiteSparse library.  If necessary, [download](https://github.com/DrTimothyAldenDavis/SuiteSparse), compile, and install the library.
-| Trilinos | 14.4 and later | Yes | Xyce requires Trilinos for linear algebra and solvers.  The current minimum version of [Trilinos](https://github.com/trilinos/Trilinos) usable in a cmake-configured Xyce is version [14.4](https://github.com/trilinos/Trilinos/archive/refs/heads/trilinos-release-14-4-branch.zip).  __Versions after 14.4 have not been rigorously tested with Xyce and may not work properly.__ |
+| SuiteSparse | 7.8.3 or later | Yes | Xyce uses AMD through Trilinos, which is part of the SuiteSparse library.  If necessary, [download](https://github.com/DrTimothyAldenDavis/SuiteSparse), [compile, and install](#building-suitesparse) the library.
+| Trilinos | 14.4 and later | Yes | Xyce requires Trilinos for linear algebra and solvers.  The current minimum version of [Trilinos](https://github.com/trilinos/Trilinos) usable in a cmake-configured Xyce is version 14.4.  __Versions after 14.4 have not been rigorously tested with Xyce and may not work properly.__ If necessary, [download](https://github.com/trilinos/Trilinos/archive/refs/heads/trilinos-release-14-4-branch.zip), [compile, and install](#building-trilinos) the library. |
 
 
 The [Building Xyce](#building-xyce) 
@@ -73,8 +73,8 @@ SuiteSparse_config packages in SuiteSparse.
 cmake \
 -D CMAKE_INSTALL_PREFIX=</path/to/install/SuiteSparse> \
 -D SUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd" \
--S <path-to-source-folder>\ 
--B <path-to-build-folder>\
+-S <path/to/source-directory>\ 
+-B <path/to/build-directory>\
 
 cmake --build <> -j 2 -t install
 ```
@@ -105,7 +105,7 @@ Because of the size and complexity of Trilinos, it is recommended to build the n
 location is `/usr/local`. Multiple installations of Trilinos can exist on the same system, but they must be in different directories. We recommend specifying
 unique sub-directories in `/usr/local`, such as `/usr/local/trilinos_serial`.  The installation directory can be changed by adding the following flag to the CMake invocation.
 ```sh
--D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Trilinos> \
+-D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-Trilinos> \
 ```
 3. Verify the location of your compilers.  If you have compilers or libraries in non-standard locations, see the [Other
 Trilinos Options](#other-trilinos-options) section, below.
@@ -195,7 +195,7 @@ cmake --build . -j 2 -t install
 
 ## Building Xyce
 
-A generalized process for building Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+A generalized process for a serial build of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
@@ -203,40 +203,76 @@ mkdir xyce-build
 cd xyce-build
 
 cmake \
--D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
+-D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-Xyce> \
 -D Trilinos_ROOT=</path/to/Trilinos-install-location> \
 <path/to/Xyce>
-
-cmake --build . -j 2 -t install
 ```
 
-By default, Xyce will be installed in the `/usr/local/` directory. To specify a different
-installation location, add the following flag to the CMake invocation:
+The simple CMake invocation above assumes that:
+- All the required [prerequisites](#prerequisites) are found in your default paths  
+- Trilinos is installed in the `Trilinos_ROOT` directory
+- Xyce will be installed in the `CMAKE_INSTALL_PREFIX` directory
+- The first compiler found in your default paths is the __same__ one used to build Trilinos.  
+
+If a different C/C++ compiler was used to build Trilinos, specify that compiler using these commands:
 ```sh
--D CMAKE_INSTALL_PREFIX=<path-to-where-you-will-install-Xyce> \
+-D CMAKE_C_COMPILER=<C-compiler> \
+-D CMAKE_CXX_COMPILER=<C++-compiler> \
 ```
-Again, if you plan to have multiple builds of Xyce on your
+You may need to use a full path if they cannot be located in your default paths.
+
+>[!NOTE] __If you plan to have multiple builds of Xyce on your
 system, they must be in different directories. We recommend specifying unique
-sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.
+sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.__
 
-If Trilinos is not located in your path, add the following flag to the CMake
-invocation:
+If a required prerequiste is not found in your default path, like flex or bison, then you can specify the location of those executables with these commands:
 ```sh
--D Trilinos_ROOT=</path/to/Trilinos-install-location> \
+-D FLEX_EXECUTABLE=<path/to/flex-install-location>/bin/flex \
+-D FLEX_INCLUDE_DIR=<path/to/flex-install-location>/include \
+-D BISON_EXECUTABLE=<path/to/bison-install-location>/bin/bison \
 ```
-Create a build directory for Xyce (such as `xyce_build`) and go into that
-directory. Then run CMake using:
-```sh
-cmake [flags] <path/to/Xyce>
-```
-Then, to build and install Xyce, run:
+
+Once the configuration step is done, run the
+following in the `xyce-build` directory to compile and install Xyce in the `CMAKE_INSTALL_PREFIX` directory:
 ```sh
 cmake --build . -j 2 -t install
 ```
 The "-j 2" designates the number of processors to be used for compiling Xyce.
 Choose an appropriate number for your system.
 
-#### Adding the Xyce/ADMS Verilog-A Model Compiler
+### Building Xyce with MPI Parallelism
+
+A generalized process for a parallel build of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+
+```sh
+cd <your-build-directory>
+mkdir xyce-mpi-build
+cd xyce-mpi-build
+
+cmake \
+-D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-mpi-Xyce> \
+-D Trilinos_ROOT=</path/to/Trilinos-mpi-install-location> \
+-D CMAKE_C_COMPILER=<mpi-C-compiler> \
+-D CMAKE_CXX_COMPILER=<mpi-C++-compiler> \
+<path/to/Xyce>
+```
+
+The simple CMake invocation above assumes that:
+- All the required [prerequisites](#prerequisites) are found in your default paths  
+- Trilinos is installed in the `Trilinos_ROOT` directory
+- Xyce will be installed in the `CMAKE_INSTALL_PREFIX` directory
+- The MPI compilers provided to `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`  is the __same__ one used to build Trilinos.  
+
+You may need to use a full path to the MPI compilers if they cannot be located in your default paths.  Also, if a required prerequiste is not found in your default path, like flex or bison, then you can specify the location of those executables (see above).  
+
+As with the serial build, 
+once the configuration step is done, run the
+following in the `xyce-build` directory to compile and install Xyce in the `CMAKE_INSTALL_PREFIX` directory:
+```sh
+cmake --build . -j 2 -t install
+```  
+
+### Adding the Xyce/ADMS Verilog-A Model Compiler
 
 Xyce has a Verilog-A model compiler capability, which uses the "Xyce/ADMS"
 compiler tool. See the [Xyce/ADMS Users
