@@ -66,6 +66,8 @@ below to assist in building the prerequisite libraries.
 <details>
 <summary>Open MPI</summary>
 
+### Open MPI
+
 Some Linux distributions from between 2017 and 2020 have broken versions of Open MPI in their package repositories.  We are not aware of continuing problems in newer releases of these Linux systems.  In the problem releases, the version of Open MPI in the repositories is compiled with the `--enable-heterogeneous` option, which breaks MPI's standard compliance and causes Xyce to fail in some situations.
 
 __Ubuntu — beginning with release 17.10 and continuing up to but not including 20.04 LTS — is an example Linux distribution we have encountered with this issue.  See comment 11 of the [Launchpad bug
@@ -217,7 +219,11 @@ cmake --build . -j 2 -t install
 
 ## Building Xyce
 
-A generalized process for a serial configuration of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+>[!NOTE] __If you plan to have multiple builds of Xyce on your
+system, they must be in different directories. We recommend specifying unique
+sub-directories in `/usr/local`, such as `/usr/local/xyce_serial` or `/usr/local/xyce_mpi`.__
+
+The generalized process for a serial configuration of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
@@ -241,13 +247,13 @@ If a different C/C++ compiler was used to build Trilinos, specify that compiler 
 -D CMAKE_C_COMPILER=<C-compiler> \
 -D CMAKE_CXX_COMPILER=<C++-compiler> \
 ```
-You may need to use a full path if they cannot be located in your default paths.
+You may need to use a full path if the compilers cannot be located in your default paths.  If additional compiler flags need to be passed to the C/C++ compiler, use these commands:
+```sh
+-D CMAKE_C_FLAGS=<flags> \
+-D CMAKE_CXX_FLAGS=<flags> \
+```
 
->[!NOTE] __If you plan to have multiple builds of Xyce on your
-system, they must be in different directories. We recommend specifying unique
-sub-directories in `/usr/local`, such as `/usr/local/xyce_serial`.__
-
-If a required prerequiste is not found in your default path, then you must specify the location of those executables.  For flex and bison, add these commands:
+If a required prerequiste is not found in your default path, then you must specify the location of those headers, libraries, or executables.  Xyce provides special CMake options for some of these prerequisites, like flex and bison:
 ```sh
 -D FLEX_EXECUTABLE=<path/to/flex-install-location>/bin/flex \
 -D FLEX_INCLUDE_DIR=<path/to/flex-install-location>/include \
@@ -264,7 +270,7 @@ Choose an appropriate number for your system.
 
 ### Building Xyce with MPI Parallelism
 
-A generalized process for a parallel configuration of Xyce, given that MPI-enabled Trilinos libraries are already [installed](#building-trilinos), can be summarized as:
+The generalized process for a parallel configuration of Xyce, given that MPI-enabled Trilinos libraries are already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
