@@ -85,7 +85,8 @@ public:
     std::ostream &                              os,
     const DeviceInstance &                      instance,
     const std::vector<const std::string *> &    nameVec,
-    bool                                        failed);
+    bool                                        failedF,
+    bool                                        failedQ);
 
   void testDebugHead
   ( DeviceInstance & instance,

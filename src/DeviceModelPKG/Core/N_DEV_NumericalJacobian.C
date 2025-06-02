@@ -382,7 +382,8 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
     double ndFdx, adFdx, ddFdx, relError_dFdx;
     double ndQdx, adQdx, ddQdx, relError_dQdx;
 
-    bool failedTest = false;
+    bool failedTestF = false;
+    bool failedTestQ = false;
     for (i=0 ; i<numCols ; ++i)
     {
       // Don't bother perturbing gnd.
@@ -486,7 +487,7 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
           if (relError_dFdx > 1.0) // failure
           {
             statusF[j][i] = -2;
-            failedTest = true;
+            failedTestF = true;
           }
           else // success
           {
@@ -496,7 +497,7 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
           if (relError_dQdx > 1.0) // failure
           {
             statusQ[j][i] = -2;
-            failedTest = true;
+            failedTestQ = true;
           }
           else // success
           {
@@ -512,9 +513,9 @@ bool NumericalJacobian::testDAEMatrices(DeviceInstance & instance, const std::ve
 
     // Output Jacobians Differences. If debug enabled, always output. otherwise only output for failures.
     if (DEBUG_DEVICE)
-      printJacobian_(dout(), instance, nameVec, failedTest);
-    else if (failedTest)
-      printJacobian_(lout(), instance, nameVec, failedTest);
+      printJacobian_(dout(), instance, nameVec, failedTestF, failedTestQ);
+    else if (failedTestF || failedTestQ)
+      printJacobian_(lout(), instance, nameVec, failedTestF, failedTestQ);
 
     // Restore jacobian, RHS for this device
     instance.setOrigFlag(origFlag);
@@ -636,7 +637,9 @@ void NumericalJacobian::printJacobian_(
   std::ostream &                                os,
   const DeviceInstance &                        instance,
   const std::vector<const std::string *> &      nameVec,
-  bool                                          failed)
+  bool                                          failedF,
+  bool                                          failedQ
+  )
 {
   bool NAflag = false;
   const std::vector<int> & devLIDs               = instance.getDevLIDs();
@@ -654,7 +657,7 @@ void NumericalJacobian::printJacobian_(
     os << Xyce::section_divider << std::endl;
     os << "dFdx matrix for " << instance.getName();
 
-    if (failed)
+    if (failedF)
     {
       os << ":  JACOBIAN TEST FAILURE";
     }
@@ -725,7 +728,7 @@ void NumericalJacobian::printJacobian_(
 
   os << "dQdx matrix for " << instance.getName();
 
-  if (failed)
+  if (failedQ)
   {
     os << ":  JACOBIAN TEST FAILURE";
   }
@@ -787,7 +790,7 @@ void NumericalJacobian::printJacobian_(
     os << " Note:  NA = untestable special case, such as IC=, etc." << std::endl;
   os << Xyce::section_divider << std::endl;
 
-  if (failed)
+  if (failedF || failedQ)
   {
     if (!(devOptions.testJacWarn))
     {

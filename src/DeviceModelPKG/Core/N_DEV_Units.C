@@ -214,7 +214,7 @@ StdDescription descriptionTable[] =
 
   // Pulsedata parameters
   "FUNCTIONTYPE", U_NONE, CAT_RADP,    "Internal function type for pulse (1-6) or user defined (7)",
-  "PULSEDATA", U_NONE,    CAT_RADP,    "Expression (in braces \\{\\}) or filename (using \\{tablefile(\"filename\")\\} syntax) of (Time,Value) pairs to use instead of internal radiation source (functiontype = 7)",
+  "PULSEDATA", U_NONE,    CAT_RADP,    "Expression (in braces \\{\\}) or filename (using \\{table(\"filename\")\\} syntax) of (Time,Value) pairs to use instead of internal radiation source (functiontype = 7)",
   "PULSEV1",   U_NONE,    CAT_RADP,    "Initial value of radiation pulse (functiontype = 1)",
   "PULSEV2",   U_NONE,    CAT_RADP,    "Maximum value of radiation pulse (functiontype = 1)",
   "PULSETD",   U_SECOND,  CAT_RADP,    "Time delay of radiation pulse (functiontype = 1)",

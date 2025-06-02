@@ -67,6 +67,11 @@ PYBIND11_EMBEDDED_MODULE(XyceObjects, m) {
     .def_readonly("initJctFlag_", &Xyce::Device::SolverState::initJctFlag_)
     .def_readonly("inputOPFlag", &Xyce::Device::SolverState::inputOPFlag)
     .def_readonly("dcopFlag", &Xyce::Device::SolverState::dcopFlag)
+    .def_readonly("transientFlag", &Xyce::Device::SolverState::transientFlag)
+    .def_readonly("dcsweepFlag", &Xyce::Device::SolverState::dcsweepFlag)
+    .def_readonly("tranopFlag", &Xyce::Device::SolverState::tranopFlag)
+    .def_readonly("acopFlag", &Xyce::Device::SolverState::acopFlag)
+    .def_readonly("noiseFlag", &Xyce::Device::SolverState::noiseFlag)
     .def_readonly("locaEnabledFlag", &Xyce::Device::SolverState::locaEnabledFlag);
 }
 
