@@ -108,6 +108,11 @@
 `include "disciplines.vams"
 `include "constants.vams"
 
+// these constants are added to be consistent with "constants.vams" 
+// from the newest LRM. They will get removed later.
+`define    P_Q_NIST1998       1.602176462e-19
+`define    P_K_NIST1998       1.3806503e-23
+
 // These constants are part of the model
 `define Kb 1.3806226e-23
 `define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
