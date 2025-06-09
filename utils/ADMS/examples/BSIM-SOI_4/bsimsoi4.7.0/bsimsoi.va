@@ -113,6 +113,9 @@
 `define    P_Q_NIST1998       1.602176462e-19
 `define    P_K_NIST1998       1.3806503e-23
 
+// DEFINE THIS IF IN XYCE!
+`define __XYCE__
+
 // These constants are part of the model
 `define Kb 1.3806226e-23
 `define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
@@ -212,14 +215,46 @@
 
 `define BPIcc(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des*) parameter integer nam=def from[lwr:upr] ;
 
+`ifdef __XYCE__
+// These macros should be used where BSIM-SOI defines a parameter as instance,
+// but the manual describes them as being both model and instance
+`define IPRcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr] ;
+`define IPRco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr) ;
+`define IPRcz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[  0:inf);
+`define IPRoz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from(  0:inf);
+`define IPIco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr) ;
+`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
+`define IPRnb_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def ;
+`define BPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
+`else
+`define IPRcc_BOTH(nam,def,uni,lwr,upr,des) `IPRcc(nam,def,uni,lwr,upr,des)
+`define IPRco_BOTH(nam,def,uni,lwr,upr,des) `IPRco(nam,def,uni,lwr,upr,des)
+`define IPRcz_BOTH(nam,def,uni,        des) `IPRcz(nam,def,uni,        des)
+`define IPRoz_BOTH(nam,def,uni,        des) `IPRoz(nam,def,uni,        des)
+`define IPIco_BOTH(nam,def,uni,lwr,upr,des) `IPIco(nam,def,uni,lwr,upr,des)
+`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) `IPIcc(nam,def,uni,lwr,upr,des)
+`define IPRnb_BOTH(nam,def,uni,        des) `IPRnb(nam,def,uni,        des)
+`define BPIcc_BOTH(nam,def,uni,lwr,upr,des) `BPIcc(nam,def,uni,lwr,upr,des)
+`endif
+
+`ifdef __XYCE__
+   `define IPM                         (*units="" , type="instance",  desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf) ;
+   `define MFACTOR_USE m
+`else
+   `define IPM
+   `define MFACTOR_USE 1.0
+`endif
+
+// Do not define PORT_CONNECTED for Xyce
 `define PORT_CONNECTED
+
 `ifdef PORT_CONNECTED
 
-module bsimsoi(d, g, s, e, p, b, t);
+module bsimsoi(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.7.0" xyceTypeVariable="TYPE" *);
 inout      g, d, s, e, p, b, t;
 `else
 
-module bsimsoi(d, g, s, e);
+module bsimsoi(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.7.0" xyceTypeVariable="TYPE" *);
 inout      g, d, s, e;
 `endif
 
@@ -250,42 +285,44 @@ endfunction
 /*  Instance Parameters    */
 /***************************/
 `IPRnb( DTEMP          ,0.0            ,"K"                                ,"device temperature offset from ambient" ) /* Changed to instance parameter in v4.6 */
-`IPRoz( L              ,5e-6           ,"m"                                ,"Length" )
-`IPRoz( W              ,5e-6           ,"m"                                ,"Width" )
-`IPIco( NF             ,1            ,""          ,1          ,inf         ,"Number of fingers" )
-`IPRcz( SA             ,0.0            ,"m"                                ,"distance between  OD edge to poly of one side" )
-`IPRcz( SB             ,0.0            ,"m"                                ,"distance between  OD edge to poly of the other side" )
-`IPRcz( SD             ,0.0            ,"m"                                ,"distance between neighbor fingers" )
-`IPRcz( AD             ,0.0            ,"m^2"                              ,"Drain area" )
-`IPRcz( AS             ,0.0            ,"m^2"                              ,"Source area" )
-`IPRcz( PD             ,0.0            ,"m"                                ,"Drain perimeter" )
-`IPRcz( PS             ,0.0            ,"m"                                ,"Source perimeter" )
-`IPRcz( NRD            ,1.0            ,""                                 ,"Number of squares in drain" )
-`IPRcz( NRS            ,1.0            ,""                                 ,"Number of squares in source" )
-`IPIcc( BJTOFF         ,0              ,""          ,0          ,1         ,"BJT on/off flag" )
-`IPRcz( RTH0           ,0.0            ,"ohm"                              ,"Instance Thermal Resistance" )
-`IPRcz( CTH0           ,1e-5           ,"Ws/mK"                                                    ,"Instance Thermal Capacitance" )
-`IPRcz( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
-`IPRnb( FRBODY         ,1.0            ,""                                 ,"layout dependent body-resistance coefficient" )
-`IPRcz( RBDB           ,50.0           ,"ohm"                              ,"Body resistance" )
-`IPRcz( RBSB           ,50.0           ,"ohm"                              ,"Body resistance" )
-`IPRnb( DELVTO         ,0.0            ,"V"                                ,"Zero bias threshold voltage variation" )
-`IPIcc( SOIMOD         ,0              ,""          ,0          ,3         ,"Instance model selector for PD/FD operation /* v3.2" )
-`IPRcz( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
-`IPRco( NSEG           ,1              ,""          ,1          ,inf       ,"Number segments for width partitioning" )
-`IPRcz( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
-`IPRcz( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
-`IPRcz( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
-`IPRcz( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC" )
-`IPRcz( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
-`IPRcz( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
+
+`IPRoz_BOTH( L              ,5e-6           ,"m"                                ,"Length" )
+`IPRoz_BOTH( W              ,5e-6           ,"m"                                ,"Width" )
+`IPIco_BOTH( NF             ,1            ,""          ,1          ,inf         ,"Number of fingers" )
+`IPRcz_BOTH( SA             ,0.0            ,"m"                                ,"distance between  OD edge to poly of one side" )
+`IPRcz_BOTH( SB             ,0.0            ,"m"                                ,"distance between  OD edge to poly of the other side" )
+`IPRcz_BOTH( SD             ,0.0            ,"m"                                ,"distance between neighbor fingers" )
+`IPRcz_BOTH( AD             ,0.0            ,"m^2"                              ,"Drain area" )
+`IPRcz_BOTH( AS             ,0.0            ,"m^2"                              ,"Source area" )
+`IPRcz_BOTH( PD             ,0.0            ,"m"                                ,"Drain perimeter" )
+`IPRcz_BOTH( PS             ,0.0            ,"m"                                ,"Source perimeter" )
+`IPRcz_BOTH( NRD            ,1.0            ,""                                 ,"Number of squares in drain" )
+`IPRcz_BOTH( NRS            ,1.0            ,""                                 ,"Number of squares in source" )
+`IPIcc_BOTH( BJTOFF         ,0              ,""          ,0          ,1         ,"BJT on/off flag" )
+`IPRcz_BOTH( RTH0           ,0.0            ,"ohm"                              ,"Instance Thermal Resistance" )
+`IPRcz_BOTH( CTH0           ,1e-5           ,"Ws/mK"                                                    ,"Instance Thermal Capacitance" )
+`IPRcz_BOTH( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
+`IPRnb_BOTH( FRBODY         ,1.0            ,""                                 ,"layout dependent body-resistance coefficient" )
+`IPRcz_BOTH( RBDB           ,50.0           ,"ohm"                              ,"Body resistance" )
+`IPRcz_BOTH( RBSB           ,50.0           ,"ohm"                              ,"Body resistance" )
+`IPRnb_BOTH( DELVTO         ,0.0            ,"V"                                ,"Zero bias threshold voltage variation" )
+`IPIcc_BOTH( SOIMOD         ,0              ,""          ,0          ,3         ,"Instance model selector for PD/FD operation /* v3.2" )
+`IPRcz_BOTH( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
+`IPRco_BOTH( NSEG           ,1              ,""          ,1          ,inf       ,"Number segments for width partitioning" )
+`IPRcz_BOTH( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
+`IPRcz_BOTH( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
+`IPRcz_BOTH( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
+`IPRcz_BOTH( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC" )
+`IPRcz_BOTH( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
+`IPRcz_BOTH( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
 `MPRoo( IDS0MULT       ,1.0            ,""          ,0          ,inf       ,"Variability in drain current for miscellaneous reasons" )
 `MPRoo( U0MULT         ,1.0            ,""          ,0          ,inf       ,"Variability in carrier mobility" )
-`IPRcz( MULT_I         ,1.0            ,""                                 ,"Variability in current")
-`IPRcz( MULT_Q         ,1.0            ,""                                 ,"Variability in charge")
-`IPRcz( MULT_FN        ,MULT_I       ,""                                   ,"Variability in flicker noise")
+`IPRcz_BOTH( MULT_I         ,1.0            ,""                                 ,"Variability in current")
+`IPRcz_BOTH( MULT_Q         ,1.0            ,""                                 ,"Variability in charge")
+`IPRcz_BOTH( MULT_FN        ,MULT_I       ,""                                   ,"Variability in flicker noise")
+
 `IPIcc( TNODEOUT       ,0              ,""          ,0          ,1         ,"Flag indicating external temp node" ) /* Changed to instance parameter in v4.6 */
-`BPIcc( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
+`BPIcc_BOTH( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
 /************************/
 /*  Model Parameters    */
 /************************/
@@ -1304,6 +1341,12 @@ endfunction
 `MPRnb( BGBC2P         ,7.45669e11     ,""                                  ,"PMOS 'B' for tunneling current model" )
 `MPRoz( VTM00          ,0.026          ,"V"                                 ,"Hard coded 25 degC thermal voltage" )
 
+// XYCE MOD:  Add multiplicity factor declaration
+// It is not OK to assume implicit mfactor
+// NOTE:  Every contribution has also been modified to use the multiplicity factor!
+`IPM
+
+
 // OPERATING POINT VARIABLES
 `OPP( VDSAT             , "V"           , "Drain-Source saturation Voltage")
 `OPP( VTH               , "V"           , "Threshold Voltage")
@@ -1342,8 +1385,9 @@ endfunction
 `OPP( T_TOTAL_C         , "degC"        , "Temperature in Celsius")
 `OPP( T_DELTA_SH        , "K"           , "Temperature with Self-heating")
 
+`ifndef __XYCE__
 analog begin : the_module
-
+`endif
     real B4SOIln;
     integer B4SOIsoiMod;
     real B4SOIrbody;
@@ -1725,6 +1769,16 @@ analog begin : the_module
 
     real QOV, QGI, qov, qgi,qdi,qsi; // overlap and intrinsic gate charges
     real Tnom,TRm1;
+    
+`ifdef __XYCE__
+analog begin : the_module
+`endif
+
+`ifdef __XYCE__
+@(initial_instance)
+    begin: initialize_instance
+`endif
+
     //gmin       = $simparam("gmin",0);
     DevTemp = $temperature + DTEMP;
 
@@ -1774,33 +1828,47 @@ analog begin : the_module
         if (SHMOD == 0) begin
             if (TNODEOUT == 0) begin //TNODEOUT = 0 starts here.
                 if ($port_connected(p) && $port_connected(b)) begin
-                    V(b) <+ 0;
+                    //V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=0.  The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes from the instance line.");
+                   $finish(1);
                 end else begin
                     if ($port_connected(p)) begin
-                        V(p) <+ 0;
+                       $strobe("Error:  you have specified a P node (5th node) when soimod=2 and TNODEOUT=0.  P node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the 5th node.");
+                       $finish(1);
+                        //V(p) <+ 0;
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 0 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0; //Case 8
+                   $strobe("Error:  you have specified a P and B node (5th and 6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The P and B nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the P and B nodes. With TNODEOUT=1, the fifth node should be the last one and will be used for temperature.");
+                   $finish(1);
+                    //V(b) <+ 0; //Case 8
                 end
             end            //TNODEOUT = 1 for SHMOD = 0 ends here.
         end else begin     //SHMOD = 0 ends here.
             if (TNODEOUT == 0) begin
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a P and B node (fifth and 6th nodes) when soimod=2, and a temperature node (7th) with TNODEOUT=0.  None of these nodes are used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                    //V(b) <+ 0;
                 end else begin
                     if ($port_connected(p) && $port_connected(b)) begin
-                        V(b) <+ 0;
+                       $strobe("Error:  you have specified P and B nodes (5th and 6th node) when soimod=2 and TNODEOUT=0.  These nodes are not used in this mode and Xyce cannot deal with them being externally specified.  Please remove the 5th and 6th nodes.");
+                       $finish(1);
+                        //V(b) <+ 0;
                     end else begin
                         if ($port_connected(p)) begin
-                            V(p) <+ 0;
+                           $strobe("Error:  you have specified P node (5th node) when soimod=2 and TNODEOUT=0.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                           $finish(1);
+                            //V(p) <+ 0;
                         end
                     end
                 end
             end else begin //TNODEOUT = 0 for SHMOD = 1 ends here.
                 if ($port_connected(p) && $port_connected(b) && $port_connected(t)) begin
-                    V(b) <+ 0;
+                   $strobe("Error:  you have specified a B node (6th node) when soimod=2 and TNODEOUT=1, and a seventh node for temperature. The B node is not used in this mode and Xyce cannot deal with it as an externally specified node.  Please remove the B node. With TNODEOUT=1, the 6th node should be the last one and will be used for temperature.");
+                   $finish(1);
+                    //V(b) <+ 0;
                 end
             end //TNODEOUT = 1 for SHMOD = 1 ends here.
         end //SHMOD = 1 ends here.
@@ -1868,6 +1936,10 @@ analog begin : the_module
                 $strobe("Warning: cannot connect to 'b' terminal without connecting 'p' terminal.");
             end
         end else begin
+            if ($port_connected(t) == 0 && TNODEOUT==1) begin
+               $strobe("Xyce does not implement the BSIM-SOI 4 model with TNODEOUT and fewer than 7 nodes.  Ignore any subsequent messages regarding node collapse, they are meaningless.");
+               $finish(1);
+            end
             if ($port_connected(b) == 0) begin
                 /* 5-node body tie, bNode has not been assigned */
                 if ((B4SOIrbody == 0.0) && (RBSH == 0.0)) begin
@@ -3159,6 +3231,9 @@ analog begin : the_module
         end // }
 
     end // b4soi_temp // }
+`ifdef __XYCE__
+    end // initialize_instance
+`endif
 
     begin : b4soi_check // {
         integer Fatal_Flag;
@@ -3685,6 +3760,7 @@ analog begin : the_module
         delTemp = Temp(t);
     end
 `endif
+    DevTemp = $temperature + DTEMP;
     DevTemp = delTemp + DevTemp;
     /* TempRatio used for Vth and mobility */
     TempRatio = DevTemp / Tnom;
