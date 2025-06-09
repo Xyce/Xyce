@@ -18,6 +18,8 @@ target_sources(XyceLib PRIVATE
       N_DEV_ADMSbsimcmg_111.C
       N_DEV_ADMSbsim6.C
       N_DEV_ADMSbsimsoi.C
+      N_DEV_ADMSbsimsoi.C
+      N_DEV_ADMSbsimsoi461.C
       N_DEV_ADMSbsimsoi450.C
       N_DEV_ADMSbjt504va.C
       N_DEV_ADMSbjt504tva.C

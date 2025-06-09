@@ -7150,7 +7150,7 @@ analog begin : the_module
                     thermalNoiseContrib = NTNOI * B4SOIueff*abs(B4SOIqinv/(pParam_B4SOIleff*pParam_B4SOIleff+B4SOIueff*abs(B4SOIqinv)
                     *B4SOIrds) );
 
-                    I(di,si) <+ white_noise(MULT_I *abs(fourkt * thermalNoiseContrib), "id");
+                    I(di,si) <+ white_noise(`MFACTOR_USE * MULT_I *abs(fourkt * thermalNoiseContrib), "id");
 
                 end
 
@@ -7181,13 +7181,13 @@ analog begin : the_module
                         gdnoise = gdnoise * (1.0 + npart_theta * npart_theta
                                                 * gdnoise / B4SOIidovVds);
 
-                    I(di,si) <+ white_noise(MULT_I *abs(fourkt * thermalNoiseContrib), "id");
+                    I(di,si) <+ white_noise(`MFACTOR_USE * MULT_I *abs(fourkt * thermalNoiseContrib), "id");
                 end
 
                 2: begin
 
                     thermalNoiseContrib = 2.0/3.0 * NTNOI*abs(B4SOIgm + B4SOIgds + B4SOIgmbs);
-                    I(di,si) <+ white_noise(MULT_I *abs(fourkt * thermalNoiseContrib), "id");
+                    I(di,si) <+ white_noise(`MFACTOR_USE * MULT_I *abs(fourkt * thermalNoiseContrib), "id");
                 end
                 3: begin
 
@@ -7228,13 +7228,13 @@ analog begin : the_module
                     C0          = NF * B4SOIcox * pParam_B4SOIweffCV * pParam_B4SOIleffCV;
                     //sigrat      = C0 / B4SOInoiGd0 * sqrt(delta / gamma);
                     sf = (B4SOInoiGd0+1e-15)/sqrt(delta/gamma);
-                    I(di,si) <+  white_noise(MULT_I *sid*abs(1.0-ctnoi * ctnoi), "id");
-                    I(N)     <+  MULT_I *V(N) * sf * SCALEN;
-                    I(N)     <+  white_noise(MULT_I *sid/(sf*sf*SCALEN*SCALEN), "corl");
+                    I(di,si) <+  white_noise(`MFACTOR_USE * MULT_I *sid*abs(1.0-ctnoi * ctnoi), "id");
+                    I(N)     <+  `MFACTOR_USE * MULT_I *V(N) * sf * SCALEN;
+                    I(N)     <+  white_noise(`MFACTOR_USE * MULT_I *sid/(sf*sf*SCALEN*SCALEN), "corl");
 
-                    I(di,si) <+  MULT_I *ctnoi * V(N)*sf*SCALEN ;
-                    I(gi,si) <+  ddt(MULT_Q * 0.5 * C0 * SCALEN * V(N));
-                    I(gi,di) <+  ddt(MULT_Q * 0.5 * C0 * SCALEN * V(N));
+                    I(di,si) <+  `MFACTOR_USE * MULT_I *ctnoi * V(N)*sf*SCALEN ;
+                    I(gi,si) <+  `MFACTOR_USE * ddt(MULT_Q * 0.5 * C0 * SCALEN * V(N));
+                    I(gi,di) <+  `MFACTOR_USE * ddt(MULT_Q * 0.5 * C0 * SCALEN * V(N));
                 end
             endcase
             if (TNOIMOD != 3) begin
@@ -7325,7 +7325,7 @@ analog begin : the_module
             if (B4SOImode<0) begin
                 flickerNoiseContrib=-flickerNoiseContrib;
             end
-            I(di,si) <+ flicker_noise( MULT_FN *flickerNoiseContrib, EF, "flicker");
+            I(di,si) <+ flicker_noise( `MFACTOR_USE * MULT_FN *flickerNoiseContrib, EF, "flicker");
 
         end // noise // }
 
@@ -7334,21 +7334,21 @@ analog begin : the_module
         /* Absolute values of fourkt * gdnoise and fourkt * gsnoise used by Pankaj in May 2012*/
 
         if (RDSMOD != 2 && (B4SOIdrainResistance + RDC) >= MINR) begin
-            I(d, di) <+  MULT_I * V(d,di) / Rd ;
-            I(d, di) <+ white_noise(MULT_I * abs(fourkt * gdnoise), "rd");
+            I(d, di) <+ `MFACTOR_USE * MULT_I * V(d,di) / Rd ;
+            I(d, di) <+ white_noise(`MFACTOR_USE * MULT_I * abs(fourkt * gdnoise), "rd");
         end else begin
             V(d, di) <+ 0.0;
         end
         if (RDSMOD != 2 && (B4SOIsourceResistance + RSC) >= MINR) begin
-            I(s, si) <+ MULT_I* V(s,si) / Rs  ;
-            I(s, si) <+ white_noise( MULT_I *abs(fourkt * gsnoise), "rs");
+            I(s, si) <+ `MFACTOR_USE * MULT_I* V(s,si) / Rs  ;
+            I(s, si) <+ white_noise( `MFACTOR_USE * MULT_I *abs(fourkt * gsnoise), "rs");
         end else begin
             V(s, si) <+ 0.0;
         end
 
         if (B4SOImode > 0) begin
-            I(di,si)  <+ TYPE * MULT_I *(Ids + Ic) + MULT_I * ($simparam("gmin", 0) * V(di, si));
-            I(di,b)   <+ TYPE *MULT_I * Iii;
+            I(di,si)  <+ `MFACTOR_USE * (TYPE * MULT_I *(Ids + Ic) + MULT_I * ($simparam("gmin", 0) * V(di, si)));
+            I(di,b)   <+ `MFACTOR_USE * TYPE *MULT_I * Iii;
             if ( IDS0MULTMOD != 0 ) begin
                 B4SOIigidl = TYPE * IDS0MULT * Igidl;
                 B4SOIigisl = TYPE * IDS0MULT * Igisl;
@@ -7363,8 +7363,8 @@ analog begin : the_module
             B4SOIqdrn  = TYPE * qdrn;
             B4SOIqsrc  = TYPE * qsrc;
         end else begin
-            I(si,di)  <+ TYPE * MULT_I *(Ids - Ic) +  MULT_I *($simparam("gmin", 0) * V(si, di));
-            I(si,b)   <+ TYPE * MULT_I *Iii;
+            I(si,di)  <+ `MFACTOR_USE * (TYPE * MULT_I *(Ids - Ic) +  MULT_I *($simparam("gmin", 0) * V(si, di)));
+            I(si,b)   <+ `MFACTOR_USE * TYPE * MULT_I *Iii;
             if ( IDS0MULTMOD != 0 ) begin
                 B4SOIigisl = TYPE * IDS0MULT * Igidl;
                 B4SOIigidl = TYPE * IDS0MULT * Igisl;
@@ -7388,14 +7388,14 @@ analog begin : the_module
             B4SOIIgs = TYPE * Igs;
         end
 
-        I(di,b)  <+MULT_I * B4SOIigidl;
-        I(si,b)  <+MULT_I * B4SOIigisl;
-        I(db,di) <+ TYPE * MULT_I *Ibd;
-        I(sb,si) <+ TYPE *MULT_I * Ibs;
-        I(gi,di) <+ MULT_I * (B4SOIIgd + B4SOIIgcd)+ MULT_I * ($simparam("gmin", 0) * V(gi, di));
-        I(gi,si) <+ MULT_I * (B4SOIIgs + B4SOIIgcs)+ MULT_I * ($simparam("gmin", 0) * V(gi, si));
-        I(gi,b)  <+ MULT_I *B4SOIig;
-        I(gi,p)  <+ MULT_I *B4SOIigp;
+        I(di,b)  <+ `MFACTOR_USE * MULT_I * B4SOIigidl;
+        I(si,b)  <+ `MFACTOR_USE * MULT_I * B4SOIigisl;
+        I(db,di) <+ `MFACTOR_USE * TYPE * MULT_I *Ibd;
+        I(sb,si) <+ `MFACTOR_USE * TYPE *MULT_I * Ibs;
+        I(gi,di) <+ `MFACTOR_USE * MULT_I * (B4SOIIgd + B4SOIIgcd)+ `MFACTOR_USE * MULT_I * ($simparam("gmin", 0) * V(gi, di));
+        I(gi,si) <+ `MFACTOR_USE * MULT_I * (B4SOIIgs + B4SOIIgcs)+ `MFACTOR_USE * MULT_I * ($simparam("gmin", 0) * V(gi, si));
+        I(gi,b)  <+ `MFACTOR_USE * MULT_I *B4SOIig;
+        I(gi,p)  <+ `MFACTOR_USE * MULT_I *B4SOIigp;
 
 
         if ((B4SOIbodyMod == 0) || (B4SOIbodyMod == 2))
@@ -7403,8 +7403,8 @@ analog begin : the_module
 
         else
         begin
-            I(b, p)  <+ TYPE *MULT_I * Ibp;
-            I(b, p)  <+ white_noise(MULT_I *fourkt*abs(Ibp)/(abs(vbp)+1.0e-9), "rbp");
+            I(b, p)  <+ `MFACTOR_USE * TYPE *MULT_I * Ibp;
+            I(b, p)  <+ white_noise(`MFACTOR_USE * MULT_I *fourkt*abs(Ibp)/(abs(vbp)+1.0e-9), "rbp");
 
         end
 
@@ -7412,62 +7412,62 @@ analog begin : the_module
         /* Low frequency excess noise due to FBE */
         /* Absolute values of Ibd, Ibs, (B4SOIIgd + B4SOIIgcd), (B4SOIIgs + B4SOIIgcs), and B4SOIig used by Pankaj in May 2012 */
 
-        I(db,di) <+ white_noise( 2 * `P_Q_NIST1998 *MULT_I * NOIF * abs(Ibd), "ibd");
-        I(sb,si) <+ white_noise( 2 * `P_Q_NIST1998 *MULT_I * NOIF * abs(Ibs), "ibs");
+        I(db,di) <+ white_noise( `MFACTOR_USE * 2 * `P_Q_NIST1998 *MULT_I * NOIF * abs(Ibd), "ibd");
+        I(sb,si) <+ white_noise( `MFACTOR_USE * 2 * `P_Q_NIST1998 *MULT_I * NOIF * abs(Ibs), "ibs");
 
         /* v3.2 for gate tunneling shot noise */
-        I(gi,di) <+ white_noise( 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIIgd + B4SOIIgcd), "igd");
-        I(gi,si) <+ white_noise( 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIIgs + B4SOIIgcs), "igs");
-        I(gi,b)  <+ white_noise( 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIig), "igb");
+        I(gi,di) <+ white_noise( `MFACTOR_USE * 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIIgd + B4SOIIgcd), "igd");
+        I(gi,si) <+ white_noise( `MFACTOR_USE * 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIIgs + B4SOIIgcs), "igs");
+        I(gi,b)  <+ white_noise( `MFACTOR_USE * 2 * `P_Q_NIST1998 *MULT_I * abs(B4SOIig), "igb");
 
-        I(di,b)  <+ ddt(MULT_Q *B4SOIqdrn);
-        I(si,b)  <+ ddt(MULT_Q *B4SOIqsrc);
-        I(gi,b)  <+ TYPE * ddt(MULT_Q *qgate);
-        I(e, b)  <+ TYPE * ddt(MULT_Q *qsub);
+        I(di,b)  <+ `MFACTOR_USE * ddt(MULT_Q *B4SOIqdrn);
+        I(si,b)  <+ `MFACTOR_USE * ddt(MULT_Q *B4SOIqsrc);
+        I(gi,b)  <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qgate);
+        I(e, b)  <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qsub);
         //I(b, b)  <+ TYPE * ddt(qbody);
 
-        I(db,di) <+ TYPE * ddt(MULT_Q *qjd);
-        I(sb,si) <+ TYPE * ddt(MULT_Q *qjs);
+        I(db,di) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qjd);
+        I(sb,si) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qjs);
 
         if (RGATEMOD == 3) begin
-            I(gm,di) <+ TYPE * ddt(MULT_Q *qgdo);
-            I(gm,si) <+ TYPE * ddt(MULT_Q *qgso);
-            I(gm, e) <+ ddt(MULT_Q *V(gm,e) * pParam_B4SOIcgeo);
+            I(gm,di) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qgdo);
+            I(gm,si) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qgso);
+            I(gm, e) <+ `MFACTOR_USE * ddt(MULT_Q *V(gm,e) * pParam_B4SOIcgeo);
         end else begin
-            I(gi,di) <+ TYPE * ddt(MULT_Q *qgdo);
-            I(gi,si) <+ TYPE * ddt(MULT_Q *qgso);
-            I(gi, e) <+ ddt(MULT_Q *V(gi,e) * pParam_B4SOIcgeo);
+            I(gi,di) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qgdo);
+            I(gi,si) <+ `MFACTOR_USE * TYPE * ddt(MULT_Q *qgso);
+            I(gi, e) <+ `MFACTOR_USE * ddt(MULT_Q *V(gi,e) * pParam_B4SOIcgeo);
         end
-        I(di,e)  <+ ddt(MULT_Q *B4SOIqde);
-        I(si,e)  <+ ddt(MULT_Q *B4SOIqse);
+        I(di,e)  <+ `MFACTOR_USE * ddt(MULT_Q *B4SOIqde);
+        I(si,e)  <+ `MFACTOR_USE * ddt(MULT_Q *B4SOIqse);
 
         if (RGATEMOD == 0 || RGATEMOD == 2) begin
             V(g, gm) <+ 0;
         end else begin
-            I(g, gm) <+ MULT_I *  V(g, gm) * B4SOIgrgeltd;
+            I(g, gm) <+ `MFACTOR_USE * MULT_I *  V(g, gm) * B4SOIgrgeltd;
             /* Absolute value of fourkt * B4SOIgrgeltd used by Pankaj in May 2012 */
-            I(g, gm) <+ white_noise(MULT_I *  abs(fourkt * B4SOIgrgeltd), "rg");
+            I(g, gm) <+ white_noise(`MFACTOR_USE * MULT_I *  abs(fourkt * B4SOIgrgeltd), "rg");
         end
 
         if (RGATEMOD == 0 || RGATEMOD == 1) begin
             V(gm,gi) <+ 0;
         end else begin
-            I(gm,gi) <+ MULT_I *  V(gm,gi) * B4SOIgcrg;
+            I(gm,gi) <+ `MFACTOR_USE * MULT_I *  V(gm,gi) * B4SOIgcrg;
 
             if (RGATEMOD == 2) begin : rgate2
                 real T0;
                 T0 = 1.0 + B4SOIgrgeltd / B4SOIgcrg;
                 /* Absolute value of fourkt * B4SOIgrgeltd / (T0 * T0) used by Pankaj in May 2012 */
-                I(gm,gi) <+ white_noise( MULT_I *  abs(fourkt * B4SOIgrgeltd / (T0 * T0)), "rg");
+                I(gm,gi) <+ white_noise( `MFACTOR_USE * MULT_I *  abs(fourkt * B4SOIgrgeltd / (T0 * T0)), "rg");
             end
         end
 
         if (RBODYMOD) begin
-            I(b, db) <+ MULT_I *  V(b, db) * B4SOIgrbdb;
-            I(b, sb) <+ MULT_I * V(b, sb) * B4SOIgrbsb;
+            I(b, db) <+ `MFACTOR_USE * MULT_I *  V(b, db) * B4SOIgrbdb;
+            I(b, sb) <+ `MFACTOR_USE * MULT_I * V(b, sb) * B4SOIgrbsb;
             /* Absolute values of fourkt * B4SOIgrbdb and fourkt * B4SOIgrbsb used by Pankaj in May 2012 */
-            I(b, db) <+ white_noise(MULT_I *  abs(fourkt * B4SOIgrbdb), "rbdb");
-            I(b, sb) <+ white_noise(MULT_I *  abs(fourkt * B4SOIgrbsb), "rbsb");
+            I(b, db) <+ white_noise(`MFACTOR_USE * MULT_I *  abs(fourkt * B4SOIgrbdb), "rbdb");
+            I(b, sb) <+ white_noise(`MFACTOR_USE * MULT_I *  abs(fourkt * B4SOIgrbsb), "rbsb");
         end else begin
             V(b, db) <+ 0;
             V(b, sb) <+ 0;
@@ -7477,36 +7477,45 @@ analog begin : the_module
             V(b, si) <+ 0;
 
         // self-heating network (v4.6)
+        // Xyce hack:  all contributions modified to
+        // separate dynamic and static terms due to limitation
+        // of Xyce/ADMS.
 `ifdef PORT_CONNECTED
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    I(b) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    I(b) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
 
                 end else if ($port_connected(p)) begin  // last terminal is 'p'
-                    I(p) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    I(p) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
                 end else begin  // 4-terminal mode ('t' is internal)
                     if (IDS0MULTMOD == 2) begin
-                        Pwr(t) <+ -(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                        Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
                     end else begin
-                        Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                        Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
                     end
                 end
             end else begin
                 if (IDS0MULTMOD == 2) begin
-                    Pwr(t) <+ -(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
                 end else begin
-                    Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                    Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
                 end
             end
         end else begin
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    V(b) <+0;
+                   $strobe("Error:  you have specified a temperature node as the 6th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 6th node.");
+                   $finish(1);
+                    //V(b) <+0;
                 end else if ($port_connected(p)) begin // last terminal is 'p'
-                    V(p) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 5th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 5th node.");
+                   $finish(1);
+                    //V(p) <+ 0;
                 end else begin // 4-terminal mode ('t' is internal)
-                    Temp(t) <+ 0;
+                   $strobe("Error:  you have specified a temperature node as the 7th node with TNODEOUT=0 and self-heating disabled.  This node is not used in this mode and Xyce cannot deal with it being externally specified.  Please remove the 7th node.");
+                   $finish(1);
+                    //Temp(t) <+ 0;
                 end
             end else begin
                 Temp(t) <+ 0;
@@ -7515,9 +7524,9 @@ analog begin : the_module
 `else
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin
             if (IDS0MULTMOD == 2) begin
-                Pwr(t) <+ -(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
             end else begin
-                Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+                Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
             end
         end else begin
             Temp(t) <+ 0;
