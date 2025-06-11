@@ -192,6 +192,13 @@ public:
     virtual double getMeasureResult() {
       return calculationResult_;
     }
+    
+    virtual std::string getFailureResult() {
+      if( (this->failValueGiven_) && (std::abs(getMeasureResult()) >= this->failValue_)) {
+        return " FAILED: Measure exceeds failure value.";
+      }
+      return " OK I guess...";
+    }
 
     // used to get the variable that controls where the measure output appears
     std::string getMeasurePrintOption() const { return measurePrintOption_; }
@@ -221,7 +228,7 @@ public:
         }
         else
 	{
-          os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult() << std::endl;
+          os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult() << this->getFailureResult() << std::endl;
         }
         return os;
     }
@@ -233,7 +240,7 @@ public:
         basic_ios_all_saver<std::ostream::char_type> save(os);
         if (initialized_)
         {
-          os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult() << std::endl;
+          os << name_ << " = " << std::scientific << std::setprecision(precision_) << this->getMeasureResult()  << this->getFailureResult() << std::endl;
         }
         else
         { 
@@ -307,6 +314,8 @@ protected:
     bool fallGiven_;
     int cross_;
     bool crossGiven_; 
+    double failValue_;
+    bool failValueGiven_;
     int actualRise_;
     bool isRising_;
     

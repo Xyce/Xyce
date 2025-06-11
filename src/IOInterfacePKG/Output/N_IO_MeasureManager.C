@@ -1675,6 +1675,7 @@ extractMEASUREData(
   numOrTextKeywords.insert( std::string("RISE") );
   numOrTextKeywords.insert( std::string("FALL") );
   numOrTextKeywords.insert( std::string("CROSS") );
+  numOrTextKeywords.insert( std::string("FAILVALUE") );
   numOrTextKeywords.insert( std::string("FILE") );
   numOrTextKeywords.insert( std::string("COMP_FUNCTION") );
   numOrTextKeywords.insert( std::string("INDEPVARCOL") );
