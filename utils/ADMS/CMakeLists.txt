@@ -1,5 +1,5 @@
 #
-# a CMake script to compile verilogADMS 
+# A CMake script to compile verilogADMS
 # files for use in Xyce as a plugin library
 #
 # Requirements:
@@ -9,13 +9,16 @@
 #  If Xyce was built and installed properly, then
 #  these required files will be in place
 #
-#    <Path to Xyce Install>/bin/admsXml
 #    <Path to Xyce Install>/share/CMakeLists.txt
 #    <Path to Xyce Install>/share/xyceAnalogFunction_nosac.xml
 #    <Path to Xyce Install>/share/xxyceBasicTemplates_nosac.xml
 #    <Path to Xyce Install>/share/xyceHeaderFile_nosac.xml
 #    <Path to Xyce Install>/share/xyceImplementationFile_nosac.xml
 #    <Path to Xyce Install>/share/xyceVersion_nosac.xml
+#
+#  Also, at configure time, Xyce should have found an installation of ADMS. This
+#  script will also look for that installation.
+#
 #
 # How to Run this Script
 # 
@@ -45,6 +48,7 @@ project(xyce_plugin NONE)
 # Xyce is required 
 #file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/.." XyceDirHint )
 find_package(Xyce REQUIRED HINTS @CMAKE_INSTALL_PREFIX@ @CPACK_PACKAGING_INSTALL_PREFIX@)
+find_program(ADMS_XML NAMES admsXml admsXml.exe)
 
 # set up compiler to the same as used for Xyce
 set(CMAKE_CXX_COMPILER ${Xyce_CXX_COMPILER})
@@ -75,8 +79,6 @@ file(REAL_PATH "${Xyce_DIR}/../../../bin/" Xyce_BinDir )
 file(REAL_PATH "${Xyce_DIR}/../../../share/" Xyce_XmlDir )
 message(STATUS "Xyce_BinDir = ${Xyce_BinDir}")
 message(STATUS "Xyce_XmlDir = ${Xyce_XmlDir}")
-find_file( AdmsXMLCommand NAMES "admsXml" "admsXml.exe" PATHS ${Xyce_BinDir} REQUIRED )
-message(STATUS "admsXml = ${AdmsXMLCommand}")
 
 set(ModuleNames)
 set(SourceFiles)
@@ -97,7 +99,7 @@ foreach( vafile ${VERILOG_FILES} )
   message( STATUS "working on ${rawSource} and ${rawHeader}")
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${rawSource} ${CMAKE_CURRENT_BINARY_DIR}/${rawHeader}
-    COMMAND ${AdmsXMLCommand} 
+    COMMAND ${ADMS_XML}
             -D__XYCE__ -x 
             -e ${Xyce_XmlDir}/adms.implicit.xml 
             -e ${Xyce_XmlDir}/xyceVersion_nosac.xml  
@@ -141,7 +143,5 @@ target_include_directories( "${library_name}" PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
 target_link_libraries( "${library_name}" Xyce::XyceLib)
 
 
-message( INFO "Cmake set-up is done.  Run \"cmake --build .\" to build the plugins.")
-
-
+message( INFO " ***Cmake set-up is done.  Run \"cmake --build .\" to build the plugins.***")
 
