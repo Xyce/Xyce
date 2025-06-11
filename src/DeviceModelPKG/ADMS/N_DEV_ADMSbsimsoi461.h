@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jun 2025 17:28:31
+// Creation Date  : Wed, 11 Jun 2025 16:40:59
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi461_h
@@ -4247,7 +4247,7 @@ T limexp(const T &x)
 struct Traits: public DeviceTraits<Model, Instance, MOSFET1::Traits>
 {
   static const char *name() {return "BSIM-SOI 4.6.1";}
-  static const char *deviceTypeName() {return "M level 70461";}
+  static const char *deviceTypeName() {return "M level 70";}
 
   static int numNodes() {return 4;}
 

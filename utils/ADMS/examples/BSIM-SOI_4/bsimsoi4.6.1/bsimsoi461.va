@@ -248,11 +248,11 @@
 
 `ifdef PORT_CONNECTED
 
-    module bsimsoi461(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70461" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
+    module bsimsoi461(d, g, s, e, p, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
     inout      g, d, s, e, p, b, t;
 `else
 
-    module bsimsoi461(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="70461" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
+    module bsimsoi461(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
     inout      g, d, s, e;
 `endif
 

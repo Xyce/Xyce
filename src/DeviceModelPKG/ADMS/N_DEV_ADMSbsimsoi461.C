@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Mon, 09 Jun 2025 17:28:31
+// Creation Date  : Wed, 11 Jun 2025 16:40:59
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -38101,13 +38101,13 @@ void
 registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 {
 if (deviceMap.empty() ||
-((deviceMap.find("M") != deviceMap.end() && (levelSet.find(70461)!=levelSet.end()))))
+((deviceMap.find("M") != deviceMap.end() && (levelSet.find(70)!=levelSet.end()))))
 {
 MOSFET1::registerDevice();
   Config<Traits>::addConfiguration()
-    .registerDevice("m", 70461)
-    .registerModelType("nmos", 70461)
-    .registerModelType("pmos", 70461);
+    .registerDevice("m", 70)
+    .registerModelType("nmos", 70)
+    .registerModelType("pmos", 70);
 }
 }
 
