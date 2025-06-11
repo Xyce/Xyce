@@ -7484,22 +7484,27 @@ analog begin : the_module
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin /* 2014bug2 */ /* v4.6 */
             if (TNODEOUT && !$port_connected(t)) begin
                 if ($port_connected(b)) begin // last terminal is 'b'
-                    I(b) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
-
+                    I(b) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    I(b) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else if ($port_connected(p)) begin  // last terminal is 'p'
-                    I(p) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                    I(p) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    I(p) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else begin  // 4-terminal mode ('t' is internal)
                     if (IDS0MULTMOD == 2) begin
-                        Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                        Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + delTemp / pParam_B4SOIrth);
+                        Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                     end else begin
-                        Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                        Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                        Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                     end
                 end
             end else begin
                 if (IDS0MULTMOD == 2) begin
-                    Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end else begin
-                    Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                    Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
                 end
             end
         end else begin
@@ -7524,9 +7529,11 @@ analog begin : the_module
 `else
         if ((SHMOD == 1) && (RTH0 != 0.0)) begin
             if (IDS0MULTMOD == 2) begin
-                Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*(-(Ids / IDS0MULT) * Vds + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
             end else begin
-                Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*(-Ids * Vds + delTemp / pParam_B4SOIrth);
+                Pwr(t) <+ `MFACTOR_USE*ddt(delTemp * pParam_B4SOIcth);
             end
         end else begin
             Temp(t) <+ 0;
