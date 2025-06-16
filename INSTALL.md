@@ -1,7 +1,6 @@
 # Xyce Configure, Build and Installation Guide Using CMake
 
-> [!NOTE]
-> __The Autotools configuration and build system is DEPRECATED in Xyce 7.10__
+> **Note:** _The Autotools configuration and build system was DEPRECATED in Xyce 7.10_
 
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -9,134 +8,161 @@
 This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).
-(For instructions on building Xyce with the deprecated Autotools system, see the
-[Xyce Building Guide - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide/).)
+For instructions on building Xyce with the deprecated Autotools system, see the
+[Xyce Building Guide - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
 
-Xyce can be built for serial execution or with distributed-memory (MPI) parallelism. This
-is determined by the parallelism enabled in the build of Trilinos used to configure Xyce.  Multiple builds of Xyce can
-co-exist on a system, but they must be installed in different directories (for both Trilinos and Xyce).
+Xyce can be built for serial execution or with distributed-memory (MPI)
+parallelism. This is determined by the parallelism enabled in the build of
+Trilinos used when configuring Xyce. Different variants of Xyce and Tilinos can
+co-exist on a system, but the variants must be installed in different
+directories.
 
-__Binary installers for Windows, Mac and Red Hat Linux are made available for the latest release of Xyce on the
-[Xyce website](https://xyce.sandia.gov).__ Installers for previous versions of Xyce
-may be made available upon request at the Xyce [contact-us](https://xyce.sandia.gov/contact-us/)
-page.
+__Binary installers for Windows, macOS and Red Hat Linux are made available for
+the latest release of Xyce on the [Xyce website](https://xyce.sandia.gov)__.
+Installers for previous versions of Xyce may be made available upon request at
+the Xyce [contact-us](https://xyce.sandia.gov/contact-us/) page.
 
 ## Overview
 
-Building and installing Xyce from source requires the following general steps:
-- Install the tools required in the list of [prerequisites](#prerequisites)
-- [Build and install](#building-trilinos) Trilinos from [source code](https://github.com/trilinos/Trilinos)
-- [Download](https://xyce.sandia.gov/downloads/source-code) or [clone](https://github.com/Xyce/Xyce) the Xyce repository
-- [Build and install](#building-xyce) Xyce
+Building and installing Xyce from source involves the following steps:
+1. Install the [prerequisite](#prerequisites) libraries and tools
+2. [Build and install](#building-trilinos) Trilinos from the
+   [source code](https://github.com/trilinos/Trilinos)
+3. [Build and install](#building-xyce) Xyce from the Xyce
+   [website](https://xyce.sandia.gov/downloads/source-code) or
+   [GitHub](https://github.com/Xyce/Xyce)
 
-> [!NOTE] 
-> Using install/uninstall commands may require administrative priviledges on Unix-like systems.
+> **Note:** Some install/uninstall commands may require administrative
+> privileges on Unix-like systems.
 
 ## Prerequisites
 
-Xyce depends on many external libraries to supply enhanced parsing, mathematical 
-algorithms and parallel communication. Some of the required libraries may already 
-be present on your system, and many can be obtained with package managers. Rarely, 
-some will have to be built from source. Install all of the required, and any of the
-optional libraries related to capabilities of interest, prior to building Xyce.
+Xyce depends on external libraries to supply enhanced parsing, mathematical
+algorithms and parallel communication. Most Linux distributions will have the
+required components already installed, or they can be added via the package
+manager. For Mac and Windows, refer to the
+[System-Specific Modifications](#system-specific-modifications) section for
+guidance. If needed, the prerequisites can be built from source.
 
->[!NOTE] Please be sure to understand the licenses associated with the various libraries. Most of the licenses are common and should be acceptable to most users. Inclusion of some non-open-source libraries could limit your rights to distribute binaries you produce.
+Be sure all the prerequisites are installed prior to [building Trilinos](#building-trilinos).
 
-| Name  | Version | Required | Notes |
-| :---  | :---    | :---:    | :---  |
-| CMake | 3.22 or later | No | [CMake](https://cmake.org) will be required in release 7.11. |
-| Build system | various | Yes | CMake requires a build system; e.g., [Make](https://www.gnu.org/software/make/), [Ninja](https://ninja-build.org/), [Jom](https://wiki.qt.io/Jom) |
-| C/C++ compiler | various | Yes | C++-17 compliant compiler; e.g., gcc 9 or later, Clang 5 or later |
-| Fortran compiler | various | No | Trilinos has Fortran code, Xyce does not.  It is technically [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code), but not using the Fortran code, though, could result in slower performance. | 
-| MPI compiler | various | No | This is only required for a distributed-memory parallel build of Xyce. [Open MPI](http://www.open-mpi.org) ([MPICH](https://www.mpich.org/) should also work, but the Xyce team does not regularly build with that library). |
-| bison | 3.3 or later | Yes | Included in most operating systems and package management systems. If not, [download](http://www.gnu.org/software/bison/), compile, and install the library. |
-| flex | 2.6 or later | Yes | Included in most operating systems and package management systems. If not, [download]( https://github.com/westes/flex), compile, and install the library. |
-| BLAS  | any | Yes | Most systems have a version of BLAS included with the compiler or in their package management systems.  If not, BLAS source code may be [downloaded](http://www.netlib.org/blas). |
-| LAPACK | any | Yes | Most systems have a version of LAPACK included with the compiler or in their package management systems.  If not, LAPACK source code may be [downloaded](http://www.netlib.org/lapack). |
-| FFT | FFTW 3.x or Intel MKL | No | This is required for Harmonic Balance analysis, which will be disabled without an FFT library.  FFTW3 is available in most package management systems. If not, download [FFTW](http://www.fftw.org) or the [Intel MKL](http://software.intel.com). |
-| SuiteSparse | 7.8.3 or later | Yes | Xyce uses AMD through Trilinos, which is part of the SuiteSparse library.  If necessary, [download](https://github.com/DrTimothyAldenDavis/SuiteSparse), [compile, and install](#building-suitesparse) the library.
-| Trilinos | 14.4 and later | Yes | Xyce requires Trilinos for linear algebra and solvers.  The current minimum version of [Trilinos](https://github.com/trilinos/Trilinos) usable in a cmake-configured Xyce is version 14.4.  __Versions after 14.4 have not been rigorously tested with Xyce and may not work properly.__ If necessary, [download](https://github.com/trilinos/Trilinos/archive/refs/heads/trilinos-release-14-4-branch.zip), [compile, and install](#building-trilinos) the library. |
+| Dependency         | Version               | Required | Notes |
+| :----------------  | :-------------------- | :------: | :---  |
+| CMake              | 3.22 or later         |   \*No   | CMake automates the Xyce build process. (\*[CMake](https://cmake.org) will be required in release 7.11.) |
+| Build system       | various               |   Yes    | CMake requires a build system, such as [Make](https://www.gnu.org/software/make/), [Ninja](https://ninja-build.org/), or [Jom](https://wiki.qt.io/Jom). |
+| C/C++ compiler     | various               |   Yes    | Any modern C++17 compliant compiler—such as gcc, Clang, or Intel—should work. |
+| Fortran compiler   | various               |   No     | Trilinos has Fortran code, but Xyce does not. It is technically [optional](https://docs.trilinos.org/files/TrilinosBuildReference.html#disabling-the-fortran-compiler-and-all-fortran-code), but not using the Fortran code could result in slower performance. Both the gcc and Intel compiler suites include a Fortran compiler. |
+| MPI compiler       | various               |   No     | This only needed for a distributed-memory parallel build of Xyce. [Open MPI](http://www.open-mpi.org) is recommended. ([MPICH](https://www.mpich.org/) should also work, but the Xyce project does not regularly build with that library.) |
+| bison              | 3.3 or later          |   Yes    | [Bison](http://www.gnu.org/software/bison/) is used for various parsing/lexing in Xyce. |
+| flex               | 2.6 or later          |   Yes    | [flex](https://github.com/westes/flex) is used for various parsing/lexing in Xyce. |
+| BLAS               | any                   |   Yes    | The [BLAS](http://www.netlib.org/blas) numerical package is used via Trilinos. |
+| LAPACK             | any                   |   Yes    | The [LAPACK](http://www.netlib.org/lapack) numerical package is used via Trilinos. |
+| FFT                | FFTW 3.x or Intel MKL |   No     | This is required for Harmonic Balance analysis, which will be disabled without an FFT library. Xyce can use [FFTW](http://www.fftw.org) or the [Intel MKL](http://software.intel.com). |
+| SuiteSparse        | 7.8.3 or later        |   Yes    | Xyce uses AMD, which is part of the SuiteSparse library. It enabled via Trilinos. If needed, [download](https://github.com/DrTimothyAldenDavis/SuiteSparse), compile, and install the library according to the [Building SuiteSparse](#building-suitesparse) section, below. |
 
-
-The [Building Xyce](#building-xyce) 
-section covers the traditional build method for Xyce.  Some operating systems require modifications to these instructions for Xyce or prerequisite libraries. Refer to the [System-Specific Modifications](#system-specific-modifications) section to review any notes or 
-issues that have been documented for the operating system you are using.  There are also some general notes collected 
-below to assist in building the prerequisite libraries.
+### Building SuiteSparse
 
 <details>
-<summary>Open MPI</summary>
+<summary>Click here for build instructions</summary>
 
-### Open MPI
+If SuiteSparse is not provided by a package manager, the more recent versions
+are easy to build with CMake. SuiteSparse version 7.8.3 or later is
+recommended. Xyce depends only on the AMD and SuiteSparse_config packages in
+SuiteSparse.
 
-Some Linux distributions from between 2017 and 2020 have broken versions of Open MPI in their package repositories.  We are not aware of continuing problems in newer releases of these Linux systems.  In the problem releases, the version of Open MPI in the repositories is compiled with the `--enable-heterogeneous` option, which breaks MPI's standard compliance and causes Xyce to fail in some situations.
+To build and install AMD, first, download SuiteSparse from
+[GitHub](https://github.com/DrTimothyAldenDavis/SuiteSparse).
+Next, create a build directory and go into it. Finally enter the following,
+at the command line, replacing the items in angle brackets with the appropriate
+values. We recommend installing AMD to the same location as Trilinos. 
+```sh
+cmake \
+-D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-Trilinos> \
+-D SUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd" \
+<path/to/SuiteSparse> 
 
-__Ubuntu — beginning with release 17.10 and continuing up to but not including 20.04 LTS — is an example Linux distribution we have encountered with this issue.  See comment 11 of the [Launchpad bug
-report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11).__
+cmake --build -t install
+```
+</details>
 
-To check whether your system's install of Open MPI has this issue,
-you can run a small test program from the Xyce source tree. To test your
-Open MPI package, copy the file,
-[Xyce/src/test/MPITest/testBUG967.c](src/test/MPITest/testBUG967.c), into
-temporary directory. Then compile and run it using the following commands:
+### Broken Open MPI on Older Linux Distros
+
+<details>
+<summary>Click here for more information</summary>
+
+Some Linux distributions from between 2017 and 2020 have broken versions of
+Open MPI in their package repositories. We are not aware of continuing
+problems in newer releases of these Linux systems. In the problem releases,
+the version of Open MPI in the repositories is compiled with the
+`--enable-heterogeneous` option, which breaks MPI's standard compliance and
+causes Xyce to fail in some situations.
+
+We have encountered with this issue with Ubuntu, beginning with release 17.10
+and continuing up to, but not including, 20.04 LTS. See comment 11 of the
+[Launchpad bug report](https://bugs.launchpad.net/ubuntu/+source/openmpi/+bug/1731938/comments/11).
+
+To check whether your system's install of Open MPI has this issue, you can run
+a small test program from the Xyce source tree. To test your Open MPI package,
+copy the file, [Xyce/src/test/MPITest/testBUG967.c](src/test/MPITest/testBUG967.c),
+into temporary directory. Then compile and run it using the following commands:
 ```sh
 mpicc -o testBUG967 testBUG967.c
 mpirun -np 2 ./testBUG967
 ```
-If the run produces any output with the word __BAD__, your Open MPI install is broken and cannot be used. 
+If the run produces any output with the word __BAD__, your Open MPI install is
+broken and cannot be used. 
+
 </details>
 
-<details>
-<summary>Building SuiteSparse</summary>
+## Building Trilinos
 
-### Building SuiteSparse
-If SuiteSparse is not provided by a package manager, this is not difficult and more recent versions provide build 
-support with CMake. SuiteSparse version 7.8.3 or later is recommended. Xyce only depends on the AMD and 
-SuiteSparse_config packages in SuiteSparse.
+> **Note:** [Trilinos](https://trilinos.github.io/) is available in some
+> package managers, but the particular installation may not have all the
+> features required by Xyce. If Trilinos is available, you can try to use it to
+> configure and build Xyce. If any issue is encountered, build Trilinos using
+> these instructions.
 
-```sh
-cmake \
--D CMAKE_INSTALL_PREFIX=</path/to/install/SuiteSparse> \
--D SUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd" \
--S <path/to/source-directory>\ 
--B <path/to/build-directory>\
+> **Note:** To build Trilinos on Windows, see the Windows section under
+> [System-Specific Modifications](#system-specific-modifications).
 
-cmake --build <> -j 2 -t install
-```
-</details>
+Trilinos is an extensive set of numerical packages for a wide range of
+computational problems. This section will provide a general overview of
+building Trilinos for Xyce. For detailed questions on Trilinos or its build
+system see the Trilinos
+[getting started page](https://trilinos.github.io/getting_started.html).
 
-<details>
-<summary>Building Trilinos</summary>
+The current minimum version of [Trilinos](https://github.com/trilinos/Trilinos)
+usable in a CMake-configured Xyce is 14.4. __Versions after 16.1 have not been
+rigorously tested with Xyce and may not work properly.__ A zip file of Trilinos
+version 14.4 can be downloaded
+[here](https://github.com/trilinos/Trilinos/archive/refs/heads/trilinos-release-14-4-branch.zip).
 
-### Building Trilinos
-Trilinos is an extensive set of numerical packages for a wide range of computational problems. This section will provide a general overview of building Trilinos for Xyce. For detailed questions on Trilinos or its build system see the Trilinos [getting started page](https://trilinos.github.io/getting_started.html).
+The following process will produce a serial Trilinos installation that will
+contain only the libraries needed by Xyce. For a distributed-memory parallel
+build, be sure to understand the serial build process prior to reading the
+[Building Trilinos with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section.
 
->[!NOTE]
->[Trilinos](https://trilinos.github.io/) is available in some package
-managers, but the particular installation may not have all the features required by Xyce. If Trilinos is available, you can try to use it to configure and build Xyce.  If any issue is encountered, build Trilinos using these instructions.
+It is recommended to build the necessary packages outside the Trilinos source
+code directories. 
+1. Create a directory in a convenient location where you will build a serial
+   version of Trilinos. 
+2. Identify a convenient location for the Trilinos installation. On Unix-like
+   systems, the default Trilinos installation location is `/usr/local`.
+   Multiple installations of Trilinos can exist on the same system, but they
+   must be in different directories. We recommend specifying unique
+   sub-directories in `/usr/local`, such as `/usr/local/trilinos_serial`. The
+   installation directory can be changed by adding the following flag to the
+   CMake invocation.
+   ```sh
+   -D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-Trilinos> \
+   ```
+3. Verify the location of your compilers. If you have compilers or libraries in
+   non-standard locations, see the [Other Trilinos Options](#other-trilinos-options)
+   section, below.
 
->[!NOTE]
-> To build Trilinos on Windows, see the Windows section under
-[System-Specific Modifications](#system-specific-modifications).
-
-The following process will produce a serial Trilinos installation that will 
-contain only the libraries needed by Xyce. For a distributed-memory parallel build, be sure to
-understand the serial build process prior to reading the [Building Trilinos
-with MPI Parallelism](#building-trilinos-with-mpi-parallelism) section.
-
-Because of the size and complexity of Trilinos, it is recommended to build the necessary packages outside the Trilinos source code directories. 
-1. Create a directory in a convenient location where you will build a serial version of Trilinos. 
-2. Identify a convenient location for the Trilinos installation. On Unix-like systems, the default Trilinos installation
-location is `/usr/local`. Multiple installations of Trilinos can exist on the same system, but they must be in different directories. We recommend specifying
-unique sub-directories in `/usr/local`, such as `/usr/local/trilinos_serial`.  The installation directory can be changed by adding the following flag to the CMake invocation.
-```sh
--D CMAKE_INSTALL_PREFIX=<path/to/where-you-will-install-Trilinos> \
-```
-3. Verify the location of your compilers.  If you have compilers or libraries in non-standard locations, see the [Other
-Trilinos Options](#other-trilinos-options) section, below.
-
-A CMake "initial cache" file, called `trilinos-base.cmake`, is included in
-the Xyce repository in the `cmake/trilinos` directory. The file contains a
-typical set of options for a Xyce-oriented serial Trilinos build.
+A CMake "initial cache" file, called `trilinos-base.cmake`, is included in the
+Xyce repository in the `cmake/trilinos` directory. The file contains a typical
+set of options for a Xyce-oriented serial Trilinos build.
 
 To configure Trilinos (using the default `/usr/local` install location), enter
 the build directory and run:
@@ -153,9 +179,12 @@ Trilinos. Choose an appropriate number for your system.
 
 #### Other Trilinos Options
 
+<details>
+<summary>Click here for more details about building Trilinos</summary>
+
 The following are various flags that might be needed when building Trilinos.
-These can be added to the command line, or put in a [configuration
-script](#configuration-scripts).
+These can be added to the command line, or put in a
+[configuration script](#configuration-scripts).
 
 CMake will use the first compiler set it finds on your system. You can specify
 the compilers by adding the following flags to the CMake invocation:
@@ -167,15 +196,15 @@ the compilers by adding the following flags to the CMake invocation:
 You may need to use a full path if they cannot be located in your default paths.
 
 If no Fortran compiler is available you can use:
-```
+```sh
 -DTrilinos_ENABLE_Fortran=OFF \
 ```
 to disable any Fortran-dependent code in Trilinos.
 
 On some systems it may be necessary to add the following to your CMake
-invocation if the installed C compiler treats implicitly defined functions
-as errors, such as Apple's clang.
-```
+invocation if the installed C compiler treats implicitly defined functions as
+errors, such as Apple's Clang.
+```sh
 -DCMAKE_C_FLAGS="-Wno-error=implicit-function-declaration" \
 ```
 
@@ -188,11 +217,14 @@ libraries:
 -D BLAS_LIBRARY_DIRS=/path/to/BLAS/lib \
 -D LAPACK_LIBRARY_DIRS=/path/to/LAPACK/lib \
 ```
-See the [Trilinos Build
-Reference](https://docs.trilinos.org/files/TrilinosBuildReference.html) for
-more details on the Trilinos build options.
+See the [Trilinos Build Reference](https://docs.trilinos.org/files/TrilinosBuildReference.html)
+for more details on the Trilinos build options.
+</details>
 
 #### Building Trilinos with MPI Parallelism
+
+<details>
+<summary>Click here for the MPI parallel Trilinos building instructions</summary>
 
 To enable MPI parallelism in Xyce, Trilinos must be built with MPI enabled. An
 "initial cache" file, called `trilinos-MPI-base.cmake`, is provided for MPI
@@ -219,11 +251,13 @@ cmake --build . -j 2 -t install
 
 ## Building Xyce
 
->[!NOTE] __If you plan to have multiple builds of Xyce on your
-system, they must be in different directories. We recommend specifying unique
-sub-directories in `/usr/local`, such as `/usr/local/xyce_serial` or `/usr/local/xyce_mpi`.__
+> **Note:** If you plan to have multiple builds of Xyce on your system, they
+> must be in different directories. We recommend specifying unique
+> sub-directories in `/usr/local`, such as `/usr/local/xyce_serial` and
+> `/usr/local/xyce_mpi`.
 
-The generalized process for a serial configuration of Xyce, given that Trilinos is already [installed](#building-trilinos), can be summarized as:
+The generalized process for a serial configuration of Xyce, assuming Trilinos
+is already [installed](#building-trilinos), can be summarized as:
 
 ```sh
 cd <your-build-directory>
@@ -240,38 +274,45 @@ The simple CMake invocation above assumes that:
 - All the required [prerequisites](#prerequisites) are found in your default paths  
 - Trilinos is installed in the `Trilinos_ROOT` directory
 - Xyce will be installed in the `CMAKE_INSTALL_PREFIX` directory
-- The first compiler found in your default paths is the __same__ one used to build Trilinos.  
+- The first compiler found in your default paths is the __same__ one used to
+  build Trilinos.
 
-If a different C/C++ compiler was used to build Trilinos, specify that compiler using these commands:
+If a different C/C++ compiler was used to build Trilinos, specify that compiler
+using these commands:
 ```sh
 -D CMAKE_C_COMPILER=<C-compiler> \
 -D CMAKE_CXX_COMPILER=<C++-compiler> \
 ```
-You may need to use a full path if the compilers cannot be located in your default paths.  If additional compiler flags need to be passed to the C/C++ compiler, use these commands:
+You may need to use a full path if the compilers cannot be located in your
+default paths. If additional compiler flags need to be passed to the C/C++
+compiler, use these commands:
 ```sh
 -D CMAKE_C_FLAGS=<flags> \
 -D CMAKE_CXX_FLAGS=<flags> \
 ```
 
-If a required prerequiste is not found in your default path, then you must specify the location of those headers, libraries, or executables.  Xyce provides special CMake options for some of these prerequisites, like flex and bison:
+If a required prerequiste is not found in your default path, then you must
+specify the location of those headers, libraries, or executables. Xyce provides
+special CMake options for some of these prerequisites, like flex and bison:
 ```sh
 -D FLEX_EXECUTABLE=<path/to/flex-install-location>/bin/flex \
 -D FLEX_INCLUDE_DIR=<path/to/flex-install-location>/include \
 -D BISON_EXECUTABLE=<path/to/bison-install-location>/bin/bison \
 ```
 
-Once the configuration step is done, run the
-following in the `xyce-build` directory to compile and install Xyce in the `CMAKE_INSTALL_PREFIX` directory:
+Once the configuration step is done, run the following in the `xyce-build`
+directory to compile and install Xyce in the `CMAKE_INSTALL_PREFIX` directory:
 ```sh
 cmake --build . -j 2 -t install
 ```
-The "-j 2" designates the number of processors to be used for compiling Xyce.
+The `-j 2` indicates that two processors should be used for compiling Xyce.
 Choose an appropriate number for your system.
 
 ### Building Xyce with MPI Parallelism
 
-The generalized process for a parallel configuration of Xyce, given that MPI-enabled Trilinos libraries are already [installed](#building-trilinos), can be summarized as:
-
+The generalized process for a parallel configuration of Xyce, given that
+MPI-enabled Trilinos libraries are already [installed](#building-trilinos), can
+be summarized as:
 ```sh
 cd <your-build-directory>
 mkdir xyce-mpi-build
@@ -289,13 +330,16 @@ The simple CMake invocation above assumes that:
 - All the required [prerequisites](#prerequisites) are found in your default paths  
 - Trilinos is installed in the `Trilinos_ROOT` directory
 - Xyce will be installed in the `CMAKE_INSTALL_PREFIX` directory
-- The MPI compilers provided to `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`  are the __same__ ones used to build Trilinos.  
+- The MPI compilers provided to `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILER`
+  are the __same__ ones used to build Trilinos.
 
-You may need to use a full path to the MPI compilers if they cannot be located in your default paths.  Also, if a required prerequisite is not found in your default path, like flex or bison, then you must specify the location of those executables (see above).  
+If a required prerequisite is not found in your default path, like flex or
+bison, then you must specify the location of those executables (see the serial
+[Building Xyce](#building-xyce) section, above).
 
-As with the serial build, 
-once the configuration step is done, run the
-following in the `xyce-build` directory to compile and install Xyce in the `CMAKE_INSTALL_PREFIX` directory:
+As with the serial build, once the configuration step is done, run the
+following in the `xyce-build` directory to compile and install Xyce in the
+`CMAKE_INSTALL_PREFIX` directory:
 ```sh
 cmake --build . -j 2 -t install
 ```  
@@ -303,21 +347,20 @@ cmake --build . -j 2 -t install
 ### Adding the Xyce/ADMS Verilog-A Model Compiler
 
 Xyce has a Verilog-A model compiler capability, which uses the "Xyce/ADMS"
-compiler tool. See the [Xyce/ADMS Users
-Guide](https://xyce.sandia.gov/documentation-tutorials/xyce-adms-users-guide/)
+compiler tool. See the
+[Xyce/ADMS Users Guide](https://xyce.sandia.gov/documentation-tutorials/xyce-adms-users-guide/)
 for more information on the capability and for instructions on using Xyce/ADMS.
 
 To enable the feature with CMake, install [ADMS](https://github.com/Qucs/ADMS)
 prior to building Xyce. Then, to enable the capability in the Xyce build, add
 the following flag to the Xyce CMake invocation:
 ```sh
--D Xyce_PLUGIN_SUPPORT=ON
+-D Xyce_PLUGIN_SUPPORT=ON \
 ```
 The CMake support for the plugin capability is still being developed. As such,
 there are some differences from the website:
 - The "toys" example is installed in `/path/to/install/share/examples/toys`.
-- The `buildxyceplugin.sh` script requires the absolute path to the `.va`
-  files.
+- The `buildxyceplugin.sh` script requires the absolute path to the `.va` files.
 - The name of the plugin file can vary by system (e.g., on a Mac, the "toys"
   library will be called, "libtoys.dylib", not "toys.so").
 
@@ -341,9 +384,9 @@ changed). Then Xyce and/or Trilinos can be uninstalled at any time using the
 
 ## Running the Test Suite
 
-If you wish to test the Xyce installation, run the [Xyce Regression
-Suite](https://github.com/Xyce/Xyce_Regression). See the [Running the Xyce Regression
-Suite](https://xyce.sandia.gov/documentation-tutorials/running-the-xyce-regression-suite/)
+If you wish to test the Xyce installation, run the
+[Xyce Regression Suite](https://github.com/Xyce/Xyce_Regression). See the
+[Running the Xyce Regression Suite](https://xyce.sandia.gov/documentation-tutorials/running-the-xyce-regression-suite/)
 documentation on the Xyce home page. Note that the test suite is controlled
 with Perl and Bash scripts, and some tests require Python with Scipy and Numpy.
 
@@ -377,25 +420,26 @@ the CMake configure line directly.
 
 ## System-Specific Modifications
 
-The instructions above are applicable to most operating systems. However some operating systems require modifications to the above process, which are included here.
+The instructions above are applicable to Linux and similar systems. However,
+additional instructions are provided here for Windows and macOS. Click on the
+following for more information.
 
 <details>
 <summary>Windows</summary>
 
-
-*Build tools:*  
+*Build tools:*\
 Compiling Xyce on Windows is not a small task at the moment, primarily because
-Windows does not have the equivalent of a package manager. Internally, we use
-the Intel compiler suite with the Intel [Math Kernel
-Library](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html)
+Windows does not have the equivalent of a package manager. The Xyce team uses
+the Intel compiler suite with the Intel
+[Math Kernel Library](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html)
 (MKL). The MKL provides the BLAS, LAPACK and FFT capabilities (removing the need
 for FFTW). At the beginning of 2021, Intel rebranded their tool chains as the
 [oneAPI](https://software.intel.com/content/www/us/en/develop/tools/oneapi.html)
-Toolkits, and makes them available for free. The [oneAPI Base
-Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html)
-is sufficient for building Xyce and Trilinos. Running the setvars.bat 
-(Component Directory Layout) or oneapi-vars.bat (Unified Directory Layout) 
-script that installs with oneAPI can help ensure that the necessary environment 
+Toolkits, and makes them available for free. The
+[oneAPI Base Toolkit](https://software.intel.com/content/www/us/en/develop/tools/oneapi/base-toolkit.html)
+is sufficient for building Xyce and Trilinos. Running the setvars.bat
+(Component Directory Layout) or oneapi-vars.bat (Unified Directory Layout)
+script that installs with oneAPI can help ensure that the necessary environment
 variables and paths are set for building.
 
 Note that the oneAPI toolkit requires a compatible version of
@@ -403,15 +447,18 @@ Note that the oneAPI toolkit requires a compatible version of
 to be installed first to provide required system libraries. Check the 
 [Intel compiler compatibility site](https://www.intel.com/content/www/us/en/developer/articles/reference-implementation/intel-compilers-compatibility-with-microsoft-visual-studio-and-xcode.html).
 To find a suitable version of BuildTools, you may need to refer to one of the 
-Long Term Servicing Channels for Visual Studio [2022](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#release-dates-and-build-numbers) or [2019](https://learn.microsoft.com/en-us/visualstudio/releases/2019/history).
+Long Term Servicing Channels for Visual Studio
+[2022](https://learn.microsoft.com/en-us/visualstudio/releases/2022/release-history#release-dates-and-build-numbers)
+or
+[2019](https://learn.microsoft.com/en-us/visualstudio/releases/2019/history).
 The Microsoft Build Tools will also supply CMake, as well as several supported 
 build tool options (msbuild, nmake and ninja).
 
-Trilinos does not test their code on Windows (versions 14.0 and earlier may be 
-unstable on Windows platforms). The initial configuration file for Trilinos in 
-`path/to/Xyce/cmake/trilinos/trilinos-base.cmake` may require a few extra 
+Trilinos does not test their code on Windows (versions 14.0 and earlier may be
+unstable on Windows platforms). The initial configuration file for Trilinos in
+`path/to/Xyce/cmake/trilinos/trilinos-base.cmake` may require a few extra
 options:
-```
+```sh
 cmake ^
     -C path\to\Xyce\cmake\trilinos\trilinos-base.cmake ^
     -D HAVE_TEUCHOS_LAPACKLARND=OFF ^
@@ -480,21 +527,27 @@ recommended set of packages include:
 There are few tests in the regression suite that use the python package scipy. 
 This package is not included in any of the available cygwin packages. After 
 cygwin is in place, you can use pip to install scipy.
-
 </details>
 
 <details>
-<summary>MacOS</summary>
+<summary>macOS</summary>
 
-MacOS provides a code development environment through [Xcode](https://developer.apple.com/xcode/), which includes a C/C++ compiler and BLAS/LAPACK libraries.
+macOS provides a code development environment through
+[Xcode](https://developer.apple.com/xcode/), which includes the Clang C/C++
+compiler and BLAS/LAPACK libraries. It does not include a Fortran compiler. For
+that, install gcc from one of the package managers (below) or use the
+```sh
+-D Trilinos_ENABLE_Fortran=OFF \
+```
+flag when doing the Trilinos CMake configuration.
 
-MacOS does not have a native package manager, but there are several third-party package managers available. The Xyce team has had success with [MacPorts](https://www.macports.org/) and [Homebrew](https://brew.sh/).
+macOS does not have a native package manager, but there are several third-party
+package managers available. The Xyce team has had success with
+[MacPorts](https://www.macports.org/) and [Homebrew](https://brew.sh/).
 
-- Rarely failures have been observed when using the Apple Clang compilers _and not_
-using a Fortran compiler. If the Trilinos build fails while compiling AztecOO,
-then you will either need to use different C/C++ compilers, or install gfortran
-with a package manager (it is usually supplied with the gcc package).
-
-__Xyce/ADMS on MacOS__\
-The `buildxyceplugin.sh` script relies on the behavior of GNU "readlink", which is very different than BSD readlink (MacOS is based on BSD Unix). You can obtain GNU readlink by installing the "coreutils" package from MacPorts or Homebrew.
+__Xyce/ADMS on macOS__\
+The `buildxyceplugin.sh` script relies on the behavior of GNU "readlink", which
+is very different than BSD readlink (macOS is based on BSD Unix). You can
+obtain GNU readlink by installing the "coreutils" package from MacPorts or
+Homebrew.
 </details>
