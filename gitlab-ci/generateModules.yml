@@ -30,12 +30,14 @@ include:
         printf "puts stderr \"Access requires subscription to the Xyce resource through WebCARS.\"" >> ${MyModuleFileName}
         printf "}\n" >> ${MyModuleFileName}
         printf "\n" >> ${MyModuleFileName}
-        printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
-        printf "puts stderr \"WARNING:\"\n" >> ${MyModuleFileName}
-        printf "puts stderr \"This module enables access to a development version of XyceRad\"\n" >> ${MyModuleFileName}
-        printf "puts stderr \"that should under no circumstances be used for production calculations.\"\n" >> ${MyModuleFileName}
-        printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
-        printf "\n" >> ${MyModuleFileName}
+        if [[ "${DEFAULT_BRANCH}" =~ release-[1-9].* ]]; then
+          printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
+          printf "puts stderr \"WARNING:\"\n" >> ${MyModuleFileName}
+          printf "puts stderr \"This module enables access to a development version of XyceRad\"\n" >> ${MyModuleFileName}
+          printf "puts stderr \"that should under no circumstances be used for production calculations.\"\n" >> ${MyModuleFileName}
+          printf "puts stderr \"**********************************************************************\"\n" >> ${MyModuleFileName}
+          printf "\n" >> ${MyModuleFileName}
+        fi
         printf "module add ${CommonModules} ${MyModules}\n" >> ${MyModuleFileName}
         printf "\n" >> ${MyModuleFileName}
         printf "prepend-path PATH ${xyceInstallDir}/bin\n" >> ${MyModuleFileName}

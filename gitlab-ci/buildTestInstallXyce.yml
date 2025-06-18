@@ -30,6 +30,7 @@ include:
       -DXyce_GTEST_UNIT_TESTS=${GoogleUnitTesting};\
       -DXyce_PARALLEL_MPI=${BuildWithMPI};\
       -DXyce_RAD_MODELS=ON;\
+      -DXyce_USE_CURL=ON;\
       -DXyce_AS_SPECIAL_CHARON_TPL=OFF;\
       -DCMAKE_INSTALL_PREFIX=${xyceInstallDir}
       
