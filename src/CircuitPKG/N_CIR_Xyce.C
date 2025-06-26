@@ -48,6 +48,8 @@
 #include <stdexcept>
 #include <ctime>
 #include <numeric>
+#include <vector>
+#include <algorithm>
 #if (__cplusplus>=201703L)
 #include <filesystem>
 #endif
@@ -285,6 +287,20 @@ struct TimeStatePairsOp: public Device::DeviceInstanceOp
 
   std::map<std::string, std::vector< std::pair<double,int> > > &      TimeStateMap_;
 };
+
+// Split the string s into a vector of strings at the given delimeter
+void splitArg(const std::string &s, const char delim,
+            std::vector<std::string> &out)
+{
+    std::string::size_type beg = 0;
+    for (auto end = 0; (end = s.find(delim, end)) != std::string::npos; ++end)
+    {
+        out.push_back(s.substr(beg, end - beg));
+        beg = end + 1;
+    }
+
+    out.push_back(s.substr(beg));
+}
 
 } // namespace <unnamed>
 
@@ -895,10 +911,12 @@ Simulator::RunStatus Simulator::initializeEarly(
   if (commandLine_.argExists(std::string("-plugin")))
   {
     const std::string plugin = commandLine_.getArgumentValue("-plugin");
-    
-    for (std::string::size_type i = 0, j = plugin.find_first_of(", "); i != std::string::npos; i = (j == std::string::npos ? j : j + 1), j = plugin.find_first_of(", ", i))
+
+    std::vector<std::string> pluginNames;
+    splitArg(plugin,',',pluginNames);
+    for (auto &s : pluginNames)
     {
-      Device::registerPlugin(plugin.substr(i, j).c_str());
+      Device::registerPlugin(s.c_str());
     }
   }
   Report::safeBarrier(comm_);
