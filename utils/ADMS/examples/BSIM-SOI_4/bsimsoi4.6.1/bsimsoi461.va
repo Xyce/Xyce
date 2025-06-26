@@ -7805,9 +7805,10 @@ analog begin : the_module
 
 // [Nov 2016] : adding overlap charges (qgso + qgdo) to qgate
 // [Qov depends on V(gm,si) for RGATEMOD=3, else on V(gi,si)]
-        qgi   = qgate;
-        qov   = qgso + qgdo;
-        qgate = qgi + qov;
+// ERK: This fix was migrated from version 4.7.0 for various reasons.  It was the first fix vs. 4.6.1 in version 4.7.0 
+        //qgi   = qgate;
+        //qov   = qgso + qgdo;
+        //qgate = qgi + qov;
 
         begin : noise // {
             real cd, cdmin, logcdmin, wefftot, leffBcox;
@@ -8186,6 +8187,13 @@ analog begin : the_module
         end else
             Temp(t) <+ 0;
 `endif
+        // [Nov 2016] : adding overlap charges (qgso + qgdo) to qgate
+        // [Qov depends on V(gm,si) for RGATEMOD=3, else on V(gi,si)]
+        // ERK: This fix was migrated from version 4.7.0 for various reasons.  It was the first fix vs. 4.6.1 in version 4.7.0 
+        qgi   = qgate;
+        qov   = qgso + qgdo;
+        qgate = qgi + qov;
+
         // operating-point information
         IDS   = B4SOItype * Ids;
         GM    = B4SOIgm;

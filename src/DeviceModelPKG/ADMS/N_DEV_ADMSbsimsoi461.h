@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 11 Jun 2025 16:40:59
+// Creation Date  : Thu, 26 Jun 2025 16:48:43
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimsoi461_h
@@ -5091,8 +5091,6 @@ public:
     double * f_p_Equ_e_Node_Ptr;
     double * f_p_Equ_sb_Node_Ptr;
     double * f_p_Equ_db_Node_Ptr;
-    double * f_gi_Equ_gm_Node_Ptr;
-    double * f_b_Equ_gm_Node_Ptr;
     double * f_e_Equ_b_Node_Ptr;
     double * f_e_Equ_si_Node_Ptr;
     double * f_e_Equ_gi_Node_Ptr;
@@ -5111,6 +5109,7 @@ public:
     double * f_gm_Equ_sb_Node_Ptr;
     double * f_gm_Equ_db_Node_Ptr;
     double * f_e_Equ_gm_Node_Ptr;
+    double * f_gi_Equ_gm_Node_Ptr;
     double * f_e_Equ_sb_Node_Ptr;
     double * f_e_Equ_db_Node_Ptr;
     double * f_g_Equ_g_Node_Ptr;
@@ -5213,8 +5212,6 @@ public:
     double * q_p_Equ_e_Node_Ptr;
     double * q_p_Equ_sb_Node_Ptr;
     double * q_p_Equ_db_Node_Ptr;
-    double * q_gi_Equ_gm_Node_Ptr;
-    double * q_b_Equ_gm_Node_Ptr;
     double * q_e_Equ_b_Node_Ptr;
     double * q_e_Equ_si_Node_Ptr;
     double * q_e_Equ_gi_Node_Ptr;
@@ -5233,6 +5230,7 @@ public:
     double * q_gm_Equ_sb_Node_Ptr;
     double * q_gm_Equ_db_Node_Ptr;
     double * q_e_Equ_gm_Node_Ptr;
+    double * q_gi_Equ_gm_Node_Ptr;
     double * q_e_Equ_sb_Node_Ptr;
     double * q_e_Equ_db_Node_Ptr;
     double * q_g_Equ_g_Node_Ptr;
@@ -5336,8 +5334,6 @@ public:
     int A_p_Equ_e_NodeOffset;
     int A_p_Equ_sb_NodeOffset;
     int A_p_Equ_db_NodeOffset;
-    int A_gi_Equ_gm_NodeOffset;
-    int A_b_Equ_gm_NodeOffset;
     int A_e_Equ_b_NodeOffset;
     int A_e_Equ_si_NodeOffset;
     int A_e_Equ_gi_NodeOffset;
@@ -5356,6 +5352,7 @@ public:
     int A_gm_Equ_sb_NodeOffset;
     int A_gm_Equ_db_NodeOffset;
     int A_e_Equ_gm_NodeOffset;
+    int A_gi_Equ_gm_NodeOffset;
     int A_e_Equ_sb_NodeOffset;
     int A_e_Equ_db_NodeOffset;
     int A_g_Equ_g_NodeOffset;
