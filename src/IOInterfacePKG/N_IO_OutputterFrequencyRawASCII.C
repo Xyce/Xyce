@@ -339,18 +339,21 @@ void FrequencyRawAscii::doFinishOutput()
 {
   if (os_)
   {
-    // need to move file pointer back to header and
-    // write out the number of points.
-    long currentFelePost = os_->tellp();
+    if (numPoints_ != 0)
+    {
+      // need to move file pointer back to header and
+      // write out the number of points.
+      long currentFelePost = os_->tellp();
 
-    // locate the position for number of points
-    os_->seekp( numPointsPos_);
+      // locate the position for number of points
+      os_->seekp( numPointsPos_);
 
-    // overwrite blank space with value
-    (*os_) << numPoints_;
+      // overwrite blank space with value
+      (*os_) << numPoints_;
 
-    // move file pointer to the end again.
-    os_->seekp( currentFelePost);
+      // move file pointer to the end again.
+      os_->seekp( currentFelePost);
+    }
   }
 
   // reset numPoints_ as it is used as a flag
