@@ -425,10 +425,13 @@ if(NOT DEFINED XYCE_TEST_LABEL_FILTER)
 endif()
 
 set(CTEST_PROJECT_NAME "Xyce")
+if("$ENV{branch}" MATCHES "^release.*")
+  set(CTEST_PROJECT_NAME "Xyce_QA")
+endif()
 
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
-set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
+set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
 
 if(VERBOSITY GREATER 4)
   message("[VERB5]: CMAKE_ARGS_LIST = ${CMAKE_ARGS_LIST}")
