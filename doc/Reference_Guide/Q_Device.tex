@@ -243,16 +243,6 @@ where $I$ is the diode DC current given, $G_d$ is the corresponding junction
 conductance, and where $\mathbf{TT}=\mathbf{TF}$ for $C_{dife}$ and
 $\mathbf{TT}=\mathbf{TR}$ for $C_{difc}$.
 
-\subparagraph{Temperature Effects}
-SPICE temperature effects are default, but all levels of the BJT have a more
-advanced temperature compensation available.  By specifying
-\texttt{TEMPMODEL=QUADRATIC} in the netlist, parameters can be interpolated
-quadratically between measured values extracted from data.  In the BJT, IS and
-ISE are interpolated logarithmically because they can change over an order of
-magnitude or more for temperature ranges of interest.  See the
-Section~\ref{Model_Interpolation} for more details on how to include quadratic
-temperature effects.
-
 % \subparagraph{Noise}
 % Noise is calculated with a 1.0 Hz bandwidth using the following spectral power
 % densities (per unit bandwidth).

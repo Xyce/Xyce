@@ -1770,7 +1770,7 @@ C1 2 0 {cap}
 .options timeint method=gear reltol=1.0e-6 abstol=1e-6
 
 \color{red}* Sensitivity commands
-.SENS objfunc={V(2)} param=R1:R,C1:C
+.SENS objfunc=\{V(2)\} param=R1:R,C1:C
 .options SENSITIVITY direct=0 adjoint=1\color{black}
 .end
 \end{vquote}
@@ -1837,7 +1837,7 @@ C1 2 0 {cap}
 .options timeint method=gear reltol=1.0e-6 abstol=1e-6
 
 * Sensitivity commands
-.SENS objfunc={V(2)} param=R1:R,C1:C
+.SENS objfunc=\{V(2)\} param=R1:R,C1:C
 .options SENSITIVITY direct=0 adjoint=1
 \color{red}+ adjointTimePoints=0.1e-2, 0.2e-2, 0.3e-2, 0.4e-2 \color{black}
 .end

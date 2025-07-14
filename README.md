@@ -88,7 +88,7 @@ all of the regression tests have passed.)
 
 For the binary installers and other information about Xyce&mdash;including
 [documentation](https://xyce.sandia.gov/documentation-tutorials), and [Autotools build
-instructions](https://xyce.sandia.gov/documentation-tutorials/building-guide)&mdash;see
+instruction - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide)&mdash;see
 the [Xyce Homepage](https://xyce.sandia.gov) at [Sandia National
 Laboratories](https://www.sandia.gov).
 
