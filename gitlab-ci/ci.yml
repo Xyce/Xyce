@@ -18,6 +18,7 @@ variables:
   DO_MODULE_GENERATION: "ON"
   DO_FINALIZE: "ON"
   DO_TEST_MODULES: "ON"
+  XYCE_NO_TRACKING: "TRUE"
 
   BASE_INSTALL_DIR: /projects/xyce_user/install
 
