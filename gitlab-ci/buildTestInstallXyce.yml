@@ -30,6 +30,8 @@ include:
       -DXyce_GTEST_UNIT_TESTS=${GoogleUnitTesting};\
       -DXyce_PARALLEL_MPI=${BuildWithMPI};\
       -DXyce_RAD_MODELS=ON;\
+      -DXyce_USE_CURL=ON;\
+      -DXyce_TRACKING_URL=http://morannon.sandia.gov/Xyce_Stats/cgi-bin/collectstats.pl;\
       -DXyce_AS_SPECIAL_CHARON_TPL=OFF;\
       -DCMAKE_INSTALL_PREFIX=${xyceInstallDir}
       

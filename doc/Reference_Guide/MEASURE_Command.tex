@@ -762,6 +762,36 @@ specified.  As noted above, the use of both {\tt FROM-TO} and {\tt TD}
 windows can lead to an empty measurement window.  So, that usage is
 not recommended.
 
+\subsubsection{Limitations with \texttt{WHEN} keyword}
+\label{Limitations_WHEN}
+\index{measure!limitations when}
+
+The \texttt{WHEN } keyword is used to specify a condition that if true 
+forces the provided measurement to be done.  For example
+\begin{alltt}
+.measure tran targetV2 FIND V(2) WHEN V(1)=0.5
+\end{alltt}
+attempts to report the value of \texttt{V(2)} when \texttt{V(1)=0.5}.
+To do this Xyce tracks the value of \texttt{V(1)} and if it finds 
+two points that surround the target value of, $0.5$, then it interpolates
+the value of \texttt{V(2)} that would occur at that same point in the
+simulation.  If the target expression, \texttt{V(1)=0.5}, is true to 
+within the tolerance of \texttt{MINVAL} then this is also considered 
+to be a valid point where the value of \texttt{V(2)} would be reported.  The
+actual expression used in this case would be $|V(1)-0.5| \leq MINVAL$
+
+This leads to a potential problem with measures such as:
+\begin{alltt}
+.measure tran targetV2 FIND V(2) WHEN TIME=0.5
+\end{alltt}
+and the end of the simulation is at $0.5$.  Depending on breakpoints and
+time integration tolerances, Xyce may end the simulation before 
+\texttt{TIME=0.5}, is true to within the tolerance of \texttt{MINVAL}.  That is
+when $|TIME-0.5| \leq MINVAL$ is true.  In such 
+a case, Xyce will report that the measure has failed.  The solution is to either
+adjust \texttt{MINVAL}, whose default value is $1.0e-12$ to a larger value or to run 
+the simulation out to some value just past the original end time of $0.5$.
+
 \subsubsection{Expression Support}
 \index{measure!expression support}
 These measure ``qualifiers'' (\texttt{TO}, \texttt{FROM}, \texttt{TD},

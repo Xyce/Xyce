@@ -116,7 +116,6 @@ if(Xyce_PLUGIN_SUPPORT)
 
     install(
       PROGRAMS
-        ${ADMS_XML}
         ${CMAKE_BINARY_DIR}/buildxyceplugin.sh
       DESTINATION bin)
 

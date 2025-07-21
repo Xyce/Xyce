@@ -54,6 +54,7 @@
 #include <N_DEV_ADMSbsimcmg_111.h>
 #include <N_DEV_ADMSbsim6.h>
 #include <N_DEV_ADMSbsimsoi.h>
+#include <N_DEV_ADMSbsimsoi461.h>
 #include <N_DEV_ADMSbsimsoi450.h>
 #include <N_DEV_ADMSbjt504va.h>
 #include <N_DEV_ADMSbjt504tva.h>
@@ -91,6 +92,7 @@ registerADMSDevices(const DeviceCountMap& deviceMap,
   ADMSbsimcmg_111::registerDevice(deviceMap,levelSet);
   ADMSbsim6::registerDevice(deviceMap, levelSet);
   ADMSbsimsoi::registerDevice(deviceMap, levelSet);
+  ADMSbsimsoi461::registerDevice(deviceMap, levelSet);
   ADMSbsimsoi450::registerDevice(deviceMap, levelSet);
   ADMSbjt504va::registerDevice(deviceMap, levelSet);
   ADMSbjt504tva::registerDevice(deviceMap, levelSet);
