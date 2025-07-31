@@ -49,6 +49,11 @@ simulators such as SPICE, the TCAD device capability is intended to
 be similar to commercial device simulators, such as PISCES~\cite{Yu} and
 DaVinci~\cite{DaVinci}.
 
+It should be noted that the TCAD capability in \Xyce{} is somewhat obsolete at this point, 
+and that for production TCAD simulation \Xyce{} users may want to consider the Charon TCAD simulator~\cite{charonPage}, which is more mature and has a larger set of features.
+The development of \Xyce{} TCAD devices largely pre-dates the Charon project.
+However, for some scenarios, the \Xyce{} TCAD devices can still be useful and they are convenient to invoke.
+
 \Xyce{} offers two different TCAD devices---a one-dimensional 
 device and a two-dimensional device---and enables both to be invoked in the 
 same way as a conventional lumped parameter circuit device. Generally, this 

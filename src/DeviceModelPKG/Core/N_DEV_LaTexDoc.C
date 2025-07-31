@@ -132,6 +132,7 @@ const std::string &categoryName(int category) {
     s_categoryList[CAT_DC] = "DC Parameters";
     s_categoryList[CAT_DEPENDENCY] = "Dependency Parameters";
     s_categoryList[CAT_DOPING] = "Doping Parameters";
+    s_categoryList[CAT_EMPIRICAL_NEUTRON] = "Empirical Neutron Parameters";
     s_categoryList[CAT_FLICKER] = "Flicker and Thermal Noise Parameters";
     s_categoryList[CAT_GEOMETRY] = "Geometry Parameters";
     s_categoryList[CAT_INITIAL] = "Initial Condition Parameters";

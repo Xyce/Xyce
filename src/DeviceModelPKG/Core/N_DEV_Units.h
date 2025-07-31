@@ -257,6 +257,8 @@ enum ParameterCategory
     CAT_SCALING,
     CAT_BOUNDARYCONDITIONS,
 
+    CAT_EMPIRICAL_NEUTRON,
+
     CAT_MAX,                // End of Categories
 
     CAT_MASK     = 0xFF,    // Mask for extracting category from flags
