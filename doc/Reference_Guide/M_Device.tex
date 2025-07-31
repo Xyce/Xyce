@@ -679,6 +679,12 @@ as level 70450 and version 4.7.0 as the level 70470.
 Instance and model parameters of the level 70 MOSFET are given in
 tables~\ref{M_70_Device_Instance_Params} and
 \ref{M_70_Device_Model_Params}.
+Instance and model parameters of the level 70450 MOSFET are given in
+tables~\ref{M_70450_Device_Instance_Params} and
+\ref{M_70450_Device_Model_Params}.
+Instance and model parameters of the level 70470 MOSFET are given in
+tables~\ref{M_70470_Device_Instance_Params} and
+\ref{M_70470_Device_Model_Params}.
 
 The \Xyce{} BSIM-SOI models level 70, 70450 and 70470
 have {\em limited} support for the optional 5th, 6th, and 7th nodes.
@@ -728,20 +734,45 @@ table~\ref{M_70_OutputVars} on the \texttt{.PRINT} line of a netlist.
 To access them from a print line, use the syntax
 \texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
 name of the specific level 70 M device in your netlist.
+Similarly, versions 4.5.0 and 4.7.0 also support internal variable outputs.
+These are documented in table~\ref{M_70450_OutputVars} and table~\ref{M_70470_OutputVars}, respectively.
 
-%\textbf{NOTE:} It has been observed that the gate capacitance model of
-%BSIM-SOI 4.6.1 behaves differently than earlier versions, and the team
-%has seen significant disagreement of gate currents when comparing
-%identical simulations with other simulators that have only earlier
-%BSIM-SOI models.  For this reason, we are also providing BSIM-SOI
-%4.5.0 as the level 70450 MOSFET.  This model does agree with these
-%other simulators.  The parameters and output variables are given in
-%tables~\ref{M_70450_Device_Instance_Params},
-%\ref{M_70450_Device_Model_Params}, and \ref{M_70450_OutputVars}.
-%Unlike BSIM-SOI 4.6.1, the 4.5.0 model's original Verilog-A source
-%code does not contain descriptions and units for the parameters, and
-%these appear blank in the tables.  For descriptions and units, see the
-%corresponding parameters in the level 70 tables.
+\textbf{NOTE:} It has been observed that the gate capacitance model of
+BSIM-SOI 4.6.1 behaves differently than other versions. Specifically, the team
+has seen significant disagreement of gate currents.  
+This capacitance issue was introduced in version 4.6.1 and fixed in version 4.7.0.
+
+The BSIM group did not fix the capacitance issue 
+in the official version 4.6.1. However, the implementation of version 4.6.1
+in several commercial simulators clearly has included a fix, based on empirical simulations.
+For this reason, we have chosen to fix the issue in the \Xyce{} 
+implementation of 4.6.1, even though this diverges from the official 
+model published by the BSIM group.  
+This model therefore matches the output from other simulators.
+
+We are also providing BSIM-SOI 4.5.0 as the level 70450 MOSFET and the BSIM-SOI 4.7.0 as the level 70470 MOSFET.
+The official BSIM-SOI 4.7.0 has a corrected capacitance model. 
+It is the newest version of this model, so it would normally be assigned to level 70 
+in \Xyce{}.
+However, under some circumstances the \Xyce{} implementation of 4.7.0 has been 
+less numerically stable than the implementation of 4.6.1.   
+As such, version 4.7.0 was not set to be the level 70.
+This may change in the future, if the numerical issues are corrected.
+
+The parameters and output variables for version 4.7.0 are given in
+tables~\ref{M_70470_Device_Instance_Params}, 
+\ref{M_70470_Device_Model_Params} and 
+\ref{M_70470_OutputVars}.
+
+The parameters and output variables for version 4.5.0 are given in
+tables~\ref{M_70450_Device_Instance_Params},
+\ref{M_70450_Device_Model_Params}, and 
+\ref{M_70450_OutputVars}.
+
+Unlike BSIM-SOI 4.6.1 and 4.7.0, the 4.5.0 model's original Verilog-A source
+code does not contain descriptions and units for the parameters, and
+these appear blank in the tables.  For descriptions and units, see the
+corresponding parameters in the level 70 tables.
 
 \input{M_70_Device_Instance_Params}
 \input{M_70_Device_Model_Params}
@@ -751,6 +782,7 @@ name of the specific level 70 M device in your netlist.
 \input{M_70450_OutputVars}
 \input{M_70470_Device_Instance_Params}
 \input{M_70470_Device_Model_Params}
+\input{M_70470_OutputVars}
 
 \clearpage
 \subsubsection{Level 77 MOSFET Tables (BSIM6 version 6.1.1)}
