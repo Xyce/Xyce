@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.7
 //
-// Creation Date  : Wed, 11 Jun 2025 16:41:31
+// Creation Date  : Wed, 30 Jul 2025 18:34:15
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -4520,7 +4520,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LUD", static_cast<double>(0.0), &ADMSbsimsoi::Model::LUD)
     .setUnit(U_UNKNOWN)
-    .setDescription("Length dependence of ud /* Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of ud ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4856,7 +4856,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LABJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::LABJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Length dependence of abjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of abjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4864,7 +4864,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LCBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::LCBJTII)
     .setUnit(U_METER)
-    .setDescription("Length dependence of cbjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of cbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4872,7 +4872,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LEBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::LEBJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Length dependence of ebjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of ebjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4880,7 +4880,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LMBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::LMBJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Length dependence of mbjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of mbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -4888,7 +4888,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("LVBCI", static_cast<double>(0.0), &ADMSbsimsoi::Model::LVBCI)
     .setUnit(U_VOLT)
-    .setDescription("Length dependence of vbci /*Bug fix # 32 Jul 09")
+    .setDescription("Length dependence of vbci ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6040,7 +6040,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WUD", static_cast<double>(0.0), &ADMSbsimsoi::Model::WUD)
     .setUnit(U_METER)
-    .setDescription("Width dependence of ud /* Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of ud ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6048,7 +6048,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WUD1", static_cast<double>(0.0), &ADMSbsimsoi::Model::WUD1)
     .setUnit(U_METER)
-    .setDescription("Width dependence of ud1 /* Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of ud1 ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6376,7 +6376,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WABJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::WABJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Width dependence of abjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of abjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6384,7 +6384,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WCBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::WCBJTII)
     .setUnit(U_METER2)
-    .setDescription("Width dependence of cbjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of cbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6392,7 +6392,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WEBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::WEBJTII)
     .setUnit(U_METER)
-    .setDescription("Width dependence of ebjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of ebjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6400,7 +6400,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WMBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::WMBJTII)
     .setUnit(U_METER)
-    .setDescription("Width dependence of mbjtii /*Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of mbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -6408,7 +6408,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("WVBCI", static_cast<double>(0.0), &ADMSbsimsoi::Model::WVBCI)
     .setUnit(U_UNKNOWN)
-    .setDescription("Width dependence of vbci /*Bug fix # 32 Jul 09")
+    .setDescription("Width dependence of vbci ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7560,7 +7560,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PUD", static_cast<double>(0.0), &ADMSbsimsoi::Model::PUD)
     .setUnit(U_METER2)
-    .setDescription("Cross-term dependence of ud /*Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of ud ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7568,7 +7568,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PUD1", static_cast<double>(0.0), &ADMSbsimsoi::Model::PUD1)
     .setUnit(U_METER2)
-    .setDescription("Cross-term dependence of ud1 /*Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of ud1 ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7896,7 +7896,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PABJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::PABJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Cross-term dependence of abjtii /* Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of abjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7904,7 +7904,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PCBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::PCBJTII)
     .setUnit(U_UNKNOWN)
-    .setDescription("Cross-term dependence of cbjtii /* Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of cbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7912,7 +7912,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PEBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::PEBJTII)
     .setUnit(U_METER2)
-    .setDescription("Cross-term dependence of ebjtii /* Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of ebjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7920,7 +7920,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PMBJTII", static_cast<double>(0.0), &ADMSbsimsoi::Model::PMBJTII)
     .setUnit(U_METER2)
-    .setDescription("Cross-term dependence of mbjtii /* Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of mbjtii ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -7928,7 +7928,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimsoi::Model> &p)
 ;
   p.addPar("PVBCI", static_cast<double>(0.0), &ADMSbsimsoi::Model::PVBCI)
     .setUnit(U_UNKNOWN)
-    .setDescription("Cross-term dependence of vbci /* Bug fix # 32 Jul 09")
+    .setDescription("Cross-term dependence of vbci ")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)

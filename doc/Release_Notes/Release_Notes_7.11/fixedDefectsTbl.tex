@@ -33,6 +33,9 @@
   \textbf{Xyce Project Backlog/979}: Fix incorrect output of FD ASCII rawfile in sweeps & There was a logic error in the output manager of \Xyce{} that overwrites the number of points in a Raw ASCII file for AC analysis.  This has been fixed.
   \\\hline
   
+  \textbf{Xyce Project Backlog/988}: Fix the capacitance issue in the BSIM SOI 4.6.1 &  There was an error in one of the capacitance models of the BSIM SOI version 4.6.1, resulting in a capacitance that was too large.  This was not fixed in the official version of the 4.6.1 from the BSIM group, but was fixed in the 4.6.1 implementation of commercial simulators.  As such, we chose to fix it in our own implementation. 
+  \\\hline
+
 \textbf{Xyce Project Backlog/xxx}: Description
   &  Details
   \\\hline
