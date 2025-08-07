@@ -8,15 +8,15 @@ XyceADMSFILES = $(ADMSDIR)/adms.implicit.xml \
 	$(ADMSDIR)/xyceImplementationFile_nosac.xml \
 	$(ADMSDIR)/xyceOutVarsDoc.xml
 
-CLEANFILES = N_DEV_ADMSbsimsoi.h N_DEV_ADMSbsimsoi.C disciplines.vams constants.vams *.tex
+CLEANFILES = N_DEV_ADMSbsimsoi461.h N_DEV_ADMSbsimsoi461.C disciplines.vams constants.vams *.tex
 
-all-source: N_DEV_ADMSbsimsoi.C
+all-source: N_DEV_ADMSbsimsoi461.C
 
 clean:
 	rm -f $(CLEANFILES)
 
-N_DEV_ADMSbsimsoi.h N_DEV_ADMSbsimsoi.C: bsimsoi.va $(XyceADMSFILES)
-	admsXml -x -e $(ADMSDIR)/adms.implicit.xml -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceAnalogFunction_nosac.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml -e $(ADMSDIR)/xyceHeaderFile_nosac.xml -e $(ADMSDIR)/xyceOutVarsDoc.xml bsimsoi.va
+N_DEV_ADMSbsimsoi461.h N_DEV_ADMSbsimsoi461.C: bsimsoi461.va $(XyceADMSFILES)
+	admsXml -x -e $(ADMSDIR)/adms.implicit.xml -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceAnalogFunction_nosac.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml -e $(ADMSDIR)/xyceHeaderFile_nosac.xml -e $(ADMSDIR)/xyceOutVarsDoc.xml bsimsoi461.va
 	mv M_70_OutputVars.tex M_70_OutputVars.tex_borken
 	sed -e 's|\([TLA]\)\_|\1\\_|g' < M_70_OutputVars.tex_borken > M_70_OutputVars.tex
 	rm M_70_OutputVars.tex_borken

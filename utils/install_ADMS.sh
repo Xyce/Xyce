@@ -1,5 +1,7 @@
 #/bin/sh
 
+# Be sure to run this from the project root!
+
 cp utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.h src/DeviceModelPKG/ADMS/
@@ -36,12 +38,15 @@ cp utils/ADMS/examples/mextram_504.12.1/*.tex doc/Reference_Guide
 cp utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM6.1.1/code/M_77_OutputVars.tex doc/Reference_Guide
-cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.h src/DeviceModelPKG/ADMS/
-cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi.C src/DeviceModelPKG/ADMS/
-cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/M_70_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/N_DEV_ADMSbsimsoi450.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.5.0/M_70450_OutputVars.tex doc/Reference_Guide
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi461.h src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/N_DEV_ADMSbsimsoi461.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.6.1/M_70_OutputVars.tex doc/Reference_Guide
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.7.0/N_DEV_ADMSbsimsoi.h src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.7.0/N_DEV_ADMSbsimsoi.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIM-SOI_4/bsimsoi4.7.0/M_70470_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0/N_DEV_ADMSDIODE_CMC.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0/N_DEV_ADMSDIODE_CMC.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/DIODE_CMC_2/diode_cmc_2.0.0/D_2002_OutputVars.tex doc/Reference_Guide
