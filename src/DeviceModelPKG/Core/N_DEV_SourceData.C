@@ -54,6 +54,9 @@
 #include <N_UTL_Math.h>
 #include <N_UTL_Expression.h>
 
+#include <Sacado_No_Kokkos.hpp>
+typedef Sacado::Fad::SFad<double, 1> fadType;
+
 namespace Xyce {
 namespace Device {
 
@@ -401,11 +404,8 @@ void SinData::printOutParams()
 bool SinData::updateSource()
 {
   bool bsuccess = true;
-
   if (!initializeFlag_) bsuccess = initializeSource ();
-
   time = getTime_();
-
   time -= TD;
   double mpi = M_PI;
   if (time <= 0)
@@ -421,6 +421,53 @@ bool SinData::updateSource()
   }
 
   return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SinData::updateSourceDeriv
+// Purpose       : Update a sinwave source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool SinData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  bool bsuccess = true;
+  if (!initializeFlag_) bsuccess = initializeSource ();
+
+  fadType V0fad = V0;
+  fadType VAfad = VA;
+  fadType FREQfad = FREQ;
+  fadType TDfad = TD;
+  fadType THETAfad = THETA;
+  fadType PHASEfad = PHASE;
+
+  if (paramName=="V0") { V0fad.diff(0,1); }
+  else if (paramName=="VA") { VAfad.diff(0,1); }
+  else if (paramName=="FREQ") { FREQfad.diff(0,1); }
+  else if (paramName=="TD") { TDfad.diff(0,1); }
+  else if (paramName=="THETA") { THETAfad.diff(0,1); }
+  else if (paramName=="PHASE") { PHASEfad.diff(0,1); }
+
+  fadType timefad = getTime_();
+
+  timefad -= TDfad;
+  fadType mpifad = M_PI;
+
+  if (timefad <= 0)
+  {
+    fadType tmp = V0fad + VAfad * sin (2.0*mpifad*(PHASEfad/360)) ;
+    deriv = tmp.dx(0);
+  }
+  else
+  {
+    // 2PI to convert from hz to radians/sec
+    fadType tmp = V0fad + VAfad * sin (2.0*mpifad*(FREQfad*timefad + PHASEfad/360)) * exp( -(timefad*THETAfad));
+    deriv = tmp.dx(0);
+  }
+
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -638,6 +685,69 @@ bool ExpData::updateSource()
   {
     SourceValue = V1 + (V2-V1)*(1-exp(-(time-TD1)/TAU1)) +
       (V1-V2)*(1-exp(-(time-TD2)/TAU2)) ;
+  }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpData::updateSourceDeriv
+// Purpose       : Update a exponential source derivative (for .SENS)
+// Special Notes :
+//
+//    V1    -  Initial value (V or A)
+//    V2    -  Pulsed value (V or A).
+//    TD1   -  Rise delay time (seconds).
+//    TAU1  -  Rise time constant (seconds)
+//    TD2   -  Fall delay time (seconds).
+//    TAU2  -  Fall time constant (seconds)
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool ExpData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  bool bsuccess = true;
+  if (!initializeFlag_) bsuccess = initializeSource ();
+
+  time = getTime_();
+
+  if (paramName=="V1")
+  {
+    if (time <= TD1) { deriv = 1.0; }
+    else if (time <= TD2) { deriv = 1.0 + -1.0*(1-exp(-(time-TD1)/TAU1)); }
+    else { deriv = 1.0 + (-1.0)*(1-exp(-(time-TD1)/TAU1)) + (1.0)*(1-exp(-(time-TD2)/TAU2)) ; }
+  }
+  else if (paramName=="V2")
+  {
+    if (time <= TD1) { deriv = 0.0; }
+    else if (time <= TD2) { deriv = 1.0*(1-exp(-(time-TD1)/TAU1)); }
+    else { deriv = (1.0)*(1-exp(-(time-TD1)/TAU1)) + (-1.0)*(1-exp(-(time-TD2)/TAU2)) ; }
+  }
+  else if (paramName=="TD1")
+  {
+    if (time <= TD1)      { deriv = 0.0; }
+    else if (time <= TD2) { deriv = ((V1-V2)*exp((TD1-time)/TAU1))/TAU1 ; } 
+    else                  { deriv = ((V1-V2)*exp((TD1-time)/TAU1))/TAU1 ; } 
+  }
+  else if (paramName=="TAU1")
+  {
+    if (time <= TD1) { deriv = 0.0; }
+    else if (time <= TD2) { deriv = -((TD1-time)*(V1-V2)*exp((TD1-time)/TAU1))/(TAU1*TAU1);}
+    else                  { deriv = -((TD1-time)*(V1-V2)*exp((TD1-time)/TAU1))/(TAU1*TAU1);}
+  }
+  else if (paramName=="TD2")
+  {
+    if (time <= TD1) { deriv = 0.0; }
+    else if (time <= TD2) { deriv = 0.0; } 
+    else { deriv = ((V2 - V1)*exp((TD2 - time)/TAU2))/TAU2 ; } 
+  }
+  else if (paramName=="TAU2")
+  {
+    if (time <= TD1) { deriv = 0.0; }// check this
+    else if (time <= TD2) { deriv = 0.0 ; } //fix
+    else { deriv = ((TD2-time)*(V1-V2)*exp((TD2-time)/TAU2))/(TAU2*TAU2) ; }
   }
 
   return bsuccess;
@@ -913,6 +1023,111 @@ bool PulseData::updateSource()
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && solState_.debugTimeFlag)
   {
     Xyce::dout() << "  SourceValue = " << SourceValue << std::endl;
+  }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PulseData::updateSourceDeriv
+// Purpose       : Update a pulse source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool PulseData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  bool bsuccess = true;
+
+  if (!initializeFlag_) bsuccess = initializeSource ();
+
+  fadType V1fad = V1;
+  fadType V2fad = V2;
+  fadType TDfad = TD;
+  fadType TRfad = TR;
+  fadType TFfad = TF;
+  fadType PWfad = PW;
+  fadType PERfad = PER;
+
+  if      (paramName=="V1")   { V1fad.diff(0,1);   }
+  else if (paramName=="V2")   { V2fad.diff(0,1);   }
+  else if (paramName=="TD")   { TDfad.diff(0,1);   }
+  else if (paramName=="TR")   { TRfad.diff(0,1);   }
+  else if (paramName=="TF")   { TFfad.diff(0,1);   }
+  else if (paramName=="PW")   { PWfad.diff(0,1);   }
+  else if (paramName=="PER")  { PERfad.diff(0,1);   }
+
+  fadType basetime = 0;
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && solState_.debugTimeFlag)
+  {
+    Xyce::dout() << "  PulseData::updateSources\n";
+    printOutParams();
+  }
+
+  fadType timefad = getTime_();
+
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && solState_.debugTimeFlag)
+  {
+    Xyce::dout() << "  Time = " << timefad << std::endl;
+  }
+
+  timefad -= TDfad;
+
+  if (timefad > PERfad && PERfad != 0.0)
+  {
+    // repeating signal - figure out where we are in period
+    basetime = PERfad * floor(timefad.val()/PERfad.val());
+    timefad -= basetime;
+  }
+
+  // This section got ugly because of a nasty roundoff bug.
+  // Instead of doing "time > X" you need also check that time
+  // is not within bptol of X.
+  // So the following translation is used:
+  // Instead of:                           we do:
+  //  time > X                            time>X && fabs(time-x)>bptol
+  //  time <= X                           time<X || fabs(time-x)<bptol
+
+  if (timefad <= 0 || (timefad > (TRfad + PWfad + TFfad) &&
+        (fabs (timefad - (TRfad+PWfad+TFfad)) > solState_.bpTol_) ) )
+  {
+    deriv = V1fad.dx(0);
+  }
+  else if ((timefad > TRfad && fabs(timefad-TRfad) > solState_.bpTol_)
+      && (timefad < (TRfad + PWfad) || fabs (timefad-(TRfad+PWfad))<solState_.bpTol_) )
+  {
+    deriv = V2fad.dx(0);
+  }
+  else if (timefad > 0 &&
+      (timefad < TRfad || fabs(timefad-TRfad) < solState_.bpTol_))
+  {
+    if (TRfad != 0.0)
+    {
+      fadType tmp = V1fad + (V2fad - V1fad) * (timefad) / TRfad;
+      deriv = tmp.dx(0);
+    }
+    else
+    {
+      deriv = V1fad.dx(0);
+    }
+  }
+  else
+  { // time > (TRfad + PWfad) && <= (TRfad + PWfad + TFfad)
+    if (TFfad != 0.0)
+    {
+      fadType tmp = V2fad + (V1fad - V2fad) * (timefad - (TRfad + PWfad)) / TFfad;
+      deriv = tmp.dx(0);
+    }
+    else
+    {
+      deriv = V2fad.dx(0); //      deriv = 0.5 * (V1fad + V2fad);
+    }
+  }
+
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && solState_.debugTimeFlag)
+  {
+    Xyce::dout() << "  deriv = " << deriv << std::endl;
   }
 
   return bsuccess;
@@ -1414,6 +1629,178 @@ bool PWLinData::updateSource()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : PWLinData::updateSourceDeriv
+// Purpose       : Update a PWL source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  bool bsuccess = true;
+
+  if (!initializeFlag_) bsuccess = initializeSource ();
+
+  bool foundDeriv=false;
+  bool specialCase=false;
+
+  fadType REPEATTIMEfad = REPEATTIME;
+  fadType TDfad = TD;
+
+  fadType timefad = getTime_();
+
+  fadType time1fad, time2fad, voltage1fad, voltage2fad;
+  fadType tmpValue;
+
+  int Vindex=-1;
+  if ( std::string( paramName ,0,1) == "V" )
+  {
+    int size = paramName.size();
+    if (size > 1)
+    {
+      std::string indexNumberStr = std::string( paramName, 1, size-1);
+
+      std::size_t pos{};
+        try
+        {
+          Vindex = std::stoi(indexNumberStr, &pos);
+        }
+        catch ( std::invalid_argument const& ex )
+        {
+          Report::UserError() << "PWLinData::updateSourceDeriv. sensitivity parameter " << paramName << " not recognized" << std::endl;
+        }
+    }
+  }
+  else if  (paramName=="R") { REPEATTIMEfad.diff(0,1); foundDeriv=true;  
+    //std::cout << "found 1"<<std::endl; 
+  }
+  else if  (paramName=="TD") { TDfad.diff(0,1); foundDeriv=true;  
+    //std::cout << "found 2"<<std::endl; 
+    }
+
+  if( timefad >= TDfad )
+  {
+    timefad -= TDfad;
+
+    if( timefad <= TVVEC[NUM-1].first )
+    {
+      for( int i = 0; i < NUM; ++i )
+        if( timefad < TVVEC[i].first ) {loc_ = i;break;}
+
+      if( loc_ == 0 )
+      {
+        time1fad = 0.0;
+        voltage1fad = 0.0;
+      }
+      else
+      {
+        time1fad = TVVEC[loc_-1].first;
+        voltage1fad = TVVEC[loc_-1].second;
+        if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; 
+          //std::cout << "found 3" <<std::endl; 
+        }
+      }
+      time2fad = TVVEC[loc_].first;
+      voltage2fad = TVVEC[loc_].second;
+      if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; 
+        //std::cout << "found 4" <<std::endl; 
+      }
+    }
+    else if( !REPEAT )
+    {
+      // this has the net-effect of setting tmpValue = voltage2fad
+      // when combined with the next if-else block
+      time1fad = 0.0;
+      time2fad = 1.0;
+      voltage1fad = voltage2fad = TVVEC[NUM-1].second;
+      if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true;  specialCase=true;
+        //std::cout << "found 5" <<std::endl; 
+      }
+    }
+    else
+    {
+      fadType looptimefad = TVVEC[NUM-1].first - REPEATTIMEfad;
+      timefad -= TVVEC[NUM-1].first;
+      timefad -= looptimefad * floor(timefad.val() / looptimefad.val());
+      timefad += REPEATTIMEfad;
+
+      for( int i = 0; i < NUM; ++i )
+      {
+        if( timefad < TVVEC[i].first ) {loc_ = i;break;}
+      }
+      if (timefad == REPEATTIMEfad)
+      {
+        time1fad = 0.0;
+        time2fad = 1.0;
+        voltage1fad = voltage2fad = TVVEC[NUM-1].second;
+        if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true; 
+          //std::cout << "found 6" <<std::endl; 
+        }
+      }
+      else
+      {
+        if( loc_ == 0 )
+        {
+          time1fad = REPEATTIMEfad;
+          voltage1fad = TVVEC[NUM-1].second;
+        }
+        else
+        {
+          time1fad = TVVEC[loc_-1].first;
+          voltage1fad = TVVEC[loc_-1].second;
+          if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; 
+            //std::cout << "found 7" <<std::endl; 
+          }
+        }
+        time2fad = TVVEC[loc_].first;
+        voltage2fad = TVVEC[loc_].second;
+        if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; 
+          //std::cout << "found 8" <<std::endl; 
+        }
+      }
+    }
+
+    if( time1fad == time2fad )
+    {
+      tmpValue = voltage2fad;
+    }
+    else
+    {
+      if (specialCase) // where voltage1==voltage2, meaning we're past the last data point
+      {
+        fadType lengthfad = time2fad - time1fad;
+        tmpValue = ( time2fad - timefad ) * voltage2fad / lengthfad;
+        tmpValue += ( -time1fad + timefad ) * voltage2fad / lengthfad;
+      }
+      else
+      {
+        fadType lengthfad = time2fad - time1fad;
+        tmpValue = ( time2fad - timefad ) * voltage1fad / lengthfad;
+        tmpValue += ( -time1fad + timefad ) * voltage2fad / lengthfad;
+      }
+    }
+  }
+  else
+  {
+    tmpValue = 0.0;
+  }
+
+#if 0
+  std::cout << "param = " << paramName << " Vindex="<<Vindex<<" tmpValue = " << tmpValue ;
+  std::cout << " foundDeriv = ";
+  if (foundDeriv) std::cout << "TRUE";
+  else std::cout << "FALSE";
+  std::cout << std::endl;
+#endif
+
+  if (foundDeriv) { deriv = tmpValue.dx(0); }
+  else { deriv=0.0; }
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : PWLinData::getBreakPoints
 // Purpose       :
 // Special Notes :
@@ -1857,6 +2244,19 @@ bool PatData::updateSource()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : PatData::updateSourceDeriv
+// Purpose       : Update a pattern source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool PatData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : PatData::updateTVVEC
 // Purpose       : Update the TVVEC, based on string in the DATA parameter
 // Special Notes :
@@ -2226,6 +2626,44 @@ bool SFFMData::updateSource()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : SFFMData::updateSourceDeriv
+// Purpose       : Update a SFFM source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool SFFMData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  bool bsuccess = true;
+
+  if (!initializeFlag_) bsuccess = initializeSource ();
+
+  fadType V0fad = V0;
+  fadType VAfad = VA;
+  fadType FCfad = FC;
+  fadType MDIfad = MDI;
+  fadType FSfad = FS;
+
+  if  (paramName=="V0") { V0fad.diff(0,1); }
+  else if  (paramName=="VA") { VAfad.diff(0,1); }
+  else if  (paramName=="FC") { FCfad.diff(0,1); }
+  else if  (paramName=="MDI") { MDIfad.diff(0,1); }
+  else if  (paramName=="FS") { FSfad.diff(0,1); }
+
+
+  fadType timefad = getTime_();
+
+  fadType mpifad = M_PI;
+  fadType tmp = V0fad + VAfad * sin((2 * mpifad * FCfad * timefad) +
+      MDIfad * sin (2 * mpifad * FSfad * timefad));
+
+  deriv = tmp.dx(0);
+
+  return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : SFFMData::getParams
 // Purpose       : Pass back the SFFM source params.
 // Special Notes :
@@ -2386,6 +2824,19 @@ bool ACData::updateSource()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : ACData::updateSourceDeriv
+// Purpose       : Update a AC source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool ACData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : ACData::getParams
 // Purpose       : Pass back the AC source params.
 // Special Notes :
@@ -2515,6 +2966,20 @@ bool ConstData::updateSource()
   SourceValue = V0;
 
   return bsuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ConstData::updateSourceDeriv
+// Purpose       : Update a const source derivative (for .SENS)
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/6/2025
+//-----------------------------------------------------------------------------
+bool ConstData::updateSourceDeriv(const std::string & paramName, double & deriv)
+{
+  deriv=0.0;
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -2892,7 +3357,7 @@ extractSourceData(
 //                 In practice, this still works, as the devices (vsrc and
 //                 isrc) will use the last value set for any parameter,
 //                 and the "added" version is the last value.  However,
-//                 for a develoer it is confusing.
+//                 for a developer it is confusing.
 //
 //                 I think the reason for the "adding" is the PWL source,
 //                 which can have an arbitrary number of entries.

@@ -102,6 +102,7 @@ public:
   virtual bool initializeSource ();
 
   virtual bool updateSource() = 0;
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv) = 0;
 
   virtual void setupBreakPoints() {return;}
   virtual bool getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes)
@@ -198,7 +199,8 @@ private:
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -259,7 +261,8 @@ private:
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -310,7 +313,8 @@ private:
   ACData &operator=(const ACData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -355,7 +359,8 @@ private:
 
 public:
   bool initializeSource();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
   bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
@@ -413,7 +418,8 @@ private:
   PWLinData &operator=(const PWLinData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   virtual void setupBreakPoints() { preComputedBreakpointsDone = false; }
   bool getBreakPoints( std::vector<Util::BreakPoint> & breakPointTimes);
   void getParams (double *);
@@ -462,7 +468,8 @@ private:
   PatData &operator=(const PatData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
   void updateTVVEC();
@@ -528,7 +535,8 @@ private:
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -575,7 +583,8 @@ private:
   ConstData &operator=(const ConstData   & right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 

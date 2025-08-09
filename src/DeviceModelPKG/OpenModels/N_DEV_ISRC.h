@@ -57,6 +57,43 @@ namespace ISRC {
 class Model;
 class Instance;
 
+/// sensitivity functors
+class dcIsrcSensitivity :  public baseSensitivity
+{
+  public:
+  dcIsrcSensitivity() : 
+    baseSensitivity() {};
+
+  virtual ~dcIsrcSensitivity() {};
+
+  virtual void operator()(
+    const ParameterBase &entity,
+    const std::string &name,
+    std::vector<double> & dfdp, 
+    std::vector<double> & dqdp, 
+    std::vector<double> & dbdp, 
+    std::vector<int> & Findices,
+    std::vector<int> & Qindices,
+    std::vector<int> & Bindices
+    ) const ;
+};
+
+class tranIsrcSensitivity :  public baseSensitivity
+{
+  public:
+  tranIsrcSensitivity() : 
+    baseSensitivity() {};
+  virtual ~tranIsrcSensitivity() {};
+  virtual void operator()(
+    const ParameterBase &entity, const std::string &name,
+    std::vector<double> & dfdp, std::vector<double> & dqdp, std::vector<double> & dbdp, 
+    std::vector<int> & Findices, std::vector<int> & Qindices, std::vector<int> & Bindices
+    ) const ;
+};
+
+static dcIsrcSensitivity dcv0Sens;
+static tranIsrcSensitivity tranSens;
+
 struct Traits : public DeviceTraits<Model, Instance>
 {
   static const char *name() {return "Independent Current Source";}
@@ -84,6 +121,8 @@ class Instance : public SourceInstance
   friend class Model;
   friend struct Traits;
   friend class Master;
+  friend class dcIsrcSensitivity;
+  friend class tranIsrcSensitivity;
 
 public:
   Instance(
@@ -186,6 +225,7 @@ private:
 
   double ACMAG;
   double ACPHASE;
+  double placeholder;
 
   double mag;
   double freq, v0;
@@ -215,6 +255,8 @@ class Model : public DeviceModel
   friend class Instance;
   friend struct Traits;
   friend class Master;
+  friend class dcIsrcSensitivity;
+  friend class tranIsrcSensitivity;
 
 public:
   Model(

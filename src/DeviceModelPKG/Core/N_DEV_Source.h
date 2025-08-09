@@ -63,6 +63,8 @@ public:
 
   ~SourceInstance();
 
+  bool analyticSensitivityAvailable (const std::string & paramName);
+
 private:
   SourceInstance(const SourceInstance &);
   SourceInstance &operator=(const SourceInstance &);

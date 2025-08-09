@@ -56,6 +56,7 @@
 #include <N_LAS_Vector.h>
 #include <N_LAS_Matrix.h>
 #include <N_UTL_FeatureTest.h>
+#include <N_UTL_ExtendedString.h>
 #include <N_UTL_MachDepParams.h>
 
 
@@ -71,72 +72,106 @@ void Traits::loadInstanceParameters(ParametricData<ISRC::Instance> &p)
   p.addPar ("DCV0", 0.0, &ISRC::Instance::DCV0)
     .setOriginalValueStored(true)
     .setUnit(U_VOLT)
-    .setDescription("DC Current");
+    .setDescription("DC Current")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&dcv0Sens);
 
   // Pulse parameters
   p.addPar ("V0", 0.0, &ISRC::Instance::par0)
     .setUnit(U_AMP)
-    .setDescription("Offset Current");
+    .setDescription("Offset Current")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("V1", 0.0, &ISRC::Instance::par0)
     .setUnit(U_AMP)
-    .setDescription("Initial Current");
+    .setDescription("Initial Current")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("V2", 0.0, &ISRC::Instance::par1)
     .setUnit(U_AMP)
-    .setDescription("Pulsed Current");
+    .setDescription("Pulsed Current")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TD", 0.0, &ISRC::Instance::par2)
     .setUnit(U_SECOND)
-    .setDescription("Delay");
+    .setDescription("Delay")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TR", 0.0, &ISRC::Instance::par3)
     .setUnit(U_SECOND)
-    .setDescription("Rise Time");
+    .setDescription("Rise Time")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TF", 0.0, &ISRC::Instance::par4)
     .setUnit(U_SECOND)
-    .setDescription("Fall Time");
+    .setDescription("Fall Time")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("PW", 0.0, &ISRC::Instance::par5)
     .setUnit(U_SECOND)
-    .setDescription("Pulse Width");
+    .setDescription("Pulse Width")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("PER", 0.0, &ISRC::Instance::par6)
     .setUnit(U_SECOND)
-    .setDescription("Period");
+    .setDescription("Period")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   // Sin parameters
   p.addPar ("VA", 0.0, &ISRC::Instance::par1)
     .setUnit(U_AMP)
-    .setDescription("Amplitude");
+    .setDescription("Amplitude")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("FREQ", 0.0, &ISRC::Instance::par3)
     .setUnit(U_SECM1)
-    .setDescription("Frequency");
+    .setDescription("Frequency")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("THETA", 0.0, &ISRC::Instance::par4)
-    .setDescription("Theta");
+    .setDescription("Theta")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("PHASE", 0.0, &ISRC::Instance::par5)
-    .setDescription("Phase");
+    .setDescription("Phase")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   // Exp parameters
   p.addPar ("TD1", 0.0, &ISRC::Instance::par2)
     .setUnit(U_SECOND)
-    .setDescription("Rise Delay Time");
+    .setDescription("Rise Delay Time")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TAU1", 0.0, &ISRC::Instance::par3)
     .setUnit(U_SECOND)
-    .setDescription("Rise Time Constant");
+    .setDescription("Rise Time Constant")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TD2", 0.0, &ISRC::Instance::par4)
     .setUnit(U_SECOND)
-    .setDescription("Fall Delay Time");
+    .setDescription("Fall Delay Time")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("TAU2", 0.0, &ISRC::Instance::par5)
     .setUnit(U_SECOND)
-    .setDescription("Fall Time Constant");
+    .setDescription("Fall Time Constant")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   // AC parameters
   p.addPar ("ACMAG", 0.0, &ISRC::Instance::ACMAG)
@@ -149,19 +184,27 @@ void Traits::loadInstanceParameters(ParametricData<ISRC::Instance> &p)
   // SFFM parameters
   p.addPar ("FC", 0.0, &ISRC::Instance::par2)
     .setUnit(U_SECM1)
-    .setDescription("Carrier Frequency");
+    .setDescription("Carrier Frequency")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("FS", 0.0, &ISRC::Instance::par4)
     .setUnit(U_SECM1)
-    .setDescription("Signal Frequency");
+    .setDescription("Signal Frequency")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("MDI", 0.0, &ISRC::Instance::par3)
-    .setDescription("Modulation Index");
+    .setDescription("Modulation Index")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   // PWL params
   p.addPar ("R", 0.0, &ISRC::Instance::REPEATTIME)
     .setUnit(U_SECOND)
-    .setDescription("Repeat Time");
+    .setDescription("Repeat Time")
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&tranSens);
 
   p.addPar ("T", 0.0, &ISRC::Instance::T)
     .setUnit(U_SECOND)
@@ -170,6 +213,35 @@ void Traits::loadInstanceParameters(ParametricData<ISRC::Instance> &p)
   p.addPar ("V", 0.0, &ISRC::Instance::V)
     .setUnit(U_AMP)
     .setDescription("Current"); // time-voltage pairs
+
+    // list of PWL voltage params.  These are only here so that sensitivity 
+    // analysis will work on PWL data, (when reference directly as a sensitivity 
+    // parameter.  They are not used to set the parameter values.  The actual 
+    // parameter values are set with the "V" parameter, above, but are treated 
+    // as a vector by the parser.  This is a klunky way to handle this, and 
+    // ideally it should be refactored, especially since the code below only 
+    // supports sensitivities from params V0-V9, but PWL sources may have arbitrary 
+    // number of entries.  Entries V0-V2 are not present below since they are
+    // already in other addPar calls, for other types of sources.
+    //
+    // These params can go away once two functions that are used by sensitivity 
+    // analysis are updated to handle this use case. (paramName = "V+wildcard").
+    // One function is DeviceEntity::analyticSensitivityAvailable, and the other
+    // is DeviceMgr::getParamAndReduce.  Both of these functions exit with error
+    // if a sensitity param cannot be found.  The first one has been fixed 
+    // (nominally) with a derived class function 
+    // SourceInstance::analyticSensitivityAvailable.  As of this writing 
+    // (August, 2025), the other has not been fixed.  
+    for (int ii=3;ii<10;ii++)
+    {
+      std::string parname = "V" + std::to_string(ii);
+      p.addPar (parname.c_str(), 0.0, &ISRC::Instance::placeholder)
+       .setUnit(U_VOLT)
+       .setCategory(CAT_NONE)
+       .setDescription("PWL Voltage")
+       .setAnalyticSensitivityAvailable(true)
+       .setSensitivityFunctor(&tranSens);
+    }   
 
   // PAT params
   p.addPar ("VHI", 0.0, &ISRC::Instance::par0)
@@ -262,6 +334,7 @@ Instance::Instance(
     gotParams(false),
     ACMAG(1.0),
     ACPHASE(0.0),
+    placeholder(0.0),
     firstTimeload(true),
     freqVarsLoaded(false)
 {
@@ -1060,6 +1133,72 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
     Config<Traits>::addConfiguration()
       .registerDevice("i", 1);
   }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : dcIsrcSensitivity::operator
+// Purpose       : produces db/dp where p=DCV0.
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 7/18/2025
+//-----------------------------------------------------------------------------
+void dcIsrcSensitivity::operator()(
+    const ParameterBase &entity,
+    const std::string & name,
+    std::vector<double> & dfdp,
+    std::vector<double> & dqdp,
+    std::vector<double> & dbdp,
+    std::vector<int> & Findices,
+    std::vector<int> & Qindices,
+    std::vector<int> & Bindices
+    ) const
+{
+  const ParameterBase * e1 = &entity;
+  const Instance * in = dynamic_cast<const Instance *> (e1);
+
+  dbdp.resize(2);
+  dbdp[0] = -1.0;
+  dbdp[1] = +1.0;
+
+  Bindices.resize(2);
+  Bindices[0] = in->li_Pos;
+  Bindices[1] = in->li_Neg;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : tranIsrcSensitivity::operator
+// Purpose       : produces db/dp where p= V0,V1,V2,TD, TR, TF, PW or PER
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 7/18/2025
+//-----------------------------------------------------------------------------
+void tranIsrcSensitivity::operator()(
+    const ParameterBase &entity,
+    const std::string & name,
+    std::vector<double> & dfdp,
+    std::vector<double> & dqdp,
+    std::vector<double> & dbdp,
+    std::vector<int> & Findices,
+    std::vector<int> & Qindices,
+    std::vector<int> & Bindices
+    ) const
+{
+  const ParameterBase * e1 = &entity;
+  const Instance * in = dynamic_cast<const Instance *> (e1);
+
+  std::string paramName = ExtendedString( name ).toUpper();
+  double deriv=0.0;
+  in->tranSourceData_->updateSourceDeriv(paramName,deriv);
+
+  dbdp.resize(2);
+  dbdp[0] = -deriv;
+  dbdp[1] = +deriv;
+
+  Bindices.resize(2);
+  Bindices[0] = in->li_Pos;
+  Bindices[1] = in->li_Neg;
 }
 
 } // namespace Resistor
