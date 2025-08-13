@@ -133,6 +133,18 @@ public:
 
   ~Instance();
 
+  virtual void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  virtual bool getAnalyticSensitivityDevice ( int iparam,
+                                std::vector<double> & dfdpVec,
+                                std::vector<double> & dqdpVec,
+                                std::vector<double> & dbdpVec,
+                                std::vector<int> & FindicesVec,
+                                std::vector<int> & QindicesVec,
+                                std::vector<int> & BindicesVec );
+
 private:
   Instance(const Instance &);
   Instance &operator=(const Instance &);

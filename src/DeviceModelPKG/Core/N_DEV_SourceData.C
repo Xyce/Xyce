@@ -365,6 +365,77 @@ SinData::~SinData()
 {}
 
 //-----------------------------------------------------------------------------
+// Function      : SinData::getSensitivityParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+void SinData::getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals)
+{
+  int parSize=6;
+  sensParams.resize(parSize);
+  origVals.resize(parSize,0.0);
+
+  sensParams[0] = std::string("V0");
+  sensParams[1] = std::string("VA");
+  sensParams[2] = std::string("FREQ");
+  sensParams[3] = std::string("TD");
+  sensParams[4] = std::string("THETA");
+  sensParams[5] = std::string("PHASE");
+
+  origVals[0] = V0;
+  origVals[1] = VA;
+  origVals[2] = FREQ;
+  origVals[3] = TD;
+  origVals[4] = THETA;
+  origVals[5] = PHASE;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SinData::getAnalyticSensitivityDevice
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+bool SinData::getAnalyticSensitivityDevice (int iparam, double & deriv)
+{
+  std::string paramName;
+  switch(iparam)
+  {
+    case 0:
+      paramName="V0";
+      break;
+
+    case 1:
+      paramName="VA";
+      break;
+
+    case 2:
+      paramName="FREQ";
+      break;
+
+    case 3:
+      paramName="TD";
+      break;
+
+    case 4:
+      paramName="THETA";
+      break;
+
+    case 5:
+      paramName="PHASE";
+      break;
+  }
+  return updateSourceDeriv(paramName, deriv);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : SinData::printOutParams
 // Purpose       :
 // Special Notes :
@@ -603,6 +674,78 @@ ExpData::~ExpData()
 {}
 
 // Additional Declarations
+
+//-----------------------------------------------------------------------------
+// Function      : ExpData::getSensitivityParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+void ExpData::getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals)
+{
+  int parSize=6;
+  sensParams.resize(parSize);
+  origVals.resize(parSize,0.0);
+
+  sensParams[0] = std::string("V1");
+  sensParams[1] = std::string("V2");
+  sensParams[2] = std::string("TD1");
+  sensParams[3] = std::string("TAU1");
+  sensParams[4] = std::string("TD2");
+  sensParams[5] = std::string("TAU2");
+
+  origVals[0] = V1;
+  origVals[1] = V2;
+  origVals[2] = TD1;
+  origVals[3] = TAU1;
+  origVals[4] = TD2;
+  origVals[5] = TAU2;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ExpData::getAnalyticSensitivityDevice
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+bool ExpData::getAnalyticSensitivityDevice (int iparam, double & deriv)
+{
+  std::string paramName;
+  switch(iparam)
+  {
+    case 0:
+      paramName="V1";
+      break;
+
+    case 1:
+      paramName="V2";
+      break;
+
+    case 2:
+      paramName="TD1";
+      break;
+
+    case 3:
+      paramName="TAU1";
+      break;
+
+    case 4:
+      paramName="TD2";
+      break;
+
+    case 5:
+      paramName="TAU2";
+      break;
+
+  }
+  return updateSourceDeriv(paramName, deriv);
+}
 
 //-----------------------------------------------------------------------------
 // Function      : ExpData::printOutParams
@@ -888,7 +1031,82 @@ PulseData::PulseData(
 PulseData::~PulseData()
 {}
 
-// Additional Declarations
+//-----------------------------------------------------------------------------
+// Function      : PulseData::getSensitivityParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+void PulseData::getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals)
+{
+  int parSize=7;
+  sensParams.resize(parSize);
+  origVals.resize(parSize,0.0);
+
+  sensParams[0] = std::string("V1");
+  sensParams[1] = std::string("V2");
+  sensParams[2] = std::string("TD");
+  sensParams[3] = std::string("TR");
+  sensParams[4] = std::string("TF");
+  sensParams[5] = std::string("PW");
+  sensParams[6] = std::string("PER");
+
+  origVals[0] = V1;
+  origVals[1] = V2;
+  origVals[2] = TD;
+  origVals[3] = TR;
+  origVals[4] = TF;
+  origVals[5] = PW;
+  origVals[6] = PER;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PulseData::getAnalyticSensitivityDevice
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+bool PulseData::getAnalyticSensitivityDevice (int iparam, double & deriv)
+{
+  std::string paramName;
+  switch(iparam)
+  {
+    case 0:
+      paramName="V1";
+      break;
+
+    case 1:
+      paramName="V2";
+      break;
+
+    case 2:
+      paramName="TD";
+      break;
+
+    case 3:
+      paramName="TR";
+      break;
+
+    case 4:
+      paramName="TF";
+      break;
+
+    case 5:
+      paramName="PW";
+      break;
+
+    case 6:
+      paramName="PER";
+      break;
+  }
+  return updateSourceDeriv(paramName, deriv);
+}
 
 //-----------------------------------------------------------------------------
 // Function      : PulseData::printOutParams
@@ -1318,7 +1536,6 @@ double PulseData::getMaxTimeStepSize ()
   return maxTimeStep;
 }
 
-// Class PWLinData
 //-----------------------------------------------------------------------------
 // Function      : debugOutput1
 // Purpose       : 
@@ -1373,6 +1590,7 @@ void debugOutput1( const std::string funcName, const Param & param)
     }
 }
 
+// Class PWLinData
 //-----------------------------------------------------------------------------
 // Function      : PWLinData::PWLinData
 // Purpose       : constructor
@@ -1475,6 +1693,44 @@ PWLinData::~PWLinData()
 {
   timeExprList.clear();
   valExprList.clear();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PWLinData::getSensitivityParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+void PWLinData::getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals)
+{
+  sensParams.resize(NUM);
+  origVals.resize(NUM);
+
+  for (int ii=0;ii<NUM;ii++)
+  {
+    std::string indexStr = std::to_string(ii);
+    sensParams[ii] = std::string("V") + indexStr;
+    origVals[ii] = TVVEC[ii].second;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PWLinData::getAnalyticSensitivityDevice
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+bool PWLinData::getAnalyticSensitivityDevice ( int iparam, double & deriv)
+{
+  std::string indexStr = std::to_string(iparam);
+  std::string paramName = std::string("V") + indexStr;
+  return updateSourceDeriv(paramName, deriv);
 }
 
 //-----------------------------------------------------------------------------
@@ -1668,16 +1924,13 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
         }
         catch ( std::invalid_argument const& ex )
         {
-          Report::UserError() << "PWLinData::updateSourceDeriv. sensitivity parameter " << paramName << " not recognized" << std::endl;
+          Report::UserError() << "PWLinData::updateSourceDeriv. sensitivity parameter " 
+            << paramName << " not recognized" << std::endl;
         }
     }
   }
-  else if  (paramName=="R") { REPEATTIMEfad.diff(0,1); foundDeriv=true;  
-    //std::cout << "found 1"<<std::endl; 
-  }
-  else if  (paramName=="TD") { TDfad.diff(0,1); foundDeriv=true;  
-    //std::cout << "found 2"<<std::endl; 
-    }
+  else if  (paramName=="R") { REPEATTIMEfad.diff(0,1); foundDeriv=true;  }
+  else if  (paramName=="TD") { TDfad.diff(0,1); foundDeriv=true;  }
 
   if( timefad >= TDfad )
   {
@@ -1697,15 +1950,11 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
       {
         time1fad = TVVEC[loc_-1].first;
         voltage1fad = TVVEC[loc_-1].second;
-        if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; 
-          //std::cout << "found 3" <<std::endl; 
-        }
+        if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; }
       }
       time2fad = TVVEC[loc_].first;
       voltage2fad = TVVEC[loc_].second;
-      if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; 
-        //std::cout << "found 4" <<std::endl; 
-      }
+      if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; }
     }
     else if( !REPEAT )
     {
@@ -1714,9 +1963,7 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
       time1fad = 0.0;
       time2fad = 1.0;
       voltage1fad = voltage2fad = TVVEC[NUM-1].second;
-      if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true;  specialCase=true;
-        //std::cout << "found 5" <<std::endl; 
-      }
+      if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true;  specialCase=true; }
     }
     else
     {
@@ -1734,9 +1981,7 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
         time1fad = 0.0;
         time2fad = 1.0;
         voltage1fad = voltage2fad = TVVEC[NUM-1].second;
-        if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true; 
-          //std::cout << "found 6" <<std::endl; 
-        }
+        if (Vindex == NUM-1) { voltage2fad.diff(0,1); foundDeriv=true; }
       }
       else
       {
@@ -1749,15 +1994,11 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
         {
           time1fad = TVVEC[loc_-1].first;
           voltage1fad = TVVEC[loc_-1].second;
-          if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; 
-            //std::cout << "found 7" <<std::endl; 
-          }
+          if (Vindex==loc_-1) { voltage1fad.diff(0,1); foundDeriv=true; }
         }
         time2fad = TVVEC[loc_].first;
         voltage2fad = TVVEC[loc_].second;
-        if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; 
-          //std::cout << "found 8" <<std::endl; 
-        }
+        if (Vindex==loc_) { voltage2fad.diff(0,1); foundDeriv=true; }
       }
     }
 
@@ -1785,14 +2026,6 @@ bool PWLinData::updateSourceDeriv(const std::string & paramName, double & deriv)
   {
     tmpValue = 0.0;
   }
-
-#if 0
-  std::cout << "param = " << paramName << " Vindex="<<Vindex<<" tmpValue = " << tmpValue ;
-  std::cout << " foundDeriv = ";
-  if (foundDeriv) std::cout << "TRUE";
-  else std::cout << "FALSE";
-  std::cout << std::endl;
-#endif
 
   if (foundDeriv) { deriv = tmpValue.dx(0); }
   else { deriv=0.0; }
@@ -2554,6 +2787,71 @@ SFFMData::~SFFMData()
 // Additional Declarations
 
 //-----------------------------------------------------------------------------
+// Function      : SFFMData::getSensitivityParams
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+void SFFMData::getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals)
+{
+  int parSize=5;
+  sensParams.resize(parSize);
+  origVals.resize(parSize,0.0);
+
+  sensParams[0] = std::string("V0");
+  sensParams[1] = std::string("VA");
+  sensParams[2] = std::string("FC");
+  sensParams[3] = std::string("MDI");
+  sensParams[4] = std::string("FS");
+
+  origVals[0] = V0;
+  origVals[1] = VA;
+  origVals[2] = FC;
+  origVals[3] = MDI;
+  origVals[4] = FS;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SFFMData::getAnalyticSensitivityDevice
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/13/2025
+//-----------------------------------------------------------------------------
+bool SFFMData::getAnalyticSensitivityDevice (int iparam, double & deriv)
+{
+  std::string paramName;
+  switch(iparam)
+  {
+    case 0:
+      paramName="V0";
+      break;
+
+    case 1:
+      paramName="VA";
+      break;
+
+    case 2:
+      paramName="FC";
+      break;
+
+    case 3:
+      paramName="MDI";
+      break;
+
+    case 4:
+      paramName="FS";
+      break;
+  }
+  return updateSourceDeriv(paramName, deriv);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : SFFMData::printOutParams
 // Purpose       :
 // Special Notes :
@@ -2561,7 +2859,6 @@ SFFMData::~SFFMData()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 5/01/00
 //-----------------------------------------------------------------------------
-
 void SFFMData::printOutParams()
 {
   Xyce::dout() << "SFFMData:\n";
@@ -2580,7 +2877,6 @@ void SFFMData::printOutParams()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 9/04/01
 //-----------------------------------------------------------------------------
-
 bool SFFMData::initializeSource ()
 {
   // If neccessary, set the defaults:
@@ -2609,7 +2905,6 @@ bool SFFMData::initializeSource ()
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 4/24/00
 //-----------------------------------------------------------------------------
-
 bool SFFMData::updateSource()
 {
   bool bsuccess = true;

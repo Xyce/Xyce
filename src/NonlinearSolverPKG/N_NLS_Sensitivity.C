@@ -1282,6 +1282,10 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   {
     bool tmp = obtainDeviceSensParams();
     numSensParams_ += paramNameVec_.size();
+    if (numSensParams_ == 0)
+    {
+     Report::UserFatal0() << "Device " << sensDeviceName << " returned no sensitivity parameters";
+    }
   }
   else
   {

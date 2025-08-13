@@ -80,7 +80,6 @@ int getSourceFunctionID(const std::string & sourceFcn);
 // Creator       : Eric Keiter
 // Creation Date : 4/24/00
 //-----------------------------------------------------------------------------
-
 class SourceData
 {
   friend class VsrcModel;
@@ -98,6 +97,12 @@ private:
 
 public:
   virtual ~SourceData();
+
+  virtual void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals) {};
+
+  virtual bool getAnalyticSensitivityDevice ( int iparam, double & deriv) { return true; };
 
   virtual bool initializeSource ();
 
@@ -180,7 +185,6 @@ protected:
 // Creator       : Eric Keiter
 // Creation Date : 3/16/00
 //-----------------------------------------------------------------------------
-
 class SinData : public SourceData
 {
 
@@ -192,6 +196,12 @@ public:
     const DeviceOptions &       do1);
 
   ~SinData();
+
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
 
 private:
   SinData(const SinData &right);
@@ -255,6 +265,12 @@ public:
 
   ~ExpData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
+
 private:
   ExpData(const ExpData & right);
   ExpData &operator=(const ExpData & right);
@@ -293,7 +309,6 @@ private:
 // Creator       : Ting Mei
 // Creation Date :
 //-----------------------------------------------------------------------------
-
 class ACData : public SourceData
 {
   friend class VsrcModel;
@@ -330,7 +345,6 @@ private:
   bool ACPHASEgiven;
 };
 
-
 //-----------------------------------------------------------------------------
 // Class         : PulseData
 // Purpose       : This class contains data and functions associated with
@@ -352,6 +366,12 @@ public:
             const DeviceOptions & do1);
 
   ~PulseData();
+
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
 
 private:
   PulseData(const PulseData  & right);
@@ -412,6 +432,12 @@ public:
             const DeviceOptions & do1);
 
   ~PWLinData();
+
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice ( int iparam, double & deriv);
 
 private:
   PWLinData(const PWLinData &right);
@@ -506,7 +532,6 @@ private:
   double starttime_; //absolute start time of current cycle
 };
 
-
 //-----------------------------------------------------------------------------
 // Class         : SFFMData
 // Purpose       : This class contains data and functions associated with
@@ -528,6 +553,12 @@ public:
            const DeviceOptions & do1);
 
   ~SFFMData();
+
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
 
 private:
   SFFMData(const SFFMData   & right);

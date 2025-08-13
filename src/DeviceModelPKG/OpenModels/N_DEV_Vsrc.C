@@ -52,21 +52,14 @@
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_Matrix.h>
-#include <N_UTL_BreakPoint.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_ExtendedString.h>
-
-#include <N_UTL_Math.h>
-
-//#include <Teuchos_RCP.hpp>
-//#include <N_UTL_FFTInterface.hpp>
-
- 
+#include <N_UTL_HspiceBools.h>
 #include <N_UTL_MachDepParams.h>
+#include <N_UTL_Math.h>
 
 namespace Xyce {
 namespace Device {
-
 namespace Vsrc {
 
 void Traits::loadInstanceParameters(ParametricData<Vsrc::Instance> &p)
@@ -1159,6 +1152,59 @@ void Instance::varTypes( std::vector<char> & varTypeVec )
 {
   varTypeVec.resize(1);
   varTypeVec[0] = 'I';
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::getSensitivityParams
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/26/2025
+//-----------------------------------------------------------------------------
+void Instance::getSensitivityParams (
+    std::vector<std::string> & sensParams,
+    std::vector<double> & origVals)
+{
+  if (tranSourceData_ != 0)
+  {
+    tranSourceData_->getSensitivityParams (sensParams, origVals);
+  }
+
+  size_t size=sensParams.size();
+  for  (int ii=0;ii<size;ii++)
+  {
+    std::string tmp = sensParams[ii];
+    sensParams[ii] = getName().getDeviceName() + Xyce::Util::separator + tmp;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Instance::getAnalyticSensitivitiesDevice
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 2/28/2025
+//-----------------------------------------------------------------------------
+bool Instance::getAnalyticSensitivityDevice ( int iparam,
+                                std::vector<double> & dfdp,
+                                std::vector<double> & dqdp,
+                                std::vector<double> & dbdp,
+                                std::vector<int> & Findices,
+                                std::vector<int> & Qindices,
+                                std::vector<int> & Bindices)
+{
+  if (tranSourceData_ != 0)
+  {
+    double deriv=0.0;
+    tranSourceData_->getAnalyticSensitivityDevice (iparam, deriv);
+    dbdp.resize(1);
+    dbdp[0] = deriv;
+    Bindices.resize(1);
+    Bindices[0] = li_Bra;
+  }
+  return true;
 }
 
 // Class Model
