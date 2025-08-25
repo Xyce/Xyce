@@ -80,7 +80,6 @@ int getSourceFunctionID(const std::string & sourceFcn);
 // Creator       : Eric Keiter
 // Creation Date : 4/24/00
 //-----------------------------------------------------------------------------
-
 class SourceData
 {
   friend class VsrcModel;
@@ -99,9 +98,16 @@ private:
 public:
   virtual ~SourceData();
 
+  virtual void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals) {};
+
+  virtual bool getAnalyticSensitivityDevice ( int iparam, double & deriv) { return true; };
+
   virtual bool initializeSource ();
 
   virtual bool updateSource() = 0;
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv) = 0;
 
   virtual void setupBreakPoints() {return;}
   virtual bool getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes)
@@ -179,7 +185,6 @@ protected:
 // Creator       : Eric Keiter
 // Creation Date : 3/16/00
 //-----------------------------------------------------------------------------
-
 class SinData : public SourceData
 {
 
@@ -192,13 +197,20 @@ public:
 
   ~SinData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
+
 private:
   SinData(const SinData &right);
   SinData &operator=(const SinData &right);
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -253,13 +265,20 @@ public:
 
   ~ExpData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
+
 private:
   ExpData(const ExpData & right);
   ExpData &operator=(const ExpData & right);
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -290,7 +309,6 @@ private:
 // Creator       : Ting Mei
 // Creation Date :
 //-----------------------------------------------------------------------------
-
 class ACData : public SourceData
 {
   friend class VsrcModel;
@@ -310,7 +328,8 @@ private:
   ACData &operator=(const ACData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -325,7 +344,6 @@ private:
   bool ACMAGgiven;
   bool ACPHASEgiven;
 };
-
 
 //-----------------------------------------------------------------------------
 // Class         : PulseData
@@ -349,13 +367,20 @@ public:
 
   ~PulseData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
+
 private:
   PulseData(const PulseData  & right);
   PulseData &operator=(const PulseData  & right);
 
 public:
   bool initializeSource();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
   bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
@@ -408,12 +433,19 @@ public:
 
   ~PWLinData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice ( int iparam, double & deriv);
+
 private:
   PWLinData(const PWLinData &right);
   PWLinData &operator=(const PWLinData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   virtual void setupBreakPoints() { preComputedBreakpointsDone = false; }
   bool getBreakPoints( std::vector<Util::BreakPoint> & breakPointTimes);
   void getParams (double *);
@@ -462,7 +494,8 @@ private:
   PatData &operator=(const PatData &right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
   void updateTVVEC();
@@ -499,7 +532,6 @@ private:
   double starttime_; //absolute start time of current cycle
 };
 
-
 //-----------------------------------------------------------------------------
 // Class         : SFFMData
 // Purpose       : This class contains data and functions associated with
@@ -522,13 +554,20 @@ public:
 
   ~SFFMData();
 
+  void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  bool getAnalyticSensitivityDevice (int iparam, double & deriv);
+
 private:
   SFFMData(const SFFMData   & right);
   SFFMData &operator=(const SFFMData   & right);
 
 public:
   bool initializeSource ();
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 
@@ -575,7 +614,8 @@ private:
   ConstData &operator=(const ConstData   & right);
 
 public:
-  virtual bool updateSource() /* override */ ;
+  virtual bool updateSource();
+  virtual bool updateSourceDeriv(const std::string & paramName, double & deriv);
   void getParams (double *);
   void setParams (double *);
 

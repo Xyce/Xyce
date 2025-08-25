@@ -86,15 +86,14 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-
-
 \item Add new items here
-
+\item Most independent sources now have analytical sensitivity functions implemented. (see issue 849 in the fixed defects table)  Previously, sensitivities with respect to independent source parameters had to rely on finite differences.  With analytical derivatives, sensitivity analysis will be more accurate and faster run times.
+  \item Sensitivity analysis parameters can now be specified conveniently using the device name, alone.  Currently this new feature is only applied to independent source devices.   To use this feature, use the field \texttt{sensdevicename=string} on the \texttt{.sens} line, instead of the \texttt{param=string} field.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-\item Add new items here
+\item Independent PWL sources now support sensitivity analysis (see issue 849 in the fixed defects table).
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

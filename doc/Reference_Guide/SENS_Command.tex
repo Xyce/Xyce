@@ -26,6 +26,10 @@ with respect to a user-specified list of circuit parameters.
 
 .SENS objfunc=\{I(VM)\},\{V(3)*V(3)\} param= Q2N2222:bf
 
+.SENS objfunc=\{V(3)\} sensdevicename=vin
+
+.SENS objfunc=\{V(2)\} sensdevicename=isin
+
 .param RES=1k
 .SENS objfunc=\{RES*V(3)*V(3)\} param=C1:C
 
@@ -68,6 +72,13 @@ It is also necessary for all variations of sensitivity analysis to specify at le
 one objective function.  This capability will not assume any particular 
 objective function.  Also, it is possible to specify multiple
 objective functions, in a comma-separated list.
+
+In addition to the \texttt{param=<circuit parameter(s)>} specification, sensitivity parameters 
+can also be specified using the name of a device.  In this case, the keyword \texttt{sensdevicename=<name>} should be used.
+This will result in sensitivity analysis being performed for every parameter associated with this device.
+Currently, this is an experimental capability, and has only been implemented for the 
+independent voltage source and independent current source devices.  
+Also, for this feature only one device may be specified.
 
 As noted, for transient analysis, both types of sensitivities are supported.
 Direct sensitivities are computed at each time step during the forward 

@@ -431,11 +431,18 @@ handleParameterOutputs(
     const OrderedConfigurationMap configuration_map(Configuration::getConfigurationMap().begin(), Configuration::getConfigurationMap().end());
     for (OrderedConfigurationMap::const_iterator it = configuration_map.begin(), end = configuration_map.end(); it != end; ++it)
     {
-      Xyce::dout() << (*it).first << Xyce::Util::push << std::endl
-                   << *(*it).second << Xyce::Util::pop << std::endl;
+      std::string device_name = (*it).first.first;
+      const int device_level = (*it).first.second;
+
+      if ((option_device_name.empty() || Xyce::equal_nocase(option_device_name, device_name)) && (option_device_level == -1 || option_device_level == device_level)) 
+      {
+        Xyce::dout() << (*it).first << Xyce::Util::push << std::endl
+                     << *(*it).second << Xyce::Util::pop << std::endl;
+      }
     }
   }
-  else {
+  else 
+  {
     const Configuration::ConfigurationMap &configuration_map = Configuration::getConfigurationMap();
     for (Configuration::ConfigurationMap::const_iterator it = configuration_map.begin(), end = configuration_map.end(); it != end; ++it)
     {
@@ -446,7 +453,8 @@ handleParameterOutputs(
 
       device_name[0] = toupper(device_name[0]);
 
-      if ((option_device_name.empty() || Xyce::equal_nocase(option_device_name, device_name)) && (option_device_level == -1 || option_device_level == device_level)) {
+      if ((option_device_name.empty() || Xyce::equal_nocase(option_device_name, device_name)) && (option_device_level == -1 || option_device_level == device_level)) 
+      {
         Configuration &configuration = *(*it).second;
 
         std::string device_description = configuration.getName();
@@ -456,7 +464,8 @@ handleParameterOutputs(
         if (configuration.getName() == "Behavioral Digital")
           device_name = "Digital";
 
-        if (print_instance && !instance_parameters.getMap().empty()) {
+        if (print_instance && !instance_parameters.getMap().empty()) 
+        {
           std::ostringstream path;
           path << device_name << "_" << device_level << "_Device_Instance" << "_Params.tex";
 
@@ -469,7 +478,8 @@ handleParameterOutputs(
           laTexDevice(os, device_name, device_level, 0, device_description, instance_parameters, format);
         }
 
-        if (print_model && !model_parameters.getMap().empty()) {
+        if (print_model && !model_parameters.getMap().empty()) 
+        {
           std::ostringstream path;
           path << device_name << "_" << device_level << "_Device_Model" << "_Params.tex";
 

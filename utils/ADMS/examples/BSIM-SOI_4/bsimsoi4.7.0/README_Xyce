@@ -3,7 +3,7 @@ needed modification.  These are documented here:
 
 
 - Xyce/ADMS now supports the $port_connected function to specify
-  optional nodes, and as of Xyce 7.2 we are supporting the BSIM-SOI
+  optional nodes, and as of Xyce 7.10 we are supporting the BSIM-SOI
   4.7.0 in 5-, 6-, and 7- node configurations.  However, some of these
   configurations do not work correctly when SOIMOD=2.  In SOIMOD=2,
   the P and B body tie nodes are unused.

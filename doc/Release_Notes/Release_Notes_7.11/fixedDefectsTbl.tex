@@ -30,7 +30,13 @@
   &  There was a logic error in the output manager of \Xyce{}.  This has been fixed.
   \\\hline
 
-  \textbf{Xyce Project Backlog/979}: Fix incorrect output of FD ASCII rawfile in sweeps & There was a logic error in the output manager of \Xyce{} that overwrites the number of points in a Raw ASCII file for AC analysis.  This has been fixed.
+  \textbf{Xyce Project Backlog/849}: Sensitivities don't work with PWL source & Analytical sensitivity functions were not implemented for independent sources.  Also PWL sources had unique parsing issues that prevented any kind of derivative from working.  These issues have been addressed.
+  \\\hline
+
+  \textbf{Xyce Project Backlog/977}: Fix incorrect output of FD ASCII rawfile in sweeps & There was a logic error in the output manager of \Xyce{} that overwrites the number of points in a Raw ASCII file for AC analysis.  This has been fixed.
+  \\\hline
+
+  \textbf{Xyce Project Backlog/979}: Fix plugin capability to handle multiple verilog plugins & There was an error in the handling of plugins that were specified using a comma-separated list on the command line.  This meant that \Xyce{} didn't operate correctly with more than two plugins.  This has been fixed.
   \\\hline
   
   \textbf{Xyce Project Backlog/988}: Fix the capacitance issue in the BSIM SOI 4.6.1 &  There was an error in one of the capacitance models of the BSIM SOI version 4.6.1, resulting in a capacitance that was too large.  This was not fixed in the official version of the 4.6.1 from the BSIM group, but was fixed in the 4.6.1 implementation of commercial simulators.  As such, we chose to fix it in our own implementation. 

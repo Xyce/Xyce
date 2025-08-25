@@ -952,7 +952,7 @@ TEST ( XyceCInterface, InitFromWorkingDirectory )
   const char * dirName = "TestDir2";
   xyce_set_working_directory( &xycePtr, dirName);
   
-  int numArgs = 4;
+  const int numArgs = 4;
   const char argv0[] = "Xyce";
   const char argv1[] = "TestNetlist1.cir"; 
   const char argv2[] = "-l";

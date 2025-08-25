@@ -40,6 +40,8 @@
 #include <N_DEV_Source.h>
 #include <N_DEV_SourceData.h>
 #include <N_DEV_SolverState.h>
+#include <N_DEV_Message.h>
+#include <N_UTL_ExtendedString.h>
 
 namespace Xyce {
 namespace Device {
@@ -76,6 +78,84 @@ SourceInstance::SourceInstance(
 SourceInstance::~SourceInstance()
 {}
 
+//-----------------------------------------------------------------------------
+// Function      : SourceInstance::analyticSensitivityAvailable
+//
+// Purpose       : Independent sources have unorthodox parameter structures 
+//                 for some source types.  As such it is necessary to overide
+//                 the base class version of this function.
+//
+//                 Note, this function is specifically to support 
+//                 analytical sensitivities in PWL sources.  The values in a 
+//                 PWL source are associated with the "V" parameter, but come 
+//                 into the device (post-parsing) with the index attached.  
+//                 So, V0, V1, V2, etc.   That use case isn't handled by
+//                 the base class function in N_DEV_DeviceEntity.
+//
+//                 Note, for sensitivity analysis to work on such parameters,
+//                 it is also necessary to modify the DeviceMgr::getParamAndReduce 
+//                 function to handle these types of exceptions.  
+//                 As of this writing (August, 2025) that hasn't happened yet.
+//                 Instead, a limited list of V# parameters have been added to
+//                 the Vsrc and ISRC devices.  Once DeviceMgr::getParamAndReduce 
+//                 is fixed, then those artificial params can go away.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/9/25
+//-----------------------------------------------------------------------------
+bool SourceInstance::analyticSensitivityAvailable (const std::string & paramName)
+{
+  bool returnValue = false;
+
+  std::string paramName2 = ExtendedString( paramName ).toUpper();
+
+  ParameterMap::const_iterator p_i = getParameterMap().find(paramName);
+  if (p_i == getParameterMap().end())
+  {
+    // check for special case of "V" parameters.  These are parameters that
+    // are specified only as the single character "V" in the addPar calls, but
+    // are allowed to be an indefinitely long vector for PWL sources.  The parser
+    // assigns an index to each entry of the vector and appends that index to the name.
+    // So, a PWL source with three entries will be given V0, V1, V2.
+
+    int Vindex=-1;
+    if ( std::string( paramName2 ,0,1) == "V" )
+    {
+      int size = paramName2.size();
+      if (size > 1)
+      {
+        std::string indexNumberStr = std::string( paramName2, 1, size-1);
+
+        std::size_t pos{};
+        try
+        {
+          Vindex = std::stoi(indexNumberStr, &pos);
+          //std::cout << "paramName = " << paramName << " Vindex = " << Vindex << std::endl;
+          returnValue = true;
+        }
+        catch ( std::invalid_argument const& ex )
+        {
+          DevelFatal(*this).in("DeviceEntity::analyticSensitivityAvailable") << "Unrecognized parameter " << paramName;
+          //std::cout << "paramName = " << paramName << " caught an error" << std::endl;
+          //returnValue = false;
+        }
+      }
+    }
+    else
+    {
+      DevelFatal(*this).in("DeviceEntity::analyticSensitivityAvailable") << "Unrecognized parameter " << paramName;
+    }
+  }
+  else
+  {
+    const Descriptor &param = *(*p_i).second;
+    returnValue = param.getAnalyticSensitivityAvailable();
+  }
+
+  return returnValue;
+}
 
 //-----------------------------------------------------------------------------
 // Function      : SourceInstance::setFastSourceFlag

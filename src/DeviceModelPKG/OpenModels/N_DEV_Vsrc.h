@@ -77,6 +77,19 @@ class dcVsrcSensitivity :  public baseSensitivity
     ) const ;
 };
 
+class tranVsrcSensitivity :  public baseSensitivity
+{
+  public:
+  tranVsrcSensitivity() : 
+    baseSensitivity() {};
+  virtual ~tranVsrcSensitivity() {};
+  virtual void operator()(
+    const ParameterBase &entity, const std::string &name,
+    std::vector<double> & dfdp, std::vector<double> & dqdp, std::vector<double> & dbdp, 
+    std::vector<int> & Findices, std::vector<int> & Qindices, std::vector<int> & Bindices
+    ) const ;
+};
+
 class acMagVsrcSensitivity :  public baseACSensitivity
 {
   public:
@@ -110,6 +123,7 @@ class acPhaseVsrcSensitivity :  public baseACSensitivity
 };
 
 static dcVsrcSensitivity dcv0Sens;
+static tranVsrcSensitivity tranSens;
 static acMagVsrcSensitivity acMagSens;
 static acPhaseVsrcSensitivity acPhaseSens;
 
@@ -144,6 +158,7 @@ class Instance : public SourceInstance
   friend struct Traits;
   friend class Master;
   friend class dcVsrcSensitivity;
+  friend class tranVsrcSensitivity;
   friend class acMagVsrcSensitivity;
   friend class acPhaseVsrcSensitivity;
 
@@ -156,6 +171,18 @@ public:
 
   Instance(const Instance & right);
   ~Instance();
+
+  virtual void getSensitivityParams (
+      std::vector<std::string> & sensParams,
+      std::vector<double> & origVals);
+
+  virtual bool getAnalyticSensitivityDevice ( int iparam,
+                                std::vector<double> & dfdpVec,
+                                std::vector<double> & dqdpVec,
+                                std::vector<double> & dbdpVec,
+                                std::vector<int> & FindicesVec,
+                                std::vector<int> & QindicesVec,
+                                std::vector<int> & BindicesVec );
 
   bool isLinearDevice() const 
   { 
@@ -246,6 +273,7 @@ private:
   double V;
   double ACMAG;
   double ACPHASE;
+  double placeholder;
 
   std::string DATA;
   int RB;
@@ -349,6 +377,7 @@ class Model : public DeviceModel
   friend struct Traits;
   friend class Master;
   friend class dcVsrcSensitivity;
+  friend class tranVsrcSensitivity;
   friend class acMagVsrcSensitivity;
   friend class acPhaseVsrcSensitivity;
 

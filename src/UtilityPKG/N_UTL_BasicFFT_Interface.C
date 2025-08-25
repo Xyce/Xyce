@@ -45,7 +45,7 @@
 
 #include <iostream>
 #include <vector>
-#include <cmath>
+#include <N_UTL_Math.h>
 #include <complex>
 
 // ---------- Structure definitions ----------

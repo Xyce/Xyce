@@ -101,7 +101,7 @@ public:
   bool scaleParam(const std::string & paramName, double val);
   bool scaleDefaultParam(double val);
 
-  bool analyticSensitivityAvailable (const std::string & paramName);
+  virtual bool analyticSensitivityAvailable (const std::string & paramName);
   bool analyticSensitivityAvailableDefaultParam ();
 
   bool getAnalyticSensitivity ( const std::string & paramName,

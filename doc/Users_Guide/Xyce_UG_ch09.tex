@@ -1615,6 +1615,18 @@ particular parameter list.  Unlike the Spice version of
 \texttt{.SENS}, \Xyce{} will not automatically compute the sensitivity
 of every parameter; only the parameters the user requested.
 
+The list of sensitivity parameters can also be specified using the name of a device, alone.
+This format is given by:
+
+\Format{\par \texttt{.SENS objfunc=\{<output expression(s)>\}
+    sensdevicename=<name> \newline .options SENSITIVITY
+    [direct=<1 or 0>] [adjoint=<1 or 0>]}}
+
+If this method is used, sensitivity analysis will be computed for all the parameters 
+associated with the specified device.  This is an experiemntal capability at this 
+point, and has only been implemented for independent voltage sources and 
+independent current sources.
+
 \subsection{Steady-State (DC) sensitivities}
 
 For DC analysis, \Xyce{} can compute a direct sensitivity, an adjoint
