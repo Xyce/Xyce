@@ -13,7 +13,7 @@ For instructions on building Xyce with the deprecated Autotools system, see the
 
 Xyce can be built for serial execution or with distributed-memory (MPI)
 parallelism. This is determined by the parallelism enabled in the build of
-Trilinos used when configuring Xyce. Different variants of Xyce and Tilinos can
+Trilinos used when configuring Xyce. Different variants of Xyce and Trilinos can
 co-exist on a system, but the variants must be installed in different
 directories.
 
