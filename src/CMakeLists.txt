@@ -301,7 +301,6 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     DeviceModelPKG/Core/N_DEV_ScalingVars.h
     DeviceModelPKG/Core/N_DEV_SpecieSource.h
     DeviceModelPKG/Core/N_DEV_TransportHelper.h
-    DeviceModelPKG/Core/N_DEV_Units.h
     DeviceModelPKG/SandiaModels/N_DEV_1D_QASPR.h
     DeviceModelPKG/SandiaModels/N_DEV_MuTableMgr.h
     DeviceModelPKG/SandiaModels/N_DEV_NeutronSupport.h
