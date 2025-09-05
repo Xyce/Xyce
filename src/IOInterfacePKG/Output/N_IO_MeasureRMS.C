@@ -174,7 +174,7 @@ std::ostream& RMS::printVerboseMeasureResult(std::ostream& os)
   }
   else
   {
-    os << name_ << " = FAILED" << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED" << std::endl;
   }
 
   return os;

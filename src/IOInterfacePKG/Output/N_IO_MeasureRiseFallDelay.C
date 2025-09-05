@@ -674,7 +674,7 @@ std::ostream& RiseFallDelay::printVerboseMeasureResult(std::ostream& os)
     }
     else
     { 
-      os << name_ << " = FAILED";
+      os << name_ << " = " << this->getMeasureResult() << " FAILED";
     }     
     os << " with trig time= " << timeForTrig_ << " and targ time= " << timeForTarg_ << std::endl;
 

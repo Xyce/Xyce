@@ -576,7 +576,7 @@ std::ostream& DerivativeEvaluation::printVerboseMeasureResult(std::ostream& os)
   }
   else
   {
-    os << name_ << " = FAILED";
+    os << name_ << " = " << this->getMeasureResult() << " FAILED";
     if (atGiven_)
     {
       os << " for AT = " << at_;

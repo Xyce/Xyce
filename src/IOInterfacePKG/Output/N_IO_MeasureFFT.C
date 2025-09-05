@@ -393,7 +393,7 @@ std::ostream& FFTFind::printVerboseMeasureResult(std::ostream& os)
     if (initialized_)
       os << name_ << " = " << this->getMeasureResult();
     else
-      os << name_ << " = FAILED";
+      os << name_ << " = " << this->getMeasureResult() << " FAILED";
 
     os << " at " <<  atIdx_*fftAnalysisPtr_->getFundamentalFreq()
        << " Hz (rounded from " << at_ << " Hz)" << std::endl;
@@ -607,11 +607,13 @@ std::ostream& SNR::printVerboseMeasureResult(std::ostream& os)
     {
       os << name_ << " = " << this->getMeasureResult();
       if (maxFreqGiven_)
-	os << " up to frequency " <<  maxFreqIdx_*fftAnalysisPtr_->getFundamentalFreq() << " Hz";
+      {
+        os << " up to frequency " <<  maxFreqIdx_*fftAnalysisPtr_->getFundamentalFreq() << " Hz";
+      }
     }
     else
     {
-      os << name_ << " = FAILED";
+      os << name_ << " = " << this->getMeasureResult() << " FAILED";
     }
     os << std::endl;
 
@@ -705,7 +707,7 @@ std::ostream& THD::printVerboseMeasureResult(std::ostream& os)
     }
     else
     {
-      os << name_ << " = FAILED" << std::endl;
+      os << name_ << " = " << this->getMeasureResult() << " FAILED" << std::endl;
     }
 
     return os;
