@@ -197,7 +197,7 @@ public:
       if( (this->failValueGiven_) && (std::abs(getMeasureResult()) >= this->failValue_)) {
         return " FAILED: Measure exceeds failure value.";
       }
-      return " OK I guess...";
+      return "";
     }
 
     // used to get the variable that controls where the measure output appears
