@@ -39,6 +39,7 @@
 #define Xyce_N_IO_MeasureBase_h
 
 #include <string>
+#include <sstream>
 #include <list>
 #include <vector>
 
@@ -195,7 +196,9 @@ public:
     
     virtual std::string getFailureResult() {
       if( (this->failValueGiven_) && (std::abs(getMeasureResult()) >= this->failValue_)) {
-        return " FAILED: Measure exceeds failure value.";
+        std::stringstream buf;
+        buf << " FAILED: Measure exceeds failure value of " << this->failValue_;
+        return buf.str();
       }
       return "";
     }
