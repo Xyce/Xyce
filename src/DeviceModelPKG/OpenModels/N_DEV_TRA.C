@@ -1228,7 +1228,7 @@ inline bool Instance::isConverged()
 
       double t3=currentTime;
       double v13=(oVp2-oVn2)+Z0*oI2;
-      ;      double v23=(oVp1-oVn1)+Z0*oI1;;
+      double v23=(oVp1-oVn1)+Z0*oI1;
 
       last--;
       double t2=last->t;
@@ -1239,14 +1239,29 @@ inline bool Instance::isConverged()
       double v11=last->v1;
       double v21=last->v2;
 
-      // slope from last time to this time for both ends of line
-      double d11=(v13-v12)/(t3-t2);
-      double d12=(v23-v22)/(t3-t2);
-
-      // slope from second-to last time to last time for both ends of line
-      double d21=(v12-v11)/(t2-t1);
-      double d22=(v22-v21)/(t2-t1);
-
+      // caution.  If t3==t2 or t2=t1 then the slope calculation is looking
+      // at the same point.  In that case the expected slope should be zero 
+      // and not infinite.
+      double d11=0.0;
+      double d12=0.0;
+      double d21=0.0;
+      double d22=0.0;
+      const double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
+      
+      if( fabs(t3-t2) > epsilon)
+      {
+        // slope from last time to this time for both ends of line
+        d11=(v13-v12)/(t3-t2);
+        d12=(v23-v22)/(t3-t2);
+      }
+      
+      if( fabs(t2-t1) > epsilon)
+      {
+        // slope from second-to last time to last time for both ends of line
+        d21=(v12-v11)/(t2-t1);
+        d22=(v22-v21)/(t2-t1);
+      }
+      
       // If either end of the line has shown a dramatic chaing in slope,
       // we've got a discontinuity.
       if ((fabs(d11-d21) >= .99*std::max(fabs(d11),fabs(d21))+1) ||
