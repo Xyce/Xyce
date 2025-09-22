@@ -153,12 +153,12 @@ std::ostream& Max::printMeasureResult(std::ostream& os)
     {
       // output the time (or frequency or value of the first variable in 
       // the DC sweep vector) when the maximum value occurs.
-      os << name_ << " = " << calculationInstant_ << std::endl;
+      os << name_ << " = " << calculationInstant_ << this->getFailureResult() << std::endl;
     }
     else
     {
       // output the maximum value
-      os << name_ << " = " << this->getMeasureResult() << std::endl;
+      os << name_ << " = " << this->getMeasureResult() << this->getFailureResult() << std::endl;
     }
 
     return os;
@@ -180,7 +180,7 @@ std::ostream& Max::printVerboseMeasureResult(std::ostream& os)
 
     if (initialized_)
     {
-      os << name_ << " = " << this->getMeasureResult() ;
+      os << name_ << " = " << this->getMeasureResult() << this->getFailureResult() ;
 
       // modeStr is "time" for TRAN mode, "freq" for AC and NOISE modes, and
       // "<sweep variable> value" for DC mode.
@@ -189,7 +189,7 @@ std::ostream& Max::printVerboseMeasureResult(std::ostream& os)
     }
     else
     { 
-      os << name_ << " = FAILED" << std::endl;
+      os << name_ << " = " << this->getMeasureResult() << " FAILED" << std::endl;
     }
 
     return os;

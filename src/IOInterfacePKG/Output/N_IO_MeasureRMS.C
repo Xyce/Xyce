@@ -148,7 +148,7 @@ std::ostream& RMS::printMeasureResult(std::ostream& os)
   }
   else
   {
-     os << name_ << " = " << this->getMeasureResult() << std::endl;
+     os << name_ << " = " << this->getMeasureResult() << this->getFailureResult() << std::endl;
   }
 
   return os;
@@ -170,11 +170,11 @@ std::ostream& RMS::printVerboseMeasureResult(std::ostream& os)
 
   if ( initialized_ && (numPointsFound_ > 1) )
   {
-    os << name_ << " = " << this->getMeasureResult() << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << this->getFailureResult() << std::endl;
   }
   else
   {
-    os << name_ << " = FAILED" << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED" << std::endl;
   }
 
   return os;

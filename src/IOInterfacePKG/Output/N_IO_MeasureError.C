@@ -469,7 +469,7 @@ std::ostream& Error::printVerboseMeasureResult(std::ostream& os)
     }
     else
     { 
-      os << name_ << " = FAILED" << std::endl;
+      os << name_ << " = " << this->getMeasureResult() << " FAILED" << std::endl;
     }
 
     // also print out the COMP_FUNCTION used, and whether the default value was used

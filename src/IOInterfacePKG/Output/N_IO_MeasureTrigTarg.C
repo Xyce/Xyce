@@ -1364,11 +1364,11 @@ std::ostream& TrigTarg::printVerboseMeasureResult(std::ostream& os)
        << " with targ = " << targResult_ << " and trig = " << trigResult_;
   }
   else if (!trigResultFound_ && targResultFound_)
-    os << name_ << " = FAILED with targ = "  << targResult_ << " and trig = not found";
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = "  << targResult_ << " and trig = not found";
   else if (trigResultFound_ && !targResultFound_)
-    os << name_ << " = FAILED with targ = not found and trig = " << trigResult_;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = not found and trig = " << trigResult_;
   else
-    os << name_ << " = FAILED with targ = not found and trig = not found";
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = not found and trig = not found";
   
   os << std::endl;
 
@@ -1619,15 +1619,15 @@ std::ostream& TrigTargCont::printVerboseMeasureResult(std::ostream& os)
   }
   else if (!trigResultFound_ && targResultFound_)
   {
-    os << name_ << " = FAILED with targ = "  << targResultVec_[0] << " and trig = not found" << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = "  << targResultVec_[0] << " and trig = not found" << std::endl;
   }
   else if (trigResultFound_ && !targResultFound_)
   {  
-    os << name_ << " = FAILED with targ = not found and trig = " << trigResultVec_[0] << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = not found and trig = " << trigResultVec_[0] << std::endl;
   }
   else
   {
-    os << name_ << " = FAILED with targ = not found and trig = not found" << std::endl;
+    os << name_ << " = " << this->getMeasureResult() << " FAILED with targ = not found and trig = not found" << std::endl;
   }
 
   return os;

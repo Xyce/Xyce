@@ -1656,6 +1656,7 @@ extractMEASUREData(
   simpleKeywords.insert( std::string("ON") );
   simpleKeywords.insert( std::string("OFF") );
   simpleKeywords.insert( std::string("FRAC_MAX") );
+  simpleKeywords.insert( std::string("FAILVALUE") );
   simpleKeywords.insert( std::string("MIN_THRESH") );
   simpleKeywords.insert( std::string("MAX_THRESH") );
   simpleKeywords.insert( std::string("NUMFREQ") );

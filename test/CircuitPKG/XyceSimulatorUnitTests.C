@@ -78,7 +78,7 @@ TEST ( XyceSimulator, InitializeTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 4;
+  const int numArgs = 4;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -99,7 +99,7 @@ TEST ( XyceSimulator, InitializeTestNetlist2 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist2.cir";
@@ -115,7 +115,7 @@ TEST ( XyceSimulator, InitializeTestNetlist3 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist3.cir";
@@ -131,7 +131,7 @@ TEST ( XyceSimulator, RunTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -150,7 +150,7 @@ TEST ( XyceSimulator, FinalizeTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -170,7 +170,7 @@ TEST ( XyceSimulator, GetTimeTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -192,7 +192,7 @@ TEST ( XyceSimulator, MultiTimeStepTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -236,7 +236,7 @@ TEST ( XyceSimulator, MultiTimeStepTestNetlist2 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist2.cir";
@@ -280,7 +280,7 @@ TEST ( XyceSimulator, MultiTimeStepTestNetlist3 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist3.cir";
@@ -325,7 +325,7 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -376,7 +376,7 @@ TEST ( XyceSimulator, DACDeviceNamesTestNetlist3 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist3.cir";
@@ -427,7 +427,7 @@ TEST ( XyceSimulator, ADCMapTestNetlist1 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist1.cir";
@@ -481,7 +481,7 @@ TEST ( XyceSimulator, ADCMapTestNetlist3 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist3.cir";
@@ -535,7 +535,7 @@ TEST ( XyceSimulator, CheckDeviceParamTestNetlist2 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist2.cir";
@@ -567,7 +567,7 @@ TEST ( XyceSimulator, SetDeviceParamTestNetlist2 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist2.cir";
@@ -633,7 +633,7 @@ TEST ( XyceSimulator, GetCircuitValuesTestNetlist2 )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "TestNetlist2.cir";
@@ -718,7 +718,7 @@ TEST ( XyceSimulator, GetMultiADCTest )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "MultiPort.cir";
@@ -792,7 +792,7 @@ TEST ( XyceSimulator, GetMultiADCTestTimeVariant )
   Xyce::Circuit::Simulator * xycePtr = NULL;
   xycePtr = new Xyce::Circuit::Simulator();
   EXPECT_TRUE( xycePtr != NULL );
-  int numArgs = 2;
+  const int numArgs = 2;
   char * cmdLineArgs[numArgs];
   std::string xyceBin = "XyceTests";
   std::string netlist = "MultiPort2.cir";
@@ -934,7 +934,7 @@ TEST ( XyceSimulator, InitFromWorkingDirectory )
   std::filesystem::copy_file( originalFile, newFile, std::filesystem::copy_options::overwrite_existing);
   xycePtr->setWorkingDirectory("TestDir2");
   
-  int numArgs = 4;
+  const int numArgs = 4;
   char * cmdLineArgs[numArgs];
   std::string xyceBin("XyceTests");
   std::string logOption("-l");

@@ -81,6 +81,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     fallGiven_(false),
     cross_(0),
     crossGiven_(false),
+    failValue_(0.0),
+    failValueGiven_(false),
     actualRise_(0),
     isRising_(false),
     rfcLevelGiven_(false),
@@ -364,6 +366,11 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       {
         setRFCValueAndFlag(it, cross_, crossGiven_);
       }
+    }
+    else if( tag == "FAILVALUE" )
+    {
+      failValue_ = (*it).getImmutableValue<double>();
+      failValueGiven_ = true;
     }
     else if( tag == "RFC_LEVEL" )
     {

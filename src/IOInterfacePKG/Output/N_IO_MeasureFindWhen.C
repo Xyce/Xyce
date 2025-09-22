@@ -622,7 +622,7 @@ std::ostream& FindWhen::printVerboseMeasureResult(std::ostream& os)
   }
   else
   {
-    os << name_ << " = FAILED";
+    os << name_ << " = " << this->getMeasureResult() << " FAILED";
     if (atGiven_)
     {
       os << " for AT = " << at_;
@@ -759,7 +759,7 @@ std::ostream& FindWhenCont::printVerboseMeasureResult(std::ostream& os)
   }
   else
   {
-    os << name_ << " = FAILED";
+    os << name_ << " = " << this->getMeasureResult() << " FAILED";
     if (atGiven_)
     {
       os << " for AT = " << at_;
