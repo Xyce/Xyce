@@ -44,6 +44,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstring>
 #include <cassert>
 #include <stdexcept>
 #include <ctime>
@@ -810,6 +811,50 @@ Simulator::RunStatus Simulator::runSimulation()
 // ---------------------------------------------------------------------------
 // API METHODS NEEDED FOR MIXED-SIGNAL and other external applications
 //
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::initialize
+// Purpose       : convenience method that takes C++ strings rather then C args. 
+//                
+// Special Notes : Assumes that "Xyce" which would normally be the first element is NOT
+//                 part of the arguments and it is added automatically.
+// Scope         : public
+//-----------------------------------------------------------------------------
+Simulator::RunStatus Simulator::initialize(const std::vector<const std::string> arguments)
+{
+
+  const int argc = arguments.size()+1;
+  char const * argv[argc];
+  argv[0] = std::string("Xyce").c_str();
+  for(auto i=0; i<arguments.size(); i++)
+  {
+    argv[i+1] = arguments[i].c_str();
+  }
+  RunStatus status = this->initialize( argc, const_cast<char **>(argv) );
+  return status;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::initializeEarly
+// Purpose       : convenience method that takes C++ strings rather then C args. 
+//                
+// Special Notes : Assumes that "Xyce" which would normally be the first element is NOT
+//                 part of the arguments and it is added automatically.
+// Scope         : public
+//-----------------------------------------------------------------------------
+Simulator::RunStatus Simulator::initializeEarly(const std::vector<const std::string> arguments)
+{
+
+  const int argc = arguments.size()+1;
+  char const * argv[argc];
+  argv[0] = std::string("Xyce").c_str();
+  for(auto i=0; i<arguments.size(); i++)
+  {
+    argv[i+1] = arguments[i].c_str();
+  }
+  RunStatus status = this->initializeEarly( argc, const_cast<char **>(argv) );
+  return status;
+}
 //-----------------------------------------------------------------------------
 // Function      : Simulator::initialize
 // Purpose       : capture all "initialization-type" activities in one
