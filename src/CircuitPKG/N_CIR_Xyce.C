@@ -820,7 +820,7 @@ Simulator::RunStatus Simulator::runSimulation()
 //                 part of the arguments and it is added automatically.
 // Scope         : public
 //-----------------------------------------------------------------------------
-Simulator::RunStatus Simulator::initialize(const std::vector<const std::string> arguments)
+Simulator::RunStatus Simulator::initialize(const std::vector<std::string> arguments)
 {
 
   const int argc = arguments.size()+1;
@@ -842,7 +842,7 @@ Simulator::RunStatus Simulator::initialize(const std::vector<const std::string> 
 //                 part of the arguments and it is added automatically.
 // Scope         : public
 //-----------------------------------------------------------------------------
-Simulator::RunStatus Simulator::initializeEarly(const std::vector<const std::string> arguments)
+Simulator::RunStatus Simulator::initializeEarly(const std::vector<std::string> arguments)
 {
 
   const int argc = arguments.size()+1;

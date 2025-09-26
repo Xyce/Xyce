@@ -173,7 +173,7 @@ class Simulator
   RunStatus initialize(int argc, char **argv);
   // convenience method that is the same as the above but takes C++ args
   // note: the command "Xyce" is assumed to NOT be argument 0.  That is added automatically
-  RunStatus initialize(const std::vector<const std::string> arguments);
+  RunStatus initialize(const std::vector<std::string> arguments);
 
   /// First initialization call, intializes up to point where
   /// topology needs to query devices for number variables and jacstamp.
@@ -181,7 +181,7 @@ class Simulator
   RunStatus initializeEarly(int argc, char **argv);
   // convenience method that is the same as the above but takes C++ args
   // note: the command "Xyce" is assumed to NOT be argument 0.  That is added automatically
-  RunStatus initializeEarly(const std::vector<const std::string> arguments);
+  RunStatus initializeEarly(const std::vector<std::string> arguments);
 
   /// Second initialization call, intialization steps starting from
   /// where topology needs to query devices for number variables and jacstamp
