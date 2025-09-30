@@ -46,7 +46,7 @@ CI_PROJECT_DIR="$3"
 # note use of the use of the pipeline's xyce-ctest.cmake file, NOT the
 # build repos copy
 ctest --timeout 1200 -DVERBOSITY=5 \
-      -DNUM_PROCS=28 \
-      -DUSE_GITLAB_CI_TESTING=ON \
-      -DCMAKE_ARGS_LIST="${rawCmakeArgsList}" \
-      -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake
+  -DNUM_PROCS=28 \
+  -DUSE_GITLAB_CI_TESTING=ON \
+  -DCMAKE_ARGS_LIST="${rawCmakeArgsList}" \
+  -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake

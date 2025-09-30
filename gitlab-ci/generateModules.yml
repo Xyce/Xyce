@@ -1,3 +1,6 @@
+# Note that debug builds are not included in module generation. The assumption
+# is that users won't want to run a debug version of Xyce and therefore any
+# debug builds are not included here.
 include:
   - gitlab-ci/variables/build-var-sets.yml
 

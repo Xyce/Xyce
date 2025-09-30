@@ -437,7 +437,7 @@ if("$ENV{branch}" MATCHES "^release.*")
 endif()
 
 set(CTEST_DROP_METHOD "https")
-set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
+set(CTEST_DROP_SITE "ramses-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
 
 if(VERBOSITY GREATER 4)

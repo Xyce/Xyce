@@ -5,9 +5,6 @@ include:
   extends: .build_base
   dependencies: []
   stage: buildTPLs
-  variables:
-    buildShared: "ON"
-    buildStatic: "OFF"
   script:
     # clone relevant repos
     - |
@@ -20,12 +17,6 @@ include:
       if [ ! -d ADMS ]; then
         git clone https://github.com/Qucs/ADMS.git
       fi
-    - |
-      if [[ "${buildShared}" == "OFF" ]]; then
-        libStr="static"
-      else
-        libStr="dynamic"
-      fi
     #########################################################################
     #########################################################################
     # build ADMS
@@ -35,7 +26,8 @@ include:
     - cd ${CI_PROJECT_DIR}/build/adms
     - cmake
         -GNinja
-        -DCMAKE_INSTALL_PREFIX="${admsInstallDir}"
+        -DCMAKE_BUILD_TYPE=${cmakeBuildType}
+        -DCMAKE_INSTALL_PREFIX="${admsInstallDir}/${optStr}"
         "${CI_PROJECT_DIR}/ADMS"
     - ninja ${VerboseNinja} install 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/ninja-log.adms.txt
     #########################################################################
@@ -47,11 +39,11 @@ include:
     - mkdir -p ${CI_PROJECT_DIR}/build/ss
     - cd ${CI_PROJECT_DIR}/build/ss
     - cmake -GNinja
-        -DCMAKE_BUILD_TYPE="Release"
+        -DCMAKE_BUILD_TYPE=${cmakeBuildType}
         -DNOPENMP="ON"
         -DALLOW_64BIT_BLAS="ON"
-        -DCMAKE_INSTALL_RPATH="${ssInstallDir}/${libStr}/lib64"
-        -DCMAKE_INSTALL_PREFIX="${ssInstallDir}/${libStr}"
+        -DCMAKE_INSTALL_RPATH="${ssInstallDir}/${optStr}/${libTypeStr}/lib64"
+        -DCMAKE_INSTALL_PREFIX="${ssInstallDir}/${optStr}/${libTypeStr}"
         -DCMAKE_POSITION_INDEPENDENT_CODE="ON"
         -DBUILD_SHARED_LIBS="${buildShared}"
         -DBUILD_STATIC_LIBS="${buildStatic}"
@@ -67,19 +59,20 @@ include:
       mkdir -p ${CI_PROJECT_DIR}/build/trilinos
       cd ${CI_PROJECT_DIR}/build/trilinos
       cmakeExtraArgs="-GNinja;"
-      cmakeExtraArgs+="-DAMD_LIBRARY_DIRS=${ssInstallDir}/${libStr}/lib64;"
-      cmakeExtraArgs+="-DAMD_INCLUDE_DIRS=${ssInstallDir}/${libStr}/include/suitesparse;"
+      cmakeExtraArgs+="-DAMD_LIBRARY_DIRS=${ssInstallDir}/${optStr}/${libTypeStr}/lib64;"
+      cmakeExtraArgs+="-DAMD_INCLUDE_DIRS=${ssInstallDir}/${optStr}/${libTypeStr}/include/suitesparse;"
       cmakeExtraArgs+="-DAMD_LIBRARY_NAMES=amd\;suitesparse_config;"
-      cmakeExtraArgs+="-DCMAKE_INSTALL_PREFIX=${trilinosInstallDir}/${libStr};"
+      cmakeExtraArgs+="-DCMAKE_INSTALL_PREFIX=${trilinosInstallDir}/${optStr}/${libTypeStr};"
       cmakeExtraArgs+="-DCMAKE_POSITION_INDEPENDENT_CODE=ON;"
-      cmakeExtraArgs+="-DTrilinos_USE_GNUINSTALLDIRS=ON"
+      cmakeExtraArgs+="-DTrilinos_USE_GNUINSTALLDIRS=ON;"
+      cmakeExtraArgs+="-DCMAKE_BUILD_TYPE=${cmakeBuildType}"
       # generate a concise version of trilinos for reporting
       export WORKSPACE="${CI_PROJECT_DIR}"
       shortTriVer=$(echo "${TrilinosVersion}"|sed 's/trilinos-release-//'|sed 's/-/./g')
       ctest -DVERBOSITY=5 -DGROUP="Deploy" \
         -DBUILD_SHARED="${buildShared}" \
         -DBUILD_WITH_MPI="${BuildWithMPI}" \
-        -DBUILD_NAME="Trilinos/${shortTriVer}/${libStr}-${archFullName}" \
+        -DBUILD_NAME="Trilinos/${shortTriVer}/${optStr}/${libTypeStr}-${archFullName}" \
         -DBUILD_DIR="${CI_PROJECT_DIR}/build/trilinos" \
         -DSITE_APPEND="" \
         -DCMAKE_ARGS_LIST="${cmakeExtraArgs}" \
@@ -115,6 +108,15 @@ GNU_serial.static.buildTPLs:
     buildStatic: "ON"
   needs:
     - GNU_serial.dyn.buildTPLs
+
+GNU_OpenMPI.dyn.Debug.buildTPLs:
+  variables:
+    buildShared: "ON"
+    buildStatic: "OFF"
+    cmakeBuildType: "Debug"
+  extends:
+    - .build_tpls
+    - .gnu_openmpi_vars
 
 GNU_OpenMPI.dyn.buildTPLs:
   extends:

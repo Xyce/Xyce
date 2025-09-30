@@ -4,6 +4,12 @@
     CC: ""
     CXX: ""
     FC: ""
+
+    buildShared: "ON"
+    buildStatic: "OFF"
+    # Default value, can be set to "Debug" on a per-stage basis
+    cmakeBuildType: "Release"
+
     archFullName: ${Arch}-${Platform}-${OS}-${ToolsSpec}-${CompilerSuite}-${ParallelType}
     archInstallDir: ${BASE_INSTALL_DIR}/${archFullName}
     ssInstallDir: ${archInstallDir}/SuiteSparse/${SuiteSparseVersion}
@@ -17,8 +23,11 @@
     # protect against running as anyone other than xyce-jenkins
     - |
       if [[ "${myLoginID}" != "xyce-jenkins" ]]; then
-        echo "Error: Unauthorized user ${myLoginID}"
+        echo "Error: Unauthorized user: ${myLoginID}"
+        echo "Only user authorized to run this pipeline is: xyce-jenkins"
         exit 1
+      else
+        echo "Running as user: ${myLoginID}"
       fi
     # make a directory for any files. this will be use to create
     # project artifacts that can help diagnose problems with the
@@ -53,14 +62,29 @@
     - echo "XyceSandiaModelsBranch = ${XyceSandiaModelsBranch}"
     - echo "XyceSandiaRegressionBranch= ${XyceSandiaRegressionBranch}"
     - echo "CI_PIPELINE_SOURCE = ${CI_PIPELINE_SOURCE}"
-    # used to clean out installation directories
+    - |
+      if [[ "${buildShared}" == "OFF" ]]; then
+        libTypeStr="static"
+      else
+        libTypeStr="dynamic"
+      fi
+    - |
+      if [[ "${cmakeBuildType}" == "Release" ]]; then
+        optStr="opt"
+      else
+        optStr="dbg"
+      fi
+    # define some shell functions, cleanInstallDir() and cloneAllXyceRepos() that
+    # can be used throughout the build process
     - |
       cleanInstallDir() {
         local installDir="$1"
         if [ -d "${installDir}" ]; then
+          echo "cleaning ${installDir}"
           cd "$(dirname ${installDir})"
           rm -rf "$(basename ${installDir})"
         else
+          echo "creating install directory: ${installDir}"
           mkdir -p "${installDir}"
         fi
       }
