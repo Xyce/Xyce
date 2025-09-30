@@ -31,7 +31,7 @@ if(NOT DEFINED OSX_TOOLKIT_VERSION)
 endif()
 
 set(CTEST_DROP_METHOD "https")
-set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
+set(CTEST_DROP_SITE "ramses-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
 
 if(NOT DEFINED BUILD_DIR)
