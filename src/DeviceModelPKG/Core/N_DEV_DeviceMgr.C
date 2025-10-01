@@ -1085,7 +1085,7 @@ void DeviceMgr::notify(const Analysis::AnalysisEvent &analysis_event)
       // If they are specified inside an expression, then the AST is set up automatically.
       // So, if the .PRINT line can be refactored a bit, this loop over global params can go away.
       if ( !(globalExpressionsVec.empty()) )
-        { 
+      { 
         int pos = 0;
         for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
         {

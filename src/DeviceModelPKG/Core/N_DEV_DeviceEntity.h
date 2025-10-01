@@ -240,6 +240,7 @@ public:
   double setDependentParameter(Util::Param &, std::vector<double> *, int , ParameterType::ExprAccess);
   int setDependentParameter(Util::Param &, int *, ParameterType::ExprAccess);
 
+  double replaceDependentParameter(Util::Param &, double *, ParameterType::ExprAccess);
 
   void setDependentParameter(Util::Param & par, Depend & dependentParam, ParameterType::ExprAccess depend);
 
