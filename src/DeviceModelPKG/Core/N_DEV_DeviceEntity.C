@@ -1001,6 +1001,7 @@ double DeviceEntity::replaceDependentParameter (Util::Param & par,
   bool found = (dpIter != dependentParams_.end());
   if (found)
   {
+    delete dpIter->expr;
     *dpIter = dependentParam;
   }
   else
