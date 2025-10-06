@@ -7,6 +7,7 @@ include:
   dependencies: []
   variables:
     GoogleUnitTesting: "OFF"
+    XYCE_NO_TRACKING: "TRUE"
     BuildWithMPI: "OFF"
     cmakeBuildType: "Release"
     # variables for xyce-ctest.cmake. typically do NOT want to modify
