@@ -1,6 +1,8 @@
 // 
 // Simple test of the two level API but to transmission lines in the circuit
-// inner problem uses an RLC transmission line model
+// 
+// In the outer problem use a  non-ideal power source (a discharging capacitor)
+// inner problems uses a delay transmission line model
 //
 
 
@@ -15,17 +17,9 @@
 //-----------------------------------------------------------------------------
 int main( int iargs, char *cargs[] )
 {
-  Xyce::lout() << "TwoLevelTest2: Starting Xyce as library test" << std::endl;
+  Xyce::lout() << "TwoLevelTest5: Starting Xyce as library test" << std::endl;
 
   bool xyceSuccess = false;
-  // Set divide by zero, and invalid operation handling on linux
-  // Set out of memory detection on all systems
-  //std::set_new_handler (&_new_handler);
-
-  //std::string netlist = "resInnerTran.cir";
-  //Xyce::lout() << "---------------\nRunning the 2-level calculation:\n---------------" << netlist << std::endl;
-  //topLevelNewton circuitCalculation(netlist);
-  //bool bsuccess = circuitCalculation.runTran(iargs,cargs);
 
   auto xyceSimulator = new Xyce::Circuit::SecondLevelSimulator(); // don't need a comm object (optional argument)
   if( xyceSimulator == NULL)
@@ -34,7 +28,7 @@ int main( int iargs, char *cargs[] )
     Xyce::dout() << "Failed in call to allocate xyce second level simulator object" << std::endl;
     return -1;
   }
-  const std::vector<std::string> argsToXyce = {"compInner2.cir"};
+  const std::vector<std::string> argsToXyce = {"compInner5.cir"};
   
   xyceSuccess = xyceSimulator->initialize(argsToXyce);
   if( !xyceSuccess)
@@ -55,15 +49,15 @@ int main( int iargs, char *cargs[] )
   // get time step data from inner problem that Xyce has loaded
   xyceSimulator->endTimeStep(extSimData);
   
-  // transient source sine source vars
-  double V0 = 0.0;
-  double VA = 1000000.0;
-  double FREQ = 2.5e+10;
-  
   // voltageInputMap is passed to Xyce to set the transient inputs on the devices
   // vconnectXXXX
+  // I = C dV/dt
+  // set Initial voltage to 1e5
+  const double outerCap = 1e-12;
+  double V0 = 1.0e5;
+  
   std::map<std::string,double> voltageInputMap;
-  voltageInputMap["vconnect0000"] = V0 + VA * std::sin(2.0*M_PI*(FREQ*0.0));;
+  voltageInputMap["vconnect0000"] = 0.0;
   voltageInputMap["vconnect0001"] = 0.0;
   
   // vector and jacobian for communicating results from inner to outer problem
@@ -165,9 +159,15 @@ int main( int iargs, char *cargs[] )
       << extSimData.nextTimeStep
       << std::endl;
 
+    
+
     // update the sinewave source:
     double time = (extSimData.nextTime);
-    voltageInputMap["vconnect0000"] = V0 + VA * std::sin(2.0*M_PI*(FREQ*time));
+    // I = C dV/dt
+    // I = C (V(t1) - V(t0)) / dt 
+    // V(t1) = I*dt/C + V(t0)
+    // simple euler update scheme.
+    voltageInputMap["vconnect0000"] = outputVector[0]*extSimData.nextTimeStep/outerCap + V0;
 
     xyceSuccess = xyceSimulator->startTimeStep(extSimData);
     xyceSuccess = xyceSimulator->simulateStep(initJctFlag, voltageInputMap, outputVector, innerJacobianStamp, tlError);
@@ -177,6 +177,7 @@ int main( int iargs, char *cargs[] )
       // process "successful" time step
       xyceSimulator->stepSuccess(Xyce::Analysis::TWO_LEVEL_MODE_TRANSIENT); 
       Xyce::dout() << "Current draw from inner problem:"  << outputVector[0] << ", " << outputVector[1] << std::endl;
+      V0 = voltageInputMap["vconnect0000"];
     }
     else
     {

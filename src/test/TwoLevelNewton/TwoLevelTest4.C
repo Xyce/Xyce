@@ -1,6 +1,6 @@
 // 
 // Simple test of the two level API but to transmission lines in the circuit
-// inner problem uses an RLC transmission line model
+// inner problems uses a delay transmission line model
 //
 
 
@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 int main( int iargs, char *cargs[] )
 {
-  Xyce::lout() << "TwoLevelTest2: Starting Xyce as library test" << std::endl;
+  Xyce::lout() << "TwoLevelTest4: Starting Xyce as library test" << std::endl;
 
   bool xyceSuccess = false;
   // Set divide by zero, and invalid operation handling on linux
@@ -34,7 +34,7 @@ int main( int iargs, char *cargs[] )
     Xyce::dout() << "Failed in call to allocate xyce second level simulator object" << std::endl;
     return -1;
   }
-  const std::vector<std::string> argsToXyce = {"compInner2.cir"};
+  const std::vector<std::string> argsToXyce = {"compInner4.cir"};
   
   xyceSuccess = xyceSimulator->initialize(argsToXyce);
   if( !xyceSuccess)
@@ -122,7 +122,7 @@ int main( int iargs, char *cargs[] )
 
   // now try transient stepping
   // set up a max time step
-  double max_dt = extSimData.finalTime/10.0;
+  double max_dt = extSimData.finalTime/50.0;
 
   //---------------------------------------------------------------------------
   // transient calculation. (post DCOP)

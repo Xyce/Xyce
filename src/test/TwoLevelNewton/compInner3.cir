@@ -1,19 +1,14 @@
 Netlist for sending a pulse into Empire and receiving it back once again.
 ********************************************************************************
-*transmission_line_input  2 0 3 0 Z0=659.2780491 TD=2.001384571e-10
-*transmission_line_output 4 0 5 0 Z0=659.2780491 TD=2.001384571e-10
 .model testLine transline r=0.0 l=2.199114859e-06 c=5.059535892e-12
 ytransline transmission_line_input 2 3 testLine len=0.06 lumps=12
 ytransline transmission_line_output 4 5 testLine len=0.06 lumps=12
-
 
 * source from outer problem 
 vconnect0000   1outer 0 0
 vconnect0001   2outer 0 0
 
 resistor_input           1outer 2 659.2780491
-
-
 resistor_output          5 0 659.2780491
 
 

@@ -2,6 +2,7 @@
 // Simple test of the two level API but to transmission lines in the circuit
 // 
 // In the outer problem use a  non-ideal power source (a discharging capacitor)
+// inner problem uses an RLC transmission line model
 //
 
 
