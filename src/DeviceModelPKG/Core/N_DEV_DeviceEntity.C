@@ -970,6 +970,65 @@ int DeviceEntity::setDependentParameter (Util::Param & par,
   return static_cast<int>(dval);
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceEntity::replaceDependentParameter
+// Purpose       : Add expression, param pairs for future updates
+// Special Notes : Very similar to the equivalent setDependentParameter, 
+//                 except that it checks to see if the passed parameter 
+//                 "par" already exists.  
+//
+//                 If so, then replace.  
+//                 If not, then create new one (same as setDependentParameter does, unconditionally)
+//
+// Scope         : protected
+// Creator       : Eric Keiter 
+// Creation Date : 10/1/2025
+//-----------------------------------------------------------------------------
+double DeviceEntity::replaceDependentParameter (Util::Param & par,
+                                            double *res,
+                                            ParameterType::ExprAccess depend)
+
+{
+  Depend dependentParam;
+  dependentParam.resultU.result = res;
+  dependentParam.vectorIndex = -1;
+  setDependentParameter(par, dependentParam, depend);
+
+  std::string tmpName = par.tag();
+  std::vector<Depend>::iterator dpIter = std::find_if(
+      dependentParams_.begin(), dependentParams_.end(), MatchDependName(tmpName));
+  bool found = (dpIter != dependentParams_.end());
+  if (found)
+  {
+    delete dpIter->expr;
+    *dpIter = dependentParam;
+  }
+  else
+  {
+    dependentParams_.push_back(dependentParam);
+  }
+
+  // needed for new expression
+  {
+  Teuchos::RCP<Util::mainXyceExpressionGroup>  group =  
+    Teuchos::rcp_dynamic_cast< Util::mainXyceExpressionGroup  >(solState_.getGroupWrapper()->expressionGroup_);
+
+  Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
+    Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
+  dependentParam.expr->setGroup( newGroup );
+  }
+
+  double rval;
+  dependentParam.expr->updateForStep();
+  dependentParam.expr->evaluateFunction (rval);
+  dependentParam.expr->clearOldResult();
+
+  return rval;
+}
+
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntity::setDependentParameter
 // Purpose       : Add expression, param pairs for future updates

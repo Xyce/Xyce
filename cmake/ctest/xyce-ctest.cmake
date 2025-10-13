@@ -437,7 +437,7 @@ if("$ENV{branch}" MATCHES "^release.*")
 endif()
 
 set(CTEST_DROP_METHOD "https")
-set(CTEST_DROP_SITE "xyce-cdash.sandia.gov")
+set(CTEST_DROP_SITE "ramses-cdash.sandia.gov")
 set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
 
 if(VERBOSITY GREATER 4)
@@ -496,6 +496,7 @@ if(buildReturnVal EQUAL 0)
     if(VERBOSITY GREATER 1)
       message("[VERB1]: PARALLEL_LEVEL being set to ${NUM_PROCS} and label ${XYCE_TEST_LABEL_FILTER}")
     endif()
+    set( ENV{XYCE_NO_TRACKING} "notrack")
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
       INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}")

@@ -1,0 +1,20 @@
+Netlist for sending a pulse into Empire and receiving it back once again.
+********************************************************************************
+.model testLine transline r=0.0 l=2.199114859e-06 c=5.059535892e-12
+ytransline transmission_line_input 2 3 testLine len=0.06 lumps=12
+ytransline transmission_line_output 4 5 testLine len=0.06 lumps=12
+
+* source from outer problem 
+vconnect0000   1outer 0 0
+vconnect0001   2outer 0 0
+
+resistor_input           1outer 2 659.2780491
+resistor_output          5 0 659.2780491
+
+
+.tran  0 1e-8  NOOP
+.options nonlin nox=1 
+*.options device debuglevel=-100
+.print tran V(1outer) V(2outer) V(2) V(3) V(4) V(5)
+.END
+

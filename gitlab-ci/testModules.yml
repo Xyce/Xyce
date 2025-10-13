@@ -19,6 +19,14 @@ include:
   rules:
     - if: $DO_TEST_MODULES == "ON" && $CI_PIPELINE_SOURCE == "trigger"
 
+.test_modules_cts:
+  extends:
+    - .test_modules
+  script:
+    - module use ${BaseModuleInstallDir}/${Platform}
+    - module purge
+    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel; which Xyce; mpirun -np 1 Xyce -capabilities"
+
 GNU_serial.testModule:
   extends:
     - .test_modules
@@ -27,6 +35,7 @@ GNU_serial.testModule:
     - module use ${BaseModuleInstallDir}/${Platform}
     - module purge
     - module load xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
+    - which Xyce
     - Xyce -capabilities
 
 GNU_OpenMPI.testModule:
@@ -37,6 +46,7 @@ GNU_OpenMPI.testModule:
     - module use ${BaseModuleInstallDir}/${Platform}
     - module purge
     - module load xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
+    - which Xyce
     - mpirun -np 1 Xyce -capabilities
 
 Intel_serial.testModule:
@@ -47,6 +57,7 @@ Intel_serial.testModule:
     - module use ${BaseModuleInstallDir}/${Platform}
     - module purge
     - module load xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial
+    - which Xyce
     - Xyce -capabilities
 
 GNU_OpenMPI.testModule:
@@ -57,40 +68,25 @@ GNU_OpenMPI.testModule:
     - module use ${BaseModuleInstallDir}/${Platform}
     - module purge
     - module load xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel
+    - which Xyce
     - mpirun -np 1 Xyce -capabilities
 
 GNU_serial.cts.testModule:
   extends:
-    - .test_modules
+    - .test_modules_cts
     - .gnu_serial_cts_vars
-  script:
-    - module use ${BaseModuleInstallDir}/${Platform}
-    - module purge
-    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial; Xyce -capabilities"
 
 GNU_OpenMPI.cts.testModule:
   extends:
-    - .test_modules
+    - .test_modules_cts
     - .gnu_openmpi_cts_vars
-  script:
-    - module use ${BaseModuleInstallDir}/${Platform}
-    - module purge
-    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel; mpirun -np 1 Xyce -capabilities"
     
 Intel_serial.cts.testModule:
   extends:
-    - .test_modules
+    - .test_modules_cts
     - .intel_serial_cts_vars
-  script:
-    - module use ${BaseModuleInstallDir}/${Platform}
-    - module purge
-    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/serial; Xyce -capabilities"
 
 Intel_OpenMPI.cts.testModule:
   extends:
-    - .test_modules
+    - .test_modules_cts
     - .intel_openmpi_cts_vars
-  script:
-    - module use ${BaseModuleInstallDir}/${Platform}
-    - module purge
-    - srun ${SBATCH_EXTRA_ARGS} -N1 --time=00:05:00 --account=FY200136 -p short,batch /bin/bash -c "set -e; module add xyce/${XYCE_INSTALL_STRING}/${CompilerSuite}/parallel; mpirun -np 1 Xyce -capabilities"

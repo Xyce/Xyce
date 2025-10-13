@@ -5,7 +5,7 @@
 
 .cts_tags: &cts_tags
   tags:
-    - ctsCI
+    - flight-shell
   variables:
     Platform: cts
     OS: toss4

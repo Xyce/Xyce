@@ -1,5 +1,6 @@
 // 
-// Simple test of the two level API
+// Simple test of the two level API but to transmission lines in the circuit
+// inner problem uses an RLC transmission line model
 //
 
 
@@ -14,7 +15,7 @@
 //-----------------------------------------------------------------------------
 int main( int iargs, char *cargs[] )
 {
-  Xyce::lout() << "TwoLevelTest1: Starting Xyce as library test" << std::endl;
+  Xyce::lout() << "TwoLevelTest2: Starting Xyce as library test" << std::endl;
 
   bool xyceSuccess = false;
   // Set divide by zero, and invalid operation handling on linux
@@ -33,7 +34,7 @@ int main( int iargs, char *cargs[] )
     Xyce::dout() << "Failed in call to allocate xyce second level simulator object" << std::endl;
     return -1;
   }
-  const std::vector<std::string> argsToXyce = {"compInner1.cir"};
+  const std::vector<std::string> argsToXyce = {"compInner2.cir"};
   
   xyceSuccess = xyceSimulator->initialize(argsToXyce);
   if( !xyceSuccess)
@@ -54,10 +55,15 @@ int main( int iargs, char *cargs[] )
   // get time step data from inner problem that Xyce has loaded
   xyceSimulator->endTimeStep(extSimData);
   
+  // transient source sine source vars
+  double V0 = 0.0;
+  double VA = 1000000.0;
+  double FREQ = 2.5e+10;
+  
   // voltageInputMap is passed to Xyce to set the transient inputs on the devices
   // vconnectXXXX
   std::map<std::string,double> voltageInputMap;
-  voltageInputMap["vconnect0000"] = 0.0;
+  voltageInputMap["vconnect0000"] = V0 + VA * std::sin(2.0*M_PI*(FREQ*0.0));;
   voltageInputMap["vconnect0001"] = 0.0;
   
   // vector and jacobian for communicating results from inner to outer problem
@@ -115,13 +121,8 @@ int main( int iargs, char *cargs[] )
   }
 
   // now try transient stepping
-  // sine source vars
-  double V0 = 1.0;
-  double VA = 2.0;
-  double FREQ = 1.0e9;
-
   // set up a max time step
-  double max_dt = extSimData.finalTime/500.0;
+  double max_dt = extSimData.finalTime/10.0;
 
   //---------------------------------------------------------------------------
   // transient calculation. (post DCOP)
@@ -164,8 +165,6 @@ int main( int iargs, char *cargs[] )
       << extSimData.nextTimeStep
       << std::endl;
 
-    
-
     // update the sinewave source:
     double time = (extSimData.nextTime);
     voltageInputMap["vconnect0000"] = V0 + VA * std::sin(2.0*M_PI*(FREQ*time));
@@ -177,7 +176,7 @@ int main( int iargs, char *cargs[] )
     {
       // process "successful" time step
       xyceSimulator->stepSuccess(Xyce::Analysis::TWO_LEVEL_MODE_TRANSIENT); 
-      //Xyce::dout() << "Current draw from inner problem:"  << outputVector[0] << ", " << outputVector[1] << std::endl;
+      Xyce::dout() << "Current draw from inner problem:"  << outputVector[0] << ", " << outputVector[1] << std::endl;
     }
     else
     {

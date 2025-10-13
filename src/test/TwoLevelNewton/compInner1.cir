@@ -30,5 +30,5 @@ Vb B 0 0
 .options linsol type=klu
 .options timeint abstol=1.0e-6 reltol=1.0e-3
 .tran 0.01ns 60ns
-.print tran v(a) v(b) {1.0+v(9)} {1.0+v(8)}
+.print tran v(DD1) V(SS1) v(a) {1.0+v(9)} {1.0+v(8)}
 .END

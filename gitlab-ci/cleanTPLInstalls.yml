@@ -8,9 +8,9 @@
     # no need to clone repo
     GIT_STRATEGY: none
   script:
-    - cleanInstallDir "${admsInstallDir}"
-    - cleanInstallDir "${ssInstallDir}"
-    - cleanInstallDir "${trilinosInstallDir}"
+    - cleanInstallDir "${admsInstallDir}/${optStr}"
+    - cleanInstallDir "${ssInstallDir}/${optStr}/${libTypeStr}"
+    - cleanInstallDir "${trilinosInstallDir}/${optStr}/${libTypeStr}"
   rules:
     # always do cleanup if TPLs are building
     - if: $DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger" 
@@ -21,6 +21,13 @@ GNU_serial.cleanup:
     - .gnu_serial_vars
 
 GNU_OpenMPI.cleanup:
+  extends:
+    - .clean_tpl_installs
+    - .gnu_openmpi_vars
+
+GNU_OpenMPI.Debug.cleanup:
+  variables:
+    cmakeBuildType: "Debug"
   extends:
     - .clean_tpl_installs
     - .gnu_openmpi_vars

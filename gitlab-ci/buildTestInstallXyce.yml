@@ -7,16 +7,15 @@ include:
   dependencies: []
   variables:
     GoogleUnitTesting: "OFF"
+    XYCE_NO_TRACKING: "TRUE"
     BuildWithMPI: "OFF"
-    # link against dynamic for now
-    Trilinos_DIR: ${trilinosInstallDir}/dynamic
+    cmakeBuildType: "Release"
     # variables for xyce-ctest.cmake. typically do NOT want to modify
     # these
     branch: ${XyceBranch}
     TESTSET: Experimental
     WORKSPACE: $CI_PROJECT_DIR
     GTest_ROOT: /projects/xyce/GTest/RHEL7
-    MYBUILDNAME: Xyce/${XYCE_INSTALL_STRING}-${archFullName}
     cmakeArgsList: |
       --log-level=STATUS;\
       -DXyce_REGRESSION=ON;\
@@ -25,7 +24,7 @@ include:
       -DXyce_USE_FFT=ON;\
       -DXyce_PLUGIN_SUPPORT=ON;\
       -DBUILD_SHARED_LIBS=ON;\
-      -DCMAKE_BUILD_TYPE=Release;\
+      -DCMAKE_BUILD_TYPE=${cmakeBuildType};\
       -DBUILD_TESTING=ON;\
       -DXyce_GTEST_UNIT_TESTS=${GoogleUnitTesting};\
       -DXyce_PARALLEL_MPI=${BuildWithMPI};\
@@ -39,10 +38,15 @@ include:
     - set -e
     - cloneAllXyceRepos
     # so admsXml will be found
-    - export PATH="${PATH}:${admsInstallDir}/bin"
+    - export PATH="${PATH}:${admsInstallDir}/${optStr}/bin"
     # remove backslashes and newline characters from list for proper
     # parsing by ctest script
     - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\n')"
+    # this appears on the dashboard under "Build Name"
+    - export MYBUILDNAME=Xyce/${XYCE_INSTALL_STRING}/${optStr}/${libTypeStr}-${archFullName}
+    - echo "MYBUILDNAME=${MYBUILDNAME}"
+    # only doing links against dynamic libraries for now
+    - export Trilinos_DIR=${trilinosInstallDir}/${optStr}/${libTypeStr}
     - echo "Trilinos_DIR=${Trilinos_DIR}"
     # note use of the use of the pipeline's xyce-ctest.cmake file, NOT
     # the build repos copy
@@ -60,7 +64,7 @@ include:
   rules:
     - if: $DO_XYCE_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"
   
-
+# Begin concrete gitlab CI stages
 GNU_serial.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
@@ -70,6 +74,13 @@ GNU_OpenMPI.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
     - .gnu_openmpi_vars
+
+GNU_OpenMPI.Debug.buildTestInstallXyce:
+  variables:
+     cmakeBuildType: "Debug"
+  extends:
+     - .build_test_install_xyce
+     - .gnu_openmpi_vars
 
 Intel_serial.buildTestInstallXyce:
   extends:
@@ -86,8 +97,14 @@ Intel_OpenMPI.buildTestInstallXyce:
   script:
     - set -e
     - cloneAllXyceRepos
+    # this appears on the dashboard under "Build Name"
+    - export MYBUILDNAME=Xyce/${XYCE_INSTALL_STRING}/${optStr}/${libTypeStr}-${archFullName}
+    - echo "MYBUILDNAME=${MYBUILDNAME}"
+    # only doing links against dynamic libraries for now
+    - export Trilinos_DIR=${trilinosInstallDir}/${optStr}/${libTypeStr}
+    - echo "Trilinos_DIR=${Trilinos_DIR}"
     # so admsXml will be found
-    - export PATH="${PATH}:${admsInstallDir}/bin"
+    - export PATH="${PATH}:${admsInstallDir}/${optStr}/bin"
     - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\\\n')"
     - |
       case $(hostname) in
