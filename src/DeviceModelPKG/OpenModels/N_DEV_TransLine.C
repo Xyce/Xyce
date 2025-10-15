@@ -125,7 +125,7 @@ bool Instance::processParams ()
 {
   // setup R,L,C,G.
   double dx = (1.0/static_cast<double>(numLumps))*length;
-  if (model_.resistGiven)
+  if (model_.resistGiven && (model_.resist != 0.0))
   {
     R = model_.resist*dx;
     G = 1/R;
