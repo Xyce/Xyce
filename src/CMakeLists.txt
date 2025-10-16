@@ -320,6 +320,7 @@ if(Xyce_AS_SPECIAL_CHARON_TPL)
     TimeIntegrationPKG/N_TIA_TIAParams.h
     UtilityPKG/ExpressionSrc/astRandEnum.h
     UtilityPKG/ExpressionSrc/expressionParamTypes.h
+    UtilityPKG/N_UTL_CheckIfValidFile.h
     UtilityPKG/N_UTL_Dump.h
     UtilityPKG/N_UTL_ExtendedString.h
     UtilityPKG/N_UTL_Factory.h
