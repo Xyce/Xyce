@@ -41,11 +41,12 @@ devices, or more.
 
 ### Citing Xyce
 
-If you use Xyce in your work, please cite it using the metadata provided at the
-[DOE CODE entry](https://www.osti.gov/doecode/biblio/2462) for Xyce. Citations
-in various formats, including APA and BibTeX, are provided at the bottom of
-that page. The DOI entry for Xyce is
-[10.11578/dc.20171025.1421](https://doi.org/10.11578/dc.20171025.1421).
+If you use Xyce in your work, please cite it using the metadata
+provided at the [DOE CODE
+entry](https://www.osti.gov/doecode/biblio/104392) for Xyce. Citations
+in various formats, including APA and BibTeX, are provided at the
+bottom of that page. The DOI entry for Xyce is
+[10.11578/dc.20230414.1](https://doi.org/10.11578/dc.20230414.1).
 
 __Brief Citation__:\
 Eric R. Keiter, Richard L. Schiek, Heidi K. Thornquist, Ting Mei, Jason C.
