@@ -952,6 +952,7 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
   double v11,v21,v12,v22,v13,v23;
   double dt12,dt13,dt23;
   double f1,f2,f3;    // interpolating functions
+  const double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
 
   if (history.size() <= 0)
   {
@@ -1071,10 +1072,10 @@ void Instance::InterpV1V2FromHistory(double t, double * v1p,
     // that's it, we have the interpolation functions evaluated at the time t,
     // and the values of v1 and v2 at the points, perform  the interpolation
 
-    double d11=(v13-v12)/(t3-t2);
-    double d21=(v12-v11)/(t2-t1);
-    double d12=(v23-v22)/(t3-t2);
-    double d22=(v22-v21)/(t2-t1);
+    double d11 = (fabs(t3-t2)>epsilon) ? (v13-v12)/(t3-t2) : 0.0;
+    double d21 = (fabs(t2-t1)>epsilon) ? (v12-v11)/(t2-t1) : 0.0;
+    double d12 = (fabs(t3-t2)>epsilon) ? (v23-v22)/(t3-t2) : 0.0;
+    double d22 = (fabs(t2-t1)>epsilon) ? (v22-v21)/(t2-t1) : 0.0;
 
     // If the derivatives are changing dramatically, don't do quadradic
     // interpolation, just do linear between t2 and t3
@@ -1299,7 +1300,9 @@ void Instance::acceptStep()
   {
     double currentTime = getSolverState().currTime_;
 
-    double d11, d21, d12, d22;
+    double d11=0.0, d21=0.0, d12=0.0, d22=0.0;
+    const double epsilon = fabs(Util::MachineDependentParams::MachineEpsilon());
+    
     Linear::Vector *theSolVectorPtr = extData.nextSolVectorPtr;// the accepted
     // values from this
     // step
@@ -1386,8 +1389,12 @@ void Instance::acceptStep()
       Xyce::dout() << "tmp_v1=" << tmp_v1 << " last->v1=" << last->v1 << std::endl;
       Xyce::dout() << "tmp_v2=" << tmp_v2 << " last->v2=" << last->v2 << std::endl;
     }
-    d11 = (tmp_v1-last->v1)/(tmp_t-last->t);
-    d12 = (tmp_v2-last->v2)/(tmp_t-last->t);
+    // Fix.  need to handle case where tmp_t == last->t
+    if( fabs(tmp_t-last->t) > epsilon)
+    {
+      d11 = (tmp_v1-last->v1)/(tmp_t-last->t);
+      d12 = (tmp_v2-last->v2)/(tmp_t-last->t);
+    }
     tmp_v1 = last->v1; tmp_v2 = last->v2; tmp_t = last->t;
     last--;
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
@@ -1396,8 +1403,11 @@ void Instance::acceptStep()
       Xyce::dout() << "tmp_v1=" << tmp_v1 << " last->v1=" << last->v1 << std::endl;
       Xyce::dout() << "tmp_v2=" << tmp_v2 << " last->v2=" << last->v2 << std::endl;
     }
-    d21 = (tmp_v1-last->v1)/(tmp_t-last->t);
-    d22 = (tmp_v2-last->v2)/(tmp_t-last->t);
+    if( fabs(tmp_t-last->t) > epsilon)
+    {
+      d21 = (tmp_v1-last->v1)/(tmp_t-last->t);
+      d22 = (tmp_v2-last->v2)/(tmp_t-last->t);
+    }
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout() << "Derivs are " << d11 << " " << d21 << std::endl;
