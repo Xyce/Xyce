@@ -219,8 +219,10 @@ rm -f .headerstring_$$ .registerstring_$$
 # Use CMake to build this plugin.
 echo "Building plugin..."
 cp ${XyceInstDir}/share/XycePluginProject.cmake ./CMakeLists.txt
-cmake -DCMAKE_CXX_COMPILER="@CMAKE_CXX_COMPILER@" -DPLUGIN_NAME="$pluginname" -DXYCE_INSTALL="$XyceInstDir" .
+cmake -DCMAKE_CXX_COMPILER="@CMAKE_CXX_COMPILER@" -DPLUGIN_NAME="$pluginname" -DXYCE_INSTALL="$XyceInstDir" -DCMAKE_INSTALL_PREFIX="$DESTDIR" .
 cmake --build .
+# install library
+make install
 
 echo "Done!  Your plugin may now be used by running Xyce with the option '-plugin ${pluginname}.so'"
 echo "This plugin provides the Verilog-A modules: $modules"

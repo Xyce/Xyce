@@ -32,3 +32,6 @@ target_include_directories("${library_name}" PUBLIC
   "@Trilinos_INCLUDE_DIRS@")
   target_link_libraries("${library_name}" xyce)
 
+install(TARGETS "${library_name}"
+  LIBRARY DESTINATION "."
+)
