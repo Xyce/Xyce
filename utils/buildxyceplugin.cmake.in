@@ -45,6 +45,15 @@ usage ()
     return
 }
 
+cleanup ()
+{
+    while [ $# -gt 0 ]
+    do
+        rm -f $1
+        shift
+    done
+}
+
 runadms()
 {
     admsXml -D__XYCE__ -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
@@ -130,7 +139,6 @@ shift `echo $OPTIND-1 | bc`
 headerstring=""
 registerstring=""
 CLEANFILES=""
-OBJFILES=""
 
 scanargs $@
 if [ $? != 0  -o "${VAFILES}x" = "x" ]
@@ -176,15 +184,8 @@ do
        modules=${module}" "${modules}
        echo "#include <N_DEV_ADMS${module}.h>" >> .headerstring_$$
        echo "Xyce::Device::ADMS${module}::registerDevice();" >> .registerstring_$$
-       if [ $? -ne 0 ]
-       then
-           echo "Compilation of N_DEV_ADMS${module}.C failed"
-           echo "See buildxyceplugin.log for details"
-           exit 1
-       else
-           CLEANFILES="${CLEANFILES} ${CXXFIL} ${OBJFIL} N_DEV_ADMS${module}.h"
-       fi
-       OBJFILES="$OBJFILES N_DEV_ADMS${module}.lo"
+       # add all ADMS files to CLEANFILES
+       CLEANFILES="${CLEANFILES} N_DEV_ADMS${module}.h N_DEV_ADMS${module}.C buildxyceplugin.log"
 
        count=`echo $count+1|bc`
     else
@@ -215,6 +216,7 @@ echo "};" >>   ${pluginname}_bootstrap.C
 echo "Bootstrap s_bootstrap;" >>   ${pluginname}_bootstrap.C
 
 rm -f .headerstring_$$ .registerstring_$$
+CLEANFILES="${CLEANFILES} ${pluginname}_bootstrap.C"
 
 # Use CMake to build this plugin.
 echo "Building plugin..."
@@ -234,3 +236,17 @@ make -C "$BUILDDIR" install
 
 echo "Done!  Your plugin may now be used by running Xyce with the option '-plugin ${pluginname}.so'"
 echo "This plugin provides the Verilog-A modules: $modules"
+
+# cleanup ADMS files and CMakeLists.txt
+cleanup "${CLEANFILES} CMakeLists.txt"
+cleanup .adms*.xml .interface*.xml .*.adms constants.vams disciplines.vams discipline.h
+
+# cleanup CMake build folder if we have installed the target successfully
+if [ -f "${DESTDIR}/${pluginname}.so" ]; then
+    if [ -d "$BUILDDIR" ]; then
+        rm -rf "$BUILDDIR"
+    fi
+else
+    echo "Installation of plugin to directory: '$(realpath $DESTDIR)' - failed"
+    echo "You can find the plugin in build directory: '$(realpath $BUILDDIR)'"
+fi
