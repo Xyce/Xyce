@@ -139,8 +139,6 @@ then
     exit 1
 fi
 
-cd $DESTDIR
-
 echo "buildxyceplugin is building a plugin from the Verilog-A files:"
 echo ${VAFILES}
 if [ "${pluginname}x" = "x" ]
