@@ -65,7 +65,8 @@ GNU_serial.generateModules:
   script:
     - printModuleFile
   needs:
-    - GNU_serial.buildTestInstallXyce
+    - job: GNU_serial.buildTestInstallXyce
+      artifacts: true
 
 GNU_OpenMPI.generateModules:
   extends:

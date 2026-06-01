@@ -72,11 +72,19 @@ GNU_serial.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
     - .gnu_serial_vars
+  needs:
+    - job: GNU_serial.dyn.buildTPLs
+      artifacts: false
+      optional: true
 
 GNU_OpenMPI.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
     - .gnu_openmpi_vars
+  needs:
+    - job: GNU_OpenMPI.dyn.buildTPLs
+      artifacts: false
+      optional: true
 
 GNU_OpenMPI.Debug.buildTestInstallXyce:
   variables:
@@ -84,16 +92,28 @@ GNU_OpenMPI.Debug.buildTestInstallXyce:
   extends:
      - .build_test_install_xyce
      - .gnu_openmpi_vars
+  needs:
+    - job: GNU_OpenMPI.dyn.Debug.buildTPLs
+      artifacts: false
+      optional: true
 
 Intel_serial.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
     - .intel_serial_vars
+  needs:
+    - job: Intel_serial.dyn.buildTPLs
+      artifacts: false
+      optional: true
 
 Intel_OpenMPI.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce
     - .intel_openmpi_vars
+  needs:
+    - job: Intel_OpenMPI.dyn.buildTPLs
+      artifacts: false
+      optional: true
 
 .build_test_install_xyce_cts:
   extends: .build_test_install_xyce
@@ -134,18 +154,34 @@ GNU_OpenMPI.cts.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce_cts
     - .gnu_openmpi_cts_vars
+  needs:
+    - job: GNU_OpenMPI.cts.buildTPLs
+      artifacts: false
+      optional: true
 
 GNU_serial.cts.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce_cts
     - .gnu_serial_cts_vars
+  needs:
+    - job: GNU_serial.cts.buildTPLs
+      artifacts: false
+      optional: true
 
 Intel_OpenMPI.cts.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce_cts
     - .intel_openmpi_cts_vars
+  needs:
+    - job: Intel_OpenMPI.cts.buildTPLs
+      artifacts: false
+      optional: true
 
 Intel_serial.cts.buildTestInstallXyce:
   extends:
     - .build_test_install_xyce_cts
     - .intel_serial_cts_vars
+  needs:
+    - job: Intel_serial.cts.buildTPLs
+      artifacts: false
+      optional: true

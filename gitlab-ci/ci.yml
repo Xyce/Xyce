@@ -72,7 +72,7 @@ variables:
 
   # these correspond directly to git entities, either tags or
   # branches, to be built
-  TrilinosVersion: trilinos-release-14-4-0
+  TrilinosVersion: trilinos-release-16-2-1
   SuiteSparseVersion: v7.8.3
   ADMSVersion: release-2.3.7.XYCE
 
