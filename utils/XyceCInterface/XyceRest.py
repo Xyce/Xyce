@@ -18,6 +18,16 @@ import json
 
 app = Flask(__name__)
 
+API_KEY = os.environ.get('XYCE_API_KEY')
+
+@app.before_request
+def require_api_key():
+  if not API_KEY:
+    return 'Server not configured: XYCE_API_KEY environment variable not set.', 503
+  key = request.headers.get('X-API-Key')
+  if key != API_KEY:
+    return 'Unauthorized', 401
+
 XyceObjectsDict = {}
 
 # REST HTTP Status codes used on return
