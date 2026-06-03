@@ -10,6 +10,7 @@
 #   -DRXR_APPEND_TAGS="tags as used by run_xyce_regression script to add"
 #   -DMPI_TESTING=<TRUE|FALSE>
 #   -DUSE_CTEST_TESTING=<TRUE|FALSE> # default FALSE
+#   -DEXCLUDE_TESTS_WITH_LABEL=<regex for test labels to exclude>
 #   -DUSE_GITLAB_CI_TESTING=<TRUE|FALSE> # default FALSE
 #   -DCDASH_GROUP=<name> # name of the CDash group to post results to (Nightly, Weekly, Deploy, etc.)
 #   -DNUM_PROCS=<N>
@@ -307,10 +308,10 @@ endif()
 
 # error check
 if(NOT DEFINED ENV{MYBUILDNAME})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"MYBUILDNAME\" not set")
+  message(FATAL_ERROR "ERROR: Required environment variable \"MYBUILDNAME\" not set")
 endif()
 if(NOT DEFINED ENV{branch})
-  message(FATAL_ERROR "ERROR: Required environment varialble \"branch\" not set")
+  message(FATAL_ERROR "ERROR: Required environment variable \"branch\" not set")
 endif()
 if(NOT DEFINED ENV{TESTSET})
   message(FATAL_ERROR "ERROR: Required environment variable \"TESTSET\" not set")
@@ -415,7 +416,7 @@ endif()
 # note that "Weekly" is just a Nightly category with a different group
 # name
 if(NOT DEFINED ENV{TESTSET})
-  message(FATAL_ERROR "ERROR: You must set the environment variable TESTSET to one of Nighlty, Weekly or Experimental")
+  message(FATAL_ERROR "ERROR: You must set the environment variable TESTSET to one of Nightly, Weekly or Experimental")
 endif()
 
 if(USE_GITLAB_CI_TESTING)
@@ -534,7 +535,7 @@ if(VERBOSITY GREATER 1)
   message("[VERB1]: CTEST_CONFIGURE_COMMAND = ${CTEST_CONFIGURE_COMMAND}")
 endif()
 
-# begin ctest procedures. MODEL should be one of Nighlty, Weekly,
+# begin ctest procedures. MODEL should be one of Nightly, Weekly,
 # Continuous or Experimental. this can use custom categories via the
 # GROUP option to ctest_start() if desired
 ctest_start(${MODEL} GROUP ${TESTGROUP})
@@ -556,7 +557,8 @@ if(buildReturnVal EQUAL 0)
     set( ENV{XYCE_NO_TRACKING} "notrack")
     ctest_test(RETURN_VALUE testReturnVal
       PARALLEL_LEVEL ${NUM_PROCS}
-      INCLUDE_LABEL ${XYCE_TEST_LABEL_FILTER})
+      INCLUDE_LABEL "${XYCE_TEST_LABEL_FILTER}"
+      EXCLUDE_LABEL "${EXCLUDE_TESTS_WITH_LABEL}")
     if(VERBOSITY GREATER 1)
       message("[VERB1]: ctest_test() exited with return value: ${testReturnVal}")
     endif()
@@ -712,5 +714,12 @@ endif()
 
 # exit with error if any of the ctest_*() functions failed
 if (submitReturnVal OR confReturnVal OR buildReturnVal OR testReturnVal)
+  if(VERBOSITY GREATER_EQUAL 1)
+    message("[VERB1]: return values:")
+    message("    confReturnVal: ${confReturnVal}")
+    message("    buildReturnVal: ${buildReturnVal}")
+    message("    testReturnVal: ${testReturnVal}")
+    message("    submitReturnVal: ${submitReturnVal}")
+  endif()
   message(FATAL_ERROR "There were failures during ctest")
 endif()
