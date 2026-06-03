@@ -21,6 +21,7 @@ coreCount=$(( physCoreCount/2 ))
 rawCmakeArgsList="$1"
 xyceInstallDir="$2"
 CI_PROJECT_DIR="$3"
+ExcludeTestLabel="$4"
 
 PATH="/projects/xyce/flexbison/bin:${PATH}"
 export PATH
@@ -33,5 +34,6 @@ source "/projects/xyce_user/pythonVirtEnv/Xyce/bin/activate"
 ctest --timeout 1200 -DVERBOSITY=5 \
   -DNUM_PROCS=${coreCount} \
   -DUSE_GITLAB_CI_TESTING=ON \
+  -DEXCLUDE_TESTS_WITH_LABEL="${ExcludeTestLabel}" \
   -DCMAKE_ARGS_LIST="${rawCmakeArgsList}" \
   -S "${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake"
