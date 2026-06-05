@@ -49,7 +49,7 @@ include:
         printf "%smodule load xyce/xdm-dev" "${xdmPre}" >> ${MyModuleFileName}
       }
   rules:
-    - if: $DO_MODULE_GENERATION == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_MODULE_GENERATION == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 GNU_serial.generateModules:
   extends:

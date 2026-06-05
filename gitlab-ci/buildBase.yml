@@ -1,5 +1,4 @@
 .build_base:
-  stage: build
   variables:
     CC: ""
     CXX: ""

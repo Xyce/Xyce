@@ -35,6 +35,8 @@ include:
     - cmake --install .
     #########################################################################
     #########################################################################
+    # Uses Intel MKL for BLAS/LAPACK
+    #########################################################################
     # build SuiteSparse
     - cd ${CI_PROJECT_DIR}/SuiteSparse
     - git checkout ${SuiteSparseVersion} || (echo "Failed to checkout SuiteSparse version ${SuiteSparseVersion}";exit 1)
@@ -43,9 +45,12 @@ include:
     - cd ${CI_PROJECT_DIR}/build/ss
     - |
       cmake -GNinja \
+        -DBLA_STATIC="${buildShared}" \
+        -DBLA_VENDOR="Intel10_64lp_seq" \
         -DCMAKE_BUILD_TYPE=${cmakeBuildType} \
-        -DNOPENMP="ON" \
-        -DALLOW_64BIT_BLAS="ON" \
+        -DSUITESPARSE_USE_OPENMP="${BuildWithMPI}" \
+        -DSUITESPARSE_USE_64BIT_BLAS="ON" \
+        -DSUITESPARSE_USE_FORTRAN="OFF" \
         -DCMAKE_INSTALL_RPATH="${ssInstallDir}/${optStr}/${libTypeStr}/lib64" \
         -DCMAKE_INSTALL_PREFIX="${ssInstallDir}/${optStr}/${libTypeStr}" \
         -DCMAKE_POSITION_INDEPENDENT_CODE="ON" \
@@ -80,7 +85,6 @@ include:
         -DBUILD_NAME="Trilinos/${shortTriVer}/${optStr}/${libTypeStr}-${archFullName}" \
         -DBUILD_DIR="${CI_PROJECT_DIR}/build/trilinos" \
         -DSITE_APPEND="" \
-        -DCMAKE_ARGS_LIST="${cmakeExtraArgs}" \
         -S "${CI_PROJECT_DIR}/cmake/ctest/trilinos-ctest.cmake"
     - cmake --install .
   cache:
@@ -94,7 +98,7 @@ include:
       - build/trilinos/Testing/Temporary
     expire_in: 1 month
   rules:
-    - if: $DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 GNU_serial.dyn.buildTPLs:
   extends:

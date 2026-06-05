@@ -17,7 +17,7 @@ include:
           ;;
       esac
   rules:
-    - if: $DO_TEST_MODULES == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_TEST_MODULES == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 .test_modules_cts:
   extends:
