@@ -107,6 +107,23 @@ target_link_libraries(XyceLib
   PUBLIC Trilinos::all_selected_libs
   PRIVATE $<BUILD_LOCAL_INTERFACE:sanitizers>)
 
+# Attach MKL to the INTERFACE of XyceLib so they follow Trilinos
+if(NOT BUILD_SHARED_LIBS AND TARGET MKL::all_libs)
+  target_link_libraries(XyceLib INTERFACE 
+      $<$<OR:$<CXX_COMPILER_ID:GNU>,$<C_COMPILER_ID:GNU>>:
+          "-static-libstdc++"
+          "-static-libgcc"
+          "-m64" 
+          "-Wl,--start-group" 
+          MKL::all_libs
+          "-Wl,--end-group" 
+          "-lpthread" 
+          "-lm" 
+          "-ldl"
+      >
+  )
+endif()
+# ---------------------------
 
 if(OpenMP_FOUND)
      target_link_libraries(XyceLib PUBLIC OpenMP::OpenMP_CXX)
@@ -124,9 +141,11 @@ endif()
 add_executable(Xyce Xyce.C)
 #target_include_directories (Xyce PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> ${XYCE_INCLUDE_DIRECTORIES})
 target_include_directories (XyceLib PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> $<INSTALL_INTERFACE:include>)
+
 target_link_libraries(Xyce 
   PUBLIC XyceLib
-  PRIVATE $<BUILD_LOCAL_INTERFACE:sanitizers>)
+  PRIVATE $<BUILD_LOCAL_INTERFACE:sanitizers>
+)
 
 if(Xyce_ENABLE_CODE_COVERAGE)
   append_coverage_compiler_flags(XyceLib)

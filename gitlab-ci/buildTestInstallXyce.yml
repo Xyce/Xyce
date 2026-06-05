@@ -21,8 +21,8 @@ include:
       --log-level=STATUS;\
       -DXyce_REGRESSION=ON;\
       -DXyce_USE_FFT=ON;\
-      -DXyce_PLUGIN_SUPPORT=ON;\
-      -DBUILD_SHARED_LIBS=ON;\
+      -DXyce_PLUGIN_SUPPORT=BLD_SHARED_TEMPLATE;\
+      -DBUILD_SHARED_LIBS=BLD_SHARED_TEMPLATE;\
       -DCMAKE_BUILD_TYPE=${cmakeBuildType};\
       -DBUILD_TESTING=ON;\
       -DXyce_GTEST_UNIT_TESTS=${GoogleUnitTesting};\
@@ -42,7 +42,7 @@ include:
     - export PATH="${PATH}:${admsInstallDir}/${optStr}/bin"
     # remove backslashes and newline characters from list for proper
     # parsing by ctest script
-    - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\n')"
+    - rawCmakeArgsList=$(echo ${cmakeArgsList} | sed "s/BLD_SHARED_TEMPLATE/${buildShared}/g" | tr -d '\\\n')
     # this appears on the dashboard under "Build Name"
     - export MYBUILDNAME=Xyce/${XYCE_INSTALL_STRING}/${optStr}/${libTypeStr}-${archFullName}
     - echo "MYBUILDNAME=${MYBUILDNAME}"
@@ -73,7 +73,7 @@ include:
       - repos/build/**/Xyce
     when: always
   rules:
-    - if: $DO_XYCE_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_XYCE_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
   
 # Begin concrete gitlab CI stages
 GNU_serial.buildTestInstallXyce:
@@ -141,7 +141,7 @@ Intel_OpenMPI.buildTestInstallXyce:
     - echo "Trilinos_DIR=${Trilinos_DIR}"
     # so admsXml will be found
     - export PATH="${PATH}:${admsInstallDir}/${optStr}/bin"
-    - rawCmakeArgsList="$(echo ${cmakeArgsList} | tr -d '\\\\\n')"
+    - rawCmakeArgsList=$(echo ${cmakeArgsList} | sed "s/BLD_SHARED_TEMPLATE/${buildShared}/g" | tr -d '\\\\\n')
     - |
       case $(hostname) in
         flight*)

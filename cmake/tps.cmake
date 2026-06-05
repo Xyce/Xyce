@@ -227,6 +227,13 @@ if (MSVC)
 endif()
 get_target_property(CMAKE_REQUIRED_LIBRARIES Teuchos::all_libs INTERFACE_LINK_LIBRARIES)
 
+# when statically linking and using the MKL this is required for successfull compiling. note
+# the target MKL::all_libs comes from trilinos
+if (TARGET MKL::all_libs)
+  get_target_property(TMP_MKL_LIBS MKL::all_libs INTERFACE_LINK_LIBRARIES)
+  list(APPEND CMAKE_REQUIRED_LIBRARIES "${TMP_MKL_LIBS}")
+endif()
+
 # Perform an initial check to see if we can compile against Trilinos at all.
 # This could reveal compiler setup problems and/or Trilinos setup problems.
 check_include_file_cxx(Teuchos_SerialDenseMatrix.hpp Trilinos_COMPILE_SUCCESS ${OpenMP_CXX_FLAGS})

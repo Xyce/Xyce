@@ -55,7 +55,7 @@ include:
         -DCMAKE_ARGS_LIST="${CM_ARGS}" \
         -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake
   rules:
-    - if: $DO_XYCE_ANALYSIS_BUILDTEST == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_XYCE_ANALYSIS_BUILDTEST == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 # -----------------------------------------------------------------
 # Matrix job – one instance for each analysis flavour

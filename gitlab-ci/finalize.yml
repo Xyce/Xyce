@@ -14,4 +14,4 @@ finalize:
     - find . -type f -print|xargs chmod g+r,g-w,o-r,o-w
     - find . -type f -perm -700 -print|xargs chmod 750
   rules:
-    - if: $DO_FINALIZE == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_FINALIZE == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
