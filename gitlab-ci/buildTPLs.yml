@@ -84,6 +84,7 @@ include:
         -DBUILD_WITH_MPI="${BuildWithMPI}" \
         -DBUILD_NAME="Trilinos/${shortTriVer}/${optStr}/${libTypeStr}-${archFullName}" \
         -DBUILD_DIR="${CI_PROJECT_DIR}/build/trilinos" \
+        -DCMAKE_ARGS_LIST="${cmakeExtraArgs}" \
         -DSITE_APPEND="" \
         -S "${CI_PROJECT_DIR}/cmake/ctest/trilinos-ctest.cmake"
     - cmake --install .
