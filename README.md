@@ -87,8 +87,7 @@ which is always considered stable (the master branch is only pushed to when
 all of the regression tests have passed.)
 
 For the binary installers and other information about Xyce&mdash;including
-[documentation](https://xyce.sandia.gov/documentation-tutorials), and [Autotools build
-instruction - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide)&mdash;see
+[documentation](https://xyce.sandia.gov/documentation-tutorials)&mdash;see
 the [Xyce Homepage](https://xyce.sandia.gov) at [Sandia National
 Laboratories](https://www.sandia.gov).
 

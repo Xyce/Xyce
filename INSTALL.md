@@ -1,6 +1,6 @@
 # Xyce Configure, Build and Installation Guide Using CMake
 
-> **Note:** _The Autotools configuration and build system was DEPRECATED in Xyce 7.10_
+> **Note:** _The Autotools configuration and build system was REMOVED in Xyce 7.11_
 
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
@@ -8,8 +8,6 @@
 This guide describes the basic process for compiling and installing a Xyce
 binary using the CMake build system. It is easiest to view these instructions
 with full formatting on the [Xyce GitHub website](https://github.com/Xyce/Xyce/blob/master/INSTALL.md).
-For instructions on building Xyce with the deprecated Autotools system, see the
-[Xyce Building Guide - DEPRECATED](https://xyce.sandia.gov/documentation-tutorials/building-guide/).
 
 Xyce can be built for serial execution or with distributed-memory (MPI)
 parallelism. This is determined by the parallelism enabled in the build of
