@@ -77,6 +77,10 @@ include:
   
 # Begin concrete gitlab CI stages
 GNU_serial.buildTestInstallXyce:
+  needs:
+    - job: GNU_serial.dyn.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce
     - .gnu_serial_vars
@@ -86,6 +90,10 @@ GNU_serial.buildTestInstallXyce:
       optional: true
 
 GNU_OpenMPI.buildTestInstallXyce:
+  needs:
+    - job: GNU_OpenMPI.dyn.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce
     - .gnu_openmpi_vars
@@ -109,6 +117,10 @@ GNU_OpenMPI.Debug.buildTestInstallXyce:
       optional: true
 
 Intel_serial.buildTestInstallXyce:
+  needs:
+    - job: Intel_serial.dyn.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce
     - .intel_serial_vars
@@ -118,6 +130,10 @@ Intel_serial.buildTestInstallXyce:
       optional: true
 
 Intel_OpenMPI.buildTestInstallXyce:
+  needs:
+    - job: Intel_OpenMPI.dyn.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce
     - .intel_openmpi_vars
@@ -165,6 +181,10 @@ Intel_OpenMPI.buildTestInstallXyce:
     - cmake --install ${CI_PROJECT_DIR}/repos/build --config ${cmakeBuildType}
 
 GNU_OpenMPI.cts.buildTestInstallXyce:
+  needs:
+    - job: GNU_OpenMPI.cts.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce_cts
     - .gnu_openmpi_cts_vars
@@ -177,6 +197,10 @@ GNU_OpenMPI.cts.buildTestInstallXyce:
       optional: true
 
 GNU_serial.cts.buildTestInstallXyce:
+  needs:
+    - job: GNU_serial.cts.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce_cts
     - .gnu_serial_cts_vars
@@ -188,6 +212,10 @@ GNU_serial.cts.buildTestInstallXyce:
       optional: true
 
 Intel_OpenMPI.cts.buildTestInstallXyce:
+  needs:
+    - job: Intel_OpenMPI.cts.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce_cts
     - .intel_openmpi_cts_vars
@@ -200,6 +228,10 @@ Intel_OpenMPI.cts.buildTestInstallXyce:
       optional: true
 
 Intel_serial.cts.buildTestInstallXyce:
+  needs:
+    - job: Intel_serial.cts.buildTPLs
+      artifacts: false
+      optional: true
   extends:
     - .build_test_install_xyce_cts
     - .intel_serial_cts_vars
