@@ -9,6 +9,10 @@ spec:
       description: "Causes a log of variables every time the pipeline is triggered for any reason"
       type: boolean
       default: true
+    baseInstallDir:
+      description: "Base installation directory for deployment"
+      type: string
+      default: /projects/xyce_user/install
 ---
 include:
   - gitlab-ci/buildBase.yml
@@ -44,7 +48,7 @@ variables:
 
   XYCE_NO_TRACKING: "TRUE"
 
-  BASE_INSTALL_DIR: /projects/xyce_user/install
+  BASE_INSTALL_DIR: $[[ inputs.baseInstallDir ]]
 
   BaseModuleInstallDir: ${BASE_INSTALL_DIR}/modules
 

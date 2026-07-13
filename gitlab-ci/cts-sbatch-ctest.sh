@@ -22,6 +22,7 @@ rawCmakeArgsList="$1"
 xyceInstallDir="$2"
 CI_PROJECT_DIR="$3"
 ExcludeTestLabel="$4"
+JUnitResultsFile="$5"
 
 PATH="/projects/xyce/flexbison/bin:${PATH}"
 export PATH
@@ -31,7 +32,7 @@ source "/projects/xyce_user/pythonVirtEnv/Xyce/bin/activate"
 
 # note use of the use of the pipeline's xyce-ctest.cmake file, NOT the
 # build repos copy
-ctest --timeout 1200 -DVERBOSITY=5 \
+ctest --output-junit "${JUnitResultsFile}" --timeout 1200 -DVERBOSITY=5 \
   -DNUM_PROCS=${coreCount} \
   -DUSE_GITLAB_CI_TESTING=ON \
   -DEXCLUDE_TESTS_WITH_LABEL="${ExcludeTestLabel}" \
