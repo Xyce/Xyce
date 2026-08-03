@@ -72,5 +72,5 @@ analysis:
       # ────── Coverage build ──────
       - BUILD_KIND: "coverage"
         BUILD_SUFFIX: "Coverage-$archFullName"
-        EXTRA_CTEST: "-DCOVERAGE=ON"
+        EXTRA_CTEST: "-DCOVERAGE=ON -DEXCLUDE_TESTS_WITH_LABEL=timesensitive"
         MYBUILDNAME: "Coverage-$archFullName"
