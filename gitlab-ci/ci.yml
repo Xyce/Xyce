@@ -3,7 +3,17 @@
 #   *) While you can, in theory, override any of the variables below via
 #      the "Run Pipeline" UI or in the curl command, in practice you
 #      should try to only modify the variables in all caps.
-
+spec:
+  inputs:
+    doTriggerAudit:
+      description: "Causes a log of variables every time the pipeline is triggered for any reason"
+      type: boolean
+      default: true
+    baseInstallDir:
+      description: "Base installation directory for deployment"
+      type: string
+      default: /projects/xyce_user/install
+---
 include:
   - gitlab-ci/buildBase.yml
   - gitlab-ci/cleanTPLInstalls.yml
@@ -15,6 +25,7 @@ include:
   - gitlab-ci/analysisBuilds.yml
 
 stages:
+  - triggerAudit
   - triggerAsEntity
   - cleanTPLInstalls
   - buildTPLs
@@ -37,7 +48,7 @@ variables:
 
   XYCE_NO_TRACKING: "TRUE"
 
-  BASE_INSTALL_DIR: /projects/xyce_user/install
+  BASE_INSTALL_DIR: $[[ inputs.baseInstallDir ]]
 
   BaseModuleInstallDir: ${BASE_INSTALL_DIR}/modules
 
@@ -72,7 +83,7 @@ variables:
 
   # these correspond directly to git entities, either tags or
   # branches, to be built
-  TrilinosVersion: trilinos-release-14-4-0
+  TrilinosVersion: trilinos-release-16-2-1
   SuiteSparseVersion: v7.8.3
   ADMSVersion: release-2.3.7.XYCE
 
@@ -98,7 +109,7 @@ default:
       aud: https://cee-gitlab.sandia.gov
 
 # this is the stage that will trigger the rest of the pipeline stages,
-# dependent on the value of the releavant "DO_*" booleans.
+# dependent on the value of the relevant "DO_*" booleans.
 trigger_pipeline:
   stage: triggerAsEntity
   tags:
@@ -106,6 +117,7 @@ trigger_pipeline:
   variables:
     # no need to clone repo
     GIT_STRATEGY: none
+  needs: []
   script:
     - echo "CI_PROJECT_ID = ${CI_PROJECT_ID}"
     # XYCE_JENKINS_PIPELINE_TRIGGER_TOKEN is a variable
@@ -125,4 +137,49 @@ trigger_pipeline:
         --form "variables[XYCE_INSTALL_STRING]=${XYCE_INSTALL_STRING}" \
         "https://cee-gitlab.sandia.gov/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"
+    - if: '$CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule"'
+
+##############################################################
+##############################################################
+### audit template
+.audit_template: &audit_template
+  stage: triggerAudit
+  artifacts:
+    paths:
+      - trigger-info.txt
+    expire_in: 2 weeks
+    when: always
+  variables:
+    GIT_STRATEGY: none
+  script:
+    # -----------------------------------------------------------------
+    #  output some pipeline specific information
+    # -----------------------------------------------------------------
+    - |
+      echo "   Pipeline triggered by: $CI_PIPELINE_SOURCE"
+      echo "   Pipeline ID: $CI_PIPELINE_ID"
+      echo "   Triggered by user: $GITLAB_USER_NAME <$GITLAB_USER_EMAIL>"
+      echo "   Branch / Ref: $CI_COMMIT_REF_NAME"
+    # -----------------------------------------------------------------
+    #  output info to a file for archiving, trigger‑info.txt, and
+    #  append the output of "env"
+    # -----------------------------------------------------------------
+    - |
+      cat <<EOF > trigger-info.txt
+      PIPELINE_SOURCE=$CI_PIPELINE_SOURCE
+      PIPELINE_ID=$CI_PIPELINE_ID
+      USER=$GITLAB_USER_NAME
+      EMAIL=$GITLAB_USER_EMAIL
+      REF=$CI_COMMIT_REF_NAME
+      EOF
+
+      echo "" >> trigger-info.txt
+      echo "================= ENVIRONMENT =================" >> trigger-info.txt
+      env >> trigger-info.txt
+
+# log info about what is triggering the pipeline on the SRN
+log_trigger_information:
+  extends: .audit_template
+  tags: [cee.build]
+  rules:
+    - if: '"$[[ inputs.doTriggerAudit ]]" == "true"'

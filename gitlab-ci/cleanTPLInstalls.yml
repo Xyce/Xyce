@@ -13,7 +13,7 @@
     - cleanInstallDir "${trilinosInstallDir}/${optStr}/${libTypeStr}"
   rules:
     # always do cleanup if TPLs are building
-    - if: $DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger" 
+    - if: '$DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 GNU_serial.cleanup:
   extends:

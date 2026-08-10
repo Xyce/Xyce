@@ -227,6 +227,13 @@ if (MSVC)
 endif()
 get_target_property(CMAKE_REQUIRED_LIBRARIES Teuchos::all_libs INTERFACE_LINK_LIBRARIES)
 
+# when statically linking and using the MKL this is required for successfull compiling. note
+# the target MKL::all_libs comes from trilinos
+if (TARGET MKL::all_libs)
+  get_target_property(TMP_MKL_LIBS MKL::all_libs INTERFACE_LINK_LIBRARIES)
+  list(APPEND CMAKE_REQUIRED_LIBRARIES "${TMP_MKL_LIBS}")
+endif()
+
 # Perform an initial check to see if we can compile against Trilinos at all.
 # This could reveal compiler setup problems and/or Trilinos setup problems.
 check_include_file_cxx(Teuchos_SerialDenseMatrix.hpp Trilinos_COMPILE_SUCCESS ${OpenMP_CXX_FLAGS})
@@ -240,7 +247,7 @@ endif()
 # was changed to include a new method that returns solver statistics.  This
 # test and the Xyce_NOX_SOLVERSTATS ifdefs can be removed if the minimum
 # required version of Trilinos is raised.
-# 8/24/2022 - Minimum version was raised to 13.5 for cmake, but not autotools.
+# 8/24/2022 - Minimum version was raised to 13.5 for cmake.
 #             This ifdef will be set to true for cmake builds.
 get_target_property(CMAKE_REQUIRED_INCLUDES NOX::all_libs INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(CMAKE_REQUIRED_LIBRARIES NOX::all_libs INTERFACE_LINK_LIBRARIES)
@@ -310,9 +317,8 @@ if (Xyce_AMESOS2)
                set(Xyce_AMESOS2_BASKER TRUE CACHE BOOL "Enables the templated Basker linear solver in Amesos2")
                set(Xyce_NEW_BASKER TRUE)
                # After the release of Trilinos 12.12 (maybe 12.14?), the Amesos2/Basker interface was changed.
-               # Xyce's cmake builds only support the new basker interface, but the autotools build still
-               # supports options for using both. The Xyce_NEW_BASKER ifdefs can be removed if the minimum 
-               # required version of Trilinos is raised for both build systems.
+               # Xyce's cmake builds only support the new basker interface. The Xyce_NEW_BASKER ifdefs can be 
+               # removed if the minimum required version of Trilinos is raised for both build systems.
           else()
                set(Xyce_AMESOS2_BASKER FALSE CACHE BOOL "Enables the templated Basker linear solver in Amesos2" FORCE)
           endif()
@@ -364,10 +370,6 @@ endif()
 
 # Search for optional TPL packages in Trilinos
 
-# Because of the way the autotools script works, it is not trivial to change
-# HAVE_LIBPARMETIS to something like Xyce_USE_PARMETIS.  We will simply use the
-# autotools variable for now (which comes from Trilinos), and change this some
-# time in the future to help with consistency.
 if (DEFINED HAVE_LIBPARMETIS AND NOT HAVE_LIBPARMETIS)
      set(HAVE_LIBPARMETIS FALSE CACHE BOOL "Enables the ParMETIS partitioning library")
 else()

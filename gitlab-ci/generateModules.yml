@@ -49,7 +49,7 @@ include:
         printf "%smodule load xyce/xdm-dev" "${xdmPre}" >> ${MyModuleFileName}
       }
   rules:
-    - if: $DO_MODULE_GENERATION == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_MODULE_GENERATION == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 GNU_serial.generateModules:
   extends:
@@ -65,7 +65,8 @@ GNU_serial.generateModules:
   script:
     - printModuleFile
   needs:
-    - GNU_serial.buildTestInstallXyce
+    - job: GNU_serial.buildTestInstallXyce
+      artifacts: true
 
 GNU_OpenMPI.generateModules:
   extends:

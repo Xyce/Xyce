@@ -18,8 +18,6 @@ endif()
 
 cmake_minimum_required(VERSION 3.23)
 
-set(CTEST_PROJECT_NAME "Xyce")
-
 if(NOT DEFINED GROUP)
   set(GROUP "Nightly")
 endif()
@@ -30,9 +28,13 @@ if(NOT DEFINED OSX_TOOLKIT_VERSION)
   set(OSX_TOOLKIT_VERSION "12.5")
 endif()
 
+if(NOT DEFINED CTEST_PROJECT_NAME OR "${CTEST_PROJECT_NAME}" STREQUAL "")
+  set(CTEST_PROJECT_NAME "Xyce")
+endif()
+
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "ramses-cdash.sandia.gov")
-set(CTEST_DROP_LOCATION "/submit.php?project=Xyce")
+set(CTEST_DROP_LOCATION "/submit.php?project=${CTEST_PROJECT_NAME}")
 
 if(NOT DEFINED BUILD_DIR)
   message(FATAL_ERROR "ERROR: Must pass in correct \"-DBUILD_DIR=<directory name>\"")
@@ -162,11 +164,40 @@ if(DEFINED ENV{MKLROOT})
   list(APPEND TRI_CMAKE_VARS_SET "MKL_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
   list(APPEND TRI_CMAKE_VARS_SET "MKL_INCLUDE_DIRS=$ENV{MKLROOT}/include")
 
-  list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_NAMES=mkl_rt")
-  list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
+  if(BUILD_SHARED)
+    list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_NAMES=mkl_rt")
+    list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
 
-  list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_NAMES=mkl_rt")
-  list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
+    list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_NAMES=mkl_rt")
+    list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
+  else()
+    # this has been setup for Intel MKL 2024. it MIGHT work with
+    # newer, or older, versions but it also might need to be modfied
+    # with sections for different MKL versions.
+    set(MKL_VERSION_H "$ENV{MKLROOT}/include/mkl_version.h")
+    if(EXISTS ${MKL_VERSION_H})
+      file(STRINGS "${MKL_VERSION_H}" MKL_VERSION_LINE REGEX "^#define __INTEL_MKL__")
+      string(REGEX MATCH "[0-9]+" MKL_MAJOR_VERSION "${MKL_VERSION_LINE}")
+      message(STATUS "MKL Major VERSION: ${MKL_MAJOR_VERSION}")
+
+      if(NOT "${MKL_MAJOR_VERSION}" EQUAL "2024")
+        message(WARNING "WARNING: Using an unknown version of MKL. Trying to use it anyway...")
+      endif()
+
+      # have to explicitly add this since cmake doesn't allow a list within a list. note
+      # that xyce segfaulted for a lot of test with the 64-bit integer version of 
+      # libmkl_intel_ilp64 so it was reverted to the 64-bit library using 32-bit integers.
+      list(APPEND TRI_CMAKE_VAR_EXPLICIT "-DMKL_LIBRARY_NAMES=libmkl_intel_lp64.a;libmkl_sequential.a;libmkl_core.a")
+
+      list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_NAMES=libmkl_intel_lp64.a")
+      list(APPEND TRI_CMAKE_VARS_SET "BLAS_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
+
+      list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_NAMES=libmkl_intel_lp64.a")
+      list(APPEND TRI_CMAKE_VARS_SET "LAPACK_LIBRARY_DIRS=$ENV{MKLROOT}/lib")
+    else()
+      message(FATAL_ERROR "Unable to determine version of MKL since file $ENV{MKLROOT}/include/mkl_version.h wasn't found")
+    endif()
+  endif()
 endif()
 
 # create a list of variables to turn OFF for trilinos cmake configuration
@@ -191,6 +222,9 @@ endforeach()
 foreach(VARNAME ${TRI_CMAKE_VARS_SET})
   set(CMAKE_COMMAND_OPTS "${CMAKE_COMMAND_OPTS} -D${VARNAME}")
 endforeach()
+if(TRI_CMAKE_VAR_EXPLICIT)
+  set(CMAKE_COMMAND_OPTS "${CMAKE_COMMAND_OPTS} ${TRI_CMAKE_VAR_EXPLICIT}")
+endif()
 
 # add arguments passed in via ctest invocation
 foreach(VARARG ${CMAKE_ARGS_LIST})

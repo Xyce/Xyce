@@ -53,19 +53,9 @@ include:
         -DUSE_GITLAB_CI_TESTING=ON \
         -DCDASH_GROUP="Nightly" \
         -DCMAKE_ARGS_LIST="${CM_ARGS}" \
-        -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake \
-        2>&1 | tee ${CI_PROJECT_DIR}/logFiles/xyce-ctest-log.txt
-  after_script:
-    # copy configure, build and test info from ctest into "logFiles" subdirectory for artifacts
-    - rsync -a ${CI_PROJECT_DIR}/repos/build/Testing ${CI_PROJECT_DIR}/logFiles/ctestLogs/
-    - rsync -a ${CI_PROJECT_DIR}/repos/build/test    ${CI_PROJECT_DIR}/logFiles/ctestLogs/
-  artifacts:
-    paths:
-      - logFiles
-    expire_in: 1 month
-    when: always
+        -S ${CI_PROJECT_DIR}/cmake/ctest/xyce-ctest.cmake
   rules:
-    - if: $DO_XYCE_ANALYSIS_BUILDTEST == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_XYCE_ANALYSIS_BUILDTEST == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 # -----------------------------------------------------------------
 # Matrix job – one instance for each analysis flavour
@@ -82,5 +72,5 @@ analysis:
       # ────── Coverage build ──────
       - BUILD_KIND: "coverage"
         BUILD_SUFFIX: "Coverage-$archFullName"
-        EXTRA_CTEST: "-DCOVERAGE=ON"
+        EXTRA_CTEST: "-DCOVERAGE=ON -DEXCLUDE_TESTS_WITH_LABEL=timesensitive"
         MYBUILDNAME: "Coverage-$archFullName"

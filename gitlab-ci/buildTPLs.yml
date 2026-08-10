@@ -25,13 +25,17 @@ include:
     - git pull || true # if ADMSVersion is a tag this will fail, so ignore
     - mkdir -p ${CI_PROJECT_DIR}/build/adms
     - cd ${CI_PROJECT_DIR}/build/adms
-    - cmake
-        -GNinja
-        -DCMAKE_BUILD_TYPE=${cmakeBuildType}
-        -DCMAKE_INSTALL_PREFIX="${admsInstallDir}/${optStr}"
+    - |
+      cmake \
+        -GNinja \
+        -DCMAKE_BUILD_TYPE=${cmakeBuildType} \
+        -DCMAKE_INSTALL_PREFIX="${admsInstallDir}/${optStr}" \
         "${CI_PROJECT_DIR}/ADMS"
-    - ninja ${VerboseNinja} install 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/ninja-log.adms.txt
+    - cmake --build .
+    - cmake --install .
     #########################################################################
+    #########################################################################
+    # Uses Intel MKL for BLAS/LAPACK
     #########################################################################
     # build SuiteSparse
     - cd ${CI_PROJECT_DIR}/SuiteSparse
@@ -39,18 +43,23 @@ include:
     # build ss_cfg component of SuiteSparse
     - mkdir -p ${CI_PROJECT_DIR}/build/ss
     - cd ${CI_PROJECT_DIR}/build/ss
-    - cmake -GNinja
-        -DCMAKE_BUILD_TYPE=${cmakeBuildType}
-        -DNOPENMP="ON"
-        -DALLOW_64BIT_BLAS="ON"
-        -DCMAKE_INSTALL_RPATH="${ssInstallDir}/${optStr}/${libTypeStr}/lib64"
-        -DCMAKE_INSTALL_PREFIX="${ssInstallDir}/${optStr}/${libTypeStr}"
-        -DCMAKE_POSITION_INDEPENDENT_CODE="ON"
-        -DBUILD_SHARED_LIBS="${buildShared}"
-        -DBUILD_STATIC_LIBS="${buildStatic}"
-        -DSUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd"
+    - |
+      cmake -GNinja \
+        -DBLA_STATIC="${buildShared}" \
+        -DBLA_VENDOR="Intel10_64lp_seq" \
+        -DCMAKE_BUILD_TYPE=${cmakeBuildType} \
+        -DSUITESPARSE_USE_OPENMP="${BuildWithMPI}" \
+        -DSUITESPARSE_USE_64BIT_BLAS="ON" \
+        -DSUITESPARSE_USE_FORTRAN="OFF" \
+        -DCMAKE_INSTALL_RPATH="${ssInstallDir}/${optStr}/${libTypeStr}/lib64" \
+        -DCMAKE_INSTALL_PREFIX="${ssInstallDir}/${optStr}/${libTypeStr}" \
+        -DCMAKE_POSITION_INDEPENDENT_CODE="ON" \
+        -DBUILD_SHARED_LIBS="${buildShared}" \
+        -DBUILD_STATIC_LIBS="${buildStatic}" \
+        -DSUITESPARSE_ENABLE_PROJECTS="suitesparse_config;amd" \
         "${CI_PROJECT_DIR}/SuiteSparse"
-    - ninja ${VerboseNinja} install 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/ninja-log.ss.txt
+    - cmake --build .
+    - cmake --install .
     #########################################################################
     #########################################################################
     # build trilinos
@@ -62,7 +71,7 @@ include:
       cmakeExtraArgs="-GNinja;"
       cmakeExtraArgs+="-DAMD_LIBRARY_DIRS=${ssInstallDir}/${optStr}/${libTypeStr}/lib64;"
       cmakeExtraArgs+="-DAMD_INCLUDE_DIRS=${ssInstallDir}/${optStr}/${libTypeStr}/include/suitesparse;"
-      cmakeExtraArgs+="-DAMD_LIBRARY_NAMES=amd\;suitesparse_config;"
+      cmakeExtraArgs+="-DAMD_LIBRARY_NAMES=amd\;suitesparseconfig;"
       cmakeExtraArgs+="-DCMAKE_INSTALL_PREFIX=${trilinosInstallDir}/${optStr}/${libTypeStr};"
       cmakeExtraArgs+="-DCMAKE_POSITION_INDEPENDENT_CODE=ON;"
       cmakeExtraArgs+="-DTrilinos_USE_GNUINSTALLDIRS=ON;"
@@ -75,10 +84,10 @@ include:
         -DBUILD_WITH_MPI="${BuildWithMPI}" \
         -DBUILD_NAME="Trilinos/${shortTriVer}/${optStr}/${libTypeStr}-${archFullName}" \
         -DBUILD_DIR="${CI_PROJECT_DIR}/build/trilinos" \
-        -DSITE_APPEND="" \
         -DCMAKE_ARGS_LIST="${cmakeExtraArgs}" \
+        -DSITE_APPEND="" \
         -S "${CI_PROJECT_DIR}/cmake/ctest/trilinos-ctest.cmake"
-      ninja ${VerboseNinja} install 2>&1 | tee ${CI_PROJECT_DIR}/logFiles/ninja-log.trilinos.${sharedFlag}.txt
+    - cmake --install .
   cache:
     key: "tpl-repo-cache-${SuiteSparseVersion}-${TrilinosVersion}-${ADMSVersion}"
     paths:
@@ -87,20 +96,29 @@ include:
       - ADMS/
   artifacts:
     paths:
-      - logFiles
+      - build/trilinos/Testing/Temporary
     expire_in: 1 month
   rules:
-    - if: $DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"
+    - if: '$DO_TPL_BUILDS == "ON" && $CI_PIPELINE_SOURCE == "trigger"'
 
 GNU_serial.dyn.buildTPLs:
+  needs:
+    - job: GNU_serial.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_serial_vars
   variables:
       buildShared: "ON"
       buildStatic: "OFF"
+  needs:
+    - job: GNU_serial.cleanup
+      artifacts: false
 
 GNU_serial.dyn.Debug.buildTPLs:
+  needs:
+    - job: GNU_serial.Debug.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_serial_vars
@@ -108,8 +126,14 @@ GNU_serial.dyn.Debug.buildTPLs:
       buildShared: "ON"
       buildStatic: "OFF"
       cmakeBuildType: "Debug"
+  needs:
+    - job: GNU_serial.Debug.cleanup
+      artifacts: false
 
 GNU_serial.static.buildTPLs:
+  needs:
+    - job: GNU_serial.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_serial_vars
@@ -117,26 +141,38 @@ GNU_serial.static.buildTPLs:
     buildShared: "OFF"
     buildStatic: "ON"
   needs:
-    - GNU_serial.dyn.buildTPLs
+    - job: GNU_serial.dyn.buildTPLs
 
 GNU_OpenMPI.dyn.Debug.buildTPLs:
+  extends:
+    - .build_tpls
+    - .gnu_openmpi_vars
   variables:
     buildShared: "ON"
     buildStatic: "OFF"
     cmakeBuildType: "Debug"
-  extends:
-    - .build_tpls
-    - .gnu_openmpi_vars
+  needs:
+    - job: GNU_OpenMPI.Debug.cleanup
+      artifacts: false
 
 GNU_OpenMPI.dyn.buildTPLs:
+  needs:
+    - job: GNU_OpenMPI.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_openmpi_vars
   variables:
     buildShared: "ON"
     buildStatic: "OFF"
+  needs:
+    - job: GNU_OpenMPI.cleanup
+      artifacts: false
 
 GNU_OpenMPI.static.buildTPLs:
+  needs:
+    - job: GNU_OpenMPI.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_openmpi_vars
@@ -144,17 +180,26 @@ GNU_OpenMPI.static.buildTPLs:
     buildShared: "OFF"
     buildStatic: "ON"
   needs:
-    - GNU_OpenMPI.dyn.buildTPLs
+    - job: GNU_OpenMPI.dyn.buildTPLs
 
 Intel_serial.dyn.buildTPLs:
+  needs:
+    - job: Intel_serial.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_serial_vars
   variables:
     buildShared: "ON"
     buildStatic: "OFF"
+  needs:
+    - job: Intel_serial.cleanup
+      artifacts: false
 
 Intel_serial.static.buildTPLs:
+  needs:
+    - job: Intel_serial.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_serial_vars
@@ -162,17 +207,26 @@ Intel_serial.static.buildTPLs:
     buildShared: "OFF"
     buildStatic: "ON"
   needs:
-    - Intel_serial.dyn.buildTPLs
+    - job: Intel_serial.dyn.buildTPLs
 
 Intel_OpenMPI.dyn.buildTPLs:
+  needs:
+    - job: Intel_OpenMPI.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_openmpi_vars
   variables:
     buildShared: "ON"
     buildStatic: "OFF"
+  needs:
+    - job: Intel_OpenMPI.cleanup
+      artifacts: false
 
 Intel_OpenMPI.static.buildTPLs:
+  needs:
+    - job: Intel_OpenMPI.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_openmpi_vars
@@ -180,24 +234,47 @@ Intel_OpenMPI.static.buildTPLs:
     buildShared: "OFF"
     buildStatic: "ON"
   needs:
-    - Intel_OpenMPI.dyn.buildTPLs
+    - job: Intel_OpenMPI.dyn.buildTPLs
 
 GNU_OpenMPI.cts.buildTPLs:
+  needs:
+    - job: GNU_OpenMPI.cts.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_openmpi_cts_vars
+  needs:
+    - job: GNU_OpenMPI.cts.cleanup
+      artifacts: false
 
 GNU_serial.cts.buildTPLs:
+  needs:
+    - job: GNU_serial.cts.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .gnu_serial_cts_vars
+  needs:
+    - job: GNU_serial.cts.cleanup
 
 Intel_OpenMPI.cts.buildTPLs:
+  needs:
+    - job: Intel_OpenMPI.cts.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_openmpi_cts_vars
+  needs:
+    - job: Intel_OpenMPI.cts.cleanup
+      artifacts: false
 
 Intel_serial.cts.buildTPLs:
+  needs:
+    - job: Intel_serial.cts.cleanup
+      artifacts: false
   extends:
     - .build_tpls
     - .intel_serial_cts_vars
+  needs:
+    - job: Intel_serial.cts.cleanup
+      artifacts: false

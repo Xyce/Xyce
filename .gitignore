@@ -6,6 +6,7 @@
 build
 **/._*
 **/.DS_Store
+**/.ccls-cache
 *~
 build
 Xyce_Regression
@@ -70,3 +71,6 @@ utils/ADMS/**/.#*
 utils/ADMS/**/emacs*.core
 Xyce_Regression
 JenkinsScripts
+.ccls-cache
+CMakePresets.json
+*.code-workspace

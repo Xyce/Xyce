@@ -1,5 +1,4 @@
 .build_base:
-  stage: build
   variables:
     CC: ""
     CXX: ""
@@ -30,11 +29,6 @@
       else
         echo "Running as user: ${myLoginID}"
       fi
-    # make a directory for any files. this will be use to create
-    # project artifacts that can help diagnose problems with the
-    # pipeline(s)
-    - rm -rf ${CI_PROJECT_DIR}/logFiles || true
-    - mkdir -p ${CI_PROJECT_DIR}/logFiles
     # directory where xyce repos will be cloned, including another
     # copy of the "Xyce" repo itself
     - rm -rf ${CI_PROJECT_DIR}/repos || true
