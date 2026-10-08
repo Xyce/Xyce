@@ -23,6 +23,7 @@ class KokkosDevice(BaseDevice):
     def __init__(self):
         KokkosDevice.safe_instantiate_kokkos()
 
-    def __del__(self):
+    def finalize(self):
         KokkosDevice.safe_finalize_kokkos()
+        super().finalize()
 
