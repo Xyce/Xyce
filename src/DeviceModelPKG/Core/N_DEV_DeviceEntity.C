@@ -1884,7 +1884,7 @@ void DeviceEntity::applyDepSolnLIDs()
   Teuchos::RCP<Xyce::Util::deviceExpressionGroup>  devGroup = 
     Teuchos::rcp(new Xyce::Util::deviceExpressionGroup(group));
 
-    devGroup->setSolutionLIDs ( expVarNames, expVarLIDs, lo, hi );
+    devGroup->setSolutionLIDs ( expVarNames, expVarTypes, expVarLIDs, lo, hi );
 
     Teuchos::RCP<Xyce::Util::baseExpressionGroup>  newGroup = devGroup;
     dpIter->expr->setGroup( newGroup );

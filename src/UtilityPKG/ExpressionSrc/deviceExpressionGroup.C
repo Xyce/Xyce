@@ -105,12 +105,11 @@ deviceExpressionGroup::~deviceExpressionGroup ()
 //-------------------------------------------------------------------------------
 void deviceExpressionGroup::setSolutionLIDs( 
     const std::vector<std::string> & expVarNames, 
+    const std::vector<int> & expVarTypes, 
     const std::vector<int> & expVarLIDs, int lo, int hi)
 {
   for (int ii=lo;ii<hi;ii++)
-  {
-    lidMap_[expVarNames[ii]] = expVarLIDs[ii-lo];
-  }
+    lidMap_[NodeID(expVarNames[ii],expVarTypes[ii])] = expVarLIDs[ii-lo];
 }
 
 //-------------------------------------------------------------------------------
@@ -125,9 +124,7 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
 {
   lidVec_.clear();
   bool success = true;
-
-  if (lidMap_.empty() && !(expr.voltOpVec_.empty())) { success = false; }
-  if (lidMap_.empty() && !(expr.currentOpVec_.empty())) { success = false; }
+  if (lidMap_.empty() && (!expr.voltOpVec_.empty() || !expr.currentOpVec_.empty())) { success = false; }
 
   if (!(lidMap_.empty()))
   {
@@ -138,8 +135,8 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
         Teuchos::RCP<voltageOp<usedType> > voltOp
           = Teuchos::rcp_static_cast<voltageOp<usedType> > (expr.voltOpVec_[ii]);
         const std::string & node = voltOp->getVoltageNode();
-
-        if (lidMap_.find(node) != lidMap_.end()) { lidVec_.push_back( lidMap_[node] ); }
+        const NodeID nodeName( node, XEXP_NODE );
+        if (lidMap_.find(nodeName) != lidMap_.end()) { lidVec_.push_back( lidMap_[nodeName] ); }
         else { success = false; }
       }
     }
@@ -151,7 +148,8 @@ bool deviceExpressionGroup::setupGroup(newExpression &expr)
         Teuchos::RCP<currentOp<usedType> > currOp 
           = Teuchos::rcp_static_cast<currentOp<usedType> > (expr.currentOpVec_[ii]);
         const std::string & name = currOp->getCurrentDevice();
-        if (lidMap_.find(name) != lidMap_.end()) { lidVec_.push_back( lidMap_[name] ); }
+        const NodeID devName( name, XEXP_INSTANCE );
+        if (lidMap_.find(devName) != lidMap_.end()) { lidVec_.push_back( lidMap_[devName] ); }
         else { success = false; }
       }
     }
@@ -214,9 +212,11 @@ bool deviceExpressionGroup::putValues(newExpression & expr)
 bool deviceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
   retval = 0.0;
-  if (lidMap_.find(nodeName) != lidMap_.end())
+  NodeID p_nodeName( nodeName, XEXP_NODE );
+  std::unordered_map<NodeID,int>::iterator it_lid = lidMap_.find(p_nodeName);
+  if (it_lid != lidMap_.end())
   {
-    int lid = lidMap_[nodeName];
+    int lid = it_lid->second;
     const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
     if (nextSolVector) { retval = (*nextSolVector)[lid]; }
     return true;
@@ -236,14 +236,64 @@ bool deviceExpressionGroup::getSolutionVal(const std::string & nodeName, std::co
 {
   double real_val=0.0;
   double imag_val=0.0;
-  if (lidMap_.find(nodeName) != lidMap_.end())
+  NodeID p_nodeName( nodeName, XEXP_NODE );
+  std::unordered_map<NodeID,int>::iterator it_lid = lidMap_.find(p_nodeName);
+  if (it_lid != lidMap_.end())
   {
-    int lid = lidMap_[nodeName];
+    int lid = it_lid->second;
     const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
     if (nextSolVector) { real_val = (*nextSolVector)[lid]; }
     retval = std::complex<double>(real_val,imag_val);
     return true;
   }
+  else { return false; }
+}
+
+//-------------------------------------------------------------------------------
+// Function      : deviceExpressionGroup::getSolutionVal
+// Purpose       :
+// Special Notes : double precision version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 8/20/2020
+//-------------------------------------------------------------------------------
+bool deviceExpressionGroup::getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval )
+{
+  retval = 0.0;
+  NodeID p_devName( deviceName, XEXP_INSTANCE );
+  std::unordered_map<NodeID,int>::iterator it_lid = lidMap_.find(p_devName);
+  if (it_lid != lidMap_.end())
+  {
+    int lid = it_lid->second;
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector) { retval = (*nextSolVector)[lid]; }
+    return true;
+  }
+  else { return false; }
+}
+
+//-------------------------------------------------------------------------------
+// Function      : deviceExpressionGroup::getSolutionVal
+// Purpose       :
+// Special Notes : std::complex<double> precision version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 8/20/2020
+//-------------------------------------------------------------------------------
+bool deviceExpressionGroup::getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
+{
+  double real_val=0.0;
+  double imag_val=0.0;
+  NodeID p_devName( deviceName, XEXP_INSTANCE );
+  std::unordered_map<NodeID,int>::iterator it_lid = lidMap_.find(p_devName);
+  if (it_lid != lidMap_.end())
+  { 
+    int lid = it_lid->second;
+    const Linear::Vector * nextSolVector = deviceManager_.getExternData().nextSolVectorPtr;
+    if (nextSolVector) { real_val = (*nextSolVector)[lid]; }
+    retval = std::complex<double>(real_val,imag_val);
+    return true;
+  }   
   else { return false; }
 }
 

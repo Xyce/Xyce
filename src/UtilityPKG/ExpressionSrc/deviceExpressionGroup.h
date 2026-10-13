@@ -59,6 +59,7 @@
 #include <mainXyceExpressionGroup.h>
 #include <deviceExpressionGroup.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_Misc.h>
 #include <N_IO_OutputMgr.h>
 
 namespace Xyce {
@@ -106,6 +107,7 @@ public:
 
   void setSolutionLIDs( 
     const std::vector<std::string> & expVarNames, 
+    const std::vector<int>         & expVarTypes,
     const std::vector<int> & expVarLIDs, int lo, int hi);
 
   virtual bool setupGroup(newExpression &expr);
@@ -114,14 +116,11 @@ public:
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ) 
-  { return getSolutionVal(deviceName,retval); }
-
-  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval )
-  { return getSolutionVal(deviceName,retval); }
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, double & retval ); 
+  virtual bool getCurrentVal( const std::string & deviceName, const std::string & designator, std::complex<double> & retval );
 
 private:
-  std::unordered_map<std::string,int> lidMap_;
+  std::unordered_map<NodeID,int> lidMap_;
   std::vector<int> lidVec_;
 };
 
