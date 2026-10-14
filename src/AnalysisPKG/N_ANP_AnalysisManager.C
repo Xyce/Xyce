@@ -577,7 +577,7 @@ bool AnalysisManager::run()
 /// @invariant
 ///
 //-----------------------------------------------------------------------------
-void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_registry)
+bool AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_registry)
 {
   // .OP, but no analysis creates a dcsweep analysis.
   if (dotOpSpecified_ && 
@@ -681,8 +681,8 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
 
   if (!primaryAnalysisObject_)
   {
-    Report::UserError() << "Analysis mode " << analysisMode_ << " is not available";
-    return;
+    Report::UserError() << "Primary analysis mode not identified";
+    return false;
   }
 
   pushActiveAnalysis(primaryAnalysisObject_);
@@ -691,6 +691,8 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
   {
     analysisObject_ = primaryAnalysisObject_;
   }
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------

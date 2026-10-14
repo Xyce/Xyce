@@ -700,8 +700,8 @@ bool Simulator::doInitializations_()
   bool bsuccess = true;
   bool bs1 = true;
 
-  analysisManager_->allocateAnalysisObject(*analysisRegistry_);
-  bsuccess = bsuccess && bs1;
+  bs1 = analysisManager_->allocateAnalysisObject(*analysisRegistry_);
+  if (!bs1) return bs1;  // There is no analysis object, so return immediately.
 
   analysisManager_->initializeSolverSystem(analysisManager_->getTIAParams(), *circuitLoader_, *linearSystem_, *nonlinearManager_, *deviceManager_);
 
@@ -823,14 +823,15 @@ Simulator::RunStatus Simulator::runSimulation()
 Simulator::RunStatus Simulator::initialize(const std::vector<std::string> arguments)
 {
 
-  const int argc = arguments.size()+1;
-  char const * argv[argc];
-  argv[0] = std::string("Xyce").c_str();
+  int argc = arguments.size()+1;
+  std::vector<const char*> argv(argc);
+  char const* name = "Xyce";
+  argv[0] = name;
   for(auto i=0; i<arguments.size(); i++)
   {
     argv[i+1] = arguments[i].c_str();
   }
-  RunStatus status = this->initialize( argc, const_cast<char **>(argv) );
+  RunStatus status = this->initialize( argc, const_cast<char **>(argv.data()) );
   return status;
 }
 
@@ -845,14 +846,15 @@ Simulator::RunStatus Simulator::initialize(const std::vector<std::string> argume
 Simulator::RunStatus Simulator::initializeEarly(const std::vector<std::string> arguments)
 {
 
-  const int argc = arguments.size()+1;
-  char const * argv[argc];
-  argv[0] = std::string("Xyce").c_str();
+  int argc = arguments.size()+1;
+  std::vector<const char*> argv(argc);
+  char const* name = "Xyce";
+  argv[0] = name;
   for(auto i=0; i<arguments.size(); i++)
   {
     argv[i+1] = arguments[i].c_str();
   }
-  RunStatus status = this->initializeEarly( argc, const_cast<char **>(argv) );
+  RunStatus status = this->initializeEarly( argc, const_cast<char **>(argv.data()) );
   return status;
 }
 //-----------------------------------------------------------------------------
