@@ -142,7 +142,7 @@ public:
   void notify(const StepEvent &step_event);
   void notify(const AnalysisEvent &analysis_event);
 
-  void allocateAnalysisObject(AnalysisCreatorRegistry &analysis_registry);
+  bool allocateAnalysisObject(AnalysisCreatorRegistry &analysis_registry);
 
   bool initializeSolverSystem(
     const TimeIntg::TIAParams & tia_params,

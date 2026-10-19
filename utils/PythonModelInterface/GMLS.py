@@ -20,19 +20,24 @@ class GMLS(object):
         # neighbor search
         self.epsilon_multiplier = epsilon_multiplier
         self.gmls_helper = pycompadre.ParticleHelper(self.gmls_obj)
-        self.gmls_helper.generateKDTree(source_sites)
+        # Ensure source_sites is contiguous before passing to generateKDTree
+        source_sites_contiguous = np.ascontiguousarray(source_sites)
+        self.gmls_helper.generateKDTree(source_sites_contiguous)
 
         self.gmls_obj.addTargets(pycompadre.TargetOperation.ScalarPointEvaluation)
         self.gmls_obj.addTargets(pycompadre.TargetOperation.PartialXOfScalarPointEvaluation)
         self.gmls_obj.addTargets(pycompadre.TargetOperation.PartialYOfScalarPointEvaluation)
 
-    def __del__(self):
+    def finalize(self):
         del self.gmls_obj
         del self.gmls_helper
 
     def predict(self, target_site, data_vector):
         assert target_site.shape[1]==self.input_dimensions, "Wrong dimensions for target site (%d vs %d)" % (target_site.shape[1], self.input_dimensions)
 
+        # Ensure arrays are contiguous
+        target_site = np.ascontiguousarray(target_site)
+        data_vector = np.ascontiguousarray(data_vector)
         # set new target_site
         #self.gmls_helper.generateNeighborListsFromKNNSearchAndSet(target_site, self.polynomial_order, self.input_dimensions, self.epsilon_multiplier)
 
@@ -64,6 +69,10 @@ class GMLS(object):
 
     def gradient(self, target_site, data_vector, derivative_direction):
         assert target_site.shape[1]==self.input_dimensions, "Wrong dimensions for target site (%d vs %d)" % (target_site.shape[1], self.input_dimensions)
+
+        # Ensure arrays are contiguous
+        target_site = np.ascontiguousarray(target_site)
+        data_vector = np.ascontiguousarray(data_vector)
 
 
         #self.last_target_site = target_site

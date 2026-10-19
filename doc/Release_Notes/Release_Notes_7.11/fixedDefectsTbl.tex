@@ -110,11 +110,22 @@
   This issue has been fixed.
   \\\hline
   
-\textbf{Xyce Project Backlog/1042}: DiodePDE did not free all boundary condition vectors.
+\textbf{Xyce Project Backlog/1042}: DiodePDE did not free all boundary condition vectors
   &  The diode PDE device dynamically allocates some boundary condition vectors and those
   were not deleted when the simulation finished.  This has been fixed.
   \\\hline
-   
+
+\textbf{Xyce Project Backlog/1087}: Incorrect results when device expression contains same node/device string
+  &  Xyce would not differentiate between the same voltage node and device string in an expression passed to
+     a device.  This was observed with a B-source and has been fixed.
+  \\\hline
+
+\textbf{Xyce Project Backlog/1088}: Xyce exits with a seg fault when allocating unsupported analysis
+  &  If an unsupported analysis combination is utilized then Xyce could prematurely exit with a seg fault.
+     This was observed with a combination of \texttt{.OP} and multiple \texttt{.STEP} commands.  The code
+     has been fixed to catch this situation and exit with a reasonable message.
+  \\\hline
+
 \textbf{Xyce Project Backlog/xxx}: Description
   &  Details
   \\\hline

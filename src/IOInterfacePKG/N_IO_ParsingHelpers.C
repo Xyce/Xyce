@@ -441,12 +441,12 @@ void splitLine( const std::string& charLine,
 // Creation Date  : 10/15/2014
 //----------------------------------------------------------------------------
 void splitLineNoWS( const std::string& charLine, 
-                    TokenVector& line )
+                    TokenVector& line, const std::string nonid )
 {
   int lineLength = charLine.length();
   int currPtr = 0;
   char c=charLine[ currPtr ];
-  const std::string nonid(" \t\n\r\0");
+  //const std::string nonid(" \t\n\r\0");
   line.clear();
 
   while ( currPtr < lineLength )

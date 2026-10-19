@@ -40,6 +40,7 @@
 #include <N_DEV_DeviceBlock.h>
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_VectorComputeInterface.h>
+#include <N_DEV_VectorComputeInterfaceWithLimiting.h>
 #include <N_DEV_CompositeParam.h>
 
 namespace Xyce {
@@ -324,6 +325,7 @@ private:
   std::vector< std::vector<int> > jacStamp_;
 
   Xyce::Device::VectorComputeInterface * vciPtr_;
+  Xyce::Device::VectorComputeInterfaceWithLimiting * vciPtrWLimiting_;
 
   /// Vectors and matrices for storing local representations of F,
   /// Q, and B vectors, used for passing to the computeXyceVectors
@@ -494,6 +496,8 @@ inline bool Instance::setVectorLoader(Xyce::Device::VectorComputeInterface * vci
   if (vciPtr)
   {
     vciPtr_=vciPtr;
+    vciPtrWLimiting_ = 
+        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
     haveFDLoads_ = vciPtr_->haveFDLoads();
   }
   else

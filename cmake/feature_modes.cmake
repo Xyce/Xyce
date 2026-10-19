@@ -232,16 +232,8 @@ endif ()
 # fine for now
 if (Xyce_RAD_MODELS)
      if ((Xyce_ATHENA OR NOT DEFINED Xyce_ATHENA) AND EXISTS "${Xyce_RAD_MODELS_DIR}/ATHENA")
-          message(STATUS "Looking for Boost")
-          find_package(Boost CONFIG)
-          if (Boost_FOUND)
-               message(STATUS "Enabling the ATHENA model")
-               set (Xyce_ATHENA TRUE CACHE BOOL "Include the ATHENA model, if it exists")
-          else ()
-               message("Boost was not found - disabling the ATHENA model")
-               set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists" FORCE)
-               set (Boost_INCLUDE_DIRS "")
-          endif ()
+          message(STATUS "Enabling the ATHENA model")
+          set (Xyce_ATHENA TRUE CACHE BOOL "Include the ATHENA model, if it exists")
      elseif (NOT DEFINED Xyce_ATHENA)
           # The flag was not set, and the directory does not exist
           # Silently add the flag

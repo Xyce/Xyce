@@ -93,7 +93,7 @@ void splitLine( const std::string& charLine, TokenVector & line );
 // Split the input charLine into fields that are stored in splitLine.
 // NOTE:  This method does NOT skip comments and blank lines, but no
 //        whitespace characters are included.
-void splitLineNoWS( const std::string& charLine, TokenVector & line );
+void splitLineNoWS( const std::string& charLine, TokenVector & line, const std::string nonid=std::string(" \t\n\r\0"));
 
 // Remove two terminal devices if both nodes on the device are the same
 bool removeThreeTerminalDevice(const std::vector<bool>& pFilter,

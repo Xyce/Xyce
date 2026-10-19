@@ -360,7 +360,8 @@ Instance::Instance(
 
   : DeviceInstance(IB, configuration.getInstanceParameters(), factory_block),
     model_(Miter),
-    vciPtr_(0)
+    vciPtr_(0),
+    vciPtrWLimiting_(0)
 {
   numExtVars   = IB.numExtVars;  // we have as many as were specified on the
                                  // instance line
@@ -768,10 +769,7 @@ bool Instance::updateIntermediateVars ()
     for (int i=0;i<numVars;i++)
       solutionVars_[i] = solVector[li_Nodes_[i]];
 
-    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
-        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-
-    if (vciPtrWLimiting!=NULL) // successful cast means that vciPtr_ is of
+    if (vciPtrWLimiting_!=NULL) // successful cast means that vciPtr_ is of
                                // type VectorComputeInterfaceWithLimiting
     {
 
@@ -868,7 +866,7 @@ bool Instance::updateIntermediateVars ()
       // Call back to the computation object and get this devices
       // contributions.  IT IS THAT FUNCTION'S RESPONSIBILITY TO SIZE THESE
       // VECTORS APPROPRIATELY!
-      bsuccess=vciPtrWLimiting->computeXyceVectorsWithLimiting(flagSolutionVars_,
+      bsuccess=vciPtrWLimiting_->computeXyceVectorsWithLimiting(flagSolutionVars_,
                                            solVars, storeVars, stateVars,
                                            getDeviceOptions(),
                                            getSolverState(),
@@ -1059,10 +1057,7 @@ bool Instance::loadDAEQVector ()
 
   if( getDeviceOptions().voltageLimiterFlag )
   {
-    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting =
-        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-    // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL && !dQdXdVpVec_.empty())
+    if (vciPtrWLimiting_!=NULL && !dQdXdVpVec_.empty())
     {
       double * dQdxdVpVector = extData.dQdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)
@@ -1111,10 +1106,7 @@ bool Instance::loadDAEFVector ()
 
   if( getDeviceOptions().voltageLimiterFlag )
   {
-    Xyce::Device::VectorComputeInterfaceWithLimiting* vciPtrWLimiting = 
-        dynamic_cast<Xyce::Device::VectorComputeInterfaceWithLimiting*>(vciPtr_);
-    // successful cast means that vciPtr_ is of type VectorComputeInterfaceWithLimiting
-    if (vciPtrWLimiting!=NULL && !dFdXdVpVec_.empty())
+    if (vciPtrWLimiting_!=NULL && !dFdXdVpVec_.empty())
     {
       double * dFdxdVpVector = extData.dFdxdVpVectorRawPtr;
       for (int i=0; i<numVars; i++)

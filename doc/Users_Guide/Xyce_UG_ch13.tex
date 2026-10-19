@@ -224,14 +224,15 @@ The different linear solvers available in \Xyce{} are:
   \item KLU
   \item KSparse
   \item SuperLU and SuperLU DIST (optional)
+  \item Pardiso and CSS (optional)
   \item The AztecOO iterative solver library
   \item The Belos iterative solver library
   \item The ShyLU hybrid solver library (optional)
 \end{XyceItemize}
 
-AztecOO and Belos are the parallel iterative solvers and KLU, KSparse, and SuperLU (optional)
+AztecOO and Belos are the parallel iterative solvers and KLU, KSparse, SuperLU (optional), Pardiso (optional), and CSS (optional)
 are the serial direct solvers that are available for both serial and parallel builds of \Xyce{}.  
-If KLU, KSparse, or SuperLU is used with a parallel version of \Xyce{}, the devices are evaluated and
+If KLU, KSparse, SuperLU, or Pardiso is used with a parallel version of \Xyce{}, the devices are evaluated and
 linear problem is assembled in parallel, but the linear system is solved in serial
 on one processor.  This can be quite effective for circuits with tens of thousands of devices
 or fewer (see Table~\ref{tab:sim:modes}). The ShyLU hybrid linear solver, which combines the robustness
@@ -246,7 +247,8 @@ system is larger than ten thousand unknowns.  For any linear system smaller than
 solver.  To use a solver other than the default the user needs to add the option 
 ``\texttt{TYPE=<solver>}'' to the \texttt{.OPTIONS LINSOL}
 control line in the netlist, where \texttt{<solver>}
-is `\texttt{KLU},' `\texttt{KSPARSE},' `\texttt{SUPERLU},' `\texttt{SUPERLUDIST},' `\texttt{AZTECOO},' `\texttt{BELOS},' or `\texttt{SHYLU}.'
+is `\texttt{KLU},' `\texttt{KSPARSE},' `\texttt{SUPERLU},' `\texttt{SUPERLUDIST},' 
+`\texttt{PARDISO},' `\texttt{CSS},' `\texttt{AZTECOO},' `\texttt{BELOS},' or `\texttt{SHYLU}.'
 
 \begin{table}[htp]
 \caption[\Xyce{} Default Linear Solver]{Xyce default linear solver.}
@@ -306,6 +308,14 @@ solved on one processor.  SuperLU DIST can only be used in a parallel version of
 of the matrix into the format required by SuperLU DIST.  
 \Xyce{} does not allow modifications to SuperLU and SuperLU DIST solver parameters. 
 
+\subsection{Pardiso and CSS}
+Pardiso is a multi-threaded, sparse direct solver and CSS is a distributed memory, multi-threaded sparse direct solver
+with an interface in the Amesos package.  Pardiso and CSS support are {\it optionally} build in \Xyce{},
+so they are not available by default in any \Xyce{} build or provided binary.  Furthermore, to enable Pardiso and
+CSS support in \Xyce{}, it is necessary to build Pardiso and CSS support in Amesos/Trilinos.  Similar to KLU,
+Pardiso can be used in a parallel version of \Xyce{}, but the linear system is solved on one processor.  CSS can
+only be used in a parallel version of \Xyce{}, the Amesos interface handles the redistribution of the matrix into
+the format required by CSS.
 
 \subsection{AztecOO}
 AztecOO is a package in Trilinos~\cite{trilinos:toms} that offers an assortment of iterative linear solver algorithms.  
